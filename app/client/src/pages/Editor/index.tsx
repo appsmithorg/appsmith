@@ -36,6 +36,8 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
+import { getCurrentPageId } from "selectors/editorSelectors";
+
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
@@ -57,6 +59,7 @@ type EditorProps = {
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branchName: string) => void;
+  currentPageId?: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -112,8 +115,12 @@ class Editor extends Component<Props> {
     if (branchName && branchName !== prevBranchName && defaultApplicationId) {
       this.props.initEditor(defaultApplicationId, pageId, branchName);
     } else {
-      // since the page is fetched in the init flow too
-      if (pageId && pageId !== prevPageId) {
+      /**
+       * First time load is handled by init sagas
+       * If we don't check for `prevPageId`: fetch page is retriggered
+       * when redirected to the default page
+       */
+      if (prevPageId && pageId && pageId !== prevPageId) {
         this.props.updateCurrentPage(pageId);
         this.props.fetchPage(pageId);
       }
@@ -182,6 +189,7 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
+  currentPageId: getCurrentPageId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

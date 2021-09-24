@@ -62,3 +62,5 @@ export const getIsFetchingGlobalGitConfig = (state: AppState) =>
 export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
 export const getFetchingBranches = (state: AppState) =>
   state.ui.gitSync.fetchingBranches;
+
+export const getCurrentGitBranch = () => "master";

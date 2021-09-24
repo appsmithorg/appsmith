@@ -113,55 +113,56 @@ function* initializeEditorSaga(
     );
     yield put({ type: ReduxActionTypes.START_EVALUATION });
 
+    const initCalls = [
+      fetchPageList(
+        { applicationId: defaultApplicationId, branchName },
+        APP_MODE.EDIT,
+      ),
+      fetchApplication({
+        payload: {
+          applicationId: defaultApplicationId,
+          branchName,
+          mode: APP_MODE.EDIT,
+        },
+      }),
+    ];
+
+    const successEffects = [
+      ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+    ];
+
+    const failureEffects = [
+      ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+      ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+    ];
+
+    if (pageId) {
+      initCalls.push(fetchPage(pageId, true) as any);
+      successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
+      failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
+    }
+
     const applicationAndLayoutCalls = yield failFastApiCalls(
-      [
-        fetchPageList(
-          { applicationId: defaultApplicationId, branchName },
-          APP_MODE.EDIT,
-        ),
-        fetchApplication({
-          payload: {
-            applicationId: defaultApplicationId,
-            branchName,
-            mode: APP_MODE.EDIT,
-          },
-        }),
-      ],
-      [
-        ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      ],
-      [
-        ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-        ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-      ],
+      initCalls,
+      successEffects,
+      failureEffects,
     );
 
     if (!applicationAndLayoutCalls) return;
 
+    let fetchPageCallResult;
     const defaultPageId = yield select(getDefaultPageId);
     const toLoadPageId = pageId || defaultPageId;
-
     if (!pageId) {
-      const pathname = BUILDER_PAGE_URL(
-        defaultApplicationId,
-        toLoadPageId,
-        {},
-        branchName,
+      if (!toLoadPageId) return;
+
+      fetchPageCallResult = yield failFastApiCalls(
+        [fetchPage(toLoadPageId, true)],
+        [ReduxActionTypes.FETCH_PAGE_SUCCESS],
+        [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
       );
-
-      history.replace({
-        ...window.location,
-        pathname,
-      });
     }
-
-    if (!toLoadPageId) return;
-    const fetchPageCallResult = yield failFastApiCalls(
-      [fetchPage(toLoadPageId, true)],
-      [ReduxActionTypes.FETCH_PAGE_SUCCESS],
-      [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
-    );
     if (!fetchPageCallResult) return;
 
     const jsActionsCall = yield failFastApiCalls(
@@ -170,6 +171,7 @@ function* initializeEditorSaga(
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
     if (!jsActionsCall) return;
+
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
       [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
       [
@@ -201,18 +203,15 @@ function* initializeEditorSaga(
       [ReduxActionTypes.FETCH_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR],
     );
-
     if (!actionsCall) return;
 
     const currentApplication = yield select(getCurrentApplication);
-
     const appName = currentApplication ? currentApplication.name : "";
     const appId = currentApplication ? currentApplication.id : "";
 
     yield put(
       restoreRecentEntitiesRequest({
-        applicationId: defaultApplicationId,
-        branchName,
+        applicationId: appId,
       }),
     );
 
@@ -229,6 +228,23 @@ function* initializeEditorSaga(
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
+
+    yield call(populatePageDSLsSaga);
+
+    // redirect to the /pages route
+    if (!pageId) {
+      const pathname = BUILDER_PAGE_URL(
+        defaultApplicationId,
+        toLoadPageId,
+        {},
+        branchName,
+      );
+
+      history.replace({
+        ...window.location,
+        pathname,
+      });
+    }
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
@@ -240,8 +256,6 @@ function* initializeEditorSaga(
     });
     return;
   }
-
-  yield call(populatePageDSLsSaga);
 }
 
 export function* initializeAppViewerSaga(
@@ -262,8 +276,14 @@ export function* initializeAppViewerSaga(
     ),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
-  yield all([
-    put(fetchJSCollectionsForView({ applicationId: defaultApplicationId })),
+
+  const initCalls = [
+    put(
+      fetchJSCollectionsForView({
+        applicationId: defaultApplicationId,
+        branchName,
+      }),
+    ),
     // TODO (hetu) Remove spl view call for fetch actions
     put(
       fetchActionsForView({ applicationId: defaultApplicationId, branchName }),
@@ -283,21 +303,34 @@ export function* initializeAppViewerSaga(
         },
       }),
     ),
-  ]);
+  ];
+
+  const initSuccessEffects = [
+    take(ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS),
+    take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
+    take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
+    take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
+  ];
+  const initFailureEffects = [
+    ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+    ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+    ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+    ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+  ];
+
+  if (pageId) {
+    initCalls.push(put(fetchPublishedPage(pageId, true)) as any);
+    initSuccessEffects.push(
+      take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
+    );
+    initFailureEffects.push(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR);
+  }
+
+  yield all(initCalls);
 
   const resultOfPrimaryCalls = yield race({
-    success: all([
-      take(ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS),
-      take(ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS),
-      take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS),
-      take(ReduxActionTypes.FETCH_APPLICATION_SUCCESS),
-    ]),
-    failure: take([
-      ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
-      ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
-      ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-      ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-    ]),
+    success: all(initSuccessEffects),
+    failure: take(initFailureEffects),
   });
 
   if (resultOfPrimaryCalls.failure) {
@@ -314,46 +347,49 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  const defaultPageId = yield select(getDefaultPageId);
-  const toLoadPageId = pageId || defaultPageId;
+  // is pageId is not provided use the default page id
+  if (!pageId) {
+    const defaultPageId = yield select(getDefaultPageId);
+    const toLoadPageId = pageId || defaultPageId;
 
-  if (toLoadPageId) {
-    yield put(fetchPublishedPage(toLoadPageId, true));
+    if (toLoadPageId) {
+      yield put(fetchPublishedPage(toLoadPageId, true));
 
-    const resultOfFetchPage = yield race({
-      success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
-      failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
-    });
-
-    if (resultOfFetchPage.failure) {
-      yield put({
-        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-        payload: {
-          code: get(
-            resultOfFetchPage,
-            "failure.payload.error.code",
-            ERROR_CODES.SERVER_ERROR,
-          ),
-        },
+      const resultOfFetchPage = yield race({
+        success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
+        failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
       });
-      return;
+
+      if (resultOfFetchPage.failure) {
+        yield put({
+          type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+          payload: {
+            code: get(
+              resultOfFetchPage,
+              "failure.payload.error.code",
+              ERROR_CODES.SERVER_ERROR,
+            ),
+          },
+        });
+        return;
+      }
     }
+  }
 
-    yield put(setAppMode(APP_MODE.PUBLISHED));
+  yield put(setAppMode(APP_MODE.PUBLISHED));
 
-    yield put(fetchCommentThreadsInit());
+  yield put(fetchCommentThreadsInit());
 
+  yield put({
+    type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+  });
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.INIT_VIEW_APP,
+  );
+  if ("serviceWorker" in navigator) {
     yield put({
-      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+      type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
     });
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.INIT_VIEW_APP,
-    );
-    if ("serviceWorker" in navigator) {
-      yield put({
-        type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
-      });
-    }
   }
 }
 
