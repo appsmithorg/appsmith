@@ -136,7 +136,7 @@ or Alternatively by,
 1. Clicking on the Green button on the Bottom Left corner in VSCode.
 2. Selecting **Open Folder in WSL** and navigating to the folder in WSL.
 
-After this You can continue Setting up from [here](#pre-requisites).
+After this, you can continue Setting up from [here](#pre-requisites).
 
 ### Running Tests on Client
 
