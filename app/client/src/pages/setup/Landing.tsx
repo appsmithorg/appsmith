@@ -34,11 +34,13 @@ const StyledTextBanner = styled.div`
 `;
 
 const StyledBannerHeader = styled.h1`
+  font-family: "Paytone One", sans-serif;
   font-size: 72px;
   margin: 0px 0px;
 `;
 
 const StyledBannerBody = styled.p`
+  font-family: "Montserrat", sans-serif;
   font-size: 24px;
   margin: ${(props) => props.theme.spaces[7]}px 0px;
   width: 400px;
@@ -69,8 +71,28 @@ type LandingPageProps = {
 
 const WELCOME_PAGE_ANIMATION_CONTAINER = "welcome-page-animation-container";
 
+const includeFonts = () => {
+  const preconnectGoogleapis = document.createElement("link");
+  preconnectGoogleapis.rel = "preconnect";
+  preconnectGoogleapis.href = "https://fonts.googleapis.com";
+  document.head.appendChild(preconnectGoogleapis);
+
+  const preconnectGstatic = document.createElement("link") as any;
+  preconnectGstatic.rel = "preconnect";
+  preconnectGstatic.href = "https://fonts.gstatic.com";
+  preconnectGstatic.crossorigin = "crossorigin";
+  document.head.appendChild(preconnectGstatic);
+
+  const fonts = document.createElement("link");
+  fonts.rel = "stylesheet";
+  fonts.href =
+    "https://fonts.googleapis.com/css2?family=Montserrat&family=Paytone+One&display=swap";
+  document.head.appendChild(fonts);
+};
+
 export default memo(function LandingPage(props: LandingPageProps) {
   useEffect(() => {
+    includeFonts();
     playWelcomeAnimation(`#${WELCOME_PAGE_ANIMATION_CONTAINER}`);
   }, []);
   return (
