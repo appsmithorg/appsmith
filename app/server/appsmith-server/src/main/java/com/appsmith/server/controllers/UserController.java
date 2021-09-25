@@ -146,7 +146,8 @@ public class UserController extends BaseController<UserService, User, String> {
     @GetMapping("/me")
     public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
         return sessionUserService.getCurrentUser()
-                .flatMap(service::buildUserProfileDTO)
+                .zipWith(userDataService.getForCurrentUser())
+                .flatMap(objects -> service.buildUserProfileDTO(objects.getT1(), objects.getT2()))
                 .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
     }
 
@@ -211,14 +212,6 @@ public class UserController extends BaseController<UserService, User, String> {
     @PatchMapping("/comment/state")
     public Mono<ResponseDTO<CommentOnboardingState>> setCommentState(@RequestBody UserData userData) {
         return userDataService.setCommentState(userData.getCommentOnboardingState())
-                .map(savedUserData ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentOnboardingState(), null)
-                );
-    }
-
-    @GetMapping("/comment/state")
-    public Mono<ResponseDTO<CommentOnboardingState>> getCommentState() {
-        return userDataService.getForCurrentUser()
                 .map(savedUserData ->
                         new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentOnboardingState(), null)
                 );

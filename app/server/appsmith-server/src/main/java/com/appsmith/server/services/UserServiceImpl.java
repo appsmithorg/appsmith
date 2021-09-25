@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -854,7 +855,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     @Override
-    public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
+    public Mono<UserProfileDTO> buildUserProfileDTO(User user, UserData userData) {
         return Mono.zip(
                         isUsersEmpty(),
                         user.isAnonymous() ? Mono.just(user) : findByEmail(user.getEmail())
@@ -873,6 +874,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setEmptyInstance(isUsersEmpty);
                     profile.setAnonymous(user.isAnonymous());
                     profile.setEnabled(user.isEnabled());
+                    profile.setCommentOnboardingState(userData.getCommentOnboardingState());
 
                     profile.setSuperUser(policyUtils.isPermissionPresentForUser(
                             userFromDb.getPolicies(),
