@@ -979,14 +979,16 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    log.debug("{}", updatedLayout.getMessages());
+
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+
+                    // Assert that both the actions dont belong to the same set. They should be run iteratively.
                     DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
-                    List<LayoutActionUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
-                    assertThat(actionUpdates.size()).isEqualTo(2);
-                    assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
-                    assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
+                    actionDTO = updatedLayout.getLayoutOnLoadActions().get(1).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("secondAction");
+
                 })
                 .verifyComplete();
 
