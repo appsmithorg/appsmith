@@ -35,19 +35,20 @@ public class PageLoadActionsUtil {
 
     /**
      * This function takes all the words used in the DSL dynamic bindings and computes the sequenced on page load actions.
-     * <p>
+     *
      * !!!WARNING!!! : This function edits the parameters actionNames, edges, actionsUsedInDSL and flatPageLoadActions
      * and the same are used by the caller function for further processing.
      *
      * @param bindings            : words used in the DSL dynamic bindings
      * @param actionNames         : Set where this function adds all the on page load action names
-     * @param widgetNames
+     * @param widgetNames         : Set of widget names found after parsing the DSL
      * @param pageId              : Argument used for fetching actions in this page
      * @param edges               : Set where this function adds all the relationships (dependencies) between actions
      * @param actionsUsedInDSL    : Set where this function adds all the actions directly used in the DSL
      * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
      *                            would be called on page load)
-     * @param widgetDynamicBindingsMap
+     * @param widgetDynamicBindingsMap : A map of widgetName with all of the JS bindings found for the widgetName in the DSL
+     *
      * @return : Returns page load actions which is a list of sets of actions. Inside a set, all actions can be
      * parallely executed. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
@@ -84,7 +85,7 @@ public class PageLoadActionsUtil {
 
                     actionsUsedInDSL.add(name);
 
-                    extractAndSetActionBindingsForGraph(actionNames, widgetNames, edges, dynamicBindings, unpublishedAction);
+                    extractAndSetActionBindingsInGraphEdges(actionNames, widgetNames, edges, dynamicBindings, unpublishedAction);
 
                     // If this is a js action that is synchronous and is called as a function, don't mark it to run on page load
                     if (Boolean.TRUE.equals(dynamicBinding.getIsFunctionCall()) && isSyncJSFunction(unpublishedAction)) {
@@ -204,7 +205,7 @@ public class PageLoadActionsUtil {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // Add the vertices and edges to the graph
                 .map(actionDTO -> {
-                    extractAndSetActionBindingsForGraph(actionNames, widgetNames, edges, dynamicBindings, actionDTO);
+                    extractAndSetActionBindingsInGraphEdges(actionNames, widgetNames, edges, dynamicBindings, actionDTO);
                     return actionDTO;
                 })
                 .collectMap(
@@ -246,7 +247,7 @@ public class PageLoadActionsUtil {
                         return Mono.empty();
                     }
 
-                    extractAndSetActionBindingsForGraph(actionNames, widgetNames, edges, newDynamicBindings, action);
+                    extractAndSetActionBindingsInGraphEdges(actionNames, widgetNames, edges, newDynamicBindings, action);
                     final DynamicBinding dynamicBinding = dynamicBindings.get(action.getValidName());
                     // Ignore an async js action if it is a function call
                     if (Boolean.TRUE.equals(dynamicBinding.getIsFunctionCall()) && isAsyncJSFunction(action)) {
@@ -288,11 +289,11 @@ public class PageLoadActionsUtil {
         return dslActionDTO;
     }
 
-    private void extractAndSetActionBindingsForGraph(Set<String> actionNames,
-                                                     Set<String> widgetNames,
-                                                     Set<ActionDependencyEdge> edges,
-                                                     Map<String, DynamicBinding> dynamicBindings,
-                                                     ActionDTO action) {
+    private void extractAndSetActionBindingsInGraphEdges(Set<String> actionNames,
+                                                         Set<String> widgetNames,
+                                                         Set<ActionDependencyEdge> edges,
+                                                         Map<String, DynamicBinding> dynamicBindings,
+                                                         ActionDTO action) {
 
         // Check if the action has been deleted in unpublished state. If yes, ignore it.
         if (action.getDeletedAt() != null) {

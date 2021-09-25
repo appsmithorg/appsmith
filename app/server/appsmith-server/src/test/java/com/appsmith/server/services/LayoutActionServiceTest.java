@@ -993,4 +993,107 @@ public class LayoutActionServiceTest {
                 .verifyComplete();
 
     }
+
+    @SneakyThrows
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void OnLoadActionsWhenActionDependentOnActionViaWidget_CyclicalDependency() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        /*
+         * The left entity depends on the entity on the right
+         * firstWidget <- firstAction
+         * secondWidget <- firstWidget
+         * secondAction <- secondWidget
+         * thirdWidget <- secondAction
+         * fourthWidget <- thirdWidget
+         * firstAction <- fourthWidget
+         *
+         *
+         * Now there's a circular dependency because firstAction depends on itself.
+         *
+         * This is because :
+         * *firstAction* <- fourthWidget <- thirdWidget <- secondAction <- secondWidget <- firstWidget <- *firstAction*
+         */
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        actionConfiguration1.setBody("{{fourthWidget.data}}");
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("secondAction");
+        action2.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        actionConfiguration2.setBody("{{secondWidget.data}}");
+        action2.setActionConfiguration(actionConfiguration2);
+        action2.setDatasource(datasource);
+
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String,Object>>() {}));
+
+        ArrayList children = (ArrayList) parentDsl.get("children");
+
+        JSONObject firstWidget = new JSONObject();
+        firstWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        firstWidget.put("dynamicBindingPathList", temp);
+        firstWidget.put("testField", "{{ firstAction.data }}");
+        children.add(firstWidget);
+
+        JSONObject secondWidget = new JSONObject();
+        secondWidget.put("widgetName", "secondWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        secondWidget.put("dynamicBindingPathList", temp);
+        secondWidget.put("testField", "{{ firstWidget.data }}");
+        children.add(secondWidget);
+
+        JSONObject thirdWidget = new JSONObject();
+        thirdWidget.put("widgetName", "thirdWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        thirdWidget.put("dynamicBindingPathList", temp);
+        thirdWidget.put("testField", "{{ secondAction.data }}");
+        children.add(thirdWidget);
+
+        JSONObject fourthWidget = new JSONObject();
+        fourthWidget.put("widgetName", "fourthWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        fourthWidget.put("dynamicBindingPathList", temp);
+        fourthWidget.put("testField", "{{ thirdWidget.data }}");
+        children.add(fourthWidget);
+
+        parentDsl.put("children", children);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(2);
+
+                    // Assert that both the actions dont belong to the same set. They should be run iteratively.
+                    DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("firstAction");
+
+                    actionDTO = updatedLayout.getLayoutOnLoadActions().get(1).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("secondAction");
+
+                })
+                .verifyComplete();
+
+    }
 }
