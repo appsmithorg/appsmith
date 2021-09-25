@@ -23,7 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
+import static com.appsmith.external.helpers.MustacheHelper.extractActionNamesAndAddValidActionBindingsToSet;
+import static com.appsmith.external.helpers.MustacheHelper.extractWords;
 
 @Slf4j
 @Component
@@ -34,27 +35,31 @@ public class PageLoadActionsUtil {
 
     /**
      * This function takes all the words used in the DSL dynamic bindings and computes the sequenced on page load actions.
-     *
+     * <p>
      * !!!WARNING!!! : This function edits the parameters actionNames, edges, actionsUsedInDSL and flatPageLoadActions
      * and the same are used by the caller function for further processing.
      *
-     * @param bindings : words used in the DSL dynamic bindings
-     * @param actionNames : Set where this function adds all the on page load action names
-     * @param pageId : Argument used for fetching actions in this page
-     * @param edges : Set where this function adds all the relationships (dependencies) between actions
-     * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
+     * @param bindings            : words used in the DSL dynamic bindings
+     * @param actionNames         : Set where this function adds all the on page load action names
+     * @param widgetNames
+     * @param pageId              : Argument used for fetching actions in this page
+     * @param edges               : Set where this function adds all the relationships (dependencies) between actions
+     * @param actionsUsedInDSL    : Set where this function adds all the actions directly used in the DSL
      * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
      *                            would be called on page load)
+     * @param widgetDynamicBindingsMap
      * @return : Returns page load actions which is a list of sets of actions. Inside a set, all actions can be
      * parallely executed. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
      */
     public Mono<List<HashSet<DslActionDTO>>> findAllOnLoadActions(Map<String, DynamicBinding> bindings,
                                                                   Set<String> actionNames,
+                                                                  Set<String> widgetNames,
                                                                   String pageId,
                                                                   Set<ActionDependencyEdge> edges,
                                                                   Set<String> actionsUsedInDSL,
-                                                                  List<ActionDTO> flatPageLoadActions) {
+                                                                  List<ActionDTO> flatPageLoadActions,
+                                                                  Map<String, Set<String>> widgetDynamicBindingsMap) {
         Map<String, DynamicBinding> dynamicBindings = new HashMap<>();
         Set<String> ignoredActions = new HashSet<>();
 
@@ -79,7 +84,7 @@ public class PageLoadActionsUtil {
 
                     actionsUsedInDSL.add(name);
 
-                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindings, unpublishedAction);
+                    extractAndSetActionBindingsForGraph(actionNames, widgetNames, edges, dynamicBindings, unpublishedAction);
 
                     // If this is a js action that is synchronous and is called as a function, don't mark it to run on page load
                     if (Boolean.TRUE.equals(dynamicBinding.getIsFunctionCall()) && isSyncJSFunction(unpublishedAction)) {
@@ -93,15 +98,16 @@ public class PageLoadActionsUtil {
                         action -> action
                 )
                 // Now add to the map, vertices, and edges the explicitly set user on load actions
-                .flatMap(onLoadActionsMap -> findExplicitUserSetOnLoadActionsAndTheirDependents(pageId, actionNames, edges, dynamicBindings, onLoadActionsMap))
+                .flatMap(onLoadActionsMap -> findExplicitUserSetOnLoadActionsAndTheirDependents(pageId, actionNames, widgetNames, edges, dynamicBindings, onLoadActionsMap))
                 // Now recursively walk the bindings to find other actions and their bindings till all the actions are identified and added
                 // to the graph which would be on load actions.
-                .flatMap(onLoadActionsMap -> recursivelyFindActionsAndTheirDependents(dynamicBindings, pageId, actionNames, edges, onLoadActionsMap, ignoredActions))
+                .flatMap(onLoadActionsMap -> recursivelyFindActionsAndTheirDependents(dynamicBindings, pageId, actionNames, widgetNames, edges, onLoadActionsMap, ignoredActions))
                 // Now that we have a global set of on load actions, create a DAG and find an offline schedule order in which the on load
                 // actions should be triggered keeping in mind their dependencies on each other.
+                .flatMap(onLoadActionsMap -> addWidgetRelationshipToDAG(actionNames, widgetNames, edges, widgetDynamicBindingsMap, onLoadActionsMap))
                 .map(updatedMap -> {
-                    DirectedAcyclicGraph<String, DefaultEdge> directedAcyclicGraph = constructDAG(actionNames, edges);
-                    List<HashSet<String>> onPageLoadActionsSchedulingOrder = computeOnPageLoadActionsSchedulingOrder(directedAcyclicGraph);
+                    DirectedAcyclicGraph<String, DefaultEdge> directedAcyclicGraph = constructDAG(actionNames, widgetNames, edges);
+                    List<HashSet<String>> onPageLoadActionsSchedulingOrder = computeOnPageLoadActionsSchedulingOrder(directedAcyclicGraph, actionNames);
 
                     List<HashSet<DslActionDTO>> onPageLoadActions = new ArrayList<>();
 
@@ -126,6 +132,38 @@ public class PageLoadActionsUtil {
                     return onPageLoadActions;
 
                 });
+    }
+
+    private Mono<Map<String, ActionDTO>> addWidgetRelationshipToDAG(Set<String> actionNames,
+                                                                    Set<String> widgetNames,
+                                                                    Set<ActionDependencyEdge> edges,
+                                                                    Map<String, Set<String>> widgetBindingMap,
+                                                                    Map<String, ActionDTO> onLoadActionsInMap) {
+
+        return Mono.just(widgetBindingMap)
+                .map(widgetDynamicBindingsMap -> {
+                    widgetDynamicBindingsMap.forEach((widgetName, widgetDynamicBindings) -> {
+
+                        Set<String> bindingWordsFromWidgetBindings = new HashSet<>();
+                        widgetDynamicBindings.stream().forEach(binding -> bindingWordsFromWidgetBindings.addAll(extractWords(binding)));
+
+                        Set<String> intersection = new HashSet<>(bindingWordsFromWidgetBindings);
+                        intersection.retainAll(widgetNames);
+
+                        // Remove binding to its own self
+                        intersection.remove(widgetName);
+
+                        intersection.stream().forEach(source -> {
+                            ActionDependencyEdge edge = new ActionDependencyEdge();
+                            edge.setSource(source);
+                            edge.setTarget(widgetName);
+                            edges.add(edge);
+                        });
+                    });
+
+                    return edges;
+                })
+                .then(Mono.just(onLoadActionsInMap));
     }
 
     private boolean isAsyncJSFunction(ActionDTO unpublishedAction) {
@@ -157,6 +195,7 @@ public class PageLoadActionsUtil {
 
     private Mono<Map<String, ActionDTO>> findExplicitUserSetOnLoadActionsAndTheirDependents(String pageId,
                                                                                             Set<String> actionNames,
+                                                                                            Set<String> widgetNames,
                                                                                             Set<ActionDependencyEdge> edges,
                                                                                             Map<String, DynamicBinding> dynamicBindings,
                                                                                             Map<String, ActionDTO> onLoadActionsInMap) {
@@ -165,7 +204,7 @@ public class PageLoadActionsUtil {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // Add the vertices and edges to the graph
                 .map(actionDTO -> {
-                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, dynamicBindings, actionDTO);
+                    extractAndSetActionBindingsForGraph(actionNames, widgetNames, edges, dynamicBindings, actionDTO);
                     return actionDTO;
                 })
                 .collectMap(
@@ -188,6 +227,7 @@ public class PageLoadActionsUtil {
     private Mono<Map<String, ActionDTO>> recursivelyFindActionsAndTheirDependents(Map<String, DynamicBinding> dynamicBindings,
                                                                                   String pageId,
                                                                                   Set<String> actionNames,
+                                                                                  Set<String> widgetNames,
                                                                                   Set<ActionDependencyEdge> edges,
                                                                                   Map<String, ActionDTO> onLoadActionsInMap,
                                                                                   Set<String> ignoredActions) {
@@ -206,7 +246,7 @@ public class PageLoadActionsUtil {
                         return Mono.empty();
                     }
 
-                    extractAndSetActionNameAndBindingsForGraph(actionNames, edges, newDynamicBindings, action);
+                    extractAndSetActionBindingsForGraph(actionNames, widgetNames, edges, newDynamicBindings, action);
                     final DynamicBinding dynamicBinding = dynamicBindings.get(action.getValidName());
                     // Ignore an async js action if it is a function call
                     if (Boolean.TRUE.equals(dynamicBinding.getIsFunctionCall()) && isAsyncJSFunction(action)) {
@@ -232,7 +272,7 @@ public class PageLoadActionsUtil {
                 .flatMap(bindings -> {
                     // Now that the next set of bindings have been found, find recursively all actions by these names
                     // and their bindings
-                    return recursivelyFindActionsAndTheirDependents(newDynamicBindings, pageId, actionNames, edges, onLoadActionsInMap, ignoredActions);
+                    return recursivelyFindActionsAndTheirDependents(newDynamicBindings, pageId, actionNames, widgetNames, edges, onLoadActionsInMap, ignoredActions);
                 });
     }
 
@@ -248,10 +288,11 @@ public class PageLoadActionsUtil {
         return dslActionDTO;
     }
 
-    private void extractAndSetActionNameAndBindingsForGraph(Set<String> actionNames,
-                                                            Set<ActionDependencyEdge> edges,
-                                                            Map<String, DynamicBinding> dynamicBindings,
-                                                            ActionDTO action) {
+    private void extractAndSetActionBindingsForGraph(Set<String> actionNames,
+                                                     Set<String> widgetNames,
+                                                     Set<ActionDependencyEdge> edges,
+                                                     Map<String, DynamicBinding> dynamicBindings,
+                                                     ActionDTO action) {
 
         // Check if the action has been deleted in unpublished state. If yes, ignore it.
         if (action.getDeletedAt() != null) {
@@ -269,10 +310,12 @@ public class PageLoadActionsUtil {
         actionNames.add(name);
 
         Map<String, DynamicBinding> dynamicBindingNamesInAction = new HashMap<>();
+        Set<String> widgetNamesInDynamicBindings = new HashSet<>();
         Set<String> jsonPathKeys = action.getJsonPathKeys();
         if (!CollectionUtils.isEmpty(jsonPathKeys)) {
             for (String mustacheKey : jsonPathKeys) {
-                extractWordsAndAddToSet(dynamicBindingNamesInAction, mustacheKey);
+                extractActionNamesAndAddValidActionBindingsToSet(dynamicBindingNamesInAction, mustacheKey);
+                widgetNamesInDynamicBindings.addAll(extractWords(mustacheKey));
             }
 
             // If the action refers to itself in the json path keys, remove the same to circumvent
@@ -294,10 +337,21 @@ public class PageLoadActionsUtil {
             // Update the global actions' dynamic bindings
             dynamicBindings.putAll(dynamicBindingNamesInAction);
 
+            // Check for action dependencies on widgets
+            widgetNamesInDynamicBindings.retainAll(widgetNames);
+            for (String source : widgetNamesInDynamicBindings) {
+                ActionDependencyEdge edge = new ActionDependencyEdge();
+                edge.setSource(source);
+                edge.setTarget(name);
+                edges.add(edge);
+            }
+
         }
     }
 
-    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames, Set<ActionDependencyEdge> edges) {
+    private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
+                                                                   Set<String> widgetNames,
+                                                                   Set<ActionDependencyEdge> edges) {
         DirectedAcyclicGraph<String, DefaultEdge> actionSchedulingGraph =
                 new DirectedAcyclicGraph<>(DefaultEdge.class);
 
@@ -305,23 +359,27 @@ public class PageLoadActionsUtil {
             actionSchedulingGraph.addVertex(name);
         }
 
+        for (String name : widgetNames) {
+            actionSchedulingGraph.addVertex(name);
+        }
+
         for (ActionDependencyEdge edge : edges) {
             // If the source of the edge is an action, only then add an edge
             // At this point we are guaranteed to find the action in the set because we have recursively found all
             // possible actions that should be on load
-            if (actionNames.contains(edge.getSource())) {
+//            if (actionNames.contains(edge.getSource())) {
                 try {
                     actionSchedulingGraph.addEdge(edge.getSource(), edge.getTarget());
                 } catch (IllegalArgumentException e) {
                     log.debug("Ignoring the edge ({},{}) because {}", edge.getSource(), edge.getTarget(), e.getMessage());
                 }
-            }
+//            }
         }
 
         return actionSchedulingGraph;
     }
 
-    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag) {
+    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag, Set<String> actionNames) {
         List<HashSet<String>> onPageLoadActions = new ArrayList<>();
 
         // Find all root nodes to start the BFS traversal from
@@ -340,10 +398,13 @@ public class PageLoadActionsUtil {
                 onPageLoadActions.add(new HashSet<>());
             }
 
-            onPageLoadActions.get(level).add(vertex);
+            // Since we are not interested in widgets, check for action names before adding to the on page load actions
+            if (actionNames.contains(vertex)) {
+                onPageLoadActions.get(level).add(vertex);
+            }
         }
 
-        return onPageLoadActions;
+        return onPageLoadActions.stream().filter(setOfActions -> !setOfActions.isEmpty()).collect(Collectors.toList());
     }
 
 }

@@ -4,11 +4,11 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
+import static com.appsmith.external.helpers.MustacheHelper.extractActionNamesAndAddValidActionBindingsToSet;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -393,7 +393,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      *
      * @param dsl
      * @param widgetNames
-     * @param dynamicBindings
+     * @param widgetDynamicBindingsMap
      * @param pageId
      * @param layoutId
      * @param escapedWidgetNames
@@ -401,7 +401,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      */
     private JSONObject extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl,
                                                                       Set<String> widgetNames,
-                                                                      Set<String> dynamicBindings,
+                                                                      Map<String, Set<String>> widgetDynamicBindingsMap,
                                                                       String pageId,
                                                                       String layoutId,
                                                                       Set<String> escapedWidgetNames) throws AppsmithException {
@@ -479,7 +479,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
                     // Stricter extraction of dynamic bindings
                     Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
-                    dynamicBindings.addAll(mustacheKeysFromFields);
+                    widgetDynamicBindingsMap.put(widgetName, mustacheKeysFromFields);
                 }
             }
         }
@@ -497,7 +497,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings, pageId, layoutId, escapedWidgetNames);
+                    JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, widgetDynamicBindingsMap, pageId, layoutId, escapedWidgetNames);
                     newChildren.add(child);
                 }
             }
@@ -713,13 +713,18 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         Set<String> widgetNames = new HashSet<>();
         Set<String> jsSnippetsInDynamicBindings = new HashSet<>();
+        Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
-            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings, pageId, layoutId, escapedWidgetNames);
+            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, widgetDynamicBindingsMap, pageId, layoutId, escapedWidgetNames);
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, dsl, false, t)
                     .then(Mono.error(t));
         }
+
+        // Add all the bindings to the global jsSnippets set.
+        widgetDynamicBindingsMap.values()
+                .stream().forEach(bindings -> jsSnippetsInDynamicBindings.addAll(bindings));
 
         layout.setWidgetNames(widgetNames);
 
@@ -733,7 +738,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         if (!CollectionUtils.isEmpty(jsSnippetsInDynamicBindings)) {
             for (String mustacheKey : jsSnippetsInDynamicBindings) {
                 // Extract all the words in the dynamic bindings
-                extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
+                extractActionNamesAndAddValidActionBindingsToSet(dynamicBindingNames, mustacheKey);
             }
         }
 
@@ -745,7 +750,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         List<String> messages = new ArrayList<>();
 
         Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(dynamicBindingNames, actionNames, pageId, edges, actionsUsedInDSL, flatmapPageLoadActions);
+                .findAllOnLoadActions(dynamicBindingNames, actionNames, widgetNames, pageId, edges, actionsUsedInDSL,
+                        flatmapPageLoadActions, widgetDynamicBindingsMap);
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;

@@ -342,15 +342,34 @@ public class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
-    public static void extractWordsAndAddToSet(Map<String, DynamicBinding> bindingNames, String mustacheKey) {
+    public static void extractActionNamesAndAddValidActionBindingsToSet(Map<String, DynamicBinding> bindingNames, String mustacheKey) {
         String key = mustacheKey.trim();
 
         /* Extract all action names in the dynamic bindings */
         Matcher matcher = pattern.matcher(key);
         while (matcher.find()) {
-            // Fore each match, check what combination of action bindings could be calculated
+            // For each match, check what combination of action bindings could be calculated
             bindingNames.putAll(DynamicBinding.create(matcher.group()));
         }
+    }
+
+    public static Set<String> extractWords(String mustacheKey) {
+        Set<String> bindingNames = new HashSet<>();
+        String key = mustacheKey.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            String word = matcher.group();
+
+            String[] subStrings = word.split(Pattern.quote("."));
+            if (subStrings.length > 0) {
+                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
+                bindingNames.add(subStrings[0]);
+            }
+        }
+        return bindingNames;
     }
 
     public static String replaceMustacheWithPlaceholder(String query, List<String> mustacheBindings) {
