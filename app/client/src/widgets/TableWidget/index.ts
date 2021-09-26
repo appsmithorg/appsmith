@@ -167,6 +167,7 @@ export const CONFIG = {
     isVisibleFilters: true,
     isVisibleDownload: true,
     isVisiblePagination: true,
+    isSortable: true,
     delimiter: ",",
     version: 3,
   },

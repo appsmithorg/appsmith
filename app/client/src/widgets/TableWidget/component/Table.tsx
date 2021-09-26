@@ -56,6 +56,7 @@ interface TableProps {
   pageNo: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
+  isSortable?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
@@ -309,6 +310,7 @@ export function Table(props: TableProps) {
                             isAscOrder={column.isAscOrder}
                             isHidden={column.isHidden}
                             isResizingColumn={isResizingColumn.current}
+                            isSortable={props.isSortable}
                             key={columnIndex}
                             sortTableColumn={props.sortTableColumn}
                           />

@@ -441,6 +441,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
+      // eslint-disable-next-line no-console
+      console.log(config, config.params?.default, "validation");
       return { isValid: true, parsed: config.params?.default || value };
     }
     const isABoolean = value === true || value === false;

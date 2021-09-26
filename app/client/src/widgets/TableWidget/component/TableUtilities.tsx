@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
@@ -510,8 +510,9 @@ export function TableHeaderCell(props: {
   isResizingColumn: boolean;
   column: any;
   editMode?: boolean;
+  isSortable?: boolean;
 }) {
-  const { column } = props;
+  const { column, editMode, isSortable } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -522,12 +523,15 @@ export function TableHeaderCell(props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
+  const disableSort = useMemo(() => {
+    return editMode === false && isSortable === false;
+  }, [isSortable, editMode]);
 
   return (
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
-      onClick={props.editMode !== false ? handleSortColumn : undefined}
+      onClick={!disableSort && props ? handleSortColumn : undefined}
     >
       {props.isAscOrder !== undefined ? (
         <SortIconWrapper>
