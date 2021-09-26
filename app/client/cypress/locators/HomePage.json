@@ -83,5 +83,8 @@
     "cancelBtn": "//span[text()='Cancel']",
     "submit": "button:contains('Submit')",
     "orgNamePopover": ".t--org-name",
-    "orgNamePopoverContent": ".bp3-popover-content"
+    "orgNamePopoverContent": ".bp3-popover-content",
+    "orgCompleteSection": ".t--org-section",
+    "orgNameText": ".t--org-name-text",
+    "optionsIcon": ".t--options-icon"
 }

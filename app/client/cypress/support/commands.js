@@ -40,7 +40,11 @@ Cypress.Commands.add("createOrg", () => {
 });
 
 Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
-  cy.contains(orgName).click({ force: true });
+  cy.contains(orgName)
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
+    .click({ force: true });
   cy.get(homePage.renameOrgInput)
     .should("be.visible")
     .type(newOrgName)

@@ -619,7 +619,7 @@ function ApplicationsSection(props: any) {
     const { disabled, orgName, orgSlug } = props;
 
     return (
-      <OrgNameWrapper className="t--org-name" disabled={disabled}>
+      <OrgNameWrapper className="t--org-name-text" disabled={disabled}>
         <StyledAnchor id={orgSlug} />
         <OrgNameHolder
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
