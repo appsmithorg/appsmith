@@ -23,6 +23,7 @@ import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useDispatch } from "react-redux";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -98,6 +99,7 @@ const getOnboardingWidgetImg = () => `${ASSETS_CDN_URL}/onboarding-widget.svg`;
 
 export default function OnboardingTasks() {
   const applicationId = useSelector(getCurrentApplicationId);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const pageId = useSelector(getCurrentPageId);
   let content;
   const datasources = useSelector(getDatasources);
@@ -126,7 +128,7 @@ export default function OnboardingTasks() {
               });
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  applicationId,
+                  defaultApplicationId,
                   pageId,
                   INTEGRATION_TABS.NEW,
                 ),
@@ -174,7 +176,7 @@ export default function OnboardingTasks() {
               });
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  applicationId,
+                  defaultApplicationId,
                   pageId,
                   INTEGRATION_TABS.ACTIVE,
                 ),

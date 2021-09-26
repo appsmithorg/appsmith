@@ -32,6 +32,12 @@ import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
+const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return params.get(key) || "";
+};
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -62,7 +68,7 @@ export type AppViewerProps = {
   initializeAppViewer: (params: {
     defaultApplicationId: string;
     pageId?: string;
-    branchName?: string;
+    branch?: string;
   }) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
@@ -80,6 +86,7 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
+  defaultApplicationId: string;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -93,15 +100,17 @@ class AppViewer extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
+    const { defaultApplicationId } = this.props;
+    const { pageId } = this.props.match.params;
     const {
-      branchName,
-      defaultApplicationId,
-      pageId,
-    } = this.props.match.params;
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
 
     if (defaultApplicationId) {
       this.props.initializeAppViewer({
-        branchName,
+        branch,
         defaultApplicationId,
         pageId,
       });
@@ -109,22 +118,23 @@ class AppViewer extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const { defaultApplicationId } = this.props;
+    const { pageId } = this.props.match.params;
     const {
-      branchName,
-      defaultApplicationId,
-      pageId,
-    } = this.props.match.params;
-    const { branchName: prevBranchName } = prevProps.match.params || {};
-    if (
-      branchName &&
-      branchName !== prevBranchName &&
-      defaultApplicationId &&
-      pageId
-    ) {
+      location: { search: prevSearch },
+    } = prevProps;
+    const {
+      location: { search },
+    } = this.props;
+
+    const prevBranch = getSearchQuery(prevSearch, "branch");
+    const branch = getSearchQuery(search, "branch");
+
+    if (branch && branch !== prevBranch && defaultApplicationId && pageId) {
       this.props.initializeAppViewer({
         defaultApplicationId,
         pageId,
-        branchName,
+        branch,
       });
     }
   }
@@ -179,6 +189,7 @@ const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  defaultApplicationId: getDefaultApplicationId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -203,7 +214,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   initializeAppViewer: (params: {
     defaultApplicationId: string;
     pageId?: string;
-    branchName?: string;
+    branch?: string;
   }) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,

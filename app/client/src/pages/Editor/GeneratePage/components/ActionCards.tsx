@@ -15,6 +15,8 @@ import {
   BUILD_FROM_SCRATCH_ACTION_SUBTITLE,
 } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type routeId = {
   applicationId: string;
@@ -35,7 +37,8 @@ const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
 };
 
 function ActionCards() {
-  const { defaultApplicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   return (
     <>

@@ -2,11 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getWidgetCards,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, getWidgetCards } from "selectors/editorSelectors";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
@@ -25,6 +21,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -119,10 +116,10 @@ function WidgetSidebar(props: IPanelProps) {
   const isInOnboarding = useSelector(inOnboarding);
   const currentStep = useSelector(getCurrentStep);
   const currentSubStep = useSelector(getCurrentSubStep);
-  const applicationId = useSelector(getCurrentApplicationId);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const onCanvas =
-    BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+    BUILDER_PAGE_URL(defaultApplicationId, pageId) === window.location.pathname;
   useEffect(() => {
     if (
       (currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&

@@ -31,6 +31,7 @@ import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
   showAppInviteUsersDialogSelector,
+  getDefaultApplicationId,
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
@@ -166,6 +167,7 @@ type EditorHeaderProps = {
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
+  defaultApplicationId: string;
   currentApplication?: CurrentApplicationData;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
@@ -256,7 +258,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               applicationId={applicationId}
               className="t--application-name editable-application-name"
               currentDeployLink={getApplicationViewerPageURL(
-                applicationId,
+                props.defaultApplicationId,
                 pageId,
               )}
               defaultSavingState={
@@ -332,7 +334,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL(applicationId, pageId)}
+                link={getApplicationViewerPageURL(
+                  props.defaultApplicationId,
+                  pageId,
+                )}
                 trigger={
                   <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
                 }
@@ -368,6 +373,7 @@ const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
+  defaultApplicationId: getDefaultApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),

@@ -1,8 +1,6 @@
 import React, { useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { updatePage } from "actions/pageActions";
@@ -21,6 +19,7 @@ import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
 import getFeatureFlags from "utils/featureFlags";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -35,22 +34,19 @@ type ExplorerPageEntityProps = {
 };
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
-  const params = useParams<ExplorerURLParams>();
-
   const currentPageId = useSelector((state: AppState) => {
     return state.entities.pageList.currentPageId;
   });
   const isCurrentPage = currentPageId === props.page.pageId;
 
   const currenApplicationId = useSelector(getCurrentApplicationId);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const switchPage = useCallback(() => {
-    if (!!params.defaultApplicationId) {
-      history.push(
-        BUILDER_PAGE_URL(params.defaultApplicationId, props.page.pageId),
-      );
+    if (!!defaultApplicationId) {
+      history.push(BUILDER_PAGE_URL(defaultApplicationId, props.page.pageId));
     }
-  }, [props.page.pageId, params.defaultApplicationId]);
+  }, [props.page.pageId, defaultApplicationId]);
 
   const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 

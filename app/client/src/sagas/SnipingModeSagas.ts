@@ -2,10 +2,7 @@ import { takeLeading, all, put, select } from "redux-saga/effects";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
 import { BUILDER_PAGE_URL } from "../constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "../selectors/editorSelectors";
+import { getCurrentPageId } from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
 import {
@@ -23,6 +20,8 @@ import {
 
 import WidgetFactory from "utils/WidgetFactory";
 
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* bindDataToWidgetSaga(
@@ -30,7 +29,6 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   // console.log("Binding Data in Saga");
   const currentURL = new URL(window.location.href);
@@ -148,7 +146,8 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    history.replace(BUILDER_PAGE_URL(applicationId, pageId, {}));
+    const defaultApplicationId = yield select(getDefaultApplicationId);
+    history.replace(BUILDER_PAGE_URL(defaultApplicationId, pageId, {}));
   } else {
     queryId &&
       Toaster.show({

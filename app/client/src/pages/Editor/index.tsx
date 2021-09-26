@@ -38,11 +38,16 @@ import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
 
+const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return params.get(key) || "";
+};
+
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
   initEditor: (
-    applicationId: string,
+    defaultApplicationId: string,
     pageId: string,
     branchName?: string,
   ) => void;
@@ -75,24 +80,41 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
     const {
-      branchName,
-      defaultApplicationId,
-      pageId,
-    } = this.props.match.params;
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
+
+    const { defaultApplicationId, pageId } = this.props.match.params;
     if (defaultApplicationId) {
-      this.props.initEditor(defaultApplicationId, pageId, branchName);
+      this.props.initEditor(defaultApplicationId, pageId, branch);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
   }
 
+  getIsBranchUpdated(props1: Props, props2: Props) {
+    const {
+      location: { search: search1 },
+    } = props1;
+    const {
+      location: { search: search2 },
+    } = props2;
+
+    const branch1 = getSearchQuery(search1, "branch");
+    const branch2 = getSearchQuery(search2, "branch");
+
+    return branch1 !== branch2;
+  }
+
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, nextProps);
+
     return (
+      isBranchUpdated ||
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
-      nextProps.match?.params?.branchName !==
-        this.props.match?.params?.branchName ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -107,13 +129,14 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { branchName, defaultApplicationId, pageId } =
-      this.props.match.params || {};
+    const { defaultApplicationId, pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
 
-    const { branchName: prevBranchName } = prevProps.match.params || {};
-    if (branchName && branchName !== prevBranchName && defaultApplicationId) {
-      this.props.initEditor(defaultApplicationId, pageId, branchName);
+    const branch = getSearchQuery(this.props.location.search, "branch");
+
+    if (isBranchUpdated && defaultApplicationId) {
+      this.props.initEditor(defaultApplicationId, pageId, branch);
     } else {
       /**
        * First time load is handled by init sagas
@@ -194,8 +217,11 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string, branchName?: string) =>
-      dispatch(initEditor(applicationId, pageId, branchName)),
+    initEditor: (
+      defaultApplicationId: string,
+      pageId: string,
+      branchName?: string,
+    ) => dispatch(initEditor(defaultApplicationId, pageId, branchName)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),

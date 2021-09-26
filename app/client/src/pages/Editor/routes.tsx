@@ -20,7 +20,6 @@ import {
   QUERIES_EDITOR_ID_URL,
   BUILDER_PAGE_URL,
   BuilderRouteParams,
-  APIEditorRouteParams,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_EDITOR_PATH,
   API_EDITOR_ID_PATH,
@@ -37,7 +36,7 @@ import {
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { closeAllModals } from "actions/widgetActions";
-import { useDispatch } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -48,6 +47,8 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PagesEditor from "./PagesEditor";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { AppState } from "reducers";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -76,28 +77,29 @@ interface RouterState {
   isActionPath: Record<any, any> | null;
 }
 
-class EditorsRouter extends React.Component<
-  RouteComponentProps<BuilderRouteParams>,
-  RouterState
-> {
-  constructor(props: RouteComponentProps<APIEditorRouteParams>) {
+type Props = RouteComponentProps<BuilderRouteParams> & {
+  defaultApplicationId: string;
+};
+
+class EditorsRouter extends React.Component<Props, RouterState> {
+  constructor(props: Props) {
     super(props);
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
     this.state = {
       isVisible:
         this.props.location.pathname !==
-        BUILDER_PAGE_URL(defaultApplicationId, pageId),
+        BUILDER_PAGE_URL(props.defaultApplicationId, pageId),
       isActionPath: this.isMatchPath(),
     };
   }
 
   componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
     if (this.props.location.pathname !== prevProps.location.pathname) {
-      const { defaultApplicationId, pageId } = this.props.match.params;
+      const { pageId } = this.props.match.params;
       this.setState({
         isVisible:
           this.props.location.pathname !==
-          BUILDER_PAGE_URL(defaultApplicationId, pageId),
+          BUILDER_PAGE_URL(this.props.defaultApplicationId, pageId),
         isActionPath: this.isMatchPath(),
       });
     }
@@ -234,4 +236,8 @@ function PaneDrawer(props: PaneDrawerProps) {
 
 PaneDrawer.displayName = "PaneDrawer";
 
-export default withRouter(EditorsRouter);
+const mapStateToProps = (state: AppState) => ({
+  defaultApplicationId: getDefaultApplicationId(state),
+});
+
+export default connect(mapStateToProps)(withRouter(EditorsRouter));

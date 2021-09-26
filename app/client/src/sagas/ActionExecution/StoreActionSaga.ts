@@ -16,8 +16,8 @@ export default function* storeValueLocally(
 ) {
   if (action.persist) {
     const defaultApplicationId = yield select(getDefaultApplicationId);
-    const gitBranch = yield select(getCurrentGitBranch);
-    const appStoreName = getAppStoreName(defaultApplicationId, gitBranch);
+    const branch = yield select(getCurrentGitBranch);
+    const appStoreName = getAppStoreName(defaultApplicationId, branch);
     const existingStore = localStorage.getItem(appStoreName) || "{}";
     const parsedStore = JSON.parse(existingStore);
     parsedStore[action.key] = action.value;

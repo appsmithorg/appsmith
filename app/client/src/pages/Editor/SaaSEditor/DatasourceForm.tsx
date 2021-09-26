@@ -42,8 +42,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
 import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface StateProps extends JSONtoFormProps {
+  applicationId: string;
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
@@ -52,6 +55,7 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
+  defaultApplicationId: string;
 }
 
 interface DispatchFunctions {
@@ -59,14 +63,16 @@ interface DispatchFunctions {
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
   createAction: (data: Partial<Action>) => void;
-  redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
+  redirectToNewIntegrations: (
+    defaultApplicationId: string,
+    pageId: string,
+  ) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
   DispatchFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    applicationId: string;
     pageId: string;
     pluginPackageName: string;
   }>;
@@ -126,7 +132,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
       AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
-        applicationId: _.get(this.props, "match.params.applicationId"),
+        applicationId: _.get(this.props, "applicationId"),
         datasourceId: _.get(this.props, "match.params.datasourceId"),
         pageId: _.get(this.props, "match.params.pageId"),
       });
@@ -146,12 +152,14 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      applicationId,
       datasource,
+      defaultApplicationId,
       deleteDatasource,
       isDeleting,
       isSaving,
       match: {
-        params: { applicationId, datasourceId, pageId, pluginPackageName },
+        params: { datasourceId, pageId, pluginPackageName },
       },
     } = this.props;
 
@@ -180,7 +188,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               onClick={() => {
                 this.props.history.replace(
                   SAAS_EDITOR_DATASOURCE_ID_URL(
-                    applicationId,
+                    defaultApplicationId,
                     pageId,
                     pluginPackageName,
                     datasourceId,
@@ -213,7 +221,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                   deleteDatasource(
                     datasourceId,
                     this.props.redirectToNewIntegrations(
-                      applicationId,
+                      defaultApplicationId,
                       pageId,
                     ) as any,
                   )
@@ -285,6 +293,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
+    defaultApplicationId: getDefaultApplicationId(state),
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
@@ -299,8 +309,11 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
     createAction: (data: Partial<Action>) => {
       dispatch(createActionRequest(data));
     },
-    redirectToNewIntegrations: (applicationId: string, pageId: string) => {
-      dispatch(redirectToNewIntegrations(applicationId, pageId));
+    redirectToNewIntegrations: (
+      defaultApplicationId: string,
+      pageId: string,
+    ) => {
+      dispatch(redirectToNewIntegrations(defaultApplicationId, pageId));
     },
   };
 };

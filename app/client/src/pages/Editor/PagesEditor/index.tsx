@@ -21,6 +21,7 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -70,6 +71,7 @@ function PagesEditor() {
   const params = useParams<ExplorerURLParams>();
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -113,7 +115,7 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(params.defaultApplicationId, params.pageId));
+    history.push(BUILDER_PAGE_URL(defaultApplicationId, params.pageId));
   }, []);
 
   return (
@@ -141,9 +143,7 @@ function PagesEditor() {
       </Header>
 
       <DraggableList
-        ItemRenderer={({ item }: any) => (
-          <PageListItem applicationId={applicationId} item={item} />
-        )}
+        ItemRenderer={({ item }: any) => <PageListItem item={item} />}
         itemHeight={70}
         items={pages}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {

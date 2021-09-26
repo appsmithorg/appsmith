@@ -38,7 +38,7 @@ const Wrapper = styled.div`
 `;
 
 function Connected() {
-  const params = useParams<{ datasourceId: string; applicationId: string }>();
+  const params = useParams<{ datasourceId: string }>();
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );

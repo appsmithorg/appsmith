@@ -161,25 +161,25 @@ class ApplicationApi extends Api {
   }
 
   static fetchApplication(
-    applicationId: string,
+    defaultApplicationId: string,
     branchName?: string,
   ): AxiosPromise<FetchApplicationResponse> {
     if (branchName)
       return Api.get(
-        `${ApplicationApi.baseURL}${applicationId}/branch/${branchName}`,
+        `${ApplicationApi.baseURL}${defaultApplicationId}/branch/${branchName}`,
       );
-    return Api.get(ApplicationApi.baseURL + applicationId);
+    return Api.get(ApplicationApi.baseURL + defaultApplicationId);
   }
 
   static fetchApplicationForViewMode(
-    applicationId: string,
+    defaultApplicationId: string,
     branchName: string,
   ): AxiosPromise<FetchApplicationResponse> {
     if (branchName)
       return Api.get(
-        `${ApplicationApi.baseURL}view/${applicationId}/branch/${branchName}`,
+        `${ApplicationApi.baseURL}view/${defaultApplicationId}/branch/${branchName}`,
       );
-    return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
+    return Api.get(ApplicationApi.baseURL + `view/${defaultApplicationId}`);
   }
 
   static createApplication(
@@ -253,12 +253,20 @@ class ApplicationApi extends Api {
     });
   }
 
-  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+  static getSSHKeyPair(
+    defaultApplicationId: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.get(
+      ApplicationApi.baseURL + "ssh-keypair/" + defaultApplicationId,
+    );
   }
 
-  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
-    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+  static generateSSHKeyPair(
+    defaultApplicationId: string,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(
+      ApplicationApi.baseURL + "ssh-keypair/" + defaultApplicationId,
+    );
   }
 }
 

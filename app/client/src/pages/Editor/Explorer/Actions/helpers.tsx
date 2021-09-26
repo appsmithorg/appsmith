@@ -32,21 +32,29 @@ export type ActionGroupConfig = {
   icon: JSX.Element;
   key: string;
   getURL: (
-    applicationId: string,
+    defaultApplicationId: string,
     pageId: string,
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
   generateCreatePageURL: (
-    applicationId: string,
+    defaultApplicationId: string,
     pageId: string,
     selectedTab: string,
     mode?: string,
   ) => string;
   getIcon: (action: any, plugin: Plugin) => ReactNode;
-  isGroupActive: (params: ExplorerURLParams, pageId: string) => boolean;
-  isGroupExpanded: (params: ExplorerURLParams, pageId: string) => boolean;
+  isGroupActive: (
+    params: ExplorerURLParams,
+    pageId: string,
+    defaultApplicationId: string,
+  ) => boolean;
+  isGroupExpanded: (
+    params: ExplorerURLParams,
+    pageId: string,
+    defaultApplicationId: string,
+  ) => boolean;
 };
 
 // When we have new action plugins, we can just add it to this map
@@ -59,7 +67,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      applicationId: string,
+      defaultApplicationId: string,
       pageId: string,
       id: string,
       pluginType: PluginType,
@@ -67,7 +75,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     ) => {
       if (pluginType === PluginType.SAAS) {
         return `${SAAS_EDITOR_API_ID_URL(
-          applicationId,
+          defaultApplicationId,
           pageId,
           !!plugin ? plugin.packageName : "",
           id,
@@ -76,9 +84,9 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`;
+        return `${QUERIES_EDITOR_ID_URL(defaultApplicationId, pageId, id)}`;
       } else {
-        return `${API_EDITOR_ID_URL(applicationId, pageId, id)}`;
+        return `${API_EDITOR_ID_URL(defaultApplicationId, pageId, id)}`;
       }
     },
     getIcon: (action: any, plugin: Plugin) => {
@@ -91,45 +99,53 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       return <MethodTag type={method} />;
     },
     generateCreatePageURL: INTEGRATION_EDITOR_URL,
-    isGroupActive: (params: ExplorerURLParams, pageId: string) =>
+    isGroupActive: (
+      params: ExplorerURLParams,
+      pageId: string,
+      defaultApplicationId: string,
+    ) =>
       [
         INTEGRATION_EDITOR_URL(
-          params.defaultApplicationId,
+          defaultApplicationId,
           pageId,
           INTEGRATION_TABS.NEW,
         ),
         INTEGRATION_EDITOR_URL(
-          params.defaultApplicationId,
+          defaultApplicationId,
           pageId,
           INTEGRATION_TABS.ACTIVE,
         ),
-        API_EDITOR_URL(params.defaultApplicationId, pageId),
-        SAAS_BASE_URL(params.defaultApplicationId, pageId),
-        QUERIES_EDITOR_URL(params.defaultApplicationId, pageId),
+        API_EDITOR_URL(defaultApplicationId, pageId),
+        SAAS_BASE_URL(defaultApplicationId, pageId),
+        QUERIES_EDITOR_URL(defaultApplicationId, pageId),
       ].includes(window.location.pathname),
-    isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
+    isGroupExpanded: (
+      params: ExplorerURLParams,
+      pageId: string,
+      defaultApplicationId: string,
+    ) =>
       window.location.pathname.indexOf(
         INTEGRATION_EDITOR_URL(
-          params.defaultApplicationId,
+          defaultApplicationId,
           pageId,
           INTEGRATION_TABS.NEW,
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
         INTEGRATION_EDITOR_URL(
-          params.defaultApplicationId,
+          defaultApplicationId,
           pageId,
           INTEGRATION_TABS.ACTIVE,
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
-        API_EDITOR_URL(params.defaultApplicationId, pageId),
+        API_EDITOR_URL(defaultApplicationId, pageId),
       ) > -1 ||
       window.location.pathname.indexOf(
-        SAAS_BASE_URL(params.defaultApplicationId, pageId),
+        SAAS_BASE_URL(defaultApplicationId, pageId),
       ) > -1 ||
       window.location.pathname.indexOf(
-        QUERIES_EDITOR_URL(params.defaultApplicationId, pageId),
+        QUERIES_EDITOR_URL(defaultApplicationId, pageId),
       ) > -1,
   },
 ];

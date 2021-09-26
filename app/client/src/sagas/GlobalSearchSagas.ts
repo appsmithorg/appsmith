@@ -18,8 +18,7 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
 
-const getRecentEntitiesKey = (applicationId: string, branchName?: string) =>
-  branchName ? `${applicationId}-${branchName}` : `${applicationId}`;
+const getRecentEntitiesKey = (applicationId: string) => applicationId;
 
 export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
   try {
@@ -61,10 +60,7 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
       yield call(
         setRecentAppEntities,
         recentEntities,
-        getRecentEntitiesKey(
-          entity?.params?.applicationId,
-          entity?.params?.branchName,
-        ),
+        getRecentEntitiesKey(entity?.params?.applicationId),
       );
     }
   } catch (e) {
@@ -73,14 +69,14 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
 }
 
 export function* restoreRecentEntities(
-  actionPayload: ReduxAction<{ applicationId: string; branchName?: string }>,
+  actionPayload: ReduxAction<{ applicationId: string }>,
 ) {
   const {
-    payload: { applicationId, branchName },
+    payload: { applicationId },
   } = actionPayload;
   const recentAppEntities = yield call(
     fetchRecentAppEntities,
-    getRecentEntitiesKey(applicationId, branchName),
+    getRecentEntitiesKey(applicationId),
   );
   yield putResolve(setRecentEntities(recentAppEntities));
   yield put(restoreRecentEntitiesSuccess());

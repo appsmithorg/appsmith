@@ -15,7 +15,10 @@ import {
 } from "selectors/editorSelectors";
 import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  getCurrentApplication,
+  getDefaultApplicationId,
+} from "selectors/applicationSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -39,6 +42,7 @@ type AppViewerPageContainerProps = {
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
+  defaultApplicationId: string;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -65,7 +69,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
           Please add widgets to this page in the&nbsp;
           <Link
             to={BUILDER_PAGE_URL(
-              this.props.match.params.defaultApplicationId,
+              this.props.defaultApplicationId,
               this.props.match.params.pageId,
             )}
           >
@@ -125,6 +129,7 @@ const mapStateToProps = (state: AppState) => {
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
+    defaultApplicationId: getDefaultApplicationId(state),
   };
 };
 

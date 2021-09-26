@@ -61,6 +61,7 @@ import Icon from "components/ads/Icon";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 //  ---------- Styles ----------
 
@@ -167,9 +168,9 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const { defaultApplicationId, pageId: currentPageId } = useParams<
-    ExplorerURLParams
-  >();
+  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const applicationId = useSelector(getCurrentApplicationId);
 

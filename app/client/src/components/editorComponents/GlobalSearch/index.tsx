@@ -79,6 +79,7 @@ import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
@@ -189,6 +190,8 @@ function GlobalSearch() {
   );
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
+
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
@@ -445,7 +448,7 @@ function GlobalSearch() {
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
     const url = actionConfig?.getURL(
-      params.defaultApplicationId,
+      defaultApplicationId,
       pageId,
       id,
       pluginType,
@@ -457,7 +460,7 @@ function GlobalSearch() {
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
-    history.push(JS_COLLECTION_ID_URL(params.defaultApplicationId, pageId, id));
+    history.push(JS_COLLECTION_ID_URL(defaultApplicationId, pageId, id));
     toggleShow();
   };
 
@@ -465,7 +468,7 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
-        params.defaultApplicationId,
+        defaultApplicationId,
         item.pageId,
         item.id,
         getQueryParams(),
@@ -475,7 +478,7 @@ function GlobalSearch() {
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL(params.defaultApplicationId, item.pageId));
+    history.push(BUILDER_PAGE_URL(defaultApplicationId, item.pageId));
   };
 
   const onEnterSnippet = useSelector(

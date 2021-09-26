@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
@@ -16,6 +16,7 @@ import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
@@ -34,6 +35,8 @@ export const GetNavigationMenuData = ({
   const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
+
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
 
@@ -70,9 +73,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(
-          PAGE_LIST_EDITOR_URL(params.defaultApplicationId, params.pageId),
-        );
+        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId));
       },
       type: MenuTypes.MENU,
       isVisible: true,

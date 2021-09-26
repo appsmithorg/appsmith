@@ -114,13 +114,10 @@ function* initializeEditorSaga(
     yield put({ type: ReduxActionTypes.START_EVALUATION });
 
     const initCalls = [
-      fetchPageList(
-        { applicationId: defaultApplicationId, branchName },
-        APP_MODE.EDIT,
-      ),
+      fetchPageList({ defaultApplicationId, branchName }, APP_MODE.EDIT),
       fetchApplication({
         payload: {
-          applicationId: defaultApplicationId,
+          defaultApplicationId,
           branchName,
           mode: APP_MODE.EDIT,
         },
@@ -166,7 +163,7 @@ function* initializeEditorSaga(
     if (!fetchPageCallResult) return;
 
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollections({ applicationId: defaultApplicationId, branchName })],
+      [fetchJSCollections({ defaultApplicationId, branchName })],
       [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
@@ -196,7 +193,7 @@ function* initializeEditorSaga(
 
     const actionsCall = yield failFastApiCalls(
       [
-        fetchActions({ applicationId: defaultApplicationId, branchName }, [
+        fetchActions({ defaultApplicationId, branchName }, [
           executePageLoadActions(),
         ]),
       ],
@@ -280,24 +277,19 @@ export function* initializeAppViewerSaga(
   const initCalls = [
     put(
       fetchJSCollectionsForView({
-        applicationId: defaultApplicationId,
+        defaultApplicationId,
         branchName,
       }),
     ),
     // TODO (hetu) Remove spl view call for fetch actions
+    put(fetchActionsForView({ defaultApplicationId, branchName })),
     put(
-      fetchActionsForView({ applicationId: defaultApplicationId, branchName }),
-    ),
-    put(
-      fetchPageList(
-        { applicationId: defaultApplicationId, branchName },
-        APP_MODE.PUBLISHED,
-      ),
+      fetchPageList({ defaultApplicationId, branchName }, APP_MODE.PUBLISHED),
     ),
     put(
       fetchApplication({
         payload: {
-          applicationId: defaultApplicationId,
+          defaultApplicationId,
           branchName,
           mode: APP_MODE.PUBLISHED,
         },
