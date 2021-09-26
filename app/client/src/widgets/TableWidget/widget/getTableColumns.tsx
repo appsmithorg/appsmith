@@ -47,7 +47,6 @@ export const getCellProperties = (
         columnProperties.cellBackground,
         rowIndex,
       ),
-      buttonStyle: getPropertyValue(columnProperties.buttonStyle, rowIndex),
       buttonLabelColor: getPropertyValue(
         columnProperties.buttonLabelColor,
         rowIndex,
@@ -102,7 +101,6 @@ export const getCellProperties = (
       menuColor: getPropertyValue(columnProperties.menuColor, rowIndex, true),
 
       menuItems: getPropertyValue(columnProperties.menuItems, rowIndex),
-      menuStyle: getPropertyValue(columnProperties.menuStyle, rowIndex, true),
       menuVariant: getPropertyValue(
         columnProperties.menuVariant,
         rowIndex,

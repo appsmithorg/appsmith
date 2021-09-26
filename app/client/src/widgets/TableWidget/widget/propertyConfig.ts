@@ -5,10 +5,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import {
-  ButtonBorderRadiusTypes,
-  ButtonStyleTypes,
-} from "components/constants";
+import { ButtonBorderRadiusTypes } from "components/constants";
 import {
   updateDerivedColumnsHook,
   ColumnTypes,
@@ -884,86 +881,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
-                {
-                  propertyName: "menuStyle",
-                  label: "Menu Style",
-                  controlType: "DROP_DOWN",
-                  helpText: "Changes the style of the menu button",
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                    ]);
-                  },
-                  options: [
-                    {
-                      label: "Primary",
-                      value: "PRIMARY",
-                    },
-                    {
-                      label: "Warning",
-                      value: "WARNING",
-                    },
-                    {
-                      label: "Danger",
-                      value: "DANGER",
-                    },
-                    {
-                      label: "Info",
-                      value: "INFO",
-                    },
-                    {
-                      label: "Secondary",
-                      value: "SECONDARY",
-                    },
-                    {
-                      label: "Custom",
-                      value: "CUSTOM",
-                    },
-                  ],
-                  // Update Menu color once Custom Style is Selected
-                  updateHook: function updateHook(
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) {
-                    let propertiesToUpdate = [
-                      { propertyPath, propertyValue },
-                      { propertyPath: "prevMenuStyle", propertyValue },
-                    ];
 
-                    if (propertyValue === "CUSTOM") {
-                      propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    }
-
-                    propertiesToUpdate.push({
-                      propertyPath: "menuColor",
-                      propertyValue: "",
-                    });
-
-                    return propertiesToUpdate;
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "PRIMARY",
-                      allowedValues: [
-                        "PRIMARY",
-                        "WARNING",
-                        "DANGER",
-                        "INFO",
-                        "SECONDARY",
-                        "CUSTOM",
-                      ],
-                    },
-                  },
-                },
                 {
                   propertyName: "menuColor",
                   helpText:
@@ -975,52 +893,17 @@ export default [
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const property = getBasePropertyPath(propertyPath);
-                    const menuStyle = get(props, `${property}.menuStyle`, "");
-                    const columnType = get(props, `${property}.columnType`, "");
-                    return (
-                      menuStyle !== ButtonStyleTypes.CUSTOM ||
-                      columnType !== ColumnTypes.MENU_BUTTON
-                    );
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
                   },
                   dependencies: [
-                    "menuStyle",
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
                   ],
                   // Remove menu Style once Custom is Chosen
-                  updateHook: function updateHook(
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) {
-                    const property = getBasePropertyPath(propertyPath);
-                    const prevMenuStyle = get(
-                      props,
-                      `${property}.prevMenuStyle`,
-                      "",
-                    );
-                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                      props,
-                      propertyPath,
-                      propertyValue,
-                    );
-                    if (updateDerivedColumnsHookArr) {
-                      propertiesToUpdate = [
-                        ...updateDerivedColumnsHookArr,
-                        ...propertiesToUpdate,
-                      ];
-                    }
-                    if (prevMenuStyle) {
-                      propertiesToUpdate.push({
-                        propertyPath: "prevMenuStyle",
-                        propertyValue: "",
-                      });
-                    }
-                    return propertiesToUpdate;
-                  },
+                  updateHook: updateDerivedColumnsHook,
                 },
                 {
                   propertyName: "menuVariant",

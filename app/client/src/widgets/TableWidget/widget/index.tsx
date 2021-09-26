@@ -45,7 +45,6 @@ import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
-import { ButtonStyleTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 
 const ReactTableComponent = lazy(() =>
@@ -200,8 +199,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isDisabled: cellProperties.isDisabled || false,
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
-              menuStyle: cellProperties.menuStyle ?? ButtonStyleTypes.PRIMARY,
-              prevMenuStyle: cellProperties.prevMenuStyle,
               menuVariant: cellProperties.menuVariant ?? "SOLID",
               menuColor: cellProperties.menuColor,
               borderRadius: cellProperties.borderRadius,

@@ -42,7 +42,6 @@ import {
   ButtonVariant,
   ButtonBoxShadow,
   ButtonBorderRadius,
-  ButtonStyleTypes,
 } from "components/constants";
 
 //TODO(abstraction leak)
@@ -282,8 +281,6 @@ export interface RenderMenuButtonProps {
   onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
   isCompact?: boolean;
   menuItems: MenuItems;
-  menuStyle?: ButtonStyleTypes;
-  prevMenuStyle?: ButtonStyleTypes;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
@@ -362,10 +359,8 @@ function MenuButton({
   label,
   menuColor,
   menuItems,
-  menuStyle,
   menuVariant,
   onCommandClick,
-  prevMenuStyle,
 }: MenuButtonProps): JSX.Element {
   const handlePropagation = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -393,10 +388,8 @@ function MenuButton({
         label={label}
         menuColor={menuColor}
         menuItems={{ ...menuItems }}
-        menuStyle={menuStyle}
         menuVariant={menuVariant}
         onItemClicked={onItemClicked}
-        prevMenuStyle={prevMenuStyle}
       />
     </div>
   );

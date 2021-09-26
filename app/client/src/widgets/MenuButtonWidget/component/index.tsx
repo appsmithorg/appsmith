@@ -20,7 +20,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-} from "widgets/ButtonWidget/component";
+} from "widgets/WidgetUtils";
 
 export const MenuButtonContainer = styled.div`
   width: 100%;

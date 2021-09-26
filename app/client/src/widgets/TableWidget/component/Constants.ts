@@ -6,9 +6,7 @@ import { Alignment } from "@blueprintjs/core";
 import {
   ButtonBorderRadius,
   ButtonBoxShadow,
-  ButtonStyle,
   ButtonStyleType,
-  ButtonStyleTypes,
   ButtonVariant,
 } from "components/constants";
 
@@ -119,8 +117,6 @@ export interface CellLayoutProperties {
   isCellVisible: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;
-  menuStyle?: ButtonStyleTypes;
-  prevMenuStyle?: ButtonStyleTypes;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   iconName?: IconName;
@@ -215,8 +211,6 @@ export interface ColumnProperties {
       onClick?: string;
     }
   >;
-  menuStyle?: ButtonStyle;
-  prevMenuStyle?: ButtonStyle;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
