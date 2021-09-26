@@ -3,7 +3,6 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
-  APP_VIEW_URL,
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
   BASE_LOGIN_URL,

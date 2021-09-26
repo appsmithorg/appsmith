@@ -32,7 +32,6 @@ import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
