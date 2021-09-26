@@ -50,7 +50,9 @@ export function useEditAppCollabEvents(applicationId?: string) {
       dispatch(collabStartEditingAppEvent(applicationId));
     return () => {
       dispatch(collabResetAppEditorsEvent());
-      applicationId && dispatch(collabStopEditingAppEvent(applicationId));
+      isWebsocketConnected &&
+        applicationId &&
+        dispatch(collabStopEditingAppEvent(applicationId));
     };
   }, [applicationId, isWebsocketConnected]);
 }
