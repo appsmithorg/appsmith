@@ -73,19 +73,6 @@ const HeaderWrapper = styled(StyledHeader)`
     color: ${(props) => props.theme.colors.header.appName};
   }
 
-  & .header__application-share-btn {
-    background-color: ${(props) => props.theme.colors.header.background};
-    border-color: ${(props) => props.theme.colors.header.background};
-    // margin-right: ${(props) => props.theme.spaces[1]}px;
-  }
-
-  & .header__application-share-btn:hover {
-    color: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    ${IconWrapper} path {
-      fill: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    }
-  }
-
   & ${Profile} {
     width: 24px;
     height: 24px;
@@ -327,6 +314,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               }
               trigger={
                 <StyledInviteButton
+                  className="t--application-share-btn header__application-share-btn"
                   icon={"share"}
                   size={Size.small}
                   tag="button"
