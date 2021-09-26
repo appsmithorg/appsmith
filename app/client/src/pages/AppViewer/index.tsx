@@ -68,7 +68,7 @@ export type AppViewerProps = {
   initializeAppViewer: (params: {
     defaultApplicationId: string;
     pageId?: string;
-    branch?: string;
+    branchName?: string;
   }) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
@@ -86,7 +86,6 @@ export type AppViewerProps = {
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
   lightTheme: Theme;
-  defaultApplicationId: string;
 } & RouteComponentProps<BuilderRouteParams>;
 
 type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
@@ -101,8 +100,7 @@ class AppViewer extends Component<Props> {
       this.setState({ registered: true });
     });
 
-    const { defaultApplicationId } = this.props;
-    const { pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
     const {
       location: { search },
     } = this.props;
@@ -110,7 +108,7 @@ class AppViewer extends Component<Props> {
 
     if (defaultApplicationId) {
       this.props.initializeAppViewer({
-        branch,
+        branchName: branch,
         defaultApplicationId,
         pageId,
       });
@@ -118,8 +116,7 @@ class AppViewer extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { defaultApplicationId } = this.props;
-    const { pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
     const {
       location: { search: prevSearch },
     } = prevProps;
@@ -134,7 +131,7 @@ class AppViewer extends Component<Props> {
       this.props.initializeAppViewer({
         defaultApplicationId,
         pageId,
-        branch,
+        branchName: branch,
       });
     }
   }
@@ -189,7 +186,6 @@ const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
-  defaultApplicationId: getDefaultApplicationId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -214,7 +210,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   initializeAppViewer: (params: {
     defaultApplicationId: string;
     pageId?: string;
-    branch?: string;
+    branchName?: string;
   }) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
