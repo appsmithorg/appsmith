@@ -256,32 +256,76 @@ describe("Table Widget Functionality", function() {
         .click({ force: true });
     });
   });
-  // Compact mode moved to property pane
 
-  // it("Table Widget Functionality To Check Compact Mode", function() {
-  //   cy.isSelectRow(1);
-  //   cy.readTabledataPublish("1", "3").then((tabData) => {
-  //     const tabValue = tabData;
-  //     expect(tabValue).to.be.equal("Lindsay Ferguson");
-  //     cy.log("the value is" + tabValue);
-  //     cy.get(publish.rowHeight).click();
-  //     cy.get(publish.rowHeightOpt)
-  //       .contains("Tall")
-  //       .click();
-  //     cy.scrollTabledataPublish("3", "3").then((tabData) => {
-  //       const tabValue = tabData;
-  //       expect(tabValue).to.be.equal("Byron Fields");
-  //     });
-  //     cy.get(publish.rowHeight).click();
-  //     cy.get(publish.rowHeightOpt)
-  //       .contains("Short")
-  //       .click();
-  //     cy.readTabledataPublish("4", "3").then((tabData) => {
-  //       const tabValue = tabData;
-  //       expect(tabValue).to.be.equal("Ryan Holmes");
-  //     });
-  //   });
-  // });
+  it("Table Widget Functionality To Check if Table is Sortable", function() {
+    cy.openPropertyPane("tablewidget");
+    // Confirm if isSortable is true
+    cy.get(commonlocators.isSortable).should("be.checked");
+    // Publish App
+    cy.PublishtheApp();
+    // Confirm Current order
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Michael Lawson");
+    });
+    // Sort Username Column
+    cy.contains('[role="columnheader"]', "userName")
+      .first()
+      .click({
+        force: true,
+      });
+    cy.wait(1000);
+    // Confirm order after sort
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Ryan Holmes");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Tobias Funke");
+    });
+    // Back to edit page
+    cy.get(publish.backToEditor).click({
+      force: true,
+    });
+
+    cy.openPropertyPane("tablewidget");
+    // Disable isSortable
+    // Confirm if isSortable is false
+    cy.togglebarDisable(commonlocators.isSortable);
+
+    // Publish App
+    cy.PublishtheApp();
+    // Confirm Current order
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Lindsay Ferguson");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).to.be.equal("Michael Lawson");
+    });
+    // Confirm Sort is disable on Username Column
+    cy.contains('[role="columnheader"]', "userName")
+      .first()
+      .click({
+        force: true,
+      });
+    cy.wait(1000);
+    // Confirm order after sort
+    cy.readTabledataPublish("1", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).not.to.be.equal("Ryan Holmes");
+    });
+    cy.readTabledataPublish("0", "3").then((tabData) => {
+      const tabValue = tabData;
+      expect(tabValue).not.to.be.equal("Tobias Funke");
+    });
+  });
 
   /*
   To enabled later
