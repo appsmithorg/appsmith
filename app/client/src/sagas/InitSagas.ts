@@ -159,8 +159,8 @@ function* initializeEditorSaga(
         [ReduxActionTypes.FETCH_PAGE_SUCCESS],
         [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
       );
+      if (!fetchPageCallResult) return;
     }
-    if (!fetchPageCallResult) return;
 
     const jsActionsCall = yield failFastApiCalls(
       [fetchJSCollections({ defaultApplicationId, branchName })],
