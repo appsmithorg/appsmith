@@ -45,7 +45,7 @@
     "emailList": "[data-colindex='0']",
     "orgList": ".t--org-section:contains(",
     "orgSectionBtn": ".t--org-section .bp3-button",
-    "shareOrg": ") a:contains('Share')",
+    "shareOrg": ") button:contains('Share')",
     "orgSection": "a:contains(",
     "createAppFrOrg": ") .t--new-button", 
     "shareApp": ".t--application-share-btn",
