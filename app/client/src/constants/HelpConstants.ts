@@ -1,4 +1,8 @@
 export const HelpMap: Record<string, { path: string; searchKey: string }> = {
+  AUDIO_WIDGET: {
+    path: "/widget-reference/audio",
+    searchKey: "Audio",
+  },
   CONTAINER_WIDGET: {
     path: "/widget-reference/container",
     searchKey: "Container",
@@ -138,6 +142,14 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
   MENU_BUTTON_WIDGET: {
     path: "/widget-reference/menu-button",
     searchKey: "Menu Button",
+  },
+  TREE_MULTI_SELECT_WIDGET: {
+    path: "/widget-reference/tree-multi-select",
+    searchKey: "Tree Multi Select",
+  },
+  TREE_SINGLE_SELECT_WIDGET: {
+    path: "/widget-reference/tree-single-select",
+    searchKey: "Tree Single Select",
   },
   ICON_BUTTON_WIDGET: {
     path: "/widget-reference/icon-button",

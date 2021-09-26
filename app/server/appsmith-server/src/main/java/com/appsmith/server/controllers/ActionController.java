@@ -103,7 +103,7 @@ public class ActionController {
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id) {
         log.debug("Going to delete unpublished action with id: {}", id);
-        return newActionService.deleteUnpublishedAction(id)
+        return layoutActionService.deleteUnpublishedAction(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 

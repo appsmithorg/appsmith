@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
@@ -48,13 +48,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -186,6 +187,22 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
+    public Flux<Organization> installDefaultPlugins(List<Plugin> plugins) {
+        final List<OrganizationPlugin> newOrganizationPlugins = plugins
+                .stream()
+                .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
+                .map(plugin -> {
+                    return new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.ACTIVATED);
+                })
+                .collect(Collectors.toList());
+        return organizationService.getAll()
+                .flatMap(organization -> {
+                    organization.getPlugins().addAll(newOrganizationPlugins);
+                    return organizationService.save(organization);
+                });
+    }
+
+    @Override
     public Mono<Organization> uninstallPlugin(PluginOrgDTO pluginDTO) {
         if (pluginDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
@@ -204,7 +221,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
                 //be uninstalled.
                 .flatMap(organization -> {
-                    List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                    Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
                     organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
                     organization.setPlugins(organizationPluginList);
                     return organizationService.save(organization);
@@ -246,9 +263,9 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             .then(organizationService.getById(pluginDTO.getOrganizationId()))
                             .flatMap(organization -> {
 
-                                List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                                Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
                                 if (organizationPluginList == null) {
-                                    organizationPluginList = new ArrayList<>();
+                                    organizationPluginList = new HashSet<>();
                                 }
 
                                 OrganizationPlugin organizationPlugin = new OrganizationPlugin();
@@ -626,6 +643,16 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         });
     }
 
+    @Override
+    public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
+        return repository.saveAll(plugins);
+    }
+
+    @Override
+    public Flux<Plugin> getAllRemotePlugins() {
+        return repository.findByType(PluginType.REMOTE);
+    }
+
     private Map loadPluginResourceGivenPlugin(Plugin plugin, String resourcePath) {
         InputStream resourceAsStream = pluginManager
                 .getPlugin(plugin.getPackageName())
@@ -649,8 +676,21 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .map(plugin -> {
-                    if (resourcePath.equals("editor.json") && plugin.getUiComponent().equals(UQI_DB_EDITOR_FORM)) {
-                        return loadEditorPluginResourceUqi(plugin);
+                    if ("editor.json".equals(resourcePath)) {
+                        // UI config will be available if this plugin is sourced from the cloud
+                        if (plugin.getActionUiConfig() != null) {
+                            return plugin.getActionUiConfig();
+                        }
+                        // For UQI, use another format of loading the config
+                        if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
+                            return loadEditorPluginResourceUqi(plugin);
+                        }
+                    }
+                    if ("form.json".equals(resourcePath)) {
+                        // UI config will be available if this plugin is sourced from the cloud
+                        if (plugin.getDatasourceUiConfig() != null) {
+                            return plugin.getDatasourceUiConfig();
+                        }
                     }
                     return loadPluginResourceGivenPlugin(plugin, resourcePath);
                 });

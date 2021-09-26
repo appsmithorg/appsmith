@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

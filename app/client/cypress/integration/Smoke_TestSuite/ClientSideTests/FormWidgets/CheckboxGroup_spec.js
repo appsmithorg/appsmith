@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/newFormDsl.json");
+const dsl = require("../../../../fixtures/checkboxgroupDsl.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("Checkbox Group Widget Functionality", function() {
@@ -40,6 +40,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(formWidgetsPage.deleteradiovalue)
       .eq(2)
       .click({ force: true });
+    cy.wait(200);
     cy.get(formWidgetsPage.labelCheckboxGroup).should(
       "not.have.value",
       "test4",

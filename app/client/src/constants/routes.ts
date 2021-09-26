@@ -278,5 +278,8 @@ export const extractAppIdAndPageIdFromUrl = (url = "") => {
     };
   }
 
-  return {};
+  return {
+    applicationId: "",
+    pageId: "",
+  };
 };
