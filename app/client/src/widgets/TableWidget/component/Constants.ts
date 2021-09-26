@@ -106,7 +106,7 @@ export interface CellLayoutProperties {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   buttonLabel?: string;
   isVisible?: boolean;
@@ -116,7 +116,6 @@ export interface CellLayoutProperties {
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
-  iconButtonStyle: ButtonStyleType;
   isCellVisible: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;
@@ -189,7 +188,7 @@ export interface ColumnProperties {
   isDerived: boolean;
   computedValue: string;
   buttonLabel?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   onClick?: string;
   outputFormat?: string;

@@ -48,6 +48,12 @@ export function BlankState(props: {
   );
 }
 
+export enum DEBUGGER_TAB_KEYS {
+  ERROR_TAB = "ERROR",
+  LOGS_TAB = "LOGS_TAB",
+  INSPECT_TAB = "INSPECT_TAB",
+}
+
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
   [Severity.ERROR]: "error",
@@ -58,30 +64,23 @@ export function getDependenciesFromInverseDependencies(
   deps: DependencyMap,
   entityName: string | null,
 ) {
+  // eslint-disable-next-line no-console
+  console.log("DEPENDENCY", deps);
   if (!entityName) return null;
 
   const directDependencies = new Set<string>();
   const inverseDependencies = new Set<string>();
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
+    const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
     (dependencies as any).map((dependency: any) => {
-      if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const entity = dependant
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
+      const { entityName: entityDependency } = getEntityNameAndPropertyPath(
+        dependency,
+      );
+      if (entity !== entityName && entityDependency === entityName) {
         directDependencies.add(entity);
-      } else if (
-        dependant.includes(entityName) &&
-        !dependency.includes(entityName)
-      ) {
-        const entity = dependency
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
-        inverseDependencies.add(entity);
+      } else if (entity === entityName && entityDependency !== entityName) {
+        inverseDependencies.add(entityDependency);
       }
     });
   });

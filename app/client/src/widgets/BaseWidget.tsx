@@ -131,11 +131,14 @@ abstract class BaseWidget<
     }
   }
 
-  batchUpdateWidgetProperty(updates: BatchPropertyUpdatePayload): void {
+  batchUpdateWidgetProperty(
+    updates: BatchPropertyUpdatePayload,
+    shouldReplay = true,
+  ): void {
     const { batchUpdateWidgetProperty } = this.context;
     const { widgetId } = this.props;
     if (batchUpdateWidgetProperty && widgetId) {
-      batchUpdateWidgetProperty(widgetId, updates);
+      batchUpdateWidgetProperty(widgetId, updates, shouldReplay);
     }
   }
 

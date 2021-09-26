@@ -8,12 +8,10 @@ import {
 } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WidgetOperations } from "widgets/BaseWidget";
-import { generateReactKey } from "widgets/WidgetUtils";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { WidgetProperties } from "selectors/propertyPaneSelectors";
 
 export function selectedTabValidation(
   value: unknown,
@@ -25,7 +23,7 @@ export function selectedTabValidation(
   }> = props.tabsObj ? Object.values(props.tabsObj) : props.tabs || [];
   const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
   return {
-    isValid: tabNames.includes(value as string),
+    isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
     message: `Tab name ${value} does not exist`,
   };
@@ -46,6 +44,31 @@ class TabsWidget extends BaseWidget<
             controlType: "TABS_INPUT",
             isBindProperty: false,
             isTriggerProperty: false,
+            updateRelatedWidgetProperties: (
+              propertyPath: string,
+              propertyValue: string,
+              props: WidgetProperties,
+            ) => {
+              const propertyPathSplit = propertyPath.split(".");
+              const property = propertyPathSplit.pop();
+              if (property === "label") {
+                const itemId = propertyPathSplit.pop() || "";
+                const item = props.tabsObj[itemId];
+                if (item) {
+                  return [
+                    {
+                      widgetId: item.widgetId,
+                      updates: {
+                        modify: {
+                          tabName: propertyValue,
+                        },
+                      },
+                    },
+                  ];
+                }
+              }
+              return [];
+            },
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
@@ -85,7 +108,7 @@ class TabsWidget extends BaseWidget<
           {
             propertyName: "defaultTab",
             helpText: "Selects a tab name specified by default",
-            placeholderText: "Enter tab name",
+            placeholderText: "Tab 1",
             label: "Default Tab",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -217,118 +240,7 @@ class TabsWidget extends BaseWidget<
     return "TABS_WIDGET";
   }
 
-  addTabContainer = (widgetIds: string[]) => {
-    const tabs = Object.values(this.props.tabsObj || {});
-    widgetIds.forEach((newWidgetId: string) => {
-      const tab = _.find(tabs, {
-        widgetId: newWidgetId,
-      });
-      if (tab) {
-        const columns =
-          (this.props.rightColumn - this.props.leftColumn) *
-          this.props.parentColumnSpace;
-        // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-        const rows =
-          (this.props.bottomRow -
-            this.props.topRow -
-            GRID_DENSITY_MIGRATION_V1) *
-          this.props.parentRowSpace;
-        const config = {
-          // Todo(abhinav): abstraction leaks
-          type: "CANVAS_WIDGET",
-          columns: columns,
-          rows: rows,
-          topRow: 1,
-          newWidgetId,
-          widgetId: this.props.widgetId,
-          leftColumn: 0,
-          rightColumn:
-            (this.props.rightColumn - this.props.leftColumn) *
-            this.props.parentColumnSpace,
-          bottomRow:
-            (this.props.bottomRow - this.props.topRow) *
-            this.props.parentRowSpace,
-          props: {
-            tabId: tab.id,
-            tabName: tab.label,
-            containerStyle: "none",
-            canExtend: false,
-            detachFromLayout: true,
-            children: [],
-          },
-        };
-        super.updateWidget(
-          WidgetOperations.ADD_CHILD,
-          this.props.widgetId,
-          config,
-        );
-      }
-    });
-  };
-
-  updateTabContainerNames = () => {
-    this.props.children.forEach((each) => {
-      const tab = this.props.tabsObj[each.tabId];
-      if (tab && each.tabName !== tab.label) {
-        super.updateWidget(WidgetOperations.UPDATE_PROPERTY, each.widgetId, {
-          propertyPath: "tabName",
-          propertyValue: tab.label,
-        });
-      }
-    });
-  };
-
-  removeTabContainer = (widgetIds: string[]) => {
-    widgetIds.forEach((widgetIdToRemove: string) => {
-      super.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
-        parentId: this.props.widgetId,
-      });
-    });
-  };
-
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (
-      JSON.stringify(this.props.tabsObj) !== JSON.stringify(prevProps.tabsObj)
-    ) {
-      const tabWidgetIds = Object.values(this.props.tabsObj).map(
-        (tab) => tab.widgetId,
-      );
-      const childWidgetIds = this.props.children
-        .filter(Boolean)
-        .map((child) => child.widgetId);
-      // If the tabs and children are different,
-      // add and/or remove tab container widgets
-      if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
-        const widgetIdsToRemove: string[] = _.without(
-          childWidgetIds,
-          ...tabWidgetIds,
-        );
-        const widgetIdsToCreate: string[] = _.without(
-          tabWidgetIds,
-          ...childWidgetIds,
-        );
-        if (widgetIdsToCreate && widgetIdsToCreate.length) {
-          this.addTabContainer(widgetIdsToCreate);
-        }
-        if (widgetIdsToRemove && widgetIdsToRemove.length) {
-          this.removeTabContainer(widgetIdsToRemove);
-        }
-      }
-      this.updateTabContainerNames();
-      // If all tabs were removed.
-      if (tabWidgetIds.length === 0) {
-        const newTabContainerWidgetId = generateReactKey();
-        const tabs = {
-          tab1: {
-            id: "tab1",
-            widgetId: newTabContainerWidgetId,
-            label: "Tab 1",
-            index: 0,
-          },
-        };
-        super.updateWidgetProperty("tabsObj", tabs);
-      }
-    }
     const visibleTabs = this.getVisibleTabs();
     if (this.props.defaultTab) {
       if (this.props.defaultTab !== prevProps.defaultTab) {
@@ -372,45 +284,6 @@ class TabsWidget extends BaseWidget<
       }
     }
   }
-
-  generateTabContainers = () => {
-    const { tabsObj, widgetId } = this.props;
-    const tabs = Object.values(tabsObj || {});
-    const childWidgetIds = this.props.children
-      ?.filter(Boolean)
-      .map((child) => child.widgetId);
-    let tabsToCreate = tabs || [];
-    if (childWidgetIds && childWidgetIds.length > 0 && Array.isArray(tabs)) {
-      tabsToCreate = tabs.filter(
-        (tab) => childWidgetIds.indexOf(tab.widgetId) === -1,
-      );
-    }
-
-    const tabContainers = tabsToCreate.map((tab) => ({
-      type: "CANVAS_WIDGET",
-      tabId: tab.id,
-      tabName: tab.label,
-      widgetId: tab.widgetId,
-      parentId: widgetId,
-      detachFromLayout: true,
-      children: [],
-      parentRowSpace: 1,
-      parentColumnSpace: 1,
-      leftColumn: 0,
-      rightColumn:
-        (this.props.rightColumn - this.props.leftColumn) *
-        this.props.parentColumnSpace,
-      topRow: 0,
-      bottomRow:
-        (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace,
-      isLoading: false,
-    }));
-    if (tabContainers && tabContainers.length > 0) {
-      super.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
-        children: tabContainers,
-      });
-    }
-  };
 
   getVisibleTabs = () => {
     const tabs = Object.values(this.props.tabsObj || {});
@@ -460,7 +333,6 @@ class TabsWidget extends BaseWidget<
         visibleTabs.length ? visibleTabs[0].widgetId : undefined,
       );
     }
-    this.generateTabContainers();
   }
 }
 
