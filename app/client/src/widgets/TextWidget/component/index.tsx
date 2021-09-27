@@ -74,6 +74,8 @@ class TextComponent extends React.Component<TextComponentProps> {
       textAlign,
       textColor,
     } = this.props;
+    let procText = text || "";
+    procText = procText?.replace(/\\n/g, "<br />");
     return (
       <TextContainer>
         <StyledText
@@ -87,7 +89,7 @@ class TextComponent extends React.Component<TextComponentProps> {
           textColor={textColor}
         >
           <Interweave
-            content={text}
+            content={procText}
             matchers={[new EmailMatcher("email"), new UrlMatcher("url")]}
             newWindow
           />
