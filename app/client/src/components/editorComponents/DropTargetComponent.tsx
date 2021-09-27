@@ -70,7 +70,7 @@ function Onboarding() {
 */
 export const DropTargetContext: Context<{
   updateDropTargetRows?: (
-    widgetId: string,
+    widgetIdsToExclude: string[],
     widgetBottomRow: number,
   ) => number | false;
 }> = createContext({});
@@ -131,10 +131,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       dropTargetRef.current.style.height = height;
     }
   };
-  const updateDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
+  const updateDropTargetRows = (
+    widgetIdsToExclude: string[],
+    widgetBottomRow: number,
+  ) => {
     if (canDropTargetExtend) {
       const newRows = calculateDropTargetRows(
-        widgetId,
+        widgetIdsToExclude,
         widgetBottomRow,
         props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
         occupiedSpacesByChildren,

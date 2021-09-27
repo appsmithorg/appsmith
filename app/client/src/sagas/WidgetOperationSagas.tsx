@@ -124,6 +124,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,
       parentId,
+      [widgetId],
       bottomRow,
     );
     if (updatedCanvasBottomRow) {

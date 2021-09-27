@@ -37,6 +37,7 @@ export type WidgetMoveParams = {
 
 export function* getCanvasSizeAfterWidgetMove(
   canvasWidgetId: string,
+  movedWidgetIds: string[],
   movedWidgetsBottomRow: number,
 ) {
   const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
@@ -46,7 +47,7 @@ export function* getCanvasSizeAfterWidgetMove(
     );
     const canvasMinHeight = canvasWidget.minHeight || 0;
     const newRows = calculateDropTargetRows(
-      canvasWidgetId,
+      movedWidgetIds,
       movedWidgetsBottomRow,
       canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
       occupiedSpacesByChildren,
@@ -111,10 +112,12 @@ function* moveWidgetsSaga(
         allWidgets: widgetsObj,
       });
     }, widgets);
+    const movedWidgetIds = draggedBlocksToUpdate.map((a) => a.widgetId);
 
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,
       canvasId,
+      movedWidgetIds,
       bottomMostRowAfterMove,
     );
     if (updatedCanvasBottomRow) {

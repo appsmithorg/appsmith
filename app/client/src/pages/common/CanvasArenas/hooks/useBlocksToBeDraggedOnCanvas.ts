@@ -256,8 +256,11 @@ export const useBlocksToBeDraggedOnCanvas = ({
         } as XYCord,
         { x: 0, y: 0 },
       );
+      const updatedWidgetIds = drawingBlocks.map((a) => a.widgetId);
       if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {
-        return updateDropTargetRows && updateDropTargetRows(widgetId, top);
+        return (
+          updateDropTargetRows && updateDropTargetRows(updatedWidgetIds, top)
+        );
       }
     }
   };

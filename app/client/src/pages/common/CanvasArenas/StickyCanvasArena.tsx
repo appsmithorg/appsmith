@@ -7,6 +7,7 @@ interface StickyCanvasArenaProps {
   canvasId: string;
   id: string;
   canvasPadding: number;
+  snapRows: number;
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
   ref: StickyCanvasArenaRef;
@@ -56,14 +57,22 @@ export const StickyCanvasArena = forwardRef(
           const {
             height: scrollParentTopHeight,
           } = parentCanvas.getBoundingClientRect();
-          const { width } = slidingArenaRef.current.getBoundingClientRect();
+          const {
+            height,
+            width,
+          } = slidingArenaRef.current.getBoundingClientRect();
+          const calculatedTopPosition = getCanvasTopOffset(
+            slidingArenaRef,
+            stickyCanvasRef,
+            canExtend,
+          );
           stickyCanvasRef.current.style.width = width + "px";
           stickyCanvasRef.current.style.position = canExtend
             ? "absolute"
             : "sticky";
           stickyCanvasRef.current.style.left = "0px";
           stickyCanvasRef.current.style.top =
-            getCanvasTopOffset(slidingArenaRef, stickyCanvasRef, canExtend) +
+            Math.min(calculatedTopPosition, height - scrollParentTopHeight) +
             "px";
           stickyCanvasRef.current.style.height = scrollParentTopHeight + "px";
         }
@@ -79,6 +88,10 @@ export const StickyCanvasArena = forwardRef(
         parentCanvas?.addEventListener("scroll", updateCanvasStyles, false);
       }
     });
+
+    useEffect(() => {
+      updateCanvasStyles();
+    }, [props.snapRows]);
 
     return showCanvas ? (
       <>
