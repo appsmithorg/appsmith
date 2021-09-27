@@ -20,6 +20,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCord } from "utils/hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { commentModeSelector } from "../../selectors/commentsSelectors";
+import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -107,9 +108,7 @@ export function CanvasSelectionArena({
     ),
     [widgetId, snapColumnSpace, snapRowSpace],
   );
-  const isDraggingForSelection = useSelector((state: AppState) => {
-    return state.ui.canvasSelection.isDraggingForSelection;
-  });
+  const isDraggingForSelection = useSelector(getIsDraggingForSelection);
   const isCurrentWidgetDrawing = useSelector((state: AppState) => {
     return state.ui.canvasSelection.widgetId === widgetId;
   });

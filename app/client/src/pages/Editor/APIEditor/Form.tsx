@@ -52,6 +52,8 @@ import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import { getActionResponses } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
+import SearchSnippets from "components/ads/SnippetButton";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 const Form = styled.form`
   display: flex;
@@ -466,6 +468,10 @@ function ApiEditorForm(props: Props) {
                 id={currentActionConfig ? currentActionConfig.id : ""}
                 name={currentActionConfig ? currentActionConfig.name : ""}
                 pageId={pageId}
+              />
+              <SearchSnippets
+                entityId={currentActionConfig?.id}
+                entityType={ENTITY_TYPE.ACTION}
               />
               <Button
                 className="t--apiFormRunBtn"

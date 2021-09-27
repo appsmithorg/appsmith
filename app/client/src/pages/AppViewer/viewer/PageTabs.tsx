@@ -2,8 +2,8 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  ApplicationPayload,
   Page,
+  CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import {
@@ -127,7 +127,7 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: ApplicationPayload;
+  currentApplicationDetails?: CurrentApplicationData;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;

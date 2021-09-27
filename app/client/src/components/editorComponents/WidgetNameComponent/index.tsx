@@ -4,10 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import SettingsControl, { Activities } from "./SettingsControl";
-import {
-  useShowPropertyPane,
-  useShowTableFilterPane,
-} from "utils/hooks/dragResizeHooks";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetType } from "constants/WidgetConstants";
 import PerformanceTracker, {
@@ -59,7 +56,6 @@ type WidgetNameComponentProps = {
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
-  const showPropertyPane = useShowPropertyPane();
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -115,14 +111,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
-      showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
       selectWidget && selectWidget(props.widgetId);
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
         widgetType: props.type,
         widgetId: props.widgetId,
       });
-      showPropertyPane && showPropertyPane();
     }
 
     e.preventDefault();

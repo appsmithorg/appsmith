@@ -60,14 +60,14 @@ function* handleSelectWidget(action: ReduxAction<{ widgetId: string }>) {
   const builderMatch = matchBuilderPath(window.location.pathname);
   const { payload } = action;
   const selectedWidget = payload.widgetId;
-  if (selectedWidget && selectedWidget !== MAIN_CONTAINER_WIDGET_ID)
-    yield put(
-      updateRecentEntity({
-        type: "widget",
-        id: selectedWidget,
-        params: builderMatch?.params,
-      }),
-    );
+  // if (selectedWidget && selectedWidget !== MAIN_CONTAINER_WIDGET_ID)
+  //   yield put(
+  //     updateRecentEntity({
+  //       type: "widget",
+  //       id: selectedWidget,
+  //       params: builderMatch?.params,
+  //     }),
+  //   );
 }
 
 function* handlePathUpdated(

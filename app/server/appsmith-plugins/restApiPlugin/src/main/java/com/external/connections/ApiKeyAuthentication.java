@@ -25,6 +25,7 @@ import java.net.URI;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiKeyAuthentication extends APIConnection {
     private String label;
+    private String headerPrefix;
     private String value;
     Type addTo;
 
@@ -32,6 +33,7 @@ public class ApiKeyAuthentication extends APIConnection {
         return Mono.just(
                 ApiKeyAuthentication.builder()
                         .label(apiKeyAuth.getLabel())
+                        .headerPrefix(apiKeyAuth.getHeaderPrefix())
                         .value(apiKeyAuth.getValue())
                         .addTo(apiKeyAuth.getAddTo())
                         .build()
@@ -46,7 +48,7 @@ public class ApiKeyAuthentication extends APIConnection {
                 requestBuilder.url(appendApiKeyParamToUrl(request.url()));
                 break;
             case HEADER:
-                requestBuilder.headers(header -> header.set(label, value));
+                requestBuilder.headers(header -> header.set(label, this.getHeaderValue()));
                 break;
             default:
                 return Mono.error(
@@ -63,6 +65,16 @@ public class ApiKeyAuthentication extends APIConnection {
                 .flatMap(next::exchange)
                 // Default to next exchange function if something went wrong
                 .switchIfEmpty(next.exchange(request));
+    }
+
+    private String getHeaderValue() {
+        String headerValue = "";
+        if (this.headerPrefix != null) {
+            headerValue = this.headerPrefix.trim() + " ";
+        }
+        headerValue += this.value;
+
+        return headerValue.trim();
     }
 
     private URI appendApiKeyParamToUrl(URI oldUrl) {

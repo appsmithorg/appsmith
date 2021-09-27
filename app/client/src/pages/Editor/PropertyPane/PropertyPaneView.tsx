@@ -13,7 +13,9 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
 import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
 import { WidgetType } from "constants/WidgetConstants";
-import { getSelectedWidgets } from "selectors/ui";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SearchSnippets from "components/ads/SnippetButton";
+import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -39,6 +41,7 @@ function PropertyPaneView(
 ) {
   const dispatch = useDispatch();
   const { theme, ...panel } = props;
+  const isDraggingForSelection = useSelector(getIsDraggingForSelection);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);
   const hideConnectDataCTA = useMemo(() => {
@@ -50,14 +53,14 @@ function PropertyPaneView(
   }, [widgetProperties?.type, excludeList]);
 
   /**
-   * on delete
+   * on delete button click
    */
   const onDelete = useCallback(() => {
     dispatch(deleteSelectedWidget(false));
   }, [dispatch]);
 
   /**
-   * on  copy
+   * on  copy button click
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
@@ -86,13 +89,23 @@ function PropertyPaneView(
         ),
       },
       {
+        tooltipContent: <span>Search related snippets</span>,
+        icon: (
+          <SearchSnippets
+            entityId={widgetProperties.widgetId}
+            entityType={ENTITY_TYPE.WIDGET}
+            showIconOnly
+          />
+        ),
+      },
+      {
         tooltipContent: <span>Explore widget related docs</span>,
         icon: <PropertyPaneHelpButton />,
       },
     ];
   }, [onCopy, onDelete]);
 
-  if (!widgetProperties) return null;
+  if (!widgetProperties || isDraggingForSelection) return null;
 
   return (
     <div className="relative flex flex-col w-full pt-3 space-y-2 overflow-y-auto">

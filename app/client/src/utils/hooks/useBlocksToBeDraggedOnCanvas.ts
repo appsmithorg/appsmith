@@ -52,7 +52,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
   widgetId,
 }: CanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
-  const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
 
@@ -233,7 +232,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
       selectWidget(updateWidgetParams.payload.newWidgetId);
-      showPropertyPane(updateWidgetParams.payload.newWidgetId);
     }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: dragDetails.newWidget.type,
