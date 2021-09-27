@@ -444,7 +444,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
                                                                              String defaultApplicationId,
                                                                              AclPermission aclPermission){
-        return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, aclPermission);
+        return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, aclPermission)
+            .switchIfEmpty(Mono.error(
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
+            );
     }
     /**
      * Sets the updatedAt and modifiedBy fields of the Application

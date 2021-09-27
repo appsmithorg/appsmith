@@ -81,9 +81,9 @@ public interface GitExecutor {
 
     /**
      * Create a new worktree in the local repo
-     * @param repoSuffix
-     * @param branchName
-     * @return
+     * @param repoSuffix repo suffix path in local repo
+     * @param branchName branch which needs to be generated
+     * @return generated branch name
      */
     String createAndCheckoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
 

@@ -51,8 +51,9 @@ public class GitFileUtils {
                                                  String branchName) throws IOException, GitAPIException {
 
         /*
-            1. Create application reference for appsmith-git module
-            2. Save application to git repo
+            1. Checkout to branch
+            2. Create application reference for appsmith-git module
+            3. Save application to git repo
          */
         ApplicationGitReference applicationReference = new ApplicationGitReference();
         gitExecutor.checkoutToBranch(baseRepoSuffix, branchName);

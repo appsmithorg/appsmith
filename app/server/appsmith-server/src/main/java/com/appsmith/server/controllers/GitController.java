@@ -42,28 +42,28 @@ public class GitController {
         this.service = service;
     }
 
-    @PostMapping("/config/save")
-    public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitConfigData(@RequestBody GitProfile gitProfile) {
+    @PostMapping("/profile/default")
+    public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@RequestBody GitProfile gitProfile) {
         //Add to the userData object - git config data
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile)
                 .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
 
-    @PutMapping("/config/{defaultApplicationId}")
-    public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitConfigData(@PathVariable String defaultApplicationId,
-                                                                        @RequestBody GitProfile gitProfile) {
+    @PutMapping("/profile/{defaultApplicationId}")
+    public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitProfile(@PathVariable String defaultApplicationId,
+                                                                     @RequestBody GitProfile gitProfile) {
         //Add to the userData object - git config data
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile, Boolean.FALSE, defaultApplicationId)
                 .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
     }
 
-    @GetMapping("/config")
+    @GetMapping("/profile")
     public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
         return service.getGitProfileForUser()
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 
-    @GetMapping("/config/{defaultApplicationId}")
+    @GetMapping("/profile/{defaultApplicationId}")
     public Mono<ResponseDTO<GitProfile>> getGitConfigForUser(@PathVariable String defaultApplicationId) {
         return service.getGitProfileForUser(defaultApplicationId)
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
@@ -110,12 +110,13 @@ public class GitController {
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
-    @PostMapping("/create-branch/{srcApplicationId}")
+    @PostMapping("/create-branch/{defaultApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Application>> createBranch(@PathVariable String srcApplicationId,
+    public Mono<ResponseDTO<Application>> createBranch(@PathVariable String defaultApplicationId,
+                                                       @RequestParam MultiValueMap<String, String> params,
                                                        @RequestBody GitBranchDTO branchDTO) {
-        log.debug("Going to create a branch from application {}", srcApplicationId);
-        return service.createBranch(srcApplicationId, branchDTO)
+        log.debug("Going to create a branch from root application {}, branch {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
+        return service.createBranch(defaultApplicationId, branchDTO, params)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 

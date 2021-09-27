@@ -29,15 +29,13 @@ public interface GitService {
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, MultiValueMap<String, String> params);
 
-    Mono<String> commitApplication(String applicationId);
-
     Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, MultiValueMap<String, String> params);
 
     Mono<String> pushApplication(String defaultApplicationId, MultiValueMap<String, String> params);
 
     Mono<Application> detachRemote(String applicationId);
 
-    Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO);
+    Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params);
 
     Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
 
