@@ -277,13 +277,11 @@ public class MongoPlugin extends BasePlugin {
                     )
                     .onErrorMap(
                             MongoCommandException.class,
-                            error -> {
-                                MongoCommandException e = error;
-                                return new AppsmithPluginException(
+                            error -> new AppsmithPluginException(
                                     error,
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
-                            );}
+                            )
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.

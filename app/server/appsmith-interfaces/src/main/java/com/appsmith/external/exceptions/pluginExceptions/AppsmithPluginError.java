@@ -38,7 +38,6 @@ public enum AppsmithPluginError {
     private final Integer httpErrorCode;
     private final Integer appErrorCode;
     private final String message;
-    //private final String readableMessage;
     private final String title;
     private final AppsmithErrorAction errorAction;
     private final ErrorType errorType;
