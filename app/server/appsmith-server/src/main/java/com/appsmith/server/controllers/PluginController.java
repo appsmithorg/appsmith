@@ -61,7 +61,7 @@ public class PluginController extends BaseController<PluginService, Plugin, Stri
     }
 
     /**
-     * This endpoint is accessible for serv-er-to-server calls so that cloud services can install a plugin
+     * This endpoint is accessible for server-to-server calls so that cloud services can install a plugin
      * to a specific installation on our Appsmith cloud version
      */
     @PostMapping("/remote/install")
