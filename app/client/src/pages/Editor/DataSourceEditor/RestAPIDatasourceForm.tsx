@@ -207,6 +207,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (!authentication || !_.get(authentication, "addTo")) {
       this.props.change("authentication.addTo", ApiKeyAuthType.Header);
     }
+    if (!authentication || !_.get(authentication, "headerPrefix")) {
+      this.props.change("authentication.headerPefix", "ApiKeyAuthType.Header");
+    }
   };
 
   ensureOAuthDefaultsAreCorrect = () => {
@@ -467,6 +470,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderApiKey = () => {
+    const { authentication } = this.props.formData;
     return (
       <>
         <FormInputContainer>
@@ -481,6 +485,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.value"
+            encrypted
             label="Value"
             placeholderText="value"
           />
@@ -504,6 +509,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             propertyValue=""
           />
         </FormInputContainer>
+        {_.get(authentication, "addTo") == "header" && (
+          <FormInputContainer>
+            <InputTextControl
+              {...COMMON_INPUT_PROPS}
+              configProperty="authentication.headerPrefix"
+              label="Header Prefix"
+              placeholderText="eg: Bearer "
+            />
+          </FormInputContainer>
+        )}
       </>
     );
   };
@@ -514,6 +529,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <InputTextControl
           {...COMMON_INPUT_PROPS}
           configProperty="authentication.bearerToken"
+          encrypted
           label="Bearer Token"
           placeholderText="Bearer Token"
         />

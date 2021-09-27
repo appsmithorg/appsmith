@@ -74,6 +74,11 @@ import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
 import { lightTheme } from "selectors/themeSelectors";
+import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import copy from "copy-to-clipboard";
+import { getSnippet } from "./SnippetsDescription";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
@@ -473,9 +478,30 @@ function GlobalSearch() {
     history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
   };
 
+  const onEnterSnippet = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.onEnter,
+  );
+
   const handleSnippetClick = (event: SelectEvent, item: any) => {
     if (event && event.type === "click") return;
-    dispatch(insertSnippet(get(item, "body.snippet", "")));
+    const snippetExecuteBtn = document.querySelector(
+      ".snippet-execute",
+    ) as HTMLButtonElement;
+    if (snippetExecuteBtn && !snippetExecuteBtn.disabled) {
+      return snippetExecuteBtn && snippetExecuteBtn.click();
+    }
+    if (onEnterSnippet === SnippetAction.INSERT) {
+      dispatch(insertSnippet(get(item, "body.snippet", "")));
+    } else {
+      const snippet = getSnippet(get(item, "body.snippet", ""), {});
+      const title = get(item, "body.title", "");
+      copy(snippet);
+      Toaster.show({
+        text: "Snippet copied to clipboard",
+        variant: Variant.success,
+      });
+      AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet, title });
+    }
     toggleShow();
   };
 
