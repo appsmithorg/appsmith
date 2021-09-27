@@ -18,15 +18,6 @@ ff4j:
           - name: emailDomains
             value: appsmith.com,moolya.com
 
-    - uid: SNIPPET
-      enable: true
-      description: Enable snippets feature by email domain of the user
-      flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
-        param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
-
     - uid: LINTING
       enable: true
       description: Enable linting feature by email domain of the user

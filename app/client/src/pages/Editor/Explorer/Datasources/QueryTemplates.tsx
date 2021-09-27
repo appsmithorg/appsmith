@@ -51,6 +51,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         actionConfiguration: {
           body: template.body,
           pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
+          formData: template.configuration,
         },
       };
 
