@@ -42,7 +42,6 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
 
-
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
  * Errors in this array will not be shown in the debugger.
