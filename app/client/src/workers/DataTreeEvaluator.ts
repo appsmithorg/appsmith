@@ -2,7 +2,6 @@ import {
   DependencyMap,
   EvalError,
   EvalErrorTypes,
-  EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEvalErrorPath,
@@ -679,15 +678,18 @@ export default class DataTreeEvaluator {
         );
       } catch (e) {
         if (fullPropertyPath) {
-          const error: EvaluationError[] = [
-            {
-              raw: dynamicBinding,
-              errorType: PropertyEvaluationErrorType.PARSE,
-              errorMessage: e.message,
-              severity: Severity.ERROR,
-            },
-          ];
-          addErrorToEntityProperty(error, data, fullPropertyPath);
+          addErrorToEntityProperty(
+            [
+              {
+                raw: dynamicBinding,
+                errorType: PropertyEvaluationErrorType.PARSE,
+                errorMessage: e.message,
+                severity: Severity.ERROR,
+              },
+            ],
+            data,
+            fullPropertyPath,
+          );
         }
         return undefined;
       }
