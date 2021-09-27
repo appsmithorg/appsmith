@@ -33,6 +33,7 @@ import { Snippet, SnippetArgument } from "./utils";
 import {
   createMessage,
   SNIPPET_COPY,
+  SNIPPET_EXECUTE,
   SNIPPET_INSERT,
 } from "constants/messages";
 import { getExpectedValue } from "utils/validation/common";
@@ -42,6 +43,7 @@ import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import { Layers } from "constants/Layers";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -154,7 +156,7 @@ const SnippetContainer = styled.div`
 `;
 
 const removeDynamicBinding = (value: string) => {
-  const regex = /{{(.*?)}}/g;
+  const regex = /{{([\s\S]*?)}}/g;
   return value.replace(regex, function(match, capture) {
     return capture;
   });
@@ -311,7 +313,9 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
               {getSnippet(template, selectedArgs)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
+              <CopyIcon
+                onClick={() => handleCopy(getSnippet(template, selectedArgs))}
+              />
             </div>
           </div>
           <div className="snippet-group">
@@ -333,6 +337,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                   isInvalid={evaluatedArguments[arg.name]?.isInvalid}
                   mode={EditorModes.TEXT_WITH_BINDING}
                   popperPlacement="right-start"
+                  popperZIndex={Layers.portals}
                   showLightningMenu={false}
                   size={EditorSize.EXTENDED}
                   tabBehaviour={TabBehaviour.INDENT}
@@ -344,7 +349,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
             <div className="actions-container">
               {language === "javascript" && (
                 <Button
-                  className="t--apiFormRunBtn"
+                  className="t--apiFormRunBtn snippet-execute"
                   disabled={executionInProgress}
                   onClick={handleRun}
                   size={Size.medium}
@@ -378,13 +383,15 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     <SnippetContainer>
       <div className="snippet-title">
         <span>{title}</span>
-        {selectedIndex === 0 && (
-          <span className="action-msg">
-            {createMessage(
-              onEnter === SnippetAction.INSERT ? SNIPPET_INSERT : SNIPPET_COPY,
-            )}
-          </span>
-        )}
+        <span className="action-msg">
+          {createMessage(
+            selectedIndex === 0
+              ? onEnter === SnippetAction.INSERT
+                ? SNIPPET_INSERT
+                : SNIPPET_COPY
+              : SNIPPET_EXECUTE,
+          )}
+        </span>
       </div>
       <div className="snippet-desc">{summary}</div>
       <TabbedViewContainer className="tab-container">

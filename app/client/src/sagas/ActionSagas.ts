@@ -752,7 +752,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const action: Action = yield select(getAction, id);
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
-  const isSaas = action.pluginType === PluginType.DB;
+  const isSaas = action.pluginType === PluginType.SAAS;
   const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
