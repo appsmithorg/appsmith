@@ -484,6 +484,12 @@ function GlobalSearch() {
 
   const handleSnippetClick = (event: SelectEvent, item: any) => {
     if (event && event.type === "click") return;
+    const snippetExecuteBtn = document.querySelector(
+      ".snippet-execute",
+    ) as HTMLButtonElement;
+    if (snippetExecuteBtn && !snippetExecuteBtn.disabled) {
+      return snippetExecuteBtn && snippetExecuteBtn.click();
+    }
     if (onEnterSnippet === SnippetAction.INSERT) {
       dispatch(insertSnippet(get(item, "body.snippet", "")));
     } else {

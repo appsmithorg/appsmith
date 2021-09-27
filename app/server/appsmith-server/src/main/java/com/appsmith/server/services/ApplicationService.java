@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import io.sentry.protocol.App;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -48,4 +49,6 @@ public interface ApplicationService extends CrudService<Application, String> {
                                                                       AclPermission aclPermission);
 
     Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
+
+    Flux<Application> findAllApplicationsByGitDefaultApplicationId(String defaultApplicationId);
 }

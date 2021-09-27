@@ -175,6 +175,16 @@ In case the server doesn't work with the above config, please try re-compiling t
 ```sh
 mvn -B clean compile && ./build.sh -DskipTests
 ```
+## Running Tests on Server
+
+1. Ensure that you have Redis running on your local system.
+
+2. Run the command to execute tests
+```bash
+  cd app/server
+  mvn clean package
+```
+
 
 ## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please feel free to ask questions on our [Discord channel](https://discord.com/invite/rBTTVJp) or initiate a [Github discussion](https://github.com/appsmithorg/appsmith/discussions) or send an email to `support@appsmith.com`. We'll be happy to help you. 

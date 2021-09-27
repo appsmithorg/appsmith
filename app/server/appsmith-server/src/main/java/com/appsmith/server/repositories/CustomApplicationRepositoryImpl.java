@@ -133,4 +133,12 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
         return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
     }
+
+    @Override
+    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Criteria applicationIdCriteria = where(gitApplicationMetadata + "." +fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        return queryAll(List.of(applicationIdCriteria), AclPermission.MANAGE_APPLICATIONS);
+    }
 }

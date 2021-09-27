@@ -26,6 +26,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
+import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -289,6 +290,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         page.setPolicies(documentPolicies);
     }
 
+
     /**
      * This function performs a soft delete for the application along with it's associated pages and actions.
      *
@@ -300,15 +302,28 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .flatMap(application -> {
-                    log.debug("Archiving pages for applicationId: {}", id);
-                    return newPageService.archivePagesByApplicationId(id, MANAGE_PAGES)
-                            .thenReturn(application);
-                })
-                .flatMap(applicationService::archive);
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
 
-        return applicationMono
+        /* As part of git sync feature a new application will be created for each branch with reference to main application
+         * feat/new-branch ----> new application in Appsmith
+         * Get all the applications which refer to the current application and archive those first one by one
+         * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+         * */
+        return applicationService.findAllApplicationsByGitDefaultApplicationId(id)
+                .flatMap(application -> {
+                    log.debug("Archiving application with id: {}", application.getId());
+                    return deleteApplicationByResource(application);
+                })
+                .then(applicationMono)
+                .flatMap(application -> deleteApplicationByResource(application));
+    }
+
+    private Mono<Application> deleteApplicationByResource(Application application) {
+        log.debug("Archiving pages for applicationId: {}", application.getId());
+        application.setGitApplicationMetadata(null);
+        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
+                .thenReturn(application)
+                .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 

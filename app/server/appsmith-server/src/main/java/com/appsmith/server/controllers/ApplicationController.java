@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.GitService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -50,6 +51,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     private final ApplicationFetcher applicationFetcher;
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
+    private final GitService gitService;
 
     @Autowired
     public ApplicationController(
@@ -57,12 +59,14 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService) {
+            ImportExportApplicationService importExportApplicationService,
+            GitService gitService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
+        this.gitService = gitService;
     }
 
     @PostMapping
@@ -109,7 +113,8 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
         log.debug("Going to delete application with id: {}", id);
-        return applicationPageService.deleteApplication(id)
+        return gitService.detachRemote(id)
+                .flatMap(application ->  applicationPageService.deleteApplication(id))
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
