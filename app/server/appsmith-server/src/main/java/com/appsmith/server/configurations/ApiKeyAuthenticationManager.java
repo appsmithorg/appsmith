@@ -22,6 +22,11 @@ public class ApiKeyAuthenticationManager implements ReactiveAuthorizationManager
 
     @Override
     public Mono<AuthorizationDecision> check(final Mono<Authentication> authentication, final AuthorizationContext context) {
+
+        if (StringUtils.isEmpty(API_KEY)) {
+            return Mono.just(UNAUTHORIZED);
+        }
+
         final ServerWebExchange exchange = context.getExchange();
         if (null == exchange) {
             return Mono.just(UNAUTHORIZED);
