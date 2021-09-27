@@ -3,7 +3,7 @@
     "Autocomplete": {
       "name": "Autocomplete",
       "color": "ef9bd9",
-      "description": ""
+      "description": "This tags issues related to the autocomplete"
     },
     "Backend": {
       "name": "Backend",
@@ -474,8 +474,8 @@
       "color": "bfdadc",
       "description": "Label for issues part of a planned project"
     },
-    "Platform": {
-      "name": "Platform",
+    "Platform Pod": {
+      "name": "Platform Pod",
       "color": "500B69",
       "description": "All issues related to using the appsmith platform"
     },
@@ -725,7 +725,7 @@
               }
             ]
           },
-          "Platform": {
+          "Platform Pod": {
             "requires": 1,
             "conditions": [
               {
@@ -810,7 +810,7 @@
               },
               {
                 "type": "hasLabel",
-                "label": "Platform",
+                "label": "Platform Pod",
                 "value": true
               },
               {
