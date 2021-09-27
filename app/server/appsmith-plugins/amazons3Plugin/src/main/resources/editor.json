@@ -144,7 +144,7 @@
           "label": "Generate Un-signed URL",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
           "controlType": "DROP_DOWN",
-          "initialValue": "NO",
+          "initialValue": "YES",
           "options": [
             {
               "label": "Yes",

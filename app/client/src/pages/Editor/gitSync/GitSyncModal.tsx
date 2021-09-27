@@ -16,10 +16,9 @@ import GitConnection from "./Tabs/GitConnection";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
-import { useIsGitConnected } from "./hooks";
 
 import GitErrorPopup from "./components/GitErrorPopup";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 const Container = styled.div`
   height: 600px;
@@ -41,13 +40,13 @@ const BodyContainer = styled.div`
 
 const MenuContainer = styled.div`
   padding: ${(props) =>
-    `${props.theme.spaces[12]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
+    `${props.theme.spaces[10]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 30px;
+  top: 34px;
   &:hover {
     background-color: ${(props) => props.theme.colors.modal.hoverState};
   }
@@ -79,10 +78,12 @@ function GitSyncModal() {
   const activeTabIndex = useSelector(getActiveGitSyncModalTab);
   const setActiveTabIndex = (index: number) =>
     dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
-  const isGitConnected = useIsGitConnected();
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const remoteUrlInStore = gitMetaData?.remoteUrl;
   let initialTabIndex = 0;
   let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
-  if (!isGitConnected) {
+
+  if (!remoteUrlInStore) {
     menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
   } else {
     menuOptions = allMenuOptions;
@@ -102,14 +103,14 @@ function GitSyncModal() {
     initializeTabIndex();
   }, []);
 
-  const orgId = useSelector(getCurrentOrgId);
-
   const activeMenuItemKey = menuOptions[activeTabIndex]
     ? menuOptions[activeTabIndex].key
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
   const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
-  const showDeployTab = () => setActiveTabIndex(1);
+  const showDeployTab = () => {
+    setActiveTabIndex(1);
+  };
   return (
     <>
       <Dialog
@@ -130,7 +131,7 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent onSuccess={showDeployTab} organizationId={orgId} />
+            <BodyComponent onSuccess={showDeployTab} />
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />

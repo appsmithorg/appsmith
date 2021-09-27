@@ -20,6 +20,7 @@ import {
   parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import ReplayDSL from "workers/ReplayDSL";
 import evaluate from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
@@ -27,6 +28,7 @@ import _ from "lodash";
 const ctx: Worker = self as any;
 
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
+let replayDSL: ReplayDSL | undefined;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
@@ -45,6 +47,9 @@ function messageEventListener(
       });
     } catch (e) {
       console.error(e);
+      // we dont want to log dataTree because it is huge.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { dataTree, ...rest } = requestData;
       ctx.postMessage({
         requestId,
         responseData: {
@@ -52,7 +57,7 @@ function messageEventListener(
             {
               type: EvalErrorTypes.CLONE_ERROR,
               message: e,
-              context: requestData,
+              context: JSON.stringify(rest),
             },
           ],
         },
@@ -67,7 +72,12 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { unevalTree, widgetTypeConfigMap } = requestData;
+        const {
+          shouldReplay = true,
+          unevalTree,
+          widgets,
+          widgetTypeConfigMap,
+        } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -76,6 +86,7 @@ ctx.addEventListener(
         let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
+            replayDSL = new ReplayDSL(widgets);
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -84,6 +95,7 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
+            shouldReplay && replayDSL?.update(widgets);
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
@@ -93,6 +105,8 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
+          if (replayDSL?.logs) logs = logs.concat(replayDSL?.logs);
+          replayDSL?.clearLogs();
           dataTreeEvaluator.clearLogs();
         } catch (e) {
           if (dataTreeEvaluator !== undefined) {
@@ -204,6 +218,20 @@ ctx.addEventListener(
         return removeFunctions(
           validateWidgetProperty(validation, value, props),
         );
+      }
+      case EVAL_WORKER_ACTIONS.UNDO: {
+        if (!replayDSL) return;
+
+        const replayResult = replayDSL.replay("UNDO");
+        replayDSL.clearLogs();
+        return replayResult;
+      }
+      case EVAL_WORKER_ACTIONS.REDO: {
+        if (!replayDSL) return;
+
+        const replayResult = replayDSL.replay("REDO");
+        replayDSL.clearLogs();
+        return replayResult;
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body, jsAction } = requestData;
