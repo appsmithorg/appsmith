@@ -60,6 +60,10 @@ public class PluginController extends BaseController<PluginService, Plugin, Stri
                 .map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
     }
 
+    /**
+     * This endpoint is accessible for serv-er-to-server calls so that cloud services can install a plugin
+     * to a specific installation on our Appsmith cloud version
+     */
     @PostMapping("/remote/install")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<Void>> remoteInstall(@Valid @RequestBody RemotePluginOrgDTO plugin) {

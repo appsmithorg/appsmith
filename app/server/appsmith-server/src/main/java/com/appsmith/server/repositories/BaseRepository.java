@@ -10,6 +10,12 @@ import java.util.List;
 @NoRepositoryBean
 public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
 
+    /**
+     * This function should be used to get an object from the DB without applying any ACL rules
+     *
+     * @param id The identifier for this type
+     * @return Mono<T>
+     */
     Mono<T> retrieveById(ID id);
 
     /**

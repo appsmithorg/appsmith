@@ -665,6 +665,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 .switchIfEmpty(Mono.just(remotePlugin))
                 .flatMap(retrievedPlugin -> {
                     remotePlugin.setId(retrievedPlugin.getId());
+                    // To ensure that the latest plugin configurations are immediately available for use,
+                    // lets also save the the plugin now instead of waiting for the scheduled sync job
                     return repository.save(remotePlugin);
                 })
                 .map(savedPlugin -> new OrganizationPlugin(savedPlugin.getId(), OrganizationPluginStatus.ACTIVATED));

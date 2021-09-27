@@ -133,7 +133,7 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .authorizeExchange()
-                // Allow access for server-to-server calls to installation end point
+                // Allow cloud-services to install a remote plugin
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, PLUGIN_URL + "/remote/install"))
                 .access(apiKeyAuthenticationManager)
                 // All public URLs that should be served to anonymous users should also be defined in acl.rego file
