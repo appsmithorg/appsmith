@@ -7,16 +7,16 @@ import React, { memo, useEffect, useRef, useCallback, useState } from "react";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import Explorer from "pages/Editor/Explorer";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { getExplorerPinned } from "selectors/explorerSelector";
 import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
-import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import { previewModeSelector } from "selectors/editorSelectors";
+import Explorer from "pages/Editor/Explorer";
 import AppComments from "comments/AppComments/AppComments";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { previewModeSelector } from "selectors/editorSelectors";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 
 type Props = {
   width: number;
@@ -32,6 +32,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const resizer = useHorizontalResize(
+    sidebarRef,
+    props.onWidthChange,
+    props.onDragEnd,
+  );
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
@@ -39,12 +44,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
-
-  const resizer = useHorizontalResize(
-    sidebarRef,
-    props.onWidthChange,
-    props.onDragEnd,
-  );
 
   // registering event listeners
   useEffect(() => {
@@ -108,7 +107,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 overflow-y-auto text-white t--sidebar bg-trueGray-800 min-w-48 max-w-96 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400"
+        className="flex flex-col p-0 overflow-y-auto text-white t--sidebar bg-trueGray-800 min-w-48 max-w-96"
         ref={sidebarRef}
         style={{ width: props.width }}
       >

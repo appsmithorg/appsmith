@@ -179,6 +179,16 @@ export const getApplicationViewerURL = (
   applicationId = ":applicationId",
 ): string => `/applications/${applicationId}`;
 
+export const getApplicationEditorPageURL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  params: Record<string, string> = {},
+): string => {
+  const url = `/applications/${applicationId}/pages/${pageId}/edit`;
+  const queryString = convertToQueryParams(params);
+  return url + queryString;
+};
+
 export const getApplicationViewerPageURL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
