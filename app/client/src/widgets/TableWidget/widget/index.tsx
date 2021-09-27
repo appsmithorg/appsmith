@@ -971,9 +971,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_ROW_SELECTED,
           },
         });
-      } else {
-        //reset selected row
-        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
   };

@@ -322,7 +322,6 @@ function TableAction(props: {
     <ActionWrapper
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
-      onClick={stopClickEventPropagation}
     >
       {props.isCellVisible ? (
         <Button
