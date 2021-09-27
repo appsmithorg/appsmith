@@ -70,6 +70,10 @@ export const entityDefinitions: Record<string, unknown> = {
       "!type": "string",
       "!doc": "Selected country code for Currency type input",
     },
+    selectedText: {
+      "!type": "string",
+      "!doc": "User selected text inside input",
+    },
   },
   TABLE_WIDGET: (widget: any) => ({
     "!doc":

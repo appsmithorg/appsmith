@@ -369,6 +369,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
+            helpText: "Triggers an action when user selects texts of the input",
+            propertyName: "onTextSelection",
+            label: "onTextSelection",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
             helpText:
               "Triggers an action on submit (when the enter key is pressed)",
             propertyName: "onSubmit",
@@ -581,8 +590,19 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       isDirty: false,
       selectedCurrencyType: undefined,
       selectedCountryCode: undefined,
+      selectedText: "",
     };
   }
+
+  handleUserTextSelect = (text: string) => {
+    this.props.updateWidgetMetaProperty("selectedText", text, {
+      triggerPropertyName: "onTextSelection",
+      dynamicString: this.props.onTextSelection,
+      event: {
+        type: EventType.ON_TEXT_SELECT,
+      },
+    });
+  };
 
   onValueChange = (value: string) => {
     this.props.updateWidgetMetaProperty("text", value, {
@@ -740,6 +760,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         onFocusChange={this.handleFocusChange}
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
+        onUserTextSelect={this.handleUserTextSelect}
         onValueChange={this.onValueChange}
         phoneNumberCountryCode={phoneNumberCountryCode}
         placeholder={this.props.placeholderText}

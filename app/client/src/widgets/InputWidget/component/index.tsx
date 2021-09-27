@@ -359,6 +359,9 @@ class InputComponent extends React.Component<
       this.props.onKeyDown(e);
     }
   };
+  onMouseUp = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // check if text selection has changed
+  };
 
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon(
@@ -565,6 +568,7 @@ export interface InputComponentProps extends ComponentProps {
   onValueChange: (valueAsString: string) => void;
   onCurrencyTypeChange: (code?: string) => void;
   onISDCodeChange: (code?: string) => void;
+  onUserTextSelect: (text: string) => void;
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;
