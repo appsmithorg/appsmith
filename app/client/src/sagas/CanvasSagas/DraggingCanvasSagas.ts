@@ -40,6 +40,7 @@ export type WidgetMoveParams = {
 
 export function* getCanvasSizeAfterWidgetMove(
   canvasWidgetId: string,
+  movedWidgetIds: string[],
   movedWidgetsBottomRow: number,
 ) {
   const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
@@ -49,7 +50,7 @@ export function* getCanvasSizeAfterWidgetMove(
     );
     const canvasMinHeight = canvasWidget.minHeight || 0;
     const newRows = calculateDropTargetRows(
-      canvasWidgetId,
+      movedWidgetIds,
       movedWidgetsBottomRow,
       canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
       occupiedSpacesByChildren,
