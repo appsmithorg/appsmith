@@ -174,6 +174,50 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  propertyName: "isDisabled",
+                  label: "Disabled",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                      ColumnTypes.MENU_BUTTON,
+                      ColumnTypes.BUTTON,
+                    ]);
+                  },
+                },
+                {
+                  propertyName: "isCompact",
+                  helpText: "Decides if menu items will consume lesser space",
+                  updateHook: updateDerivedColumnsHook,
+                  label: "Compact",
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                },
+                {
                   propertyName: "inputFormat",
                   label: "Original Date Format",
                   controlType: "DROP_DOWN",
@@ -666,17 +710,6 @@ export default [
                   },
                 },
                 {
-                  propertyName: "isDisabled",
-                  label: "Disabled",
-                  updateHook: updateDerivedColumnsHook,
-                  defaultValue: false,
-                  controlType: "SWITCH",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                },
-                {
                   propertyName: "buttonLabel",
                   label: "Label",
                   controlType: "COMPUTE_VALUE",
@@ -695,27 +728,6 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
-                },
-                {
-                  propertyName: "isCompact",
-                  helpText: "Decides if menu items will consume lesser space",
-                  updateHook: updateDerivedColumnsHook,
-                  label: "Compact",
-                  controlType: "SWITCH",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                    ]);
-                  },
                 },
                 {
                   propertyName: "buttonColor",
