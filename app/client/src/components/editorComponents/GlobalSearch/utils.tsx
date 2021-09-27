@@ -10,7 +10,6 @@ import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginType } from "entities/Action";
-import getFeatureFlags from "utils/featureFlags";
 import { modText } from "./HelpBar";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -134,7 +133,6 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
     desc: createMessage(SNIPPET_DESCRIPTION),
-    show: () => getFeatureFlags().SNIPPET,
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
     title: "Search Documentation",
