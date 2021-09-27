@@ -25,10 +25,12 @@ export enum EvaluationScriptType {
   TRIGGERS = "TRIGGERS",
 }
 
+const ScriptTemplate = "<<string>>";
+
 const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
-    const result = <<script>>
+    const result = ${ScriptTemplate}
     return result;
   }
   closedFunction()
@@ -39,11 +41,11 @@ const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
     const result = userFunction.apply(self, ARGUMENTS);
     return result;
   }
-  callback(<<script>>)
+  callback(${ScriptTemplate})
   `,
   [EvaluationScriptType.TRIGGERS]: `
   function closedFunction () {
-    const result = <<script>>
+    const result = ${ScriptTemplate}
     return result
   }
   closedFunction();
@@ -55,7 +57,7 @@ const getPositionInEvaluationScript = (
 ): Position => {
   const script = evaluationScriptsPos[type];
 
-  const index = script.indexOf("<<script>>");
+  const index = script.indexOf(ScriptTemplate);
   const substr = script.substr(0, index);
   const lines = substr.split("\n");
   const lastLine = last(lines) || "";
@@ -80,7 +82,9 @@ const getScriptToEval = (
   userScript: string,
   type: EvaluationScriptType,
 ): string => {
-  return evaluationScriptsPos[type].replace("<<script>>", userScript);
+  // Using replace here would break scripts with replacement patterns (ex: $&, $$)
+  const buffer = evaluationScriptsPos[type].split(ScriptTemplate);
+  return buffer.join(userScript);
 };
 
 const getLintingErrors = (
