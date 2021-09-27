@@ -84,7 +84,6 @@ function FilterHeader(props: FilterHeaderProps) {
       </div>
       <Dropdown
         className="debugger-filter"
-        height={"28px"}
         onSelect={props.onSelect}
         optionWidth={"100px"}
         options={props.options}

@@ -3,7 +3,7 @@ import React, { forwardRef, Ref } from "react";
 import { ReactComponent as BookLineIcon } from "assets/icons/ads/book-open-line.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
-import { ReactComponent as ExpandMore } from "assets/icons/ads/expand-more.svg";
+// import { ReactComponent as ExpandMore } from "assets/icons/ads/expand-more.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
@@ -89,6 +89,8 @@ import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
+import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
+import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
@@ -195,6 +197,7 @@ export const IconCollection = [
   "edit",
   "emoji",
   "error",
+  "expand-less",
   "expand-more",
   "eye-on",
   "eye-off",
@@ -418,6 +421,9 @@ const Icon = forwardRef(
         break;
       case "error":
         returnIcon = <ErrorIcon />;
+        break;
+      case "expand-less":
+        returnIcon = <ExpandLess />;
         break;
       case "expand-more":
         returnIcon = <ExpandMore />;
