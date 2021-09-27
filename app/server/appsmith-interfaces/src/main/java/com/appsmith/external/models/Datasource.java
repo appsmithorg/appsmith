@@ -1,8 +1,5 @@
-package com.appsmith.server.domains;
+package com.appsmith.external.models;
 
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -31,6 +28,8 @@ public class Datasource extends BaseDomain {
     String pluginId;
 
     String organizationId;
+
+    String templateName;
 
     DatasourceConfiguration datasourceConfiguration;
 

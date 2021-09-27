@@ -18,6 +18,7 @@ import {
 } from "actions/websocketActions";
 
 import handleSocketEvent from "./handleSocketEvent";
+import * as Sentry from "@sentry/react";
 
 function connect() {
   const socket = io({
@@ -73,10 +74,15 @@ function* write(socket: any) {
   while (true) {
     const { payload } = yield take(ReduxSagaChannels.WEBSOCKET_WRITE_CHANNEL);
     // reconnect to reset connection at the server
-    if (payload.type === WEBSOCKET_EVENTS.RECONNECT) {
-      socket.disconnect().connect();
-    } else {
-      socket.emit(payload.type, payload.payload);
+    try {
+      if (payload.type === WEBSOCKET_EVENTS.RECONNECT) {
+        yield put(setIsWebsocketConnected(false));
+        socket.disconnect().connect();
+      } else {
+        socket.emit(payload.type, payload.payload);
+      }
+    } catch (e) {
+      Sentry.captureException(e);
     }
   }
 }

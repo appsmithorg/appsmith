@@ -128,6 +128,7 @@ export const useDynamicAppLayout = () => {
 
   const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
     mainContainer,
+    screenWidth,
   ]);
 
   /**

@@ -2,6 +2,7 @@ import React from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
+import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
@@ -327,6 +328,10 @@ export const playOnboardingAnimation = () => {
   playLottieAnimation("#root", confetti);
 };
 
+export const playWelcomeAnimation = (container: string) => {
+  playLottieAnimation(container, welcomeConfetti);
+};
+
 export const playOnboardingStepCompletionAnimation = () => {
   playLottieAnimation(".onboarding-step-indicator", successAnimation, {
     "background-color": "white",
@@ -474,6 +479,12 @@ export function bootIntercom(user?: User) {
     });
   }
 }
+
+export const stopClickEventPropagation = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+) => {
+  e.stopPropagation();
+};
 
 /**
  * returns the modText ( ctrl or command ) based on the user machine

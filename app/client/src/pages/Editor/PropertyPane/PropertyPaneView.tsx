@@ -13,7 +13,8 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
 import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
 import { WidgetType } from "constants/WidgetConstants";
-import { getSelectedWidgets } from "selectors/ui";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SearchSnippets from "components/ads/SnippetButton";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -50,14 +51,14 @@ function PropertyPaneView(
   }, [widgetProperties?.type, excludeList]);
 
   /**
-   * on delete
+   * on delete button click
    */
   const onDelete = useCallback(() => {
     dispatch(deleteSelectedWidget(false));
   }, [dispatch]);
 
   /**
-   * on  copy
+   * on  copy button click
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
@@ -83,6 +84,16 @@ function PropertyPaneView(
           <button className="p-1 hover:bg-warmGray-100 group" onClick={onCopy}>
             <DeleteIcon className="w-4 h-4 text-gray-500" />
           </button>
+        ),
+      },
+      {
+        tooltipContent: <span>Search related snippets</span>,
+        icon: (
+          <SearchSnippets
+            entityId={widgetProperties.widgetId}
+            entityType={ENTITY_TYPE.WIDGET}
+            showIconOnly
+          />
         ),
       },
       {

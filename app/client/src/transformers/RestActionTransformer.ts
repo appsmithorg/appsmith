@@ -1,9 +1,11 @@
 import { HTTP_METHODS } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
+import isEmpty from "lodash/isEmpty";
+import isString from "lodash/isString";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
-  let action = _.cloneDeep(data);
+  let action = cloneDeep(data);
   // // GET actions should not save body
   // if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
   //   delete action.actionConfiguration.body;
@@ -31,7 +33,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
       body = action.actionConfiguration.body || undefined;
     }
 
-    if (!_.isString(body)) body = JSON.stringify(body);
+    if (!isString(body)) body = JSON.stringify(body);
     action = {
       ...action,
       actionConfiguration: {
@@ -57,6 +59,6 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
 function removeEmptyPairs(keyValueArray: any) {
   if (!keyValueArray || !keyValueArray.length) return keyValueArray;
   return keyValueArray.filter(
-    (data: any) => !_.isEmpty(data.key) || !_.isEmpty(data.value),
+    (data: any) => data && (!isEmpty(data.key) || !isEmpty(data.value)),
   );
 }
