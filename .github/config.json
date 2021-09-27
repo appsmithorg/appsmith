@@ -1,1 +1,1214 @@
-{"runners":[{"versioning":{"source":"milestones","type":"SemVer"},"prereleaseName":"alpha","issue":{"labels":{"Actions Pod":{"conditions":[{"label":"JS","type":"hasLabel","value":true},{"label":"Datasources","type":"hasLabel","value":true},{"label":"Google Sheets","type":"hasLabel","value":true},{"label":"API pane","type":"hasLabel","value":true},{"label":"Query Editor","type":"hasLabel","value":true},{"label":"Auto Complete","type":"hasLabel","value":true},{"label":"Actions","type":"hasLabel","value":true},{"label":"New Integration","type":"hasLabel","value":true},{"label":"JSEditor","type":"hasLabel","value":true},{"label":"JSSnippets","type":"hasLabel","value":true},{"label":"JSLinting&Error","type":"hasLabel","value":true}],"requires":1},"Platform Pod":{"conditions":[{"label":"Debugger","type":"hasLabel","value":true},{"label":"Import-Export-App","type":"hasLabel","value":true},{"label":"Omnibar","type":"hasLabel","value":true},{"label":"Login / Signup","type":"hasLabel","value":true},{"label":"Entity Explorer","type":"hasLabel","value":true},{"label":"Example apps","type":"hasLabel","value":true},{"label":"Deployment","type":"hasLabel","value":true},{"label":"Home Page","type":"hasLabel","value":true},{"label":"In App Comms","type":"hasLabel","value":true},{"label":"Generate Page","type":"hasLabel","value":true},{"label":"Settings","type":"hasLabel","value":true},{"label":"Telemetry","type":"hasLabel","value":true},{"label":"Editor","type":"hasLabel","value":true},{"label":"Version Control","type":"hasLabel","value":true},{"label":"Platform Pod","type":"hasLabel","value":true},{"label":"Onboarding","type":"hasLabel","value":true},{"label":"ACL","type":"hasLabel","value":true},{"label":"Team Managers Pod","type":"hasLabel","value":true}],"requires":1},"BE Coder Pod":{"conditions":[],"requires":1},"Team Managers Pod":{"conditions":[{"label":"Collaboration","type":"hasLabel","value":true}],"requires":1},"FE Coder Pod":{"conditions":[],"requires":1},"New Developer Pod":{"conditions":[],"requires":1},"UI Builders Pod":{"conditions":[],"requires":1},"UI Building Pod":{"conditions":[{"label":"Pages","type":"hasLabel","value":true},{"label":"Property Pane","type":"hasLabel","value":true},{"label":"UI Performance","type":"hasLabel","value":true},{"label":"Widgets Pod","type":"hasLabel","value":true}],"requires":1},"Widgets Pod":{"conditions":[{"label":"Button Widget","type":"hasLabel","value":true},{"label":"Chart Widget","type":"hasLabel","value":true},{"label":"Checkbox Widget","type":"hasLabel","value":true},{"label":"Container Widget","type":"hasLabel","value":true},{"label":"Date Picker Widget","type":"hasLabel","value":true},{"label":"Select Widget","type":"hasLabel","value":true},{"label":"File Picker Widget","type":"hasLabel","value":true},{"label":"Form Widget","type":"hasLabel","value":true},{"label":"Image Widget","type":"hasLabel","value":true},{"label":"Input Widget","type":"hasLabel","value":true},{"label":"List Widget","type":"hasLabel","value":true},{"label":"MultiSelect Widget","type":"hasLabel","value":true},{"label":"Map Widget","type":"hasLabel","value":true},{"label":"Modal Widget","type":"hasLabel","value":true},{"label":"Radio Widget","type":"hasLabel","value":true},{"label":"Rich Text Editor Widget","type":"hasLabel","value":true},{"label":"Tab Widget","type":"hasLabel","value":true},{"label":"Table Widget","type":"hasLabel","value":true},{"label":"Text Widget","type":"hasLabel","value":true},{"label":"Video Widget","type":"hasLabel","value":true},{"label":"iFrame","type":"hasLabel","value":true},{"label":"Menu Button","type":"hasLabel","value":true},{"label":"Divider","type":"hasLabel","value":true},{"label":"Rating","type":"hasLabel","value":true},{"label":"Widget Validation","type":"hasLabel","value":true},{"label":"reallabel","type":"hasLabel","value":true},{"label":"New Widget","type":"hasLabel","value":true},{"label":"Switch widget","type":"hasLabel","value":true},{"label":"Widget Styling","type":"hasLabel","value":true},{"label":"Audio Widget","type":"hasLabel","value":true},{"label":"Divider Widget","type":"hasLabel","value":true},{"label":"Rating Widget","type":"hasLabel","value":true},{"label":"Icon Button Widget","type":"hasLabel","value":true},{"label":"Menu Button Widget","type":"hasLabel","value":true},{"label":"Checkbox Group widget","type":"hasLabel","value":true},{"label":"Stat Box Widget","type":"hasLabel","value":true},{"label":"Voice Recorder Widget","type":"hasLabel","value":true},{"label":"Calendar Widget","type":"hasLabel","value":true}],"requires":1}}},"root":"."}]}
+{
+  "runners": [
+    {
+      "versioning": {
+        "source": "milestones",
+        "type": "SemVer"
+      },
+      "prereleaseName": "alpha",
+      "issue": {
+        "labels": {
+          "Actions Pod": {
+            "conditions": [
+              {
+                "label": "JS",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Datasources",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Google Sheets",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "API pane",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Query Editor",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Auto Complete",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Actions",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "New Integration",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "JSEditor",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "JSSnippets",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "JSLinting&Error",
+                "type": "hasLabel",
+                "value": true
+              }
+            ],
+            "requires": 1
+          },
+          "Platform Pod": {
+            "conditions": [
+              {
+                "label": "Debugger",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Import-Export-App",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Omnibar",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Login / Signup",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Entity Explorer",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Example apps",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Deployment",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Home Page",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "In App Comms",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Generate Page",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Settings",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Telemetry",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Editor",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Version Control",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Platform Pod",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Onboarding",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "ACL",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Team Managers Pod",
+                "type": "hasLabel",
+                "value": true
+              }
+            ],
+            "requires": 1
+          },
+          "BE Coder Pod": {
+            "conditions": [],
+            "requires": 1
+          },
+          "Team Managers Pod": {
+            "conditions": [
+              {
+                "label": "Collaboration",
+                "type": "hasLabel",
+                "value": true
+              }
+            ],
+            "requires": 1
+          },
+          "FE Coder Pod": {
+            "conditions": [],
+            "requires": 1
+          },
+          "New Developer Pod": {
+            "conditions": [],
+            "requires": 1
+          },
+          "UI Builders Pod": {
+            "conditions": [],
+            "requires": 1
+          },
+          "UI Building Pod": {
+            "conditions": [
+              {
+                "label": "Pages",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Property Pane",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "UI Performance",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Widgets Pod",
+                "type": "hasLabel",
+                "value": true
+              }
+            ],
+            "requires": 1
+          },
+          "Widgets Pod": {
+            "conditions": [
+              {
+                "label": "Button Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Chart Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Checkbox Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Container Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Date Picker Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Select Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "File Picker Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Form Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Image Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Input Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "List Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "MultiSelect Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Map Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Modal Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Radio Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Rich Text Editor Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Tab Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Table Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Text Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Video Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Menu Button",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Divider",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Rating",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Widget Validation",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "reallabel",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "New Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Switch widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Widget Styling",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Audio Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Divider Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Rating Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Icon Button Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Menu Button Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Checkbox Group widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Stat Box Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Voice Recorder Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Calendar Widget",
+                "type": "hasLabel",
+                "value": true
+              }
+            ],
+            "requires": 1
+          }
+        }
+      },
+      "root": "."
+    }
+  ],
+  "labels": {
+    "ACL": {
+      "name": "ACL",
+      "color": "ac63a8",
+      "description": "User permissions and access controls"
+    },
+    "Actions": {
+      "name": "Actions",
+      "color": "c5def5",
+      "description": "Issues related to API / Query / JS execution"
+    },
+    "Actions Pod": {
+      "name": "Actions Pod",
+      "color": "61ed84",
+      "description": "Issues picked up by the action pod"
+    },
+    "advanced": {
+      "name": "advanced",
+      "color": "88eac1",
+      "description": "Features aimed at advanced users"
+    },
+    "API pane": {
+      "name": "API pane",
+      "color": "e053d6",
+      "description": "API configuration section"
+    },
+    "Audio Widget": {
+      "name": "Audio Widget",
+      "color": "447B9A",
+      "description": "Issues related to Audio Widget"
+    },
+    "Autocomplete": {
+      "name": "Autocomplete",
+      "color": "ef9bd9",
+      "description": ""
+    },
+    "Automation": {
+      "name": "Automation",
+      "color": "CCAF60",
+      "description": ""
+    },
+    "AutomationGap": {
+      "name": "AutomationGap",
+      "color": "224B7A",
+      "description": ""
+    },
+    "Backend": {
+      "name": "Backend",
+      "color": "d4c5f9",
+      "description": "This marks the issue or pull request to reference server code"
+    },
+    "BE Coder Pod": {
+      "name": "BE Coder Pod",
+      "color": "f030c1",
+      "description": "Issues related to users writing code to fetch and update data in appsmith"
+    },
+    "Bug": {
+      "name": "Bug",
+      "color": "d73a4a",
+      "description": "Something isn't working"
+    },
+    "Button Widget": {
+      "name": "Button Widget",
+      "color": "34efae",
+      "description": ""
+    },
+    "Calendar Widget": {
+      "name": "Calendar Widget",
+      "color": "8c6644",
+      "description": ""
+    },
+    "Cannot Reproduce": {
+      "name": "Cannot Reproduce",
+      "color": "35d6c8",
+      "description": ""
+    },
+    "Chart Widget": {
+      "name": "Chart Widget",
+      "color": "616ecc",
+      "description": ""
+    },
+    "Checkbox Group widget": {
+      "name": "Checkbox Group widget",
+      "color": "D2ACD2",
+      "description": "Issues related to Checkbox Group Widget"
+    },
+    "Checkbox Widget": {
+      "name": "Checkbox Widget",
+      "color": "074ac6",
+      "description": ""
+    },
+    "CI": {
+      "name": "CI",
+      "color": "59beea",
+      "description": ""
+    },
+    "Collaboration": {
+      "name": "Collaboration",
+      "color": "2ac49c",
+      "description": "In-app communication between Appsmith users"
+    },
+    "community": {
+      "name": "community",
+      "color": "dded34",
+      "description": "issues reported by community members"
+    },
+    "Container Widget": {
+      "name": "Container Widget",
+      "color": "19AD0D",
+      "description": "Container widget"
+    },
+    "copy change": {
+      "name": "copy change",
+      "color": "DC0176",
+      "description": "For changes in text and copy everywhere inside Appsmith"
+    },
+    "Critical": {
+      "name": "Critical",
+      "color": "9b1b28",
+      "description": "This issue needs immediate attention. Drop everything else"
+    },
+    "Datasources": {
+      "name": "Datasources",
+      "color": "f285e1",
+      "description": ""
+    },
+    "Date Picker Widget": {
+      "name": "Date Picker Widget",
+      "color": "ef1ce1",
+      "description": ""
+    },
+    "Debugger": {
+      "name": "Debugger",
+      "color": "150768",
+      "description": ""
+    },
+    "Dependencies": {
+      "name": "Dependencies",
+      "color": "0366d6",
+      "description": "Pull requests that update a dependency file"
+    },
+    "Deploy Preview": {
+      "name": "Deploy Preview",
+      "color": "bfdadc",
+      "description": "Issues found in Deploy Preview"
+    },
+    "Deployment": {
+      "name": "Deployment",
+      "color": "bdf989",
+      "description": "Installation process of appsmith"
+    },
+    "Design System": {
+      "name": "Design System",
+      "color": "fbca04",
+      "description": "Design system"
+    },
+    "Development": {
+      "name": "Development",
+      "color": "9F8A02",
+      "description": ""
+    },
+    "Divider Widget": {
+      "name": "Divider Widget",
+      "color": "d93f0b",
+      "description": "Issues related to the divider widget"
+    },
+    "Documentation": {
+      "name": "Documentation",
+      "color": "0075ca",
+      "description": "Improvements or additions to documentation"
+    },
+    "Dont merge": {
+      "name": "Dont merge",
+      "color": "ADB39C",
+      "description": ""
+    },
+    "Duplicate": {
+      "name": "Duplicate",
+      "color": "cfd3d7",
+      "description": "This issue or pull request already exists"
+    },
+    "Editor": {
+      "name": "Editor",
+      "color": "f2989a",
+      "description": ""
+    },
+    "Enhancement": {
+      "name": "Enhancement",
+      "color": "a2eeef",
+      "description": "New feature or request"
+    },
+    "Entity Explorer": {
+      "name": "Entity Explorer",
+      "color": "a2e2f9",
+      "description": ""
+    },
+    "Epic": {
+      "name": "Epic",
+      "color": "3E4B9E",
+      "description": null
+    },
+    "error": {
+      "name": "error",
+      "color": "B66773",
+      "description": "All issues connected to error messages"
+    },
+    "Example Apps": {
+      "name": "Example Apps",
+      "color": "d802a3",
+      "description": "Example apps created for new signups"
+    },
+    "FE Coder Pod": {
+      "name": "FE Coder Pod",
+      "color": "11f57f",
+      "description": "Issues related to users writing javascript in appsmith"
+    },
+    "File Picker Widget": {
+      "name": "File Picker Widget",
+      "color": "6ae4f2",
+      "description": ""
+    },
+    "firefox": {
+      "name": "firefox",
+      "color": "6d56e2",
+      "description": ""
+    },
+    "firestore": {
+      "name": "firestore",
+      "color": "F1C2DF",
+      "description": "Firestore integration"
+    },
+    "Fork App": {
+      "name": "Fork App",
+      "color": "00022F",
+      "description": ""
+    },
+    "Form Widget": {
+      "name": "Form Widget",
+      "color": "09ed77",
+      "description": ""
+    },
+    "Frontend": {
+      "name": "Frontend",
+      "color": "87c7f2",
+      "description": "This label marks the issue or pull request to reference client code"
+    },
+    "Generate Page": {
+      "name": "Generate Page",
+      "color": "98E282",
+      "description": "Issures related to page generation"
+    },
+    "Good First Issue": {
+      "name": "Good First Issue",
+      "color": "7057ff",
+      "description": "Good for newcomers"
+    },
+    "Google Sheets": {
+      "name": "Google Sheets",
+      "color": "51D86A",
+      "description": ""
+    },
+    "hacktoberfest": {
+      "name": "hacktoberfest",
+      "color": "0052cc",
+      "description": "All issues that can be solved by the community during Hacktoberfest"
+    },
+    "Help Wanted": {
+      "name": "Help Wanted",
+      "color": "008672",
+      "description": "Extra attention is needed"
+    },
+    "Heroku": {
+      "name": "Heroku",
+      "color": "27AEC5",
+      "description": ""
+    },
+    "High": {
+      "name": "High",
+      "color": "c94d14",
+      "description": "This issue blocks a user from building or impacts a lot of users"
+    },
+    "High effort": {
+      "name": "High effort",
+      "color": "A7E87B",
+      "description": "Something that'll take more than a month to build"
+    },
+    "High impact": {
+      "name": "High impact",
+      "color": "853A9F",
+      "description": ""
+    },
+    "Home Page": {
+      "name": "Home Page",
+      "color": "a5acef",
+      "description": ""
+    },
+    "hotfix": {
+      "name": "hotfix",
+      "color": "BA3F1D",
+      "description": ""
+    },
+    "i18n": {
+      "name": "i18n",
+      "color": "46A7DB",
+      "description": "Represents issues that need to be tackled to handle internationalization"
+    },
+    "Icon Button Widget": {
+      "name": "Icon Button Widget",
+      "color": "D319CE",
+      "description": "Issues related to the icon button widget"
+    },
+    "iFrame": {
+      "name": "iFrame",
+      "color": "3CD1DB",
+      "description": "Issues related to iFrame"
+    },
+    "Image Widget": {
+      "name": "Image Widget",
+      "color": "8de8ad",
+      "description": ""
+    },
+    "Import-Export-App": {
+      "name": "Import-Export-App",
+      "color": "1d76db",
+      "description": ""
+    },
+    "In App Comms": {
+      "name": "In App Comms",
+      "color": "56C8E3",
+      "description": "Issues around communication with appsmith instances"
+    },
+    "Input Widget": {
+      "name": "Input Widget",
+      "color": "ae65d8",
+      "description": ""
+    },
+    "intermittent": {
+      "name": "intermittent",
+      "color": "EDF2EF",
+      "description": ""
+    },
+    "Invalid": {
+      "name": "Invalid",
+      "color": "e4e669",
+      "description": "This doesn't seem right"
+    },
+    "invite users": {
+      "name": "invite users",
+      "color": "E63A58",
+      "description": "Invite users flow and any associated actions"
+    },
+    "java": {
+      "name": "java",
+      "color": "ffa221",
+      "description": "Pull requests that update Java code"
+    },
+    "javascript": {
+      "name": "javascript",
+      "color": "168700",
+      "description": "Pull requests that update Javascript code"
+    },
+    "JS": {
+      "name": "JS",
+      "color": "ffc1c2",
+      "description": "Issues related to JS on the platform"
+    },
+    "JSEditor": {
+      "name": "JSEditor",
+      "color": "b60205",
+      "description": "Issues related to JS Editor"
+    },
+    "JSLinting&Error": {
+      "name": "JSLinting&Error",
+      "color": "E56AA5",
+      "description": "issues related to JS Linting and errors"
+    },
+    "JSSnippets": {
+      "name": "JSSnippets",
+      "color": "0052cc",
+      "description": "issues related to JS Snippets"
+    },
+    "keyboard shortcuts": {
+      "name": "keyboard shortcuts",
+      "color": "0688B6",
+      "description": ""
+    },
+    "List Widget": {
+      "name": "List Widget",
+      "color": "8508A0",
+      "description": "Issues related to the list widget"
+    },
+    "Login / Signup": {
+      "name": "Login / Signup",
+      "color": "949fe0",
+      "description": "Authentication flows"
+    },
+    "Low": {
+      "name": "Low",
+      "color": "79e53b",
+      "description": "An issue that is neither critical nor breaks a user flow"
+    },
+    "Low effort": {
+      "name": "Low effort",
+      "color": "8B59F0",
+      "description": "Something that'll take a few days to build"
+    },
+    "Map Widget": {
+      "name": "Map Widget",
+      "color": "7eef7a",
+      "description": ""
+    },
+    "Medium effort": {
+      "name": "Medium effort",
+      "color": "D31156",
+      "description": "Something that'll take more than a week but less than a month to build"
+    },
+    "Menu Button Widget": {
+      "name": "Menu Button Widget",
+      "color": "2D9347",
+      "description": "Issues related to Menu Button widget"
+    },
+    "mobile viewport": {
+      "name": "mobile viewport",
+      "color": "203528",
+      "description": "Issues seen on mobile viewports"
+    },
+    "Modal Widget": {
+      "name": "Modal Widget",
+      "color": "03846f",
+      "description": ""
+    },
+    "Mongo": {
+      "name": "Mongo",
+      "color": "fef2c0",
+      "description": "Issues related to Mongo DB plugin"
+    },
+    "MultiSelect Widget": {
+      "name": "MultiSelect Widget",
+      "color": "AB62D4",
+      "description": "Issues related to MultiSelect Widget"
+    },
+    "MySQL": {
+      "name": "MySQL",
+      "color": "B0F9F4",
+      "description": ""
+    },
+    "navigation": {
+      "name": "navigation",
+      "color": "291ECE",
+      "description": ""
+    },
+    "Needs Design": {
+      "name": "Needs Design",
+      "color": "bfd4f2",
+      "description": "needs design or changes to design"
+    },
+    "Needs More Info": {
+      "name": "Needs More Info",
+      "color": "e54c10",
+      "description": "Needs additional information"
+    },
+    "Needs Tests": {
+      "name": "Needs Tests",
+      "color": "8ee263",
+      "description": "Needs automated tests to assert a feature/bug fix"
+    },
+    "Needs Triaging": {
+      "name": "Needs Triaging",
+      "color": "e8b851",
+      "description": "Needs attention from maintainers to triage"
+    },
+    "New Developer Pod": {
+      "name": "New Developer Pod",
+      "color": "54f3f6",
+      "description": ""
+    },
+    "New Integration": {
+      "name": "New Integration",
+      "color": "BD53D8",
+      "description": ""
+    },
+    "New Widget": {
+      "name": "New Widget",
+      "color": "be4cf2",
+      "description": "A request for a new widget"
+    },
+    "new-contribution": {
+      "name": "new-contribution",
+      "color": "17FBF8",
+      "description": "Label exclusive for PRs to sort them as a project"
+    },
+    "Not reproducible": {
+      "name": "Not reproducible",
+      "color": "5BB32E",
+      "description": ""
+    },
+    "Omnibar": {
+      "name": "Omnibar",
+      "color": "10b5ce",
+      "description": ""
+    },
+    "Onboarding": {
+      "name": "Onboarding",
+      "color": "079829",
+      "description": ""
+    },
+    "opera": {
+      "name": "opera",
+      "color": "C63F5B",
+      "description": "Any issues identified on the opera browser"
+    },
+    "Pages": {
+      "name": "Pages",
+      "color": "dee258",
+      "description": ""
+    },
+    "Papercut": {
+      "name": "Papercut",
+      "color": "B562F6",
+      "description": ""
+    },
+    "Performance": {
+      "name": "Performance",
+      "color": "d30e53",
+      "description": "Page Load and evaluations"
+    },
+    "Platform Pod": {
+      "name": "Platform Pod",
+      "color": "500B69",
+      "description": "All issues related to using the appsmith platform"
+    },
+    "Plugin": {
+      "name": "Plugin",
+      "color": "04C9D9",
+      "description": ""
+    },
+    "POC": {
+      "name": "POC",
+      "color": "5B19AA",
+      "description": "Task inside sprint which need a POC"
+    },
+    "potential-duplicate": {
+      "name": "potential-duplicate",
+      "color": "d3cb2e",
+      "description": "This label marks issues that are potential duplicates of already open issues"
+    },
+    "Product Note": {
+      "name": "Product Note",
+      "color": "6277c4",
+      "description": ""
+    },
+    "Production": {
+      "name": "Production",
+      "color": "b60205",
+      "description": ""
+    },
+    "Project": {
+      "name": "Project",
+      "color": "ededed",
+      "description": null
+    },
+    "Property Pane": {
+      "name": "Property Pane",
+      "color": "b356ff",
+      "description": ""
+    },
+    "QA": {
+      "name": "QA",
+      "color": "e2ca68",
+      "description": ""
+    },
+    "Query Editor": {
+      "name": "Query Editor",
+      "color": "95f725",
+      "description": "The section where a user can write DB queries."
+    },
+    "Quick effort": {
+      "name": "Quick effort",
+      "color": "95ED65",
+      "description": "Something that'll take a few hours to build"
+    },
+    "Radio Widget": {
+      "name": "Radio Widget",
+      "color": "91ef15",
+      "description": ""
+    },
+    "Rating Widget": {
+      "name": "Rating Widget",
+      "color": "64CA79",
+      "description": "Issues related to the rating widget"
+    },
+    "Redshift": {
+      "name": "Redshift",
+      "color": "ABAEB5",
+      "description": ""
+    },
+    "Refactor": {
+      "name": "Refactor",
+      "color": "B96662",
+      "description": "needs refactoring of code"
+    },
+    "regression": {
+      "name": "regression",
+      "color": "ffe5bc",
+      "description": ""
+    },
+    "Release": {
+      "name": "Release",
+      "color": "57e5e0",
+      "description": ""
+    },
+    "release-frozen": {
+      "name": "release-frozen",
+      "color": "E1F3D2",
+      "description": "Issues related to the frozen release branch"
+    },
+    "Reopen": {
+      "name": "Reopen",
+      "color": "897548",
+      "description": ""
+    },
+    "Rich Text Editor Widget": {
+      "name": "Rich Text Editor Widget",
+      "color": "f72cac",
+      "description": ""
+    },
+    "S3": {
+      "name": "S3",
+      "color": "32DD61",
+      "description": ""
+    },
+    "safari": {
+      "name": "safari",
+      "color": "51C6AA",
+      "description": "Bugs seen on safari browser"
+    },
+    "Security": {
+      "name": "Security",
+      "color": "99139C",
+      "description": ""
+    },
+    "Select Widget": {
+      "name": "Select Widget",
+      "color": "0c669e",
+      "description": "Select or dropdown widget"
+    },
+    "Settings": {
+      "name": "Settings",
+      "color": "f7ff60",
+      "description": "organization, team & user settings"
+    },
+    "skip-changelog": {
+      "name": "skip-changelog",
+      "color": "06086F",
+      "description": "Adding this label to a PR prevents it from being listed in the changelog"
+    },
+    "snowflake": {
+      "name": "snowflake",
+      "color": "AB8BAB",
+      "description": ""
+    },
+    "Spam": {
+      "name": "Spam",
+      "color": "620faf",
+      "description": ""
+    },
+    "Stale": {
+      "name": "Stale",
+      "color": "ededed",
+      "description": null
+    },
+    "Stat Box Widget": {
+      "name": "Stat Box Widget",
+      "color": "f1c9ce",
+      "description": "Issues related to stat box"
+    },
+    "Switch widget": {
+      "name": "Switch widget",
+      "color": "33A8CE",
+      "description": "The switch widget"
+    },
+    "Tab Widget": {
+      "name": "Tab Widget",
+      "color": "e2c76c",
+      "description": ""
+    },
+    "Table Widget": {
+      "name": "Table Widget",
+      "color": "2eead1",
+      "description": ""
+    },
+    "Task": {
+      "name": "Task",
+      "color": "085630",
+      "description": "A simple Todo"
+    },
+    "Team Managers Pod": {
+      "name": "Team Managers Pod",
+      "color": "bddb81",
+      "description": "Issues that team managers care about for the security and efficiency of their teams"
+    },
+    "Telemetry": {
+      "name": "Telemetry",
+      "color": "bc70f9",
+      "description": ""
+    },
+    "Test": {
+      "name": "Test",
+      "color": "ededed",
+      "description": null
+    },
+    "Text Widget": {
+      "name": "Text Widget",
+      "color": "d130d1",
+      "description": ""
+    },
+    "UI Builders Pod": {
+      "name": "UI Builders Pod",
+      "color": "517fba",
+      "description": "Issues that UI Builders face using appsmith"
+    },
+    "UI Building Pod": {
+      "name": "UI Building Pod",
+      "color": "e2ffb2",
+      "description": ""
+    },
+    "UI Improvement": {
+      "name": "UI Improvement",
+      "color": "9aeef4",
+      "description": ""
+    },
+    "UI Performance": {
+      "name": "UI Performance",
+      "color": "FBCA04",
+      "description": ""
+    },
+    "UQI": {
+      "name": "UQI",
+      "color": "FB8E9C",
+      "description": ""
+    },
+    "UX Improvement": {
+      "name": "UX Improvement",
+      "color": "f4a089",
+      "description": ""
+    },
+    "Verified": {
+      "name": "Verified",
+      "color": "9bf416",
+      "description": ""
+    },
+    "Version Control": {
+      "name": "Version Control",
+      "color": "C4568E",
+      "description": ""
+    },
+    "Video Widget": {
+      "name": "Video Widget",
+      "color": "23dd4b",
+      "description": ""
+    },
+    "view-mode": {
+      "name": "view-mode",
+      "color": "d5e03c",
+      "description": "bugs about view-mode"
+    },
+    "Voice Recorder Widget": {
+      "name": "Voice Recorder Widget",
+      "color": "85bc87",
+      "description": ""
+    },
+    "Website": {
+      "name": "Website",
+      "color": "151720",
+      "description": "Related to www.appsmith.com website"
+    },
+    "Widget Styling": {
+      "name": "Widget Styling",
+      "color": "37EA75",
+      "description": "all about widget styling"
+    },
+    "Widget Validation": {
+      "name": "Widget Validation",
+      "color": "6990BC",
+      "description": "Issues related to widget property validation"
+    },
+    "Widgets Pod": {
+      "name": "Widgets Pod",
+      "color": "cd8ef9",
+      "description": "This label assigns issues to the widgets pod"
+    },
+    "Wont Fix": {
+      "name": "Wont Fix",
+      "color": "ffffff",
+      "description": "This will not be worked on"
+    }
+  }
+}
