@@ -243,47 +243,4 @@ describe("Api action transformer", () => {
     const result = transformRestAction(input);
     expect(result).toEqual(output);
   });
-
-  it("Doesn't filter out first key-value pair if second key-value pair is filled first", () => {
-    const input = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        headers: [{ key: "content-type", value: "multipart/form-data" }],
-        httpMethod: "POST",
-        body: "",
-        bodyFormData: [
-          undefined,
-          {
-            key: "testKey",
-            value: "testValue",
-            type: "FILE",
-          },
-        ],
-      },
-    };
-
-    const output = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        headers: [{ key: "content-type", value: "multipart/form-data" }],
-        httpMethod: "POST",
-        body: "",
-        bodyFormData: [
-          undefined,
-          {
-            key: "testKey",
-            value: "testValue",
-            type: "FILE",
-          },
-        ],
-      },
-    };
-
-    // ApiAction doesn't expect that the bodyFormData have an item that is undefined,
-    // however this occurs when the second key-value pair is filled first
-    const result = transformRestAction(input as ApiAction);
-    expect(result).toEqual(output);
-  });
 });
