@@ -3240,4 +3240,15 @@ public class DatabaseChangelog {
             mongoTemplate.save(mongoAction);
         }
     }
+
+    @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
+    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
+
+        ensureIndexes(mongoTemplate, Plugin.class,
+                makeIndex("pluginName", "packageName", "version")
+                        .unique().named("plugin_name_package_name_version_index")
+        );
+    }
 }
