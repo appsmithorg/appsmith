@@ -46,6 +46,7 @@ const EditorWrapper = styled.div`
   justify-content: flex-start;
   overflow: hidden;
   position: relative;
+  transform: scale(0.75);
 `;
 
 const CanvasContainer = styled.section`
