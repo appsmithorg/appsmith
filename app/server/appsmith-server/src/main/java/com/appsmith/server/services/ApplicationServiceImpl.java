@@ -481,7 +481,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      * @return Application flux which match the condition
      */
     @Override
-    public Flux<Application> finAllApplicationsByGitDefaultApplicationId(String defaultApplicationId) {
+    public Flux<Application> findAllApplicationsByGitDefaultApplicationId(String defaultApplicationId) {
         return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
     }
 }
