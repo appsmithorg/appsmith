@@ -1023,6 +1023,17 @@ export const revertButtonStyleToButtonColor = (
       delete currentDSL.prevMenuStyle;
     }
   }
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (currentDSL.hasOwnProperty("primaryColumns")) {
+      Object.keys(currentDSL.primaryColumns).forEach((column) => {
+        if (currentDSL.primaryColumns[column].columnType === "button") {
+          currentDSL.primaryColumns[column].buttonColor =
+            currentDSL.primaryColumns[column].buttonStyle;
+          delete currentDSL.primaryColumns[column].buttonStyle;
+        }
+      });
+    }
+  }
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
       revertButtonStyleToButtonColor(child),

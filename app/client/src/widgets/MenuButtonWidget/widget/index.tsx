@@ -246,7 +246,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -256,6 +256,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                   ButtonVariantTypes.SECONDARY,
                   ButtonVariantTypes.TERTIARY,
                 ],
+                default: ButtonVariantTypes.PRIMARY,
               },
             },
           },

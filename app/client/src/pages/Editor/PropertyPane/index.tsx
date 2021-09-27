@@ -32,15 +32,12 @@ import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import { Layers } from "constants/Layers";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
-import SearchSnippets from "components/ads/SnippetButton";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { WidgetType } from "constants/WidgetConstants";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
@@ -164,20 +161,6 @@ function PropertyPaneView(
             height={16}
             onClick={handleDelete}
             width={16}
-          />
-        ),
-      },
-      {
-        tooltipContent: <span>Explore widget related docs</span>,
-        icon: <PropertyPaneHelpButton />,
-      },
-      {
-        tooltipContent: <span>Search related snippets</span>,
-        icon: (
-          <SearchSnippets
-            entityId={widgetProperties.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
-            showIconOnly
           />
         ),
       },

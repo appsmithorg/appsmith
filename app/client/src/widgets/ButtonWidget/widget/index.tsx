@@ -148,7 +148,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
@@ -158,6 +158,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                   ButtonVariantTypes.SECONDARY,
                   ButtonVariantTypes.TERTIARY,
                 ],
+                default: ButtonVariantTypes.PRIMARY,
               },
             },
           },
