@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.QOrganization;
 import lombok.extern.slf4j.Slf4j;
@@ -77,5 +76,10 @@ public class CustomOrganizationRepositoryImpl extends BaseAppsmithRepositoryImpl
                         Organization.class
                 )
                 .then();
+    }
+
+    @Override
+    public Flux<Organization> findAllOrganizations() {
+        return mongoOperations.find(new Query(), Organization.class);
     }
 }

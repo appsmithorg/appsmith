@@ -77,8 +77,7 @@ const StyledMenu = styled(Menu)`
     }
 
     &.${Classes.ACTIVE} {
-      background-color: ${(props) =>
-        props.theme.colors.treeDropdown.menuBg.selected};
+      background-color: ${Colors.GREY_3};
       color: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
       .${Classes.ICON} > svg:not([fill]) {
         fill: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
@@ -88,9 +87,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_SUBMENU}
     .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN}
     > .${Classes.MENU_ITEM} {
-    background-color: ${(props) =>
-      props.theme.colors.treeDropdown.menuBg.hover};
-    color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+    background-color: ${Colors.GREY_3};
   }
 `;
 

@@ -41,7 +41,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
-import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
@@ -59,7 +59,6 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
 import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
-import Skeleton from "components/utils/Skeleton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -72,19 +71,6 @@ const HeaderWrapper = styled(StyledHeader)`
   & .editable-application-name {
     ${(props) => getTypographyByKey(props, "h4")}
     color: ${(props) => props.theme.colors.header.appName};
-  }
-
-  & .header__application-share-btn {
-    background-color: ${(props) => props.theme.colors.header.background};
-    border-color: ${(props) => props.theme.colors.header.background};
-    // margin-right: ${(props) => props.theme.spaces[1]}px;
-  }
-
-  & .header__application-share-btn:hover {
-    color: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    ${IconWrapper} path {
-      fill: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    }
   }
 
   & ${Profile} {
@@ -328,6 +314,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               }
               trigger={
                 <StyledInviteButton
+                  className="t--application-share-btn header__application-share-btn"
                   icon={"share"}
                   size={Size.small}
                   tag="button"
@@ -379,7 +366,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           )}
         </HeaderSection>
         {props.inOnboarding && <OnboardingHelper />}
-        <Suspense fallback={<Skeleton />}>
+        <Suspense fallback={<span />}>
           <GlobalSearch />
         </Suspense>
         {isSnipingMode && (

@@ -40,7 +40,11 @@ Cypress.Commands.add("createOrg", () => {
 });
 
 Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
-  cy.contains(orgName).click({ force: true });
+  cy.contains(orgName)
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
+    .click({ force: true });
   cy.get(homePage.renameOrgInput)
     .should("be.visible")
     .type(newOrgName)
@@ -69,9 +73,10 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name span")
-    .contains(orgName)
-    .first()
+  cy.contains(orgName)
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
@@ -87,9 +92,10 @@ Cypress.Commands.add("openOrgOptionsPopup", (orgName) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name span")
-    .contains(orgName)
-    .first()
+  cy.contains(orgName)
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
     .click({ force: true });
 });
 

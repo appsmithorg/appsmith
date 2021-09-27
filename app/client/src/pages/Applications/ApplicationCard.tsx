@@ -404,12 +404,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
         icon: "download",
         cypressSelector: "t--export-app",
       });
-      moreActionItems.push({
-        onSelect: exportApplicationAsJSONFile,
-        text: "Move App",
-        icon: "file-transfer",
-        cypressSelector: "t--export-app",
-      });
     }
     setMoreActionItems(moreActionItems);
     addDeleteOption();

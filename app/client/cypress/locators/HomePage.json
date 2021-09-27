@@ -45,9 +45,9 @@
     "emailList": "[data-colindex='0']",
     "orgList": ".t--org-section:contains(",
     "orgSectionBtn": ".t--org-section .bp3-button",
-    "shareOrg": ") a:contains('Share')",
+    "shareOrg": ") button:contains('Share')",
     "orgSection": "a:contains(",
-    "createAppFrOrg": ") .t--create-app-popup", 
+    "createAppFrOrg": ") .t--new-button", 
     "shareApp": ".t--application-share-btn",
     "enablePublicAccess": ".t--share-public-toggle .slider",
     "closeBtn": ".bp3-dialog-close-button",
@@ -83,5 +83,8 @@
     "cancelBtn": "//span[text()='Cancel']",
     "submit": "button:contains('Submit')",
     "orgNamePopover": ".t--org-name",
-    "orgNamePopoverContent": ".bp3-popover-content"
+    "orgNamePopoverContent": ".bp3-popover-content",
+    "orgCompleteSection": ".t--org-section",
+    "orgNameText": ".t--org-name-text",
+    "optionsIcon": ".t--options-icon"
 }

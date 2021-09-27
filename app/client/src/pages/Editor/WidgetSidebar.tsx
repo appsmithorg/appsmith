@@ -24,6 +24,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { AppState } from "reducers";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -84,6 +85,9 @@ const Info = styled.div`
 function WidgetSidebar(props: IPanelProps) {
   const location = useLocation();
   const cards = useSelector(getWidgetCards);
+  const isForceOpenWidgetPanel = useSelector(
+    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
+  );
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {
@@ -114,6 +118,13 @@ function WidgetSidebar(props: IPanelProps) {
   const pageId = useSelector(getCurrentPageId);
   const onCanvas =
     BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+
+  useEffect(() => {
+    if (isForceOpenWidgetPanel === false) {
+      props.closePanel();
+    }
+  }, [isForceOpenWidgetPanel]);
+
   useEffect(() => {
     if (
       (currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
