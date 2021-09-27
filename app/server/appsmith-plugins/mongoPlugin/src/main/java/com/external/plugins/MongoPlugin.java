@@ -25,7 +25,6 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.utils.MongoErrorUtils;
-import com.external.plugins.utils.MongoPluginUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
@@ -157,6 +156,8 @@ public class MongoPlugin extends BasePlugin {
             UPDATE_QUERY,
             UPDATE_OPERATION
     ));
+
+    private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -386,7 +387,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setErrorInfo(error, MongoErrorUtils.getInstance());
+                        actionExecutionResult.setErrorInfo(error, mongoErrorUtils);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -807,7 +808,7 @@ public class MongoPlugin extends BasePlugin {
                             return Mono.just(new DatasourceTestResult());
                         }
 
-                        return Mono.just(new DatasourceTestResult(MongoErrorUtils.getInstance().getReadableError(error)));
+                        return Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error)));
                     })
                     .subscribeOn(scheduler);
         }
