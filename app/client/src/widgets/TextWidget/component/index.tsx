@@ -61,12 +61,14 @@ export interface TextComponentProps extends ComponentProps {
   backgroundColor?: string;
   textColor?: string;
   fontStyle?: string;
+  disableLink: boolean;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
   render() {
     const {
       backgroundColor,
+      disableLink,
       ellipsize,
       fontSize,
       fontStyle,
@@ -90,7 +92,11 @@ class TextComponent extends React.Component<TextComponentProps> {
         >
           <Interweave
             content={procText}
-            matchers={[new EmailMatcher("email"), new UrlMatcher("url")]}
+            matchers={
+              disableLink
+                ? []
+                : [new EmailMatcher("email"), new UrlMatcher("url")]
+            }
             newWindow
           />
         </StyledText>
