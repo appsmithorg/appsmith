@@ -23,7 +23,7 @@ export function selectedTabValidation(
   }> = props.tabsObj ? Object.values(props.tabsObj) : props.tabs || [];
   const tabNames = tabs.map((i: { label: string; id: string }) => i.label);
   return {
-    isValid: tabNames.includes(value as string),
+    isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
     message: `Tab name ${value} does not exist`,
   };
