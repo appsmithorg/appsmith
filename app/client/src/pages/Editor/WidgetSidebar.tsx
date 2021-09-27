@@ -120,19 +120,14 @@ function WidgetSidebar(props: IPanelProps) {
     BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
 
   useEffect(() => {
-    if (isForceOpenWidgetPanel === false) {
-      props.closePanel();
-    }
-  }, [isForceOpenWidgetPanel]);
-
-  useEffect(() => {
     if (
-      (currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
-      !onCanvas
+      ((currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
+        !onCanvas) ||
+      isForceOpenWidgetPanel === false
     ) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas, isInOnboarding, location]);
+  }, [currentStep, onCanvas, isInOnboarding, location, isForceOpenWidgetPanel]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
