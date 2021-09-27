@@ -1607,6 +1607,24 @@ describe("Table Widget selectedRow bindings update", () => {
               computedValue:
                 "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
             },
+            customColumn1: {
+              index: 4,
+              width: 150,
+              id: "customColumn1",
+              horizontalAlignment: "LEFT",
+              verticalAlignment: "CENTER",
+              columnType: "button",
+              textSize: "PARAGRAPH",
+              enableFilter: true,
+              enableSort: true,
+              isVisible: true,
+              isCellVisible: true,
+              isDisabled: false,
+              isDerived: true,
+              label: "Delete",
+              onClick: "{{showAlert('Hello')}}",
+              computedValue: "",
+            },
           },
           delimiter: ",",
           derivedColumns: {},
@@ -1759,6 +1777,24 @@ describe("Table Widget selectedRow bindings update", () => {
               computedValue:
                 "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
             },
+            customColumn1: {
+              index: 4,
+              width: 150,
+              id: "customColumn1",
+              horizontalAlignment: "LEFT",
+              verticalAlignment: "CENTER",
+              columnType: "button",
+              textSize: "PARAGRAPH",
+              enableFilter: true,
+              enableSort: true,
+              isVisible: true,
+              isCellVisible: true,
+              isDisabled: false,
+              isDerived: true,
+              label: "Delete",
+              onClick: "{{showAlert('Hello')}}",
+              computedValue: "",
+            },
           },
           delimiter: ",",
           derivedColumns: {},
@@ -1797,6 +1833,6 @@ describe("Table Widget selectedRow bindings update", () => {
         },
       ],
     };
-    expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl));
+    expect(newDsl).toStrictEqual(outputDsl);
   });
 });
