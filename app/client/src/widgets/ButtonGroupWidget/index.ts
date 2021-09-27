@@ -14,10 +14,7 @@ export const CONFIG = {
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "ButtonGroup",
     orientation: "horizontal",
-    borderRadius: "ROUNDED",
     buttonVariant: "SOLID",
-    boxShadowColor: "#E0DEDE",
-    boxShadow: "VARIANT1",
     isVisible: true,
     version: 1,
     groupButtons: {
