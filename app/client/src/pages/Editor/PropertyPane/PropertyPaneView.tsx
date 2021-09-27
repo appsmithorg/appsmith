@@ -108,7 +108,10 @@ function PropertyPaneView(
   if (!widgetProperties || isDraggingForSelection) return null;
 
   return (
-    <div className="relative flex flex-col w-full pt-3 space-y-2 overflow-y-auto">
+    <div
+      className="relative flex flex-col w-full pt-3 space-y-2 overflow-y-auto"
+      key={`property-pane-${widgetProperties.widgetId}`}
+    >
       <PropertyPaneTitle
         actions={actions}
         key={widgetProperties.widgetId}
@@ -129,7 +132,7 @@ function PropertyPaneView(
         <PropertyControlsGenerator
           id={widgetProperties.widgetId}
           panel={panel}
-          theme={theme}
+          theme={EditorTheme.LIGHT}
           type={widgetProperties.type}
         />
       </div>
