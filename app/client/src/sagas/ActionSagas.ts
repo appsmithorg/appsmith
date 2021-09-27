@@ -120,6 +120,7 @@ import {
 import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import { fixMissingWhereKey } from "utils/WhereClauseFix";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -311,6 +312,8 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     if (isApi) {
       action = transformRestAction(action);
     }
+
+    action = fixMissingWhereKey(action);
 
     const response: GenericApiResponse<Action> = yield ActionAPI.updateAction(
       action,
