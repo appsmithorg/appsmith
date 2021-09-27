@@ -86,7 +86,6 @@ public class GitServiceImpl implements GitService {
                              *  Otherwise create a new entry or update existing entry
                              * */
 
-
                             if (gitProfile.equals(userGitProfile)) {
                                 return Mono.just(userData);
                             } else if (userGitProfile == null || Boolean.TRUE.equals(isDefault) || StringUtils.isEmptyOrNull(defaultApplicationId)) {
@@ -590,7 +589,7 @@ public class GitServiceImpl implements GitService {
      * @return return the status of pull operation
      */
     @Override
-    public Mono<String> pullApplication(String applicationId, String branchName) {
+    public Mono<Object> pullApplication(String applicationId, String branchName) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -602,12 +601,17 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
                     //TODO handle the condition for the non default branch as the file path varies
                     try {
-                        return Mono.just(gitExecutor.pullApplication(
+                        String status = gitExecutor.pullApplication(
                                 repoPath,
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getBranchName(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                gitApplicationMetadata.getGitAuth().getPublicKey()));
+                                gitApplicationMetadata.getGitAuth().getPublicKey());
+                        ApplicationJson applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                                application.getOrganizationId(),
+                                gitApplicationMetadata.getDefaultApplicationId(),
+                                branchName);
+                        return importExportApplicationService.importApplicationInOrganization(application.getOrganizationId(), applicationJson, applicationId);
                     } catch (IOException | GitAPIException e) {
                         if (e.getMessage().contains("Nothing to fetch.")) {
                             return Mono.just("Nothing to fetch from remote. All changes are upto date.");
