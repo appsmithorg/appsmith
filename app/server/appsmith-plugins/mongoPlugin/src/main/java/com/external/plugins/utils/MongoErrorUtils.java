@@ -1,13 +1,9 @@
 package com.external.plugins.utils;
 
-import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
-import com.mongodb.Mongo;
 import com.mongodb.MongoCommandException;
-import com.mongodb.MongoException;
 import com.mongodb.MongoSecurityException;
-import org.springframework.util.StringUtils;
 
 public class MongoErrorUtils extends AppsmithPluginErrorUtils {
     private static MongoErrorUtils mongoErrorUtils;
@@ -20,38 +16,52 @@ public class MongoErrorUtils extends AppsmithPluginErrorUtils {
         return mongoErrorUtils;
     }
 
+    /**
+     * Extract small readable portion of error message from a larger less comprehensible error message.
+     * @param error - any error object
+     * @return readable error message
+     */
     @Override
     public String getReadableError(Throwable error) {
-        if (!(error instanceof AppsmithPluginException)
-                || ((AppsmithPluginException) error).getExternalError() == null
-                || !(((AppsmithPluginException) error).getExternalError() instanceof MongoException)) {
-            return error.getMessage();
+        Throwable externalError;
+
+        // If the external error is wrapped inside Appsmith error, then extract the external error first.
+        if (error instanceof AppsmithPluginException) {
+            if (((AppsmithPluginException) error).getExternalError() == null) {
+                return error.getMessage();
+            }
+
+            externalError = ((AppsmithPluginException) error).getExternalError();
+        }
+        else {
+            externalError = error;
         }
 
-        if (error instanceof MongoCommandException) {
-            MongoCommandException externalError =
-                    (MongoCommandException) ((AppsmithPluginException) error).getExternalError();
-            int externalErrorCode = externalError.getCode();
-            switch (externalErrorCode) {
-                case 9:
-                    return getLast(externalError.getErrorMessage().split("\\.")) + ".";
+        if (externalError instanceof MongoCommandException) {
+            MongoCommandException mongoCommandError = (MongoCommandException) externalError;
+            int errorCode = mongoCommandError.getCode();
+
+            // Error codes ref: https://github.com/mongodb/mongo/blob/50dc6dbe394c42d03659aa3410954f1e3ff46740/src/mongo/base/error_codes.err#L12
+            switch (errorCode) {
+                case 9: // FailedToParse error
+                    return getLast(mongoCommandError.getErrorMessage().split("\\.")).trim() + ".";
                 default:
-                    return externalError.getErrorMessage().split("\\.")[0] + ".";
+                    return mongoCommandError.getErrorMessage().split("\\.")[0].trim() + ".";
             }
         }
-        else if (error instanceof MongoSecurityException) {
-            MongoSecurityException externalError =
-                    (MongoSecurityException) ((AppsmithPluginException) error).getExternalError();
-            int externalErrorCode = externalError.getCode();
-            switch (externalErrorCode) {
+        else if (externalError instanceof MongoSecurityException) {
+            MongoSecurityException mongoSecurityError = (MongoSecurityException) externalError;
+            int errorCode = mongoSecurityError.getCode();
+            switch (errorCode) {
                 default:
-                    return externalError.getMessage().split("\\{")[0] + ".";
+                    return mongoSecurityError.getMessage().split("\\{")[0] + ".";
             }
         }
 
         return error.getMessage().split("\\.")[0] + ".";
     }
 
+    // Get last element from array.
     private String getLast(String[] messageArray) {
         if (messageArray.length == 0) {
             return "";
