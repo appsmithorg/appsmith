@@ -4,7 +4,6 @@
     <option name="MAIN_CLASS_NAME" value="com.appsmith.server.ServerApplication" />
     <module name="server" />
     <option name="VM_PARAMETERS" value="-Dpf4j.mode=development -Dpf4j.pluginsDir=appsmith-plugins" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/app/server" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="true" />
       <option name="IS_SUBST" value="false" />
@@ -13,8 +12,7 @@
       <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
       <ENTRIES>
         <ENTRY IS_ENABLED="true" PARSER="runconfig" />
-        <ENTRY IS_ENABLED="false" PARSER="env" PATH=".env" />
-        <ENTRY IS_ENABLED="true" PARSER="env" PATH="app/server/dev.env" />
+        <ENTRY IS_ENABLED="true" PARSER="env" PATH=".env" />
       </ENTRIES>
     </extension>
     <method v="2">
