@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginOrgDTO;
+import com.appsmith.server.dtos.RemotePluginOrgDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -42,4 +43,6 @@ public interface PluginService extends CrudService<Plugin, String> {
     Map loadEditorPluginResourceUqi(Plugin plugin);
 
     Flux<Plugin> saveAll(Iterable<Plugin> plugins);
+
+    Mono<Void> installRemotePlugin(RemotePluginOrgDTO plugin);
 }
