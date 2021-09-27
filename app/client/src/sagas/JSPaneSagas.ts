@@ -24,8 +24,8 @@ import { createJSCollectionRequest } from "actions/jsActionActions";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { parseJSCollection, executeFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "../pages/Editor/Explorer/helpers";
-import { getDifferenceInJSCollection } from "../utils/JSPaneUtils";
+import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { getDifferenceInJSCollection } from "utils/JSPaneUtils";
 import JSActionAPI from "../api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
@@ -34,7 +34,7 @@ import {
   updateJSObjectAction,
   deleteJSObjectAction,
   refactorJSCollectionAction,
-} from "../actions/jsPaneActions";
+} from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
@@ -64,8 +64,8 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     JS_PLUGIN_PACKAGE_NAME,
   );
   if (pageId && pluginId) {
-    const jsactions = yield select(getJSCollections);
-    const pageJSActions = jsactions.filter(
+    const jsActions = yield select(getJSCollections);
+    const pageJSActions = jsActions.filter(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
@@ -273,7 +273,12 @@ function* handleExecuteJSFunctionSaga(
     if (triggers && triggers.length) {
       yield all(
         triggers.map((trigger: ActionDescription) =>
-          call(executeActionTriggers, trigger, EventType.ON_CLICK),
+          call(executeActionTriggers, trigger, EventType.ON_CLICK, {
+            source: {
+              id: action.collectionId || "",
+              name: data.payload.collectionName,
+            },
+          }),
         ),
       );
     }

@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -29,7 +30,7 @@ public class Organization extends BaseDomain {
 
     private String email;
 
-    private List<OrganizationPlugin> plugins;
+    private Set<OrganizationPlugin> plugins;
 
     private String slug;
 

@@ -184,7 +184,7 @@ public class DatabaseChangelog {
     private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
         for (Organization organization : mongockTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
+                organization.setPlugins(new HashSet<>());
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
@@ -453,7 +453,7 @@ public class DatabaseChangelog {
 
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
+                organization.setPlugins(new HashSet<>());
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
@@ -3239,5 +3239,16 @@ public class DatabaseChangelog {
 
             mongoTemplate.save(mongoAction);
         }
+    }
+
+    @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
+    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
+
+        ensureIndexes(mongoTemplate, Plugin.class,
+                makeIndex("pluginName", "packageName", "version")
+                        .unique().named("plugin_name_package_name_version_index")
+        );
     }
 }

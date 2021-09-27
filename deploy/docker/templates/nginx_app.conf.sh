@@ -65,7 +65,7 @@ $NGINX_SSL_CMNT  server_name $CUSTOM_DOMAIN ;
 		proxy_pass http://localhost:8080;
 	}
 
-	location /socket.io {
+	location /rts {
 		proxy_pass http://localhost:8091;
 		proxy_http_version 1.1;
 		proxy_set_header Host \$host;
