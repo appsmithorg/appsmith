@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
@@ -40,5 +39,5 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<Boolean> isUsersEmpty();
 
-    Mono<UserProfileDTO> buildUserProfileDTO(User user, UserData userData);
+    Mono<UserProfileDTO> buildUserProfileDTO(User user);
 }

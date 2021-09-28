@@ -146,8 +146,7 @@ public class UserController extends BaseController<UserService, User, String> {
     @GetMapping("/me")
     public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
         return sessionUserService.getCurrentUser()
-                .zipWith(userDataService.getForCurrentUser())
-                .flatMap(objects -> service.buildUserProfileDTO(objects.getT1(), objects.getT2()))
+                .flatMap(service::buildUserProfileDTO)
                 .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
     }
 
