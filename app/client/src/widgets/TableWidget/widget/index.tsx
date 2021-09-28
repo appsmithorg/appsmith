@@ -240,10 +240,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties,
             originalIndex,
           );
-
           if (columnProperties.columnType === "button") {
+            const isSelected = this.props.multiRowSelection
+              ? this.props.selectedRowIndices.includes(rowIndex)
+              : this.props.selectedRowIndex === rowIndex;
             const buttonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected, //!!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
@@ -971,6 +973,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_ROW_SELECTED,
           },
         });
+      } else {
+        //reset selected row
+        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
   };
