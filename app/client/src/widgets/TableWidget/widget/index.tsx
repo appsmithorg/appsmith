@@ -241,10 +241,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             originalIndex,
           );
           if (columnProperties.columnType === "button") {
-            const isSelected = this.props.multiRowSelection
-              ? this.props.selectedRowIndices &&
-                this.props.selectedRowIndices.includes(rowIndex)
-              : this.props.selectedRowIndex === rowIndex;
+            let isSelected = false;
+            if (this.props.multiRowSelection) {
+              isSelected =
+                Array.isArray(this.props.selectedRowIndices) &&
+                this.props.selectedRowIndices.includes(rowIndex);
+            } else {
+              isSelected = this.props.selectedRowIndex === rowIndex;
+            }
             const buttonProps = {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
