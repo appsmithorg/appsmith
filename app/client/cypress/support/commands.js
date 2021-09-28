@@ -2279,6 +2279,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.wait(500);
   cy.get(selector)
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
@@ -2292,6 +2293,7 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.wait(500);
     cy.get(selector)
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
@@ -2337,6 +2339,7 @@ Cypress.Commands.add("CreateMockQuery", (queryName) => {
 
 Cypress.Commands.add("openPropertyPane", (widgetType) => {
   const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
   cy.get(selector)
     .first()
     .trigger("mouseover", { force: true })

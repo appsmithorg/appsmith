@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
 import {
@@ -7,8 +7,7 @@ import {
   getCurrentPageId,
   getWidgetCards,
 } from "selectors/editorSelectors";
-import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
+import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
@@ -23,7 +22,6 @@ import {
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { AppState } from "reducers";
 
 const MainWrapper = styled.div`
@@ -49,18 +47,6 @@ const CardsWrapper = styled.div`
   grid-gap: ${(props) => props.theme.spaces[1]}px;
   justify-items: stretch;
   align-items: stretch;
-`;
-
-const CloseIcon = styled(Icon)`
-  &&.${Classes.ICON} {
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    opacity: 0.6;
-    &:hover {
-      opacity: 1;
-    }
-  }
 `;
 
 const Header = styled.div`
@@ -145,11 +131,6 @@ function WidgetSidebar(props: IPanelProps) {
 
   const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
   const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
-  const dispatch = useDispatch();
-  const closeWidgetPanel = () => {
-    dispatch(forceOpenWidgetPanel(false));
-    props.closePanel();
-  };
 
   return (
     <>
@@ -168,13 +149,6 @@ function WidgetSidebar(props: IPanelProps) {
           <Info>
             <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
           </Info>
-          <CloseIcon
-            className="t--close-widgets-sidebar"
-            color={Colors.CHARCOAL}
-            icon="cross"
-            iconSize={16}
-            onClick={closeWidgetPanel}
-          />
         </Header>
         <CardsWrapper>
           {filteredCards.map((card) => (
