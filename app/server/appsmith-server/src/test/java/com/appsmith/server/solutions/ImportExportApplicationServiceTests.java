@@ -384,8 +384,9 @@ public class ImportExportApplicationServiceTests {
                     assertThat(validAction.getOrganizationId()).isNull();
                     assertThat(validAction.getPolicies()).isNull();
                     assertThat(validAction.getId()).isNotNull();
-                    assertThat(validAction.getUnpublishedAction().getPageId())
-                            .isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    ActionDTO unpublishedAction = validAction.getUnpublishedAction();
+                    assertThat(unpublishedAction.getPageId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    assertThat(unpublishedAction.getDatasource().getPluginId()).isEqualTo(installedPlugin.getPackageName());
 
                     assertThat(datasourceList).hasSize(1);
                     Datasource datasource = datasourceList.get(0);

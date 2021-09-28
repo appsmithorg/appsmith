@@ -723,10 +723,13 @@ public class ImportExportApplicationService {
                 //Mapping ds name in id field
                 ds.setId(datasourceMap.get(ds.getId()));
                 ds.setOrganizationId(null);
-                ds.setPluginId(null);
+                if (ds.getPluginId() != null) {
+                    ds.setPluginId(pluginMap.get(ds.getPluginId()));
+                }
                 return ds.getId();
             } else {
-                // This means we don't have regular datasource it can be simple REST_API
+                // This means we don't have regular datasource it can be simple REST_API and will also be used when
+                // importing the action to populate the data
                 ds.setOrganizationId(organizationId);
                 ds.setPluginId(pluginMap.get(ds.getPluginId()));
                 return "";
