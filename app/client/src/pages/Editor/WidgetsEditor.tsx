@@ -38,6 +38,8 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import PageTabsContainer from "pages/AppViewer/viewer/PageTabsContainer";
 import classNames from "classnames";
 import usePanZoom from "utils/hooks/useZoom";
+import { updateZoomLevel } from "actions/editorActions";
+import { transform } from "utils/hooks/useZoom/utils";
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -69,7 +71,6 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentApplicationDetails = useSelector(getCurrentApplication);
-  const { panZoomHandlers, setContainer, transform } = usePanZoom();
 
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const enableFirstTimeUserOnboarding = useSelector(
@@ -145,6 +146,18 @@ function WidgetsEditor() {
 
   log.debug("Canvas rendered");
 
+  /**
+   * dispatches an action that updates zoom level
+   */
+  const onZoom = useCallback(
+    (transform: transform) => {
+      dispatch(updateZoomLevel(transform.zoom));
+    },
+    [dispatch],
+  );
+
+  const { panZoomHandlers, setContainer, transform } = usePanZoom({ onZoom });
+
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
@@ -154,13 +167,12 @@ function WidgetsEditor() {
         <OnboardingTasks />
       ) : (
         <div
-          className="relative flex flex-col items-stretch justify-start flex-grow overflow-hidden"
+          className="relative flex flex-col items-stretch justify-start flex-1 overflow-hidden"
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
           ref={(el) => setContainer(el)}
-          style={{ transform }}
           {...panZoomHandlers}
         >
           <div
@@ -175,7 +187,11 @@ function WidgetsEditor() {
               pages={pages}
             />
           </div>
-          <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
+          <CanvasContainer
+            className={getCanvasClassName()}
+            key={currentPageId}
+            style={{ transform }}
+          >
             {node}
           </CanvasContainer>
           <Debugger />

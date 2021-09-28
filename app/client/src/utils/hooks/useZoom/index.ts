@@ -17,7 +17,7 @@ export default function usePanZoom({
   enableZoom = true,
   requireCtrlToZoom = true,
   disableWheel = false,
-  panOnDrag = false,
+  panOnDrag = true,
   preventClickOnPan = true,
   zoomSensitivity = 0.001,
   minZoom = 0.25,
@@ -210,31 +210,24 @@ export default function usePanZoom({
 
   const onWheel = useCallback(
     (event) => {
-      if (enableZoom && containerRef.current) {
+      if (enableZoom && containerRef.current && event.ctrlKey) {
         event.preventDefault();
-        if (!requireCtrlToZoom || event.ctrlKey) {
-          const pointerPosition = getPositionOnElement(containerRef.current, {
-            x: event.pageX,
-            y: event.pageY,
-          });
+        const pointerPosition = getPositionOnElement(containerRef.current, {
+          x: event.pageX,
+          y: event.pageY,
+        });
 
-          let deltaY = event.deltaY;
-          if (event.deltaMode === 1) {
-            deltaY *= 15;
-          }
-
-          setZoom(
-            (zoom) => zoom * Math.pow(1 - zoomSensitivity, deltaY),
-            pointerPosition,
-          );
-
-          onZoom(getState().transform);
-        } else {
-          setPan(({ x, y }) => ({
-            x: x - event.deltaX,
-            y: y - event.deltaY,
-          }));
+        let deltaY = event.deltaY;
+        if (event.deltaMode === 1) {
+          deltaY *= 15;
         }
+
+        setZoom(
+          (zoom) => zoom * Math.pow(1 - zoomSensitivity, deltaY),
+          pointerPosition,
+        );
+
+        onZoom(getState().transform);
       }
     },
     [
@@ -333,8 +326,10 @@ export default function usePanZoom({
     [endPanZoom, startPanZoom],
   );
   const onMouseDown = useCallback(
-    (event: React.MouseEvent) =>
-      startPanZoom([{ x: event.pageX, y: event.pageY }]),
+    (event: React.MouseEvent) => {
+      if (!event.ctrlKey) return;
+      startPanZoom([{ x: event.pageX, y: event.pageY }]);
+    },
     [startPanZoom],
   );
   const onMouseMove = useCallback(
