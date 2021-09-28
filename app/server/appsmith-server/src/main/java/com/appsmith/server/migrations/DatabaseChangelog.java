@@ -3265,11 +3265,8 @@ public class DatabaseChangelog {
 
         for (final NewAction action : actions) {
             final String applicationId = action.getApplicationId();
-            if (StringUtils.isEmpty(applicationId)) {
-                continue;
-            }
 
-            final boolean isAppDeleted = mongockTemplate.exists(
+            final boolean shouldDelete = StringUtils.isEmpty(applicationId) || mongockTemplate.exists(
                     query(
                             where(fieldName(QApplication.application.id)).is(applicationId)
                                     .and(fieldName(QApplication.application.deleted)).is(true)
@@ -3277,7 +3274,7 @@ public class DatabaseChangelog {
                     Application.class
             );
 
-            if (isAppDeleted) {
+            if (shouldDelete) {
                 mongockTemplate.updateFirst(
                         query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
                         deletionUpdates,
