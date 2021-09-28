@@ -36,7 +36,18 @@ const checkUrlExtension = (docUrl: string) => {
   }
 };
 
-const getSettings = (docUrl: string) => {
+export const getDocViewerConfigs = (docUrl: string) => {
+  /**
+   * From user provided document url decide on which viewer to use
+   * handle different cases for url hosts
+   * Case 1: Dropbox
+   *  if user exported download url than change that to raw url
+   * Case 2: Onedrive
+   *  change url to embeded url to show in viewer
+   * Case 3:
+   *  All other urls will be either Google Preview or urls with file extentions ( e.x. from aws s3 )
+   *  need to verify urls with extention and use default viewer "url viewer" for them
+   */
   let viewer = "url" as viewerType;
   let url = docUrl;
   let errorMessage = !!docUrl ? "" : "No document url provided for viewer";
@@ -83,7 +94,7 @@ const getSettings = (docUrl: string) => {
 
 function DocumentViewerComponent(props: DocumentViewerComponentProps) {
   const { errorMessage, url, viewer } = React.useMemo(
-    () => getSettings(props.docUrl),
+    () => getDocViewerConfigs(props.docUrl),
     [props.docUrl],
   );
   if (errorMessage) {
