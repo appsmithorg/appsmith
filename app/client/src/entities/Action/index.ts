@@ -7,6 +7,7 @@ export enum PluginType {
   DB = "DB",
   SAAS = "SAAS",
   JS = "JS",
+  REMOTE = "REMOTE",
 }
 
 export enum PaginationType {
@@ -93,6 +94,11 @@ export interface SaaSAction extends BaseAction {
   actionConfiguration: any;
   datasource: StoredDatasource;
 }
+export interface RemoteAction extends BaseAction {
+  pluginType: PluginType.REMOTE;
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
 
 export interface EmbeddedApiAction extends BaseApiAction {
   datasource: EmbeddedRestDatasource;
@@ -127,4 +133,17 @@ export type ActionViewMode = {
   timeoutInMillisecond?: number;
 };
 
-export type Action = ApiAction | QueryAction | SaaSAction;
+export type Action = ApiAction | QueryAction | SaaSAction | RemoteAction;
+
+export enum SlashCommand {
+  NEW_SNIPPET,
+  NEW_API,
+  NEW_QUERY,
+  NEW_INTEGRATION,
+}
+
+export type SlashCommandPayload = {
+  actionType: SlashCommand;
+  callback?: (binding: string) => void;
+  args: any;
+};

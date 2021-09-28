@@ -5,7 +5,6 @@ import { IconName } from "@blueprintjs/icons";
 import {
   ButtonBorderRadius,
   ButtonBoxShadow,
-  ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
 
@@ -103,7 +102,7 @@ export interface CellLayoutProperties {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   buttonLabel?: string;
   isVisible?: boolean;
@@ -114,7 +113,6 @@ export interface CellLayoutProperties {
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
-  iconButtonStyle: ButtonStyleType;
   isCellVisible: boolean;
 }
 
@@ -160,7 +158,7 @@ export interface ColumnProperties {
   isDerived: boolean;
   computedValue: string;
   buttonLabel?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   onClick?: string;
   outputFormat?: string;
@@ -173,7 +171,6 @@ export interface ColumnProperties {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
 }
 
