@@ -21,7 +21,7 @@ import { TourType } from "entities/Tour";
 import { hideCommentsIntroCarousel } from "actions/commentActions";
 import {
   updateUserDetails,
-  updateUsersCommentOnBoardingState,
+  updateUsersCommentOnboardingState,
 } from "actions/userActions";
 
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
@@ -35,7 +35,7 @@ import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { CommentsOnBoardingState } from "constants/userConstants";
+import { CommentsOnboardingState } from "constants/userConstants";
 
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
@@ -235,10 +235,10 @@ export default function CommentsShowcaseCarousel() {
     });
     dispatch(hideCommentsIntroCarousel());
     dispatch(
-      updateUsersCommentOnBoardingState(
+      updateUsersCommentOnboardingState(
         isSkipped
-          ? CommentsOnBoardingState.SKIPPED
-          : CommentsOnBoardingState.ONBOARDED,
+          ? CommentsOnboardingState.SKIPPED
+          : CommentsOnboardingState.ONBOARDED,
       ),
     );
 

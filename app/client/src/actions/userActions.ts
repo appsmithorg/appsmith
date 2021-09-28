@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
-  CommentsOnBoardingState,
+  CommentsOnboardingState,
   CurrentUserDetailsRequestPayload,
 } from "constants/userConstants";
 import {
@@ -70,8 +70,8 @@ export const updateUserDetails = (payload: UpdateUserRequest) => ({
   payload,
 });
 
-export const updateUsersCommentOnBoardingState = (
-  payload: CommentsOnBoardingState,
+export const updateUsersCommentOnboardingState = (
+  payload: CommentsOnboardingState,
 ) => ({
   type: ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE,
   payload,

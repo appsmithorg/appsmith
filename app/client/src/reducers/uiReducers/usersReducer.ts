@@ -7,7 +7,7 @@ import {
 } from "constants/ReduxActionConstants";
 
 import {
-  CommentsOnBoardingState,
+  CommentsOnboardingState,
   DefaultCurrentUserDetails,
   User,
 } from "constants/userConstants";
@@ -157,7 +157,7 @@ const usersReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE]: (
     state: UsersReduxState,
-    action: ReduxAction<CommentsOnBoardingState>,
+    action: ReduxAction<CommentsOnboardingState>,
   ) => ({
     ...state,
     currentUser: {

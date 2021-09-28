@@ -47,7 +47,7 @@ import PerformanceTracker, {
 import { ERROR_CODES } from "constants/ApiConstants";
 import {
   ANONYMOUS_USERNAME,
-  CommentsOnBoardingState,
+  CommentsOnboardingState,
 } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
@@ -446,11 +446,11 @@ function* updateFirstTimeUserOnboardingSage() {
   }
 }
 
-export function* updateUsersCommentsOnBoardingState(
-  action: ReduxAction<CommentsOnBoardingState>,
+export function* updateUsersCommentsOnboardingState(
+  action: ReduxAction<CommentsOnboardingState>,
 ) {
   try {
-    yield call(UserApi.updateUsersCommentOnBoardingState, {
+    yield call(UserApi.updateUsersCommentOnboardingState, {
       commentOnboardingState: action.payload,
     });
   } catch (error) {
@@ -489,7 +489,7 @@ export default function* userSagas() {
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE,
-      updateUsersCommentsOnBoardingState,
+      updateUsersCommentsOnboardingState,
     ),
   ]);
 }

@@ -2,7 +2,7 @@ export const ANONYMOUS_USERNAME = "anonymousUser";
 
 type Gender = "MALE" | "FEMALE";
 
-export enum CommentsOnBoardingState {
+export enum CommentsOnboardingState {
   ONBOARDED = "ONBOARDED",
   SKIPPED = "SKIPPED",
 }
@@ -14,7 +14,7 @@ export type User = {
   name: string;
   gender: Gender;
   emptyInstance?: boolean;
-  commentOnboardingState?: CommentsOnBoardingState | null;
+  commentOnboardingState?: CommentsOnboardingState | null;
 };
 
 export interface UserApplication {
