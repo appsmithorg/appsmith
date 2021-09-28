@@ -242,11 +242,6 @@ export default function CommentsShowcaseCarousel() {
       ),
     );
 
-    // eslint-disable-next-line no-console
-    console.log("TOGGLE MODE BUTTON : ", {
-      isSkipped,
-    });
-
     if (!isSkipped) {
       const tourType = canManage
         ? TourType.COMMENTS_TOUR_EDIT_MODE

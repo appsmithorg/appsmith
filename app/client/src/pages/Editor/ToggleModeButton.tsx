@@ -142,10 +142,6 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
       return;
     }
-    // eslint-disable-next-line no-console
-    console.log("TOGGLE MODE BUTTON : ", {
-      commentOnboardingState: currentUser?.commentOnboardingState,
-    });
 
     if (updatedIsCommentMode && !currentUser?.commentOnboardingState) {
       AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
