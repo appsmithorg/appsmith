@@ -23,7 +23,7 @@ import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
 import evaluate from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 
 const ctx: Worker = self as any;
 
@@ -67,6 +67,8 @@ function messageEventListener(
   };
 }
 
+(ctx as any).safeDataTreeEvaluator = {};
+
 ctx.addEventListener(
   "message",
   messageEventListener((method, requestData: any) => {
@@ -108,6 +110,7 @@ ctx.addEventListener(
           if (replayDSL?.logs) logs = logs.concat(replayDSL?.logs);
           replayDSL?.clearLogs();
           dataTreeEvaluator.clearLogs();
+          (ctx as any).safeDataTreeEvaluator = cloneDeep(dataTreeEvaluator);
         } catch (e) {
           if (dataTreeEvaluator !== undefined) {
             errors = dataTreeEvaluator.errors;
@@ -121,7 +124,7 @@ ctx.addEventListener(
             console.error(e);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
-          dataTreeEvaluator = undefined;
+          dataTreeEvaluator = (ctx as any).safeDataTreeEvaluator;
         }
         return {
           dataTree,
