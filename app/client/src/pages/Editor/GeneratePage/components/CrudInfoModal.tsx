@@ -171,7 +171,7 @@ function GenCRUDSuccessModal(props: Props) {
   useEffect(() => {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
-    }, 2000);
+    }, 4000);
     return () => {
       if (timerId) clearTimeout(timerId);
     };
