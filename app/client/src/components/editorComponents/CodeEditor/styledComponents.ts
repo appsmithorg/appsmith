@@ -150,16 +150,10 @@ export const EditorWrapper = styled.div<{
       background: ${Colors.SHARK2};
     }
     .binding-brackets {
-      ${(props) =>
-        props.hasError
-          ? `
-      color: ${props.theme.colors.error};
-      `
-          : `color: ${
-              props.editorTheme === EditorTheme.DARK
-                ? props.theme.colors.bindingTextDark
-                : props.theme.colors.bindingText
-            };`}
+      color: ${(props) =>
+        props.editorTheme === EditorTheme.DARK
+          ? props.theme.colors.bindingTextDark
+          : props.theme.colors.bindingText};
       font-weight: 700;
     }
     .CodeMirror-matchingbracket {
@@ -216,6 +210,7 @@ export const EditorWrapper = styled.div<{
   ${(props) =>
     props.className === "js-editor" &&
     `
+    overflow: hidden;
     .cm-tab {
       border-right: 1px dotted #ccc;
     }

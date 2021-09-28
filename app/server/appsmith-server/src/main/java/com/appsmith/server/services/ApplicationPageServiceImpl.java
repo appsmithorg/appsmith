@@ -240,7 +240,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
         return applicationWithPoliciesMono
-                .flatMap(applicationService::createDefault)
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    return applicationService.createDefault(application1);
+                })
                 .flatMap(savedApplication -> {
 
                     PageDTO page = new PageDTO();
@@ -298,8 +303,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
-                    return newPageService.archivePagesByApplicationId(id, MANAGE_PAGES)
-                            .thenReturn(application);
+                    return Mono.when(
+                            newPageService.archivePagesByApplicationId(id, MANAGE_PAGES),
+                            newActionService.archiveActionsByApplicationId(id, MANAGE_ACTIONS)
+                    ).thenReturn(application);
                 })
                 .flatMap(applicationService::archive);
 
@@ -456,7 +463,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
 
-                    // Create a new clone application object without the pages using the parametrized Application constructor
+                    // Create a new clone application object without the pages using the parameterized Application constructor
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
 
@@ -464,7 +471,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
                             // Create the cloned application with the new name and policies before proceeding further.
-                            .flatMap(applicationService::createDefault)
+                            .zipWith(userMono)
+                            .flatMap(applicationUserTuple2 -> {
+                                Application application1 = applicationUserTuple2.getT1();
+                                application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
+                                return applicationService.createDefault(application1);
+                            })
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {

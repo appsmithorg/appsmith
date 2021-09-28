@@ -294,7 +294,9 @@ function NewApiScreen(props: Props) {
           </ApiCard>
         )}
         {plugins
-          .filter((p) => p.type === PluginType.SAAS)
+          .filter(
+            (p) => p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
+          )
           .map((p) => (
             <ApiCard
               className={`t--createBlankApi-${p.packageName}`}

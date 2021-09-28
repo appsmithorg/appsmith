@@ -11,7 +11,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -384,8 +384,9 @@ public class ImportExportApplicationServiceTests {
                     assertThat(validAction.getOrganizationId()).isNull();
                     assertThat(validAction.getPolicies()).isNull();
                     assertThat(validAction.getId()).isNotNull();
-                    assertThat(validAction.getUnpublishedAction().getPageId())
-                            .isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    ActionDTO unpublishedAction = validAction.getUnpublishedAction();
+                    assertThat(unpublishedAction.getPageId()).isEqualTo(defaultPage.getUnpublishedPage().getName());
+                    assertThat(unpublishedAction.getDatasource().getPluginId()).isEqualTo(installedPlugin.getPackageName());
 
                     assertThat(datasourceList).hasSize(1);
                     Datasource datasource = datasourceList.get(0);
@@ -608,6 +609,8 @@ public class ImportExportApplicationServiceTests {
                 assertThat(application.getPages()).hasSize(2);
                 assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                 assertThat(application.getPublishedPages()).hasSize(1);
+                assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                assertThat(application.getUpdatedAt()).isNotNull();
 
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {

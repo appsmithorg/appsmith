@@ -17,7 +17,6 @@ import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
-import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -26,7 +25,6 @@ import {
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
 import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
@@ -92,7 +90,6 @@ class AppViewer extends Component<
       this.setState({ registered: true });
     });
     const { applicationId, pageId } = this.props.match.params;
-    log.debug({ applicationId, pageId });
     if (applicationId) {
       this.props.initializeAppViewer(applicationId, pageId);
     }
@@ -159,12 +156,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     propertyValue: any,
   ) =>
     dispatch(
-      updateWidgetPropertyRequest(
-        widgetId,
-        propertyName,
-        propertyValue,
-        RenderModes.PAGE,
-      ),
+      updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
     ),
   updateWidgetMetaProperty: (
     widgetId: string,

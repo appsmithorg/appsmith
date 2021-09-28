@@ -1,34 +1,26 @@
 import React, { ReactNode } from "react";
 
 import { connect } from "react-redux";
+
+import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
 import {
   RenderMode,
-  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
-
+import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
-import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 
-const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
-  MODAL_SMALL: {
-    width: 456,
-    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
-  },
-  MODAL_LARGE: {
-    width: 532,
-    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 60,
-  },
-};
+const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -37,33 +29,16 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
-            propertyName: "canOutsideClickClose",
-            label: "Quick Dismiss",
-            helpText: "Allows dismissing the modal when user taps outside",
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
           },
           {
-            propertyName: "size",
-            label: "Modal Type",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Form Modal",
-                value: "MODAL_LARGE",
-              },
-              {
-                label: "Alert Modal",
-                value: "MODAL_SMALL",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
+            propertyName: "canOutsideClickClose",
+            label: "Quick Dismiss",
+            helpText: "Allows dismissing the modal when user taps outside",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -91,12 +66,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     canEscapeKeyClose: false,
   };
 
-  getModalWidth() {
-    const widthFromOverlay = this.props.mainContainer.rightColumn * 0.95;
-    const defaultModalWidth = MODAL_SIZE[this.props.size].width;
-    return widthFromOverlay < defaultModalWidth
-      ? widthFromOverlay
-      : defaultModalWidth;
+  getMaxModalWidth() {
+    return this.props.mainContainer.rightColumn * 0.95;
+  }
+
+  getModalWidth(width: number) {
+    return Math.min(this.getMaxModalWidth(), width);
   }
 
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
@@ -104,12 +79,13 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? Math.max(childWidgetData.bottomRow, MODAL_SIZE[this.props.size].height)
-      : MODAL_SIZE[this.props.size].height;
+      ? Math.max(childWidgetData.bottomRow, this.props.height)
+      : this.props.height;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "none";
-    childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
-    childWidgetData.rightColumn = this.getModalWidth();
+    childWidgetData.minHeight = this.props.height;
+    childWidgetData.rightColumn =
+      this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
@@ -125,9 +101,24 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
   };
 
+  onModalResize = (dimensions: UIElementSize) => {
+    const newDimensions = {
+      height: Math.max(minSize, dimensions.height),
+      width: Math.max(minSize, this.getModalWidth(dimensions.width)),
+    };
+
+    const canvasWidgetId =
+      this.props.children && this.props.children.length > 0
+        ? this.props.children[0]?.widgetId
+        : "";
+    this.updateWidget("MODAL_RESIZE", this.props.widgetId, {
+      ...newDimensions,
+      canvasWidgetId,
+    });
+  };
+
   closeModal = (e: any) => {
     this.props.showPropertyPane(undefined);
-    this.onModalClose();
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
     this.props.updateWidgetMetaProperty("isVisible", false);
@@ -136,7 +127,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getChildren(): ReactNode {
-    if (this.props.children && this.props.children.length > 0) {
+    if (
+      this.props.height &&
+      this.props.width &&
+      this.props.children &&
+      this.props.children.length > 0
+    ) {
       const children = this.props.children.filter(Boolean);
       return children.length > 0 && children.map(this.renderChildWidget);
     }
@@ -151,17 +147,49 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     );
   }
 
-  makeModalComponent(content: ReactNode) {
+  makeModalComponent(content: ReactNode, isEditMode: boolean) {
+    const artBoard = document.getElementById("art-board");
+    const portalContainer = isEditMode && artBoard ? artBoard : undefined;
+    const {
+      focusedWidget,
+      isCommentMode,
+      isDragging,
+      isSnipingMode,
+      selectedWidget,
+      selectedWidgets,
+      widgetId,
+    } = this.props;
+
+    const isWidgetFocused =
+      focusedWidget === widgetId ||
+      selectedWidget === widgetId ||
+      selectedWidgets.includes(widgetId);
+
+    const isResizeEnabled =
+      !isDragging &&
+      isWidgetFocused &&
+      isEditMode &&
+      !isCommentMode &&
+      !isSnipingMode;
+
     return (
       <ModalComponent
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
-        height={MODAL_SIZE[this.props.size].height}
+        enableResize={isResizeEnabled}
+        height={this.props.height}
+        isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
+        maxWidth={this.getMaxModalWidth()}
+        minSize={minSize}
         onClose={this.closeModal}
+        onModalClose={this.onModalClose}
+        portalContainer={portalContainer}
+        resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
-        width={this.getModalWidth()}
+        widgetName={this.props.widgetName}
+        width={this.getModalWidth(this.props.width)}
       >
         {content}
       </ModalComponent>
@@ -172,12 +200,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
     children = this.showWidgetName(children, true);
-    return this.makeModalComponent(children);
+    return this.makeModalComponent(children, true);
   }
 
   getPageView() {
     const children = this.getChildren();
-    return this.makeModalComponent(children);
+    return this.makeModalComponent(children, false);
   }
 
   static getWidgetType() {
@@ -190,8 +218,8 @@ export interface ModalWidgetProps extends WidgetProps {
   isOpen?: boolean;
   children?: WidgetProps[];
   canOutsideClickClose?: boolean;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
   showPropertyPane: (widgetId?: string) => void;
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
@@ -221,6 +249,13 @@ const mapDispatchToProps = (dispatch: any) => ({
 const mapStateToProps = (state: AppState) => {
   const props = {
     mainContainer: getWidget(state, MAIN_CONTAINER_WIDGET_ID),
+    isCommentMode: commentModeSelector(state),
+    isSnipingMode: snipingModeSelector(state),
+    selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
+    selectedWidgets: state.ui.widgetDragResize.selectedWidgets,
+    focusedWidget: state.ui.widgetDragResize.focusedWidget,
+    isDragging: state.ui.widgetDragResize.isDragging,
+    isResizing: state.ui.widgetDragResize.isResizing,
   };
   return props;
 };

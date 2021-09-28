@@ -10,7 +10,7 @@ import com.appsmith.external.models.DatasourceStructure.TableType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -101,7 +101,7 @@ public class CreateDBTablePageSolutionTests {
 
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
-            "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
+            "  WHERE \"primaryKey\" = {{Table1.triggeredRow.primaryKey}};",
 
         "InsertQuery", "INSERT INTO sampleTable (\n" +
             "\t\"field1.something\", \n" +
@@ -703,31 +703,36 @@ public class CreateDBTablePageSolutionTests {
                         assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isFalse();
                     }
 
-                    List<Property> pluginSpecifiedTemplate = actionConfiguration.getPluginSpecifiedTemplates();
-                    assertThat(pluginSpecifiedTemplate.get(1).getValue().toString()).isEqualTo("FORM");
-                    assertThat(pluginSpecifiedTemplate.get(19).getValue().toString()).isEqualTo("sampleTable");
-                    String queryType = pluginSpecifiedTemplate.get(2).getValue().toString();
+                    Map<String, Object> formData = actionConfiguration.getFormData();
+                    assertThat(formData.get("collection")).isEqualTo("sampleTable");
+                    String queryType = formData.get("command").toString();
                     if (queryType.equals("UPDATE")) {
-                        assertThat(pluginSpecifiedTemplate.get(11).getValue().toString())
+                        Map<String, Object> updateMany = (Map<String, Object>) formData.get("updateMany");
+                        assertThat(updateMany.get("query"))
                             .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }");
 
-                        assertThat(pluginSpecifiedTemplate.get(12).getValue().toString().replaceAll(specialCharactersRegex, ""))
+                        assertThat(updateMany.get("update").toString().replaceAll(specialCharactersRegex, ""))
                             .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1.something\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("DELETE")) {
-                        assertThat(pluginSpecifiedTemplate.get(13).getValue().toString().replaceAll(specialCharactersRegex, ""))
-                            .contains("ObjectId('{{data_table.selectedRow.primaryKey}}'"
+                        Map<String, Object> delete = (Map<String, Object>) formData.get("delete");
+                        assertThat(delete.get("query").toString().replaceAll(specialCharactersRegex, ""))
+                            .contains("{ primaryKey: ObjectId('{{data_table.triggeredRow.primaryKey}}') }"
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("FIND")) {
-                        assertThat(pluginSpecifiedTemplate.get(4).getValue().toString().replaceAll(specialCharactersRegex, ""))
+
+                        Map<String, Object> find = (Map<String, Object>) formData.get("find");
+                        assertThat(find.get("sort").toString().replaceAll(specialCharactersRegex, ""))
                             .isEqualTo("{ \n\"{{key_select.selectedOptionValue}}: {{order_select.selectedOptionValue}} \n}"
                                 .replaceAll(specialCharactersRegex, ""));
 
-                        assertThat(pluginSpecifiedTemplate.get(6).getValue().toString()).isEqualTo("{{data_table.pageSize}}");
+                        assertThat(find.get("limit").toString()).isEqualTo("{{data_table.pageSize}}");
 
-                        assertThat(pluginSpecifiedTemplate.get(7).getValue().toString().replaceAll(specialCharactersRegex, ""))
+                        assertThat(find.get("skip").toString().replaceAll(specialCharactersRegex, ""))
                             .isEqualTo("{{(data_table.pageNo - 1) * data_table.pageSize}}".replaceAll(specialCharactersRegex, ""));
 
+                        assertThat(find.get("query").toString().replaceAll(specialCharactersRegex, ""))
+                            .isEqualTo("{ field1.something: /{{data_table.searchText||\"\"}}/i }".replaceAll(specialCharactersRegex, ""));
                     }
                 }
             })

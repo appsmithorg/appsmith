@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -8,6 +10,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
@@ -20,7 +23,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -98,6 +101,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     private final PolicyUtils policyUtils;
     private final ObjectMapper objectMapper;
     private final AuthenticationValidator authenticationValidator;
+    private final ConfigService configService;
 
     public NewActionServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -115,7 +119,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 ApplicationService applicationService,
                                 SessionUserService sessionUserService,
                                 PolicyUtils policyUtils,
-                                AuthenticationValidator authenticationValidator) {
+                                AuthenticationValidator authenticationValidator,
+                                ConfigService configService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
@@ -129,6 +134,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
+        this.configService = configService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -534,7 +540,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN)))
+                .cache();
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
@@ -543,12 +550,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .zip(
                         actionDTOMono,
                         datasourceMono,
-                        pluginExecutorMono
+                        pluginExecutorMono,
+                        pluginMono
                 )
                 .flatMap(tuple -> {
                     final ActionDTO action = tuple.getT1();
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
+                    final Plugin plugin = tuple.getT4();
 
                     // Set the action name
                     actionName.set(action.getName());
@@ -564,7 +573,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
 
                     Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
-                            .flatMap(datasourceContextService::getDatasourceContext)
+                            .flatMap(datasource1 -> {
+                                if (plugin.isRemotePlugin()) {
+                                    return this.getRemoteDatasourceContext(plugin, datasource1);
+                                } else {
+                                    return datasourceContextService.getDatasourceContext(datasource1);
+                                }
+                            })
                             // Now that we have the context (connection details), execute the action.
                             .flatMap(resourceContext -> validatedDatasourceMono
                                     .flatMap(datasource1 -> {
@@ -1035,6 +1050,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
+    // We can afford to make this call all the time since we already have all the info we need in context
+    private Mono<DatasourceContext> getRemoteDatasourceContext(Plugin plugin, Datasource datasource) {
+        final DatasourceContext datasourceContext = new DatasourceContext();
+
+        return configService.getInstanceId()
+                .map(instanceId -> {
+                    ExecutePluginDTO executePluginDTO = new ExecutePluginDTO();
+                    executePluginDTO.setInstallationKey(instanceId);
+                    executePluginDTO.setPluginName(plugin.getPluginName());
+                    executePluginDTO.setPluginVersion(plugin.getVersion());
+                    executePluginDTO.setDatasource(new DatasourceDTO(datasource.getId(), datasource.getDatasourceConfiguration()));
+                    datasourceContext.setConnection(executePluginDTO);
+
+                    return datasourceContext;
+                });
+    }
+
     @Override
     public Mono<NewAction> save(NewAction action) {
         // gitSyncId will be used to sync resource across instances
@@ -1220,6 +1252,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     return repository.save(toArchive);
                 })
                 .flatMap(analyticsService::sendArchiveEvent);
+    }
+
+    @Override
+    public Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
+        return repository.findByApplicationId(applicationId, permission)
+                .flatMap(repository::archive)
+                .collectList();
     }
 
     public List<String> extractMustacheKeysInOrder(String query) {

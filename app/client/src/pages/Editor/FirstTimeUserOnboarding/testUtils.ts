@@ -35,6 +35,9 @@ export const initialState: any = {
     theme: {
       theme: {
         colors: {
+          applications: {
+            iconColor: "#f2f2f2",
+          },
           success: {
             main: "#e2e2e2",
           },
@@ -63,12 +66,40 @@ export function getStore(step: number) {
           config: {
             id: Math.random(),
             pageId: PAGE_ID,
+            name: "Query",
           },
         },
       ];
-      state.entities.canvasWidgets[Math.random()] = {};
+      state.entities.canvasWidgets[Math.random()] = {
+        widgetName: "widget",
+        onClick: "",
+        dynamicTriggerPathList: [],
+        text: "",
+      };
       break;
     case 4:
+      state.entities.actions = [
+        {
+          config: {
+            id: Math.random(),
+            pageId: PAGE_ID,
+            name: "Query",
+          },
+        },
+      ];
+      state.entities.canvasWidgets[Math.random()] = {
+        widgetName: "widget",
+        onClick: "{{Query.run()}}",
+        dynamicTriggerPathList: [
+          {
+            key: "onClick",
+          },
+        ],
+        text: "{{Query.data}}",
+      };
+      state.evaluations.dependencies.inverseDependencyMap = {
+        "Query.data": ["widget.text"],
+      };
       break;
     case 5:
       state.ui.applications.currentApplication.lastDeployedAt = Math.random();

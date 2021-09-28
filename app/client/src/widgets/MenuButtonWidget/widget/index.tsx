@@ -1,13 +1,47 @@
 import React from "react";
 
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-
 import MenuButtonComponent from "../component";
-import { MenuButtonWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment } from "@blueprintjs/core";
-import { ButtonStyleTypes } from "components/constants";
+import {
+  ButtonBorderRadius,
+  ButtonBoxShadow,
+  ButtonVariant,
+  ButtonVariantTypes,
+} from "components/constants";
+import { IconName } from "@blueprintjs/icons";
+export interface MenuButtonWidgetProps extends WidgetProps {
+  label?: string;
+  isDisabled?: boolean;
+  isVisible?: boolean;
+  isCompact?: boolean;
+  menuItems: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+      onClick?: string;
+    }
+  >;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+}
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -20,51 +54,16 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             helpText: "Sets the label of a menu",
             label: "Label",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter label",
+            placeholderText: "Open",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isCompact",
-            helpText: "Decides if menu items will consume lesser space",
-            label: "Compact",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Menu Items",
-        children: [
-          {
             helpText: "Menu items",
             propertyName: "menuItems",
             controlType: "MENU_ITEMS",
-            label: "",
+            label: "Menu Items",
             isBindProperty: false,
             isTriggerProperty: false,
             panelConfig: {
@@ -92,7 +91,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       helpText: "Sets the label of a menu item",
                       label: "Label",
                       controlType: "INPUT_TEXT",
-                      placeholderText: "Enter label",
+                      placeholderText: "Download",
                       isBindProperty: true,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
@@ -184,106 +183,48 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
               ],
             },
           },
+          {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isCompact",
+            helpText: "Decides if menu items will consume lesser space",
+            label: "Compact",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "menuStyle",
-            label: "Menu Style",
-            controlType: "DROP_DOWN",
-            helpText: "Changes the style of the menu button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Warning",
-                value: "WARNING",
-              },
-              {
-                label: "Danger",
-                value: "DANGER",
-              },
-              {
-                label: "Info",
-                value: "INFO",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-              {
-                label: "Custom",
-                value: "CUSTOM",
-              },
-            ],
-            updateHook: (
-              props: MenuButtonWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              let propertiesToUpdate = [
-                { propertyPath, propertyValue },
-                { propertyPath: "prevMenuStyle", propertyValue },
-              ];
-
-              if (propertyValue === "CUSTOM") {
-                propertiesToUpdate = [{ propertyPath, propertyValue }];
-              }
-
-              propertiesToUpdate.push({
-                propertyPath: "menuColor",
-                propertyValue: "",
-              });
-
-              return propertiesToUpdate;
-            },
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "PRIMARY",
-                  "WARNING",
-                  "DANGER",
-                  "INFO",
-                  "SECONDARY",
-                  "CUSTOM",
-                ],
-              },
-            },
-          },
-          {
             propertyName: "menuColor",
-            helpText:
-              "Sets the custom color preset based on the menu button variant",
+            helpText: "Sets the style of the Menu button",
             label: "Menu Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: MenuButtonWidgetProps) =>
-              props.menuStyle !== ButtonStyleTypes.CUSTOM,
-            dependencies: ["menuStyle"],
-            updateHook: (
-              props: MenuButtonWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              const propertiesToUpdate = [{ propertyPath, propertyValue }];
-
-              if (props.prevMenuStyle) {
-                propertiesToUpdate.push({
-                  propertyPath: "prevMenuStyle",
-                  propertyValue: "",
-                });
-              }
-
-              return propertiesToUpdate;
-            },
           },
           {
             propertyName: "menuVariant",
@@ -292,25 +233,26 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             helpText: "Sets the variant of the menu button",
             options: [
               {
-                label: "Solid",
+                label: "Primary",
                 value: "SOLID",
               },
               {
-                label: "Outline",
+                label: "Secondary",
                 value: "OUTLINE",
               },
               {
-                label: "Ghost",
+                label: "Tertiary",
                 value: "GHOST",
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                allowedVAlues: ["SOLID", "OUTLINE", "GHOST"],
+                default: ButtonVariantTypes.SOLID,
+                allowedValues: ["SOLID", "OUTLINE", "GHOST"],
               },
             },
           },
@@ -407,12 +349,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      prevMenuStyle: "menuStyle",
-    };
   }
 
   menuItemClickHandler = (onClick: string | undefined) => {

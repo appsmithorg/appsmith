@@ -32,13 +32,13 @@ import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import { Layers } from "constants/Layers";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
+import { WidgetType } from "constants/WidgetConstants";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -99,7 +99,7 @@ export const PropertyPaneBodyWrapper = styled.div`
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
-export const excludeList = [
+export const excludeList: WidgetType[] = [
   "CONTAINER_WIDGET",
   "TABS_WIDGET",
   "FORM_WIDGET",
@@ -108,6 +108,10 @@ export const excludeList = [
   "FILE_PICKER_WIDGET",
   "BUTTON_WIDGET",
   "CANVAS_WIDGET",
+  "AUDIO_RECORDER_WIDGET",
+  "IFRAME_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
 ];
 
 function PropertyPaneView(
@@ -159,10 +163,6 @@ function PropertyPaneView(
             width={16}
           />
         ),
-      },
-      {
-        tooltipContent: <span>Explore widget related docs</span>,
-        icon: <PropertyPaneHelpButton />,
       },
       {
         tooltipContent: "Close",
