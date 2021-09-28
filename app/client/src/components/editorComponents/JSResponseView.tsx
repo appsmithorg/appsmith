@@ -35,6 +35,7 @@ import { EvaluationError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 import { DebugButton } from "./Debugger/DebugCTA";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -65,6 +66,9 @@ const ResponseTabActionsList = styled.ul`
   width: 20%;
   list-style: none;
   padding-left: 0;
+  ${thinScrollbar};
+  scrollbar-width: thin;
+  overflow: auto;
 `;
 
 const ResponseTabAction = styled.li`
