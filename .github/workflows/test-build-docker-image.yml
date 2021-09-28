@@ -22,11 +22,6 @@ on:
       - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
-# Change the working directory for all the jobs in this workflow
-defaults:
-  run:
-    working-directory: app/client
-
 jobs:
   buildClient:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
@@ -504,9 +499,6 @@ jobs:
   package:
     needs: ui-test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/client
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
     if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
@@ -609,6 +601,7 @@ jobs:
 
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
         run: |
           docker build \
             --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
@@ -619,6 +612,7 @@ jobs:
 
       - name: Build and push master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
         run: |
           docker build \
             --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
