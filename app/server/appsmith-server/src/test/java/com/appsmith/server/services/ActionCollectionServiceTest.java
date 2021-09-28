@@ -183,7 +183,6 @@ public class ActionCollectionServiceTest {
                 .build();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("validActionCollection");
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(testApp.getId());
         actionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
