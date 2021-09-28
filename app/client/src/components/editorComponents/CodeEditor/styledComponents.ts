@@ -204,6 +204,7 @@ export const EditorWrapper = styled.div<{
   ${(props) =>
     props.className === "js-editor" &&
     `
+    overflow: hidden;
     .cm-tab {
       border-right: 1px dotted #ccc;
     }
