@@ -56,6 +56,7 @@ export const hexToRgb = (
       };
 };
 
+export const WidgetContainerDiff = 7;
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;

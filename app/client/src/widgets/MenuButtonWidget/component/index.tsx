@@ -21,6 +21,9 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/ButtonWidget/component";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+
+const MIN_MENU_POPOVER_WIDTH = 180;
 
 export const MenuButtonContainer = styled.div`
   width: 100%;
@@ -38,7 +41,9 @@ const PopoverStyles = createGlobalStyle<{ parentWidth: number }>`
   }
   .menu-button-popover {
      min-width:${({ parentWidth }) =>
-       parentWidth > 180 ? `${parentWidth}px` : "180px"} ;
+       parentWidth > MIN_MENU_POPOVER_WIDTH
+         ? `${parentWidth}px`
+         : `${MIN_MENU_POPOVER_WIDTH}px`} ;
   }
 `;
 
@@ -370,7 +375,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
 
   return (
     <MenuButtonContainer>
-      <PopoverStyles parentWidth={width - 7} />
+      <PopoverStyles parentWidth={width - WidgetContainerDiff} />
       <Popover2
         content={
           <PopoverContent

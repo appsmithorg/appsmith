@@ -21,6 +21,7 @@ import styled, {
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import Fuse from "fuse.js";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -30,6 +31,7 @@ const FUSE_OPTIONS = {
   findAllMatches: true,
   keys: ["label", "value"],
 };
+const MIN_OPTIONS_POPOVER_WIDTH = 269;
 
 const SingleDropDown = Select.ofType<DropdownOption>();
 const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
@@ -103,7 +105,9 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
 const DropdownStyles = createGlobalStyle<{ parentWidth: number }>`
   .select-popover-wrapper {
     min-width:${({ parentWidth }) =>
-      parentWidth > 269 ? `${parentWidth}px` : "269px"} ;
+      parentWidth > MIN_OPTIONS_POPOVER_WIDTH
+        ? `${parentWidth}px`
+        : `${MIN_OPTIONS_POPOVER_WIDTH}px`} ;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
     border-color: rgba(0, 0, 0, 0.2);
@@ -169,7 +173,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     return (
       <DropdownContainer>
-        <DropdownStyles parentWidth={this.props.width - 7} />
+        <DropdownStyles parentWidth={this.props.width - WidgetContainerDiff} />
         <StyledControlGroup
           fill
           haslabel={!!this.props.label ? "true" : "false"}
