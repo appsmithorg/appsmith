@@ -25,7 +25,8 @@ public class DynamicBinding {
             // This is a normal action data reference
             // Example: Api1.data
             DynamicBinding dynamicBinding = new DynamicBinding();
-            dynamicBinding.binding = splitBindings[0];
+//            dynamicBinding.binding = splitBindings[0];
+            dynamicBinding.binding = bindingCandidate;
             dynamicBinding.isFunctionCall = false;
             dynamicBindings.put(dynamicBinding.binding, dynamicBinding);
         } else if (splitBindings.length == 2) {
@@ -42,14 +43,16 @@ public class DynamicBinding {
             // This could be a normal action data reference with references to objects within it
             // Example: Api1.data.fileData...
             DynamicBinding dynamicBinding = new DynamicBinding();
-            dynamicBinding.binding = splitBindings[0];
+//            dynamicBinding.binding = splitBindings[0];
+            dynamicBinding.binding = bindingCandidate;
             dynamicBinding.isFunctionCall = false;
             dynamicBindings.put(dynamicBinding.binding, dynamicBinding);
 
             // This could be a collection action data reference, with or without more references
             // Example: Collection1.data.action1...
             dynamicBinding = new DynamicBinding();
-            dynamicBinding.binding = splitBindings[0] + "." + splitBindings[2];
+//            dynamicBinding.binding = splitBindings[0] + "." + splitBindings[2];
+            dynamicBinding.binding = bindingCandidate.replace("." + splitBindings[1], "");
             dynamicBinding.isFunctionCall = false;
             dynamicBindings.put(dynamicBinding.binding, dynamicBinding);
         }

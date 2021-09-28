@@ -480,11 +480,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     // Stricter extraction of dynamic bindings
                     Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
 
-                    if (widgetDynamicBindingsMap.containsKey(widgetName)) {
-                        Set<String> mustacheKeysForWidget = widgetDynamicBindingsMap.get(widgetName);
+                    String completePath = widgetName + "." + fieldPath;
+                    if (widgetDynamicBindingsMap.containsKey(completePath)) {
+                        Set<String> mustacheKeysForWidget = widgetDynamicBindingsMap.get(completePath);
                         mustacheKeysFromFields.addAll(mustacheKeysForWidget);
                     }
-                    widgetDynamicBindingsMap.put(widgetName, mustacheKeysFromFields);
+                    widgetDynamicBindingsMap.put(completePath, mustacheKeysFromFields);
                 }
             }
         }

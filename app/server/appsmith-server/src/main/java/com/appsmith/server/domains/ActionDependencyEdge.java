@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,6 +10,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
 public class ActionDependencyEdge {
     String source;
     String target;
@@ -33,5 +35,10 @@ public class ActionDependencyEdge {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return source + " : " + target;
     }
 }
