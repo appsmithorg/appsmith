@@ -66,6 +66,7 @@ public class UserSignup {
     private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
     private final ApplicationPageService applicationPageService;
+    private final EnvManager envManager;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -225,6 +226,10 @@ public class UserSignup {
                                             Map.of("disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData()),
                                             false
                                     )),
+                            envManager.applyChanges(Map.of(
+                                    "APPSMITH_DISABLE_TELEMETRY",
+                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
+                            )),
                             userDataService.updateForUser(user, userData),
                             configService.save(ConfigNames.USE_CASE, Map.of("value", userFromRequest.getUseCase())),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
