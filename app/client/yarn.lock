@@ -10188,12 +10188,6 @@ memoize-one@^5.2.1:
   resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-5.2.1.tgz#8337aa3c4335581839ec01c3d594090cebe8f00e"
   integrity sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==
 
-memoizerific@^1.11.3:
-  version "1.11.3"
-  resolved "https://registry.npmjs.org/memoizerific/-/memoizerific-1.11.3.tgz"
-  dependencies:
-    map-or-similar "^1.5.0"
-
 memory-fs@^0.3.0:
   version "0.3.0"
   resolved "https://registry.npmjs.org/memory-fs/-/memory-fs-0.3.0.tgz"

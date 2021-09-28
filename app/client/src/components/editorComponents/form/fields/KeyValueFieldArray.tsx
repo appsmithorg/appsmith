@@ -72,6 +72,9 @@ const Flex = styled.div<{ size: number }>`
     margin-left: ${props.theme.spaces[4]}px;
   `
       : null};
+  & > .t--code-editor-wrapper {
+    border: 1px solid transparent;
+  }
 `;
 
 const FlexContainer = styled.div`

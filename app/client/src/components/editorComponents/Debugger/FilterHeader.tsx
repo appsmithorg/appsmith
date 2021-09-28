@@ -26,18 +26,20 @@ const Wrapper = styled.div`
   }
 
   .debugger-filter {
-    background: transparent;
     border: none;
     box-shadow: none;
     width: 100px;
+    height: 28px;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
   }
 
   .input-container {
     position: relative;
+    display: flex;
+    align-items: center;
     .${Classes.ICON} {
       position: absolute;
       right: 9px;
-      top: 9px;
     }
   }
 `;
@@ -66,9 +68,11 @@ function FilterHeader(props: FilterHeaderProps) {
         <TextInput
           className="debugger-search"
           defaultValue={props.defaultValue}
+          height="28px"
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
+          width="160px"
         />
         {props.searchQuery && (
           <Icon

@@ -607,6 +607,7 @@ class CodeEditor extends Component<Props, State> {
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
     return (
       <DynamicAutocompleteInputWrapper
+        className="t--code-editor-wrapper"
         isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
         isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
