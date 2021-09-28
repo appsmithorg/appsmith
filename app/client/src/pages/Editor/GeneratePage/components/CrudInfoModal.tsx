@@ -8,7 +8,7 @@ import Text, { TextType } from "components/ads/Text";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
-import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 import Dialog from "components/ads/DialogComponent";
 import { GenerateCRUDSuccessInfoData } from "../../../../reducers/uiReducers/crudInfoModalReducer";
@@ -25,7 +25,7 @@ type Props = {
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
 
-const getSuccessGIF = () => `${S3_BUCKET_URL}/crud/check_mark_verified.gif`;
+const getSuccessGIF = () => `${ASSETS_CDN_URL}/crud/check_mark_verified.gif`;
 
 const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
@@ -109,7 +109,9 @@ const STEP = {
 };
 
 const getInfoImage = (): string =>
-  `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
+  `${ASSETS_CDN_URL}/crud/working-flow-chart.png`;
+
+const DELAY_TIME = 6000;
 
 function InfoContent({
   onClose,
@@ -171,7 +173,7 @@ function GenCRUDSuccessModal(props: Props) {
   useEffect(() => {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
-    }, 6000);
+    }, DELAY_TIME);
     return () => {
       if (timerId) clearTimeout(timerId);
     };
