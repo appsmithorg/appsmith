@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
@@ -54,9 +55,12 @@ public class FileUtilsImpl implements FileInterface {
 
     private final GitExecutor gitExecutor;
 
-    private final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
+    private static final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
 
-    private final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
+    private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
+
+    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*).(md|git)$");
+
 
     /**
      * This method will save the complete application in the local repo directory. We are going to use the worktree
@@ -275,6 +279,17 @@ public class FileUtilsImpl implements FileInterface {
             FileSystemUtils.deleteRecursively(file);
         }
         return Mono.just(Boolean.TRUE);
+    }
+
+    @Override
+    public boolean checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+        File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
+        for(File file : files) {
+            if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
