@@ -19,7 +19,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -38,7 +40,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -67,7 +71,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -107,7 +113,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -161,7 +169,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
