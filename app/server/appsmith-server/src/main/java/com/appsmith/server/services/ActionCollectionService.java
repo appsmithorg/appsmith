@@ -29,7 +29,6 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Flux<ActionCollectionDTO> getActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
 
-
     Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
