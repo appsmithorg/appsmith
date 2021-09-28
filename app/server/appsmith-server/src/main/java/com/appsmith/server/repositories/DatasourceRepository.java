@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 

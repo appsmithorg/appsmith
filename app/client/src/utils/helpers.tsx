@@ -1,6 +1,8 @@
+import React from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
+import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
@@ -145,20 +147,32 @@ export const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const flashElement = (el: HTMLElement) => {
-  el.style.backgroundColor = "#FFCB33";
+export const flashElement = (
+  el: HTMLElement,
+  flashTimeout = 1000,
+  flashColor = "#FFCB33",
+) => {
+  el.style.backgroundColor = flashColor;
 
   setTimeout(() => {
     el.style.backgroundColor = "transparent";
-  }, 1000);
+  }, flashTimeout);
 };
 
 /**
  * flash elements with a background color
  *
  * @param id
+ * @param timeout
+ * @param flashTimeout
+ * @param flashColor
  */
-export const flashElementsById = (id: string | string[], timeout = 0) => {
+export const flashElementsById = (
+  id: string | string[],
+  timeout = 0,
+  flashTimeout?: number,
+  flashColor?: string,
+) => {
   let ids: string[] = [];
 
   if (Array.isArray(id)) {
@@ -177,7 +191,7 @@ export const flashElementsById = (id: string | string[], timeout = 0) => {
         inline: "center",
       });
 
-      if (el) flashElement(el);
+      if (el) flashElement(el, flashTimeout, flashColor);
     }, timeout);
   });
 };
@@ -312,6 +326,10 @@ export const getSubstringBetweenTwoWords = (
 
 export const playOnboardingAnimation = () => {
   playLottieAnimation("#root", confetti);
+};
+
+export const playWelcomeAnimation = (container: string) => {
+  playLottieAnimation(container, welcomeConfetti);
 };
 
 export const playOnboardingStepCompletionAnimation = () => {
@@ -461,3 +479,16 @@ export function bootIntercom(user?: User) {
     });
   }
 }
+
+export const stopClickEventPropagation = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+) => {
+  e.stopPropagation();
+};
+
+/**
+ * returns the modText ( ctrl or command ) based on the user machine
+ *
+ * @returns
+ */
+export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");

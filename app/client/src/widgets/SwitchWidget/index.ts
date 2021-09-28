@@ -10,7 +10,7 @@ export const CONFIG = {
   defaults: {
     label: "Label",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 2 * GRID_DENSITY_MIGRATION_V1,
+    columns: 3 * GRID_DENSITY_MIGRATION_V1,
     defaultSwitchState: true,
     widgetName: "Switch",
     alignWidget: "LEFT",

@@ -23,7 +23,11 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "constants/routes";
 
 type StateAndRouteProps = EditorJSONtoFormProps &
   RouteComponentProps<{
@@ -53,7 +57,12 @@ function ActionForm(props: Props) {
   };
   const onCreateDatasourceClick = () => {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      INTEGRATION_EDITOR_URL(
+        applicationId,
+        pageId,
+        INTEGRATION_TABS.NEW,
+        INTEGRATION_EDITOR_MODES.AUTO,
+      ),
     );
   };
 
