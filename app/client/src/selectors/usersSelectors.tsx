@@ -12,3 +12,5 @@ export const getProppanePreference = (
 ): PropertyPanePositionConfig | undefined => state.ui.users.propPanePreferences;
 export const getFeatureFlagsFetched = (state: AppState) =>
   state.ui.users.featureFlagFetched;
+export const getCommentsOnBoardingState = (state: AppState) =>
+  state.ui.users.currentUser?.commentOnboardingState;

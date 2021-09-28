@@ -1,6 +1,7 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
+import { CommentsOnBoardingState } from "../constants/userConstants";
 
 export interface LoginUserRequest {
   email: string;
@@ -55,6 +56,10 @@ export interface UpdateUserRequest {
   email?: string;
 }
 
+export interface CommentsOnBoardingStateRequest {
+  commentOnboardingState: CommentsOnBoardingState;
+}
+
 export interface CreateSuperUserRequest {
   email: string;
   name: string;
@@ -83,6 +88,7 @@ class UserApi extends Api {
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
   static superUserURL = "v1/users/super";
+  static commentsOnBoardingStateURL = `${UserApi.usersURL}/comment/state`;
 
   static createUser(
     request: CreateUserRequest,
@@ -169,6 +175,12 @@ class UserApi extends Api {
     request: CreateSuperUserRequest,
   ): AxiosPromise<CreateUserResponse> {
     return Api.post(UserApi.superUserURL, request);
+  }
+
+  static updateUsersCommentOnBoardingState(
+    request: CommentsOnBoardingStateRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.patch(UserApi.commentsOnBoardingStateURL, request);
   }
 }
 

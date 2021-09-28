@@ -13,11 +13,9 @@ import {
   setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
   showCommentsIntroCarousel,
-  fetchHasUserSeenCommentsCarousel,
 } from "actions/commentActions";
 import {
   commentModeSelector,
-  hasUserSeenCommentsIntroCarousel,
   showUnreadIndicator as showUnreadIndicatorSelector,
 } from "../../selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -120,7 +118,6 @@ const useUpdateCommentMode = async (currentUser?: User) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
-  const isCommentsIntroSeen = useSelector(hasUserSeenCommentsIntroCarousel);
   const setCommentModeInStore = useCallback(
     (updatedIsCommentMode) =>
       dispatch(setCommentModeAction(updatedIsCommentMode)),
@@ -147,10 +144,10 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     }
     // eslint-disable-next-line no-console
     console.log("TOGGLE MODE BUTTON : ", {
-      isCommentsIntroSeen,
-      updatedIsCommentMode,
+      commentOnboardingState: currentUser?.commentOnboardingState,
     });
-    if (updatedIsCommentMode && !isCommentsIntroSeen) {
+
+    if (updatedIsCommentMode && !currentUser?.commentOnboardingState) {
       AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
       dispatch(showCommentsIntroCarousel());
       setCommentModeInUrl(false);
@@ -170,7 +167,6 @@ const useUpdateCommentMode = async (currentUser?: User) => {
   useEffect(() => {
     if (isCommentMode) {
       dispatch(fetchApplicationCommentsRequest());
-      dispatch(fetchHasUserSeenCommentsCarousel());
     }
   }, [isCommentMode]);
 };

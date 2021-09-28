@@ -11,20 +11,18 @@ import ProgressiveImage, {
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
-import { getFormSyncErrors } from "redux-form";
-import { getFormValues } from "redux-form";
+import { getFormSyncErrors, getFormValues } from "redux-form";
 
 import { isIntroCarouselVisibleSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 
 import { setActiveTour } from "actions/tourActions";
 import { TourType } from "entities/Tour";
+import { hideCommentsIntroCarousel } from "actions/commentActions";
 import {
-  hideCommentsIntroCarousel,
-  setUserHasSeenCommentsCarousel,
-} from "actions/commentActions";
-
-import { updateUserDetails } from "actions/userActions";
+  updateUserDetails,
+  updateUsersCommentOnBoardingState,
+} from "actions/userActions";
 
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
@@ -37,6 +35,7 @@ import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { CommentsOnBoardingState } from "constants/userConstants";
 
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
@@ -235,7 +234,18 @@ export default function CommentsShowcaseCarousel() {
       skipped: isSkipped,
     });
     dispatch(hideCommentsIntroCarousel());
-    dispatch(setUserHasSeenCommentsCarousel());
+    dispatch(
+      updateUsersCommentOnBoardingState(
+        isSkipped
+          ? CommentsOnBoardingState.SKIPPED
+          : CommentsOnBoardingState.ONBOARDED,
+      ),
+    );
+
+    // eslint-disable-next-line no-console
+    console.log("TOGGLE MODE BUTTON : ", {
+      isSkipped,
+    });
 
     if (!isSkipped) {
       const tourType = canManage

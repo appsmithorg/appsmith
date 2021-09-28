@@ -46,7 +46,6 @@ const initialState: CommentsReduxState = {
   unpublishedThreadDraftComment: null,
   commentThreadsFetched: false,
   lastUpdatedCommentThreadId: null,
-  hasSeenCommentsIntroCarousel: false,
 };
 
 /**
@@ -328,12 +327,6 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     commentThreadsFetched: false,
-  }),
-  [ReduxActionTypes.SET_HAS_USER_SEEN_COMMENTS_INTRO_CAROUSEL]: (
-    state: CommentsReduxState,
-  ) => ({
-    ...state,
-    hasSeenCommentsIntroCarousel: true,
   }),
 });
 

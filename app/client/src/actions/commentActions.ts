@@ -327,11 +327,3 @@ export const updateThreadDraftComment = (
 export const fetchCommentThreadsInit = () => ({
   type: ReduxActionTypes.FETCH_COMMENT_THREADS_INIT,
 });
-
-export const setUserHasSeenCommentsCarousel = () => ({
-  type: ReduxActionTypes.SET_HAS_USER_SEEN_COMMENTS_INTRO_CAROUSEL,
-});
-
-export const fetchHasUserSeenCommentsCarousel = () => ({
-  type: ReduxActionTypes.FETCH_HAS_USER_SEEN_COMMENTS_INTRO_CAROUSEL,
-});
