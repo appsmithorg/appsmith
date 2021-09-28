@@ -34,6 +34,7 @@ import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -64,6 +65,9 @@ const ResponseTabActionsList = styled.ul`
   width: 20%;
   list-style: none;
   padding-left: 0;
+  ${thinScrollbar};
+  scrollbar-width: thin;
+  overflow: auto;
 `;
 
 const ResponseTabAction = styled.li`
