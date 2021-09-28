@@ -245,7 +245,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               ? this.props.selectedRowIndices.includes(rowIndex)
               : this.props.selectedRowIndex === rowIndex;
             const buttonProps = {
-              isSelected: isSelected, //!!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
