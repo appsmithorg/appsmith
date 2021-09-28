@@ -40,7 +40,7 @@ function PropertyPaneView(
   } & IPanelProps,
 ) {
   const dispatch = useDispatch();
-  const { theme, ...panel } = props;
+  const { ...panel } = props;
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);

@@ -37,17 +37,7 @@ import {
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import PageTabsContainer from "pages/AppViewer/viewer/PageTabsContainer";
 import classNames from "classnames";
-
-const EditorWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  overflow: hidden;
-  position: relative;
-  transform: scale(0.75);
-`;
+import usePanZoom from "utils/hooks/useZoom";
 
 const CanvasContainer = styled.section`
   height: 100%;
@@ -79,6 +69,7 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentApplicationDetails = useSelector(getCurrentApplication);
+  const { panZoomHandlers, setContainer, transform } = usePanZoom();
 
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const enableFirstTimeUserOnboarding = useSelector(
@@ -162,12 +153,15 @@ function WidgetsEditor() {
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />
       ) : (
-        <EditorWrapper
-          className="js-widgets-editor"
+        <div
+          className="relative flex flex-col items-stretch justify-start flex-grow overflow-hidden"
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
+          ref={(el) => setContainer(el)}
+          style={{ transform }}
+          {...panZoomHandlers}
         >
           <div
             className={classNames({
@@ -186,7 +180,7 @@ function WidgetsEditor() {
           </CanvasContainer>
           <Debugger />
           <CrudInfoModal />
-        </EditorWrapper>
+        </div>
       )}
     </EditorContextProvider>
   );

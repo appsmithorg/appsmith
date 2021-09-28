@@ -339,7 +339,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + m"
           global
           label="Preview Mode"
-          onKeyDown={(e: any) => {
+          onKeyDown={() => {
             setCommentModeInUrl(false);
             this.props.setPreviewMode(!this.props.isPreviewMode);
           }}

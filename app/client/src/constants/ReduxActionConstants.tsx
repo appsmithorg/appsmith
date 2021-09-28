@@ -593,6 +593,7 @@ export const ReduxActionTypes = {
   SET_EXPLORER_PINNED: "SET_EXPLORER_PINNED",
   SET_PREVIEW_MODE: "SET_PREVIEW_MODE",
   UPDATE_EXPLORER_WIDTH: "UPDATE_EXPLORER_WIDTH",
+  UPDATE_ZOOM_LEVEL: "UPDATE_ZOOM_LEVEL",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

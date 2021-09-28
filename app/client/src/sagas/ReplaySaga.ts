@@ -8,10 +8,7 @@ import {
   getIsPropertyPaneVisible,
   getCurrentWidgetId,
 } from "../selectors/propertyPaneSelectors";
-import {
-  closePropertyPane,
-  forceOpenPropertyPane,
-} from "actions/widgetActions";
+import { closePropertyPane } from "actions/widgetActions";
 import {
   selectMultipleWidgetsInitAction,
   selectWidgetAction,
