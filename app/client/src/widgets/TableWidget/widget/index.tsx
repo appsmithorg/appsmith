@@ -242,7 +242,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           );
           if (columnProperties.columnType === "button") {
             const isSelected = this.props.multiRowSelection
-              ? this.props.selectedRowIndices?.includes(rowIndex)
+              ? this.props.selectedRowIndices &&
+                this.props.selectedRowIndices.includes(rowIndex)
               : this.props.selectedRowIndex === rowIndex;
             const buttonProps = {
               isSelected: isSelected,
