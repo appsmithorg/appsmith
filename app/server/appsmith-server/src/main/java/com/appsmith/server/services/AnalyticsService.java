@@ -66,6 +66,10 @@ public class AnalyticsService {
     }
 
     public void sendEvent(String event, String userId, Map<String, Object> properties) {
+        sendEvent(event, userId, properties, true);
+    }
+
+    public void sendEvent(String event, String userId, Map<String, Object> properties, boolean hashUserId) {
         if (!isActive()) {
             return;
         }
@@ -77,7 +81,8 @@ public class AnalyticsService {
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
         // Hash usernames at all places for self-hosted instance
-        if (!commonConfig.isCloudHosting()
+        if (hashUserId
+                && !commonConfig.isCloudHosting()
                 // But send the email intact for the subscribe event, which is sent only if the user has explicitly agreed to it.
                 && !AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name().equals(event)) {
             final String hashedUserId = DigestUtils.sha256Hex(userId);
