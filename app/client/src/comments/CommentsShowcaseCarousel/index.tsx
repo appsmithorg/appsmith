@@ -124,6 +124,7 @@ function IntroStep(props: {
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text
+            data-cy="comments-carousel-header"
             style={{
               color: props.theme.colors.comments.introTitle,
             }}

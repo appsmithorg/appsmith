@@ -2,35 +2,7 @@ const commentsLocators = require("../../../../locators/commentsLocators.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const dsl = require("../../../../fixtures/basicDsl.json");
-
-function setFlagForTour() {
-  return new Promise((resolve) => {
-    const request = indexedDB.open("Appsmith", 2); // had to use version: 2 here, TODO: check why
-    request.onerror = function(event) {
-      console.log("Error loading database", event);
-    };
-    request.onsuccess = function(event) {
-      const db = request.result;
-      const transaction = db.transaction("keyvaluepairs", "readwrite");
-      const objectStore = transaction.objectStore("keyvaluepairs");
-      objectStore.put(true, "CommentsIntroSeen");
-      resolve();
-    };
-  });
-}
-
-function typeIntoDraftEditor(selector, text) {
-  cy.get(selector).then((input) => {
-    var textarea = input.get(0);
-    textarea.dispatchEvent(new Event("focus"));
-
-    var textEvent = document.createEvent("TextEvent");
-    textEvent.initTextEvent("textInput", true, true, null, text);
-    textarea.dispatchEvent(textEvent);
-
-    textarea.dispatchEvent(new Event("blur"));
-  });
-}
+const { setFlagForTour, typeIntoDraftEditor } = require("./utils");
 
 const newCommentText1 = "new comment text 1";
 let commentThreadId;
