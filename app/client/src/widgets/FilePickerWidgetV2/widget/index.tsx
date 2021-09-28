@@ -12,7 +12,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
-import _, { findIndex } from "lodash";
+import _, { findIndex, size } from "lodash";
 import FileDataTypes from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
@@ -417,9 +417,8 @@ class FilePickerWidget extends BaseWidget<
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
-      prevProps.selectedFiles &&
-      prevProps.selectedFiles.length > 0 &&
-      this.props.selectedFiles === undefined
+      size(prevProps.selectedFiles) > 0 &&
+      size(this.props.selectedFiles) === 0
     ) {
       this.state.uppy.reset();
     } else if (
