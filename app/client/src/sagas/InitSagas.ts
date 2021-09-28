@@ -230,12 +230,10 @@ function* initializeEditorSaga(
 
     // redirect to the /pages route
     if (!pageId) {
-      const pathname = BUILDER_PAGE_URL(
+      const pathname = BUILDER_PAGE_URL({
         defaultApplicationId,
-        toLoadPageId,
-        {},
-        branchName,
-      );
+        pageId: toLoadPageId,
+      });
 
       history.replace({
         ...window.location,

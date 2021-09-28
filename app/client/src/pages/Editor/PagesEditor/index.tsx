@@ -115,7 +115,9 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(defaultApplicationId, params.pageId));
+    history.push(
+      BUILDER_PAGE_URL({ defaultApplicationId, pageId: params.pageId }),
+    );
   }, []);
 
   return (

@@ -122,14 +122,14 @@ class AppRouter extends React.Component<any, any> {
                   exact
                   path={SIGNUP_SUCCESS_URL}
                 />
-                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
-                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute
                   component={UnsubscribeEmail}
                   path={UNSUBSCRIBE_EMAIL_URL}
                 />
                 <SentryRoute component={Setup} exact path={SETUP} />
+                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
+                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute component={PageNotFound} />
               </Switch>
             </>

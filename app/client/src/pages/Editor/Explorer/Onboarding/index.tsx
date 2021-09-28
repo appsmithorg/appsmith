@@ -26,7 +26,7 @@ function OnboardingExplorer(props: IPanelProps) {
   const defaultApplicationId = useSelector(getDefaultApplicationId);
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(defaultApplicationId, pageId));
+    history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }));
     openPanel({ component: WidgetSidebar });
   }, [openPanel, defaultApplicationId, pageId]);
 

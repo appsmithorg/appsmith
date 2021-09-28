@@ -41,7 +41,7 @@ export default function DeployPreview() {
   const defaultApplicationId = useSelector(getDefaultApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const showDeployPreview = () => {
-    const path = getApplicationViewerPageURL(defaultApplicationId, pageId);
+    const path = getApplicationViewerPageURL({ defaultApplicationId, pageId });
     window.open(path, "_blank");
   };
 

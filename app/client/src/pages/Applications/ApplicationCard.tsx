@@ -411,14 +411,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
   }
-  const viewApplicationURL = getApplicationViewerPageURL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
-  const editApplicationURL = BUILDER_PAGE_URL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
+  const viewApplicationURL = getApplicationViewerPageURL({
+    defaultApplicationId: props.application.id,
+    pageId: props.application.defaultPageId,
+  });
+  const editApplicationURL = BUILDER_PAGE_URL({
+    defaultApplicationId: props.application.id,
+    pageId: props.application.defaultPageId,
+  });
+
   const appNameText = (
     <Text cypressSelector="t--app-card-name" type={TextType.H3}>
       {props.application.name}

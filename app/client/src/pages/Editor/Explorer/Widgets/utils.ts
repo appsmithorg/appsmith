@@ -7,11 +7,12 @@ export const navigateToCanvas = (
   widgetId: string,
   defaultApplicationId: string,
 ) => {
-  const canvasEditorURL = `${BUILDER_PAGE_URL(
+  const canvasEditorURL = `${BUILDER_PAGE_URL({
     defaultApplicationId,
-    widgetPageId,
-  )}`;
+    pageId: widgetPageId,
+    hash: widgetId,
+  })}`;
   if (currentPath !== canvasEditorURL) {
-    history.push(`${canvasEditorURL}#${widgetId}`);
+    history.push(canvasEditorURL);
   }
 };

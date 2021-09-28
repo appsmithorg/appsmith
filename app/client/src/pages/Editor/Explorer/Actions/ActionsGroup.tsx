@@ -25,6 +25,9 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
           props.page.pageId,
           action.config.id,
           action.config.pluginType,
+          props.plugins[
+            action.config.pluginId || action.config.datasource.pluginId
+          ],
         );
         const actionId = getActionIdFromURL();
         const active = actionId === action.config.id;

@@ -32,6 +32,7 @@ import {
   PROVIDER_TEMPLATE_PATH,
   GENERATE_TEMPLATE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
+  matchBuilderPath,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -84,22 +85,20 @@ type Props = RouteComponentProps<BuilderRouteParams> & {
 class EditorsRouter extends React.Component<Props, RouterState> {
   constructor(props: Props) {
     super(props);
-    const { pageId } = this.props.match.params;
+    // TODO [new_urls] verify
+    const isOnBuilder = matchBuilderPath();
     this.state = {
-      isVisible:
-        this.props.location.pathname !==
-        BUILDER_PAGE_URL(props.defaultApplicationId, pageId),
+      isVisible: !isOnBuilder,
       isActionPath: this.isMatchPath(),
     };
   }
 
   componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
     if (this.props.location.pathname !== prevProps.location.pathname) {
-      const { pageId } = this.props.match.params;
+      // TODO [new_urls] verify
+      const isOnBuilder = matchBuilderPath();
       this.setState({
-        isVisible:
-          this.props.location.pathname !==
-          BUILDER_PAGE_URL(this.props.defaultApplicationId, pageId),
+        isVisible: !isOnBuilder,
         isActionPath: this.isMatchPath(),
       });
     }
@@ -127,7 +126,9 @@ class EditorsRouter extends React.Component<Props, RouterState> {
     this.setState({
       isVisible: false,
     });
-    this.props.history.replace(BUILDER_PAGE_URL(defaultApplicationId, pageId));
+    this.props.history.replace(
+      BUILDER_PAGE_URL({ defaultApplicationId, pageId }),
+    );
   };
 
   preventClose = (e: React.MouseEvent) => {

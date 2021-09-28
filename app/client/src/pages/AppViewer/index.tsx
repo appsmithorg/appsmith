@@ -6,8 +6,11 @@ import { Switch } from "react-router-dom";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
+  APP_ID_QUERY_KEY,
   BuilderRouteParams,
-  getApplicationViewerPageURL,
+  GIT_BRANCH_QUERY_KEY,
+  VIEWER_FORK_PATH,
+  VIEWER_URL,
 } from "constants/routes";
 import {
   PageListPayload,
@@ -99,11 +102,12 @@ class AppViewer extends Component<Props> {
       this.setState({ registered: true });
     });
 
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
     const {
       location: { search },
     } = this.props;
-    const branch = getSearchQuery(search, "branch");
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+    const defaultApplicationId = getSearchQuery(search, APP_ID_QUERY_KEY);
 
     if (defaultApplicationId) {
       this.props.initializeAppViewer({
@@ -115,7 +119,7 @@ class AppViewer extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
     const {
       location: { search: prevSearch },
     } = prevProps;
@@ -123,8 +127,9 @@ class AppViewer extends Component<Props> {
       location: { search },
     } = this.props;
 
-    const prevBranch = getSearchQuery(prevSearch, "branch");
-    const branch = getSearchQuery(search, "branch");
+    const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+    const defaultApplicationId = getSearchQuery(search, APP_ID_QUERY_KEY);
 
     if (branch && branch !== prevBranch && defaultApplicationId && pageId) {
       this.props.initializeAppViewer({
@@ -160,12 +165,12 @@ class AppViewer extends Component<Props> {
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={getApplicationViewerPageURL()}
+                        path={VIEWER_URL}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={`${getApplicationViewerPageURL()}/fork`}
+                        path={VIEWER_FORK_PATH}
                       />
                     </Switch>
                   )}

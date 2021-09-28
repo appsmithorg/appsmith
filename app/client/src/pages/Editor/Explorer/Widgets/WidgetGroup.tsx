@@ -40,7 +40,12 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       Please{" "}
       {params.pageId !== props.pageId ? (
         <>
-          <StyledLink to={BUILDER_PAGE_URL(defaultApplicationId, props.pageId)}>
+          <StyledLink
+            to={BUILDER_PAGE_URL({
+              defaultApplicationId,
+              pageId: props.pageId,
+            })}
+          >
             switch to this page
           </StyledLink>
           ,&nbsp;then&nbsp;

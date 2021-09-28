@@ -492,3 +492,12 @@ export const stopClickEventPropagation = (
  * @returns
  */
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+
+/**
+ * @returns the original string after trimming the string past `?`
+ */
+export const trimQueryString = (value = "") => {
+  const index = value.indexOf("?");
+  if (index === -1) return value;
+  return value.slice(0, index);
+};

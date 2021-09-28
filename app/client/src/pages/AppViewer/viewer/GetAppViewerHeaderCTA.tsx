@@ -60,7 +60,7 @@ function GetAppViewerHeaderCTA(props: any) {
       CTA = (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
           <ForkApplicationModal
-            applicationId={currentApplicationDetails.id}
+            applicationId={currentApplicationDetails?.id}
             trigger={
               <TriggerButton
                 className="t--fork-app"

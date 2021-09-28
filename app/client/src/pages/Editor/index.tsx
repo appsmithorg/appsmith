@@ -3,7 +3,11 @@ import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Spinner } from "@blueprintjs/core";
-import { BuilderRouteParams } from "constants/routes";
+import {
+  APP_ID_QUERY_KEY,
+  BuilderRouteParams,
+  matchBuilderPath,
+} from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
@@ -37,6 +41,7 @@ import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { debug } from "loglevel";
 
 const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
@@ -85,8 +90,9 @@ class Editor extends Component<Props> {
       location: { search },
     } = this.props;
     const branch = getSearchQuery(search, "branch");
+    const defaultApplicationId = getSearchQuery(search, APP_ID_QUERY_KEY);
 
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
     if (defaultApplicationId) {
       this.props.initEditor(defaultApplicationId, pageId, branch);
     }
@@ -129,11 +135,15 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { defaultApplicationId, pageId } = this.props.match.params || {};
+    const { pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
     const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
 
     const branch = getSearchQuery(this.props.location.search, "branch");
+    const defaultApplicationId = getSearchQuery(
+      this.props.location.search,
+      APP_ID_QUERY_KEY,
+    );
 
     if (isBranchUpdated && defaultApplicationId) {
       this.props.initEditor(defaultApplicationId, pageId, branch);
@@ -160,6 +170,8 @@ class Editor extends Component<Props> {
   };
 
   public render() {
+    debug(matchBuilderPath(window.location.pathname), "matchBuilderPath");
+
     if (this.props.creatingOnboardingDatabase) {
       return <Welcome />;
     }
