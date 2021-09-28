@@ -41,7 +41,21 @@ export const updateCanvasLayout = (
  */
 export const updateZoomLevel = (zoomLevel: number) => {
   return {
-    type: ReduxActionTypes.UPDATE_ZOOM_LEVEL,
+    type: ReduxActionTypes.UPDATE_CANVAS_ZOOM_LEVEL,
     payload: zoomLevel,
+  };
+};
+
+/**
+ * action that update editor isPanning flag
+ *
+ * @param width
+ * @param height
+ * @returns
+ */
+export const updateIsPanning = (isPanning: boolean) => {
+  return {
+    type: ReduxActionTypes.UPDATE_CANVAS_ZOOM_LEVEL,
+    payload: isPanning,
   };
 };

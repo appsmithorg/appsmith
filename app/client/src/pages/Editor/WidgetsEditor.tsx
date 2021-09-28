@@ -38,7 +38,7 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import PageTabsContainer from "pages/AppViewer/viewer/PageTabsContainer";
 import classNames from "classnames";
 import usePanZoom from "utils/hooks/useZoom";
-import { updateZoomLevel } from "actions/editorActions";
+import { updateIsPanning, updateZoomLevel } from "actions/editorActions";
 import { transform } from "utils/hooks/useZoom/utils";
 
 const CanvasContainer = styled.section`
@@ -156,7 +156,25 @@ function WidgetsEditor() {
     [dispatch],
   );
 
-  const { panZoomHandlers, setContainer, transform } = usePanZoom({ onZoom });
+  /**
+   * dispatches an action that updates isPanning flag to true
+   */
+  const onPanStart = useCallback(() => {
+    dispatch(updateIsPanning(true));
+  }, [dispatch]);
+
+  /**
+   * dispatches an action that updates isPanning flag to false
+   */
+  const onPanEnd = useCallback(() => {
+    dispatch(updateIsPanning(false));
+  }, [dispatch]);
+
+  const { panZoomHandlers, setContainer, transform } = usePanZoom({
+    onZoom,
+    onPanStart,
+    onPanEnd,
+  });
 
   PerformanceTracker.stopTracking();
   return (

@@ -327,10 +327,9 @@ export default function usePanZoom({
   );
   const onMouseDown = useCallback(
     (event: React.MouseEvent) => {
-      if (!event.ctrlKey) return;
       startPanZoom([{ x: event.pageX, y: event.pageY }]);
     },
-    [startPanZoom],
+    [startPanZoom, getState],
   );
   const onMouseMove = useCallback(
     (event: React.MouseEvent) =>
