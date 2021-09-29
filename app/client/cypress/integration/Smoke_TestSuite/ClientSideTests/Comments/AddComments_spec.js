@@ -35,21 +35,77 @@ describe("Comments", function() {
    *  - check the unread indicator shows due to unread comments
    * publish and check if the comment shows up on view mode
    */
-
-  it("new comments can be created after switching to comment mode", () => {
-    return cy.wrap(null).then(async () => {
-      // wait for the page to load
-      cy.get(commonLocators.canvas);
-      cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
-
-      // wait for comment mode to be set
-      cy.wait(1000);
-      cy.get(commonLocators.canvas).click(50, 50);
-
-      typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
-      cy.get(commentsLocators.mentionsInput).type("{enter}");
-      await cy.wait("@createNewThread");
+  it("Skipping comments tour also skips bot comments", function() {
+    cy.generateUUID().then((uid) => {
+      cy.Signup(`${uid}@appsmithtest.com`, uid);
     });
+    cy.wait(1000);
+    cy.NavigateToHome();
+
+    cy.generateUUID().then((uid) => {
+      appName = uid;
+      orgName = uid;
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        const newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgName);
+      });
+      cy.CreateAppForOrg(orgName, appName);
+      cy.addDsl(dsl);
+    });
+    cy.get(commonLocators.canvas);
+    cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
+    cy.contains("SKIP").click({ force: true });
+    cy.get("input[name='displayName']").type("Skip User");
+    cy.get("button[type='submit']").click();
+
+    // wait for comment mode to be set
+    cy.wait(1000);
+    cy.get(commonLocators.canvas).click(50, 50);
+
+    typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
+    cy.get(commentsLocators.mentionsInput).type("{enter}");
+    // when user adds first comment, following command will count for the headers of the comment card
+    // in case of "Skip Tour" this has to be 2.
+    cy.get("[data-cy=comments-card-header]")
+      .its("length")
+      .should("eq", 2);
+  });
+  it("Completing comments tour adds bot comment in first thread", function() {
+    cy.generateUUID().then((uid) => {
+      cy.Signup(`${uid}@appsmithtest.com`, uid);
+    });
+    cy.NavigateToHome();
+
+    cy.generateUUID().then((uid) => {
+      appName = uid;
+      orgName = uid;
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        const newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgName);
+      });
+      cy.CreateAppForOrg(orgName, appName);
+      cy.addDsl(dsl);
+    });
+    cy.get(commonLocators.canvas);
+    cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
+    cy.contains("NEXT").click({ force: true });
+    cy.contains("NEXT").click({ force: true });
+    cy.get("input[name='displayName']").type("Touring User");
+    cy.get("button[type='submit']").click();
+
+    // wait for comment mode to be set
+    cy.wait(1000);
+    cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
+    cy.get(commonLocators.canvas).click(50, 50);
+
+    typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
+    cy.get(commentsLocators.mentionsInput).type("{enter}");
+    cy.get("[data-cy=comments-card-header]")
+      .its("length")
+      .should("eq", 3);
+    cy.contains("Appsmith Bot").should("be.visible");
   });
 
   // create another comment since the first one is a private bot thread
