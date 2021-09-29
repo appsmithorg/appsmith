@@ -53,7 +53,6 @@ import {
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { UpdateApplicationPayload, UserRoles } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -949,7 +948,6 @@ function ApplicationsSection(props: any) {
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
-      <HelpModal page={"Applications"} />
       <WelcomeHelper />
       {getFeatureFlags().GIT && <ImportAppViaGitModal />}
     </ApplicationContainer>

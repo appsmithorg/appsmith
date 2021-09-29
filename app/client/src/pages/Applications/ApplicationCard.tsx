@@ -632,7 +632,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     if (editedBy === "" && editedOn === "") return "";
 
     editedBy = editedBy.split("@")[0];
-    editedBy = truncateString(editedBy, 9);
+    editedBy = truncateString(editedBy, 7);
 
     //assuming modifiedAt will be always available
     editedOn = howMuchTimeBeforeText(editedOn);
