@@ -124,7 +124,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       </div>
       {/* RESIZER */}
       <div
-        className="z-10 w-2 h-full -mr-1 group cursor-ew-resize"
+        className="absolute z-10 w-2 h-full -mr-1 group cursor-ew-resize"
         onMouseDown={resizer.onMouseDown}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}
