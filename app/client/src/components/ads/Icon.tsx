@@ -273,10 +273,10 @@ export const IconWrapper = styled.span<IconProps>`
       !props.keepColors
         ? `
     path {
-      fill: ${props.fillColor || props.theme.colors.icon.normal};
+      fill: ${props.fillColor || "currentcolor"};
     }
     circle {
-      fill: ${props.fillColor || props.theme.colors.icon.normal};
+      fill: ${props.fillColor || "currentcolor"};
     }
     `
         : ""}
