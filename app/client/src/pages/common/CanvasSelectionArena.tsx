@@ -22,7 +22,6 @@ import { XYCord } from "utils/hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { commentModeSelector } from "../../selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import { updatePanningEnabled } from "actions/editorActions";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -390,29 +389,6 @@ export function CanvasSelectionArena({
         }
       };
 
-      /**
-       * sets panningEnabled to true
-       *
-       * @param event
-       * @returns
-       */
-      const onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === " " || event.keyCode === 32) {
-          event.preventDefault();
-          event.stopPropagation();
-
-          if (event.repeat === false) {
-            dispatch(updatePanningEnabled(true));
-          }
-        }
-      };
-
-      const onKeyUp = (event: KeyboardEvent) => {
-        if (event.key === " " || event.keyCode === 32) {
-          dispatch(updatePanningEnabled(false));
-        }
-      };
-
       const addEventListeners = () => {
         canvasRef.current?.addEventListener("click", onClick, false);
         canvasRef.current?.addEventListener("mousedown", onMouseDown, false);
@@ -421,8 +397,6 @@ export function CanvasSelectionArena({
         canvasRef.current?.addEventListener("mouseleave", onMouseLeave, false);
         canvasRef.current?.addEventListener("mouseenter", onMouseEnter, false);
         scrollParent?.addEventListener("scroll", onScroll, false);
-        canvasRef.current?.addEventListener("keydown", onKeyDown, false);
-        document?.addEventListener("keyup", onKeyUp, false);
       };
       const removeEventListeners = () => {
         canvasRef.current?.removeEventListener("mousedown", onMouseDown);
@@ -431,8 +405,6 @@ export function CanvasSelectionArena({
         canvasRef.current?.removeEventListener("mouseleave", onMouseLeave);
         canvasRef.current?.removeEventListener("mouseenter", onMouseEnter);
         canvasRef.current?.removeEventListener("click", onClick);
-        canvasRef.current?.removeEventListener("keydown", onKeyDown, false);
-        document?.removeEventListener("keyup", onKeyUp, false);
       };
       const init = () => {
         if (canvasRef.current) {

@@ -11,6 +11,7 @@ import {
   previewModeSelector,
   getPanningEnabled,
   getIsPanning,
+  getPanningAllowed,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "@blueprintjs/core";
@@ -40,7 +41,12 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import PageTabsContainer from "pages/AppViewer/viewer/PageTabsContainer";
 import classNames from "classnames";
 import usePanZoom from "utils/hooks/useZoom";
-import { updateIsPanning, updateZoomLevel } from "actions/editorActions";
+import {
+  updateIsPanning,
+  updatePanningAllowed,
+  updatePanningEnabled,
+  updateZoomLevel,
+} from "actions/editorActions";
 import { transform } from "utils/hooks/useZoom/utils";
 
 const CanvasContainer = styled.section`
@@ -74,6 +80,7 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const isPreviewMode = useSelector(previewModeSelector);
   const isPanningEnabled = useSelector(getPanningEnabled);
+  const isPanningAllowed = useSelector(getPanningAllowed);
   const currentApplicationDetails = useSelector(getCurrentApplication);
 
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
@@ -190,6 +197,52 @@ function WidgetsEditor() {
   });
 
   /**
+   * on mouse enter the widgets editor allow panning
+   */
+  const onMouseEnter = useCallback(() => {
+    dispatch(updatePanningAllowed(true));
+  }, [dispatch]);
+
+  /**
+   * on mouse leave the widgets editor disallow panning
+   */
+  const onMouseLeave = useCallback(() => {
+    dispatch(updatePanningAllowed(false));
+  }, [dispatch]);
+
+  /**
+   * sets panningEnabled to true
+   * if panning is not allowed, dont do anything
+   *
+   * @param event
+   * @returns
+   */
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (isPanningAllowed === false) return;
+
+    if (event.key === " " || event.keyCode === 32) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.repeat === false) {
+        dispatch(updatePanningEnabled(true));
+      }
+    }
+  };
+
+  /**
+   * sets panningEnabled to false
+   *
+   * @param event
+   * @returns
+   */
+  const onKeyUp = (event: KeyboardEvent) => {
+    if (event.key === " " || event.keyCode === 32) {
+      dispatch(updatePanningEnabled(false));
+    }
+  };
+
+  /**
    * resetting panning and zoom when preview mode is on
    */
   useEffect(() => {
@@ -199,6 +252,19 @@ function WidgetsEditor() {
     }
   }, [isPreviewMode]);
 
+  /**
+   * event listeners
+   */
+  useEffect(() => {
+    window.addEventListener("keydown", onKeyDown, false);
+    window.addEventListener("keyup", onKeyUp, false);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, false);
+      window.removeEventListener("keyup", onKeyUp, false);
+    };
+  }, [isPanningAllowed]);
+
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
@@ -207,40 +273,42 @@ function WidgetsEditor() {
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />
       ) : (
-        <div
-          className={classNames({
-            "relative flex flex-col items-stretch justify-start flex-1 overflow-hidden": true,
-            "cursor-grab": isPanningEnabled && isPanning === false,
-            "cursor-grabbing": isPanning === true,
-          })}
-          data-testid="widgets-editor"
-          draggable
-          onClick={handleWrapperClick}
-          onDragStart={onDragStart}
-          ref={(el) => setContainer(el)}
-          {...panZoomHandlers}
-        >
+        <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
           <div
             className={classNames({
-              "transform  bg-gray-50": true,
-              "translate-y-0 ease-in transition": isPreviewMode,
-              "-translate-y-full duration-0": !isPreviewMode,
+              "relative flex flex-col items-stretch justify-start flex-1 overflow-hidden": true,
+              "cursor-grab": isPanningEnabled && isPanning === false,
+              "cursor-grabbing": isPanning === true,
             })}
+            data-testid="widgets-editor"
+            draggable
+            onClick={handleWrapperClick}
+            onDragStart={onDragStart}
+            ref={(el) => setContainer(el)}
+            {...panZoomHandlers}
           >
-            <PageTabsContainer
-              currentApplicationDetails={currentApplicationDetails}
-              pages={pages}
-            />
+            <div
+              className={classNames({
+                "transform  bg-gray-50": true,
+                "translate-y-0 ease-in transition": isPreviewMode,
+                "-translate-y-full duration-0": !isPreviewMode,
+              })}
+            >
+              <PageTabsContainer
+                currentApplicationDetails={currentApplicationDetails}
+                pages={pages}
+              />
+            </div>
+            <CanvasContainer
+              className={getCanvasClassName()}
+              key={currentPageId}
+              style={{ transform }}
+            >
+              {node}
+            </CanvasContainer>
+            <Debugger />
+            <CrudInfoModal />
           </div>
-          <CanvasContainer
-            className={getCanvasClassName()}
-            key={currentPageId}
-            style={{ transform }}
-          >
-            {node}
-          </CanvasContainer>
-          <Debugger />
-          <CrudInfoModal />
         </div>
       )}
     </EditorContextProvider>

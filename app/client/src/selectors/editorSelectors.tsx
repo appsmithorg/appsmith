@@ -413,3 +413,13 @@ export const getIsPanning = (state: AppState) => {
 export const getPanningEnabled = (state: AppState) => {
   return state.ui.editor.panningEnabled;
 };
+
+/**
+ * returns the `state.ui.editor.panningAllowed`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const getPanningAllowed = (state: AppState) => {
+  return state.ui.editor.panningAllowed;
+};
