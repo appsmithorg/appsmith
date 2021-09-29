@@ -25,11 +25,8 @@ export const SIGNUP_SUCCESS_URL = `/signup-success`;
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 
-export const BUILDER_URL = `/:pageId/edit`;
-export const VIEWER_URL = `/:pageId`;
-
-// export const BUILDER_URL = `/(applications)?/:defaultApplicationId?/(pages)?/:pageId/edit`;
-// export const VIEWER_URL = `/(applications)?/:defaultApplicationId?/(pages)?/:pageId`;
+export const BUILDER_URL = `/applications/:defaultApplicationId/(pages)?/:pageId?/edit`;
+export const VIEWER_URL = `/applications/:defaultApplicationId/(pages)?/:pageId?`;
 
 export const VIEWER_FORK_PATH = `${VIEWER_URL}/fork`;
 
@@ -132,7 +129,6 @@ export const BUILDER_BASE_URL = (
   applicationId = ":defaultApplicationId",
 ): string => `/applications/${applicationId}`;
 
-export const APP_ID_QUERY_KEY = "applicationId";
 export const GIT_BRANCH_QUERY_KEY = "branch";
 
 export const BUILDER_PAGE_URL = (props: {
@@ -144,6 +140,7 @@ export const BUILDER_PAGE_URL = (props: {
   suffix?: string;
 }): string => {
   const {
+    branch,
     defaultApplicationId,
     hash = "",
     pageId,
@@ -156,14 +153,15 @@ export const BUILDER_PAGE_URL = (props: {
   if (!pageId) return APPLICATIONS_URL;
 
   // todo (rishabh s) could inject branch param here
-  if (defaultApplicationId) {
-    modifiedParams[APP_ID_QUERY_KEY] = defaultApplicationId;
+  if (branch) {
+    modifiedParams[GIT_BRANCH_QUERY_KEY] = branch;
   }
 
   const queryString = convertToQueryParams(modifiedParams);
   const suffixPath = suffix ? `/${suffix}` : "";
   const hashPath = hash ? `#${hash}` : "";
-  return `/${pageId}/edit${suffixPath}${hashPath}${queryString}`;
+
+  return `/applications/${defaultApplicationId}/pages/${pageId}/edit${suffixPath}${hashPath}${queryString}`;
 };
 
 export const API_EDITOR_URL = (
@@ -324,12 +322,8 @@ export const getApplicationViewerPageURL = (props: {
     suffix,
   } = props;
 
-  const url = `/${pageId}`;
-  const modifiedParams = {
-    ...params,
-    [APP_ID_QUERY_KEY]: defaultApplicationId,
-  };
-  const queryString = convertToQueryParams(modifiedParams);
+  const url = `/applications/${defaultApplicationId}/pages/${pageId}`;
+  const queryString = convertToQueryParams(params);
   const suffixPath = suffix ? `/${suffix}` : "";
   return url + suffixPath + queryString;
 };

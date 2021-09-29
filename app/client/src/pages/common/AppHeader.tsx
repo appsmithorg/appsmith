@@ -9,7 +9,6 @@ import {
   BUILDER_URL,
   SETUP,
   USER_AUTH_URL,
-  pathsForDefaultHeader,
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
 import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
@@ -31,7 +30,6 @@ class AppHeader extends React.Component<Props, any> {
   get header() {
     return (
       <Switch>
-        <Route component={PageHeader} path={pathsForDefaultHeader} />
         <Route component={AppEditorHeader} path={BUILDER_URL} />
         <Route component={AppViewerHeader} exact path={VIEWER_URL} />
         <Route component={LoginHeader} path={USER_AUTH_URL} />

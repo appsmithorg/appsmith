@@ -514,6 +514,6 @@ export const getApplicationIdFromPayload = (
     return application.id;
   }
   return (
-    application?.gitApplicationMetadata?.defaultApplicationId || application.id
+    application?.gitApplicationMetadata?.defaultApplicationId || application?.id
   );
 };

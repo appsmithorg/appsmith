@@ -6,7 +6,6 @@ import { Switch } from "react-router-dom";
 import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
-  APP_ID_QUERY_KEY,
   BuilderRouteParams,
   GIT_BRANCH_QUERY_KEY,
   VIEWER_FORK_PATH,
@@ -102,12 +101,11 @@ class AppViewer extends Component<Props> {
       this.setState({ registered: true });
     });
 
-    const { pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
     const {
       location: { search },
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-    const defaultApplicationId = getSearchQuery(search, APP_ID_QUERY_KEY);
 
     if (defaultApplicationId) {
       this.props.initializeAppViewer({
@@ -119,7 +117,7 @@ class AppViewer extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
     const {
       location: { search: prevSearch },
     } = prevProps;
@@ -129,7 +127,6 @@ class AppViewer extends Component<Props> {
 
     const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-    const defaultApplicationId = getSearchQuery(search, APP_ID_QUERY_KEY);
 
     if (branch && branch !== prevBranch && defaultApplicationId && pageId) {
       this.props.initializeAppViewer({
