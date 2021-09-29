@@ -3251,4 +3251,37 @@ public class DatabaseChangelog {
                         .unique().named("plugin_name_package_name_version_index")
         );
     }
+
+    @ChangeSet(order = "090", id = "delete-orphan-actions", author = "")
+    public void deleteOrphanActions(MongockTemplate mongockTemplate) {
+        final Update deletionUpdates = new Update();
+        deletionUpdates.set(fieldName(QNewAction.newAction.deleted), true);
+        deletionUpdates.set(fieldName(QNewAction.newAction.deletedAt), Instant.now());
+
+        final List<NewAction> actions = mongockTemplate.find(
+                query(where(fieldName(QNewAction.newAction.deleted)).ne(true)),
+                NewAction.class
+        );
+
+        for (final NewAction action : actions) {
+            final String applicationId = action.getApplicationId();
+
+            final boolean shouldDelete = StringUtils.isEmpty(applicationId) || mongockTemplate.exists(
+                    query(
+                            where(fieldName(QApplication.application.id)).is(applicationId)
+                                    .and(fieldName(QApplication.application.deleted)).is(true)
+                    ),
+                    Application.class
+            );
+
+            if (shouldDelete) {
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
+                        deletionUpdates,
+                        NewAction.class
+                );
+            }
+        }
+    }
+
 }
