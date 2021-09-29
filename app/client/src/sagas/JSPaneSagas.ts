@@ -147,7 +147,7 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
           yield put(
             refactorJSCollectionAction({
               actionId: data.nameChangedActions[i].id,
-              collectionId: data.nameChangedActions[i].collectionId || "",
+              collectionName: jsAction.name,
               pageId: data.nameChangedActions[i].pageId,
               oldName: data.nameChangedActions[i].oldName,
               newName: data.nameChangedActions[i].newName,
@@ -367,7 +367,7 @@ function* handleExecuteJSFunctionSaga(
 function* handleRefactorJSActionNameSaga(
   data: ReduxAction<{
     actionId: string;
-    collectionId: string;
+    collectionName: string;
     pageId: string;
     oldName: string;
     newName: string;
@@ -384,7 +384,7 @@ function* handleRefactorJSActionNameSaga(
     try {
       const refactorResponse = yield ActionAPI.updateActionName({
         layoutId,
-        collectionId: data.payload.collectionId,
+        collectionName: data.payload.collectionName,
         pageId: data.payload.pageId,
         oldName: data.payload.oldName,
         newName: data.payload.newName,

@@ -257,11 +257,11 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
       jsAction,
     },
   );
-  const { errors, evalTree, result } = workerResponse;
+  const { evalTree, result } = workerResponse;
   const dataTree = yield select(getDataTree);
   const updates = diff(dataTree, evalTree) || [];
   yield put(setEvaluatedTree(evalTree, updates));
-  yield call(evalErrorHandler, errors, evalTree, [path]);
+  yield call(evalErrorHandler, [], evalTree, [path]);
   return result;
 }
 
