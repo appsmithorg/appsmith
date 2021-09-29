@@ -66,6 +66,7 @@ function Switcher(props: SwitcherProps) {
       {switches.map((v) => (
         <SwitchBlock
           active={v.id === activeSlot}
+          id={`switcher--${v.id}`}
           key={v.id}
           onClick={() => switchClickHandler(v)}
         >

@@ -325,11 +325,17 @@ const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
 export const useHideComments = () => {
   const [shouldHide, setShouldHide] = useState(false);
   const location = useLocation();
+  const currentUser = useSelector(getCurrentUser);
   useEffect(() => {
     const pathName = window.location.pathname;
     const shouldShow = matchBuilderPath(pathName) || matchViewerPath(pathName);
-    setShouldHide(!shouldShow);
-  }, [location]);
+    // Disable comment mode toggle for anonymous users
+    setShouldHide(
+      !shouldShow ||
+        !currentUser ||
+        currentUser.username === ANONYMOUS_USERNAME,
+    );
+  }, [location, currentUser]);
 
   return shouldHide;
 };

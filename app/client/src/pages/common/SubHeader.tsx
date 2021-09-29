@@ -10,15 +10,14 @@ import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
 
 const SubHeaderWrapper = styled.div`
-  width: 100%;
+  width: 250px;
   display: flex;
   justify-content: space-between;
   position: fixed;
-  padding-top: 30px;
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: ${(props) => props.theme.homePage.header}px;
+  top: 2px;
   left: ${(props) => props.theme.homePage.sidebar + 24}px;
-  z-index: ${Indices.Layer3};
+  z-index: ${Indices.Layer9};
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
