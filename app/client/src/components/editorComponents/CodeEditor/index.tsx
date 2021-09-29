@@ -612,7 +612,6 @@ class CodeEditor extends Component<Props, State> {
         isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
-        theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
           <Button

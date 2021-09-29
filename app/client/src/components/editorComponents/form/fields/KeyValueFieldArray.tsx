@@ -33,6 +33,7 @@ const KeyValueStackContainer = styled.div<CustomStack>`
 `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
+  margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
   ${FormLabel} {
     width: 100%;
   }
@@ -72,9 +73,6 @@ const Flex = styled.div<{ size: number }>`
     margin-left: ${props.theme.spaces[4]}px;
   `
       : null};
-  & > .t--code-editor-wrapper {
-    border: 1px solid transparent;
-  }
 `;
 
 const FlexContainer = styled.div`
@@ -101,9 +99,6 @@ const DynamicTextFieldWithDropdownWrapper = styled.div`
   border-bottom: solid 1px ${Colors.MERCURY};
   margin-bottom: 10px;
   top: -2px;
-  & .CodeEditorTarget * {
-    border-bottom: none !important;
-  }
 `;
 
 const DynamicDropdownFieldWrapper = styled.div`
@@ -168,10 +163,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                   {props.hasType ? (
                     <DynamicTextFieldWithDropdownWrapper>
                       <DynamicTextField
-                        border={CodeEditorBorder.BOTTOM_SIDE}
+                        border={CodeEditorBorder.NONE}
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
                         expected={expected}
+                        height="100%"
                         hoverInteraction
                         name={`${field}.key`}
                         placeholder={`Key ${index + 1}`}
@@ -188,10 +184,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     </DynamicTextFieldWithDropdownWrapper>
                   ) : (
                     <DynamicTextField
-                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      border={CodeEditorBorder.NONE}
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
                       expected={expected}
+                      height="100%"
                       hoverInteraction
                       name={`${field}.key`}
                       placeholder={`Key ${index + 1}`}
@@ -203,10 +200,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                 {!props.actionConfig && (
                   <Flex size={3}>
                     <DynamicTextField
-                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      border={CodeEditorBorder.NONE}
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={expected}
+                      height="100%"
                       hoverInteraction
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
@@ -227,6 +225,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         )
                       }
                       expected={expected}
+                      height="100%"
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder
@@ -244,7 +243,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       }
                       theme={props.theme}
                       {...otherProps}
-                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      border={CodeEditorBorder.NONE}
                       hoverInteraction
                     />
                   </Flex>

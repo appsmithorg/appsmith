@@ -65,6 +65,7 @@ const Form = styled.form`
     padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
+    align-items: center;
     ${FormLabel} {
       padding: 0;
       width: 100%;
@@ -289,11 +290,11 @@ const FlexContainer = styled.div`
   width: calc(100% - 30px);
 
   .key-value {
-    padding: ${(props) => props.theme.spaces[2]}px 0px
-      ${(props) => props.theme.spaces[2]}px
-      ${(props) => props.theme.spaces[1]}px;
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.apiPane.text};
+      padding: ${(props) => props.theme.spaces[2]}px 0px
+        ${(props) => props.theme.spaces[2]}px
+        ${(props) => props.theme.spaces[5]}px;
     }
   }
   .key-value:nth-child(2) {
@@ -301,7 +302,7 @@ const FlexContainer = styled.div`
   }
   .disabled {
     background: #e8e8e8;
-    margin-bottom: 2px;
+    margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
   }
 `;
 
