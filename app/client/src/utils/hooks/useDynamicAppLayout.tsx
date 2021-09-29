@@ -59,7 +59,7 @@ export const useDynamicAppLayout = () => {
         ? minWidth - parseInt(theme.sidebarWidth)
         : minWidth;
     const layoutWidth = calculateFluidMaxWidth(screenWidth, maxWidth);
-    const { rightColumn } = mainContainer;
+    const { rightColumn } = mainContainer || {};
     if (
       (type === "FLUID" || calculatedMinWidth <= layoutWidth) &&
       rightColumn !== layoutWidth
@@ -68,7 +68,7 @@ export const useDynamicAppLayout = () => {
         type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
         payload: {
           width: layoutWidth,
-          height: mainContainer.minHeight,
+          height: mainContainer?.minHeight,
         },
       });
     }
@@ -81,18 +81,18 @@ export const useDynamicAppLayout = () => {
   useEffect(() => {
     const calculatedMinHeight = calculateDynamicHeight(
       canvasWidgets,
-      mainContainer.minHeight,
+      mainContainer?.minHeight,
     );
-    if (calculatedMinHeight !== mainContainer.minHeight) {
+    if (calculatedMinHeight !== mainContainer?.minHeight) {
       dispatch({
         type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
         payload: {
           height: calculatedMinHeight,
-          width: mainContainer.rightColumn,
+          width: mainContainer?.rightColumn,
         },
       });
     }
-  }, [screenHeight, mainContainer.minHeight]);
+  }, [screenHeight, mainContainer?.minHeight]);
 
   useEffect(() => {
     debouncedResize(screenWidth, appLayout);
@@ -100,5 +100,5 @@ export const useDynamicAppLayout = () => {
 
   useEffect(() => {
     resizeToLayout(screenWidth, appLayout);
-  }, [appLayout, currentPageId, mainContainer.rightColumn]);
+  }, [appLayout, currentPageId, mainContainer?.rightColumn]);
 };

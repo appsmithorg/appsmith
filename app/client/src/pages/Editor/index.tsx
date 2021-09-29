@@ -36,11 +36,18 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
+import { getCurrentPageId } from "selectors/editorSelectors";
+
+const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return params.get(key) || "";
+};
+
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
   initEditor: (
-    applicationId: string,
+    defaultApplicationId: string,
     pageId: string,
     branchName?: string,
   ) => void;
@@ -57,6 +64,7 @@ type EditorProps = {
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branchName: string) => void;
+  currentPageId?: string;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -72,24 +80,41 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
     const {
-      branchName,
-      defaultApplicationId,
-      pageId,
-    } = this.props.match.params;
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
+
+    const { defaultApplicationId, pageId } = this.props.match.params;
     if (defaultApplicationId) {
-      this.props.initEditor(defaultApplicationId, pageId, branchName);
+      this.props.initEditor(defaultApplicationId, pageId, branch);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
   }
 
+  getIsBranchUpdated(props1: Props, props2: Props) {
+    const {
+      location: { search: search1 },
+    } = props1;
+    const {
+      location: { search: search2 },
+    } = props2;
+
+    const branch1 = getSearchQuery(search1, "branch");
+    const branch2 = getSearchQuery(search2, "branch");
+
+    return branch1 !== branch2;
+  }
+
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, nextProps);
+
     return (
+      isBranchUpdated ||
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
-      nextProps.match?.params?.branchName !==
-        this.props.match?.params?.branchName ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -104,16 +129,21 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { branchName, defaultApplicationId, pageId } =
-      this.props.match.params || {};
+    const { defaultApplicationId, pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
 
-    const { branchName: prevBranchName } = prevProps.match.params || {};
-    if (branchName && branchName !== prevBranchName && defaultApplicationId) {
-      this.props.initEditor(defaultApplicationId, pageId, branchName);
+    const branch = getSearchQuery(this.props.location.search, "branch");
+
+    if (isBranchUpdated && defaultApplicationId) {
+      this.props.initEditor(defaultApplicationId, pageId, branch);
     } else {
-      // since the page is fetched in the init flow too
-      if (pageId && pageId !== prevPageId) {
+      /**
+       * First time load is handled by init sagas
+       * If we don't check for `prevPageId`: fetch page is retriggered
+       * when redirected to the default page
+       */
+      if (prevPageId && pageId && pageId !== prevPageId) {
         this.props.updateCurrentPage(pageId);
         this.props.fetchPage(pageId);
       }
@@ -182,12 +212,16 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
+  currentPageId: getCurrentPageId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string, branchName?: string) =>
-      dispatch(initEditor(applicationId, pageId, branchName)),
+    initEditor: (
+      defaultApplicationId: string,
+      pageId: string,
+      branchName?: string,
+    ) => dispatch(initEditor(defaultApplicationId, pageId, branchName)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),

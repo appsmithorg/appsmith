@@ -126,34 +126,34 @@ export const doesEntityHaveErrors = (
 };
 
 export const onApiEditor = (
-  applicationId: string | undefined,
+  defaultApplicationId: string | undefined,
   currentPageId: string | undefined,
 ) => {
   return (
     window.location.pathname.indexOf(
-      API_EDITOR_URL(applicationId, currentPageId),
+      API_EDITOR_URL(defaultApplicationId, currentPageId),
     ) > -1
   );
 };
 
 export const onQueryEditor = (
-  applicationId: string | undefined,
+  defaultApplicationId: string | undefined,
   currentPageId: string | undefined,
 ) => {
   return (
     window.location.pathname.indexOf(
-      QUERIES_EDITOR_URL(applicationId, currentPageId),
+      QUERIES_EDITOR_URL(defaultApplicationId, currentPageId),
     ) > -1
   );
 };
 
 export const onCanvas = (
-  applicationId: string | undefined,
+  defaultApplicationId: string | undefined,
   currentPageId: string | undefined,
 ) => {
   return (
     window.location.pathname.indexOf(
-      BUILDER_PAGE_URL(applicationId, currentPageId),
+      BUILDER_PAGE_URL(defaultApplicationId, currentPageId),
     ) > -1
   );
 };

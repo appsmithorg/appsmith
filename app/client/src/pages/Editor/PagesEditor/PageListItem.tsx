@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
 import React, { useCallback } from "react";
 
@@ -16,6 +16,8 @@ import { ControlIcons } from "icons/ControlIcons";
 
 import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export const Container = styled.div`
   display: flex;
@@ -77,13 +79,13 @@ const DefaultPageIcon = styled(HomeIcon)`
 
 export interface PageListItemProps {
   item: Page;
-  applicationId: string;
 }
 
 function PageListItem(props: PageListItemProps) {
   const theme = useTheme();
-  const { applicationId, item } = props;
+  const { item } = props;
   const dispatch = useDispatch();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   /**
    * clones the page
@@ -113,7 +115,7 @@ function PageListItem(props: PageListItemProps) {
    * @return void
    */
   const setPageAsDefaultCallback = useCallback((): void => {
-    dispatch(setPageAsDefault(item.pageId, props.applicationId));
+    dispatch(setPageAsDefault(item.pageId, applicationId));
   }, [dispatch]);
 
   /**
@@ -134,7 +136,7 @@ function PageListItem(props: PageListItemProps) {
           height={20}
           width={20}
         />
-        <EditName applicationId={applicationId} page={item} />
+        <EditName page={item} />
         <Actions>
           {item.isDefault && (
             <Action disabled title="Default page">
@@ -155,7 +157,6 @@ function PageListItem(props: PageListItemProps) {
             </Action>
           )}
           <ContextMenu
-            applicationId={applicationId}
             onCopy={clonePageCallback}
             onDelete={deletePageCallback}
             onSetPageDefault={setPageAsDefaultCallback}

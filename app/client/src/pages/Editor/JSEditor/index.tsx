@@ -22,7 +22,7 @@ interface ReduxStateProps {
 }
 
 type Props = ReduxStateProps &
-  RouteComponentProps<{ apiId: string; applicationId: string; pageId: string }>;
+  RouteComponentProps<{ apiId: string; pageId: string }>;
 
 class JSEditor extends React.Component<Props> {
   render() {

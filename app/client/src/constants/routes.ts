@@ -8,9 +8,8 @@ export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
 
-export const BRANCH_PATH_PREFIX = `/(branch)?/:branchName(.*)?`;
-export const BUILDER_URL = `${BRANCH_PATH_PREFIX}/applications/:defaultApplicationId/(pages)?/:pageId?/edit`;
-export const VIEWER_URL = `${BRANCH_PATH_PREFIX}/applications/:defaultApplicationId/pages/:pageId`;
+export const BUILDER_URL = `/applications/:defaultApplicationId/(pages)?/:pageId?/edit`;
+export const VIEWER_URL = `/applications/:defaultApplicationId/(pages)?/:pageId?`;
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
 export const USERS_URL = "/users";
@@ -46,7 +45,7 @@ export const getDefaultPathForBranch = (params: any, mode?: APP_MODE) => {
 };
 
 // for extracting branchName from the pathname
-const branchNamePath = `${BRANCH_PATH_PREFIX}/applications/(.*)`;
+const branchNamePath = "";
 export const matchBranchName = match(branchNamePath);
 export const extractBranchNameFromPath = () => {
   const pathname = window.location.pathname;
@@ -65,42 +64,32 @@ export const addBranchPath = (path: string, branchName?: string) => {
 };
 
 export type BuilderRouteParams = {
-  defaultApplicationId: string;
   pageId: string;
-  branchName?: string;
+  defaultApplicationId: string;
 };
 
 export type AppViewerRouteParams = {
-  defaultApplicationId: string;
   pageId?: string;
 };
 
 export type APIEditorRouteParams = {
-  defaultApplicationId: string;
   pageId: string;
   apiId?: string;
-  branchName?: string;
 };
 
 export type ProviderViewerRouteParams = {
-  defaultApplicationId: string;
   pageId: string;
   providerId: string;
-  branchName?: string;
 };
 
 export type QueryEditorRouteParams = {
-  defaultApplicationId: string;
   pageId: string;
   queryId: string;
-  branchName?: string;
 };
 
 export type JSEditorRouteParams = {
-  defaultApplicationId: string;
   pageId: string;
   collectionId?: string;
-  branchName?: string;
 };
 
 export const BUILDER_BASE_URL = (
@@ -108,7 +97,7 @@ export const BUILDER_BASE_URL = (
 ): string => `/applications/${applicationId}`;
 
 export const BUILDER_PAGE_URL = (
-  applicationId?: string,
+  defaultApplicationId?: string,
   pageId?: string,
   params?: Record<string, string>,
   branchName?: string,
@@ -116,29 +105,32 @@ export const BUILDER_PAGE_URL = (
   if (!pageId) return APPLICATIONS_URL;
   const queryString = convertToQueryParams(params);
   return addBranchPath(
-    `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit` + queryString,
+    `${BUILDER_BASE_URL(defaultApplicationId)}/pages/${pageId}/edit` +
+      queryString,
     branchName,
   );
 };
 
 export const API_EDITOR_URL = (
-  applicationId = ":defaultApplicationId",
-  pageId = ":pageId",
-): string => addBranchPath(`${BUILDER_PAGE_URL(applicationId, pageId)}/api`);
-
-export const PAGE_LIST_EDITOR_URL = (
-  applicationId = ":defaultApplicationId",
-  pageId = ":pageId",
-): string => addBranchPath(`${BUILDER_PAGE_URL(applicationId, pageId)}/pages`);
-
-export const DATA_SOURCES_EDITOR_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
 ): string =>
-  addBranchPath(`${BUILDER_PAGE_URL(applicationId, pageId)}/datasource`);
+  addBranchPath(`${BUILDER_PAGE_URL(defaultApplicationId, pageId)}/api`);
+
+export const PAGE_LIST_EDITOR_URL = (
+  defaultApplicationId = ":defaultApplicationId",
+  pageId = ":pageId",
+): string =>
+  addBranchPath(`${BUILDER_PAGE_URL(defaultApplicationId, pageId)}/pages`);
+
+export const DATA_SOURCES_EDITOR_URL = (
+  defaultApplicationId = ":defaultApplicationId",
+  pageId = ":pageId",
+): string =>
+  addBranchPath(`${BUILDER_PAGE_URL(defaultApplicationId, pageId)}/datasource`);
 
 export const DATA_SOURCES_EDITOR_ID_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   datasourceId = ":datasourceId",
   params = {},
@@ -146,23 +138,23 @@ export const DATA_SOURCES_EDITOR_ID_URL = (
   const queryString = convertToQueryParams(params);
   return addBranchPath(
     `${DATA_SOURCES_EDITOR_URL(
-      applicationId,
+      defaultApplicationId,
       pageId,
     )}/${datasourceId}${queryString}`,
   );
 };
 
 export const QUERIES_EDITOR_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
 ): string =>
-  addBranchPath(`${BUILDER_PAGE_URL(applicationId, pageId)}/queries`);
+  addBranchPath(`${BUILDER_PAGE_URL(defaultApplicationId, pageId)}/queries`);
 
 export const JS_COLLECTION_EDITOR_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
 ): string =>
-  addBranchPath(`${BUILDER_PAGE_URL(applicationId, pageId)}/jsObjects`);
+  addBranchPath(`${BUILDER_PAGE_URL(defaultApplicationId, pageId)}/jsObjects`);
 
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",
@@ -174,7 +166,7 @@ export const INTEGRATION_EDITOR_MODES = {
   MOCK: "mock",
 };
 export const INTEGRATION_EDITOR_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   selectedTab = ":selectedTab",
   mode = "",
@@ -182,48 +174,57 @@ export const INTEGRATION_EDITOR_URL = (
 ): string => {
   const queryString = convertToQueryParams(params);
   return addBranchPath(
-    `${BUILDER_PAGE_URL(applicationId, pageId)}/datasources/${selectedTab}${
+    `${BUILDER_PAGE_URL(
+      defaultApplicationId,
+      pageId,
+    )}/datasources/${selectedTab}${
       mode ? "?mode=" + mode + "&" + queryString.replace("?", "") : queryString
     }`,
   );
 };
 
 export const QUERIES_EDITOR_ID_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   queryId = ":queryId",
   params = {},
 ): string => {
   const queryString = convertToQueryParams(params);
   return addBranchPath(
-    `${QUERIES_EDITOR_URL(applicationId, pageId)}/${queryId}${queryString}`,
+    `${QUERIES_EDITOR_URL(
+      defaultApplicationId,
+      pageId,
+    )}/${queryId}${queryString}`,
   );
 };
 
 export const API_EDITOR_ID_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   apiId = ":apiId",
   params = {},
 ): string => {
   const queryString = convertToQueryParams(params);
   return addBranchPath(
-    `${API_EDITOR_URL(applicationId, pageId)}/${apiId}${queryString}`,
+    `${API_EDITOR_URL(defaultApplicationId, pageId)}/${apiId}${queryString}`,
   );
 };
 
 export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   selectedPageId = ":importTo",
 ): string => {
   return addBranchPath(
-    `${BUILDER_PAGE_URL(applicationId, pageId)}/api?importTo=${selectedPageId}`,
+    `${BUILDER_PAGE_URL(
+      defaultApplicationId,
+      pageId,
+    )}/api?importTo=${selectedPageId}`,
   );
 };
 
 export const JS_COLLECTION_ID_URL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   collectionId = ":collectionId",
   params = {},
@@ -231,7 +232,7 @@ export const JS_COLLECTION_ID_URL = (
   const queryParams = convertToQueryParams(params);
   return addBranchPath(
     `${JS_COLLECTION_EDITOR_URL(
-      applicationId,
+      defaultApplicationId,
       pageId,
     )}/${collectionId}${queryParams}`,
   );
@@ -240,11 +241,13 @@ export const JS_COLLECTION_ID_URL = (
 export const APP_VIEW_URL = `/applications/:defaultApplicationId`;
 
 export const getApplicationViewerPageURL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   params: Record<string, string> = {},
 ): string => {
-  const url = addBranchPath(`/applications/${applicationId}/pages/${pageId}`);
+  const url = addBranchPath(
+    `/applications/${defaultApplicationId}/pages/${pageId}`,
+  );
   const queryString = convertToQueryParams(params);
   return url + queryString;
 };
@@ -266,57 +269,59 @@ export function convertToQueryParams(
 }
 
 export const getCurlImportPageURL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
 ): string =>
-  addBranchPath(`${API_EDITOR_URL(applicationId, pageId)}/curl/curl-import`);
+  addBranchPath(
+    `${API_EDITOR_URL(defaultApplicationId, pageId)}/curl/curl-import`,
+  );
 
 export const getProviderTemplatesURL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   providerId = ":providerId",
 ): string =>
   addBranchPath(
-    `${API_EDITOR_URL(applicationId, pageId)}/provider/${providerId}`,
+    `${API_EDITOR_URL(defaultApplicationId, pageId)}/provider/${providerId}`,
   );
 
 export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   selectedPageId = ":importTo",
 ): string => {
   return addBranchPath(
     `${BUILDER_PAGE_URL(
-      applicationId,
+      defaultApplicationId,
       pageId,
     )}/queries?importTo=${selectedPageId}`,
   );
 };
 
 export const getGenerateTemplateURL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
 ): string =>
   addBranchPath(
-    `${BUILDER_PAGE_URL(applicationId, pageId)}${GEN_TEMPLATE_URL}`,
+    `${BUILDER_PAGE_URL(defaultApplicationId, pageId)}${GEN_TEMPLATE_URL}`,
   );
 
 export const getGenerateTemplateFormURL = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
 ): string =>
   addBranchPath(
     `${BUILDER_PAGE_URL(
-      applicationId,
+      defaultApplicationId,
       pageId,
     )}${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`,
   );
 
 export const getOnboardingCheckListUrl = (
-  applicationId = ":defaultApplicationId",
+  defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
 ): string =>
-  addBranchPath(`${BUILDER_PAGE_URL(applicationId, pageId)}/checklist`);
+  addBranchPath(`${BUILDER_PAGE_URL(defaultApplicationId, pageId)}/checklist`);
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
@@ -334,7 +339,6 @@ export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_PATH);
 export const matchQueryPath = match(QUERIES_EDITOR_ID_PATH);
 export const matchBuilderPath = match(BUILDER_URL);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
-
 export const matchViewerPath = match(VIEWER_URL);
 
 export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;

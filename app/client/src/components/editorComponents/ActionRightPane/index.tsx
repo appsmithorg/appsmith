@@ -32,6 +32,7 @@ import {
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -217,7 +218,8 @@ function ActionSidebar({
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
-  const { defaultApplicationId, pageId } = useParams<ExplorerURLParams>();
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const { pageId } = useParams<ExplorerURLParams>();
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const handleBindData = () => {
     AnalyticsUtil.logEvent("SELECT_IN_CANVAS_CLICK", {

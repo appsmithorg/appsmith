@@ -120,6 +120,7 @@ import {
 import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -190,14 +191,15 @@ export function* createActionSaga(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, branchName } = action.payload;
+  const { branchName, defaultApplicationId } = action.payload;
+  const applicationId = yield select(getCurrentApplicationId);
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
   );
   try {
     const response: GenericApiResponse<Action[]> = yield ActionAPI.fetchActions(
-      applicationId,
+      defaultApplicationId,
       branchName,
     );
     const isValidResponse = yield validateResponse(response);
@@ -226,14 +228,15 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, branchName } = action.payload;
+  const { branchName, defaultApplicationId } = action.payload;
+  const applicationId = yield select(getCurrentApplicationId);
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
   );
   try {
     const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
-      applicationId,
+      defaultApplicationId,
       branchName,
     );
     const correctFormatResponse = response.data.map((action) => {
@@ -411,11 +414,15 @@ export function* deleteActionSaga(
     if (!!actionPayload.payload.onSuccess) {
       actionPayload.payload.onSuccess();
     } else {
-      const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
+      const defaultApplicationId = yield select(getDefaultApplicationId);
 
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          defaultApplicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
     }
 
@@ -604,9 +611,10 @@ function* bindDataOnCanvasSaga(
     pageId: string;
   }>,
 ) {
-  const { applicationId, pageId, queryId } = action.payload;
+  const { pageId, queryId } = action.payload;
+  const defaultApplicationId = yield select(getDefaultApplicationId);
   history.push(
-    BUILDER_PAGE_URL(applicationId, pageId, {
+    BUILDER_PAGE_URL(defaultApplicationId, pageId, {
       isSnipingMode: "true",
       bindTo: queryId,
     }),
@@ -755,21 +763,23 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const applicationId = yield select(getCurrentApplicationId);
+  const defaultApplicationId = yield select(getDefaultApplicationId);
 
   if (isApi) {
-    history.push(API_EDITOR_ID_URL(applicationId, action.pageId, action.id));
+    history.push(
+      API_EDITOR_ID_URL(defaultApplicationId, action.pageId, action.id),
+    );
   }
   if (isQuery) {
     history.push(
-      QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
+      QUERIES_EDITOR_ID_URL(defaultApplicationId, action.pageId, action.id),
     );
   }
   if (isSaas) {
     const plugin = yield select(getPlugin, action.pluginId);
     history.push(
       SAAS_EDITOR_API_ID_URL(
-        applicationId,
+        defaultApplicationId,
         action.pageId,
         plugin.packageName,
         action.id,
@@ -818,16 +828,13 @@ function* buildMetaForSnippets(
   return { refinements, fieldMeta };
 }
 
-function* getCurrentEntity(
-  applicationId: string,
-  pageId: string,
-  params: Record<string, string>,
-) {
+function* getCurrentEntity(pageId: string, params: Record<string, string>) {
   let entityId = "",
     entityType = "";
+  const defaultApplicationId = yield select(getDefaultApplicationId);
   if (
-    onApiEditor(applicationId, pageId) ||
-    onQueryEditor(applicationId, pageId)
+    onApiEditor(defaultApplicationId, pageId) ||
+    onQueryEditor(defaultApplicationId, pageId)
   ) {
     const id = params.apiId || params.queryId;
     const action: Action = yield select(getAction, id);
@@ -843,7 +850,7 @@ function* getCurrentEntity(
 
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
-  const applicationId: string = yield select(getCurrentApplicationId);
+  const defaultApplicationId = yield select(getDefaultApplicationId);
   const callback = get(actionPayload, "payload.callback");
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
@@ -860,7 +867,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         const currentEntity: {
           entityId: string;
           entityType: string;
-        } = yield getCurrentEntity(applicationId, pageId, params);
+        } = yield getCurrentEntity(pageId, params);
         entityId = currentEntity.entityId;
         entityType = currentEntity.entityType;
       }
@@ -898,7 +905,11 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.NEW_INTEGRATION:
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          defaultApplicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
       break;
     case SlashCommand.NEW_QUERY:

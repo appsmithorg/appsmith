@@ -73,12 +73,16 @@ export const updateBodyContentType = (
 });
 
 export const redirectToNewIntegrations = (
-  applicationId: string,
+  defaultApplicationId: string,
   pageId: string,
   params?: any,
-): ReduxAction<{ applicationId: string; pageId: string; params: any }> => ({
+): ReduxAction<{
+  defaultApplicationId: string;
+  pageId: string;
+  params: any;
+}> => ({
   type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
-  payload: { applicationId, pageId, params },
+  payload: { defaultApplicationId, pageId, params },
 });
 
 export const executeCommandAction = (payload: SlashCommandPayload) => ({

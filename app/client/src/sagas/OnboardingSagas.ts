@@ -206,7 +206,7 @@ function* listenForAddInputWidget() {
     yield take();
     const canvasWidgets = yield select(getCanvasWidgets);
     const currentPageId = yield select(getCurrentPageId);
-    const applicationId = yield select(getCurrentApplicationId);
+    const defaultApplicationId = yield select(getDefaultApplicationId);
     const widgets = yield select(getWidgets);
 
     const inputWidget: any = Object.values(widgets).find(
@@ -220,7 +220,7 @@ function* listenForAddInputWidget() {
     ) {
       if (
         !window.location.pathname.includes(
-          BUILDER_PAGE_URL(applicationId, currentPageId),
+          BUILDER_PAGE_URL(defaultApplicationId, currentPageId),
         )
       ) {
         yield cancel();
@@ -621,7 +621,7 @@ function* createApplication() {
 
 function* createQuery() {
   const currentPageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const defaultApplicationId = yield select(getDefaultApplicationId);
   const currentSubstep = yield select(getCurrentSubStep);
   const datasources: Datasource[] = yield select(getDatasources);
   const onboardingDatasource = datasources.find((datasource) => {
@@ -662,7 +662,7 @@ function* createQuery() {
     yield put(createActionRequest(payload));
     history.push(
       INTEGRATION_EDITOR_URL(
-        applicationId,
+        defaultApplicationId,
         currentPageId,
         INTEGRATION_TABS.ACTIVE,
       ),
@@ -711,13 +711,10 @@ function* addWidget(widgetConfig: any) {
     const defaultApplicationId = yield select(getDefaultApplicationId);
 
     navigateToCanvas(
-      {
-        defaultApplicationId,
-        pageId,
-      },
       window.location.pathname,
       pageId,
       newWidget.newWidgetId,
+      defaultApplicationId,
     );
     yield put({
       type: ReduxActionTypes.SELECT_WIDGET_INIT,
@@ -829,13 +826,10 @@ function* addOnSubmitHandler() {
       const defaultApplicationId = yield select(getDefaultApplicationId);
 
       navigateToCanvas(
-        {
-          defaultApplicationId,
-          pageId,
-        },
         window.location.pathname,
         pageId,
         inputWidget.widgetId,
+        defaultApplicationId,
       );
       yield put({
         type: ReduxActionTypes.SELECT_WIDGET_INIT,

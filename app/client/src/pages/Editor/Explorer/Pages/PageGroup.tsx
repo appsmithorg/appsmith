@@ -15,6 +15,7 @@ import { Plugin } from "api/PluginApi";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -44,6 +45,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
@@ -57,8 +59,8 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
     const defaultPageLayouts = [
       { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
     ];
-    dispatch(createPage(params.defaultApplicationId, name, defaultPageLayouts));
-  }, [dispatch, pages, params.defaultApplicationId]);
+    dispatch(createPage(defaultApplicationId, name, defaultPageLayouts));
+  }, [dispatch, pages, defaultApplicationId]);
 
   const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
@@ -88,9 +90,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   return (
     <Entity
       action={() =>
-        history.push(
-          PAGE_LIST_EDITOR_URL(params.defaultApplicationId, params.pageId),
-        )
+        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId))
       }
       alwaysShowRightIcon
       className="group pages"
@@ -100,9 +100,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       isDefaultExpanded
       name="Pages"
       onClickRightIcon={() => {
-        history.push(
-          PAGE_LIST_EDITOR_URL(params.defaultApplicationId, params.pageId),
-        );
+        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId));
       }}
       onCreate={createPageCallback}
       rightIcon={settingsIcon}

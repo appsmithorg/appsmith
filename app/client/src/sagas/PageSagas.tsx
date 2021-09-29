@@ -97,7 +97,10 @@ import {
   generateTemplateError,
   generateTemplateSuccess,
 } from "../actions/pageActions";
-import { getAppMode } from "selectors/applicationSelectors";
+import {
+  getAppMode,
+  getDefaultApplicationId,
+} from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import {
@@ -119,14 +122,18 @@ export function* fetchPageListSaga(
     PerformanceTransactionName.FETCH_PAGE_LIST_API,
   );
   try {
-    const { applicationId, branchName, mode } = fetchPageListAction.payload;
+    const {
+      branchName,
+      defaultApplicationId,
+      mode,
+    } = fetchPageListAction.payload;
     const apiCall =
       mode === APP_MODE.EDIT
         ? PageApi.fetchPageList
         : PageApi.fetchPageListViewMode;
     const response: FetchPageListResponse = yield call(
       apiCall,
-      applicationId,
+      defaultApplicationId,
       branchName,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -148,7 +155,7 @@ export function* fetchPageListSaga(
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
         payload: {
           pages,
-          applicationId,
+          applicationId: defaultApplicationId,
         },
       });
       PerformanceTracker.stopAsyncTracking(
@@ -624,9 +631,6 @@ export function* clonePageSaga(
   try {
     const request: ClonePageRequest = clonePageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.clonePage, request);
-    const applicationId = yield select(
-      (state: AppState) => state.entities.pageList.applicationId,
-    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
@@ -649,7 +653,8 @@ export function* clonePageSaga(
       yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {
-        history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+        const defaultApplicationId = yield select(getDefaultApplicationId);
+        history.push(BUILDER_PAGE_URL(defaultApplicationId, response.data.id));
       }
     }
   } catch (error) {
@@ -935,8 +940,6 @@ export function* generateTemplatePageSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageId = response.data.page.id;
-      const applicationId =
-        response.data.page.applicationId || request.applicationId;
       yield handleFetchedPage({
         fetchPageResponse: {
           data: response.data.page,
@@ -955,7 +958,8 @@ export function* generateTemplatePageSaga(
       // TODO : Add this to onSuccess (Redux Action)
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
       // TODO : Add it to onSuccessCallback
-      history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+      const defaultApplicationId = yield select(getDefaultApplicationId);
+      history.replace(BUILDER_PAGE_URL(defaultApplicationId, pageId));
       // TODO : Add it to onSuccessCallback
       Toaster.show({
         text: "Successfully generated a page",

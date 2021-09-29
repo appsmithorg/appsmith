@@ -33,6 +33,11 @@ import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 
+const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return params.get(key) || "";
+};
+
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const AppViewerBody = styled.section<{ hasPages: boolean }>`
@@ -93,15 +98,16 @@ class AppViewer extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
+    const { defaultApplicationId, pageId } = this.props.match.params;
     const {
-      branchName,
-      defaultApplicationId,
-      pageId,
-    } = this.props.match.params;
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
 
     if (defaultApplicationId) {
       this.props.initializeAppViewer({
-        branchName,
+        branchName: branch,
         defaultApplicationId,
         pageId,
       });
@@ -109,22 +115,22 @@ class AppViewer extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const { defaultApplicationId, pageId } = this.props.match.params;
     const {
-      branchName,
-      defaultApplicationId,
-      pageId,
-    } = this.props.match.params;
-    const { branchName: prevBranchName } = prevProps.match.params || {};
-    if (
-      branchName &&
-      branchName !== prevBranchName &&
-      defaultApplicationId &&
-      pageId
-    ) {
+      location: { search: prevSearch },
+    } = prevProps;
+    const {
+      location: { search },
+    } = this.props;
+
+    const prevBranch = getSearchQuery(prevSearch, "branch");
+    const branch = getSearchQuery(search, "branch");
+
+    if (branch && branch !== prevBranch && defaultApplicationId && pageId) {
       this.props.initializeAppViewer({
         defaultApplicationId,
         pageId,
-        branchName,
+        branchName: branch,
       });
     }
   }

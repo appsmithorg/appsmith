@@ -39,6 +39,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -144,7 +145,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     getGenerateCRUDEnabledPluginMap,
   );
 
-  const params = useParams<{ applicationId: string; pageId: string }>();
+  const params = useParams<{ pageId: string }>();
+
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
+
   const { datasource, plugin } = props;
   const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
     datasource.pluginId
@@ -171,7 +175,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          params.applicationId,
+          defaultApplicationId,
           params.pageId,
           plugin.packageName,
           datasource.id,
@@ -185,7 +189,7 @@ function DatasourceCard(props: DatasourceCardProps) {
       dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          params.applicationId,
+          defaultApplicationId,
           params.pageId,
           datasource.id,
           {
@@ -206,7 +210,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
       `${getGenerateTemplateFormURL(
-        params.applicationId,
+        defaultApplicationId,
         params.pageId,
       )}?datasourceId=${datasource.id}&new_page=true`,
     );
