@@ -102,9 +102,9 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             if(isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
                 redirectionMono = createDefaultApplication(user)
-                        .flatMap(defaultApplication->handleOAuth2Redirect(webFilterExchange, finalIsFromSignup));
+                        .flatMap(defaultApplication->handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
             } else {
-                redirectionMono = handleOAuth2Redirect(webFilterExchange, isFromSignup);
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
             boolean finalIsFromSignup = isFromSignup;
@@ -166,7 +166,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
            "JavadocReference"
     )
-    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, boolean isFromSignup) {
+    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
@@ -181,8 +181,14 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             }
         }
 
+        boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
-            redirectUrl = buildSignupSuccessUrl(redirectUrl, false);
+            if(redirectUrl.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+                addFirstTimeExperienceParam = true;
+                HttpHeaders headers = exchange.getRequest().getHeaders();
+                redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
+            }
+            redirectUrl = buildSignupSuccessUrl(redirectUrl, addFirstTimeExperienceParam);
         }
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
