@@ -57,17 +57,12 @@ On your development machine, please ensure that:
    ```
 
 1. Run cmd: `cp .env.example .env`
-1. Start your local server using docker.
 
-    ```bash
-    cd app/server
-    docker-compose up -d
-    ```
 1. Run the script `start-https.sh` to start the Nginx container that will proxy the frontend code on your local system.
 
    ```bash
    cd app/client
-   ./start-https.sh
+   ./start-https.sh https://release.app.appsmith.com
    ```
 
 ### Steps to build & run the code:

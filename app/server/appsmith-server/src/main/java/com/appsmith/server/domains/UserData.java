@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.constants.CommentBotEvent;
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,8 +36,8 @@ public class UserData extends BaseDomain {
     // list of organisation ids that were recently accessed by the user
     private List<String> recentlyUsedOrgIds;
 
-    // last event triggered by comment bot for this user
-    private CommentBotEvent latestCommentEvent;
+    // last state related to comment feature on-boarding
+    private CommentOnboardingState commentOnboardingState;
 
     //This is the default config for all the applications and user can edit this at a repo level if there is a need to change the author details
     private GitConfig gitGlobalConfigData;

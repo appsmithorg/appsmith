@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -93,6 +94,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final ApplicationPageService applicationPageService;
+    private final UserDataService userDataService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -123,8 +125,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            EmailConfig emailConfig,
                            UserChangedHandler userChangedHandler,
                            EncryptionService encryptionService,
-                           ApplicationPageService applicationPageService
-    ) {
+                           ApplicationPageService applicationPageService,
+                           UserDataService userDataService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -142,6 +144,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.applicationPageService = applicationPageService;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -857,11 +860,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
         return Mono.zip(
                         isUsersEmpty(),
-                        user.isAnonymous() ? Mono.just(user) : findByEmail(user.getEmail())
+                        user.isAnonymous() ? Mono.just(user) : findByEmail(user.getEmail()),
+                        userDataService.getForCurrentUser().defaultIfEmpty(new UserData())
                 )
                 .map(tuple -> {
                     final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
+                    final UserData userData = tuple.getT3();
 
                     final UserProfileDTO profile = new UserProfileDTO();
 
@@ -873,6 +878,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setEmptyInstance(isUsersEmpty);
                     profile.setAnonymous(user.isAnonymous());
                     profile.setEnabled(user.isEnabled());
+                    profile.setCommentOnboardingState(userData.getCommentOnboardingState());
 
                     profile.setSuperUser(policyUtils.isPermissionPresentForUser(
                             userFromDb.getPolicies(),
