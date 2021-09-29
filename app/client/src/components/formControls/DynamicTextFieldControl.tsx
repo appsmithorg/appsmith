@@ -72,8 +72,8 @@ class DynamicTextControl extends BaseControl<
     const isNewQuery =
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
-    const showTemplate =
-      isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
+    // Preloaded query templates will be hidden till we can generate smart templates using the user's datasource
+    const showTemplate = false; //&& isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
     const mode =
       responseType === "TABLE"
         ? EditorModes.SQL_WITH_BINDING
