@@ -184,8 +184,8 @@ function WidgetsEditor() {
     onZoom,
     onPanStart,
     onPanEnd,
-    enablePan: isPanningEnabled,
-    enableZoom: isPreviewMode === true,
+    enablePan: isPanningEnabled && isPreviewMode === false,
+    enableZoom: isPreviewMode === false,
     maxZoom: 1,
   });
 

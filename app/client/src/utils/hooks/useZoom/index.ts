@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useEffect } from "react";
 
 import {
   noop,
@@ -16,7 +16,6 @@ export default function usePanZoom({
   enablePan = true,
   enableZoom = true,
   requireCtrlToZoom = true,
-  disableWheel = false,
   panOnDrag = true,
   preventClickOnPan = true,
   zoomSensitivity = 0.001,
@@ -36,7 +35,6 @@ export default function usePanZoom({
   enablePan?: boolean;
   enableZoom?: boolean;
   requireCtrlToZoom?: boolean;
-  disableWheel?: boolean;
   panOnDrag?: boolean;
   preventClickOnPan?: boolean;
   zoomSensitivity?: number;
@@ -70,6 +68,9 @@ export default function usePanZoom({
     center: { x: 0, y: 0 },
     transform: { ...initialPan, zoom: initialZoom },
   });
+
+  // eslint-disable-next-line
+  console.log({ enablePan, enableZoom });
 
   const clampX = useMemo(() => clamp(minX, maxX), [minX, maxX]);
   const clampY = useMemo(() => clamp(minY, maxY), [minY, maxY]);
@@ -211,6 +212,8 @@ export default function usePanZoom({
   const onWheel = useCallback(
     (event) => {
       if (enableZoom && containerRef.current && event.ctrlKey) {
+        // eslint-disable-next-line
+        console.log({ enablePan, enableZoom });
         event.preventDefault();
         const pointerPosition = getPositionOnElement(containerRef.current, {
           x: event.pageX,
@@ -263,32 +266,31 @@ export default function usePanZoom({
     [setZoom, onZoom, getState],
   );
 
-  const setContainer = useCallback(
-    (el) => {
-      if (el) {
-        if (!disableWheel) {
-          el.addEventListener("wheel", onWheel);
-        }
-        el.addEventListener("gesturestart", onGestureStart);
-        el.addEventListener("gesturechange", onGesture);
-        el.addEventListener("gestureend", onGesture);
-      } else if (containerRef.current) {
-        return () => {
-          const container = containerRef.current;
-          if (container) {
-            if (!disableWheel) {
-              container.removeEventListener("wheel", onWheel);
-            }
-            container.removeEventListener("gesturestart", onGestureStart);
-            container.removeEventListener("gesturechange", onGesture);
-            container.removeEventListener("gestureend", onGesture);
-          }
-        };
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.addEventListener("wheel", onWheel);
+
+      containerRef.current.addEventListener("gesturestart", onGestureStart);
+      containerRef.current.addEventListener("gesturechange", onGesture);
+      containerRef.current.addEventListener("gestureend", onGesture);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        containerRef.current.removeEventListener("wheel", onWheel);
+        containerRef.current.removeEventListener(
+          "gesturestart",
+          onGestureStart,
+        );
+        containerRef.current.removeEventListener("gesturechange", onGesture);
+        containerRef.current.removeEventListener("gestureend", onGesture);
       }
-      containerRef.current = el;
-    },
-    [onWheel, onGestureStart, onGesture, disableWheel],
-  );
+    };
+  }, [enableZoom, enableZoom]);
+
+  const setContainer = useCallback((el) => {
+    containerRef.current = el;
+  }, []);
 
   const onTouchStart = useCallback(
     (event: React.TouchEvent) =>
