@@ -287,7 +287,7 @@ export const IconWrapper = styled.span<IconProps>`
       !props.keepColors
         ? `
     path {
-      fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
+      fill: ${props.hoverFillColor || "currentcolor"};
     }
     `
         : ""}
