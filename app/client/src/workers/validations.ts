@@ -54,7 +54,6 @@ function validatePlainObject(
   if (config.params?.allowedKeys) {
     let _valid = true;
     const _messages: string[] = [];
-    const parsedValue: Record<string, unknown> = value;
     config.params.allowedKeys.forEach((entry) => {
       const ignoreCase = !!entry.params?.ignoreCase;
       const entryName = getPropertyEntry(value, entry.name, ignoreCase);
@@ -65,7 +64,6 @@ function validatePlainObject(
           value[entryName],
           props,
         );
-        parsedValue[entryName] = parsed;
         if (!isValid) {
           value[entryName] = parsed;
           _valid = isValid;
@@ -84,7 +82,7 @@ function validatePlainObject(
     if (_valid) {
       return {
         isValid: true,
-        parsed: parsedValue,
+        parsed: value,
       };
     }
     return {
@@ -123,7 +121,7 @@ function validateArray(
     config.params?.children?.type === ValidationTypes.OBJECT &&
     (config.params.children.params?.allowedKeys || []).length > 0
   ) {
-    const allowedKeysConfigArray =
+    const allowedKeysCofigArray =
       config.params.children.params?.allowedKeys || [];
 
     const allowedKeys = (config.params.children.params?.allowedKeys || []).map(
@@ -135,7 +133,7 @@ function validateArray(
     };
 
     const valueWithType = value as ItemType[];
-    allowedKeysConfigArray.forEach((allowedKeyConfig) => {
+    allowedKeysCofigArray.forEach((allowedKeyConfig) => {
       if (allowedKeyConfig.params?.unique) {
         const allowedKeyValues = valueWithType.map(
           (item) => item[allowedKeyConfig.name],
@@ -364,6 +362,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         isValid: false,
       };
     }
+
     return {
       isValid: true,
       parsed,

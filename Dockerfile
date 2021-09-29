@@ -5,6 +5,10 @@ LABEL maintainer="tech@appsmith.com"
 # Set workdir to /opt/appsmith
 WORKDIR /opt/appsmith
 
+# The env variables are needed for Appsmith server to correctly handle non-roman scripts like Arabic.
+ENV LANG C.UTF-8  
+ENV LC_ALL C.UTF-8 
+
 # Update APK packages - Base Layer
 RUN apt-get update && apt-get install --no-install-recommends -y \
 	supervisor curl cron certbot nginx gnupg \
