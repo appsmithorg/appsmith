@@ -501,7 +501,7 @@ export const getApplicationIdFromPayload = (
   application: ApplicationPayload,
   useBranchSpecificId = false,
 ) => {
-  if (!useBranchSpecificId) {
+  if (useBranchSpecificId) {
     return application.id;
   }
   return (
