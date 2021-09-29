@@ -25,7 +25,10 @@ import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { parseJSCollection, executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
-import { getDifferenceInJSCollection } from "utils/JSPaneUtils";
+import {
+  getDifferenceInJSCollection,
+  pushLogsForObjectUpdate,
+} from "../utils/JSPaneUtils";
 import JSActionAPI from "../api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
@@ -43,10 +46,16 @@ import { Variant } from "components/ads/common";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
+  JS_EXECUTION_SUCCESS,
+  JS_EXECUTION_FAILURE,
+  JS_EXECUTION_FAILURE_TOASTER,
+  JS_FUNCTION_CREATE_SUCCESS,
+  JS_FUNCTION_DELETE_SUCCESS,
+  JS_FUNCTION_UPDATE_SUCCESS,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -122,6 +131,9 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
+    let newActions: Partial<JSAction>[] = [];
+    let updateActions: JSAction[] = [];
+    let deletedActions: JSAction[] = [];
     jsActionTobeUpdated.body = body;
 
     const parsedBody = yield call(parseJSCollection, body, jsAction);
@@ -144,6 +156,7 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
         }
       }
       if (data.newActions.length) {
+        newActions = data.newActions;
         for (let i = 0; i < data.newActions.length; i++) {
           jsActionTobeUpdated.actions.push({
             ...data.newActions[i],
@@ -158,6 +171,7 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
         );
       }
       if (data.updateActions.length > 0) {
+        updateActions = data.updateActions;
         let changedActions = [];
         for (let i = 0; i < data.updateActions.length; i++) {
           changedActions = jsActionTobeUpdated.actions.map(
@@ -176,6 +190,7 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
         );
       }
       if (data.deletedActions.length > 0) {
+        deletedActions = data.deletedActions;
         const nonDeletedActions = jsActionTobeUpdated.actions.filter(
           (js: JSAction) => {
             return !data.deletedActions.find((deleted) => {
@@ -192,7 +207,12 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
         );
       }
     }
-    return jsActionTobeUpdated;
+    return {
+      jsCollection: jsActionTobeUpdated,
+      newActions: newActions,
+      updatedActions: updateActions,
+      deletedActions: deletedActions,
+    };
   }
 }
 
@@ -206,20 +226,37 @@ function* handleUpdateJSCollection(
   }
   try {
     const { body } = actionPayload.payload;
-    const data = yield call(handleParseUpdateJSCollection, { body: body });
-    if (data) {
-      const response = yield JSActionAPI.updateJSCollection(data);
+    const {
+      deletedActions,
+      jsCollection,
+      newActions,
+      updatedActions,
+    } = yield call(handleParseUpdateJSCollection, { body: body });
+    if (jsCollection) {
+      const response = yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
-        AppsmithConsole.info({
-          logType: LOG_TYPE.JS_ACTION_UPDATE,
-          text: "JS object updated",
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: response?.data.name,
-            id: response?.data,
-          },
-        });
+        if (newActions.length) {
+          pushLogsForObjectUpdate(
+            newActions,
+            jsCollection,
+            createMessage(JS_FUNCTION_CREATE_SUCCESS),
+          );
+        }
+        if (updatedActions.length) {
+          pushLogsForObjectUpdate(
+            updatedActions,
+            jsCollection,
+            createMessage(JS_FUNCTION_UPDATE_SUCCESS),
+          );
+        }
+        if (deletedActions.length) {
+          pushLogsForObjectUpdate(
+            deletedActions,
+            jsCollection,
+            createMessage(JS_FUNCTION_DELETE_SUCCESS),
+          );
+        }
         yield put(updateJSCollectionSuccess({ data: response?.data }));
       }
     }
@@ -258,10 +295,13 @@ function* handleJSObjectNameChangeSuccessSaga(
 }
 
 function* handleExecuteJSFunctionSaga(
-  data: ReduxAction<{ collectionName: string; action: JSAction }>,
+  data: ReduxAction<{
+    collectionName: string;
+    action: JSAction;
+    collectionId: string;
+  }>,
 ): any {
-  const { action, collectionName } = data.payload;
-  const collectionId = action.collectionId;
+  const { action, collectionId, collectionName } = data.payload;
   const actionId = action.id;
   try {
     const { result, triggers } = yield call(
@@ -269,7 +309,6 @@ function* handleExecuteJSFunctionSaga(
       collectionName,
       action,
     );
-
     if (triggers && triggers.length) {
       yield all(
         triggers.map((trigger: ActionDescription) =>
@@ -291,9 +330,34 @@ function* handleExecuteJSFunctionSaga(
         actionId,
       },
     });
+    AppsmithConsole.info({
+      text: createMessage(JS_EXECUTION_SUCCESS),
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: collectionName + "." + action.name,
+        id: collectionId,
+      },
+      state: { response: result },
+    });
   } catch (e) {
+    AppsmithConsole.addError({
+      id: actionId,
+      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+      text: createMessage(JS_EXECUTION_FAILURE),
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: collectionName + "." + action.name,
+        id: collectionId,
+      },
+      messages: [
+        {
+          message: e.message,
+          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        },
+      ],
+    });
     Toaster.show({
-      text: e.message || "There was an error while executing function",
+      text: e.message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       variant: Variant.danger,
       showDebugButton: true,
     });

@@ -19,6 +19,15 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
         super(mongoOperations, mongoConverter);
     }
 
+
+    @Override
+    public Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
+
+        Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId)).is(applicationId);
+
+        return queryAll(List.of(applicationCriteria), aclPermission, sort);
+    }
+
     @Override
     public Flux<ActionCollection> findByApplicationIdAndViewMode(String applicationId, boolean viewMode, AclPermission aclPermission) {
 
