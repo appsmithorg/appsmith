@@ -620,12 +620,12 @@ const Icon = forwardRef(
 
     return returnIcon && !props.isLoading ? (
       <IconWrapper
-        {...props}
         className={`${Classes.ICON} ${props.className}`}
         clickable={clickable}
         data-cy={props.cypressSelector}
         onClick={props.onClick || noop}
         ref={ref}
+        {...props}
       >
         {returnIcon}
       </IconWrapper>
