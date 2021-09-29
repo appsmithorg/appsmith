@@ -26,15 +26,8 @@ export type TextInputProps = CommonComponentProps & {
 };
 
 const SearchInputWrapper = styled.div`
-  .left-icon {
-    .${Classes.ICON} {
-      svg {
-        path,
-        circle {
-          fill: transparent;
-        }
-      }
-    }
+  & > div {
+    border: none;
   }
 `;
 

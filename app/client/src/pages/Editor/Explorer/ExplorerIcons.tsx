@@ -42,6 +42,7 @@ const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 export const defaultPageIcon = (
   <DefaultPageIcon
     color={Colors.GREEN}
+    data-icon="home"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />

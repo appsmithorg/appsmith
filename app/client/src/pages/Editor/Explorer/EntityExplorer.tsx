@@ -27,6 +27,7 @@ import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found
 import { Colors } from "constants/Colors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -113,6 +114,7 @@ function EntityExplorer(props: IPanelProps) {
     (pageId: string) => {
       history.push(BUILDER_PAGE_URL(applicationId, pageId));
       openPanel({ component: WidgetSidebar });
+      dispatch(forceOpenWidgetPanel(true));
       if (isFirstTimeUserOnboardingEnabled) {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }

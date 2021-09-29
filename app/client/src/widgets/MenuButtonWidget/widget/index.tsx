@@ -9,6 +9,7 @@ import {
   ButtonBorderRadius,
   ButtonBoxShadow,
   ButtonVariant,
+  ButtonVariantTypes,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 export interface MenuButtonWidgetProps extends WidgetProps {
@@ -245,12 +246,13 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                allowedVAlues: ["SOLID", "OUTLINE", "GHOST"],
+                default: ButtonVariantTypes.SOLID,
+                allowedValues: ["SOLID", "OUTLINE", "GHOST"],
               },
             },
           },
