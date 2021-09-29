@@ -18,19 +18,21 @@ import java.util.Set;
 public class ApplicationJson {
 
     Application exportedApplication;
-    
+
     List<Datasource> datasourceList;
-    
+
     List<NewPage> pageList;
-    
+
     String publishedDefaultPageName;
-    
+
     String unpublishedDefaultPageName;
-    
+
     List<NewAction> actionList;
-    
+
+    List<ActionCollection> actionCollectionList;
+
     Map<String, DecryptedSensitiveFields> decryptedFields;
-    
+
     /**
      * Mapping mongoEscapedWidgets with layoutId
      */

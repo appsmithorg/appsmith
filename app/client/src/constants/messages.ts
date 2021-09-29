@@ -29,6 +29,7 @@ export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
   `Please provide a valid email address`;
 export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
+export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
@@ -413,6 +414,10 @@ export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
+export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
+export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
+export const JS_EXECUTION_FAILURE_TOASTER = () =>
+  "There was an error while executing function";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
@@ -423,6 +428,12 @@ export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
   "Linting Errors: Please resolve linting errors before using these functions";
+export const JS_FUNCTION_CREATE_SUCCESS = () =>
+  "New JS function added successfully";
+export const JS_FUNCTION_UPDATE_SUCCESS = () =>
+  "JS Function updated successfully";
+export const JS_FUNCTION_DELETE_SUCCESS = () =>
+  "JS function deleted successfully";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
@@ -496,6 +507,7 @@ export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
 export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
 export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
+export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
