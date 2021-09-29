@@ -76,8 +76,13 @@ class TextComponent extends React.Component<TextComponentProps> {
       textAlign,
       textColor,
     } = this.props;
+
+    /* Interweave package shows new line char "\n" as it is. 
+    So we need to replace "\n" with <br/> before forwarding text to the lib.
+    */
     let procText = text || "";
     procText = procText?.replace(/\\n/g, "<br />");
+
     return (
       <TextContainer>
         <StyledText
