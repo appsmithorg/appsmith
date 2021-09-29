@@ -69,9 +69,9 @@ class DynamicTextControl extends BaseControl<
       responseType,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
-    const isNewQuery =
-      new URLSearchParams(window.location.search).get("showTemplate") ===
-      "true";
+    // const isNewQuery =
+    //   new URLSearchParams(window.location.search).get("showTemplate") ===
+    //   "true";
     // Preloaded query templates will be hidden till we can generate smart templates using the user's datasource
     const showTemplate = false; //&& isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
     const mode =
