@@ -67,6 +67,25 @@ export default [
         },
       },
       {
+        helpText: "Fusion Chart Type see docs.appsmith.com",
+        placeholderText: "Fusion Chart Type",
+        propertyName: "customFusionChartType",
+        label: "Custom Chart Type",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: CUSTOM_CHART_TYPES,
+          },
+        },
+        hidden: (props: ChartWidgetProps) => {
+          return props.chartType !== "CUSTOM_FUSION_CHART";
+        },
+        dependencies: ["chartType"],
+      },
+      {
         helpText: "Configure a Custom FusionChart see docs.appsmith.com",
         placeholderText: `Fusion Chart Config`,
         propertyName: "customFusionChartConfig",
@@ -76,66 +95,6 @@ export default [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.OBJECT,
-          params: {
-            allowedKeys: [
-              {
-                type: ValidationTypes.TEXT,
-                name: "type",
-                params: {
-                  allowedValues: CUSTOM_CHART_TYPES,
-                  default: "",
-                  required: true,
-                },
-              },
-              {
-                type: ValidationTypes.OBJECT,
-                name: "dataSource",
-                params: {
-                  allowedKeys: [
-                    {
-                      name: "chart",
-                      type: ValidationTypes.OBJECT,
-                      params: {
-                        allowedKeys: [
-                          {
-                            name: "paletteColors",
-                            type: ValidationTypes.TEXT,
-                            params: {
-                              strict: true,
-                              ignoreCase: true,
-                            },
-                          },
-                        ],
-                        default: {},
-                      },
-                    },
-                    {
-                      name: "data",
-                      type: ValidationTypes.ARRAY,
-                      params: {
-                        default: [],
-                        children: {
-                          type: ValidationTypes.OBJECT,
-                          params: {
-                            allowedKeys: [
-                              {
-                                name: "label",
-                                type: ValidationTypes.TEXT,
-                              },
-                              {
-                                name: "value",
-                                type: ValidationTypes.NUMBER,
-                              },
-                            ],
-                          },
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
         },
         hidden: (props: ChartWidgetProps) =>
           props.chartType !== "CUSTOM_FUSION_CHART",

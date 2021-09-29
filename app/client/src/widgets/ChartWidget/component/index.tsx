@@ -7,7 +7,6 @@ import { getAppsmithConfigs } from "configs";
 import {
   ChartDataPoint,
   ChartType,
-  CustomFusionChartConfig,
   AllChartData,
   ChartSelectedDataPoint,
   LabelOrientation,
@@ -48,7 +47,8 @@ export interface ChartComponentProps {
   chartData: AllChartData;
   chartName: string;
   chartType: ChartType;
-  customFusionChartConfig: CustomFusionChartConfig;
+  customFusionChartType: string;
+  customFusionChartConfig: any;
   isVisible?: boolean;
   setAdaptiveYMin: boolean;
   labelOrientation?: LabelOrientation;
@@ -311,15 +311,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getCustomFusionChartDataSource = () => {
-    let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
-    if (config && config.dataSource) {
+    let config = this.props.customFusionChartConfig;
+    if (config) {
       config = {
-        ...config,
+        type: this.props.customFusionChartType,
         dataSource: {
-          ...config.dataSource,
+          ...config,
           chart: {
-            ...config.dataSource.chart,
-            caption: this.props.chartName || config.dataSource.chart.caption,
+            ...config.chart,
+            caption: this.props.chartName || config.chart.caption,
             setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
           },
         },
@@ -353,12 +353,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getSeriesTitle = (data: any) => {
     // custom chart have mentioned seriesName in dataSource
     if (this.props.chartType === "CUSTOM_FUSION_CHART") {
-      // custom chart have mentioned seriesName in dataSource
-      return get(
-        this.props,
-        `customFusionChartConfig.dataSource.seriesName`,
-        "",
-      );
+      // custom chart have mentioned seriesName in customChartConfig
+      return get(this.props, `customFusionChartConfig.seriesName`, "");
     } else {
       const dataLength = this.getDatalength();
       // if pie chart or other chart have single dataset,

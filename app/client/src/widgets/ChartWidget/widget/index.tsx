@@ -5,12 +5,7 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import propertyConfig from "./propertyConfig";
-import {
-  ChartType,
-  CustomFusionChartConfig,
-  AllChartData,
-  ChartSelectedDataPoint,
-} from "../constants";
+import { ChartType, AllChartData, ChartSelectedDataPoint } from "../constants";
 
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
@@ -57,6 +52,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           chartName={this.props.chartName}
           chartType={this.props.chartType}
           customFusionChartConfig={this.props.customFusionChartConfig}
+          customFusionChartType={this.props.customFusionChartType}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           labelOrientation={this.props.labelOrientation}
@@ -78,7 +74,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 export interface ChartWidgetProps extends WidgetProps {
   chartType: ChartType;
   chartData: AllChartData;
-  customFusionChartConfig: CustomFusionChartConfig;
+  customFusionChartType: string;
+  customFusionChartConfig: any;
   xAxisName: string;
   yAxisName: string;
   chartName: string;

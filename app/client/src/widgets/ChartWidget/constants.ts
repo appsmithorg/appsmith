@@ -17,11 +17,6 @@ export interface ChartData {
   data: ChartDataPoint[];
 }
 
-export interface CustomFusionChartConfig {
-  type: string;
-  dataSource?: any;
-}
-
 export interface AllChartData {
   [key: string]: ChartData;
 }
