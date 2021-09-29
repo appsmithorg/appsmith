@@ -7,14 +7,11 @@ import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControlsGenerator from "./Generator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
-import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
 import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
 import { WidgetType } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import SearchSnippets from "components/ads/SnippetButton";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
