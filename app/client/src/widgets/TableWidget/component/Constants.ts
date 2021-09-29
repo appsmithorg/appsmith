@@ -194,23 +194,7 @@ export interface ColumnProperties {
   displayText?: string;
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
-  menuItems?: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems?: MenuItems;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
