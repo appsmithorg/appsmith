@@ -8,10 +8,9 @@ import Text, { TextType } from "components/ads/Text";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
-import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import Dialog from "components/ads/DialogComponent";
-import { GenerateCRUDSuccessInfoData } from "../../../../reducers/uiReducers/crudInfoModalReducer";
+import { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
 import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
@@ -19,13 +18,12 @@ import {
   createMessage,
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { getInfoImage, getSuccessGIF } from "constants/ImagesURL";
 
 type Props = {
   crudInfoModalOpen: boolean;
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
-
-const getSuccessGIF = () => `${S3_BUCKET_URL}/crud/check_mark_verified.gif`;
 
 const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
@@ -99,7 +97,11 @@ const SuccessContentWrapper = styled.div`
   height: 100%;
 `;
 
-const SuccessImage = styled.img`
+const SuccessImage = styled.img``;
+
+const SuccessImgWrapper = styled.div`
+  height: 50px;
+  width: 50px;
   margin: ${(props) => props.theme.spaces[6]}px;
 `;
 
@@ -143,8 +145,6 @@ function InfoContent({
     </>
   );
 }
-const getInfoImage = (): string =>
-  `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
 
 function GenCRUDSuccessModal(props: Props) {
   const { crudInfoModalOpen, generateCRUDSuccessInfo } = props;
@@ -180,7 +180,10 @@ function GenCRUDSuccessModal(props: Props) {
       <Wrapper>
         {step === STEP.SHOW_SUCCESS_GIF ? (
           <SuccessContentWrapper>
-            <SuccessImage alt="Success" src={getSuccessGIF()} width="50px" />
+            <SuccessImgWrapper>
+              <SuccessImage alt="Success" src={getSuccessGIF()} width="50px" />
+            </SuccessImgWrapper>
+
             <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
             <Desc>{createMessage(GEN_CRUD_SUCCESS_DESC)}</Desc>
           </SuccessContentWrapper>

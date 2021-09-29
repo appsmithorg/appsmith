@@ -107,6 +107,7 @@ import {
 import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { preloadImage } from "../utils/preloadImages";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 const getWidgetName = (state: AppState, widgetId: string) =>
@@ -967,6 +968,8 @@ export function* generateTemplatePageSaga(
           },
         }),
       );
+      // start fetching image
+      preloadImage.loadImage(response.data.successImageUrl);
     }
   } catch (error) {
     yield put(generateTemplateError());
