@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public interface GitExecutor {
@@ -114,7 +115,18 @@ public interface GitExecutor {
      * @throws GitAPIException
      * @throws IOException
      */
-    List<String> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException;
+    List<String> getBranches(Path repoSuffix) throws GitAPIException, IOException;
+
+    /**
+     * This method will handle the git-status functionality
+     *
+     * @param repoPath Path to actual repo
+     * @param branchName branch name for which the status is required
+     * @return Map of file names those are added, removed, modified
+     * @throws GitAPIException exceptions due to git commands
+     * @throws IOException Exceptions due to file operations
+     */
+    Map<String, Object> getStatus(Path repoPath, String branchName) throws GitAPIException, IOException;
 
     /**
      *

@@ -7,10 +7,11 @@ import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NotSupportedException;
@@ -31,7 +32,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -277,7 +280,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public List<String> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException {
+    public List<String> getBranches(Path repoSuffix) throws GitAPIException, IOException {
         Path baseRepoPath = createRepoPath(repoSuffix);
         Git git = Git.open(baseRepoPath.toFile());
         List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
@@ -294,6 +297,31 @@ public class GitExecutorImpl implements GitExecutor {
         }
         git.close();
         return branchList;
+    }
+
+    /**
+     * This method will handle the git-status functionality
+     *
+     * @param repoPath Path to actual repo
+     * @param branchName branch name for which the status is required
+     * @return Map of file names those are added, removed, modified
+     * @throws GitAPIException exceptions due to git commands
+     * @throws IOException Exceptions due to file operations
+     */
+    @Override
+    public Map<String, Object> getStatus(Path repoPath, String branchName) throws IOException, GitAPIException {
+        Git git = Git.open(repoPath.toFile());
+        Status status = git.status().call();
+        Map<String, Object> response = new HashMap<>();
+        response.put("added", status.getAdded());
+        response.put("modified", status.getModified());
+        response.put("conflicting", status.getConflicting());
+        response.put("removed", status.getRemoved());
+        response.put("uncommitted", status.getUncommittedChanges());
+        response.put("untracked", status.getUntracked());
+        response.put("isClean", status.isClean());
+
+        return response;
     }
 
     @Override

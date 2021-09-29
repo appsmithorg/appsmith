@@ -41,9 +41,11 @@ public interface GitService {
 
     Mono<Object> pullApplication(String applicationId, String branchName);
 
-    Mono<List<String>> listBranchForApplication(String applicationId);
+    Mono<List<String>> listBranchForApplication(String defaultApplicationId);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
+
+    Mono<Map<String, Object>> getStatus(String defaultApplicationId, MultiValueMap<String, String> params);
 
     Mono<String> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
 }
