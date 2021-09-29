@@ -172,13 +172,26 @@ function WidgetsEditor() {
     dispatch(updateIsPanning(false));
   }, [dispatch]);
 
-  const { panZoomHandlers, setContainer, transform } = usePanZoom({
+  const {
+    panZoomHandlers,
+    setContainer,
+    setPan,
+    setZoom,
+    transform,
+  } = usePanZoom({
     onZoom,
     onPanStart,
     onPanEnd,
     enablePan: isPanningEnabled,
     maxZoom: 1,
   });
+
+  useEffect(() => {
+    if (isPreviewMode === true) {
+      setPan({ x: 0, y: 0 });
+      setZoom(1);
+    }
+  }, [isPreviewMode]);
 
   PerformanceTracker.stopTracking();
   return (
