@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.PluginOrgDTO;
 import com.appsmith.server.dtos.RemotePluginOrgDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.PluginService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
@@ -25,6 +26,7 @@ import java.util.List;
 
 
 @RestController
+@Slf4j
 @RequestMapping(Url.PLUGIN_URL)
 public class PluginController extends BaseController<PluginService, Plugin, String> {
 
@@ -66,8 +68,9 @@ public class PluginController extends BaseController<PluginService, Plugin, Stri
      */
     @PostMapping("/remote/install")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<Void>> remoteInstall(@Valid @RequestBody RemotePluginOrgDTO plugin) {
-        return service.installRemotePlugin(plugin)
-                .map(organization -> new ResponseDTO<>(HttpStatus.OK.value(), organization, null));
+    public Mono<Void> remoteInstall(@Valid @RequestBody RemotePluginOrgDTO plugin) {
+        log.debug("Entered endpoint to install plugin at server ... ");
+        log.debug("Plugin: {}", plugin);
+        return service.installRemotePlugin(plugin);
     }
 }
