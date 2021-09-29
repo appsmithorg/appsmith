@@ -88,8 +88,7 @@ class SwitchGroupWidget extends BaseWidget<
           {
             propertyName: "isRequired",
             label: "Required",
-            helpText:
-              "Turning this switch on is mandatory for this field to be valid, inside a form widget",
+            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
