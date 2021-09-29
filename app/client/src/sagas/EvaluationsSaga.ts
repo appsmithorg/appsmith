@@ -463,12 +463,14 @@ export function* evaluateArgumentSaga(action: any) {
     if (workerResponse.result) {
       const validation = validate({ type }, workerResponse.result, {});
       if (!validation.isValid)
-        lintErrors.unshift({
-          ...validation,
-          ...{
-            errorType: PropertyEvaluationErrorType.VALIDATION,
-            errorMessage: validation.message,
-          },
+        validation.messages?.map((message) => {
+          lintErrors.unshift({
+            ...validation,
+            ...{
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+            },
+          });
         });
     }
     yield put(
