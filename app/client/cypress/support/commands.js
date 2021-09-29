@@ -415,7 +415,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   initLocalstorage();
 });
 
-Cypress.Commands.add("SignupinApp", (uname, pword) => {
+Cypress.Commands.add("Signup", (uname, pword) => {
   cy.window()
     .its("store")
     .invoke("dispatch", { type: "LOGOUT_USER_INIT" });

@@ -2,7 +2,7 @@ const commentsLocators = require("../../../../locators/commentsLocators.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const dsl = require("../../../../fixtures/basicDsl.json");
-const { setFlagForTour, typeIntoDraftEditor } = require("./utils");
+const { typeIntoDraftEditor } = require("./utils");
 
 const newCommentText1 = "new comment text 1";
 let commentThreadId;
@@ -12,7 +12,6 @@ let orgName;
 describe("Comments", function() {
   before(() => {
     return cy.wrap(null).then(async () => {
-      await setFlagForTour();
       cy.NavigateToHome();
 
       cy.generateUUID().then((uid) => {

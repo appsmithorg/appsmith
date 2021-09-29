@@ -6,7 +6,7 @@ const newCommentText1 = "new comment text 1";
 describe("Comments", function() {
   it("Skipping comments tour also skips bot comments", function() {
     cy.generateUUID().then((uid) => {
-      cy.SignupinApp(`${uid}@appsmithtest.com`, uid);
+      cy.Signup(`${uid}@appsmithtest.com`, uid);
     });
     cy.wait(1000);
     cy.get(".t--how-appsmith-works-modal-header", { timeout: 10000 }).should(
@@ -30,13 +30,16 @@ describe("Comments", function() {
 
     typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
     cy.get(commentsLocators.mentionsInput).type("{enter}");
+    // when user adds first comment, following command will count for the headers of the comment card
+    // in case of "Skip Tour" this has to be 2.
     cy.get("[data-cy=comments-card-header]")
       .its("length")
       .should("eq", 2);
+    cy.contains("Appsmith Bot").should("not.be.visible");
   });
   it("Completing comments tour adds bot comment in first thread", function() {
     cy.generateUUID().then((uid) => {
-      cy.SignupinApp(`${uid}@appsmithtest.com`, uid);
+      cy.Signup(`${uid}@appsmithtest.com`, uid);
     });
     cy.get(".t--how-appsmith-works-modal-header", { timeout: 10000 }).should(
       "be.visible",
