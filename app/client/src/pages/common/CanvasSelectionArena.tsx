@@ -12,6 +12,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
+  getPanningEnabled,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
@@ -21,6 +22,7 @@ import { XYCord } from "utils/hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { commentModeSelector } from "../../selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
+import { updatePanningEnabled } from "actions/editorActions";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -59,6 +61,7 @@ export function CanvasSelectionArena({
 }) {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const isPanningEnabled = useSelector(getPanningEnabled);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
     getWidget(state, parentId || ""),
@@ -345,7 +348,7 @@ export function CanvasSelectionArena({
         }
       };
       const onMouseMove = (e: any) => {
-        if (isDragging && canvasRef.current) {
+        if (isDragging && canvasRef.current && isPanningEnabled === false) {
           selectionRectangle.width =
             e.offsetX - canvasRef.current.offsetLeft - selectionRectangle.left;
           selectionRectangle.height =
@@ -387,6 +390,30 @@ export function CanvasSelectionArena({
         }
       };
 
+      /**
+       * sets panningEnabled to true
+       * @param event
+       * @returns
+       */
+      const onKeyDown = (event: KeyboardEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (event.repeat) return;
+
+        if (event.key === " " || event.keyCode === 32) {
+          dispatch(updatePanningEnabled(true));
+        }
+      };
+
+      const onKeyUp = (event: KeyboardEvent) => {
+        if (event.repeat) return;
+
+        if (event.key === " " || event.keyCode === 32) {
+          dispatch(updatePanningEnabled(false));
+        }
+      };
+
       const addEventListeners = () => {
         canvasRef.current?.addEventListener("click", onClick, false);
         canvasRef.current?.addEventListener("mousedown", onMouseDown, false);
@@ -395,6 +422,8 @@ export function CanvasSelectionArena({
         canvasRef.current?.addEventListener("mouseleave", onMouseLeave, false);
         canvasRef.current?.addEventListener("mouseenter", onMouseEnter, false);
         scrollParent?.addEventListener("scroll", onScroll, false);
+        canvasRef.current?.addEventListener("keydown", onKeyDown, false);
+        document?.addEventListener("keyup", onKeyUp, false);
       };
       const removeEventListeners = () => {
         canvasRef.current?.removeEventListener("mousedown", onMouseDown);
@@ -403,6 +432,8 @@ export function CanvasSelectionArena({
         canvasRef.current?.removeEventListener("mouseleave", onMouseLeave);
         canvasRef.current?.removeEventListener("mouseenter", onMouseEnter);
         canvasRef.current?.removeEventListener("click", onClick);
+        canvasRef.current?.removeEventListener("keydown", onKeyDown, false);
+        document?.removeEventListener("keyup", onKeyUp, false);
       };
       const init = () => {
         if (canvasRef.current) {
@@ -438,6 +469,7 @@ export function CanvasSelectionArena({
     snapRows,
     snapColumnSpace,
     snapRowSpace,
+    isPanningEnabled,
   ]);
 
   const shouldShow =
@@ -448,6 +480,7 @@ export function CanvasSelectionArena({
       data-testid={`canvas-${widgetId}`}
       id={`canvas-${widgetId}`}
       ref={canvasRef}
+      tabIndex={1}
     />
   ) : null;
 }

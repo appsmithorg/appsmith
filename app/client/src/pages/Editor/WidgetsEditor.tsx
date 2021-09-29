@@ -9,6 +9,7 @@ import {
   getCurrentPageName,
   getViewModePageList,
   previewModeSelector,
+  getPanningEnabled,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "@blueprintjs/core";
@@ -70,6 +71,7 @@ function WidgetsEditor() {
   const pages = useSelector(getViewModePageList);
   const currentApp = useSelector(getCurrentApplication);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isPanningEnabled = useSelector(getPanningEnabled);
   const currentApplicationDetails = useSelector(getCurrentApplication);
 
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
@@ -174,6 +176,8 @@ function WidgetsEditor() {
     onZoom,
     onPanStart,
     onPanEnd,
+    enablePan: isPanningEnabled,
+    maxZoom: 1,
   });
 
   PerformanceTracker.stopTracking();
@@ -185,7 +189,10 @@ function WidgetsEditor() {
         <OnboardingTasks />
       ) : (
         <div
-          className="relative flex flex-col items-stretch justify-start flex-1 overflow-hidden"
+          className={classNames({
+            "relative flex flex-col items-stretch justify-start flex-1 overflow-hidden": true,
+            "cursor-grab": isPanningEnabled,
+          })}
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}

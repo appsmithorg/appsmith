@@ -214,6 +214,7 @@ module.exports = {
       text: "text",
       move: "move",
       help: "help",
+      grab: "grab",
       "not-allowed": "not-allowed",
       "ew-resize": "ew-resize",
       "ns-resize": "ns-resize",

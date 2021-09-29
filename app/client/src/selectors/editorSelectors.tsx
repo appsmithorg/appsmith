@@ -398,8 +398,18 @@ export const getZoomLevel = (state: AppState) => {
  * returns the `state.ui.editor.isPanning`
  *
  * @param state AppState
- * @returns number
+ * @returns boolean
  */
 export const getIsPanning = (state: AppState) => {
   return state.ui.editor.isPanning;
+};
+
+/**
+ * returns the `state.ui.editor.panningEnabled`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const getPanningEnabled = (state: AppState) => {
+  return state.ui.editor.panningEnabled;
 };

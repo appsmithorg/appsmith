@@ -59,3 +59,17 @@ export const updateIsPanning = (isPanning: boolean) => {
     payload: isPanning,
   };
 };
+
+/**
+ * action that update editor isPanning flag
+ *
+ * @param width
+ * @param height
+ * @returns
+ */
+export const updatePanningEnabled = (panningEnabled: boolean) => {
+  return {
+    type: ReduxActionTypes.UPDATE_CANVAS_PANNING_ENABLED,
+    payload: panningEnabled,
+  };
+};
