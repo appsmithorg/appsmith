@@ -88,20 +88,6 @@ function PropertyPaneView(
           </button>
         ),
       },
-      {
-        tooltipContent: <span>Search related snippets</span>,
-        icon: (
-          <SearchSnippets
-            entityId={widgetProperties.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
-            showIconOnly
-          />
-        ),
-      },
-      {
-        tooltipContent: <span>Explore widget related docs</span>,
-        icon: <PropertyPaneHelpButton />,
-      },
     ];
   }, [onCopy, onDelete]);
 
