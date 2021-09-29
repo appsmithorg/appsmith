@@ -589,8 +589,18 @@ public class GitServiceImpl implements GitService {
      */
     @Override
     public Mono<Object> pullApplication(String applicationId, String branchName) {
-        return getApplicationById(applicationId)
-                .flatMap(application -> {
+        /*
+         * 1.Rehydrate the application from Mongodb to make sure that the file system has latest application data from mongodb
+         * 2.Do git pull after the rehydration and merge the remote changes to the current branch
+         * 3.Then rehydrate the from the file system to mongodb so that the latest changes from remote are rendered to the application
+         * 4.Get the latest application mono from the mongodb and send it back to client
+         * */
+        return  applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, applicationId, MANAGE_APPLICATIONS)
+                .zipWith(importExportApplicationService.exportApplicationById(applicationId,SerialiseApplicationObjective.VERSION_CONTROL))
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    ApplicationJson applicationJson = tuple.getT2();
+
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
@@ -598,18 +608,36 @@ public class GitServiceImpl implements GitService {
                     Path repoPath = Paths.get(application.getOrganizationId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
-                    //TODO handle the condition for the non default branch as the file path varies
+
+                    // 1. Rehydrate application from db
                     try {
+                        return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName)
+                                .zipWith(Mono.just(application));
+                    } catch (IOException | GitAPIException e) {
+                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage());
+                    }
+                })
+                .flatMap( applicationTuple-> {
+                    try {
+                        Path repoPath = applicationTuple.getT1();
+                        Application application = applicationTuple.getT2();
+                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+
+                        //2. git pull origin branchName
                         String status = gitExecutor.pullApplication(
                                 repoPath,
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getBranchName(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                 gitApplicationMetadata.getGitAuth().getPublicKey());
+
+                        //3. Hydrate from file system to db
                         ApplicationJson applicationJson = fileUtils.reconstructApplicationFromGitRepo(
                                 application.getOrganizationId(),
                                 gitApplicationMetadata.getDefaultApplicationId(),
                                 branchName);
+
+                        //4. Get the latest application mono with all the changes
                         return importExportApplicationService.importApplicationInOrganization(application.getOrganizationId(), applicationJson, applicationId);
                     } catch (IOException | GitAPIException e) {
                         if (e.getMessage().contains("Nothing to fetch.")) {
