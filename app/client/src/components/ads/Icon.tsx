@@ -276,7 +276,7 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.fillColor || props.theme.colors.icon.normal};
+    fill: ${props.fillColor || "currentcolor"};
     circle {
       fill: ${props.fillColor || "currentcolor"};
     }
@@ -288,7 +288,7 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
+    fill: ${props.hoverFillColor || "currentcolor"};
     `
         : ""}
   }
@@ -623,9 +623,9 @@ const Icon = forwardRef(
         className={`${Classes.ICON} ${props.className}`}
         clickable={clickable}
         data-cy={props.cypressSelector}
-        onClick={props.onClick || noop}
         ref={ref}
         {...props}
+        onClick={props.onClick || noop}
       >
         {returnIcon}
       </IconWrapper>
