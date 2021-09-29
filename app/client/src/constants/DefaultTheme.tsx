@@ -2464,8 +2464,8 @@ export const light: ColorType = {
     darkText: lightShades[6],
   },
   queryTemplate: {
-    bg: lightShades[3],
-    color: lightShades[7],
+    bg: lightShades[11],
+    color: lightShades[8],
   },
   profileDropdown: {
     name: lightShades[10],
