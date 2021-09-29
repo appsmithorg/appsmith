@@ -211,6 +211,7 @@
     "@testing-library/user-event": "^13.1.1",
     "@types/codemirror": "^0.0.96",
     "@types/deep-diff": "^1.0.0",
+    "@types/dom-mediacapture-record": "^1.0.10",
     "@types/downloadjs": "^1.4.2",
     "@types/draft-js": "^0.11.1",
     "@types/emoji-mart": "^3.0.4",

@@ -137,27 +137,23 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   }
 
   handleImageCapture = (image?: string | null) => {
-    if (image) {
-      this.props.updateWidgetMetaProperty("image", image, {
-        triggerPropertyName: "onMediaCapture",
-        dynamicString: this.props.onMediaCapture,
-        event: {
-          type: EventType.ON_CAMERA_MEDIA_CAPTURE,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("image", image, {
+      triggerPropertyName: "onMediaCapture",
+      dynamicString: this.props.onMediaCapture,
+      event: {
+        type: EventType.ON_CAMERA_MEDIA_CAPTURE,
+      },
+    });
   };
 
-  handleVideoCapture = (video?: Blob) => {
-    if (video) {
-      this.props.updateWidgetMetaProperty("video", video, {
-        triggerPropertyName: "onMediaCapture",
-        dynamicString: this.props.onMediaCapture,
-        event: {
-          type: EventType.ON_CAMERA_MEDIA_CAPTURE,
-        },
-      });
-    }
+  handleVideoCapture = (video?: Blob | null) => {
+    this.props.updateWidgetMetaProperty("video", video, {
+      triggerPropertyName: "onMediaCapture",
+      dynamicString: this.props.onMediaCapture,
+      event: {
+        type: EventType.ON_CAMERA_MEDIA_CAPTURE,
+      },
+    });
   };
 }
 
