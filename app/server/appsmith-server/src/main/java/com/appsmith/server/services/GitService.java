@@ -44,4 +44,6 @@ public interface GitService {
     Mono<List<String>> listBranchForApplication(String applicationId);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
+
+    Mono<String> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
 }

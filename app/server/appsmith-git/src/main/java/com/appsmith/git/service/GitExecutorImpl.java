@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NotSupportedException;
@@ -293,5 +294,20 @@ public class GitExecutorImpl implements GitExecutor {
         }
         git.close();
         return branchList;
+    }
+
+    @Override
+    public String mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) throws IOException {
+        Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+        try {
+            //checkout the branch on which the merge command is run
+            git.checkout().setName(destinationBranch).setCreateBranch(false).call();
+
+            MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
+            git.close();
+            return mergeResult.getMergeStatus().name();
+        } catch (GitAPIException e) {
+            return e.getMessage();
+        }
     }
 }

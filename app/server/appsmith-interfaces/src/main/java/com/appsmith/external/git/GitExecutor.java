@@ -115,4 +115,14 @@ public interface GitExecutor {
      * @throws IOException
      */
     List<String> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException;
+
+    /**
+     *
+     * @param repoPath combination of orgId and defaultId
+     * @param sourceBranch name of the branch whose commits will be referred amd merged to destinationBranch
+     * @param destinationBranch Merge operation is performed on this branch
+     * @return Merge status
+     * @throws IOException
+     */
+    String mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) throws IOException;
 }

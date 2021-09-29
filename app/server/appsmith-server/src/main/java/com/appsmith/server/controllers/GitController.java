@@ -149,4 +149,13 @@ public class GitController {
         return service.listBranchForApplication(defaultApplicationId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
+
+    @PostMapping("/merge/{defaultApplicationId}")
+    public Mono<ResponseDTO<String>> merge(@PathVariable String defaultApplicationId,
+                                           @RequestParam String sourceBranch,
+                                           @RequestParam String destinationBranch) {
+        log.debug("Going to get merge branch {} with branch {} for application {}", sourceBranch, destinationBranch, defaultApplicationId);
+        return service.mergeBranch(defaultApplicationId, sourceBranch, destinationBranch)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
 }

@@ -675,6 +675,26 @@ public class GitServiceImpl implements GitService {
             });
     }
 
+    @Override
+    public Mono<String> mergeBranch(String applicationId, String sourceBranch, String destinationBranch) {
+        return getApplicationById(applicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                    }
+                    Path repoPath = Paths.get(application.getOrganizationId(),
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
+                    try {
+                        String message = gitExecutor.mergeBranch(repoPath, sourceBranch, destinationBranch);
+                        return Mono.just(message);
+                    } catch (IOException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    }
+                });
+    }
+
     private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {
         if (Optional.ofNullable(gitApplicationMetadata).isEmpty()
                 || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
