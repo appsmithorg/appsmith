@@ -1,7 +1,7 @@
 import { put, select } from "redux-saga/effects";
 import {
-  COMMENTS_SOCKET_EVENTS,
-  EDITORS_PRESENCE_SOCKET_EVENTS,
+  APP_LEVEL_SOCKET_EVENTS,
+  PAGE_LEVEL_SOCKET_EVENTS,
 } from "./socketEvents";
 
 import {
@@ -28,7 +28,7 @@ export default function* handleAppLevelSocketEvents(event: any) {
 
   switch (event.type) {
     // comments
-    case COMMENTS_SOCKET_EVENTS.INSERT_COMMENT_THREAD: {
+    case APP_LEVEL_SOCKET_EVENTS.INSERT_COMMENT_THREAD: {
       yield put(newCommentThreadEvent(event.payload[0]));
 
       const { thread } = event.payload[0];
@@ -40,12 +40,12 @@ export default function* handleAppLevelSocketEvents(event: any) {
         yield put(incrementThreadUnreadCount());
       return;
     }
-    case COMMENTS_SOCKET_EVENTS.INSERT_COMMENT: {
+    case APP_LEVEL_SOCKET_EVENTS.INSERT_COMMENT: {
       yield put(newCommentEvent(event.payload[0]));
       return;
     }
-    case COMMENTS_SOCKET_EVENTS.REPLACE_COMMENT_THREAD:
-    case COMMENTS_SOCKET_EVENTS.UPDATE_COMMENT_THREAD: {
+    case APP_LEVEL_SOCKET_EVENTS.REPLACE_COMMENT_THREAD:
+    case APP_LEVEL_SOCKET_EVENTS.UPDATE_COMMENT_THREAD: {
       const { thread } = event.payload[0];
       const threadInStore: CommentThread = yield select((state: AppState) =>
         commentThreadsSelector(thread?._id)(state),
@@ -78,25 +78,25 @@ export default function* handleAppLevelSocketEvents(event: any) {
 
       return;
     }
-    case COMMENTS_SOCKET_EVENTS.UPDATE_COMMENT: {
+    case APP_LEVEL_SOCKET_EVENTS.UPDATE_COMMENT: {
       yield put(updateCommentEvent(event.payload[0].comment));
       return;
     }
-    case COMMENTS_SOCKET_EVENTS.DELETE_COMMENT_THREAD: {
+    case APP_LEVEL_SOCKET_EVENTS.DELETE_COMMENT_THREAD: {
       yield put(deleteCommentThreadEvent(event.payload[0].thread));
       return;
     }
-    case COMMENTS_SOCKET_EVENTS.DELETE_COMMENT: {
+    case APP_LEVEL_SOCKET_EVENTS.DELETE_COMMENT: {
       yield put(deleteCommentEvent(event.payload[0].comment));
       return;
     }
     // notifications
-    case COMMENTS_SOCKET_EVENTS.INSERT_NOTIFICATION: {
+    case APP_LEVEL_SOCKET_EVENTS.INSERT_NOTIFICATION: {
       yield put(newNotificationEvent(event.payload[0].notification));
       return;
     }
     // Collab V2 - Realtime Editing
-    case EDITORS_PRESENCE_SOCKET_EVENTS.LIST_ONLINE_APP_EDITORS: {
+    case PAGE_LEVEL_SOCKET_EVENTS.LIST_ONLINE_APP_EDITORS: {
       yield put(collabSetAppEditors(event.payload[0]));
       return;
     }

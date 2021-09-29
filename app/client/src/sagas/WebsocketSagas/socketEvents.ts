@@ -3,7 +3,7 @@ export const SOCKET_CONNECTION_EVENTS = {
   DISCONNECT: "disconnect",
 };
 
-export const COMMENTS_SOCKET_EVENTS = {
+export const APP_LEVEL_SOCKET_EVENTS = {
   // comment events
   // SET_COMMENTS: "SET_COMMENTS",
   INSERT_COMMENT_THREAD: "insert:commentThread",
@@ -18,14 +18,9 @@ export const COMMENTS_SOCKET_EVENTS = {
   INSERT_NOTIFICATION: "insert:notification",
 };
 
-export const EDITORS_PRESENCE_SOCKET_EVENTS = {
+export const PAGE_LEVEL_SOCKET_EVENTS = {
   START_EDITING_APP: "collab:start_edit",
   STOP_EDITING_APP: "collab:leave_edit",
-  LIST_ONLINE_APP_EDITORS: "collab:online_editors",
-};
-
-export const MULTI_PLAYER_SOCKET_EVENTS = {
-  START_EDITING_APP: "collab:start_edit",
-  STOP_EDITING_APP: "collab:leave_edit",
-  SHARE_USER_POINTER: "collab:mouse_pointer",
+  LIST_ONLINE_APP_EDITORS: "collab:online_editors", // user presence
+  SHARE_USER_POINTER: "collab:mouse_pointer", // multi pointer
 };

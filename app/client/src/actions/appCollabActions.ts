@@ -3,21 +3,18 @@ import {
   pageLevelWebsocketWriteEvent,
 } from "./websocketActions";
 import { ReduxActionTypes } from "../constants/ReduxActionConstants";
-import {
-  EDITORS_PRESENCE_SOCKET_EVENTS,
-  MULTI_PLAYER_SOCKET_EVENTS,
-} from "../sagas/WebsocketSagas/socketEvents";
+import { PAGE_LEVEL_SOCKET_EVENTS } from "../sagas/WebsocketSagas/socketEvents";
 
 // App Editors presence Socket actions
 export const collabStartEditingAppEvent = (appId: string) =>
   appLevelWebsocketWriteEvent({
-    type: EDITORS_PRESENCE_SOCKET_EVENTS.START_EDITING_APP,
+    type: PAGE_LEVEL_SOCKET_EVENTS.START_EDITING_APP,
     payload: appId,
   });
 
 export const collabStopEditingAppEvent = (appId: string) =>
   appLevelWebsocketWriteEvent({
-    type: EDITORS_PRESENCE_SOCKET_EVENTS.STOP_EDITING_APP,
+    type: PAGE_LEVEL_SOCKET_EVENTS.STOP_EDITING_APP,
     payload: appId,
   });
 
@@ -34,18 +31,18 @@ export const collabResetAppEditors = () => ({
 // Pointer Sharing Socket Events
 export const collabStartSharingPointerEvent = (pageId: string) =>
   pageLevelWebsocketWriteEvent({
-    type: MULTI_PLAYER_SOCKET_EVENTS.START_EDITING_APP,
+    type: PAGE_LEVEL_SOCKET_EVENTS.START_EDITING_APP,
     payload: pageId,
   });
 
 export const collabStopSharingPointerEvent = () =>
   pageLevelWebsocketWriteEvent({
-    type: MULTI_PLAYER_SOCKET_EVENTS.STOP_EDITING_APP,
+    type: PAGE_LEVEL_SOCKET_EVENTS.STOP_EDITING_APP,
   });
 
 export const collabShareUserPointerEvent = (payload: any) =>
   pageLevelWebsocketWriteEvent({
-    type: MULTI_PLAYER_SOCKET_EVENTS.SHARE_USER_POINTER,
+    type: PAGE_LEVEL_SOCKET_EVENTS.SHARE_USER_POINTER,
     payload,
   });
 
