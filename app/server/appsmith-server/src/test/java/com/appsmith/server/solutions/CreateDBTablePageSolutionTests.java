@@ -1,12 +1,20 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DatasourceStructure.TableType;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.*;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
