@@ -79,7 +79,6 @@ public class GitServiceImpl implements GitService {
                              *  Otherwise create a new entry or update existing entry
                              * */
 
-
                             if (gitProfile.equals(userGitProfile)) {
                                 return Mono.just(userData);
                             } else if (userGitProfile == null || Boolean.TRUE.equals(isDefault) || StringUtils.isEmptyOrNull(defaultApplicationId)) {
@@ -299,83 +298,81 @@ public class GitServiceImpl implements GitService {
 
         return updateOrCreateGitProfileForCurrentUser(
                 gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), defaultApplicationId)
-                .then(getApplicationById(defaultApplicationId)
-                        .flatMap(application -> {
-                            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                            if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
-                                throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
-                            } else {
-                                String defaultBranch;
-                                String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
-                                Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
-                                try {
-                                    defaultBranch = gitExecutor.connectApplication(
-                                            repoPath,
-                                            gitConnectDTO.getRemoteUrl(),
-                                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                            gitApplicationMetadata.getGitAuth().getPublicKey()
-                                    );
-                                } catch (GitAPIException e) {
-                                    if (e instanceof TransportException) {
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.AUTHENTICATION_FAILURE,
-                                                "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
-                                        ));
-                                    }
-                                    if (e instanceof InvalidRemoteException) {
-                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
-                                    }
-                                    log.error("Error while cloning the remote repo, {}", e.getMessage());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                                } catch (IOException e) {
-                                    if (e instanceof NotSupportedException) {
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.INVALID_GIT_CONFIGURATION,
-                                                e.getMessage()
-                                        ));
-                                    }
-                                    log.error("Error while accessing the file system, {}", e.getMessage());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                                }
-                                gitApplicationMetadata.setDefaultApplicationId(application.getId());
-                                gitApplicationMetadata.setBranchName(defaultBranch);
-                                gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
-                                gitApplicationMetadata.setRepoName(repoName);
-                                application.setGitApplicationMetadata(gitApplicationMetadata);
-                                return applicationService.save(application);
+                .then(getApplicationById(defaultApplicationId))
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                    } else {
+                        String defaultBranch;
+                        String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                        Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
+                        try {
+                            defaultBranch = gitExecutor.cloneApplication(
+                                    repoPath,
+                                    gitConnectDTO.getRemoteUrl(),
+                                    gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                    gitApplicationMetadata.getGitAuth().getPublicKey()
+                            );
+                            if(!fileUtils.checkIfDirectoryIsEmpty(repoPath)) {
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_REPO));
                             }
-                        })
-                        .flatMap(application -> {
-                            String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
-                            String defaultPageId = "";
-                            if(application.getPages().isEmpty()) {
-                                defaultPageId = application.getPages()
-                                        .stream()
-                                        .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))
-                                        .collect(Collectors.toList())
-                                        .get(0)
-                                        .getId();
-                            } else {
-                                // TODO either throw error message saying invalid application or have a default value
-                                defaultPageId = "defaultPage";
+                        } catch (GitAPIException | IOException e) {
+                            if (e instanceof TransportException) {
+                                return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE, "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"));
                             }
-                            String viewModeUrl = Paths.get("/", application.getId(),
-                                    Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
-                            String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
-                            //Initialize the repo with readme file
-                            try {
-                                fileUtils.initializeGitRepo(
-                                        Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
-                                        originHeader + viewModeUrl,
-                                        originHeader + editModeUrl
-                                );
-                            } catch (IOException e) {
-                                log.error("Error while cloning the remote repo, {}", e.getMessage());
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            if (e instanceof InvalidRemoteException) {
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
                             }
-                            return Mono.just(application);
-                        })
-                );
+                            log.error("Error while cloning the remote repo, {}", e.getMessage());
+                            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                        }
+                        return Mono.zip(Mono.just(application), Mono.just(defaultBranch), Mono.just(repoName));
+                    }
+                })
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    String defaultBranch = tuple.getT2();
+                    String repoName = tuple.getT3();
+
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    gitApplicationMetadata.setBranchName(defaultBranch);
+                    gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                    gitApplicationMetadata.setRepoName(repoName);
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.save(application);
+                })
+                .flatMap(application -> {
+                    String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                    String defaultPageId = "";
+                    if(application.getPages().isEmpty()) {
+                        defaultPageId = application.getPages()
+                                .stream()
+                                .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))
+                                .collect(Collectors.toList())
+                                .get(0)
+                                .getId();
+                    } else {
+                        // TODO either throw error message saying invalid application or have a default value
+                        defaultPageId = "defaultPage";
+                    }
+                    String viewModeUrl = Paths.get("/", application.getId(),
+                            Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
+                    String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
+                    //Initialize the repo with readme file
+                    try {
+                        fileUtils.initializeGitRepo(
+                                Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
+                                originHeader + viewModeUrl,
+                                originHeader + editModeUrl
+                        );
+                    } catch (IOException e) {
+                        log.error("Error while cloning the remote repo, {}", e.getMessage());
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    }
+                    return Mono.just(application);
+                });
     }
 
     /**
@@ -583,7 +580,7 @@ public class GitServiceImpl implements GitService {
      * @return return the status of pull operation
      */
     @Override
-    public Mono<String> pullApplication(String applicationId, String branchName) {
+    public Mono<Object> pullApplication(String applicationId, String branchName) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -595,12 +592,17 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
                     //TODO handle the condition for the non default branch as the file path varies
                     try {
-                        return Mono.just(gitExecutor.pullApplication(
+                        String status = gitExecutor.pullApplication(
                                 repoPath,
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getBranchName(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                gitApplicationMetadata.getGitAuth().getPublicKey()));
+                                gitApplicationMetadata.getGitAuth().getPublicKey());
+                        ApplicationJson applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                                application.getOrganizationId(),
+                                gitApplicationMetadata.getDefaultApplicationId(),
+                                branchName);
+                        return importExportApplicationService.importApplicationInOrganization(application.getOrganizationId(), applicationJson, applicationId);
                     } catch (IOException | GitAPIException e) {
                         if (e.getMessage().contains("Nothing to fetch.")) {
                             return Mono.just("Nothing to fetch from remote. All changes are upto date.");

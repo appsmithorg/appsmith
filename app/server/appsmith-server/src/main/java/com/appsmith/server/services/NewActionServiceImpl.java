@@ -1256,6 +1256,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(analyticsService::sendArchiveEvent);
     }
 
+    @Override
+    public Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
+        return repository.findByApplicationId(applicationId, permission)
+                .flatMap(repository::archive)
+                .collectList();
+    }
+
     public List<String> extractMustacheKeysInOrder(String query) {
         return MustacheHelper.extractMustacheKeysInOrder(query);
     }

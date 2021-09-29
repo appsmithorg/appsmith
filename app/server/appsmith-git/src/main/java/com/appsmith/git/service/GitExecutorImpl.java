@@ -261,7 +261,7 @@ public class GitExecutorImpl implements GitExecutor {
             if (count > 0) {
                 return count + "commits merged from origin/" + branchName;
             }
-            return "Your branch is updated with latest commits";
+            return "Your branch is upto-date with latest commits";
         } catch (GitAPIException e) {
             //TODO Check out the branchName, check if file exists for the path without branchName,else update the file to new path
             log.error("Git merge from remote branch failed, {}", e.getMessage());

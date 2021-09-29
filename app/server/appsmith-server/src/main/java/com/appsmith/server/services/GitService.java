@@ -39,7 +39,7 @@ public interface GitService {
 
     Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
 
-    Mono<String> pullApplication(String applicationId, String branchName);
+    Mono<Object> pullApplication(String applicationId, String branchName);
 
     Mono<List<String>> listBranchForApplication(String defaultApplicationId);
 

@@ -152,13 +152,32 @@ public class GitFileUtils {
         return deserializedResources;
     }
 
+    /**
+     * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -
+     * Url to the deployed app(view and edit mode)
+     * Link to discord channel for support
+     * Link to appsmith documentation for Git related operations
+     * Welcome message
+     *
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * @param viewModeUrl    URL to deployed version of the application view only mode
+     * @param editModeUrl    URL to deployed version of the application edit mode
+     * @return Path where the Application is stored
+     */
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String viewModelUrl,
+                                        String viewModeUrl,
                                         String editModeUrl) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModelUrl, editModeUrl);
+        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl);
     }
 
+    /**
+     * When the user clicks on detach remote, we need to remove the repo from the file system
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * @return success on remove of file system
+     */
     public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
         return fileUtils.detachRemote(baseRepoSuffix);
     }
+
+    public boolean checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); };
 }

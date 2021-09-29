@@ -65,4 +65,11 @@ public interface FileInterface {
      * @return success on remove of file system
      */
     Mono<Boolean> detachRemote(Path baseRepoSuffix);
+
+    /**
+     * This will check if the cloned repo empty. The check excludes files like Readme files
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * @return success if the clone repo doesnt contain any files
+     */
+    boolean checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException;
 }

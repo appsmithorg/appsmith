@@ -26,7 +26,6 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
-import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -290,7 +289,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         page.setPolicies(documentPolicies);
     }
 
-
     /**
      * This function performs a soft delete for the application along with it's associated pages and actions.
      *
@@ -321,7 +319,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private Mono<Application> deleteApplicationByResource(Application application) {
         log.debug("Archiving pages for applicationId: {}", application.getId());
         application.setGitApplicationMetadata(null);
-        return newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES)
+        return Mono.when(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES),
+                newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
                 .thenReturn(application)
                 .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
