@@ -55,7 +55,7 @@ export const deleteJSObjectAction = (payload: {
 
 export const refactorJSCollectionAction = (payload: {
   actionId: string;
-  collectionId: string;
+  collectionName: string;
   pageId: string;
   oldName: string;
   newName: string;
