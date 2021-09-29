@@ -292,8 +292,8 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
 
 export const OMNIBAR_PLACEHOLDER = () =>
   `Search Widgets, Queries, Documentation`;
-export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search JS snippets";
-export const OMNIBAR_PLACEHOLDER_NAV = () => "Search qidgets and queries";
+export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
+export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
@@ -564,7 +564,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 
-// Js Snippets
+// JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
@@ -689,7 +689,7 @@ export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
 export const ONBOARDING_TASK_FOOTER = () => "Alternatively, you can also";
 
 export const USE_SNIPPET = () => "Snippet";
-export const SNIPPET_TOOLTIP = () => "Search snippets";
+export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Welcome!";
