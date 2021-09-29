@@ -40,6 +40,7 @@ import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
+import { migrateInputWidgetDefaultSelectedPhoneNumberCode } from "./migrations/InputWidget";
 import { DSLWidget } from "widgets/constants";
 
 /**
