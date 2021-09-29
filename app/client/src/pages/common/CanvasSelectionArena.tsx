@@ -392,23 +392,22 @@ export function CanvasSelectionArena({
 
       /**
        * sets panningEnabled to true
+       *
        * @param event
        * @returns
        */
       const onKeyDown = (event: KeyboardEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (event.repeat) return;
-
         if (event.key === " " || event.keyCode === 32) {
-          dispatch(updatePanningEnabled(true));
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (event.repeat === false) {
+            dispatch(updatePanningEnabled(true));
+          }
         }
       };
 
       const onKeyUp = (event: KeyboardEvent) => {
-        if (event.repeat) return;
-
         if (event.key === " " || event.keyCode === 32) {
           dispatch(updatePanningEnabled(false));
         }

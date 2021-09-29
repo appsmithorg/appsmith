@@ -25,7 +25,7 @@ export const setExplorerPinned = (shouldPin: boolean) => {
 };
 
 /**
- * action that make explorer pin/unpin
+ * action that updates explorer width
  *
  * @param shouldPin
  * @returns
