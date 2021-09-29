@@ -10,6 +10,7 @@ import {
 import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";
+import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
@@ -65,6 +66,7 @@ type Props = EditorProps &
 const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
+  align-items: center;
 `;
 
 const hintContainerStyles: React.CSSProperties = {
@@ -307,7 +309,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <DatasourceContainer>
-        <CodeEditor {...props} height="35px" />
+        <CodeEditor {...props} border={CodeEditorBorder.NONE} height="33px" />
         {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (

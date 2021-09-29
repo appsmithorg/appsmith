@@ -672,7 +672,7 @@ export default function Dropdown(props: DropdownProps) {
               fillColor={downIconColor}
               hoverFillColor={downIconColor}
               name="expand-more"
-              size={IconSize.XXS}
+              size={IconSize.XXL}
             />
           )
         )}

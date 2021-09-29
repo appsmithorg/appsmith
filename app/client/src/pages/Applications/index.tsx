@@ -9,7 +9,7 @@ import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
-import { Classes as BlueprintClasses, Dialog } from "@blueprintjs/core";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
 import {
   getApplicationList,
@@ -34,6 +34,7 @@ import ApplicationCard from "./ApplicationCard";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import Dialog from "components/ads/DialogComponent";
 // import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -182,25 +183,6 @@ const PaddingWrapper = styled.div`
     .bp3-card {
       width: ${(props) => props.theme.card.minWidth - 15}px;
       height: ${(props) => props.theme.card.minHeight - 15}px;
-    }
-  }
-`;
-
-const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
-  && {
-    background: ${(props) => props.theme.colors.modal.bg};
-    & .${BlueprintClasses.DIALOG_HEADER} {
-      background: ${(props) => props.theme.colors.modal.bg};
-      padding: ${(props) => props.theme.spaces[4]}px
-        ${(props) => props.theme.spaces[4]}px;
-    }
-    & .${BlueprintClasses.DIALOG_FOOTER_ACTIONS} {
-      display: block;
-    }
-    ${(props) => props.setMaxWidth && `width: 100vh;`}
-
-    .${BlueprintClasses.HEADING} {
-      color: ${(props) => props.theme.colors.modal.headerText};
     }
   }
 `;
@@ -706,18 +688,14 @@ function ApplicationsSection(props: any) {
                 />
               )}
               {hasManageOrgPermissions && (
-                <StyledDialog
+                <Dialog
                   canEscapeKeyClose={false}
                   canOutsideClickClose={false}
                   isOpen={selectedOrgId === organization.id}
-                  onClose={() => setSelectedOrgId("")}
-                  setMaxWidth
                   title={`Invite Users to ${organization.name}`}
                 >
-                  <div className={BlueprintClasses.DIALOG_BODY}>
-                    <Form orgId={organization.id} />
-                  </div>
-                </StyledDialog>
+                  <Form orgId={organization.id} />
+                </Dialog>
               )}
               {isPermitted(
                 organization.userPermissions,
