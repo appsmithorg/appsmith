@@ -18,6 +18,7 @@ import {
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
 
@@ -500,4 +501,19 @@ export const trimQueryString = (value = "") => {
   const index = value.indexOf("?");
   if (index === -1) return value;
   return value.slice(0, index);
+};
+
+/*
+ * fetch default vs branch specific id based on flag
+ */
+export const getApplicationIdFromPayload = (
+  application: ApplicationPayload,
+  useBranchSpecificId = false,
+) => {
+  if (useBranchSpecificId) {
+    return application.id;
+  }
+  return (
+    application?.gitApplicationMetadata?.defaultApplicationId || application.id
+  );
 };

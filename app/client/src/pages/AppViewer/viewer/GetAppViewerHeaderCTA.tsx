@@ -9,6 +9,7 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { TriggerButton } from "pages/Applications/ForkModalStyles";
 import { Size } from "components/ads/Button";
 import { getAllApplications } from "actions/applicationActions";
+import { getApplicationIdFromPayload } from "utils/helpers";
 
 const Cta = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
@@ -33,6 +34,8 @@ function GetAppViewerHeaderCTA(props: any) {
   } = props;
   let CTA = null;
   const dispatch = useDispatch();
+
+  const applicationId = getApplicationIdFromPayload(currentApplicationDetails);
 
   if (url && canEdit) {
     CTA = (
@@ -60,7 +63,7 @@ function GetAppViewerHeaderCTA(props: any) {
       CTA = (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
           <ForkApplicationModal
-            applicationId={currentApplicationDetails?.id}
+            applicationId={applicationId}
             trigger={
               <TriggerButton
                 className="t--fork-app"

@@ -303,8 +303,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
-                    return newPageService.archivePagesByApplicationId(id, MANAGE_PAGES)
-                            .thenReturn(application);
+                    return Mono.when(
+                            newPageService.archivePagesByApplicationId(id, MANAGE_PAGES),
+                            newActionService.archiveActionsByApplicationId(id, MANAGE_ACTIONS)
+                    ).thenReturn(application);
                 })
                 .flatMap(applicationService::archive);
 

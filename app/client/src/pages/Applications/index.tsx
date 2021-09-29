@@ -646,7 +646,13 @@ function ApplicationsSection(props: any) {
     updatedOrgs.length === 0
   ) {
     organizationsListComponent = (
-      <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
+      <CenteredWrapper
+        style={{
+          flexDirection: "column",
+          marginTop: "-150px",
+          position: "static",
+        }}
+      >
         <CreateNewLabel type={TextType.H4}>
           {createMessage(NO_APPS_FOUND)}
         </CreateNewLabel>

@@ -357,7 +357,7 @@ export function getValidatedTree(tree: DataTree) {
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { isValid, message, parsed, transformed } = validateWidgetProperty(
+      const { isValid, messages, parsed, transformed } = validateWidgetProperty(
         validation,
         value,
         entity,
@@ -375,15 +375,15 @@ export function getValidatedTree(tree: DataTree) {
         safeEvaluatedValue,
       );
       if (!isValid) {
+        const evalErrors: EvaluationError[] =
+          messages?.map((message) => ({
+            errorType: PropertyEvaluationErrorType.VALIDATION,
+            errorMessage: message,
+            severity: Severity.ERROR,
+            raw: value,
+          })) ?? [];
         addErrorToEntityProperty(
-          [
-            {
-              errorType: PropertyEvaluationErrorType.VALIDATION,
-              errorMessage: message || "",
-              severity: Severity.ERROR,
-              raw: value,
-            },
-          ],
+          evalErrors,
           tree,
           getEvalErrorPath(`${entityKey}.${property}`, false),
         );

@@ -59,9 +59,12 @@ import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
 
 //  ---------- Styles ----------
 
@@ -249,6 +252,9 @@ function GeneratePageForm() {
 
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
+  );
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
   );
 
   const onSelectDataSource = useCallback(
@@ -513,6 +519,12 @@ function GeneratePageForm() {
       dispatch({
         type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
         payload: "",
+      });
+    }
+    if (isFirstTimeUserOnboardingComplete) {
+      dispatch({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
+        payload: false,
       });
     }
   };
