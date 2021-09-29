@@ -54,7 +54,6 @@ const GenerateInfoBody = styled.p`
 
 type ActiveDataSourcesProps = {
   dataSources: Datasource[];
-  applicationId: string;
   pageId: string;
   location: {
     search: string;

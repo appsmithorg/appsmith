@@ -18,6 +18,7 @@ import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -123,7 +124,6 @@ const CardContentWrapper = styled.div`
 `;
 
 type ApiHomeScreenProps = {
-  applicationId: string;
   createNewApiAction: (pageId: string, from: EventLocation) => void;
   history: {
     replace: (data: string) => void;
@@ -149,14 +149,9 @@ const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const {
-    applicationId,
-    createNewApiAction,
-    history,
-    isCreating,
-    pageId,
-    plugins,
-  } = props;
+  const { createNewApiAction, history, isCreating, pageId, plugins } = props;
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,

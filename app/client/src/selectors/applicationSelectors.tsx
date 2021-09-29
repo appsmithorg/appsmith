@@ -12,6 +12,7 @@ import {
 import Fuse from "fuse.js";
 import { Organization } from "constants/orgConstants";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
+import { getCurrentApplicationId } from "./editorSelectors";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "organization.name"],
@@ -161,6 +162,7 @@ export const showAppInviteUsersDialogSelector = (state: AppState) =>
   state.ui.applications.showAppInviteUsersDialog;
 
 export const getDefaultApplicationId = (state: AppState) => {
-  const { defaultApplicationId, id } = getCurrentApplication(state) || {};
-  return defaultApplicationId || id;
+  const { gitApplicationMetadata } = getCurrentApplication(state) || {};
+  const currentApplicationId = getCurrentApplicationId(state);
+  return gitApplicationMetadata?.defaultApplicationId || currentApplicationId;
 };

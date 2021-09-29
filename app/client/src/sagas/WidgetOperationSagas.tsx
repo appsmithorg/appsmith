@@ -1091,13 +1091,10 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     const defaultApplicationId = yield select(getDefaultApplicationId);
 
     navigateToCanvas(
-      {
-        defaultApplicationId,
-        pageId,
-      },
       window.location.pathname,
       pageId,
       newWidget.newWidgetId,
+      defaultApplicationId,
     );
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {

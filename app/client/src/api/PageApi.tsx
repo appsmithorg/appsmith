@@ -211,25 +211,25 @@ class PageApi extends Api {
   }
 
   static fetchPageList(
-    applicationId: string,
+    defaultApplicationId: string,
     branchName?: string,
   ): AxiosPromise<FetchPageListResponse> {
     if (branchName)
       return Api.get(
-        `${PageApi.url}/application/${applicationId}/branch/${branchName}`,
+        `${PageApi.url}/application/${defaultApplicationId}/branch/${branchName}`,
       );
-    return Api.get(PageApi.url + "/application/" + applicationId);
+    return Api.get(PageApi.url + "/application/" + defaultApplicationId);
   }
 
   static fetchPageListViewMode(
-    applicationId: string,
+    defaultApplicationId: string,
     branchName?: string,
   ): AxiosPromise<FetchPageListResponse> {
     if (branchName)
       return Api.get(
-        `${PageApi.url}/view/application/${applicationId}/branch/${branchName}`,
+        `${PageApi.url}/view/application/${defaultApplicationId}/branch/${branchName}`,
       );
-    return Api.get(PageApi.url + "/view/application/" + applicationId);
+    return Api.get(PageApi.url + "/view/application/" + defaultApplicationId);
   }
 
   static deletePage(request: DeletePageRequest): AxiosPromise<ApiResponse> {

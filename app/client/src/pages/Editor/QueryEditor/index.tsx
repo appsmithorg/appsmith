@@ -40,6 +40,7 @@ import {
 } from "actions/evaluationActions";
 import { getUIComponent } from "selectors/formSelectors";
 import { diff } from "deep-diff";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -78,6 +79,7 @@ type ReduxStateProps = {
   settingConfig: any;
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
+  defaultApplicationId: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -152,6 +154,7 @@ class QueryEditor extends React.Component<Props> {
   render() {
     const {
       dataSources,
+      defaultApplicationId,
       editorConfig,
       isCreating,
       isDeleting,
@@ -167,7 +170,7 @@ class QueryEditor extends React.Component<Props> {
       settingConfig,
       uiComponent,
     } = this.props;
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
 
     if (!pluginIds?.length) {
       return (
@@ -264,6 +267,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
+    defaultApplicationId: getDefaultApplicationId(state),
   };
 };
 

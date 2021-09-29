@@ -10,10 +10,9 @@ import { QueryAction } from "entities/Action";
 import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
 import { Datasource, QueryTemplate } from "entities/Datasource";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};
@@ -38,7 +37,7 @@ type QueryTemplatesProps = {
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
-  const params = useParams<ExplorerURLParams>();
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
@@ -72,7 +71,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       );
       history.push(
         INTEGRATION_EDITOR_URL(
-          params.defaultApplicationId,
+          defaultApplicationId,
           currentPageId,
           INTEGRATION_TABS.ACTIVE,
         ),
@@ -82,7 +81,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       dispatch,
       actions,
       currentPageId,
-      params.defaultApplicationId,
+      defaultApplicationId,
       props.datasourceId,
       dataSource,
     ],

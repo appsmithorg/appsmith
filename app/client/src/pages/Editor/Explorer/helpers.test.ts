@@ -24,7 +24,7 @@ describe("getActionIdFromUrl", () => {
     window.history.pushState(
       {},
       "Query",
-      "/applications/appId/pages/pageId/edit/saas/api/saasActionId",
+      "/applications/appId/pages/pageId/edit/saas/:pluginPackageName/api/saasActionId",
     );
     const response = getActionIdFromURL();
     expect(response).toBe("saasActionId");

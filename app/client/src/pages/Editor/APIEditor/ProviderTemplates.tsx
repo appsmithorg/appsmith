@@ -10,6 +10,7 @@ import { ProviderViewerRouteParams } from "constants/routes";
 import {
   getProviderTemplates,
   getProvidersTemplatesLoadingState,
+  getDefaultApplicationId,
 } from "selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -194,6 +195,7 @@ type ProviderTemplatesProps = {
   setLastSelectedPage: (selectedPageId: string) => void;
   addApiToPage: (templateData: AddApiToPageRequest) => void;
   appCardColors: string[];
+  defaultApplicationId: string;
 } & RouteComponentProps<ProviderViewerRouteParams>;
 
 class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
@@ -266,12 +268,13 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
 
   render() {
     const {
+      defaultApplicationId,
       history,
       isFetchingProviderTemplates,
       providerDetails,
       providerTemplates,
     } = this.props;
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
 
     let destinationPageId = new URLSearchParams(this.props.location.search).get(
       "importTo",
@@ -510,6 +513,7 @@ const mapStateToProps = (state: AppState) => ({
   actions: state.entities.actions,
   providerDetails: state.ui.providers.providerDetailsByProviderId,
   appCardColors: getAppCardColorPalette(state),
+  defaultApplicationId: getDefaultApplicationId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -26,7 +26,6 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 };
 
 export type ExplorerURLParams = {
-  defaultApplicationId: string;
   pageId: string;
 };
 
@@ -46,6 +45,7 @@ export const getActionIdFromURL = () => {
   const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
     path: SAAS_EDITOR_API_ID_URL(),
   });
+
   if (saasMatch?.params?.apiId) {
     return saasMatch.params.apiId;
   }

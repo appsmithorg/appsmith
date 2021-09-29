@@ -32,10 +32,7 @@ import {
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
 } from "constants/routes";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
 import {
@@ -76,6 +73,7 @@ import {
   parseUrlForQueryParams,
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -126,14 +124,14 @@ function* syncApiParamsSaga(
 
 function* redirectToNewIntegrations(
   action: ReduxAction<{
-    applicationId: string;
+    defaultApplicationId: string;
     pageId: string;
     params?: Record<string, string>;
   }>,
 ) {
   history.push(
     INTEGRATION_EDITOR_URL(
-      action.payload.applicationId,
+      action.payload.defaultApplicationId,
       action.payload.pageId,
       INTEGRATION_TABS.ACTIVE,
       INTEGRATION_EDITOR_MODES.AUTO,
@@ -389,10 +387,10 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const applicationId = yield select(getCurrentApplicationId);
+    const defaultApplicationId = yield select(getDefaultApplicationId);
     const pageId = yield select(getCurrentPageId);
     history.push(
-      API_EDITOR_ID_URL(applicationId, pageId, id, {
+      API_EDITOR_ID_URL(defaultApplicationId, pageId, id, {
         editName: "true",
         from: "datasources",
       }),
@@ -405,12 +403,12 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   // Only look at API plugins
   if (plugin.type !== PluginType.API) return;
 
-  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
+  const defaultApplicationId = yield select(getDefaultApplicationId);
 
   history.push(
     DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
+      defaultApplicationId,
       pageId,
       actionPayload.payload.id,
       {
@@ -461,7 +459,7 @@ function* handleCreateNewQueryActionSaga(
   action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
   const { pageId } = action.payload;
-  const applicationId = yield select(getCurrentApplicationId);
+  const defaultApplicationId = yield select(getDefaultApplicationId);
   const actions = yield select(getActions);
   const dataSources = yield select(getDatasources);
   const plugins = yield select(getPlugins);
@@ -512,7 +510,11 @@ function* handleCreateNewQueryActionSaga(
     yield put(createActionRequest(createActionPayload));
   } else {
     history.push(
-      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+      INTEGRATION_EDITOR_URL(
+        defaultApplicationId,
+        pageId,
+        INTEGRATION_TABS.ACTIVE,
+      ),
     );
   }
 }
@@ -550,9 +552,11 @@ function* handleApiNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const applicationId = yield select(getCurrentApplicationId);
+    const defaultApplicationId = yield select(getDefaultApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.push(API_EDITOR_ID_URL(applicationId, pageId, actionId, params));
+    history.push(
+      API_EDITOR_ID_URL(defaultApplicationId, pageId, actionId, params),
+    );
   }
 }
 

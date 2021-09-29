@@ -59,11 +59,12 @@ import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 import {
   getFirstTimeUserOnboardingComplete,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 //  ---------- Styles ----------
 
@@ -170,9 +171,9 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const { defaultApplicationId, pageId: currentPageId } = useParams<
-    ExplorerURLParams
-  >();
+  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const applicationId = useSelector(getCurrentApplicationId);
 

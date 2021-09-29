@@ -6,7 +6,6 @@ import {
 import styled from "styled-components";
 import Button, { Category, Size } from "components/ads/Button";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
@@ -17,6 +16,7 @@ import {
   LATEST_DP_SUBTITLE,
   createMessage,
 } from "constants/messages";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Container = styled.div`
   display: flex;
@@ -38,10 +38,10 @@ const Separator = styled.div`
 `;
 
 export default function DeployPreview() {
-  const applicationId = useSelector(getCurrentApplicationId);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const showDeployPreview = () => {
-    const path = getApplicationViewerPageURL(applicationId, pageId);
+    const path = getApplicationViewerPageURL(defaultApplicationId, pageId);
     window.open(path, "_blank");
   };
 

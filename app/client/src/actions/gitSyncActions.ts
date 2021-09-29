@@ -4,6 +4,8 @@ import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
+// test comment
+
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;

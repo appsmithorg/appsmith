@@ -26,6 +26,7 @@ import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -86,7 +87,6 @@ const NewIntegrationsContainer = styled.div`
 
 type IntegrationsHomeScreenProps = {
   pageId: string;
-  applicationId: string;
   selectedTab: string;
   location: {
     search: string;
@@ -99,6 +99,7 @@ type IntegrationsHomeScreenProps = {
   isCreating: boolean;
   dataSources: Datasource[];
   mockDatasources: MockDatasource[];
+  defaultApplicationId: string;
 };
 
 type IntegrationsHomeScreenState = {
@@ -212,7 +213,6 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
 
 function CreateNewAPI({
   active,
-  applicationId,
   history,
   isCreating,
   pageId,
@@ -237,7 +237,6 @@ function CreateNewAPI({
     <div id="new-api" ref={newAPIRef}>
       <Text type={TextType.H2}>APIs</Text>
       <NewApiScreen
-        applicationId={applicationId}
         history={history}
         isCreating={isCreating}
         location={location}
@@ -250,7 +249,6 @@ function CreateNewAPI({
 
 function CreateNewDatasource({
   active,
-  applicationId,
   history,
   isCreating,
   pageId,
@@ -271,7 +269,6 @@ function CreateNewDatasource({
     <div id="new-datasources" ref={newDatasourceRef}>
       <Text type={TextType.H2}>Databases</Text>
       <NewQueryScreen
-        applicationId={applicationId}
         history={history}
         isCreating={isCreating}
         location={location}
@@ -320,7 +317,7 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   componentDidMount() {
-    const { applicationId, dataSources, history, pageId } = this.props;
+    const { dataSources, defaultApplicationId, history, pageId } = this.props;
 
     const queryParams = getQueryParams();
     const redirectMode = queryParams.mode;
@@ -331,7 +328,7 @@ class IntegrationsHomeScreen extends React.Component<
         delete queryParams.from;
         history.replace(
           INTEGRATION_EDITOR_URL(
-            applicationId,
+            defaultApplicationId,
             pageId,
             INTEGRATION_TABS.NEW,
             "",
@@ -345,12 +342,20 @@ class IntegrationsHomeScreen extends React.Component<
     ) {
       // User will be taken to active tab if there are datasources
       history.replace(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),
+        INTEGRATION_EDITOR_URL(
+          defaultApplicationId,
+          pageId,
+          INTEGRATION_TABS.ACTIVE,
+        ),
       );
     } else if (redirectMode === INTEGRATION_EDITOR_MODES.MOCK) {
       // If there are no datasources -> new user
       history.replace(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          defaultApplicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
       this.onSelectSecondaryMenu(
         getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
@@ -362,10 +367,14 @@ class IntegrationsHomeScreen extends React.Component<
 
   componentDidUpdate(prevProps: Props) {
     this.syncActivePrimaryMenu();
-    const { applicationId, dataSources, history, pageId } = this.props;
+    const { dataSources, defaultApplicationId, history, pageId } = this.props;
     if (dataSources.length === 0 && prevProps.dataSources.length > 0) {
       history.replace(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          defaultApplicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
       this.onSelectSecondaryMenu(
         getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
@@ -374,13 +383,13 @@ class IntegrationsHomeScreen extends React.Component<
   }
 
   onSelectPrimaryMenu = (activePrimaryMenuId: number) => {
-    const { applicationId, dataSources, history, pageId } = this.props;
+    const { dataSources, defaultApplicationId, history, pageId } = this.props;
     if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
       return;
     }
     history.push(
       INTEGRATION_EDITOR_URL(
-        applicationId,
+        defaultApplicationId,
         pageId,
         activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
           ? INTEGRATION_TABS.ACTIVE
@@ -407,14 +416,7 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   render() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      isCreating,
-      location,
-      pageId,
-    } = this.props;
+    const { dataSources, history, isCreating, location, pageId } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
@@ -445,7 +447,6 @@ class IntegrationsHomeScreen extends React.Component<
               activeSecondaryMenuId ===
               getSecondaryMenuIds(dataSources.length > 0).API
             }
-            applicationId={applicationId}
             history={history}
             isCreating={isCreating}
             location={location}
@@ -457,7 +458,6 @@ class IntegrationsHomeScreen extends React.Component<
               activeSecondaryMenuId ===
               getSecondaryMenuIds(dataSources.length > 0).DATABASE
             }
-            applicationId={applicationId}
             history={history}
             isCreating={isCreating}
             location={location}
@@ -472,7 +472,6 @@ class IntegrationsHomeScreen extends React.Component<
     } else {
       currentScreen = (
         <ActiveDataSources
-          applicationId={applicationId}
           dataSources={dataSources}
           history={this.props.history}
           location={location}
@@ -537,6 +536,7 @@ const mapStateToProps = (state: AppState) => {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
+    defaultApplicationId: getDefaultApplicationId(state),
   };
 };
 

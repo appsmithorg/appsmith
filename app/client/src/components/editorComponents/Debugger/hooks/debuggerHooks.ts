@@ -4,10 +4,7 @@ import { useParams } from "react-router";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
 import { getSelectedWidget } from "selectors/ui";
@@ -16,6 +13,7 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { isWidget, isAction } from "workers/evaluationUtils";
 import history from "utils/history";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -62,14 +60,14 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
 };
 
 export const useSelectedEntity = () => {
-  const applicationId = useSelector(getCurrentApplicationId);
   const currentPageId = useSelector(getCurrentPageId);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const params: any = useParams();
   const action = useSelector((state: AppState) => {
     if (
-      onApiEditor(applicationId, currentPageId) ||
-      onQueryEditor(applicationId, currentPageId)
+      onApiEditor(defaultApplicationId, currentPageId) ||
+      onQueryEditor(defaultApplicationId, currentPageId)
     ) {
       const id = params.apiId || params.queryId;
 
@@ -81,7 +79,7 @@ export const useSelectedEntity = () => {
 
   const selectedWidget = useSelector(getSelectedWidget);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(applicationId, currentPageId)) {
+    if (onCanvas(defaultApplicationId, currentPageId)) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
@@ -89,15 +87,15 @@ export const useSelectedEntity = () => {
   });
 
   if (
-    onApiEditor(applicationId, currentPageId) ||
-    onQueryEditor(applicationId, currentPageId)
+    onApiEditor(defaultApplicationId, currentPageId) ||
+    onQueryEditor(defaultApplicationId, currentPageId)
   ) {
     return {
       name: action?.name ?? "",
       type: ENTITY_TYPE.ACTION,
       id: action?.id ?? "",
     };
-  } else if (onCanvas(applicationId, currentPageId)) {
+  } else if (onCanvas(defaultApplicationId, currentPageId)) {
     return {
       name: widget?.widgetName ?? "",
       type: ENTITY_TYPE.WIDGET,
@@ -110,8 +108,8 @@ export const useSelectedEntity = () => {
 
 export const useEntityLink = () => {
   const dataTree = useSelector(getDataTree);
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const { navigateToWidget } = useNavigateToWidget();
 
@@ -123,9 +121,9 @@ export const useEntityLink = () => {
       } else if (isAction(entity)) {
         const actionConfig = getActionConfig(entity.pluginType);
         const url =
-          applicationId &&
+          defaultApplicationId &&
           actionConfig?.getURL(
-            applicationId,
+            defaultApplicationId,
             pageId || "",
             entity.actionId,
             entity.pluginType,

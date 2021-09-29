@@ -18,6 +18,7 @@ import {
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
+import { ApplicationPayload } from "constants/ReduxActionConstants";
 
 const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
 
@@ -492,3 +493,18 @@ export const stopClickEventPropagation = (
  * @returns
  */
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+
+/**
+ * fetch default vs branch specific id based on flag
+ */
+export const getApplicationIdFromPayload = (
+  application: ApplicationPayload,
+  useBranchSpecificId = false,
+) => {
+  if (!useBranchSpecificId) {
+    return application.id;
+  }
+  return (
+    application?.gitApplicationMetadata?.defaultApplicationId || application.id
+  );
+};

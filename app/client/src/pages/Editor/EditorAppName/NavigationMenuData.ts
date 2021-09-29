@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
@@ -16,16 +16,15 @@ import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
-  applicationId: string | undefined;
   editMode: typeof noop;
   deploy: typeof noop;
   currentDeployLink: string;
 };
 
 export const GetNavigationMenuData = ({
-  applicationId,
   currentDeployLink,
   deploy,
   editMode,
@@ -35,7 +34,11 @@ export const GetNavigationMenuData = ({
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
 
-  const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
+
+  const isApplicationIdPresent = !!(
+    defaultApplicationId && defaultApplicationId.length > 0
+  );
 
   const openExternalLink = useCallback((link: string) => {
     if (link) {
@@ -44,11 +47,11 @@ export const GetNavigationMenuData = ({
   }, []);
 
   const deleteApplication = () => {
-    if (applicationId && applicationId.length > 0) {
+    if (defaultApplicationId && defaultApplicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
         payload: {
-          applicationId,
+          applicationId: defaultApplicationId,
         },
       });
       history.push(APPLICATIONS_URL);
@@ -70,9 +73,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(
-          PAGE_LIST_EDITOR_URL(params.defaultApplicationId, params.pageId),
-        );
+        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId));
       },
       type: MenuTypes.MENU,
       isVisible: true,
@@ -158,7 +159,8 @@ export const GetNavigationMenuData = ({
     {
       text: "Export Application",
       onClick: () =>
-        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
+        defaultApplicationId &&
+        openExternalLink(getExportAppAPIRoute(defaultApplicationId)),
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent,
     },

@@ -25,7 +25,10 @@ import ApplicationApi, {
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
-import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
+import {
+  getDefaultApplicationId,
+  getUserApplicationsOrgsList,
+} from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import {
@@ -107,9 +110,10 @@ export function* publishApplicationSaga(
 
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
+      const defaultApplicationId = yield select(getDefaultApplicationId);
 
       let appicationViewPageUrl = getApplicationViewerPageURL(
-        applicationId,
+        defaultApplicationId,
         currentPageId,
       );
 
@@ -187,7 +191,7 @@ export function* getAllApplicationSaga() {
 
 export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
   try {
-    const { applicationId, branchName, mode } = action.payload;
+    const { branchName, defaultApplicationId, mode } = action.payload;
     // Get endpoint based on app mode
     const apiEndpoint =
       mode === APP_MODE.EDIT
@@ -196,7 +200,7 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
 
     const response: FetchApplicationResponse = yield call(
       apiEndpoint,
-      applicationId,
+      defaultApplicationId,
       branchName,
     );
 

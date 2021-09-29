@@ -27,10 +27,7 @@ import ProvidersApi, {
 import { Providers } from "constants/providerConstants";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { fetchActions } from "actions/pluginActionActions";
-import {
-  getCurrentApplicationId,
-  getPageList,
-} from "selectors/editorSelectors";
+import { getPageList } from "selectors/editorSelectors";
 import {
   ADD_API_TO_PAGE_SUCCESS_MESSAGE,
   createMessage,
@@ -40,6 +37,7 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { extractBranchNameFromPath } from "constants/routes";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
@@ -104,9 +102,9 @@ export function* addApiToPageSaga(
         data: response.data,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
+      const defaultApplicationId = yield select(getDefaultApplicationId);
       const branchName = extractBranchNameFromPath();
-      yield put(fetchActions({ applicationId, branchName }, []));
+      yield put(fetchActions({ defaultApplicationId, branchName }, []));
     }
   } catch (error) {
     yield put({

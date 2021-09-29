@@ -14,8 +14,6 @@ import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "./helpers";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -25,6 +23,7 @@ import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -48,7 +47,7 @@ const StyledDivider = styled(Divider)`
 `;
 
 function EntityExplorer(props: IPanelProps) {
-  const { defaultApplicationId } = useParams<ExplorerURLParams>();
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,

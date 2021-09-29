@@ -11,6 +11,9 @@ import { Page } from "constants/ReduxActionConstants";
 import Toggle from "components/ads/Toggle";
 import { Action } from "./PageListItem";
 import EditName from "./EditName";
+import { useSelector } from "react-redux";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 // render over popover portals
 const Container = styled.div`
@@ -86,7 +89,6 @@ const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 type Props = {
   page: Page;
-  applicationId: string;
   onSetPageHidden: () => void;
   onCopy: (pageId: string) => void;
   onDelete: (pageId: string, pageName: string) => void;
@@ -94,16 +96,11 @@ type Props = {
 };
 
 function ContextMenu(props: Props) {
-  const {
-    applicationId,
-    onCopy,
-    onDelete,
-    onSetPageDefault,
-    onSetPageHidden,
-    page,
-  } = props;
+  const { onCopy, onDelete, onSetPageDefault, onSetPageHidden, page } = props;
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   /**
    * opens the context menu on interaction ( on click )
@@ -118,7 +115,7 @@ function ContextMenu(props: Props) {
         <Container>
           <Header>
             <PageName>
-              <EditName applicationId={applicationId} page={page} />
+              <EditName page={page} />
             </PageName>
             <Actions>
               <Action>

@@ -3,7 +3,6 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
-  APP_VIEW_URL,
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
   BASE_LOGIN_URL,
@@ -124,9 +123,8 @@ class AppRouter extends React.Component<any, any> {
                   path={SIGNUP_SUCCESS_URL}
                 />
                 <SentryRoute component={EditorLoader} path={BUILDER_URL} />
-                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
-                <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
+                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute
                   component={UnsubscribeEmail}
                   path={UNSUBSCRIBE_EMAIL_URL}
