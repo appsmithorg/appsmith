@@ -67,7 +67,7 @@ class SwitchGroupWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                deafult: [],
+                default: [],
                 children: {
                   type: ValidationTypes.TEXT,
                 },
@@ -88,14 +88,13 @@ class SwitchGroupWidget extends BaseWidget<
           {
             propertyName: "isRequired",
             label: "Required",
-            helpText: "Makes input to the widget mandatory",
+            helpText:
+              "Turning this switch on is mandatory for this field to be valid, inside a form widget",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
