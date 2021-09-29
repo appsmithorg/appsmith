@@ -99,12 +99,10 @@ public class AnalyticsService {
             userId = hashedUserId;
         }
 
-        if (!CollectionUtils.isEmpty(analyticsProperties) && commonConfig.isCloudHosting()) {
-            // Segment throws an NPE if any value in `properties` is null.
-            for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
-                if (entry.getValue() == null) {
-                    analyticsProperties.put(entry.getKey(), "");
-                }
+        // Segment throws an NPE if any value in `properties` is null.
+        for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+            if (entry.getValue() == null) {
+                analyticsProperties.put(entry.getKey(), "");
             }
         }
 
