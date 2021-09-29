@@ -10,6 +10,7 @@ import {
   getViewModePageList,
   previewModeSelector,
   getPanningEnabled,
+  getIsPanning,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "@blueprintjs/core";
@@ -64,6 +65,7 @@ function WidgetsEditor() {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
+  const isPanning = useSelector(getIsPanning);
   const widgets = useSelector(getCanvasWidgetDsl);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
@@ -163,14 +165,14 @@ function WidgetsEditor() {
    */
   const onPanStart = useCallback(() => {
     dispatch(updateIsPanning(true));
-  }, [dispatch]);
+  }, [dispatch, updateIsPanning]);
 
   /**
    * dispatches an action that updates isPanning flag to false
    */
   const onPanEnd = useCallback(() => {
     dispatch(updateIsPanning(false));
-  }, [dispatch]);
+  }, [dispatch, updateIsPanning]);
 
   const {
     panZoomHandlers,
@@ -186,6 +188,9 @@ function WidgetsEditor() {
     maxZoom: 1,
   });
 
+  /**
+   * resetting panning and zoom when preview mode is on
+   */
   useEffect(() => {
     if (isPreviewMode === true) {
       setPan({ x: 0, y: 0 });
@@ -204,7 +209,8 @@ function WidgetsEditor() {
         <div
           className={classNames({
             "relative flex flex-col items-stretch justify-start flex-1 overflow-hidden": true,
-            "cursor-grab": isPanningEnabled,
+            "cursor-grab": isPanningEnabled && isPanning === false,
+            "cursor-grabbing": isPanning === true,
           })}
           data-testid="widgets-editor"
           draggable

@@ -215,6 +215,7 @@ module.exports = {
       move: "move",
       help: "help",
       grab: "grab",
+      grabbing: "grabbing",
       "not-allowed": "not-allowed",
       "ew-resize": "ew-resize",
       "ns-resize": "ns-resize",
