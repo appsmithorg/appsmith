@@ -55,7 +55,7 @@ import log from "loglevel";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
   initAppLevelSocketConnection,
-  reconnectPageLevelWebsocket,
+  initPageLevelSocketConnection,
 } from "actions/websocketActions";
 import {
   getEnableFirstTimeUserOnboarding,
@@ -111,7 +111,7 @@ export function* getCurrentUserSaga() {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put(initAppLevelSocketConnection());
-      yield put(reconnectPageLevelWebsocket());
+      yield put(initPageLevelSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME

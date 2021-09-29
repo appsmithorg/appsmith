@@ -13,10 +13,10 @@ import CanvasMultiPointerArena, {
 import { throttle } from "lodash";
 import { RenderModes } from "constants/WidgetConstants";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
-import { AppState } from "reducers";
 import { useDispatch } from "react-redux";
 import { initPageLevelSocketConnection } from "actions/websocketActions";
 import { collabShareUserPointerEvent } from "actions/appCollabActions";
+import { getIsPageLevelSocketConnected } from "../../selectors/websocketSelectors";
 
 interface CanvasProps {
   dsl: DSLWidget;
@@ -48,9 +48,7 @@ const getPointerData = (
 
 const useShareMousePointerEvent = () => {
   const dispatch = useDispatch();
-  const isWebsocketConnected = useSelector(
-    (state: AppState) => state.ui.websocket.pageLevelSocketConnected,
-  );
+  const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   useEffect(() => {
     if (!isWebsocketConnected) {
       dispatch(initPageLevelSocketConnection());
@@ -65,9 +63,7 @@ const useShareMousePointerEvent = () => {
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = props;
   const shareMousePointer = useShareMousePointerEvent();
-  const isWebsocketConnected = useSelector(
-    (state: AppState) => state.ui.websocket.pageLevelSocketConnected,
-  );
+  const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   const isMultiplayerEnabledForUser = useSelector(
     isMultiplayerEnabledForUserSelector,
   );

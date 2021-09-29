@@ -33,12 +33,13 @@ function connect(namespace?: string) {
 
   return new Promise((resolve) => {
     socket.on(SOCKET_CONNECTION_EVENTS.CONNECT, () => {
+      socket.off(SOCKET_CONNECTION_EVENTS.CONNECT);
       resolve(socket);
     });
   });
 }
 
-function subscribeToSocket(socket: any) {
+function listenToSocket(socket: any) {
   return eventChannel((emit) => {
     socket.onAny((event: any, ...args: any) => {
       emit({
@@ -59,7 +60,7 @@ function subscribeToSocket(socket: any) {
 }
 
 function* readFromAppSocket(socket: any) {
-  const channel = yield call(subscribeToSocket, socket);
+  const channel = yield call(listenToSocket, socket);
   while (true) {
     const action = yield take(channel);
     switch (action.type) {
@@ -118,7 +119,6 @@ function* openAppLevelSocketConnection() {
       const task = yield fork(handleAppSocketIO, socket);
       yield put(setIsAppLevelWebsocketConnected(true));
       yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
-      yield take();
       yield cancel(task);
       socket.disconnect();
     } catch (e) {
@@ -132,7 +132,7 @@ function* openAppLevelSocketConnection() {
 }
 
 function* readFromPageSocket(socket: any) {
-  const channel = yield call(subscribeToSocket, socket);
+  const channel = yield call(listenToSocket, socket);
   while (true) {
     const action = yield take(channel);
     switch (action.type) {
@@ -184,7 +184,6 @@ function* openPageLevelSocketConnection() {
       const task = yield fork(handlePageSocketIO, socket);
       yield put(setIsPageLevelWebsocketConnected(true));
       yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
-      yield take();
       yield cancel(task);
       socket.disconnect();
     } catch (e) {

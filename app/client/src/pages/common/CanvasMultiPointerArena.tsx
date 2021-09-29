@@ -3,14 +3,13 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useRef } from "react";
 import store from "store";
-import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import {
   collabResetEditorsPointersData,
   collabStartSharingPointerEvent,
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
-import { reconnectPageLevelWebsocket } from "actions/websocketActions";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 
 export const POINTERS_CANVAS_ID = "collab-pointer-sharing-canvas";
 
@@ -78,9 +77,7 @@ type PointerDataType = {
 function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const dispatch = useDispatch();
   const animationStepIdRef = useRef<number>(0);
-  const isWebsocketConnected = useSelector(
-    (state: AppState) => state.ui.websocket.pageLevelSocketConnected,
-  );
+  const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   let selectionCanvas: any;
 
   // Setup for painting on canvas
@@ -101,8 +98,6 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   useEffect(() => {
     if (isWebsocketConnected) {
       dispatch(collabStartSharingPointerEvent(pageId));
-    } else {
-      dispatch(reconnectPageLevelWebsocket()); // try to connect manually
     }
     return () => {
       dispatch(collabStopSharingPointerEvent());
