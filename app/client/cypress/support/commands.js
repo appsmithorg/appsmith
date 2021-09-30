@@ -1093,7 +1093,6 @@ Cypress.Commands.add("AddActionWithModal", () => {
     .click({ force: true });
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
-  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
 Cypress.Commands.add("createModal", (ModalName) => {
@@ -1112,7 +1111,6 @@ Cypress.Commands.add("createModal", (ModalName) => {
     modalWidgetPage.modalName,
     modalWidgetPage.modalName,
   );
-  cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
   //changing the Model label
   cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
@@ -2378,7 +2376,7 @@ Cypress.Commands.add("changeButtonColor", (buttonColor) => {
 });
 
 Cypress.Commands.add("closePropertyPane", () => {
-  cy.get(commonlocators.editPropCrossButton).click({ force: true });
+  cy.get(commonlocators.canvas).click({ force: true });
 });
 
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
