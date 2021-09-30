@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
@@ -519,9 +519,7 @@ export function TableHeaderCell(props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
-  const disableSort = useMemo(() => {
-    return editMode === false && isSortable === false;
-  }, [isSortable, editMode]);
+  const disableSort = () => editMode === false && isSortable === false;
 
   return (
     <div
