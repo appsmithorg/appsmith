@@ -11,8 +11,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { Position } from "codemirror";
 import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { isEmpty } from "lodash";
-import { getKeyPositionInString } from "components/editorComponents/CodeEditor/lintHelpers";
+import { isEmpty, last } from "lodash";
 
 export type EvalResult = {
   result: any;
@@ -53,12 +52,27 @@ const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
   `,
 };
 
-const evalutionScriptPostions: Record<string, Position> = {};
+const getPositionInEvaluationScript = (
+  type: EvaluationScriptType,
+): Position => {
+  const script = evaluationScriptsPos[type];
 
+  const index = script.indexOf(ScriptTemplate);
+  const substr = script.substr(0, index);
+  const lines = substr.split("\n");
+  const lastLine = last(lines) || "";
+
+  return { line: lines.length, ch: lastLine.length };
+};
+
+const evalutionScriptPostions: Record<string, Position> = {};
+// We are computing position of <<script>> in our templates.
+// This will be used to get the exact location of error in linting
 Object.keys(evaluationScriptsPos).forEach((scriptType) => {
-  const script = evaluationScriptsPos[scriptType as EvaluationScriptType];
-  const location = getKeyPositionInString(script, ScriptTemplate);
-  evalutionScriptPostions[scriptType] = location[0];
+  const location = getPositionInEvaluationScript(
+    scriptType as EvaluationScriptType,
+  );
+  evalutionScriptPostions[scriptType] = location;
 });
 
 const getScriptType = (

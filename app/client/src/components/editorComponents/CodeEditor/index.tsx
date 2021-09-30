@@ -484,9 +484,7 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    let annotations: Annotation[] = [];
-
-    annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(editor.getValue(), errors);
 
     this.updateLintingCallback(editor, annotations);
   }
