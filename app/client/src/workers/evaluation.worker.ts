@@ -47,6 +47,9 @@ function messageEventListener(
       });
     } catch (e) {
       console.error(e);
+      // we dont want to log dataTree because it is huge.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { dataTree, ...rest } = requestData;
       ctx.postMessage({
         requestId,
         responseData: {
@@ -54,7 +57,7 @@ function messageEventListener(
             {
               type: EvalErrorTypes.CLONE_ERROR,
               message: e,
-              context: requestData,
+              context: JSON.stringify(rest),
             },
           ],
         },
@@ -237,13 +240,12 @@ ctx.addEventListener(
           return true;
         }
         try {
-          const { errors, evalTree, result } = parseJSCollection(
+          const { evalTree, result } = parseJSCollection(
             body,
             jsAction,
             dataTreeEvaluator.evalTree,
           );
           return {
-            errors,
             evalTree,
             result,
           };
@@ -259,7 +261,6 @@ ctx.addEventListener(
           ];
           _.set(evalTree, `${jsAction.name}.${EVAL_ERROR_PATH}.body`, errors);
           return {
-            errors,
             evalTree,
           };
         }

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoSecurityException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -87,13 +88,12 @@ public class MongoPluginTest {
 
     private static String address;
     private static Integer port;
+    private JsonNode value;
 
     @SuppressWarnings("rawtypes")
     @ClassRule
     public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("mongo:4.4"))
             .withExposedPorts(27017);
-
-    private JsonNode value;
 
     @BeforeClass
     public static void setUp() {
@@ -1691,4 +1691,129 @@ public class MongoPluginTest {
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
 
+    @Test
+    public void testReadableErrorWithFilterKeyError() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // Set bad attribute for limit key
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      filter: \"filter\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    // Verify readable error.
+                    String expectedReadableError = "'filter' field must be of BSON type object.";
+                    assertEquals(expectedReadableError, result.getReadableError());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testReadableErrorWithMongoFailedToParseError() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // Set bad attribute for limit key
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      limit: [10],\n" +
+                "    }");
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    // Verify readable error.
+                    String expectedReadableError = "'limit' field must be numeric.";
+                    assertEquals(expectedReadableError, result.getReadableError());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testReadableErrorWithMongoBadKeyError() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        // Set unrecognized key limitx
+        actionConfiguration.setBody("{\n" +
+                "      find: \"users\",\n" +
+                "      limitx: 10,\n" +
+                "    }");
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+
+                    // Verify readable error.
+                    String expectedReadableError = "Unrecognized field 'limitx'.";
+                    assertEquals(expectedReadableError, result.getReadableError());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testReadableErrorOnTestDatasourceFailWithBadCredentials() {
+        // Mock exception on authentication failure.
+        MongoSecurityException mockMongoSecurityException = mock(MongoSecurityException.class);
+        when(mockMongoSecurityException.getCode()).thenReturn(-4);
+        when(mockMongoSecurityException.getMessage()).thenReturn("Exception authenticating " +
+                "MongoCredential{mechanism=SCRAM-SHA-1, userName='username', source='admin', password=<hidden>," +
+                " mechanismProperties=<hidden>}");
+
+        // Throw mock error on datasource create method call.
+        MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(pluginExecutor);
+        doReturn(Mono.error(mockMongoSecurityException)).when(spyMongoPluginExecutor).datasourceCreate(any());
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        StepVerifier.create(spyMongoPluginExecutor.testDatasource(dsConfig))
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertFalse(datasourceTestResult.isSuccess());
+
+                    // Verify readable error.
+                    String expectedReadableError = "Exception authenticating MongoCredential.";
+                    assertEquals(expectedReadableError, datasourceTestResult.getInvalids().toArray()[0]);
+                })
+                .verifyComplete();
+    }
 }

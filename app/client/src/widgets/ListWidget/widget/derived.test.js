@@ -50,4 +50,30 @@ describe("Validates Derived Properties", () => {
     let result = getItems(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
+
+  it("validates pageSize property", () => {
+    const { getPageSize } = derivedProperty;
+    const input1 = {
+      bottomRow: 86,
+      children: [{ children: [{ bottomRow: 16 }] }],
+      templateBottomRow: 16,
+      gridGap: 0,
+      parentRowSpace: 10,
+      topRow: 9,
+    };
+    // resize ListWidget so bottomRow changes
+    const input2 = {
+      ...input1,
+      bottomRow: 56,
+    };
+
+    const expected1 = 4;
+    const expected2 = 2;
+
+    let result1 = getPageSize(input1, moment, _);
+    let result2 = getPageSize(input2, moment, _);
+
+    expect(result1).toStrictEqual(expected1);
+    expect(result2).toStrictEqual(expected2);
+  });
 });

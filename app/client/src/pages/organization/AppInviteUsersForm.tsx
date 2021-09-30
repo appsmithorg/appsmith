@@ -75,7 +75,7 @@ function AppInviteUsersForm(props: any) {
       {canShareWithPublic && (
         <ShareWithPublicOption>
           <Text type={TextType.H5}>Make the application public</Text>
-          <ShareToggle>
+          <ShareToggle className="t--share-public-toggle">
             {currentApplicationDetails && (
               <Toggle
                 disabled={isChangingViewAccess || isFetchingApplication}
