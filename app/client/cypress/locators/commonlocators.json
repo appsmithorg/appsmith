@@ -78,6 +78,7 @@
   "toastAction": ".t--toast-action",
   "toastBody": ".Toastify__toast-body",
   "videoInner": ".t--draggable-videowidget span.t--widget-name",
+  "audioInner": ".t--draggable-audiowidget span.t--widget-name",
   "onPlay": ".t--property-control-onplay .t--open-dropdown-Select-Action",
   "chooseAction": ".single-select",
   "chooseMsgType": ".t--open-dropdown-Select-type",
