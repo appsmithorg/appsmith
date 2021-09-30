@@ -54,7 +54,7 @@ export interface LayoutConfig {
 }
 
 type LayoutConfigurations = Record<SupportedLayouts, LayoutConfig>;
-export const DefaultLayoutType: SupportedLayouts = "DESKTOP";
+export const DefaultLayoutType: SupportedLayouts = "FLUID";
 export const layoutConfigurations: LayoutConfigurations = {
   TABLET_LARGE: {
     minWidth: 960,

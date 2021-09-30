@@ -21,13 +21,13 @@ interface AppsmithLayoutConfigOption {
 }
 
 export const AppsmithDefaultLayout: AppLayoutConfig = {
-  type: "DESKTOP",
+  type: "FLUID",
 };
 
 const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
   {
     name: "Desktop",
-    ...AppsmithDefaultLayout,
+    type: "DESKTOP",
     icon: "desktop",
   },
   {
@@ -62,9 +62,9 @@ export function MainContainerLayoutControl() {
    * layout, use the first one
    */
   const selectedLayout = useMemo(() => {
-    return appLayout
-      ? AppsmithLayouts.find((each) => each.type === appLayout.type)
-      : AppsmithLayouts[0];
+    return AppsmithLayouts.find(
+      (each) => each.type === (appLayout?.type || AppsmithDefaultLayout.type),
+    );
   }, [appLayout]);
 
   /**

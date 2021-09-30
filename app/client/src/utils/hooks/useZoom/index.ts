@@ -18,7 +18,7 @@ export default function usePanZoom({
   requireCtrlToZoom = true,
   panOnDrag = true,
   preventClickOnPan = true,
-  zoomSensitivity = 0.001,
+  zoomSensitivity = 0.005,
   minZoom = 0.25,
   maxZoom = 1.25,
   minX = -Infinity,
@@ -68,9 +68,6 @@ export default function usePanZoom({
     center: { x: 0, y: 0 },
     transform: { ...initialPan, zoom: initialZoom },
   });
-
-  // eslint-disable-next-line
-  console.log({ enablePan, enableZoom });
 
   const clampX = useMemo(() => clamp(minX, maxX), [minX, maxX]);
   const clampY = useMemo(() => clamp(minY, maxY), [minY, maxY]);
@@ -212,8 +209,6 @@ export default function usePanZoom({
   const onWheel = useCallback(
     (event) => {
       if (enableZoom && containerRef.current && event.ctrlKey) {
-        // eslint-disable-next-line
-        console.log({ enablePan, enableZoom });
         event.preventDefault();
         const pointerPosition = getPositionOnElement(containerRef.current, {
           x: event.pageX,
