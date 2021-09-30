@@ -213,12 +213,17 @@ function WidgetsEditor() {
   /**
    * sets panningEnabled to true
    * if panning is not allowed, dont do anything
+   * Also, if any input/textarea is active, don't do anything.
    *
    * @param event
    * @returns
    */
   const onKeyDown = (event: KeyboardEvent) => {
-    if (isPanningAllowed === false) return;
+    const activeElement = document.activeElement;
+    const isCanvasOrBodyActive =
+      activeElement?.tagName === "BODY" || activeElement?.tagName === "CANVAS";
+
+    if (isPanningAllowed === false || isCanvasOrBodyActive === false) return;
 
     if (event.key === " " || event.keyCode === 32) {
       event.preventDefault();
@@ -256,14 +261,14 @@ function WidgetsEditor() {
    * event listeners
    */
   useEffect(() => {
-    window.addEventListener("keydown", onKeyDown, false);
-    window.addEventListener("keyup", onKeyUp, false);
+    document.body.addEventListener("keydown", onKeyDown, false);
+    document.body.addEventListener("keyup", onKeyUp, false);
 
     return () => {
-      window.removeEventListener("keydown", onKeyDown, false);
-      window.removeEventListener("keyup", onKeyUp, false);
+      document.body.removeEventListener("keydown", onKeyDown, false);
+      document.body.removeEventListener("keyup", onKeyUp, false);
     };
-  }, [isPanningAllowed]);
+  }, [isPanningAllowed, onKeyDown, onKeyUp]);
 
   PerformanceTracker.stopTracking();
   return (
