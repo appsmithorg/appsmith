@@ -179,10 +179,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       );
       if (isGeneratePageInitiator) {
         history.push(
-          `${getGenerateTemplateFormURL(
-            defaultApplicationId,
-            pageId,
-          )}?datasourceId=${response.data.id}`,
+          getGenerateTemplateFormURL(defaultApplicationId, pageId, {
+            datasourceId: response.data.id,
+          }),
         );
       } else {
         history.push(
@@ -783,10 +782,9 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
     generateCRUDSupportedPlugin[updatedDatasource.pluginId]
   ) {
     history.push(
-      `${getGenerateTemplateFormURL(
-        defaultApplicationId,
-        pageId,
-      )}?datasourceId=${updatedDatasource.id}`,
+      getGenerateTemplateFormURL(defaultApplicationId, pageId, {
+        datasourceId: updatedDatasource.id,
+      }),
     );
   } else if (
     actionRouteInfo &&

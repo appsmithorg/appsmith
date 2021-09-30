@@ -392,11 +392,13 @@ export const getGenerateTemplateURL = (
 export const getGenerateTemplateFormURL = (
   defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
+  params = {},
 ): string =>
   BUILDER_PAGE_URL({
     defaultApplicationId,
     pageId,
     suffix: `${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`,
+    params,
   });
 
 export const getOnboardingCheckListUrl = (
