@@ -55,7 +55,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -327,36 +326,5 @@ public class ActionCollectionServiceTest {
                     );
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testRefactorCollection_withModifiedName_ignoresName() {
-        ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
-        originalActionCollectionDTO.setName("originalName");
-        originalActionCollectionDTO.setApplicationId(testApp.getId());
-        originalActionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
-        originalActionCollectionDTO.setPageId(testPage.getId());
-        originalActionCollectionDTO.setPluginId(datasource.getPluginId());
-        originalActionCollectionDTO.setPluginType(PluginType.JS);
-
-        final ActionCollectionDTO dto = layoutCollectionService.createCollection(originalActionCollectionDTO).block();
-
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        assert dto != null;
-        actionCollectionDTO.setId(dto.getId());
-        actionCollectionDTO.setBody("body");
-        actionCollectionDTO.setName("newName");
-
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                actionCollectionService.refactorCollection(dto.getId(), actionCollectionDTO);
-
-        StepVerifier.create(actionCollectionDTOMono)
-                .assertNext(actionCollectionDTOResult -> {
-                    assertEquals("originalName", actionCollectionDTOResult.getName());
-                    assertEquals("body", actionCollectionDTOResult.getBody());
-                })
-                .verifyComplete();
-
     }
 }

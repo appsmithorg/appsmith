@@ -5,6 +5,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -85,10 +86,10 @@ public class ActionCollectionController {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
-    @PutMapping("/{id}/refactor")
-    public Mono<ResponseDTO<ActionCollectionDTO>> refactorActionCollection(@PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
-        log.debug("Going to refactor action collection with id: {}", id);
-        return actionCollectionService.refactorCollection(id, resource)
+    @PutMapping("/refactorAction")
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(@Valid @RequestBody RefactorActionNameInCollectionDTO resource) {
+        log.debug("Going to refactor action collection with id: {}", resource.getActionCollection().getId());
+        return layoutCollectionService.refactorAction(resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
