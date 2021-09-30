@@ -418,8 +418,6 @@ public class ImportExportApplicationService {
             errorField = FieldName.ACTIONS;
         } else if (importedDatasourceList == null) {
             errorField = FieldName.DATASOURCE;
-        } else if (importedActionCollectionList == null) {
-            errorField = FieldName.ACTION_COLLECTION;
         }
 
         if (!errorField.isEmpty()) {
@@ -676,7 +674,9 @@ public class ImportExportApplicationService {
                                     .collectList());
                 })
                 .flatMap(existingActionCollections -> {
-                    assert importedActionCollectionList != null;
+                    if (importedActionCollectionList == null) {
+                        return Mono.just(true);
+                    }
 
                     return Flux.fromIterable(importedActionCollectionList)
                             .flatMap(actionCollection -> {
