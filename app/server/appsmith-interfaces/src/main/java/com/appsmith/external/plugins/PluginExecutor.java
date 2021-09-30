@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -11,12 +12,18 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.appsmith.external.helpers.PluginUtils.endpointContainsLocalhost;
+import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 
 public interface PluginExecutor<C> extends ExtensionPoint {
 
@@ -173,5 +180,15 @@ public interface PluginExecutor<C> extends ExtensionPoint {
             MustacheHelper.renderFieldValues(datasourceConfiguration, replaceParamsMap);
             MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
         }
+    }
+
+    default Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                                                        DatasourceConfiguration datasourceConfiguration) {
+        Set<String> datasourceHintMessages = new HashSet<>();
+        Set<String> actionHintMessages = new HashSet<>();
+
+        datasourceHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
+
+        return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
     }
 }

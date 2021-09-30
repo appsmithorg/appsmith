@@ -55,6 +55,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -1008,12 +1009,24 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
         /*
          * - No need for this null check: action == null. By the time the code flow reaches here, action is
-         *   guaranteed to be non null.
+         *   guaranteed to be non-null.
          */
+        Mono<Plugin> pluginMono = pluginService.findById(action.getDatasource().getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+        return pluginExecutorMono
+                .flatMap(pluginExecutor ->
+                        pluginExecutor.getHintMessages(action.getActionConfiguration(),
+                            action.getDatasource().getDatasourceConfiguration())
+                )
+                .flatMap(tuple -> {
+                    Set datasourceHintMessages = ((Tuple2<Set, Set>) tuple).getT1();
+                    action.getDatasource().getMessages().addAll(datasourceHintMessages);
 
-        datasourceService.populateHintMessages(action.getDatasource());
+                    Set actionHintMessages = ((Tuple2<Set, Set>) tuple).getT2();
+                    action.getMessages().addAll(actionHintMessages);
 
-        return Mono.just(action);
+                    return Mono.just(action);
+                });
     }
 
     @Override
