@@ -2,6 +2,8 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -67,9 +69,11 @@ public class Condition {
 
         for(Object config : configurationList) {
             Map<String, String> condition = (Map<String, String>) config;
-            if (condition.entrySet().isEmpty() || !condition.keySet().containsAll(Set.of("path", "operator", "value"))) {
-                // Its an empty/partially filled object set by the client for UX. Ignore the invalid conditions
+            if (condition.entrySet().isEmpty()) {
+                // Its an empty object set by the client for UX. Ignore the same
                 continue;
+            } else if (!condition.keySet().containsAll(Set.of("path", "operator", "value"))) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Filtering Condition not configured properly");
             }
             conditionList.add(new Condition(
                     condition.get("path"),
