@@ -1,13 +1,13 @@
 ## Contributing code
 
-### 🔎 Code and copy reviews
+### Getting Started
 
 All submissions, including submissions by project members, require review. We use GitHub pull requests for this purpose. Consult GitHub Help for more information on using pull requests.
 Before raising a pull request, ensure you have raised a corresponding issue and discussed a possible solution with a maintainer. This gives your pull request the highest chance of getting merged quickly.
 
 ### Good First Issues 
-- [Frontend (React / HTML / CSS / JS)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22+label%3A%22Frontend%22+no%3Aassignee)
-- [Backend (Java / Mongo / Springboot)](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22+label%3A%22Backend%22+no%3Aassignee)
+
+Looking for issues to contribute? [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) is a great place to begin your contribution journey with Appsmith!
 
 ### 🍴 Git Workflow
 
@@ -26,43 +26,8 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 - [Running the Client](ClientSetup.md)
 - [Running the Server](ServerSetup.md)
 
-### 🧪 Running tests
 
-#### Client
-1. In order to run the Cypress integration tests, you can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
-
-   ```json
-   {
-     "USERNAME": "Enter username",
-     "PASSWORD": "Enter password"
-   }
-   ```
-
-1. run:
-```bash
-  cd app/client
-  yarn run test
-```
-
-Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
-
-
-2. In order to run the Jest unit tests, run:
-```bash
-  cd app/client
-  yarn run test:unit
-```
-
-#### Server
-1. Ensure that you have Redis running on your local system.
-
-2. Run the command to execute tests
-```bash
-  cd app/server
-  mvn clean package
-```
-
-### Contribute Code
+### Other Contributions
 #### Server Code
 Please follow these guidelines according to the module that you wish to contribute to:
 - [Plugin](./ServerCodeContributionsGuidelines/PluginCodeContributionsGuidelines.md)

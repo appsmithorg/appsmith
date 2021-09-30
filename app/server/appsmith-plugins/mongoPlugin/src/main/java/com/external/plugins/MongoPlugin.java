@@ -24,6 +24,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
@@ -65,13 +66,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.MongoPluginUtils.generateTemplatesAndStructureForACollection;
-import static com.external.plugins.MongoPluginUtils.getDatabaseName;
+import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.MongoPluginUtils.isRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.external.plugins.MongoPluginUtils.urlEncode;
+import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
@@ -155,6 +156,8 @@ public class MongoPlugin extends BasePlugin {
             UPDATE_QUERY,
             UPDATE_OPERATION
     ));
+
+    private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
     public MongoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -276,6 +279,7 @@ public class MongoPlugin extends BasePlugin {
                     .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
+                                    error,
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             )
@@ -383,7 +387,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setErrorInfo(error);
+                        actionExecutionResult.setErrorInfo(error, mongoErrorUtils);
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server
@@ -804,7 +808,7 @@ public class MongoPlugin extends BasePlugin {
                             return Mono.just(new DatasourceTestResult());
                         }
 
-                        return Mono.just(new DatasourceTestResult(error.getMessage()));
+                        return Mono.just(new DatasourceTestResult(mongoErrorUtils.getReadableError(error)));
                     })
                     .subscribeOn(scheduler);
         }
