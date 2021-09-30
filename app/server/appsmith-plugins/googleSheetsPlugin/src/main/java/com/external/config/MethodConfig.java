@@ -12,6 +12,7 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,8 +42,9 @@ public class MethodConfig {
 
     public MethodConfig(List<Property> propertyList) {
         propertyList.stream().parallel().forEach(property -> {
-            if (property.getValue() != null) {
-                String propertyValue = String.valueOf(property.getValue());
+            Object value = property.getValue();
+            if (value != null) {
+                String propertyValue = String.valueOf(value);
                 switch (property.getKey()) {
                     case "sheetUrl":
                         this.spreadsheetUrl = propertyValue;
@@ -89,8 +91,15 @@ public class MethodConfig {
                         this.rowObjects = propertyValue;
                         break;
                     case "where":
-                        if (property.getValue() != null && !((List<Object>) property.getValue()).isEmpty()) {
-                            this.whereConditions = Condition.generateFromConfiguration((List<Object>) property.getValue());
+                        if (value != null && value instanceof List) {
+                            // Check if all values in the where condition are null.
+                            boolean allValuesNull = ((List) value).stream()
+                                    .allMatch(valueMap -> valueMap == null ||
+                                            ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
+
+                            if (!allValuesNull) {
+                                this.whereConditions = Condition.generateFromConfiguration((List<Object>) value);
+                            }
                         }
                         break;
                 }
