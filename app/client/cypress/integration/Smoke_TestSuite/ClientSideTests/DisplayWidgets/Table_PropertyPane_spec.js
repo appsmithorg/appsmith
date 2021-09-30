@@ -70,19 +70,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Explore Widget related documents Verification", function() {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    // Click on "Explore widget related docs" button
-    cy.get(widgetsPage.exploreWidget).click();
-    // Verify the widget related document
-    cy.get(widgetsPage.widgetRelatedDocument).should("contain", "Table");
-    cy.wait(2000);
-    cy.get(widgetsPage.header).click();
-    cy.wait(1000);
-    cy.PublishtheApp();
-  });
-
   it("Check open section and column data in property pane", function() {
     cy.openPropertyPane("tablewidget");
 
