@@ -2,6 +2,8 @@ import { APP_MODE } from "entities/App";
 
 const { compile, match } = require("path-to-regexp");
 
+import { getQueryParamsObject } from "utils/helpers";
+
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
@@ -82,18 +84,9 @@ export const addOrReplaceBranch = (branchName: string, currentPath: string) => {
   return currentPath.replace(regEx, `/branch/${branchName}/applications`);
 };
 
-// eslint-disable-next-line
 export const getDefaultPathForBranch = (params: any, mode?: APP_MODE) => {
-  return `/branch/${params.branchName}/applications/${params.applicationId}/edit`;
-};
-
-// for extracting branchName from the pathname
-const branchNamePath = "";
-export const matchBranchName = match(branchNamePath);
-export const extractBranchNameFromPath = () => {
-  const pathname = window.location.pathname;
-  const matchResult = matchBranchName(pathname);
-  return matchResult?.params?.branchName;
+  const modeDependentPath = mode === APP_MODE.PUBLISHED ? "" : "/edit";
+  return `/applications/${params.applicationId}${modeDependentPath}?${GIT_BRANCH_QUERY_KEY}=${params.branchName}`;
 };
 
 export type BuilderRouteParams = {
@@ -147,14 +140,19 @@ export const BUILDER_PAGE_URL = (props: {
     params = {},
     suffix,
   } = props;
-  const modifiedParams = { ...params };
 
   // todo (rishabh s) check when this is applicable
   if (!pageId) return APPLICATIONS_URL;
 
-  // todo (rishabh s) could inject branch param here
-  if (branch) {
-    modifiedParams[GIT_BRANCH_QUERY_KEY] = branch;
+  const existingParams = getQueryParamsObject() || {};
+
+  // not persisting the entire query currently, since that's the current behaviour
+  const { branch: branchQuery } = existingParams;
+
+  let modifiedParams = { ...params };
+  const derivedBranch = branch || branchQuery;
+  if (derivedBranch) {
+    modifiedParams = { branch: derivedBranch, ...params };
   }
 
   const queryString = convertToQueryParams(modifiedParams);

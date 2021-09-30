@@ -517,3 +517,28 @@ export const getApplicationIdFromPayload = (
     application?.gitApplicationMetadata?.defaultApplicationId || application?.id
   );
 };
+
+/**
+ * returns the value in the query string for a key
+ */
+export const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return params.get(key) || "";
+};
+
+/**
+ * get query params object
+ * ref: https://stackoverflow.com/a/8649003/1543567
+ */
+export const getQueryParamsObject = () => {
+  const search = window.location.search.substring(1);
+  if (!search) return {};
+  return JSON.parse(
+    '{"' +
+      decodeURI(search)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"') +
+      '"}',
+  );
+};

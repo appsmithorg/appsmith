@@ -39,10 +39,7 @@ import { fetchPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { debug } from "loglevel";
 
-const getSearchQuery = (search = "", key: string) => {
-  const params = new URLSearchParams(search);
-  return params.get(key) || "";
-};
+import { getSearchQuery } from "utils/helpers";
 
 type EditorProps = {
   currentApplicationId?: string;

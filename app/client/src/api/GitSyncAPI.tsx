@@ -63,11 +63,7 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static createNewBranch(
-    applicationId: string,
-    parentBranchName: string,
-    branchName: string,
-  ) {
+  static createNewBranch(applicationId: string, branchName: string) {
     return Api.post(`${GitSyncAPI.baseURL}/create-branch/${applicationId}`, {
       branchName,
     });

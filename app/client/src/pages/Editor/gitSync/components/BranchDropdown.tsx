@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { IconName } from "components/ads/Icon";
 import CreateNewBranchForm from "./CreateNewBranchForm";
 import {
   createNewBranchInit,
-  fetchBranchesInit,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,11 +16,6 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 const useBranches = () => {
   const branches = useSelector(getGitBranches);
   const fetchingBranches = useSelector(getFetchingBranches);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchBranchesInit());
-  }, []);
 
   return {
     branches: [
@@ -91,6 +85,8 @@ export default function BranchDropdown(props: {
 
   return showCreateBranchForm ? (
     <CreateNewBranchForm
+      defaultBranchValue=""
+      isCreatingNewBranch={false}
       onCancel={() => setShowCreateNewBranchForm(false)}
       onSubmit={handleCreateNewBranch}
     />

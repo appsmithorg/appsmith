@@ -4,9 +4,13 @@ import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
 
 export default function CreateNewBranchForm({
+  defaultBranchValue,
+  isCreatingNewBranch,
   onCancel,
   onSubmit,
 }: {
+  defaultBranchValue: string;
+  isCreatingNewBranch: boolean;
   onSubmit: (branchName: string) => void;
   onCancel: () => void;
 }) {
@@ -15,7 +19,12 @@ export default function CreateNewBranchForm({
   return (
     <div>
       <div style={{ width: 260 }}>
-        <TextInput autoFocus fill onChange={setBranchName} />
+        <TextInput
+          autoFocus
+          defaultValue={defaultBranchValue}
+          fill
+          onChange={setBranchName}
+        />
       </div>
       <Space size={6} />
       <div style={{ display: "flex" }}>
@@ -28,6 +37,7 @@ export default function CreateNewBranchForm({
         <Space horizontal size={3} />
         <Button
           category={Category.primary}
+          isLoading={isCreatingNewBranch}
           onClick={() => onSubmit(branchName)}
           size={Size.small}
           text="Submit"

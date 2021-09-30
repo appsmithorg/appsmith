@@ -35,10 +35,7 @@ import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 
-const getSearchQuery = (search = "", key: string) => {
-  const params = new URLSearchParams(search);
-  return params.get(key) || "";
-};
+import { getSearchQuery } from "utils/helpers";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
