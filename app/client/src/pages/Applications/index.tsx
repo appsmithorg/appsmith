@@ -632,6 +632,7 @@ function ApplicationsSection(props: any) {
   }
 
   const createNewApplication = (applicationName: string, orgId: string) => {
+    alert("hi");
     const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
       AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
@@ -646,36 +647,6 @@ function ApplicationsSection(props: any) {
       },
     });
   };
-
-  function NewAppButton(props: { organization: any; applications: any }) {
-    const { applications, organization } = props;
-    return (
-      <Button
-        className="t--new-button createnew"
-        icon={"plus"}
-        isLoading={
-          creatingApplicationMap && creatingApplicationMap[organization.id]
-        }
-        onClick={() => {
-          if (
-            Object.entries(creatingApplicationMap).length === 0 ||
-            (creatingApplicationMap && !creatingApplicationMap[organization.id])
-          ) {
-            createNewApplication(
-              getNextEntityName(
-                "Untitled application ",
-                applications.map((el: any) => el.name),
-              ),
-              organization.id,
-            );
-          }
-        }}
-        size={Size.medium}
-        tag="button"
-        text={"New"}
-      />
-    );
-  }
 
   let updatedOrgs;
   if (!isFetchingApplications) {
@@ -783,9 +754,32 @@ function ApplicationsSection(props: any) {
                     ) &&
                       !isFetchingApplications &&
                       applications.length !== 0 && (
-                        <NewAppButton
-                          applications={applications}
-                          organization={organization}
+                        <Button
+                          className="t--new-button createnew"
+                          icon={"plus"}
+                          isLoading={
+                            creatingApplicationMap &&
+                            creatingApplicationMap[organization.id]
+                          }
+                          onClick={() => {
+                            if (
+                              Object.entries(creatingApplicationMap).length ===
+                                0 ||
+                              (creatingApplicationMap &&
+                                !creatingApplicationMap[organization.id])
+                            ) {
+                              createNewApplication(
+                                getNextEntityName(
+                                  "Untitled application ",
+                                  applications.map((el: any) => el.name),
+                                ),
+                                organization.id,
+                              );
+                            }
+                          }}
+                          size={Size.medium}
+                          tag="button"
+                          text={"New"}
                         />
                       )}
                     {(currentUser || isFetchingApplications) && (
@@ -932,9 +926,32 @@ function ApplicationsSection(props: any) {
                 <NoAppsFound>
                   <NoAppsFoundIcon />
                   <span>There’s nothing inside this organization</span>
-                  <NewAppButton
-                    applications={applications}
-                    organization={organization}
+                  {/* below component is duplicate. This is because of cypress test were failing */}
+                  <Button
+                    className="t--new-button createnew"
+                    icon={"plus"}
+                    isLoading={
+                      creatingApplicationMap &&
+                      creatingApplicationMap[organization.id]
+                    }
+                    onClick={() => {
+                      if (
+                        Object.entries(creatingApplicationMap).length === 0 ||
+                        (creatingApplicationMap &&
+                          !creatingApplicationMap[organization.id])
+                      ) {
+                        createNewApplication(
+                          getNextEntityName(
+                            "Untitled application ",
+                            applications.map((el: any) => el.name),
+                          ),
+                          organization.id,
+                        );
+                      }
+                    }}
+                    size={Size.medium}
+                    tag="button"
+                    text={"New"}
                   />
                 </NoAppsFound>
               )}
