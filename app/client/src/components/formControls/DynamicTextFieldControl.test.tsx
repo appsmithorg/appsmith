@@ -4,10 +4,9 @@ import DynamicTextFieldControl from "./DynamicTextFieldControl";
 import { reduxForm } from "redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import { PluginType } from "entities/Action";
-import { waitFor } from "@testing-library/dom";
-import userEvent from "@testing-library/user-event";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DatasourceComponentTypes, UIComponentTypes } from "api/PluginApi";
+import { createMessage, EMPTY_QUERY_STATE } from "constants/messages";
 
 function TestForm(props: any) {
   return <div>{props.children}</div>;
@@ -65,14 +64,7 @@ describe("DynamicTextFieldControl", () => {
         },
       },
     );
-    const createTemplateButton = screen.getByText("Create");
-    userEvent.click(createTemplateButton);
     // Test each word separately because they are in different spans
-    expect(screen.getByText("test")).toBeDefined();
-    expect(screen.getByText("plugin")).toBeDefined();
-    expect(screen.getByText("template")).toBeDefined();
-    waitFor(async () => {
-      await expect(screen.findByText("Create")).toBeNull();
-    });
+    expect(screen.getByText(createMessage(EMPTY_QUERY_STATE))).toBeDefined();
   });
 });

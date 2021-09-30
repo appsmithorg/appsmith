@@ -23,6 +23,7 @@ import {
 } from "utils/AppsmithUtils";
 import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { createMessage, EMPTY_QUERY_STATE } from "constants/messages";
 
 const Wrapper = styled.div`
   width: 75%;
@@ -69,9 +70,11 @@ class DynamicTextControl extends BaseControl<
       responseType,
     } = this.props;
     const dataTreePath = actionPathFromName(actionName, configProperty);
-    // const isNewQuery =
-    //   new URLSearchParams(window.location.search).get("showTemplate") ===
-    //   "true";
+    const isNewQuery =
+      new URLSearchParams(window.location.search).get("showTemplate") ===
+      "true";
+    const placeholder =
+      placeholderText || (isNewQuery ? createMessage(EMPTY_QUERY_STATE) : "");
     // Preloaded query templates will be hidden till we can generate smart templates using the user's datasource
     const showTemplate = false; //&& isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
     const mode =
@@ -105,7 +108,7 @@ class DynamicTextControl extends BaseControl<
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
             name={this.props.configProperty}
-            placeholder={placeholderText}
+            placeholder={placeholder}
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />
