@@ -778,7 +778,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
 
         if (request.getHeaders() != null) {
-            JsonNode headers = (JsonNode) request.getHeaders();
+            JsonNode headers = objectMapper.convertValue(request.getHeaders(), JsonNode.class);
             try {
                 String headersAsString = objectMapper.writeValueAsString(headers);
                 request.setHeaders(headersAsString);

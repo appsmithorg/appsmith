@@ -20,6 +20,7 @@ import { getFormData } from "selectors/formSelectors";
 import { setActionProperty } from "actions/pluginActionActions";
 import { autofill } from "redux-form";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { get } from "lodash";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
@@ -68,7 +69,6 @@ function* formValueChangeSaga(
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== SAAS_EDITOR_FORM) return;
   const { values } = yield select(getFormData, SAAS_EDITOR_FORM);
-
   if (field === "datasource.id") {
     const datasource = yield select(getDatasource, actionPayload.payload);
 
@@ -87,13 +87,29 @@ function* formValueChangeSaga(
     return;
   }
 
-  yield put(
-    setActionProperty({
-      actionId: values.id,
-      propertyName: field,
-      value: actionPayload.payload,
-    }),
-  );
+  // Special handling of the case when the where clause row is added or removed
+  if (
+    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+  ) {
+    // Sending only the value for the where clause rather than the payload
+    const value = get(values, field);
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value,
+      }),
+    );
+  } else {
+    yield put(
+      setActionProperty({
+        actionId: values.id,
+        propertyName: field,
+        value: actionPayload.payload,
+      }),
+    );
+  }
 }
 
 export default function* root() {

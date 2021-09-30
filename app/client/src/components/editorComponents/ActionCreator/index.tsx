@@ -4,7 +4,11 @@ import { TreeDropdownOption } from "components/ads/TreeDropdown";
 import TreeStructure from "components/utils/TreeStructure";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+} from "constants/routes";
 import { PluginType } from "entities/Action";
 import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
@@ -554,6 +558,7 @@ function useIntegrationsOptionTree() {
               defaultApplicationId,
               pageId,
               INTEGRATION_TABS.NEW,
+              INTEGRATION_EDITOR_MODES.AUTO,
             ),
           );
         }
