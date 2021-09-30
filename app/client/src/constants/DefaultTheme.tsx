@@ -2884,7 +2884,7 @@ export const theme: Theme = {
     secondary: Colors.GEYSER_LIGHT,
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
-    error: Colors.RED,
+    error: Colors.ERROR_RED,
     infoOld: Colors.SLATE_GRAY,
     errorMessage: Colors.ERROR_RED,
     hover: Colors.POLAR,
@@ -3060,7 +3060,7 @@ export const theme: Theme = {
       color: Colors.OCEAN_GREEN,
     },
     error: {
-      color: Colors.RED,
+      color: Colors.ERROR_RED,
     },
     warning: {
       color: Colors.BUTTER_CUP,

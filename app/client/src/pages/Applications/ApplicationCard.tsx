@@ -489,7 +489,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const addDeleteOption = () => {
     if (props.delete && hasEditPermission) {
-      const index = moreActionItems.findIndex((el) => el.icon === "delete");
+      const index = moreActionItems.findIndex(
+        (el) => el.icon === "delete-blank",
+      );
       if (index >= 0) {
         moreActionItems.pop();
       }
