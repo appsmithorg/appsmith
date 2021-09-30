@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.CommentBotEvent;
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
@@ -277,9 +277,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     ) && !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
 
                     // check whether this thread should be converted to bot thread
-                    if (userData.getLatestCommentEvent() == null) {
+                    if (userData.getCommentOnboardingState() == null || userData.getCommentOnboardingState() == CommentOnboardingState.ONBOARDED) {
                         commentThread.setIsPrivate(shouldCreateBotThread);
-                        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+                        userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
                         return userDataRepository.save(userData).then(
                                 saveCommentThread(commentThread, application, user)
                         );
@@ -308,7 +308,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
                     if (TRUE.equals(thread.getIsPrivate())) {
                         // this is the first thread by this user, add a bot comment also
-                        commentSaverMonos.add(createBotComment(thread, user, CommentBotEvent.COMMENTED));
+                        commentSaverMonos.add(createBotComment(thread, user, CommentOnboardingState.COMMENTED));
                     }
                     // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
                     // value is meaningful.
@@ -407,9 +407,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         return userDataRepository.findByUserId(user.getId())
                 .defaultIfEmpty(new UserData(user.getId()))
                 .flatMap(userData -> {
-                    if (userData.getLatestCommentEvent() == CommentBotEvent.COMMENTED) {
+                    if (userData.getCommentOnboardingState() == CommentOnboardingState.COMMENTED) {
                         // update the user data
-                        userData.setLatestCommentEvent(CommentBotEvent.RESOLVED);
+                        userData.setCommentOnboardingState(CommentOnboardingState.RESOLVED);
                         Mono<UserData> saveUserDataMono = userDataRepository.save(userData);
 
                         Mono<CommentThread> saveThreadMono = applicationService
@@ -429,7 +429,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
                                     return saveCommentThread(commentThread, application, user)
                                             .flatMap(savedCommentThread ->
-                                                    createBotComment(savedCommentThread, user, CommentBotEvent.RESOLVED)
+                                                    createBotComment(savedCommentThread, user, CommentOnboardingState.RESOLVED)
                                                             .thenReturn(savedCommentThread)
                                             );
                                 });
@@ -577,7 +577,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         }).then(threadRepository.save(commentThread));
     }
 
-    private Mono<Comment> createBotComment(CommentThread commentThread, User user, CommentBotEvent commentBotEvent) {
+    private Mono<Comment> createBotComment(CommentThread commentThread, User user, CommentOnboardingState commentOnboardingState) {
         final Comment comment = new Comment();
         comment.setThreadId(commentThread.getId());
         comment.setAuthorName(APPSMITH_BOT_NAME);
@@ -608,7 +608,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         Map<String, Comment.Entity> entityMap = new HashMap<>();
 
         try {
-            if (commentBotEvent == CommentBotEvent.COMMENTED) {
+            if (commentOnboardingState == CommentOnboardingState.COMMENTED) {
                 block.setText(TemplateUtils.parseTemplate(HOW_TO_TAG_BOT_COMMENT, botCommentParams));
                 block.setEntityRanges(List.of(new Comment.Range(92, APPSMITH_BOT_USERNAME.length(), 0)));
 
