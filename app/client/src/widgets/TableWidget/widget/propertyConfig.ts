@@ -220,7 +220,8 @@ const updateDerivedColumnsHook = (
     if (regex.test(propertyPath)) {
       const matches = propertyPath.match(regex);
       if (matches && matches.length === 3) {
-        const columnId = parseInt(matches[1]);
+        // updated to use column keys
+        const columnId = matches[1];
         const columnProperty = matches[2];
         const primaryColumn = props.primaryColumns[columnId];
         const isDerived = primaryColumn ? primaryColumn.isDerived : false;
