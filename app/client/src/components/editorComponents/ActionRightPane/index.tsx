@@ -246,7 +246,7 @@ function ActionSidebar({
   }
 
   const navigeteToCanvas = () => {
-    history.push(BUILDER_PAGE_URL(defaultApplicationId, pageId));
+    history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }));
   };
 
   return (

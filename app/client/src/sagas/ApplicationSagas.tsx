@@ -112,10 +112,10 @@ export function* publishApplicationSaga(
       const currentPageId = yield select(getCurrentPageId);
       const defaultApplicationId = yield select(getDefaultApplicationId);
 
-      let appicationViewPageUrl = getApplicationViewerPageURL(
+      let appicationViewPageUrl = getApplicationViewerPageURL({
         defaultApplicationId,
-        currentPageId,
-      );
+        pageId: currentPageId,
+      });
 
       const showOnboardingCompletionDialog = yield select(showCompletionDialog);
       if (showOnboardingCompletionDialog) {
@@ -372,10 +372,10 @@ export function* duplicateApplicationSaga(
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+      const pageURL = BUILDER_PAGE_URL({
+        defaultApplicationId: application.id,
+        pageId: application.defaultPageId,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -501,7 +501,10 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);
+          pageURL = BUILDER_PAGE_URL({
+            defaultApplicationId: application.id,
+            pageId: application.defaultPageId,
+          });
         } else {
           pageURL = getGenerateTemplateURL(
             application.id,
@@ -550,10 +553,10 @@ export function* forkApplicationSaga(
           application,
         },
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+      const pageURL = BUILDER_PAGE_URL({
+        defaultApplicationId: application.id,
+        pageId: application.defaultPageId,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -595,7 +598,10 @@ export function* importApplicationSaga(
           },
         });
         const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL(appId, defaultPage[0].id);
+        const pageURL = BUILDER_PAGE_URL({
+          defaultApplicationId: appId,
+          pageId: defaultPage[0].id,
+        });
         history.push(pageURL);
         Toaster.show({
           text: "Application imported successfully",

@@ -68,10 +68,10 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
         <p>
           Please add widgets to this page in the&nbsp;
           <Link
-            to={BUILDER_PAGE_URL(
-              this.props.defaultApplicationId,
-              this.props.match.params.pageId,
-            )}
+            to={BUILDER_PAGE_URL({
+              defaultApplicationId: this.props.defaultApplicationId,
+              pageId: this.props.match.params.pageId,
+            })}
           >
             Appsmith Editor
           </Link>

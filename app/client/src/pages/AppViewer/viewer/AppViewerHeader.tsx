@@ -12,7 +12,11 @@ import {
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
@@ -34,7 +38,11 @@ import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
-import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
+import {
+  getDefaultApplicationId,
+  showAppInviteUsersDialogSelector,
+} from "selectors/applicationSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -138,6 +146,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const pageId = useSelector(getCurrentPageId);
 
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
@@ -153,7 +163,13 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   }
   if (hideHeader) return <HtmlTitle />;
 
-  const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
+  const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
+    window.location.origin
+  }${getApplicationViewerPageURL({
+    defaultApplicationId,
+    pageId,
+    suffix: "fork",
+  })}`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
   const CTA = GetAppViewerHeaderCTA({

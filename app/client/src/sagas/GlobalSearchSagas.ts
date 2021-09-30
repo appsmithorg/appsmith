@@ -14,7 +14,10 @@ import {
   setRecentEntities,
 } from "actions/globalSearchActions";
 import { AppState } from "reducers";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
 
@@ -22,6 +25,8 @@ const getRecentEntitiesKey = (applicationId: string) => applicationId;
 
 export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
   try {
+    const applicationId = yield select(getCurrentApplicationId);
+
     const recentEntitiesRestored = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntitiesRestored,
     );
@@ -56,11 +61,11 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
     recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));
-    if (entity?.params?.applicationId) {
+    if (applicationId) {
       yield call(
         setRecentAppEntities,
         recentEntities,
-        getRecentEntitiesKey(entity?.params?.applicationId),
+        getRecentEntitiesKey(applicationId),
       );
     }
   } catch (e) {

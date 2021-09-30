@@ -495,16 +495,50 @@ export const stopClickEventPropagation = (
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
 
 /**
+ * @returns the original string after trimming the string past `?`
+ */
+export const trimQueryString = (value = "") => {
+  const index = value.indexOf("?");
+  if (index === -1) return value;
+  return value.slice(0, index);
+};
+
+/*
  * fetch default vs branch specific id based on flag
  */
 export const getApplicationIdFromPayload = (
   application: ApplicationPayload,
   useBranchSpecificId = false,
 ) => {
-  if (!useBranchSpecificId) {
+  if (useBranchSpecificId) {
     return application.id;
   }
   return (
-    application?.gitApplicationMetadata?.defaultApplicationId || application.id
+    application?.gitApplicationMetadata?.defaultApplicationId || application?.id
+  );
+};
+
+/**
+ * returns the value in the query string for a key
+ */
+export const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return params.get(key) || "";
+};
+
+/**
+ * get query params object
+ * ref: https://stackoverflow.com/a/8649003/1543567
+ */
+export const getQueryParamsObject = () => {
+  const search = window.location.search.substring(1);
+  if (!search) return {};
+  return JSON.parse(
+    '{"' +
+      decodeURI(search)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"') +
+      '"}',
   );
 };

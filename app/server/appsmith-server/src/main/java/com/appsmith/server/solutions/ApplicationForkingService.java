@@ -34,7 +34,7 @@ public class ApplicationForkingService {
     private final AnalyticsService analyticsService;
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
-        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.MANAGE_APPLICATIONS)
+        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "application", srcApplicationId)));
 
         final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)

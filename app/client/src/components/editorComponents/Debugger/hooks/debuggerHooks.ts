@@ -60,15 +60,9 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
 };
 
 export const useSelectedEntity = () => {
-  const currentPageId = useSelector(getCurrentPageId);
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
-
   const params: any = useParams();
   const action = useSelector((state: AppState) => {
-    if (
-      onApiEditor(defaultApplicationId, currentPageId) ||
-      onQueryEditor(defaultApplicationId, currentPageId)
-    ) {
+    if (onApiEditor() || onQueryEditor()) {
       const id = params.apiId || params.queryId;
 
       return getAction(state, id);
@@ -79,23 +73,20 @@ export const useSelectedEntity = () => {
 
   const selectedWidget = useSelector(getSelectedWidget);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(defaultApplicationId, currentPageId)) {
+    if (onCanvas()) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
     return null;
   });
 
-  if (
-    onApiEditor(defaultApplicationId, currentPageId) ||
-    onQueryEditor(defaultApplicationId, currentPageId)
-  ) {
+  if (onApiEditor() || onQueryEditor()) {
     return {
       name: action?.name ?? "",
       type: ENTITY_TYPE.ACTION,
       id: action?.id ?? "",
     };
-  } else if (onCanvas(defaultApplicationId, currentPageId)) {
+  } else if (onCanvas()) {
     return {
       name: widget?.widgetName ?? "",
       type: ENTITY_TYPE.WIDGET,

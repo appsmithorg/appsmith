@@ -57,14 +57,19 @@ export default function* navigateActionSaga(
       pageParams: params,
     });
     const appMode = yield select(getAppMode);
+    // uses query BUILDER_PAGE_URL
     const path =
       appMode === APP_MODE.EDIT
-        ? BUILDER_PAGE_URL(defaultApplicationId, page.pageId, params)
-        : getApplicationViewerPageURL(
+        ? BUILDER_PAGE_URL({
             defaultApplicationId,
-            page.pageId,
+            pageId: page.pageId,
             params,
-          );
+          })
+        : getApplicationViewerPageURL({
+            defaultApplicationId,
+            pageId: page.pageId,
+            params,
+          });
     if (target === NavigationTargetType.SAME_WINDOW) {
       history.push(path);
       if (currentPageId === page.pageId) {

@@ -257,10 +257,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name"
-              currentDeployLink={getApplicationViewerPageURL(
-                props.defaultApplicationId,
+              currentDeployLink={getApplicationViewerPageURL({
+                defaultApplicationId: props.defaultApplicationId,
                 pageId,
-              )}
+              })}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
@@ -334,10 +334,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL(
-                  props.defaultApplicationId,
+                link={getApplicationViewerPageURL({
+                  defaultApplicationId: props.defaultApplicationId,
                   pageId,
-                )}
+                })}
                 trigger={
                   <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
                 }

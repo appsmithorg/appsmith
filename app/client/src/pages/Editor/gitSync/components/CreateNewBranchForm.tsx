@@ -4,18 +4,27 @@ import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
 
 export default function CreateNewBranchForm({
+  defaultBranchValue,
+  isCreatingNewBranch,
   onCancel,
   onSubmit,
 }: {
+  defaultBranchValue: string;
+  isCreatingNewBranch: boolean;
   onSubmit: (branchName: string) => void;
   onCancel: () => void;
 }) {
-  const [branchName, setBranchName] = useState("");
+  const [branchName, setBranchName] = useState(defaultBranchValue);
 
   return (
     <div>
-      <div style={{ width: 260 }}>
-        <TextInput autoFocus fill onChange={setBranchName} />
+      <div style={{ width: 300 }}>
+        <TextInput
+          autoFocus
+          defaultValue={defaultBranchValue}
+          fill
+          onChange={setBranchName}
+        />
       </div>
       <Space size={6} />
       <div style={{ display: "flex" }}>
@@ -28,6 +37,7 @@ export default function CreateNewBranchForm({
         <Space horizontal size={3} />
         <Button
           category={Category.primary}
+          isLoading={isCreatingNewBranch}
           onClick={() => onSubmit(branchName)}
           size={Size.small}
           text="Submit"
