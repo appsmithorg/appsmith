@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
@@ -16,6 +16,11 @@ import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "../../Applications/permissionHelpers";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
@@ -34,9 +39,12 @@ export const GetNavigationMenuData = ({
   const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
-
+  const currentApplication = useSelector(getCurrentApplication);
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
-
+  const hasExportPermission = isPermitted(
+    currentApplication?.userPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
+  );
   const openExternalLink = useCallback((link: string) => {
     if (link) {
       window.open(link, "_blank");
@@ -158,7 +166,7 @@ export const GetNavigationMenuData = ({
       onClick: () =>
         applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
       type: MenuTypes.MENU,
-      isVisible: isApplicationIdPresent,
+      isVisible: isApplicationIdPresent && hasExportPermission,
     },
     {
       text: "Delete Application",
