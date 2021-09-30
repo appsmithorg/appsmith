@@ -538,8 +538,7 @@ public class FilterDataService {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
                     break;
                 }
-                case STRING: {
-                }
+                case STRING: 
                 default:
                     preparedStatement.setString(index, value);
                     break;
