@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
@@ -66,6 +67,10 @@ public class Condition {
 
         for(Object config : configurationList) {
             Map<String, String> condition = (Map<String, String>) config;
+            if (condition.entrySet().isEmpty() || !condition.keySet().containsAll(Set.of("path", "operator", "value"))) {
+                // Its an empty/partially filled object set by the client for UX. Ignore the invalid conditions
+                continue;
+            }
             conditionList.add(new Condition(
                     condition.get("path"),
                     condition.get("operator"),
