@@ -33,8 +33,6 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
     
     Mono<ActionCollectionDTO> refactorCollection(String id, ActionCollectionDTO actionCollectionDTO);
 
-    Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO);
-
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
 
     Mono<ActionCollectionDTO> generateActionCollectionByViewMode(ActionCollection actionCollection, Boolean viewMode);

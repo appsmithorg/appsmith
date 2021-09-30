@@ -372,7 +372,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
         return actionCollectionMono
                 .map(actionCollection -> {
                     // From the existing collection, if an action id is not referenced at all anymore,
-                    // actionCollectionService means the action has been somehow deleted
+                    // this means the action has been somehow deleted
                     final Set<String> oldActionIds = new HashSet<>();
                     if (actionCollection.getUnpublishedCollection().getActionIds() != null) {
                         oldActionIds.addAll(actionCollection
