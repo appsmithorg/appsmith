@@ -247,13 +247,12 @@ ctx.addEventListener(
           ? dataTreeEvaluator.evalTree
           : {};
         try {
-          const { errors, evalTree, result } = parseJSCollection(
+          const { evalTree, result } = parseJSCollection(
             body,
             jsAction,
             currentEvalTree,
           );
           return {
-            errors,
             evalTree,
             result,
           };
@@ -272,7 +271,6 @@ ctx.addEventListener(
             errors,
           );
           return {
-            errors,
             currentEvalTree,
           };
         }

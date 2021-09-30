@@ -162,7 +162,7 @@ public class ImportExportApplicationService {
                     application.setGitApplicationMetadata(null);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
-                    // TODO @Abhijeet please take a look at the ACL permissions
+
                     return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
                             .collectList()
                             .flatMap(newPageList -> {
