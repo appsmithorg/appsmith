@@ -7,13 +7,18 @@ import { useDispatch, useSelector } from "react-redux";
 
 import CreateNewBranchForm from "./CreateNewBranchForm";
 
-import { createNewBranchInit, fetchBranchesInit } from "actions/gitSyncActions";
+import {
+  createNewBranchInit,
+  fetchBranchesInit,
+  switchGitBranchInit,
+} from "actions/gitSyncActions";
 import {
   getFetchingBranches,
   getGitBranches,
 } from "selectors/gitSyncSelectors";
 
 import Skeleton from "components/utils/Skeleton";
+import { debug } from "loglevel";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -41,8 +46,12 @@ const BranchListItemContainer = styled.div`
 const textInputHeight = 38;
 const textHeight = 18;
 
-function BranchListItem({ branch }: any) {
-  return <BranchListItemContainer>{branch}</BranchListItemContainer>;
+function BranchListItem({ branch, onClick }: any) {
+  return (
+    <BranchListItemContainer onClick={onClick}>
+      {branch}
+    </BranchListItemContainer>
+  );
 }
 
 function BranchesLoading() {
@@ -132,6 +141,10 @@ export default function BranchList(props: {
     );
   };
 
+  const switchBranch = (branch: string) => {
+    dispatch(switchGitBranchInit(branch));
+  };
+
   return showCreateBranchForm ? (
     <CreateNewBranchForm
       defaultBranchValue={filteredBranches.length === 0 ? searchText : ""}
@@ -171,7 +184,11 @@ export default function BranchList(props: {
           </BranchListItemContainer>
           <ListContainer>
             {filteredBranches.map((branch: string) => (
-              <BranchListItem branch={branch} key={branch} />
+              <BranchListItem
+                branch={branch}
+                key={branch}
+                onClick={() => switchBranch(branch)}
+              />
             ))}
           </ListContainer>
         </>

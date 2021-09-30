@@ -43,9 +43,11 @@ function* commitToGitRepoSaga(
 ) {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+    const branch = yield select(getCurrentGitBranch);
     const response: ApiResponse = yield GitSyncAPI.commit({
       ...action.payload,
       applicationId,
+      branch,
     });
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -209,9 +211,11 @@ function* createNewBranch(
   const { onErrorCallback, onSuccessCallback, payload } = action;
   try {
     const defaultApplicationId: string = yield select(getDefaultApplicationId);
+    const parentBranch = yield select(getCurrentGitBranch);
     const response: ApiResponse = yield GitSyncAPI.createNewBranch(
       defaultApplicationId,
       payload,
+      parentBranch,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 

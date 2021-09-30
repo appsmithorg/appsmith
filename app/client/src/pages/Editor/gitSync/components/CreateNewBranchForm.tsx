@@ -14,11 +14,11 @@ export default function CreateNewBranchForm({
   onSubmit: (branchName: string) => void;
   onCancel: () => void;
 }) {
-  const [branchName, setBranchName] = useState("");
+  const [branchName, setBranchName] = useState(defaultBranchValue);
 
   return (
     <div>
-      <div style={{ width: 260 }}>
+      <div style={{ width: 300 }}>
         <TextInput
           autoFocus
           defaultValue={defaultBranchValue}

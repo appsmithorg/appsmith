@@ -5,6 +5,7 @@ import { GitConfig } from "entities/GitSync";
 
 export type CommitPayload = {
   applicationId: string;
+  branch: string;
   commitMessage: string;
   doPush: boolean;
 };
@@ -28,13 +29,18 @@ class GitSyncAPI extends Api {
 
   static commit({
     applicationId,
+    branch,
     commitMessage,
     doPush,
   }: CommitPayload): AxiosPromise<ApiResponse> {
-    return Api.post(`${GitSyncAPI.baseURL}/commit/${applicationId}`, {
-      commitMessage,
-      doPush,
-    });
+    return Api.post(
+      `${GitSyncAPI.baseURL}/commit/${applicationId}`,
+      {
+        commitMessage,
+        doPush,
+      },
+      { branchName: branch },
+    );
   }
 
   static push({ applicationId }: PushToGitPayload): AxiosPromise<ApiResponse> {
@@ -58,15 +64,23 @@ class GitSyncAPI extends Api {
   }
 
   static checkoutBranch(applicationId: string, branchName: string) {
-    return Api.get(
-      `${GitSyncAPI.baseURL}/checkout-branch/${applicationId}/${branchName}`,
-    );
-  }
-
-  static createNewBranch(applicationId: string, branchName: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/create-branch/${applicationId}`, {
+    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
       branchName,
     });
+  }
+
+  static createNewBranch(
+    applicationId: string,
+    branchName: string,
+    parentBranch: string,
+  ) {
+    return Api.post(
+      `${GitSyncAPI.baseURL}/create-branch/${applicationId}`,
+      {
+        branchName,
+      },
+      { branchName: parentBranch },
+    );
   }
 
   static getLocalConfig(applicationId: string) {
