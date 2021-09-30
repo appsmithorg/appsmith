@@ -47,6 +47,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -934,16 +935,19 @@ public class LayoutActionServiceTest {
         );
         refactorActionNameInCollectionDTO.setRefactorAction(refactorActionNameDTO);
 
-        final Mono<ActionCollection> actionCollectionMono =
-                layoutCollectionService
-                        .refactorAction(refactorActionNameInCollectionDTO)
-                        .then(actionCollectionService.getById(dto.getId()));
+        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = layoutCollectionService
+                .refactorAction(refactorActionNameInCollectionDTO)
+                .then(actionCollectionService.getById(dto.getId())
+                        .zipWith(newActionService.findById(dto.getActions().get(0).getId())));
 
-        StepVerifier.create(actionCollectionMono)
-                .assertNext(actionCollectionResult -> {
-                    final ActionCollectionDTO actionCollectionDTOResult = actionCollectionResult.getUnpublishedCollection();
+        StepVerifier.create(tuple2Mono)
+                .assertNext(tuple -> {
+                    final ActionCollectionDTO actionCollectionDTOResult = tuple.getT1().getUnpublishedCollection();
+                    final NewAction newAction = tuple.getT2();
                     assertEquals("originalName", actionCollectionDTOResult.getName());
                     assertEquals("body", actionCollectionDTOResult.getBody());
+                    assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
+                    assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
                 })
                 .verifyComplete();
 
