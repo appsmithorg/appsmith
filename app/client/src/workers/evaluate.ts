@@ -11,7 +11,8 @@ import { Severity } from "entities/AppsmithConsole";
 import { Position } from "codemirror";
 import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { isEmpty, last } from "lodash";
+import { isEmpty } from "lodash";
+import { getKeyPositionInString } from "components/editorComponents/CodeEditor/lintHelpers";
 
 export type EvalResult = {
   result: any;
@@ -52,18 +53,13 @@ const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
   `,
 };
 
-const getPositionInEvaluationScript = (
-  type: EvaluationScriptType,
-): Position => {
-  const script = evaluationScriptsPos[type];
+const evalutionScriptPostions: Record<string, Position> = {};
 
-  const index = script.indexOf(ScriptTemplate);
-  const substr = script.substr(0, index);
-  const lines = substr.split("\n");
-  const lastLine = last(lines) || "";
-
-  return { line: lines.length, ch: lastLine.length };
-};
+Object.keys(evaluationScriptsPos).forEach((scriptType) => {
+  const script = evaluationScriptsPos[scriptType as EvaluationScriptType];
+  const location = getKeyPositionInString(script, ScriptTemplate);
+  evalutionScriptPostions[scriptType] = location[0];
+});
 
 const getScriptType = (
   evalArguments?: Array<any>,
@@ -84,7 +80,7 @@ const getScriptToEval = (
 ): string => {
   // Using replace here would break scripts with replacement patterns (ex: $&, $$)
   const buffer = evaluationScriptsPos[type].split(ScriptTemplate);
-  return buffer.join(userScript);
+  return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
 const getLintingErrors = (
@@ -208,7 +204,7 @@ export default function evaluate(
       scriptToLint,
       GLOBAL_DATA,
       js,
-      getPositionInEvaluationScript(scriptType),
+      evalutionScriptPostions[scriptType],
     );
 
     ///// Adding extra libraries separately
