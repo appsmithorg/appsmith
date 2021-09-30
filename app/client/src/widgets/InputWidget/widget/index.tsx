@@ -764,6 +764,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         onValueChange={this.onValueChange}
         phoneNumberCountryCode={phoneNumberCountryCode}
         placeholder={this.props.placeholderText}
+        selectedText={this.props.selectedText}
         showError={!!this.props.isFocused}
         stepSize={1}
         tooltip={this.props.tooltip}

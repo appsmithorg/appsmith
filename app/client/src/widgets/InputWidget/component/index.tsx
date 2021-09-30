@@ -221,6 +221,19 @@ const TextInputWrapper = styled.div`
   flex: 1;
 `;
 
+const getSelectionText = () => {
+  let text = "";
+  if (window.getSelection) {
+    const selection = window.getSelection();
+    text = selection ? selection.toString() : "";
+  }
+  // handle special case for old IE
+  // else if (document.selection && document.selection.type != "Control") {
+  //     text = document.selection.createRange().text;
+  // }
+  return text;
+};
+
 export const isNumberInputType = (inputType: InputType) => {
   return (
     inputType === "INTEGER" ||
@@ -359,8 +372,19 @@ class InputComponent extends React.Component<
       this.props.onKeyDown(e);
     }
   };
-  onMouseUp = (e: React.MouseEvent<HTMLButtonElement>) => {
+  onKeyUp = () => {
+    // user may have selected / de selected text with arrow keys
+    const selectedText = getSelectionText();
+    if (selectedText && selectedText !== this.props.selectedText) {
+      this.props.onUserTextSelect(selectedText);
+    }
+  };
+  handleMouseUp = () => {
     // check if text selection has changed
+    const selectedText = getSelectionText();
+    if (selectedText && selectedText !== this.props.selectedText) {
+      this.props.onUserTextSelect(selectedText);
+    }
   };
 
   private numericInputComponent = () => {
@@ -392,6 +416,8 @@ class InputComponent extends React.Component<
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
+        onMouseUp={this.handleMouseUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
         stepSize={minorStepSize === 0 ? this.props.stepSize : undefined}
@@ -411,6 +437,8 @@ class InputComponent extends React.Component<
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
+      onKeyUp={this.onKeyUp}
+      onMouseUp={this.handleMouseUp}
       placeholder={this.props.placeholder}
       style={{ resize: "none" }}
       value={this.props.value}
@@ -436,6 +464,8 @@ class InputComponent extends React.Component<
         onChange={this.onTextChange}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
+        onMouseUp={this.handleMouseUp}
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
@@ -569,6 +599,7 @@ export interface InputComponentProps extends ComponentProps {
   onCurrencyTypeChange: (code?: string) => void;
   onISDCodeChange: (code?: string) => void;
   onUserTextSelect: (text: string) => void;
+  selectedText?: string;
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;
