@@ -1,4 +1,11 @@
-import React, { ReactNode, RefObject, useRef, useEffect, useMemo } from "react";
+import React, {
+  ReactNode,
+  RefObject,
+  useRef,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { Overlay, Classes } from "@blueprintjs/core";
 import { get, omit } from "lodash";
@@ -13,7 +20,6 @@ import {
   BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
 import { Layers } from "constants/Layers";
-import { MODAL_PORTAL_CLASSNAME } from "constants/WidgetConstants";
 import Resizable from "resizable";
 import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
@@ -87,6 +93,16 @@ const Content = styled.div<{
   height: 100%;
 `;
 
+const ComponentContainer = styled.div<{
+  modalPosition: string;
+}>`
+  > .${Classes.OVERLAY} {
+    > .${Classes.OVERLAY_CONTENT} {
+      position: ${(props) => props.modalPosition};
+    }
+  }
+`;
+
 export type ModalComponentProps = {
   isOpen: boolean;
   onClose: (e: any) => void;
@@ -94,7 +110,6 @@ export type ModalComponentProps = {
   children: ReactNode;
   width?: number;
   className?: string;
-  usePortal?: boolean;
   portalContainer?: HTMLElement;
   canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
@@ -105,9 +120,7 @@ export type ModalComponentProps = {
   left?: number;
   bottom?: number;
   right?: number;
-  hasBackDrop?: boolean;
   zIndex?: number;
-  portalClassName?: string;
   enableResize?: boolean;
   isEditMode?: boolean;
   resizeModal?: (dimensions: UIElementSize) => void;
@@ -124,6 +137,8 @@ export default function ModalComponent(props: ModalComponentProps) {
   const { enableResize = false } = props;
   const resizeRef = React.useRef<HTMLDivElement>(null);
 
+  const [modalPosition, setModalPosition] = useState<string>("fixed");
+
   const { setIsResizing } = useWidgetDragResize();
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -139,6 +154,18 @@ export default function ModalComponent(props: ModalComponentProps) {
 
     return omit(allHandles, get(props, "disabledResizeHandles", []));
   }, [props]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setModalPosition("unset");
+    }, 100);
+    return () => {
+      // handle modal close events when this component unmounts
+      // will be called in all cases :-
+      //  escape key press, click out side, close click from other btn widget
+      if (props.onModalClose) props.onModalClose();
+    };
+  }, []);
 
   useEffect(() => {
     if (!props.scrollContents) {
@@ -190,45 +217,54 @@ export default function ModalComponent(props: ModalComponentProps) {
     );
   };
 
-  return (
-    <Overlay
-      canEscapeKeyClose={false}
-      canOutsideClickClose={false}
-      enforceFocus={false}
-      hasBackdrop={false}
-      isOpen={props.isOpen}
-      onClose={props.onClose}
-      portalClassName={`${MODAL_PORTAL_CLASSNAME} ${props.portalClassName}`}
-      portalContainer={props.portalContainer}
-      usePortal={props.usePortal}
-    >
-      <Container
-        bottom={props.bottom}
-        height={props.height}
-        isEditMode={props.isEditMode}
-        left={props.left}
-        maxWidth={props.maxWidth}
-        minSize={props.minSize}
-        right={props.bottom}
-        top={props.top}
-        width={props.width}
-        zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
+  const getEditorView = () => {
+    return (
+      <Overlay
+        canEscapeKeyClose={false}
+        canOutsideClickClose={false}
+        enforceFocus={false}
+        hasBackdrop={false}
+        isOpen={props.isOpen}
+        onClose={props.onClose}
+        usePortal={false}
       >
-        <Overlay
-          canEscapeKeyClose={props.canEscapeKeyClose}
-          canOutsideClickClose={props.canOutsideClickClose}
-          className={props.overlayClassName}
-          enforceFocus={false}
-          hasBackdrop={
-            props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
+        <Container
+          bottom={props.bottom}
+          height={props.height}
+          isEditMode={props.isEditMode}
+          left={props.left}
+          maxWidth={props.maxWidth}
+          minSize={props.minSize}
+          right={props.bottom}
+          top={props.top}
+          width={props.width}
+          zIndex={
+            props.zIndex !== undefined ? props.zIndex : Layers.modalWidget
           }
-          isOpen={props.isOpen}
-          onClose={props.onClose}
-          usePortal={false}
         >
-          {getResizableContent()}
-        </Overlay>
-      </Container>
-    </Overlay>
-  );
+          <Overlay
+            canEscapeKeyClose={props.canEscapeKeyClose}
+            canOutsideClickClose={props.canOutsideClickClose}
+            className={props.overlayClassName}
+            enforceFocus={false}
+            hasBackdrop
+            isOpen={props.isOpen}
+            onClose={props.onClose}
+            usePortal={false}
+          >
+            {getResizableContent()}
+          </Overlay>
+        </Container>
+      </Overlay>
+    );
+  };
+
+  const getPageView = () => {
+    return (
+      <ComponentContainer modalPosition={modalPosition}>
+        {getEditorView()}
+      </ComponentContainer>
+    );
+  };
+  return props.isEditMode ? getEditorView() : getPageView();
 }

@@ -170,7 +170,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     const showTemplate = !(
       !!actionConfiguration.body || isEmpty(queryTemplate)
     );
-    history.replace(
+    history.push(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
         showTemplate,
