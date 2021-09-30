@@ -264,6 +264,12 @@ jobs:
           name: rts-build
           path: app/rts/dist/
 
+      - name: Upload RTS dependencies bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
+
   ui-test:
     needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
@@ -532,6 +538,12 @@ jobs:
         with:
           name: rts-build
           path: app/rts/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
