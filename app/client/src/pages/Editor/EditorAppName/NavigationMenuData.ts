@@ -17,6 +17,11 @@ import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "../../Applications/permissionHelpers";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -40,6 +45,12 @@ export const GetNavigationMenuData = ({
     defaultApplicationId && defaultApplicationId.length > 0
   );
 
+  const currentApplication = useSelector(getCurrentApplication);
+
+  const hasExportPermission = isPermitted(
+    currentApplication?.userPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
+  );
   const openExternalLink = useCallback((link: string) => {
     if (link) {
       window.open(link, "_blank");
@@ -162,7 +173,7 @@ export const GetNavigationMenuData = ({
         defaultApplicationId &&
         openExternalLink(getExportAppAPIRoute(defaultApplicationId)),
       type: MenuTypes.MENU,
-      isVisible: isApplicationIdPresent,
+      isVisible: isApplicationIdPresent && hasExportPermission,
     },
     {
       text: "Delete Application",

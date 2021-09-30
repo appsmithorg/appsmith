@@ -579,7 +579,6 @@ export const parseJSCollection = (
         actions: actions,
         variables: variables,
       },
-      errors: errorsList,
     };
   } else {
     const errors = [
@@ -593,7 +592,6 @@ export const parseJSCollection = (
     _.set(evalTree, `${jsCollection.name}.${EVAL_ERROR_PATH}.body`, errors);
     return {
       evalTree,
-      errors: errors,
     };
   }
 };

@@ -103,8 +103,10 @@ export const getSnippetFilterLabel = (state: AppState, label: string) => {
 };
 
 export type SnippetArgument = {
+  identifier: string;
   name: string;
   type: ValidationTypes;
+  placeholder?: boolean;
 };
 
 export type SearchCategory = {
