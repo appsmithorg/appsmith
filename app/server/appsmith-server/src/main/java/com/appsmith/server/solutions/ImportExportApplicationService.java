@@ -576,10 +576,10 @@ public class ImportExportApplicationService {
                                     publishedAppPage.setId(newPage.getId());
                                     pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                 }
-                                if (unpublishedAppPage.getId() != null) {
+                                if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
                                     applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
                                 }
-                                if (publishedAppPage.getId() != null) {
+                                if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
                                     applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                                 }
                                 return applicationPages;
@@ -638,8 +638,6 @@ public class ImportExportApplicationService {
                                     BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction, existingAction);
                                     return newActionService.update(newAction.getId(), existingAction);
                                 }
-                                // This is to ensure deleted field will be set for imported actions with deletedAt field
-                                newAction.setDeleted(newAction.getDeletedAt() != null);
                                 return newActionService.save(newAction);
                             })
                             .map(newAction -> {
@@ -704,8 +702,6 @@ public class ImportExportApplicationService {
                                 actionCollection.setOrganizationId(organizationId);
                                 actionCollection.setApplicationId(importedApplication.getId());
                                 actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
-                                // This is to ensure deleted field will be set for imported actionCollection with deletedAt field
-                                actionCollection.setDeleted(actionCollection.getDeletedAt() != null);
                                 return actionCollectionService.save(actionCollection)
                                         .flatMapMany(createdActionCollection -> {
                                             unpublishedActionCollectionIdMap
@@ -827,8 +823,6 @@ public class ImportExportApplicationService {
                             BeanCopyUtils.copyNewFieldValuesIntoOldObject(newPage, existingPage);
                             return newPageService.update(newPage.getId(), existingPage);
                         }
-                        // This is to ensure deleted field will be set for imported pages with deletedAt field
-                        newPage.setDeleted(newPage.getDeletedAt() != null);
                         return newPageService.save(newPage);
                     });
         });
