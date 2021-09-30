@@ -8,6 +8,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
@@ -48,8 +49,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
+import javax.swing.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -65,6 +68,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -677,6 +681,68 @@ public class RestApiPlugin extends BasePlugin {
                                                    ActionConfiguration actionConfiguration) {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+        }
+
+        @Override
+        public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                           DatasourceConfiguration datasourceConfiguration) {
+
+            Set<String> datasourceHintMessages = new HashSet<>();
+            datasourceHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
+
+            Set<String> actionHintMessages = new HashSet<>();
+
+            Set<String> duplicateHeaders = getAllDuplicateHeaders(actionConfiguration, datasourceConfiguration);
+            if (!duplicateHeaders.isEmpty()) {
+                actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
+                        "(s) for header(s): " + duplicateHeaders + ". Please check out the API's saved datasource in " +
+                        "case you cannot find the duplicate header(s) in the API query pane.");
+            }
+
+            Set<String> duplicateParams = getAllDuplicateParams(actionConfiguration, datasourceConfiguration);
+            if (!duplicateParams.isEmpty()) {
+                actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
+                        "(s) for param(s): " + duplicateParams + ". Please check out the API's saved datasource in " +
+                        "case you cannot find the duplicate param(s) in the API query pane.");
+            }
+
+            return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
+        }
+
+        private Set<String> getAllDuplicateParams(ActionConfiguration actionConfiguration,
+                                                  DatasourceConfiguration datasourceConfiguration) {
+            // TODO: fix it.
+            return new HashSet<>();
+        }
+
+        private Set<String> getAllDuplicateHeaders(ActionConfiguration actionConfiguration,
+                                                   DatasourceConfiguration datasourceConfiguration) {
+            Set duplicateHeaders = new HashSet<String>();
+            Set allUniqueHeaders = new HashSet<String>();
+            List allHeaders = new ArrayList<String>();
+
+            if (!CollectionUtils.isEmpty(actionConfiguration.getHeaders())) {
+                allHeaders.addAll(actionConfiguration.getHeaders());
+            }
+
+            if (!CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
+                allHeaders.addAll(datasourceConfiguration.getHeaders());
+            }
+
+            if (!CollectionUtils.isEmpty(actionConfiguration.getHeaders())) {
+                actionConfiguration.getHeaders().stream()
+                        .map(item -> item.getKey())
+                        .forEach(header -> {
+                            if (allUniqueHeaders.contains(header)) {
+                                duplicateHeaders.add(header);
+                            }
+
+                            allUniqueHeaders.add(header);
+                        });
+            }
+
+            // TODO: fix it.
+            return new HashSet<>();
         }
     }
 

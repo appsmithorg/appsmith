@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
@@ -40,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
+import static com.appsmith.external.helpers.PluginUtils.endpointContainsLocalhost;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
@@ -47,9 +49,6 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 @Slf4j
 @Service
 public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceService {
-
-    private static final String LOCALHOST_STRING = "localhost";
-    private static final String LOCALHOST_IP = "127.0.0.1";
 
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
@@ -138,19 +137,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
     }
 
-    private boolean endpointContainsLocalhost(Endpoint endpoint) {
-        if (endpoint == null || StringUtils.isEmpty(endpoint.getHost())) {
-            return false;
-        }
-
-        String host = endpoint.getHost().toLowerCase();
-        if (host.contains(LOCALHOST_STRING) || host.contains(LOCALHOST_IP)) {
-            return true;
-        }
-
-        return false;
-    }
-
     public Mono<Datasource> populateHintMessages(Datasource datasource) {
 
         if(datasource == null) {
@@ -161,33 +147,19 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.just(new Datasource());
         }
 
-        Set<String> messages = new HashSet<>();
+        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN,
+                        datasource.getPluginId())));
 
-        if (datasource.getDatasourceConfiguration() != null) {
-            boolean usingLocalhostUrl = false;
-
-            if(!StringUtils.isEmpty(datasource.getDatasourceConfiguration().getUrl())) {
-                usingLocalhostUrl = datasource.getDatasourceConfiguration().getUrl().contains("localhost");
-            }
-            else if(!CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
-                usingLocalhostUrl = datasource
-                        .getDatasourceConfiguration()
-                        .getEndpoints()
-                        .stream()
-                        .anyMatch(endpoint -> endpointContainsLocalhost(endpoint));
-            }
-
-            if(usingLocalhostUrl) {
-                messages.add("You may not be able to access your localhost if Appsmith is running inside a docker " +
-                        "container or on the cloud. To enable access to your localhost you may use ngrok to expose " +
-                        "your local endpoint to the internet. Please check out Appsmith's documentation to understand more" +
-                        ".");
-            }
-        }
-
-        datasource.setMessages(messages);
-
-        return Mono.just(datasource);
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> pluginExecutor.getHintMessages(null,
+                        datasource.getDatasourceConfiguration()))
+                .flatMap(tuple -> {
+                    Set datasourceHintMessages = ((Tuple2<Set, Set>) tuple).getT1();
+                    datasource.getMessages().addAll(datasourceHintMessages);
+                    return Mono.just(datasource);
+                });
     }
 
     @Override
