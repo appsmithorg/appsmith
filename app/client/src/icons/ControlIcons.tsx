@@ -55,10 +55,11 @@ import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
+import IncreaseV2Icon from "remixicon-react/AddCircleLineIcon";
 import PlayIcon from "assets/icons/control/play-icon.png";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import QuestionIcon from "remixicon-react/QuestionLineIcon";
-import SettingsIcon from "remixicon-react/Settings3LineIcon";
+import SettingsIcon from "remixicon-react/Settings5LineIcon";
 import EyeIcon from "remixicon-react/EyeLineIcon";
 import EyeOffIcon from "remixicon-react/EyeOffLineIcon";
 import CloseIcon from "remixicon-react/CloseLineIcon";
@@ -375,6 +376,11 @@ export const ControlIcons: {
   BOX_SHADOW_VARIANT5: (props: IconProps) => (
     <IconWrapper {...props}>
       <BoxShadowVariant5Icon />
+    </IconWrapper>
+  ),
+  INCREASE_CONTROL_V2: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IncreaseV2Icon />
     </IconWrapper>
   ),
   QUESTION: (props: IconProps) => (

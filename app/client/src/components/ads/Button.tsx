@@ -372,24 +372,8 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
   ${(props) => btnFontStyles(props).buttonFont};
   padding: ${(props) => btnFontStyles(props).padding};
   .${Classes.ICON}:not([name="no-response"]) {
-    margin-right: ${(props) =>
-      props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
-    path {
+    svg {
       fill: ${(props) => btnColorStyles(props, "main").txtColor};
-      &[stroke-width],
-      &[stroke] {
-        stroke: ${(props) => btnColorStyles(props, "main").txtColor};
-        fill: transparent;
-      }
-    }
-    rect[stroke] {
-      stroke: ${(props) => btnColorStyles(props, "main").txtColor};
-    }
-    &[name="search"] {
-      circle {
-        fill: transparent;
-        stroke: ${(props) => btnColorStyles(props, "main").txtColor};
-      }
     }
   }
   &:hover {
@@ -400,25 +384,7 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
     cursor: ${(props) =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .${Classes.ICON} {
-      margin-right: ${(props) =>
-        props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
-      path {
-        fill: ${(props) => btnColorStyles(props, "hover").txtColor};
-        &[stroke-width],
-        &[stroke] {
-          fill: transparent;
-          stroke: ${(props) => btnColorStyles(props, "hover").txtColor};
-        }
-      }
-      rect[stroke] {
-        stroke: ${(props) => btnColorStyles(props, "hover").txtColor};
-      }
-      &[name="search"] {
-        circle {
-          fill: transparent;
-          stroke: ${(props) => btnColorStyles(props, "hover").txtColor};
-        }
-      }
+      fill: ${(props) => btnColorStyles(props, "hover").txtColor};
     }
   }
   font-style: normal;
@@ -429,23 +395,7 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
     cursor: ${(props) =>
       props.isLoading || props.disabled ? `not-allowed` : `pointer`};
     .${Classes.ICON} {
-      path {
-        fill: ${(props) => btnColorStyles(props, "active").txtColor};
-        &[stroke-width],
-        &[stroke] {
-          fill: transparent;
-          stroke: ${(props) => btnColorStyles(props, "active").txtColor};
-        }
-      }
-      rect[stroke] {
-        stroke: ${(props) => btnColorStyles(props, "active").txtColor};
-      }
-      &[name="search"] {
-        circle {
-          fill: transparent;
-          stroke: ${(props) => btnColorStyles(props, "active").txtColor};
-        }
-      }
+      fill: ${(props) => btnColorStyles(props, "active").txtColor};
     }
   }
   display: flex;
@@ -461,6 +411,12 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
     circle {
       stroke: ${(props) => props.theme.colors.button.disabledText};
     }
+  }
+  .t--right-icon {
+    margin-left: ${(props) => props.theme.spaces[1]}px;
+  }
+  .t--left-icon {
+    margin-right: ${(props) => props.theme.spaces[1]}px;
   }
 `;
 
@@ -496,12 +452,16 @@ function IconLoadingState({ icon, size }: { size?: Size; icon?: IconName }) {
   return <Icon invisible name={icon} size={IconSizeProp(size)} />;
 }
 
-const getIconContent = (props: ButtonProps) =>
+const getIconContent = (props: ButtonProps, rightPosFlag = false) =>
   props.icon ? (
     props.isLoading ? (
       <IconLoadingState {...props} />
     ) : (
-      <Icon name={props.icon} size={IconSizeProp(props.size)} />
+      <Icon
+        className={rightPosFlag ? "t--right-icon" : "t--left-icon"}
+        name={props.icon}
+        size={IconSizeProp(props.size)}
+      />
     )
   ) : null;
 
@@ -523,10 +483,8 @@ const getButtonContent = (props: ButtonProps) => {
   return (
     <>
       {iconPos === IconPositions.left && getIconContent(props)}
-      <span style={{ marginRight: iconPos === IconPositions.right ? 7.67 : 0 }}>
-        {getTextContent(props)}
-      </span>
-      {iconPos === IconPositions.right && getIconContent(props)}
+      <span>{getTextContent(props)}</span>
+      {iconPos === IconPositions.right && getIconContent(props, true)}
       {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
     </>
   );

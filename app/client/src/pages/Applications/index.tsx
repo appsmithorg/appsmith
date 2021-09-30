@@ -29,7 +29,6 @@ import {
 } from "constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
-import PageSectionDivider from "pages/common/PageSectionDivider";
 import ApplicationCard from "./ApplicationCard";
 import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
@@ -54,7 +53,6 @@ import {
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { UpdateApplicationPayload, UserRoles } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -94,6 +92,7 @@ import {
   WELCOME_TOUR,
   NO_APPS_FOUND,
 } from "constants/messages";
+import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
 import { getIsSafeRedirectURL, howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
@@ -118,11 +117,13 @@ const ApplicationCardsWrapper = styled.div`
   padding: 10px;
 `;
 
-const OrgSection = styled.div``;
+const OrgSection = styled.div`
+  margin-bottom: 40px;
+`;
 
 const PaddingWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   width: ${(props) => props.theme.card.minWidth}px;
 
@@ -260,6 +261,18 @@ const OrgShareUsers = styled.div`
   & button,
   & a {
     padding: 4px 12px;
+  }
+`;
+
+const NoAppsFound = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+  & > span {
+    margin-bottom: 24px;
   }
 `;
 
@@ -601,7 +614,7 @@ function ApplicationsSection(props: any) {
     const { disabled, orgName, orgSlug } = props;
 
     return (
-      <OrgNameWrapper className="t--org-name" disabled={disabled}>
+      <OrgNameWrapper className="t--org-name-text" disabled={disabled}>
         <StyledAnchor id={orgSlug} />
         <OrgNameHolder
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -619,6 +632,7 @@ function ApplicationsSection(props: any) {
   }
 
   const createNewApplication = (applicationName: string, orgId: string) => {
+    alert("hi");
     const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
       AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
@@ -649,7 +663,13 @@ function ApplicationsSection(props: any) {
     updatedOrgs.length === 0
   ) {
     organizationsListComponent = (
-      <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
+      <CenteredWrapper
+        style={{
+          flexDirection: "column",
+          marginTop: "-150px",
+          position: "static",
+        }}
+      >
         <CreateNewLabel type={TextType.H4}>
           {createMessage(NO_APPS_FOUND)}
         </CreateNewLabel>
@@ -733,7 +753,8 @@ function ApplicationsSection(props: any) {
                       organization.userPermissions,
                       PERMISSION_TYPE.CREATE_APPLICATION,
                     ) &&
-                      !isFetchingApplications && (
+                      !isFetchingApplications &&
+                      applications.length !== 0 && (
                         <Button
                           className="t--new-button createnew"
                           icon={"plus"}
@@ -902,7 +923,39 @@ function ApplicationsSection(props: any) {
                   </PaddingWrapper>
                 );
               })}
-              <PageSectionDivider />
+              {applications.length === 0 && (
+                <NoAppsFound>
+                  <NoAppsFoundIcon />
+                  <span>There’s nothing inside this organization</span>
+                  {/* below component is duplicate. This is because of cypress test were failing */}
+                  <Button
+                    className="t--new-button createnew"
+                    icon={"plus"}
+                    isLoading={
+                      creatingApplicationMap &&
+                      creatingApplicationMap[organization.id]
+                    }
+                    onClick={() => {
+                      if (
+                        Object.entries(creatingApplicationMap).length === 0 ||
+                        (creatingApplicationMap &&
+                          !creatingApplicationMap[organization.id])
+                      ) {
+                        createNewApplication(
+                          getNextEntityName(
+                            "Untitled application ",
+                            applications.map((el: any) => el.name),
+                          ),
+                          organization.id,
+                        );
+                      }
+                    }}
+                    size={Size.medium}
+                    tag="button"
+                    text={"New"}
+                  />
+                </NoAppsFound>
+              )}
             </ApplicationCardsWrapper>
           </OrgSection>
         );
@@ -913,7 +966,6 @@ function ApplicationsSection(props: any) {
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
-      <HelpModal page={"Applications"} />
       <WelcomeHelper />
       {getFeatureFlags().GIT && <ImportAppViaGitModal />}
     </ApplicationContainer>

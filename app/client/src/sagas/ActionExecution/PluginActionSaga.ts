@@ -83,11 +83,15 @@ import {
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
-import { ApiResponse } from "api/ApiResponses";
-import { PluginTriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import {
+  PluginTriggerFailureError,
+  PluginActionExecutionError,
+  UserCancelledActionExecutionError,
+} from "sagas/ActionExecution/errorUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -237,6 +241,7 @@ function* confirmRunActionSaga() {
 export default function* executePluginActionTriggerSaga(
   pluginAction: RunPluginActionDescription["payload"],
   eventType: EventType,
+  triggerMeta: TriggerMeta,
 ) {
   const { actionId, params } = pluginAction;
   PerformanceTracker.startAsyncTracking(
@@ -273,23 +278,13 @@ export default function* executePluginActionTriggerSaga(
     },
     state: action.actionConfiguration,
   });
-
-  let payload = EMPTY_RESPONSE;
-  let isError = true;
-  try {
-    const executePluginActionResponse: ExecutePluginActionResponse = yield call(
-      executePluginActionSaga,
-      action.id,
-      pagination,
-      params,
-    );
-    payload = executePluginActionResponse.payload;
-    isError = executePluginActionResponse.isError;
-  } catch (e) {
-    if (e instanceof UserCancelledActionExecutionError) {
-      return;
-    }
-  }
+  const executePluginActionResponse: ExecutePluginActionResponse = yield call(
+    executePluginActionSaga,
+    action.id,
+    pagination,
+    params,
+  );
+  const { isError, payload } = executePluginActionResponse;
 
   if (isError) {
     AppsmithConsole.addError({
@@ -313,6 +308,7 @@ export default function* executePluginActionTriggerSaga(
     throw new PluginTriggerFailureError(
       createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
       [payload.body, params],
+      triggerMeta,
     );
   } else {
     AppsmithConsole.info({
@@ -414,6 +410,8 @@ function* runActionSaga(
     payload = executePluginActionResponse.payload;
     isError = executePluginActionResponse.isError;
   } catch (e) {
+    // When running from the pane, we just want to end the saga if the user has
+    // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
       return;
     }
@@ -613,27 +611,6 @@ function* executePageLoadActionsSaga() {
       text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
       variant: Variant.danger,
     });
-  }
-}
-
-/*
- * Thrown when action execution fails for some reason
- * */
-class PluginActionExecutionError extends Error {
-  response?: ApiResponse;
-  userCancelled: boolean;
-  constructor(message: string, userCancelled: boolean, response?: ApiResponse) {
-    super(message);
-    this.name = "PluginActionExecutionError";
-    this.userCancelled = userCancelled;
-    this.response = response;
-  }
-}
-
-class UserCancelledActionExecutionError extends PluginActionExecutionError {
-  constructor() {
-    super("User cancelled action execution", true);
-    this.name = "UserCancelledActionExecutionError";
   }
 }
 

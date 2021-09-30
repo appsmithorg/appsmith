@@ -38,27 +38,35 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "abc",
-        message: "Value is not allowed",
+        messages: ["Value is not allowed"],
       },
       {
         isValid: false,
         parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        ],
       },
       {
         isValid: false,
         parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        ],
       },
       {
         isValid: false,
         parsed: "{}",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        ],
       },
       {
         isValid: false,
         parsed: "[]",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        ],
       },
       {
         isValid: true,
@@ -88,6 +96,41 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: "",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(validation, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates strict text", () => {
+    const validation = {
+      type: ValidationTypes.TEXT,
+      params: {
+        required: true,
+        default: "abc",
+        allowedValues: ["abc", "123", "mno", "test"],
+        strict: true,
+      },
+    };
+    const inputs = ["abc", "xyz", 123];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "abc",
+      },
+      {
+        isValid: false,
+        parsed: "abc",
+        messages: ["Value is not allowed"],
+      },
+      {
+        isValid: false,
+        parsed: "abc",
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        ],
       },
     ];
     inputs.forEach((input, index) => {
@@ -133,7 +176,9 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed:
           "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: base64 encoded image | data uri | image url`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR}: base64 encoded image | data uri | image url`,
+        ],
       },
     ];
 
@@ -162,27 +207,31 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: 90,
-        message: "Minimum allowed value: 100",
+        messages: ["Minimum allowed value: 100"],
       },
       {
         isValid: false,
         parsed: 220,
-        message: "Maximum allowed value: 200",
+        messages: ["Maximum allowed value: 200"],
       },
       {
         isValid: false,
         parsed: 150,
-        message: "This value is required",
+        messages: ["This value is required"],
       },
       {
         isValid: false,
         parsed: 150,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
+        ],
       },
       {
         isValid: false,
         parsed: 150,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
+        ],
       },
       {
         isValid: true,
@@ -191,7 +240,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: 150,
-        message: "This value is required",
+        messages: ["This value is required"],
       },
     ];
     inputs.forEach((input, index) => {
@@ -234,12 +283,12 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
+        messages: [`${WIDGET_TYPE_VALIDATION_ERROR} boolean`],
         parsed: false,
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
+        messages: [`${WIDGET_TYPE_VALIDATION_ERROR} boolean`],
         parsed: false,
       },
       {
@@ -252,12 +301,12 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
+        messages: [`${WIDGET_TYPE_VALIDATION_ERROR} boolean`],
         parsed: false,
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
+        messages: [`${WIDGET_TYPE_VALIDATION_ERROR} boolean`],
         parsed: false,
       },
       {
@@ -271,7 +320,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: false,
-        message: "This value does not evaluate to type boolean",
+        messages: ["This value does not evaluate to type boolean"],
       },
     ];
 
@@ -355,27 +404,35 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
+        ],
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
+        messages: [
+          `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
+        ],
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `Value of key: key1 is invalid: This value does not evaluate to type number Required`,
+        messages: [
+          `Value of key: key1 is invalid: This value does not evaluate to type number Required`,
+        ],
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `Value of key: key2 is invalid: This value does not evaluate to type string ( abc | mnop )`,
+        messages: [
+          `Value of key: key2 is invalid: This value does not evaluate to type string ( abc | mnop )`,
+        ],
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `Missing required key: key1`,
+        messages: [`Missing required key: key1`],
       },
     ];
     inputs.forEach((input, index) => {
@@ -418,73 +475,79 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: ["a", "b", "c"],
-        message: "",
+        messages: [],
       },
       {
         isValid: true,
         parsed: ["m", "n", "b"],
-        message: "",
+        messages: [],
       },
       {
         isValid: false,
         parsed: [],
-        message: "Invalid entry at index: 2. Value is not allowed",
+        messages: ["Invalid entry at index: 2. Value is not allowed"],
       },
       {
         isValid: true,
         parsed: [],
-        message: "",
+        messages: [],
       },
       {
         isValid: false,
         parsed: [],
-        message:
+        messages: [
           "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
+        ],
       },
       {
         isValid: false,
         parsed: [],
-        message:
+        messages: [
           "This property is required for the widget to function correctly",
+        ],
       },
       {
         isValid: false,
         parsed: [],
-        message:
+        messages: [
           "This property is required for the widget to function correctly",
+        ],
       },
       {
         isValid: false,
         parsed: [],
-        message:
+        messages: [
           "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
+        ],
       },
       {
         isValid: true,
         parsed: ["a", "b", "c"],
-        message: "",
+        messages: [],
       },
       {
         isValid: false,
         parsed: [],
-        message:
+        messages: [
           "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
+        ],
       },
       {
         isValid: false,
         parsed: [],
-        message: "Array must be unique. Duplicate values found",
+        messages: ["Array must be unique. Duplicate values found"],
       },
       {
         isValid: false,
         parsed: [],
-        message:
+        messages: [
           "This property is required for the widget to function correctly",
+        ],
       },
       {
         isValid: true,
         parsed: [],
-        message: "",
+        messages: [],
       },
     ];
     inputs.forEach((input, index) => {
@@ -561,39 +624,44 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: [{ label: 123, value: 234 }],
-        message: "",
+        messages: [],
       },
       {
         isValid: true,
         parsed: [{ label: 123, value: 234 }],
-        message: "",
+        messages: [],
       },
       {
         isValid: false,
         parsed: [],
-        message: "Invalid entry at index: 0. Missing required key: label",
+        messages: ["Invalid entry at index: 0. Missing required key: label"],
       },
       {
         isValid: false,
         parsed: [],
-        message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type number Required`,
+        messages: [
+          `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type number Required`,
+        ],
       },
       {
         isValid: false,
         parsed: [],
-        message:
-          "Invalid entry at index: 0. Missing required key: label Missing required key: value",
+        messages: [
+          "Invalid entry at index: 0. Missing required key: label",
+          "Invalid entry at index: 0. Missing required key: value",
+        ],
       },
       {
         isValid: true,
         parsed: [],
-        message: "",
+        messages: [],
       },
       {
         isValid: false,
         parsed: [],
-        message:
+        messages: [
           "This property is required for the widget to function correctly",
+        ],
       },
     ];
     inputs.forEach((input, index) => {
@@ -678,16 +746,16 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: defaultDate,
-        message: "Value does not match: ISO 8601 date string",
+        messages: ["Value does not match: ISO 8601 date string"],
       },
       {
         isValid: false,
         parsed: defaultDate,
-        message: "Value does not match: ISO 8601 date string",
+        messages: ["Value does not match: ISO 8601 date string"],
       },
       {
         isValid: false,
-        message: "Value does not match: ISO 8601 date string",
+        messages: ["Value does not match: ISO 8601 date string"],
         parsed: defaultDate,
       },
     ];
@@ -767,52 +835,52 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array<Object>",
+        messages: ["This value does not evaluate to type Array<Object>"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array<Object>",
+        messages: ["This value does not evaluate to type Array<Object>"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array<Object>",
+        messages: ["This value does not evaluate to type Array<Object>"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array<Object>",
+        messages: ["This value does not evaluate to type Array<Object>"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array<Object>",
+        messages: ["This value does not evaluate to type Array<Object>"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array<Object>",
+        messages: ["This value does not evaluate to type Array<Object>"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "Invalid object at index 0",
+        messages: ["Invalid object at index 0"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "Invalid object at index 1",
+        messages: ["Invalid object at index 1"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "Invalid object at index 1",
+        messages: ["Invalid object at index 1"],
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array<Object>",
+        messages: ["This value does not evaluate to type Array<Object>"],
       },
     ];
 
@@ -895,12 +963,12 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+        messages: [`${WIDGET_TYPE_VALIDATION_ERROR}: URL`],
         parsed: "https://wikipedia.org",
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+        messages: [`${WIDGET_TYPE_VALIDATION_ERROR}: URL`],
         parsed: "https://wikipedia.org",
       },
     ];
@@ -927,161 +995,6 @@ describe("Validate Validators", () => {
     inputs.forEach((input) => {
       const result = validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected);
-    });
-  });
-  it("correctly validates objects", () => {
-    const inputs = [
-      {
-        label: true,
-        value: "true",
-      },
-      {
-        label: true,
-        value: "true",
-      },
-    ];
-    const config = [
-      {
-        type: ValidationTypes.OBJECT,
-        params: {
-          required: true,
-          allowedKeys: [
-            {
-              name: "label",
-              type: ValidationTypes.TEXT,
-              params: {
-                required: true,
-              },
-            },
-            {
-              name: "value",
-              type: ValidationTypes.TEXT,
-              params: {
-                required: true,
-                unique: true,
-              },
-            },
-          ],
-        },
-      },
-      {
-        type: ValidationTypes.OBJECT,
-        params: {
-          required: true,
-          allowedKeys: [
-            {
-              name: "label",
-              type: ValidationTypes.BOOLEAN,
-              params: {
-                required: true,
-              },
-            },
-            {
-              name: "value",
-              type: ValidationTypes.TEXT,
-              params: {
-                required: true,
-                unique: true,
-              },
-            },
-          ],
-        },
-      },
-    ];
-    const expected = [
-      {
-        isValid: true,
-        parsed: {
-          label: "true",
-          value: "true",
-        },
-      },
-      {
-        isValid: true,
-        parsed: { label: true, value: "true" },
-      },
-    ];
-    inputs.forEach((input, index) => {
-      const result = validate(config[index], input, DUMMY_WIDGET);
-      expect(result).toStrictEqual(expected[index]);
-    });
-  });
-  it("correctly validates objects to fail", () => {
-    const inputs = [
-      {
-        labels: true,
-        values: "true",
-      },
-      {
-        label: true,
-      },
-    ];
-    const config = [
-      {
-        type: ValidationTypes.OBJECT,
-        params: {
-          required: true,
-          allowedKeys: [
-            {
-              name: "label",
-              type: ValidationTypes.TEXT,
-              params: {
-                required: true,
-              },
-            },
-            {
-              name: "value",
-              type: ValidationTypes.TEXT,
-              params: {
-                required: true,
-                unique: true,
-              },
-            },
-          ],
-        },
-      },
-      {
-        type: ValidationTypes.OBJECT,
-        params: {
-          required: true,
-          allowedKeys: [
-            {
-              name: "label",
-              type: ValidationTypes.BOOLEAN,
-              params: {
-                required: true,
-              },
-            },
-            {
-              name: "value",
-              type: ValidationTypes.TEXT,
-              params: {
-                required: true,
-                unique: true,
-              },
-            },
-          ],
-        },
-      },
-    ];
-    const expected = [
-      {
-        isValid: false,
-        parsed: {
-          labels: true,
-          values: "true",
-        },
-        message: "Missing required key: label Missing required key: value",
-      },
-      {
-        isValid: false,
-        message: "Missing required key: value",
-        parsed: { label: true },
-      },
-    ];
-    inputs.forEach((input, index) => {
-      const result = validate(config[index], input, DUMMY_WIDGET);
-      expect(result).toStrictEqual(expected[index]);
     });
   });
 });

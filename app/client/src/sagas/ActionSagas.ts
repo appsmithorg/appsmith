@@ -752,7 +752,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const action: Action = yield select(getAction, id);
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
-  const isSaas = action.pluginType === PluginType.DB;
+  const isSaas = action.pluginType === PluginType.SAAS;
   const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
@@ -887,7 +887,8 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
               : SnippetAction.COPY, //Set insertSnippet to true only if values
         }),
       );
-      const effectRaceResult = yield race({
+      AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      const effectRaceResult: { failure: any; success: any } = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
       });

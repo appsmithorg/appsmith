@@ -107,7 +107,6 @@ const StyledInput = styled((props) => {
   const { dataType, inputRef, ...inputProps } = props;
 
   const omitProps = [
-    "fill",
     "hasLeftIcon",
     "inputStyle",
     "rightSideComponentWidth",
@@ -121,6 +120,7 @@ const StyledInput = styled((props) => {
     "noBorder",
     "isLoading",
     "noCaret",
+    "fill",
   ];
 
   return props.asyncControl ? (
@@ -312,7 +312,6 @@ const TextInput = forwardRef(
       : false;
     return (
       <InputWrapper
-        data-cy={props.cypressSelector}
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}

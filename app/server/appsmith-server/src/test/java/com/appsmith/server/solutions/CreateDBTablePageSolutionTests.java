@@ -101,7 +101,7 @@ public class CreateDBTablePageSolutionTests {
 
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
-            "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
+            "  WHERE \"primaryKey\" = {{Table1.triggeredRow.primaryKey}};",
 
         "InsertQuery", "INSERT INTO sampleTable (\n" +
             "\t\"field1.something\", \n" +
@@ -717,7 +717,7 @@ public class CreateDBTablePageSolutionTests {
                     } else if (queryType.equals("DELETE")) {
                         Map<String, Object> delete = (Map<String, Object>) formData.get("delete");
                         assertThat(delete.get("query").toString().replaceAll(specialCharactersRegex, ""))
-                            .contains("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }"
+                            .contains("{ primaryKey: ObjectId('{{data_table.triggeredRow.primaryKey}}') }"
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("FIND")) {
 

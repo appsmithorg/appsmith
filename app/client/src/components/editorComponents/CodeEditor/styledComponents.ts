@@ -56,7 +56,6 @@ export const EditorWrapper = styled.div<{
     props.size === EditorSize.COMPACT && props.isFocused
       ? `
   z-index: 5;
-  position: absolute;
   right: 0;
   left: 0;
   top: 0;
@@ -204,6 +203,7 @@ export const EditorWrapper = styled.div<{
   ${(props) =>
     props.className === "js-editor" &&
     `
+    overflow: hidden;
     .cm-tab {
       border-right: 1px dotted #ccc;
     }
