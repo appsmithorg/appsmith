@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Spinner } from "@blueprintjs/core";
-import { BuilderRouteParams, matchBuilderPath } from "constants/routes";
+import { BuilderRouteParams } from "constants/routes";
 import { AppState } from "reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
@@ -37,7 +37,6 @@ import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { debug } from "loglevel";
 
 import { getSearchQuery } from "utils/helpers";
 
@@ -158,8 +157,6 @@ class Editor extends Component<Props> {
   };
 
   public render() {
-    debug(matchBuilderPath(window.location.pathname), "matchBuilderPath");
-
     if (this.props.creatingOnboardingDatabase) {
       return <Welcome />;
     }

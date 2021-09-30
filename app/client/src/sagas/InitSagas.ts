@@ -235,10 +235,7 @@ function* initializeEditorSaga(
         pageId: toLoadPageId,
       });
 
-      history.replace({
-        ...window.location,
-        pathname,
-      });
+      history.replace(pathname);
     }
   } catch (e) {
     log.error(e);

@@ -44,8 +44,8 @@ export const PAGE_LIST_EDITOR_PATH = `${BUILDER_URL}/pages`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `${BUILDER_URL}/datasource/:datasourceId`;
 export const PROVIDER_TEMPLATE_PATH = `${BUILDER_URL}/provider/:providerId`;
 
-export const GEN_TEMPLATE_URL = "/generate-page";
-export const GENERATE_TEMPLATE_PATH = `${BUILDER_URL}${GEN_TEMPLATE_URL}`;
+export const GEN_TEMPLATE_URL = "generate-page";
+export const GENERATE_TEMPLATE_PATH = `${BUILDER_URL}/${GEN_TEMPLATE_URL}`;
 export const GEN_TEMPLATE_FORM_ROUTE = "/form";
 export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPLATE_FORM_ROUTE}`;
 

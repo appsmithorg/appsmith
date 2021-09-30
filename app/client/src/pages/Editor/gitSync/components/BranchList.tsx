@@ -18,7 +18,6 @@ import {
 } from "selectors/gitSyncSelectors";
 
 import Skeleton from "components/utils/Skeleton";
-import { debug } from "loglevel";
 
 const ListContainer = styled.div`
   flex: 1;
