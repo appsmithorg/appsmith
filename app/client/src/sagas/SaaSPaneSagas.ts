@@ -101,6 +101,8 @@ export default function* root() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    // Calling form valye change on adding/removing where clause statement
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
   ]);
 }

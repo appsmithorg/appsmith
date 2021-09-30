@@ -33,8 +33,8 @@ init_mongodb() {
 		mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
 		echo "Waiting 10s for mongodb init"
 		sleep 10
-		bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGO_USERNAME" "$APPSMITH_MONGO_PASSWORD" >"/appsmith-stacks/configuration/mongo-init.js"
-		mongo "127.0.0.1/${APPSMITH_MONGO_DATABASE}" /appsmith-stacks/configuration/mongo-init.js
+		bash "/opt/appsmith/templates/mongo-init.js.sh" "$MONGO_INITDB_ROOT_USERNAME" "$MONGO_INITDB_ROOT_PASSWORD" >"/appsmith-stacks/configuration/mongo-init.js"
+		mongo "127.0.0.1/${MONGO_INITDB_DATABASE}" /appsmith-stacks/configuration/mongo-init.js
 		echo "Seeding db done"
 
 		echo "Enable replica set"
@@ -136,7 +136,7 @@ configure_supervisord() {
 	fi
 
 	cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
-	if [[ "$APPSMITH_MONGODB_URI" = "mongodb://appsmith:$APPSMITH_MONGO_PASSWORD@localhost/appsmith" ]]; then
+	if [[ "$APPSMITH_MONGODB_URI" = "mongodb://appsmith:$MONGO_INITDB_ROOT_PASSWORD@localhost/appsmith" ]]; then
 		cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
 	fi
 	if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then

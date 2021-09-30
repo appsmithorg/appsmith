@@ -6,7 +6,6 @@ import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -115,18 +114,10 @@ public class UserSignup {
                     MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
                     String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
-                    if(StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(organizationId)) {
-                        // need to create default application
-                        Application application = new Application();
-                        application.setOrganizationId(organizationId);
-                        application.setName("My first application");
-                        return applicationPageService.createApplication(application).flatMap(createdApplication ->
-                                authenticationSuccessHandler
-                                .onAuthenticationSuccess(webFilterExchange, authentication, createdApplication, true)
-                                .thenReturn(savedUser));
-                    }
+                    boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(organizationId);
+                    // need to create default application
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication, null, true)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true)
                             .thenReturn(savedUser);
                 });
     }
