@@ -2313,7 +2313,7 @@ export const light: ColorType = {
   },
   colorSelector: {
     shadow: lightShades[3],
-    checkmark: lightShades[11],
+    checkmark: lightShades[16],
   },
   checkbox: {
     disabled: lightShades[3],

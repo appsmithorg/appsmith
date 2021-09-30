@@ -338,6 +338,13 @@ const MenuItemWrapper = styled(MenuItem)`
       }
     }
   }
+
+  .${CsClasses.ICON} {
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
 `;
 
 export function ApplicationCard(props: ApplicationCardProps) {
@@ -634,7 +641,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     if (editedBy === "" && editedOn === "") return "";
 
     editedBy = editedBy.split("@")[0];
-    editedBy = truncateString(editedBy, 7);
+    editedBy = truncateString(editedBy, 5);
 
     //assuming modifiedAt will be always available
     editedOn = howMuchTimeBeforeText(editedOn);

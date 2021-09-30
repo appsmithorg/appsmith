@@ -632,7 +632,6 @@ function ApplicationsSection(props: any) {
   }
 
   const createNewApplication = (applicationName: string, orgId: string) => {
-    alert("hi");
     const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
       AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];

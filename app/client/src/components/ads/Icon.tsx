@@ -23,7 +23,7 @@ import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
 // import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 // import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
-import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
+// import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
 // import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
@@ -68,6 +68,7 @@ import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
+import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -110,7 +111,8 @@ import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
 import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
-import WorkspaceIcon from "remixicon-react/Building3FillIcon";
+import EditUnderlineIcon from "remixicon-react/EditLineIcon";
+import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -260,6 +262,7 @@ export const IconCollection = [
   "workspace",
   "git-branch",
   "snippet",
+  "edit-underline",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -276,9 +279,9 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.fillColor || "currentcolor"};
+    fill: ${props.fillColor || ""};
     circle {
-      fill: ${props.fillColor || "currentcolor"};
+      fill: ${props.fillColor || ""};
     }
     `
         : ""}
@@ -288,7 +291,7 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.hoverFillColor || "currentcolor"};
+    fill: ${props.hoverFillColor || ""};
     `
         : ""}
   }
@@ -601,6 +604,9 @@ const Icon = forwardRef(
         break;
       case "snippet":
         returnIcon = <Snippet />;
+        break;
+      case "edit-underline":
+        returnIcon = <EditUnderlineIcon />;
         break;
       default:
         returnIcon = null;

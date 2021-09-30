@@ -18,6 +18,7 @@ import {
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCurrentDebuggerTab } from "selectors/debuggerSelectors";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
+import { Colors } from "constants/Colors";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -28,6 +29,7 @@ const Container = styled.div`
   height: 25%;
   min-height: ${TABS_HEADER_HEIGHT}px;
   background-color: ${(props) => props.theme.colors.debugger.background};
+  border: 1px solid ${Colors.ALTO};
 
   ul.react-tabs__tab-list {
     padding: 0px ${(props) => props.theme.spaces[12]}px;

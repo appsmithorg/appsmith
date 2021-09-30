@@ -1,6 +1,7 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
@@ -11,7 +12,7 @@ const StyledDialog = styled(Dialog)<{
 }>`
   && {
     border-radius: 0;
-    padding-bottom: ${(props) => props.theme.spaces[2]}px;
+    padding: 22px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
@@ -20,7 +21,8 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
-      padding: ${(props) => props.theme.spaces[4]}px;
+      padding: 0px;
+      padding-bottom: 12px;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
       .${Classes.ICON} {
@@ -35,12 +37,21 @@ const StyledDialog = styled(Dialog)<{
     .${Classes.HEADING} {
       color: ${(props) => props.theme.colors.modal.headerText};
       display: flex;
-      justify-content: center;
-      margin-top: ${(props) => props.theme.spaces[9]}px;
+      justify-content: left;
       font-weight: ${(props) => props.theme.typography.h1.fontWeight};
       font-size: ${(props) => props.theme.typography.h1.fontSize}px;
       line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
       letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
+    }
+
+    .${Classes.DIALOG_CLOSE_BUTTON} {
+      color: ${Colors.CHARCOAL};
+      min-width: 0;
+      padding: 0;
+
+      svg {
+        fill: ${Colors.CHARCOAL};
+      }
     }
 
     ${(props) =>
@@ -65,7 +76,7 @@ const StyledDialog = styled(Dialog)<{
         : ""}
 
     & .${Classes.DIALOG_BODY} {
-      padding: ${(props) => props.theme.spaces[9]}px;
+      padding-top: ${(props) => props.theme.spaces[9]}px;
       margin: 0;
       overflow: auto;
     }
