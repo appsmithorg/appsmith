@@ -392,7 +392,7 @@ export function CanvasSelectionArena({
       const addEventListeners = () => {
         canvasRef.current?.addEventListener("click", onClick, false);
         canvasRef.current?.addEventListener("mousedown", onMouseDown, false);
-        canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
+        document.addEventListener("mouseup", onMouseUp, false);
         canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
         canvasRef.current?.addEventListener("mouseleave", onMouseLeave, false);
         canvasRef.current?.addEventListener("mouseenter", onMouseEnter, false);
@@ -400,7 +400,7 @@ export function CanvasSelectionArena({
       };
       const removeEventListeners = () => {
         canvasRef.current?.removeEventListener("mousedown", onMouseDown);
-        canvasRef.current?.removeEventListener("mouseup", onMouseUp);
+        document?.removeEventListener("mouseup", onMouseUp);
         canvasRef.current?.removeEventListener("mousemove", onMouseMove);
         canvasRef.current?.removeEventListener("mouseleave", onMouseLeave);
         canvasRef.current?.removeEventListener("mouseenter", onMouseEnter);
