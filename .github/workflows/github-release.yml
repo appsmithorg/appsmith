@@ -217,10 +217,21 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
+      - name: Set up QEMU (needed for docker buildx)
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
       - name: Build and push client image
         working-directory: app/client
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}} .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
 
@@ -230,10 +241,25 @@ jobs:
             docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
           fi
 
+      - name: Build and push fat image
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}}"
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
+            tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest"
+          fi
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            $tag_args \
+            .
+
       - name: Build and push server image
         working-directory: app/server
         run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}} .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}}
 
@@ -247,7 +273,6 @@ jobs:
         working-directory: app/rts
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}} .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
 
           # Only build & tag with latest if the tag doesn't contain beta
@@ -255,19 +280,3 @@ jobs:
             docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest .
             docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest
           fi
-
-      - name: Build and push fat image
-        run: |
-          docker build \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}} \
-            .
-
-          # Only build & tag with latest if the tag doesn't contain beta
-          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest
-          fi
-
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
