@@ -25,14 +25,14 @@ import {
   EditorJSONtoFormProps,
 } from "../QueryEditor/EditorJSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { difference, merge, update } from "lodash";
+import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
 } from "constants/routes";
-import { applyDiff, diff } from "deep-diff";
+import { diff } from "deep-diff";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   difference?: any;
