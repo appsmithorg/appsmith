@@ -16,6 +16,8 @@ export enum MediaCaptureStatusTypes {
   VIDEO_PLAYING = "VIDEO_PLAYING",
   VIDEO_PAUSED = "VIDEO_PAUSED",
   VIDEO_SAVED = "VIDEO_SAVED",
+  VIDEO_PLAYING_AFTER_SAVE = "VIDEO_PLAYING_AFTER_SAVE",
+  VIDEO_PAUSED_AFTER_SAVE = "VIDEO_PAUSED_AFTER_SAVE",
 }
 
 export type MediaCaptureStatus = keyof typeof MediaCaptureStatusTypes;
@@ -31,7 +33,15 @@ export enum MediaCaptureActionTypes {
   RECORDING_SAVE = "RECORDING_SAVE",
   VIDEO_PLAY = "VIDEO_PLAY",
   VIDEO_PAUSE = "VIDEO_PAUSE",
+  VIDEO_PLAY_AFTER_SAVE = "VIDEO_PLAY_AFTER_SAVE",
+  VIDEO_PAUSE_AFTER_SAVE = "VIDEO_PAUSE_AFTER_SAVE",
   VIDEO_REFRESH = "VIDEO_REFRESH",
 }
 
 export type MediaCaptureAction = keyof typeof MediaCaptureActionTypes;
+
+export enum DeviceTypes {
+  MICROPHONE = "MICROPHONE",
+  CAMERA = "CAMERA",
+}
+export type DeviceType = keyof typeof DeviceTypes;
