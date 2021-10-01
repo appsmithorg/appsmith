@@ -172,6 +172,11 @@ class CodeEditor extends Component<Props, State> {
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   constructor(props: Props) {
     super(props); 
+    this.state = {
+      isFocused: false,
+      isOpened: false, 
+      hinterOpen: false,
+    };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
 

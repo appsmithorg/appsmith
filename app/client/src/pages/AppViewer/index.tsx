@@ -81,6 +81,9 @@ export type AppViewerProps = {
 class AppViewer extends Component<
   AppViewerProps & RouteComponentProps<AppViewerRouteParams>
 > {
+  public state = {
+    registered: false, 
+  };
   componentDidMount() {
     editorInitializer().then(() => {
       this.setState({ registered: true });
