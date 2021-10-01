@@ -37,7 +37,6 @@ export const ListItem = styled.div`
   align-items: center;
   padding: 10px;
   background-color: ${Colors.GREY_1};
-  border: 1px solid ${Colors.GREY_2};
 `;
 
 const Actions = styled.div`
