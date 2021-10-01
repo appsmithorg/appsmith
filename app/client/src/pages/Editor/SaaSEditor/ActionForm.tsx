@@ -63,7 +63,7 @@ function ActionForm(props: Props) {
    * NOTE:
    * Action object returned by getAction comes from state.entities.action
    * action api's payload is created from state.entities.action and response is saved in the same key
-   * Data passed to redux form is the merge of values present in editorConfig, settingsConfig, formConfigs and has the correct datastrucure
+   * Data passed to redux form is the merge of values present in state.entities.action, editorConfig, settingsConfig and has the correct datastrucure
    * Data structure in state.entities.action is not correct
    * Q. What does the following fix do?
    * A. It calculates the diff between merged values and state.entities.action and saves the same in state.entities.action
@@ -72,6 +72,7 @@ function ActionForm(props: Props) {
   if (!!props.difference) {
     let path = "";
     let value = "";
+    // Loop through the diff objects in difference Array
     for (let i = 0; i < props.difference.length; i++) {
       //kind = N indicates a newly added property/element
       //This property is present in initialValues but not in action object
