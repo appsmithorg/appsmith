@@ -101,7 +101,7 @@ type IntegrationsHomeScreenProps = {
   mockDatasources: MockDatasource[];
 };
 
-type IntegrationsHomeScreenState = { 
+type IntegrationsHomeScreenState = {
   activePrimaryMenuId: number;
   activeSecondaryMenuId: number;
   unsupportedPluginDialogVisible: boolean;
@@ -290,7 +290,7 @@ class IntegrationsHomeScreen extends React.Component<
   constructor(props: Props) {
     super(props);
     this.unsupportedPluginContinueAction = () => null;
-    this.state = { 
+    this.state = {
       activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
       activeSecondaryMenuId: getSecondaryMenuIds(
         props.mockDatasources.length > 0,

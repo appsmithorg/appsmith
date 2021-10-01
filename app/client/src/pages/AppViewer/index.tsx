@@ -82,7 +82,7 @@ class AppViewer extends Component<
   AppViewerProps & RouteComponentProps<AppViewerRouteParams>
 > {
   public state = {
-    registered: false, 
+    registered: false,
   };
   componentDidMount() {
     editorInitializer().then(() => {
@@ -93,7 +93,6 @@ class AppViewer extends Component<
       this.props.initializeAppViewer(applicationId, pageId);
     }
   }
- 
 
   public render() {
     const { isInitialized } = this.props;

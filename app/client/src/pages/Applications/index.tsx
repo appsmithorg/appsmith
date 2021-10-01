@@ -942,7 +942,7 @@ class Applications extends Component<
   { selectedOrgId: string; showOnboardingForm: boolean }
 > {
   constructor(props: ApplicationProps) {
-    super(props); 
+    super(props);
   }
 
   componentDidMount() {

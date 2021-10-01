@@ -170,10 +170,10 @@ class CodeEditor extends Component<Props, State> {
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   constructor(props: Props) {
-    super(props); 
+    super(props);
     this.state = {
       isFocused: false,
-      isOpened: false,  
+      isOpened: false,
       hinterOpen: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
