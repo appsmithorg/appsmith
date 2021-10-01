@@ -153,8 +153,7 @@ type Props = ReduxStateProps &
 
 type State = {
   isFocused: boolean;
-  isOpened: boolean;
-  autoCompleteVisible: boolean;
+  isOpened: boolean; 
   hinterOpen: boolean;
 };
 
@@ -174,7 +173,7 @@ class CodeEditor extends Component<Props, State> {
     super(props); 
     this.state = {
       isFocused: false,
-      isOpened: false, 
+      isOpened: false,  
       hinterOpen: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
