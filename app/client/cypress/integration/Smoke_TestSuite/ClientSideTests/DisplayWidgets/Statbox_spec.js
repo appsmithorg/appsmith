@@ -12,8 +12,8 @@ describe("Statbox Widget Functionality", function() {
     ).click({
       multiple: true,
     });
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Statbox1)").click({
-      multiple: true,
+    cy.get(".t--entity-name:contains(Statbox1) ~ .entity-context-menu").click({
+      force: true,
     });
   });
 });

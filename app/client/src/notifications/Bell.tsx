@@ -14,6 +14,7 @@ import {
   setIsNotificationsListVisible,
 } from "actions/notificationActions";
 import styled from "styled-components";
+import { Colors } from "constants/Colors";
 
 import {
   unreadCountSelector,
@@ -88,7 +89,7 @@ function Bell() {
       placement={"bottom-end"}
     >
       <Container>
-        <StyledBellIcon color="#090707" />
+        <StyledBellIcon color={Colors.GRAY} />
         {showIndicator && (
           <BellIndicatorContainer>
             {/** Not using overflow ellipsis here for UI specs */}

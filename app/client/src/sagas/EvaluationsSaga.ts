@@ -257,11 +257,11 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
       jsAction,
     },
   );
-  const { errors, evalTree, result } = workerResponse;
+  const { evalTree, result } = workerResponse;
   const dataTree = yield select(getDataTree);
   const updates = diff(dataTree, evalTree) || [];
   yield put(setEvaluatedTree(evalTree, updates));
-  yield call(evalErrorHandler, errors, evalTree, [path]);
+  yield call(evalErrorHandler, [], evalTree, [path]);
   return result;
 }
 
@@ -463,12 +463,14 @@ export function* evaluateArgumentSaga(action: any) {
     if (workerResponse.result) {
       const validation = validate({ type }, workerResponse.result, {});
       if (!validation.isValid)
-        lintErrors.unshift({
-          ...validation,
-          ...{
-            errorType: PropertyEvaluationErrorType.VALIDATION,
-            errorMessage: validation.message,
-          },
+        validation.messages?.map((message) => {
+          lintErrors.unshift({
+            ...validation,
+            ...{
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message,
+            },
+          });
         });
     }
     yield put(

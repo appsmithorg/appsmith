@@ -887,7 +887,8 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
               : SnippetAction.COPY, //Set insertSnippet to true only if values
         }),
       );
-      const effectRaceResult = yield race({
+      AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      const effectRaceResult: { failure: any; success: any } = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
       });

@@ -2313,7 +2313,7 @@ export const light: ColorType = {
   },
   colorSelector: {
     shadow: lightShades[3],
-    checkmark: lightShades[11],
+    checkmark: lightShades[16],
   },
   checkbox: {
     disabled: lightShades[3],
@@ -2464,8 +2464,8 @@ export const light: ColorType = {
     darkText: lightShades[6],
   },
   queryTemplate: {
-    bg: lightShades[3],
-    color: lightShades[7],
+    bg: lightShades[11],
+    color: lightShades[8],
   },
   profileDropdown: {
     name: lightShades[10],
@@ -2884,7 +2884,7 @@ export const theme: Theme = {
     secondary: Colors.GEYSER_LIGHT,
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
-    error: Colors.RED,
+    error: Colors.ERROR_RED,
     infoOld: Colors.SLATE_GRAY,
     errorMessage: Colors.ERROR_RED,
     hover: Colors.POLAR,
@@ -3060,7 +3060,7 @@ export const theme: Theme = {
       color: Colors.OCEAN_GREEN,
     },
     error: {
-      color: Colors.RED,
+      color: Colors.ERROR_RED,
     },
     warning: {
       color: Colors.BUTTER_CUP,
