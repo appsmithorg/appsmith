@@ -59,21 +59,32 @@ function ActionForm(props: Props) {
   };
 
   if (!!props.difference) {
+    let path = "";
+    let value = "";
     for (let i = 0; i < props.difference.length; i++) {
-      let path = "";
-      path += props.difference[i].path.join(".");
-      const index = props.difference[i]?.index;
-      path += `[${index}]`;
-      if (index >= 0 && props.difference[i]?.item.kind === "N") {
-        const value = props.difference[i].item.rhs;
-        dispatch(
-          setActionProperty({
-            actionId: apiId,
-            propertyName: path,
-            value: value,
-          }),
+      if (props.difference[i]?.kind === "N") {
+        path = props.difference[i].path.reduce(
+          (acc: string, item: number | string) => {
+            if (typeof item === "string" && acc) {
+              acc += `${path}.${item}`;
+            } else if (typeof item === "string" && !acc) {
+              acc += `${item}`;
+            } else acc += `${path}[${item}]`;
+            return acc;
+          },
+          "",
         );
+        value = props.difference[i]?.rhs;
       }
+    }
+    if (value && path) {
+      dispatch(
+        setActionProperty({
+          actionId: apiId,
+          propertyName: path,
+          value: value,
+        }),
+      );
     }
   }
 
