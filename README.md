@@ -134,6 +134,12 @@ We love our contributors! We're committed to fostering an open and welcoming env
 - 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)
 - 📕 Read our [Code of Conduct](CODE_OF_CONDUCT.md)
 
+## Hacktoberfest 2021
+
+Please do not spam our repositories with low value pull requests for the sake of some swag. They will not be tolerated. So please make sure that your 
+contribution is meaningful. If you want to find out more about Hacktoberfest with Appsmith, please visit [this link](https://hacktoberfest.appsmith.com).
+<br>Happy hacking!
+
 #### Top Contributors (36)
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
