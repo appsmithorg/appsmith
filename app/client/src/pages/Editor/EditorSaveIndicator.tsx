@@ -7,13 +7,13 @@ import moment from "moment/moment";
 import { AppState } from "reducers";
 import TooltipComponent from "components/ads/Tooltip";
 import { HeaderIcons } from "icons/HeaderIcons";
-import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import {
   createMessage,
   EDITOR_HEADER_SAVE_INDICATOR,
 } from "constants/messages";
 import { Colors } from "constants/Colors";
+import Icon from "components/ads/Icon";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;
@@ -22,9 +22,19 @@ const SaveStatusContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20px;
+  margin-right: 8px;
+  margin-top: 2px;
   .bp3-popover-target {
     display: flex;
+  }
+`;
+
+const StyledLoader = styled(Icon)`
+  animation: spin 2s linear infinite;
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -50,7 +60,9 @@ export function EditorSaveIndicator() {
 
   let saveStatusIcon: React.ReactNode;
   if (isSaving) {
-    saveStatusIcon = <ThreeDotLoading className="t--save-status-is-saving" />;
+    saveStatusIcon = (
+      <StyledLoader className="t--save-status-is-saving" name="loader" />
+    );
   } else {
     if (!pageSaveError) {
       saveStatusIcon = (

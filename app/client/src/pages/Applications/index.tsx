@@ -53,7 +53,7 @@ import {
 import { Classes } from "components/ads/common";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import { UpdateApplicationPayload, UserRoles } from "api/ApplicationApi";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -69,14 +69,12 @@ import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import ProfileImage from "pages/common/ProfileImage";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
-import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
 import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
 import {
@@ -99,6 +97,7 @@ import { setHeaderMeta } from "actions/themeActions";
 import history from "utils/history";
 import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
+import SharedUserList from "pages/common/SharedUserList";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -225,21 +224,6 @@ const ItemWrapper = styled.div`
 `;
 const StyledIcon = styled(Icon)`
   margin-right: 11px;
-`;
-const UserImageContainer = styled.div`
-  display: flex;
-  margin-right: 8px;
-
-  div {
-    cursor: default;
-    margin-right: -6px;
-    width: 24px;
-    height: 24px;
-  }
-
-  div:last-child {
-    margin-right: 0px;
-  }
 `;
 const OrgShareUsers = styled.div`
   display: flex;
@@ -717,22 +701,7 @@ function ApplicationsSection(props: any) {
               ) &&
                 !isFetchingApplications && (
                   <OrgShareUsers>
-                    <UserImageContainer>
-                      {userRoles.slice(0, 5).map((el: UserRoles) => (
-                        <ProfileImage
-                          className="org-share-user-icons"
-                          key={el.username}
-                          source={`/api/${UserApi.photoURL}/${el.username}`}
-                          userName={el.name ? el.name : el.username}
-                        />
-                      ))}
-                      {userRoles.length > 5 ? (
-                        <ProfileImage
-                          className="org-share-user-icons"
-                          commonName={`+${userRoles.length - 5}`}
-                        />
-                      ) : null}
-                    </UserImageContainer>
+                    <SharedUserList userRoles={userRoles} />
                     <FormDialogComponent
                       Form={OrgInviteUsersForm}
                       canOutsideClickClose

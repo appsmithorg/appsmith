@@ -167,6 +167,7 @@ export default function Pagination(props: PaginationProps) {
               <Button
                 category={Category.tertiary}
                 className="t--apiFormPaginationPrevTest"
+                height="auto"
                 onClick={() => {
                   props.onTestClick("PREV");
                 }}
@@ -189,6 +190,7 @@ export default function Pagination(props: PaginationProps) {
               <Button
                 category={Category.tertiary}
                 className="t--apiFormPaginationNextTest"
+                height="auto"
                 onClick={() => {
                   props.onTestClick("NEXT");
                 }}
