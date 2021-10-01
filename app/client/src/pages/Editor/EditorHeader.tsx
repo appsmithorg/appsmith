@@ -217,6 +217,15 @@ const GlobalSearch = lazy(() => {
   return retryPromise(() => import("components/editorComponents/GlobalSearch"));
 });
 
+export function ShareButtonComponent() {
+  return (
+    <ShareButton className="t--application-share-btn header__application-share-btn">
+      <StyledSharedIcon name="share-line" />
+      <StyledShareText>SHARE</StyledShareText>
+    </ShareButton>
+  );
+}
+
 export function EditorHeader(props: EditorHeaderProps) {
   const {
     applicationId,
@@ -349,12 +358,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   ? currentApplication.name
                   : "Share Application"
               }
-              trigger={
-                <ShareButton className="t--application-share-btn header__application-share-btn">
-                  <StyledSharedIcon name="share-line" />
-                  <StyledShareText>SHARE</StyledShareText>
-                </ShareButton>
-              }
+              trigger={<ShareButtonComponent />}
             />
           </Boxed>
           <Boxed
