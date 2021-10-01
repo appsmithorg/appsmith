@@ -2,11 +2,7 @@ import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
-import {
-  Popover,
-  Position,
-  Classes as BluePrintClasses,
-} from "@blueprintjs/core";
+import { Popover, Position } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
