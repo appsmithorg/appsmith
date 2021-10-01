@@ -296,6 +296,7 @@ const FlexContainer = styled.div`
         ${(props) => props.theme.spaces[2]}px
         ${(props) => props.theme.spaces[5]}px;
     }
+    border-bottom: 0px;
   }
   .key-value:nth-child(2) {
     margin-left: ${(props) => props.theme.spaces[4]}px;

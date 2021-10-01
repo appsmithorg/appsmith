@@ -35,7 +35,11 @@ const TabsWrapper = styled.div<{
     display: flex;
     flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
     align-items: ${(props) => (!!props.vertical ? "stretch" : "center")};
-    border-bottom: 1px solid ${Colors.ALTO};
+    ${(props) =>
+      !props.vertical
+        ? `border-bottom: 1px solid ${Colors.ALTO};`
+        : "border-bottom: none;"}
+    
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.icon};

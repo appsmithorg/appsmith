@@ -20,15 +20,12 @@ import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
-// import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
-import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 // import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 // import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
 // import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
-import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
 // import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
@@ -79,9 +76,12 @@ import { ControlIcons } from "icons/ControlIcons";
 
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
+import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
+import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
+import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
 import DatasourceIcon from "remixicon-react/CloudFillIcon";
 import DeleteBin7 from "remixicon-react/DeleteBin7LineIcon";
@@ -168,6 +168,7 @@ export const IconCollection = [
   "add-more",
   "arrow-forward",
   "arrow-left",
+  "swap-horizontal",
   "billing",
   "book",
   "book-line",
@@ -184,7 +185,6 @@ export const IconCollection = [
   "close-x",
   "column",
   "comment-context-menu",
-  "context-menu",
   "context-menu",
   "cross",
   "danger",
@@ -330,6 +330,9 @@ const Icon = forwardRef(
         break;
       case "arrow-left":
         returnIcon = <ArrowLeft />;
+        break;
+      case "swap-horizontal":
+        returnIcon = <ArrowLeftRightIcon />;
         break;
       case "billing":
         returnIcon = <BillingIcon />;

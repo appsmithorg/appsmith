@@ -15,7 +15,6 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DynamicDropdownField from "./DynamicDropdownField";
-import { Colors } from "constants/Colors";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   MULTI_PART_DROPDOWN_OPTIONS,
@@ -87,6 +86,7 @@ const FlexContainer = styled.div`
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.apiPane.text};
     }
+    border-bottom: 0px;
   }
   .key-value:nth-child(2) {
     margin-left: ${(props) => props.theme.spaces[4]}px;
@@ -96,8 +96,6 @@ const FlexContainer = styled.div`
 const DynamicTextFieldWithDropdownWrapper = styled.div`
   display: flex;
   position: relative;
-  border-bottom: solid 1px ${Colors.MERCURY};
-  margin-bottom: 10px;
   top: -2px;
 `;
 
@@ -176,6 +174,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 
                       <DynamicDropdownFieldWrapper>
                         <DynamicDropdownField
+                          height="34px"
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
                           width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
