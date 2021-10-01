@@ -1,5 +1,9 @@
 import FeatureFlag from "entities/FeatureFlag";
 
 export default function getFeatureFlags(): FeatureFlag {
-  return (window as any).FEATURE_FLAGS || {};
+  const flags = (window as any).FEATURE_FLAGS || {};
+  return {
+    ...flags,
+    BOTTOM_BAR: true,
+  };
 }

@@ -4,6 +4,7 @@ type FeatureFlag = {
   LINTING: boolean;
   SNIPPET: boolean;
   GIT: boolean;
+  BOTTOM_BAR: boolean;
 };
 
 export default FeatureFlag;

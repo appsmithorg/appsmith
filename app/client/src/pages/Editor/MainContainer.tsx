@@ -18,7 +18,7 @@ const Container = styled.div`
   height: calc(
     100vh - ${(props) => props.theme.smallHeaderHeight} -
       ${(props) =>
-        getFeatureFlags().GIT ? props.theme.bottomBarHeight : "0px"}
+        getFeatureFlags().BOTTOM_BAR ? props.theme.bottomBarHeight : "0px"}
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
@@ -47,7 +47,7 @@ function MainContainer() {
           </Switch>
         </EditorContainer>
       </Container>
-      {getFeatureFlags().GIT && <BottomBar />}
+      <BottomBar />
     </>
   );
 }

@@ -11,6 +11,7 @@ import {
   collabStopEditingAppEvent,
   collabResetAppEditorsEvent,
 } from "actions/appCollabActions";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const UserImageContainer = styled.div`
   display: flex;
@@ -39,6 +40,8 @@ export function useEditAppCollabEvents(applicationId?: string) {
     (state: AppState) => state.ui.websocket.connected,
   );
 
+  const currentPageId = useSelector(getCurrentPageId);
+
   useEffect(() => {
     // websocket has to be connected as we only fire this event once.
     isWebsocketConnected &&
@@ -50,7 +53,7 @@ export function useEditAppCollabEvents(applicationId?: string) {
         applicationId &&
         dispatch(collabStopEditingAppEvent(applicationId));
     };
-  }, [applicationId, isWebsocketConnected]);
+  }, [applicationId, currentPageId, isWebsocketConnected]);
 }
 
 function RealtimeAppEditors(props: RealtimeAppEditorsProps) {

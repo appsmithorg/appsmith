@@ -36,6 +36,8 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
+import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
+
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
@@ -143,6 +145,7 @@ class Editor extends Component<Props> {
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
+              <ConcurrentPageEditorToast />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

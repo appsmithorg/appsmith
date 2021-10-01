@@ -327,3 +327,8 @@ export const updateThreadDraftComment = (
 export const fetchCommentThreadsInit = () => ({
   type: ReduxActionTypes.FETCH_COMMENT_THREADS_INIT,
 });
+
+export const setIsConcurrentPageEditorToastVisible = (payload?: boolean) => ({
+  type: ReduxActionTypes.SET_IS_CONCURRENT_PAGE_EDITOR_TOAST_VISIBLE,
+  payload,
+});

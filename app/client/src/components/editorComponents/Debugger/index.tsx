@@ -14,6 +14,13 @@ import { Layers } from "constants/Layers";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getMessageCount } from "selectors/debuggerSelectors";
 import getFeatureFlags from "utils/featureFlags";
+import { setActionTabsInitialIndex } from "actions/pluginActionActions";
+import {
+  matchApiPath,
+  matchBuilderPath,
+  matchQueryPath,
+} from "constants/routes";
+import TooltipComponent from "components/ads/Tooltip";
 
 const Container = styled.div<{ errorCount: number; warningCount: number }>`
   z-index: ${Layers.debugger};
@@ -74,7 +81,7 @@ function Debugger() {
     stopEventPropagation(e);
   };
 
-  if (!showDebugger && !getFeatureFlags().GIT)
+  if (!showDebugger && !getFeatureFlags().BOTTOM_BAR)
     return (
       <Container
         className="t--debugger"
@@ -103,7 +110,7 @@ const TriggerContainer = styled.div<{
   overflow: visible;
   display: flex;
   align-items: center;
-  margin-right: ${(props) => props.theme.spaces[9]}px;
+  margin-right: ${(props) => props.theme.spaces[10]}px;
 
   .debugger-count {
     color: ${Colors.WHITE};
@@ -122,6 +129,7 @@ const TriggerContainer = styled.div<{
     justify-content: center;
     top: 0;
     left: 100%;
+    border-radius: 50%;
   }
 `;
 
@@ -136,20 +144,43 @@ export function DebuggerTrigger() {
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
 
   const onClick = (e: any) => {
-    if (!showDebugger)
-      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-        source: "CANVAS",
-      });
-    dispatch(showDebuggerAction(!showDebugger));
+    const isOnCanvas = matchBuilderPath(window.location.pathname);
+    if (isOnCanvas) {
+      dispatch(showDebuggerAction(!showDebugger));
+      if (!showDebugger)
+        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+          source: "CANVAS",
+        });
+    }
+
+    const onApiEditor = matchApiPath(window.location.pathname);
+    const onQueryEditor = matchQueryPath(window.location.pathname);
+    if (onApiEditor || onQueryEditor) {
+      dispatch(setActionTabsInitialIndex(1));
+    }
     stopEventPropagation(e);
   };
+
+  const tooltipContent =
+    totalMessageCount > 0
+      ? `View details for ${totalMessageCount} ${
+          totalMessageCount > 1 ? "errors" : "error"
+        }`
+      : "View logs";
 
   return (
     <TriggerContainer
       errorCount={messageCounters.errors}
       warningCount={messageCounters.warnings}
     >
-      <Icon name="bug" onClick={onClick} size={IconSize.XL} />
+      <TooltipComponent
+        content={tooltipContent}
+        modifiers={{
+          preventOverflow: { enabled: true },
+        }}
+      >
+        <Icon name="bug" onClick={onClick} size={IconSize.XL} />
+      </TooltipComponent>
       {!!messageCounters.errors && (
         <div className="debugger-count t--debugger-count">
           {totalMessageCount > 9 ? "9+" : totalMessageCount}

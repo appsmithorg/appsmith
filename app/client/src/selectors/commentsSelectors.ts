@@ -176,3 +176,6 @@ export const getDraftComments = (state: AppState) =>
 
 export const getCommentThreadsFetched = (state: AppState) =>
   state.ui.comments.commentThreadsFetched;
+
+export const isConcurrentPageEditorToastVisible = (state: AppState) =>
+  state.ui.comments.isConcurrentPageEditorToastVisible;

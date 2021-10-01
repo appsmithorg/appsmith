@@ -12,6 +12,7 @@ import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
+    contentClassName?: string;
     text: string;
     actionElement?: JSX.Element;
     variant?: Variant;
@@ -20,6 +21,7 @@ type ToastProps = ToastOptions &
     dispatchableAction?: { type: ReduxActionType; payload: any };
     showDebugButton?: boolean;
     hideProgressBar?: boolean;
+    hideActionElementSpace?: boolean;
   };
 
 const WrappedToastContainer = styled.div`
@@ -38,7 +40,7 @@ const WrappedToastContainer = styled.div`
     margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
   .Toastify__toast-container--top-right {
-    top: 8em;
+    top: 8.2em;
   }
 `;
 export function StyledToastContainer(props: ToastOptions) {
@@ -125,7 +127,9 @@ const StyledActionText = styled(Text)`
   color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
 `;
 
-function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
+export function ToastComponent(
+  props: ToastProps & { undoAction?: () => void },
+) {
   const dispatch = useDispatch();
 
   return (
@@ -145,10 +149,13 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
         <ToastTextWrapper>
-          <Text type={TextType.P1}>{props.text}</Text>
+          <Text className={props.contentClassName} type={TextType.P1}>
+            {props.text}
+          </Text>
           {props.actionElement && (
             <StyledActionText type={TextType.P1}>
-              &nbsp;{props.actionElement}
+              {!props.hideActionElementSpace ? <>&nbsp;</> : ""}
+              {props.actionElement}
             </StyledActionText>
           )}
           {props.variant === Variant.danger && props.showDebugButton ? (
