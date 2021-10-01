@@ -33,13 +33,6 @@ type EditableTextProps = {
   beforeUnmount?: (value?: string) => void;
 };
 
-const EditPen = styled.img`
-  width: 14px;
-  :hover {
-    cursor: pointer;
-  }
-`;
-
 const EditableTextWrapper = styled.div<{
   isEditing: boolean;
   minimal: boolean;

@@ -83,6 +83,9 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
   .api-info-row {
+    svg {
+      fill: #ffffff;
+    }
     .t--apiFormHttpMethod:hover {
       background: ${Colors.CODE_GRAY};
     }
