@@ -148,6 +148,10 @@ describe("Comments", function() {
     cy.get(commentsLocators.switchToCommentModeBtn).click({
       force: true,
     });
+    // this is needed, as on CI we create new users
+    cy.contains("SKIP").click({ force: true });
+    cy.get("input[name='displayName']").type("Skip User");
+    cy.get("button[type='submit']").click();
     cy.get(
       `${commentsLocators.inlineCommentThreadPin}${commentThreadId}`,
     ).click({ force: true });
