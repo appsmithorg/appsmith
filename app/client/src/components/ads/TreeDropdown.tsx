@@ -12,8 +12,8 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { IconNames } from "@blueprintjs/icons";
 import { DropdownOption } from "components/constants";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -136,6 +136,10 @@ function getSelectedOption(
   return selectedOption;
 }
 
+const getMoreIcons = (icon: React.ReactNode) => {
+  return <Icon name={icon as IconName} size={IconSize.XXL} />;
+};
+
 export default function TreeDropdown(props: TreeDropdownProps) {
   const {
     defaultText,
@@ -172,7 +176,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       <MenuItem
         active={isSelected}
         className={option.className || "single-select"}
-        icon={option.icon}
+        icon={getMoreIcons(option.icon)}
         intent={option.intent}
         key={option.value}
         onClick={
@@ -206,7 +210,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
           selectedLabelModifier ? "code-highlight" : ""
         }`}
-        rightIcon={IconNames.CHEVRON_DOWN}
+        rightIcon={getMoreIcons("downArrow")}
         text={
           selectedLabelModifier
             ? selectedLabelModifier(selectedOption, displayValue)
