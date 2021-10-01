@@ -145,11 +145,7 @@ const Selected = styled.div<{
     } else if (props.hasError) {
       return Colors.FAIR_PINK;
     }
-    return !!props.bgColor
-      ? props.bgColor
-      : props.selected
-      ? props.theme.colors.dropdown.header.bg
-      : Colors.WHITE;
+    return props.bgColor || Colors.WHITE;
   }};
   box-sizing: border-box;
   display: flex;
@@ -377,12 +373,8 @@ const SelectedIcon = styled(Icon)`
 const DropdownIcon = styled(Icon)`
   margin-right: 7px;
   svg {
-    path {
-      fill: ${(props) =>
-        props.fillColor
-          ? props.fillColor
-          : props.theme.colors.dropdown.icon} !important;
-    }
+    fill: ${(props) =>
+      props.fillColor ? props.fillColor : props.theme.colors.dropdown.icon};
   }
 `;
 

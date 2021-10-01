@@ -67,6 +67,7 @@ export type ButtonProps = CommonComponentProps & {
   tag?: "a" | "button";
   type?: "submit" | "reset" | "button";
   target?: string;
+  height?: string;
   width?: string;
   isLink?: boolean;
   iconPosition?: IconPositions;
@@ -360,7 +361,7 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
   user-select: none;
   width: ${(props) =>
     props.width ? props.width : props.fill ? "100%" : "auto"};
-  height: ${(props) => btnFontStyles(props).height}px;
+  height: ${(props) => props.height || btnFontStyles(props).height}px;
   border: none;
   text-decoration: none;
   outline: none;
