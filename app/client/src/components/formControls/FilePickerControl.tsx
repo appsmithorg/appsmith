@@ -49,10 +49,7 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
   constructor(props: Props) {
     super(props);
     this.refreshUppy();
-
-    this.state = {
-      text: "Select file to upload",
-    };
+ 
   }
 
   refreshUppy = () => {

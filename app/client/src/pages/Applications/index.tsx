@@ -942,12 +942,7 @@ class Applications extends Component<
   { selectedOrgId: string; showOnboardingForm: boolean }
 > {
   constructor(props: ApplicationProps) {
-    super(props);
-
-    this.state = {
-      selectedOrgId: "",
-      showOnboardingForm: false,
-    };
+    super(props); 
   }
 
   componentDidMount() {

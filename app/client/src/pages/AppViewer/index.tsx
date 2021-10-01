@@ -81,10 +81,6 @@ export type AppViewerProps = {
 class AppViewer extends Component<
   AppViewerProps & RouteComponentProps<AppViewerRouteParams>
 > {
-  public state = {
-    registered: false,
-    isSideNavOpen: true,
-  };
   componentDidMount() {
     editorInitializer().then(() => {
       this.setState({ registered: true });
@@ -94,10 +90,7 @@ class AppViewer extends Component<
       this.props.initializeAppViewer(applicationId, pageId);
     }
   }
-
-  toggleCollapse = (open: boolean) => {
-    this.setState({ isSideNavOpen: open });
-  };
+ 
 
   public render() {
     const { isInitialized } = this.props;

@@ -290,15 +290,7 @@ class IntegrationsHomeScreen extends React.Component<
 
   constructor(props: Props) {
     super(props);
-    this.unsupportedPluginContinueAction = () => null;
-    this.state = {
-      page: 1,
-      activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
-      activeSecondaryMenuId: getSecondaryMenuIds(
-        props.mockDatasources.length > 0,
-      ).API,
-      unsupportedPluginDialogVisible: false,
-    };
+    this.unsupportedPluginContinueAction = () => null; 
   }
 
   syncActivePrimaryMenu = () => {
