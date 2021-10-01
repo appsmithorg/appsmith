@@ -21,7 +21,7 @@ export type WidgetOperationParams = {
   payload: any;
 };
 
-type Rect = {
+export type Rect = {
   top: number;
   left: number;
   right: number;
@@ -58,6 +58,173 @@ export const areIntersecting = (r1: Rect, r2: Rect) => {
     r2.right <= r1.left ||
     r2.top >= r1.bottom ||
     r2.bottom <= r1.top
+  );
+};
+
+export const getResizeParamsForPartialBoundaryCollision = (
+  collidingBlock: OccupiedSpace,
+  blockRect: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  },
+) => {
+  const intersectingPoints = [
+    { y: blockRect.top, x: blockRect.left, type: "topLeft" },
+    { y: blockRect.top, x: blockRect.right, type: "topRight" },
+    { y: blockRect.bottom, x: blockRect.left, type: "bottomLeft" },
+    {
+      y: blockRect.bottom,
+      x: blockRect.right,
+      type: "bottomRight",
+    },
+  ].filter((eachPoint) => {
+    return isPointInsideRect(eachPoint, collidingBlock);
+  });
+  if (intersectingPoints.length === 4) {
+    return;
+  }
+  if (intersectingPoints.length === 2) {
+    const [point1, point2] = intersectingPoints;
+    if (point1.y === point2.y) {
+      return {
+        direction: point1.type.includes("top") ? "top" : "bottom",
+        amount: point1.type.includes("top")
+          ? collidingBlock.bottom - point1.y
+          : point1.y - collidingBlock.top,
+      };
+    }
+    if (point1.x === point2.x) {
+      return {
+        direction: point1.type.includes("Left") ? "left" : "right",
+        amount: point1.type.includes("Left")
+          ? collidingBlock.right - point1.x
+          : point1.x - collidingBlock.left,
+      };
+    }
+  }
+};
+
+export const getResizeParamsForFullBoundaryCollision = (
+  points: {
+    y: number;
+    x: number;
+    type: string;
+  }[],
+  blockRect: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  },
+):
+  | {
+      direction: string;
+      amount: number;
+    }
+  | undefined => {
+  const [point1, point2] = points;
+
+  if (point1.y === point2.y) {
+    return {
+      direction: point1.type.includes("top") ? "bottom" : "top",
+      amount: point1.type.includes("top")
+        ? blockRect.bottom - point1.y
+        : point1.y - blockRect.top,
+    };
+  }
+  if (point1.x === point2.x) {
+    return {
+      direction: point1.type.includes("Left") ? "right" : "left",
+      amount: point1.type.includes("Left")
+        ? blockRect.right - point1.x
+        : point1.x - blockRect.left,
+    };
+  }
+};
+
+export const getResizeParamsForSinglePointCollision = (
+  point: {
+    y: number;
+    x: number;
+    type: string;
+  },
+  blockRect: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  },
+):
+  | {
+      direction: string;
+      amount: number;
+    }
+  | undefined => {
+  if (point.type === "topLeft") {
+    const widthResizedBlockArea =
+      (blockRect.bottom - blockRect.top) * (point.x - blockRect.left);
+    const heightResizedBlockArea =
+      (point.y - blockRect.top) * (blockRect.right - blockRect.left);
+    return {
+      direction:
+        widthResizedBlockArea > heightResizedBlockArea ? "right" : "bottom",
+      amount:
+        widthResizedBlockArea > heightResizedBlockArea
+          ? blockRect.right - point.x
+          : blockRect.bottom - point.y,
+    };
+  }
+  if (point.type === "topRight") {
+    const widthResizedBlockArea =
+      (blockRect.bottom - blockRect.top) * (blockRect.right - point.x);
+    const heightResizedBlockArea =
+      (point.y - blockRect.top) * (blockRect.right - blockRect.left);
+    return {
+      direction:
+        widthResizedBlockArea > heightResizedBlockArea ? "left" : "bottom",
+      amount:
+        widthResizedBlockArea > heightResizedBlockArea
+          ? point.x - blockRect.left
+          : blockRect.bottom - point.y,
+    };
+  }
+  if (point.type === "bottomLeft") {
+    const widthResizedBlockArea =
+      (blockRect.bottom - blockRect.top) * (point.x - blockRect.left);
+    const heightResizedBlockArea =
+      (blockRect.bottom - point.y) * (blockRect.right - blockRect.left);
+    return {
+      direction:
+        widthResizedBlockArea > heightResizedBlockArea ? "right" : "top",
+      amount:
+        widthResizedBlockArea > heightResizedBlockArea
+          ? blockRect.right - point.x
+          : point.y - blockRect.top,
+    };
+  }
+  if (point.type === "bottomRight") {
+    const widthResizedBlockArea =
+      (blockRect.bottom - blockRect.top) * (blockRect.right - point.x);
+    const heightResizedBlockArea =
+      (blockRect.bottom - point.y) * (blockRect.right - blockRect.left);
+    return {
+      direction:
+        widthResizedBlockArea > heightResizedBlockArea ? "left" : "top",
+      amount:
+        widthResizedBlockArea > heightResizedBlockArea
+          ? point.x - blockRect.left
+          : point.y - blockRect.top,
+    };
+  }
+};
+export const isPointInsideRect = function(point: XYCord, r: Rect) {
+  return (
+    r.left <= point.x &&
+    point.x <= r.right &&
+    r.top <= point.y &&
+    point.y <= r.bottom
   );
 };
 

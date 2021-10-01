@@ -42,6 +42,7 @@ export type WidgetDraggingBlock = {
   widgetId: string;
   isNotColliding: boolean;
   detachFromLayout?: boolean;
+  resizeUpdates?: any;
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
