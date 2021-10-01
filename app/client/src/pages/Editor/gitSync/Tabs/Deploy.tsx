@@ -86,7 +86,7 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
 
   if (isCommitSuccessful) {
     if (pushImmediately) {
-      commitButtonText = createMessage(PUSHED_SUCCESSFULLY);
+      commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
     } else {
       commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
     }

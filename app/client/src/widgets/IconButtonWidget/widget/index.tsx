@@ -10,14 +10,14 @@ import IconButtonComponent from "../component";
 import {
   ButtonBorderRadius,
   ButtonBoxShadow,
-  ButtonStyleType,
   ButtonVariant,
   ButtonBorderRadiusTypes,
 } from "components/constants";
+import { Colors } from "constants/Colors";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
-  buttonStyle: ButtonStyleType;
+  buttonColor?: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -82,32 +82,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "buttonStyle",
-            label: "Button Style",
-            controlType: "DROP_DOWN",
+            propertyName: "buttonColor",
             helpText: "Sets the style of the icon button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Warning",
-                value: "WARNING",
-              },
-              {
-                label: "Danger",
-                value: "DANGER",
-              },
-              {
-                label: "Info",
-                value: "INFO",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-            ],
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -118,15 +96,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText: "Sets the variant of the icon button",
             options: [
               {
-                label: "Solid",
+                label: "Primary",
                 value: "SOLID",
               },
               {
-                label: "Outline",
+                label: "Secondary",
                 value: "OUTLINE",
               },
               {
-                label: "Ghost",
+                label: "Tertiary",
                 value: "GHOST",
               },
             ],
@@ -193,7 +171,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       borderRadius,
       boxShadow,
       boxShadowColor,
-      buttonStyle,
+      buttonColor,
       buttonVariant,
       iconName,
       isDisabled,
@@ -206,7 +184,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonStyle={buttonStyle}
+        buttonColor={buttonColor || Colors.GREEN}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={
