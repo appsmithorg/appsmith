@@ -2340,7 +2340,7 @@ export const light: ColorType = {
     menuShadow: "0px 6px 20px rgba(0, 0, 0, 0.15)",
     selected: {
       text: lightShades[10],
-      bg: lightShades[2],
+      bg: lightShades[14],
       icon: lightShades[15],
       subtext: lightShades[7],
     },
