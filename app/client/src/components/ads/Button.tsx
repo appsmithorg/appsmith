@@ -413,10 +413,10 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
     }
   }
   .t--right-icon {
-    margin-left: ${(props) => props.theme.spaces[3] - 1.33}px;
+    margin-left: ${(props) => props.theme.spaces[1]}px;
   }
   .t--left-icon {
-    margin-right: ${(props) => props.theme.spaces[3] - 1.33}px;
+    margin-right: ${(props) => props.theme.spaces[1]}px;
   }
 `;
 

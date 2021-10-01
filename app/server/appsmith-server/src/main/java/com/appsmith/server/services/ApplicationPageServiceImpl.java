@@ -16,6 +16,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -558,12 +559,22 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
-                    return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
+                    /**
+                     *  Only delete unpublished action collection and not the entire action collection.
+                     */
+                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                            .flatMap(actionCollection -> {
+                                log.debug("Going to archive actionCollectionId: {} for applicationId: {}", actionCollection.getId(), id);
+                                return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
+                            }).collectList();
+
+                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono)
                             .map(tuple -> {
                                 PageDTO page1 = tuple.getT1();
                                 List<ActionDTO> actions = tuple.getT2();
-                                Application application = tuple.getT3();
-                                log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), application.getId());
+                                final List<ActionCollectionDTO> actionCollections = tuple.getT3();
+                                Application application = tuple.getT4();
+                                log.debug("Archived pageId: {} , {} actions and {} action collections for applicationId: {}", page1.getId(), actions.size(), actionCollections.size(), application.getId());
                                 return page1;
                             });
                 });

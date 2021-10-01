@@ -2,7 +2,11 @@ import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
-import { Popover, Position } from "@blueprintjs/core";
+import {
+  Popover,
+  Position,
+  Classes as BluePrintClasses,
+} from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
@@ -96,8 +100,13 @@ export interface RenderDropdownOptionType {
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
-  height: ${(props) => props.height || `36px`};
+  height: ${(props) => props.height || `38px`};
   position: relative;
+  /* border: 1.2px solid ${Colors.ALTO2};
+  overflow: hidden;
+  & .${BluePrintClasses.POPOVER_TARGET} {
+    background-color: ${Colors.WHITE};
+  } */
 `;
 
 const DropdownTriggerWrapper = styled.div<{
@@ -141,11 +150,7 @@ const Selected = styled.div<{
     } else if (props.hasError) {
       return Colors.FAIR_PINK;
     }
-    return !!props.bgColor
-      ? props.bgColor
-      : props.selected
-      ? props.theme.colors.dropdown.header.bg
-      : props.theme.colors.dropdown.header.defaultBg;
+    return Colors.WHITE;
   }};
   box-sizing: border-box;
   display: flex;
@@ -170,15 +175,8 @@ const Selected = styled.div<{
         }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${
-          !!props.bgColor
-            ? props.bgColor
-            : props.theme.colors.dropdown.header.bg
+      : `border: 1px solid ${Colors.ALTO2}
         }`};
-  ${(props) =>
-    props.isOpen && !props.disabled && !props.bgColor && !props.hasError
-      ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
-      : null};
   .${Classes.TEXT} {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -649,7 +647,7 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={!!errorMsg}
-        height={props.height || "36px"}
+        height={props.height || "38px"}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         selected={!!selected}
@@ -693,7 +691,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
-      height={props.height || "36px"}
+      height={props.height || "38px"}
       tabIndex={0}
       width={dropdownWidth}
     >

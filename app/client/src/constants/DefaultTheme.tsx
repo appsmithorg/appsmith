@@ -1866,7 +1866,7 @@ export const dark: ColorType = {
     },
     text: darkShades[9],
     placeholder: darkShades[5],
-    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+    shadow: "none",
   },
   callout: {
     info: {
@@ -2313,7 +2313,7 @@ export const light: ColorType = {
   },
   colorSelector: {
     shadow: lightShades[3],
-    checkmark: lightShades[11],
+    checkmark: lightShades[16],
   },
   checkbox: {
     disabled: lightShades[3],
@@ -2340,7 +2340,7 @@ export const light: ColorType = {
     menuShadow: "0px 6px 20px rgba(0, 0, 0, 0.15)",
     selected: {
       text: lightShades[10],
-      bg: lightShades[2],
+      bg: lightShades[14],
       icon: lightShades[15],
       subtext: lightShades[7],
     },
@@ -2464,8 +2464,8 @@ export const light: ColorType = {
     darkText: lightShades[6],
   },
   queryTemplate: {
-    bg: lightShades[3],
-    color: lightShades[7],
+    bg: lightShades[11],
+    color: lightShades[8],
   },
   profileDropdown: {
     name: lightShades[10],
@@ -2490,13 +2490,13 @@ export const light: ColorType = {
     hoverState: lightShades[3],
   },
   tagInput: {
-    bg: lightShades[2],
+    bg: lightShades[11],
     tag: {
       text: lightShades[11],
     },
     text: lightShades[9],
     placeholder: darkShades[7],
-    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+    shadow: "none",
   },
   callout: {
     info: {
@@ -2884,7 +2884,7 @@ export const theme: Theme = {
     secondary: Colors.GEYSER_LIGHT,
     secondaryDarker: Colors.CONCRETE,
     secondaryDarkest: Colors.MERCURY,
-    error: Colors.RED,
+    error: Colors.ERROR_RED,
     infoOld: Colors.SLATE_GRAY,
     errorMessage: Colors.ERROR_RED,
     hover: Colors.POLAR,
@@ -3060,7 +3060,7 @@ export const theme: Theme = {
       color: Colors.OCEAN_GREEN,
     },
     error: {
-      color: Colors.RED,
+      color: Colors.ERROR_RED,
     },
     warning: {
       color: Colors.BUTTER_CUP,

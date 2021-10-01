@@ -338,6 +338,13 @@ const MenuItemWrapper = styled(MenuItem)`
       }
     }
   }
+
+  .${CsClasses.ICON} {
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
 `;
 
 export function ApplicationCard(props: ApplicationCardProps) {
@@ -489,7 +496,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const addDeleteOption = () => {
     if (props.delete && hasEditPermission) {
-      const index = moreActionItems.findIndex((el) => el.icon === "delete");
+      const index = moreActionItems.findIndex(
+        (el) => el.icon === "delete-blank",
+      );
       if (index >= 0) {
         moreActionItems.pop();
       }
@@ -632,7 +641,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     if (editedBy === "" && editedOn === "") return "";
 
     editedBy = editedBy.split("@")[0];
-    editedBy = truncateString(editedBy, 9);
+    editedBy = truncateString(editedBy, 5);
 
     //assuming modifiedAt will be always available
     editedOn = howMuchTimeBeforeText(editedOn);

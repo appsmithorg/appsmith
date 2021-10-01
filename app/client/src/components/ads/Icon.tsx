@@ -20,14 +20,12 @@ import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
-import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
 // import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
-import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
+// import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
 // import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
-import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
 // import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
@@ -67,6 +65,7 @@ import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
+import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -77,9 +76,12 @@ import { ControlIcons } from "icons/ControlIcons";
 
 // remix icons
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
+import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
+import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
+import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
 import DatasourceIcon from "remixicon-react/CloudFillIcon";
 import DeleteBin7 from "remixicon-react/DeleteBin7LineIcon";
@@ -109,7 +111,8 @@ import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
 import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
-import WorkspaceIcon from "remixicon-react/Building3FillIcon";
+import EditUnderlineIcon from "remixicon-react/EditLineIcon";
+import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -165,6 +168,7 @@ export const IconCollection = [
   "add-more",
   "arrow-forward",
   "arrow-left",
+  "swap-horizontal",
   "billing",
   "book",
   "book-line",
@@ -181,7 +185,6 @@ export const IconCollection = [
   "close-x",
   "column",
   "comment-context-menu",
-  "context-menu",
   "context-menu",
   "cross",
   "danger",
@@ -259,6 +262,7 @@ export const IconCollection = [
   "workspace",
   "git-branch",
   "snippet",
+  "edit-underline",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -275,9 +279,9 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.fillColor || props.theme.colors.icon.normal};
+    fill: ${props.fillColor || ""};
     circle {
-      fill: ${props.fillColor || "currentcolor"};
+      fill: ${props.fillColor || ""};
     }
     `
         : ""}
@@ -287,7 +291,7 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
+    fill: ${props.hoverFillColor || ""};
     `
         : ""}
   }
@@ -326,6 +330,9 @@ const Icon = forwardRef(
         break;
       case "arrow-left":
         returnIcon = <ArrowLeft />;
+        break;
+      case "swap-horizontal":
+        returnIcon = <ArrowLeftRightIcon />;
         break;
       case "billing":
         returnIcon = <BillingIcon />;
@@ -601,6 +608,9 @@ const Icon = forwardRef(
       case "snippet":
         returnIcon = <Snippet />;
         break;
+      case "edit-underline":
+        returnIcon = <EditUnderlineIcon />;
+        break;
       default:
         returnIcon = null;
         break;
@@ -619,12 +629,12 @@ const Icon = forwardRef(
 
     return returnIcon && !props.isLoading ? (
       <IconWrapper
-        {...props}
         className={`${Classes.ICON} ${props.className}`}
         clickable={clickable}
         data-cy={props.cypressSelector}
-        onClick={props.onClick || noop}
         ref={ref}
+        {...props}
+        onClick={props.onClick || noop}
       >
         {returnIcon}
       </IconWrapper>
