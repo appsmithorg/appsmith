@@ -77,13 +77,13 @@ Appsmith apps are [secure by default](https://docs.appsmith.com/security). All c
 
 #### 🎙 Transparent Support
 
-Issues are inevitable. When you have one, our entire team is around to help—
+Issues are inevitable. When you have one, our entire team is around to help you —
 
 - 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
 - 👾 Ask for help on our [Forum](https://community.appsmith.com)
-- Join our Beta users program and give us feedback <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith.
+- Join our Beta Users Program and give us feedback <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith and make the world a better place.
 
 ## Deployment Options
 
