@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -28,6 +29,8 @@ public class UserProfileDTO {
 
     @JsonProperty("isSuperUser")
     boolean isSuperUser = false;
+
+    CommentOnboardingState commentOnboardingState;
 
     public boolean isAccountNonExpired() {
         return this.isEnabled;

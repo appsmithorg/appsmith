@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM ubuntu:20.04
 
 LABEL maintainer="tech@appsmith.com"
 
@@ -9,34 +9,33 @@ WORKDIR /opt/appsmith
 ENV LANG C.UTF-8  
 ENV LC_ALL C.UTF-8 
 
-# Update APK packages - Base Layer
+# Update APT packages - Base Layer
 RUN apt-get update && apt-get install --no-install-recommends -y \
-	supervisor curl cron certbot nginx gnupg \
-	redis wget gettext openjdk-11-jre \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+  supervisor curl cron certbot nginx gnupg wget \
+  software-properties-common gettext openjdk-11-jre \
+  && add-apt-repository ppa:redislabs/redis \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install MongoDB v4.0.5, Redis - Service Layer
+# Install MongoDB v4.0.5, Redis, NodeJS - Service Layer
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
-RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-	&& apt-get remove wget -y
-
-# Install node v14 - Service Layer
+RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
+  && apt-get remove wget -y
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-	&& apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 # Clean up cache file - Service layer
 RUN rm -rf \
-	/root/.cache \
-	/root/.npm \
-	/root/.pip \
-	/usr/local/share/doc \
-	/usr/share/doc \
-	/usr/share/man \
-	/var/lib/apt/lists/* \
-	/tmp/*
+  /root/.cache \
+  /root/.npm \
+  /root/.pip \
+  /usr/local/share/doc \
+  /usr/share/doc \
+  /usr/share/man \
+  /var/lib/apt/lists/* \
+  /tmp/*
 
 # Define volumes - Service Layer
 VOLUME [ "/appsmith-stacks" ]
