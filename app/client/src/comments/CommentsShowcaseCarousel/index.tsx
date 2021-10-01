@@ -24,7 +24,7 @@ import { setCommentsIntroSeen } from "utils/storage";
 
 import { updateUserDetails } from "actions/userActions";
 
-import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
@@ -37,7 +37,7 @@ import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const getBanner = (step: number) =>
-  `${S3_BUCKET_URL}/comments/step-${step}.png`;
+  `${ASSETS_CDN_URL}/comments/step-${step}.png`;
 
 enum IntroStepsTypesEditor {
   INTRODUCING_LIVE_COMMENTS,
