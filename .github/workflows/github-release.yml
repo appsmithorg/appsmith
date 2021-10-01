@@ -172,14 +172,20 @@ jobs:
           ls -l dist
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload server build bundle
+      - name: Upload RTS build bundle
         uses: actions/upload-artifact@v2
         with:
           name: rts-build
           path: app/rts/dist/
 
+      - name: Upload RTS dependencies bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
+
   package:
-    needs: [buildClient, buildServer, buildRts]
+    needs: [prelude, buildClient, buildServer, buildRts]
 
     runs-on: ubuntu-latest
 
@@ -204,6 +210,12 @@ jobs:
         with:
           name: rts-build
           path: app/rts/dist
+
+      - name: Download the rts dependencies artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
 
       - name: Build and push client image
         working-directory: app/client
@@ -238,11 +250,24 @@ jobs:
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
 
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
+            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest
+          fi
+
       - name: Build and push fat image
         run: |
           docker build \
             --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
             --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}} \
             .
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
+            docker build --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest
+          fi
+
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
