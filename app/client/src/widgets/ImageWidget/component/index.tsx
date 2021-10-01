@@ -9,7 +9,6 @@ export interface StyledImageProps {
   enableRotation?: boolean;
   imageUrl?: string;
   backgroundColor?: string;
-  showHoverPointer?: boolean;
   objectFit: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
 }
@@ -23,8 +22,7 @@ export const StyledImage = styled.div<
   display: flex;
   flex-direction: "row";
   background-size: ${(props) => props.objectFit ?? "contain"};
-  cursor: ${(props) =>
-    props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
+  cursor: ${(props) => props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
   background-image: ${(props) =>
     `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
@@ -361,7 +359,6 @@ export interface ImageComponentProps extends ComponentProps {
   imageUrl: string;
   defaultImageUrl: string;
   isLoading: boolean;
-  showHoverPointer?: boolean;
   maxZoomLevel: number;
   enableRotation?: boolean;
   enableDownload?: boolean;

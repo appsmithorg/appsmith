@@ -180,7 +180,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         maxZoomLevel={maxZoomLevel}
         objectFit={objectFit}
         onClick={this.props.onClick ? this.onImageClick : undefined}
-        showHoverPointer={this.props.renderMode === RenderModes.PAGE}
         widgetId={this.props.widgetId}
       />
     );
