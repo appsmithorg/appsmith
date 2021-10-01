@@ -171,12 +171,12 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <div style={{ flex: 1 }}>
+            <div>
               <PrimaryLogoLink to={APPLICATIONS_URL}>
                 <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
               </PrimaryLogoLink>
             </div>
-            <div style={{ flex: 1 }}>
+            <div>
               <ToggleCommentModeButton />
             </div>
           </HeaderSection>
