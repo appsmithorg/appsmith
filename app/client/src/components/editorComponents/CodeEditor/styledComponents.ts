@@ -106,12 +106,20 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: 0px;
-      ${(props) =>
-        props.border === "none"
-          ? `border: 0px`
-          : props.border === "bottom-side"
-          ? `border-bottom: 1px solid ${Colors.MERCURY}`
-          : `border: 1px solid ${Colors.GREY_5}`};
+      border: 1px solid ${(props) => {
+        switch (true) {
+          case props.border === "none":
+            return "transparent";
+          case props.border === "bottom-side":
+            return Colors.MERCURY;
+          case props.hasError:
+            return "red";
+          case props.isFocused:
+            return Colors.PRIMARY_ORANGE;
+          default:
+            return Colors.GREY_5;
+        }
+      }};
       background: ${Colors.WHITE};
       color: ${Colors.CHARCOAL};
       & {
@@ -280,14 +288,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   height: 100%;
   flex: 1;
   position: relative;
-  box-sizing: border-box;
-  border: 1px solid
-    ${(props) =>
-      !props.isError
-        ? props.isActive
-          ? Colors.PRIMARY_ORANGE
-          : Colors.GREY_5
-        : "red"};
   > span:first-of-type {
     width: 30px;
     position: absolute;
