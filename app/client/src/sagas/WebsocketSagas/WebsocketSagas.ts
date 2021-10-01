@@ -143,7 +143,7 @@ function* readFromPageSocket(socket: any) {
         yield put(setIsPageLevelWebsocketConnected(true));
         break;
       default: {
-        yield call(handlePageLevelSocketEvents, action, socket.id);
+        yield call(handlePageLevelSocketEvents, action, socket);
       }
     }
   }
