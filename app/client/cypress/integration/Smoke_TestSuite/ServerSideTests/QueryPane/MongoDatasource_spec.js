@@ -39,7 +39,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       force: true,
     });
     cy.xpath('//div[contains(text(),"Raw")]').click({ force: true });
-    cy.get(queryLocators.templateMenu).click();
+    //cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
