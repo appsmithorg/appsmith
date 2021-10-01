@@ -537,10 +537,10 @@ export function* createPageSaga(
           isFirstTimeUserOnboardingEnabled
         ) {
           history.push(
-            BUILDER_PAGE_URL(
-              createPageAction.payload.applicationId,
-              response.data.id,
-            ),
+            BUILDER_PAGE_URL({
+              defaultApplicationId: createPageAction.payload.applicationId,
+              pageId: response.data.id,
+            }),
           );
         } else {
           history.push(
@@ -612,7 +612,12 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
         (state: AppState) => state.entities.pageList.currentPageId,
       );
       if (currentPageId === action.payload.id)
-        history.push(BUILDER_PAGE_URL(applicationId, defaultPageId));
+        history.push(
+          BUILDER_PAGE_URL({
+            defaultApplicationId: applicationId,
+            pageId: defaultPageId,
+          }),
+        );
     }
   } catch (error) {
     yield put({
@@ -654,7 +659,12 @@ export function* clonePageSaga(
 
       if (!clonePageAction.payload.blockNavigation) {
         const defaultApplicationId = yield select(getDefaultApplicationId);
-        history.push(BUILDER_PAGE_URL(defaultApplicationId, response.data.id));
+        history.push(
+          BUILDER_PAGE_URL({
+            defaultApplicationId,
+            pageId: response.data.id,
+          }),
+        );
       }
     }
   } catch (error) {
@@ -959,7 +969,12 @@ export function* generateTemplatePageSaga(
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
       // TODO : Add it to onSuccessCallback
       const defaultApplicationId = yield select(getDefaultApplicationId);
-      history.replace(BUILDER_PAGE_URL(defaultApplicationId, pageId));
+      history.replace(
+        BUILDER_PAGE_URL({
+          defaultApplicationId,
+          pageId,
+        }),
+      );
       // TODO : Add it to onSuccessCallback
       Toaster.show({
         text: "Successfully generated a page",

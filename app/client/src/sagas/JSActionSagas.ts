@@ -271,7 +271,12 @@ export function* deleteJSCollectionSaga(
             ),
           );
         } else {
-          history.push(BUILDER_PAGE_URL(defaultApplicationId, pageId));
+          history.push(
+            BUILDER_PAGE_URL({
+              defaultApplicationId,
+              pageId,
+            }),
+          );
         }
       }
       AppsmithConsole.info({

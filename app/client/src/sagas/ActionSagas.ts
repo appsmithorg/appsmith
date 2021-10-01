@@ -614,9 +614,13 @@ function* bindDataOnCanvasSaga(
   const { pageId, queryId } = action.payload;
   const defaultApplicationId = yield select(getDefaultApplicationId);
   history.push(
-    BUILDER_PAGE_URL(defaultApplicationId, pageId, {
-      isSnipingMode: "true",
-      bindTo: queryId,
+    BUILDER_PAGE_URL({
+      defaultApplicationId,
+      pageId,
+      params: {
+        isSnipingMode: "true",
+        bindTo: queryId,
+      },
     }),
   );
 }
@@ -831,11 +835,7 @@ function* buildMetaForSnippets(
 function* getCurrentEntity(pageId: string, params: Record<string, string>) {
   let entityId = "",
     entityType = "";
-  const defaultApplicationId = yield select(getDefaultApplicationId);
-  if (
-    onApiEditor(defaultApplicationId, pageId) ||
-    onQueryEditor(defaultApplicationId, pageId)
-  ) {
+  if (onApiEditor() || onQueryEditor()) {
     const id = params.apiId || params.queryId;
     const action: Action = yield select(getAction, id);
     entityId = action?.id;

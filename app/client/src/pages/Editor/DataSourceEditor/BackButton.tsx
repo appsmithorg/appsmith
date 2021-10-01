@@ -29,7 +29,7 @@ function BackButton() {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
       ? getGenerateTemplateFormURL(defaultApplicationId, pageId)
-      : BUILDER_PAGE_URL(defaultApplicationId, pageId);
+      : BUILDER_PAGE_URL({ defaultApplicationId, pageId });
     history.push(redirectURL);
   };
   return (

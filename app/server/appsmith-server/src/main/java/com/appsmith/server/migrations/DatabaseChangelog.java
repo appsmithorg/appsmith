@@ -3258,10 +3258,10 @@ public class DatabaseChangelog {
         deletionUpdates.set(fieldName(QNewAction.newAction.deleted), true);
         deletionUpdates.set(fieldName(QNewAction.newAction.deletedAt), Instant.now());
 
-        final List<NewAction> actions = mongockTemplate.find(
-                query(where(fieldName(QNewAction.newAction.deleted)).ne(true)),
-                NewAction.class
-        );
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true));
+        actionQuery.fields().include(fieldName(QNewAction.newAction.applicationId));
+
+        final List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
 
         for (final NewAction action : actions) {
             final String applicationId = action.getApplicationId();

@@ -86,6 +86,7 @@ import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { trimQueryString } from "utils/helpers";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -178,10 +179,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       );
       if (isGeneratePageInitiator) {
         history.push(
-          `${getGenerateTemplateFormURL(
-            defaultApplicationId,
-            pageId,
-          )}?datasourceId=${response.data.id}`,
+          getGenerateTemplateFormURL(defaultApplicationId, pageId, {
+            datasourceId: response.data.id,
+          }),
         );
       } else {
         history.push(
@@ -218,10 +218,11 @@ export function* deleteDatasourceSaga(
     if (isValidResponse) {
       const pageId = yield select(getCurrentPageId);
 
-      if (
-        window.location.pathname ===
-        DATA_SOURCES_EDITOR_ID_URL(defaultApplicationId, pageId, id)
-      ) {
+      // TODO [new_urls] verify
+      const datasourcePathWithoutQuery = trimQueryString(
+        DATA_SOURCES_EDITOR_ID_URL(defaultApplicationId, pageId, id),
+      );
+      if (window.location.pathname === datasourcePathWithoutQuery) {
         history.push(
           INTEGRATION_EDITOR_URL(
             defaultApplicationId,
@@ -660,10 +661,12 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
   // this redirects to the same route, so checking first.
-  if (
-    history.location.pathname !==
-    DATA_SOURCES_EDITOR_ID_URL(defaultApplicationId, pageId, datasource.id)
-  )
+  // TODO [new_urls] verify
+  const datasourcePath = trimQueryString(
+    DATA_SOURCES_EDITOR_ID_URL(defaultApplicationId, pageId, datasource.id),
+  );
+
+  if (history.location.pathname !== datasourcePath)
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
         defaultApplicationId,
@@ -779,10 +782,9 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
     generateCRUDSupportedPlugin[updatedDatasource.pluginId]
   ) {
     history.push(
-      `${getGenerateTemplateFormURL(
-        defaultApplicationId,
-        pageId,
-      )}?datasourceId=${updatedDatasource.id}`,
+      getGenerateTemplateFormURL(defaultApplicationId, pageId, {
+        datasourceId: updatedDatasource.id,
+      }),
     );
   } else if (
     actionRouteInfo &&

@@ -89,7 +89,7 @@ function EntityExplorer(props: IPanelProps) {
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
-      history.push(BUILDER_PAGE_URL(defaultApplicationId, pageId));
+      history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }));
       openPanel({ component: WidgetSidebar });
       if (isFirstTimeUserOnboardingEnabled) {
         dispatch(toggleInOnboardingWidgetSelection(true));
