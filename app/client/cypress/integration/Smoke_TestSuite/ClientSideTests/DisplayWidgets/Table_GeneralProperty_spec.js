@@ -84,7 +84,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.underline).click({ force: true });
     // Verify the font style is underline
     cy.readTabledataValidateCSS("1", "0", "text-decoration-line", "underline");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Test to validate vertical allignment", function() {
@@ -105,7 +104,6 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     // Verify the vertical alignment is bottom
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Table widget toggle test for text alignment", function() {
@@ -122,7 +120,7 @@ describe("Table Widget property pane feature validation", function() {
     // Change the text align value to right for michael and left for others
     cy.toggleJsAndUpdate("tabledata", testdata.bindingGenAlign);
     // Close propert pane
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     // Verify the text michael id is right aligned
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-end");
     // Verify the 2nd id is left aligned
@@ -153,7 +151,7 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the font size is 24px
     cy.readTabledataValidateCSS("0", "0", "font-size", "24px");
     // close propert pane
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Verify the font size is 24px
