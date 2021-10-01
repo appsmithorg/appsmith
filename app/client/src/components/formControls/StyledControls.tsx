@@ -230,7 +230,7 @@ export const StyledSwitch = styled(Switch)`
       background: ${Colors.DARK_GRAY};
     }
     &:checked ~ span {
-      background: ${(props) => Colors.PRIMARY_ORANGE};
+      background: ${Colors.PRIMARY_ORANGE};
     }
     &:checked ~ span:hover {
       background: #bf4109;

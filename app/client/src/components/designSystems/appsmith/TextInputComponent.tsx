@@ -9,7 +9,6 @@ import {
   MaybeElement,
 } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { Colors } from "constants/Colors";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -134,7 +133,6 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
       (meta.touched || meta.active) &&
       meta.error
     );
-    const errorIsOpen = hasError && this.state.inputIsFocused;
 
     return (
       <InputContainer className={className}>
