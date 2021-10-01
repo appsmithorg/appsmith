@@ -83,7 +83,6 @@ const Canvas = memo((props: CanvasProps) => {
           data-testid="t--canvas-artboard"
           id="art-board"
           onMouseMove={(e) => {
-            e.persist();
             if (!isMultiplayerEnabledForUser) return;
             const data = getPointerData(e, pageId, isWebsocketConnected);
             !!data && delayedShareMousePointer(data);
