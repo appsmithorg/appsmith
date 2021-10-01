@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import TooltipComponent from "components/ads/Tooltip";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import Pen from "remixicon-react/PencilFillIcon";
-import Eye from "remixicon-react/EyeFillIcon";
+import Eye from "remixicon-react/EyeLineIcon";
 import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
 import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
 import { Indices } from "constants/Layers";
