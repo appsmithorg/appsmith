@@ -581,6 +581,33 @@ jobs:
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
 
+      - name: Build and push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            $tag_args \
+            .
+
+      - name: Build and push master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
+          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            $tag_args \
+            .
+
       # Build release Docker image and push to Docker Hub
       - name: Push server release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
@@ -616,26 +643,3 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
-
-      - name: Build and push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}} \
-            .
-
-      - name: Build and push master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly \
-            .
