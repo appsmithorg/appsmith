@@ -6,11 +6,10 @@ import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "../../../constants/Colors";
 
-class FilePickerComponent extends React.Component<
-  FilePickerComponentProps
+class FilePickerComponent extends React.Component<FilePickerComponentProps
 > {
   constructor(props: FilePickerComponentProps) {
-    super(props); 
+    super(props);
   }
 
   openModal = () => {
@@ -39,7 +38,6 @@ class FilePickerComponent extends React.Component<
     this.props.uppy.getPlugin("Dashboard").closeModal();
   }
 }
- 
 
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;

@@ -153,7 +153,7 @@ type Props = ReduxStateProps &
 
 type State = {
   isFocused: boolean;
-  isOpened: boolean; 
+  isOpened: boolean;
   hinterOpen: boolean;
 };
 
