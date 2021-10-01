@@ -11,8 +11,7 @@ on:
       - "app/client/**"
       - "app/server/**"
       - "app/rts/**"
-    paths-ignore:
-      - "app/client/cypress/manual_TestSuite/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
   # trigger for pushes to release and master
   push:
@@ -21,8 +20,7 @@ on:
       - "app/client/**"
       - "app/server/**"
       - "app/rts/**"
-    paths-ignore:
-      - "app/client/cypress/manual_TestSuite/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
 jobs:
   buildClient:
@@ -130,8 +128,8 @@ jobs:
 
   buildServer:
     defaults:
-      run:
-        working-directory: app/server
+        run:
+            working-directory: app/server
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
@@ -158,6 +156,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
 
       # Setup Java
       - name: Set up JDK 1.11

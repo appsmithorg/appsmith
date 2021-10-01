@@ -9,15 +9,13 @@ on:
     # Only trigger if files have changed in this specific path
     paths:
       - "app/client/**"
-    paths-ignore:
-      - "app/client/cypress/manual_TestSuite/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
   pull_request:
     branches: [release, master]
     paths:
       - "app/client/**"
-    paths-ignore:
-      - "app/client/cypress/manual_TestSuite/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
