@@ -113,6 +113,9 @@ import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
 import EditUnderlineIcon from "remixicon-react/EditLineIcon";
 import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
+import ShareLineIcon from "remixicon-react/ShareLineIcon";
+import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
+import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -240,6 +243,7 @@ export const IconCollection = [
   "share",
   "share-2",
   "share-box",
+  "share-line",
   "shine",
   "success",
   "support",
@@ -263,6 +267,8 @@ export const IconCollection = [
   "git-branch",
   "snippet",
   "edit-underline",
+  "down-arrow",
+  "loader",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -542,6 +548,9 @@ const Icon = forwardRef(
       case "share-box":
         returnIcon = <ShareBoxFillIcon />;
         break;
+      case "share-line":
+        returnIcon = <ShareLineIcon />;
+        break;
       case "shine":
         returnIcon = <ShineIcon />;
         break;
@@ -607,6 +616,12 @@ const Icon = forwardRef(
         break;
       case "edit-underline":
         returnIcon = <EditUnderlineIcon />;
+        break;
+      case "down-arrow":
+        returnIcon = <DownArrowIcon />;
+        break;
+      case "loader":
+        returnIcon = <LoaderLineIcon />;
         break;
       default:
         returnIcon = null;
