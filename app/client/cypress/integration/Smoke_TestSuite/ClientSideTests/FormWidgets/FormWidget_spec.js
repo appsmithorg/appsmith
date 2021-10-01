@@ -80,8 +80,6 @@ describe("Form Widget Functionality", function() {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");
-    // Close the form propert pane
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
   it("Form Widget Functionality To Verify The Colour", function() {
     cy.PublishtheApp();
