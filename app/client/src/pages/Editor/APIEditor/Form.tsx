@@ -147,7 +147,7 @@ export const TabbedViewContainer = styled.div`
     }
     .react-tabs__tab-panel {
       height: calc(100% - 36px);
-      background-color: ${(props) => props.theme.colors.apiPane.bg};
+      background-color: ${(props) => props.theme.colors.apiPane.tabBg};
       .eye-on-off {
         svg {
           fill: ${(props) =>
