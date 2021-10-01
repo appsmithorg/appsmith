@@ -11,8 +11,7 @@ import ProgressiveImage, {
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
-import { getFormSyncErrors } from "redux-form";
-import { getFormValues } from "redux-form";
+import { getFormSyncErrors, getFormValues } from "redux-form";
 
 import { isIntroCarouselVisibleSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -20,9 +19,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { setActiveTour } from "actions/tourActions";
 import { TourType } from "entities/Tour";
 import { hideCommentsIntroCarousel } from "actions/commentActions";
-import { setCommentsIntroSeen } from "utils/storage";
-
-import { updateUserDetails } from "actions/userActions";
+import {
+  updateUserDetails,
+  updateUsersCommentOnboardingState,
+} from "actions/userActions";
 
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
@@ -35,6 +35,7 @@ import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { CommentsOnboardingState } from "constants/userConstants";
 
 const getBanner = (step: number) =>
   `${ASSETS_CDN_URL}/comments/step-${step}.png`;
@@ -123,6 +124,7 @@ function IntroStep(props: {
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text
+            data-cy="comments-carousel-header"
             style={{
               color: props.theme.colors.comments.introTitle,
             }}
@@ -233,7 +235,13 @@ export default function CommentsShowcaseCarousel() {
       skipped: isSkipped,
     });
     dispatch(hideCommentsIntroCarousel());
-    await setCommentsIntroSeen(true);
+    dispatch(
+      updateUsersCommentOnboardingState(
+        isSkipped
+          ? CommentsOnboardingState.SKIPPED
+          : CommentsOnboardingState.ONBOARDED,
+      ),
+    );
 
     if (!isSkipped) {
       const tourType = canManage

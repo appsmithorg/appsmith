@@ -45,7 +45,10 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ERROR_CODES } from "constants/ApiConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import {
+  ANONYMOUS_USERNAME,
+  CommentsOnboardingState,
+} from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import { Toaster } from "components/ads/Toast";
@@ -443,6 +446,18 @@ function* updateFirstTimeUserOnboardingSage() {
   }
 }
 
+export function* updateUsersCommentsOnboardingState(
+  action: ReduxAction<CommentsOnboardingState>,
+) {
+  try {
+    yield call(UserApi.updateUsersCommentOnboardingState, {
+      commentOnboardingState: action.payload,
+    });
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -471,6 +486,10 @@ export default function* userSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
       updateFirstTimeUserOnboardingSage,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE,
+      updateUsersCommentsOnboardingState,
     ),
   ]);
 }
