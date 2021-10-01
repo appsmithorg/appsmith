@@ -207,14 +207,14 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "SOLID",
-              menuColor: cellProperties.menuColor || "rgb(3, 179, 101)",
+              menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
               iconName: cellProperties.iconName,
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
-              label: cellProperties.buttonLabel ?? "Action",
+              label: cellProperties.menuButtonLabel ?? "Open menu",
             };
             return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "iconButton") {

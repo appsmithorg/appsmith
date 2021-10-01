@@ -213,7 +213,7 @@ function PopoverContent(props: PopoverContentProps) {
 
     return (
       <BaseMenuItem
-        backgroundColor={backgroundColor || "#FFFFFF"}
+        backgroundColor={backgroundColor}
         disabled={isDisabled}
         icon={
           iconAlign !== Alignment.RIGHT ? (

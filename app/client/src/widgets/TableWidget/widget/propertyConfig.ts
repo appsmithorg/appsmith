@@ -718,6 +718,24 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "menuButtonLabel",
+                  label: "Label",
+                  controlType: "COMPUTE_VALUE",
+                  defaultValue: "Open Menu",
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
@@ -904,6 +922,7 @@ export default [
                   isTriggerProperty: false,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: { type: ValidationTypes.TEXT },
+                  defaultColor: Colors.GREEN,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,

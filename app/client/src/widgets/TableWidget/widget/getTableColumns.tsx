@@ -56,6 +56,11 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      menuButtonLabel: getPropertyValue(
+        columnProperties.menuButtonLabel,
+        rowIndex,
+        true,
+      ),
       iconName: getPropertyValue(columnProperties.iconName, rowIndex, true),
       buttonVariant: getPropertyValue(
         columnProperties.buttonVariant,
