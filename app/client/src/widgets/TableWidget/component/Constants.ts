@@ -7,6 +7,7 @@ import {
   ButtonBoxShadow,
   ButtonVariant,
 } from "components/constants";
+import { DropdownOption } from "widgets/DropdownWidget/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -114,6 +115,8 @@ export interface CellLayoutProperties {
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
   isCellVisible: boolean;
+  // column type select related properties
+  placeholderText?: string;
 }
 
 export interface TableColumnMetaProps {
@@ -164,7 +167,6 @@ export interface ColumnProperties {
   outputFormat?: string;
   inputFormat?: string;
   dropdownOptions?: string;
-  onOptionChange?: string;
   displayText?: string;
   iconName?: IconName;
   buttonVariant?: ButtonVariant;
@@ -172,7 +174,11 @@ export interface ColumnProperties {
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   isCellVisible?: boolean;
-  defaultOptionValue?: string;
+  // column type select related properties
+  options?: DropdownOption[];
+  defaultOptionValue?: string[];
+  placeholderText?: string[];
+  onOptionChange?: string;
 }
 
 export const ConditionFunctions: {

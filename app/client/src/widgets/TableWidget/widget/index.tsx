@@ -198,6 +198,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
+      // column type select related properties
+      placeholderText: this.getPropertyValue(
+        columnProperties.placeholderText,
+        rowIndex,
+        true,
+      ),
     };
     return cellProperties;
   };
@@ -205,7 +211,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleDropdowOptionChange = (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     optionSelected: DropdownOption,
   ) => {
     const editedColumnData = cloneDeep(this.props.editedColumnData);
@@ -216,15 +222,41 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       Object,
     );
 
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: action,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
-
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+    this.handleColumnAction(
+      rowIndex,
+      "onOptionChange",
+      dynamicString,
+      EventType.ON_OPTION_CHANGE,
+    );
+  };
+
+  handleColumnAction = (
+    rowIndex: number,
+    triggerPropertyName: string,
+    dynamicString: string,
+    eventType: EventType,
+  ) => {
+    try {
+      const rowData = [this.props.filteredTableData[rowIndex]];
+      const { jsSnippets } = getDynamicBindings(dynamicString);
+      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
+        return prev + `{{(currentRow) => { ${next} }}} `;
+      }, "");
+      if (modifiedAction) {
+        super.executeAction({
+          triggerPropertyName,
+          dynamicString: modifiedAction,
+          event: {
+            type: eventType,
+          },
+          responseData: rowData,
+        });
+      }
+    } catch (error) {
+      log.debug("Error parsing row action", error);
+    }
   };
 
   getTableColumns = () => {
@@ -344,15 +376,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 action={columnProperties.onOptionChange}
                 cellProperties={cellProperties}
                 columnId={accessor}
-                defaultOptionValue={columnProperties.defaultOptionValue}
                 isCellVisible={isCellVisible}
-                isDisabled={columnProperties.isDisabled}
+                isDisabled={Boolean(cellProperties.isDisabled)}
                 isHidden={isHidden}
                 onOptionChange={this.handleDropdowOptionChange}
                 options={options}
-                placeholderText={columnProperties.placeholderText}
+                placeholderText={cellProperties.placeholderText}
                 rowIndex={rowIndex}
-                serverSideFiltering={columnProperties.serverSideFiltering}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
               />
@@ -677,25 +707,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
 
-    // set defaultOptionValue for column type "select" if exist
-    const columnIds = Object.keys(this.props.primaryColumns);
-    const editedColumnData = cloneDeep(this.props.editedColumnData);
-    for (let index = 0; index < columnIds.length; index++) {
-      const column = this.props.primaryColumns[columnIds[index]];
-      if (column.columnType === "select") {
-        // set default value if exist
-        if (column?.defaultOptionValue) {
-          setWith(
-            editedColumnData,
-            [column.id, "defaultOptionValue"],
-            column?.defaultOptionValue,
-            Object,
-          );
-        }
-      }
-    }
-
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
+    this.updateEditedColumnData();
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -809,26 +821,38 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     //Runs only when column properties are updated,
     // basically column type or column deleted
     if (!isEqual(this.props.primaryColumns, prevProps.primaryColumns)) {
-      const columnIds = Object.keys(this.props.primaryColumns);
-      const editedColumnData = cloneDeep(this.props.editedColumnData);
-      for (let index = 0; index < columnIds.length; index++) {
-        const column = this.props.primaryColumns[columnIds[index]];
-        if (column.columnType === "select") {
-          // set default value if exist
-          if (column?.defaultOptionValue) {
-            setWith(
-              editedColumnData,
-              [column.id, "defaultOptionValue"],
-              column?.defaultOptionValue,
-              Object,
-            );
-          }
-        } else {
-          // clean column data if column type change
-          delete editedColumnData[column.id];
+      this.updateEditedColumnData(true, true);
+    }
+  }
+
+  // editedColumnData is used to show temparary changed values in cell
+  // update edited column data based on various column type
+  // on componentDidMount and componentDidUpdate
+  updateEditedColumnData = (
+    shouldCleanData?: boolean,
+    shouldStopResettingIndex?: boolean,
+  ) => {
+    const columnIds = Object.keys(this.props.primaryColumns);
+    const editedColumnData = { ...this.props.editedColumnData };
+    for (let index = 0; index < columnIds.length; index++) {
+      const column = this.props.primaryColumns[columnIds[index]];
+      if (column.columnType === "select") {
+        // set default value if values exist
+        if (column?.defaultOptionValue) {
+          setWith(
+            editedColumnData,
+            [column.id, "defaultOptionValue"],
+            column.defaultOptionValue,
+            Object,
+          );
         }
+      } else {
+        // clean column data if column type change
+        delete editedColumnData[column.id];
       }
-      // clean column data if column is deleted
+    }
+    // value will be True when called from componentDidUpdate
+    if (shouldCleanData) {
       const editedColumnDataKeys = Object.keys(editedColumnData);
       for (let index = 0; index < editedColumnDataKeys.length; index++) {
         const editedKey = editedColumnDataKeys[index];
@@ -836,19 +860,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           delete editedColumnData[editedKey];
         }
       }
-      this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
-      // if column edited by "select", do not reset selectedRowIndex
-      // keep selectedRowIndex as last selected edited row
-      if (size(editedColumnData)) {
-        if (this.props.editedRowIndex !== this.props.selectedRowIndex) {
-          this.props.updateWidgetMetaProperty(
-            "selectedRowIndex",
-            this.props.editedRowIndex,
-          );
-        }
+    }
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
+
+    // if column edited by "select", do not reset selectedRowIndex
+    // keep selectedRowIndex as last selected edited row
+    // value will be True when called from componentDidUpdate
+    if (shouldStopResettingIndex && size(editedColumnData)) {
+      if (this.props.editedRowIndex !== this.props.selectedRowIndex) {
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndex",
+          this.props.editedRowIndex,
+        );
       }
     }
-  }
+  };
 
   updateSelectedRowIndex = () => {
     if (!this.props.multiRowSelection) {
