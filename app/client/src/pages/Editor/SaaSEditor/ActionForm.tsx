@@ -15,22 +15,28 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { RouteComponentProps } from "react-router";
-import { deleteAction, runAction } from "actions/pluginActionActions";
+import {
+  deleteAction,
+  runAction,
+  setActionProperty,
+} from "actions/pluginActionActions";
 import {
   EditorJSONtoForm,
   EditorJSONtoFormProps,
 } from "../QueryEditor/EditorJSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { merge } from "lodash";
+import { difference, merge, update } from "lodash";
 import { Datasource } from "entities/Datasource";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
 } from "constants/routes";
+import { applyDiff, diff } from "deep-diff";
 
-type StateAndRouteProps = EditorJSONtoFormProps &
-  RouteComponentProps<{
+type StateAndRouteProps = EditorJSONtoFormProps & {
+  difference?: any;
+} & RouteComponentProps<{
     applicationId: string;
     pageId: string;
     pluginPackageName: string;
@@ -51,6 +57,25 @@ function ActionForm(props: Props) {
   const onDeleteClick = () => {
     dispatch(deleteAction({ id: apiId, name: actionName }));
   };
+
+  if (!!props.difference) {
+    for (let i = 0; i < props.difference.length; i++) {
+      let path = "";
+      path += props.difference[i].path.join(".");
+      const index = props.difference[i]?.index;
+      path += `[${index}]`;
+      if (index >= 0 && props.difference[i]?.item.kind === "N") {
+        const value = props.difference[i].item.rhs;
+        dispatch(
+          setActionProperty({
+            actionId: apiId,
+            propertyName: path,
+            value: value,
+          }),
+        );
+      }
+    }
+  }
 
   const onRunClick = () => {
     dispatch(runAction(apiId));
@@ -103,7 +128,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   }
   merge(initialValues, getConfigInitialValues(settingConfig));
   merge(initialValues, action);
-
+  const difference = diff(action, initialValues);
   const dataSources = getDatasourceByPluginId(state, pluginId);
   const DATASOURCES_OPTIONS = dataSources.map((dataSource: Datasource) => ({
     label: dataSource.name,
@@ -129,6 +154,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     executedQueryData: responses[apiId],
     runErrorMessage: runErrorMessage[apiId],
     formName: SAAS_EDITOR_FORM,
+    difference,
   };
 };
 
