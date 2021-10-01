@@ -85,7 +85,7 @@ function PropertyPaneView(
         icon: (
           <button
             className="p-1 hover:bg-warmGray-100 group t--delete-widget"
-            onClick={onCopy}
+            onClick={onDelete}
           >
             <DeleteIcon className="w-4 h-4 text-gray-500" />
           </button>
