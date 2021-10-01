@@ -21,7 +21,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
 } from "selectors/editorSelectors";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
@@ -59,6 +59,9 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
 import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
+import SharedUserList from "pages/common/SharedUserList";
+import { fetchUsersForOrg } from "actions/orgActions";
+import { OrgUser } from "constants/orgConstants";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -135,8 +138,7 @@ const StyledInviteButton = styled(Button)`
 
 const StyledDeployButton = styled(StyledInviteButton)`
   margin-right: 0px;
-  background: transparent;
-  border-color: transparent;
+  height: 20px;
 `;
 
 const BindingBanner = styled.div`
@@ -162,10 +164,37 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
-const StyledIcon = styled(Icon)`
-  height: 34px;
-  padding-right: ${(props) => props.theme.spaces[2]}px;
+const StyledDeployIcon = styled(Icon)`
+  height: 20px;
   align-self: center;
+  background: ${(props) => props.theme.colors.header.shareBtnHighlight};
+  transform: translate(-6px, 0px);
+  padding-right: 4px;
+
+  &:hover {
+    background: rgb(191, 65, 9);
+  }
+
+  & svg {
+    transform: translate(3px, 0px);
+  }
+`;
+
+const ShareButton = styled.div`
+  display: inline-block;
+  cursor: pointer;
+  margin: 4px 12px 0px 0px;
+`;
+
+const StyledShareText = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 4px;
+`;
+
+const StyledSharedIcon = styled(Icon)`
+  display: inline-block;
+  vertical-align: middle;
 `;
 
 type EditorHeaderProps = {
@@ -181,6 +210,7 @@ type EditorHeaderProps = {
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
   inOnboarding: boolean;
+  sharedUserList: OrgUser[];
 };
 
 const GlobalSearch = lazy(() => {
@@ -250,6 +280,12 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
 
+  useEffect(() => {
+    if (orgId) {
+      dispatch(fetchUsersForOrg(orgId));
+    }
+  }, [orgId]);
+
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper>
@@ -301,6 +337,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           <EditorSaveIndicator />
           <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
+            <SharedUserList userRoles={props.sharedUserList} />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
@@ -313,13 +350,10 @@ export function EditorHeader(props: EditorHeaderProps) {
                   : "Share Application"
               }
               trigger={
-                <StyledInviteButton
-                  className="t--application-share-btn header__application-share-btn"
-                  icon={"share"}
-                  size={Size.small}
-                  tag="button"
-                  text={"Share"}
-                />
+                <ShareButton className="t--application-share-btn header__application-share-btn">
+                  <StyledSharedIcon name="share-line" />
+                  <StyledShareText>SHARE</StyledShareText>
+                </ShareButton>
               }
             />
           </Boxed>
@@ -335,11 +369,9 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
-                  isLink
                   isLoading={isPublishing}
                   onClick={handleClickDeploy}
                   size={Size.small}
-                  tag="button"
                   text={"Deploy"}
                 />
               </OnboardingIndicator>
@@ -347,9 +379,9 @@ export function EditorHeader(props: EditorHeaderProps) {
               <DeployLinkButtonDialog
                 link={getApplicationViewerPageURL(applicationId, pageId)}
                 trigger={
-                  <StyledIcon
-                    fillColor={theme.colors.navigationMenu.contentActive}
-                    name={isPopoverOpen ? "upArrow" : "downArrow"}
+                  <StyledDeployIcon
+                    fillColor="#fff"
+                    name={isPopoverOpen ? "upArrow" : "down-arrow"}
                     size={IconSize.XXL}
                   />
                 }
@@ -389,6 +421,7 @@ const mapStateToProps = (state: AppState) => ({
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
   inOnboarding: getIsInOnboarding(state),
+  sharedUserList: getAllUsers(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
