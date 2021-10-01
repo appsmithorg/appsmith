@@ -58,7 +58,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
     font-size: 14px;
-    line-height: 14px;
+    line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
     display: flex;
     align-items: center;
     height: 30px;
@@ -66,6 +66,14 @@ const StyledMenu = styled(Menu)`
     .${Classes.ICON} > svg:not([fill]) {
       margin-top: 0px;
       fill: #9f9f9f;
+    }
+
+    &.t--apiFormDeleteBtn,
+    &.t--apiFormDeleteBtn:hover {
+      color: ${Colors.DANGER_SOLID};
+      .${Classes.ICON} svg {
+        fill: ${Colors.DANGER_SOLID};
+      }
     }
 
     &:hover {
@@ -192,7 +200,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
-          position: PopoverPosition.LEFT,
+          position: PopoverPosition.RIGHT_TOP,
           targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
         text={option.label}
