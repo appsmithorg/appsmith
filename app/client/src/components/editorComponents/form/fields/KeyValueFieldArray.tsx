@@ -15,7 +15,6 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DynamicDropdownField from "./DynamicDropdownField";
-import { Colors } from "constants/Colors";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   MULTI_PART_DROPDOWN_OPTIONS,
@@ -33,6 +32,7 @@ const KeyValueStackContainer = styled.div<CustomStack>`
 `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
+  margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
   ${FormLabel} {
     width: 100%;
   }
@@ -56,8 +56,11 @@ const AddMoreAction = styled.div`
     margin-left: 8px;
     color: #858282;
   }
-  svg path {
-    stroke: ${(props) => props.theme.colors.apiPane.bg};
+  svg {
+    fill: #858282;
+    path {
+      fill: unset;
+    }
   }
 `;
 
@@ -83,6 +86,7 @@ const FlexContainer = styled.div`
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.apiPane.text};
     }
+    border-bottom: 0px;
   }
   .key-value:nth-child(2) {
     margin-left: ${(props) => props.theme.spaces[4]}px;
@@ -92,12 +96,7 @@ const FlexContainer = styled.div`
 const DynamicTextFieldWithDropdownWrapper = styled.div`
   display: flex;
   position: relative;
-  border-bottom: solid 1px ${Colors.MERCURY};
-  margin-bottom: 10px;
   top: -2px;
-  & .CodeEditorTarget * {
-    border-bottom: none !important;
-  }
 `;
 
 const DynamicDropdownFieldWrapper = styled.div`
@@ -162,10 +161,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                   {props.hasType ? (
                     <DynamicTextFieldWithDropdownWrapper>
                       <DynamicTextField
-                        border={CodeEditorBorder.BOTTOM_SIDE}
+                        border={CodeEditorBorder.NONE}
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
                         expected={expected}
+                        height="100%"
                         hoverInteraction
                         name={`${field}.key`}
                         placeholder={`Key ${index + 1}`}
@@ -174,6 +174,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 
                       <DynamicDropdownFieldWrapper>
                         <DynamicDropdownField
+                          height="34px"
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
                           width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
@@ -182,10 +183,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     </DynamicTextFieldWithDropdownWrapper>
                   ) : (
                     <DynamicTextField
-                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      border={CodeEditorBorder.NONE}
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
                       expected={expected}
+                      height="100%"
                       hoverInteraction
                       name={`${field}.key`}
                       placeholder={`Key ${index + 1}`}
@@ -197,10 +199,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                 {!props.actionConfig && (
                   <Flex size={3}>
                     <DynamicTextField
-                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      border={CodeEditorBorder.NONE}
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={expected}
+                      height="100%"
                       hoverInteraction
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
@@ -221,6 +224,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         )
                       }
                       expected={expected}
+                      height="100%"
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder
@@ -238,7 +242,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       }
                       theme={props.theme}
                       {...otherProps}
-                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      border={CodeEditorBorder.NONE}
                       hoverInteraction
                     />
                   </Flex>
@@ -256,11 +260,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
         </>
       )}
       <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
-        <Icon
-          className="t--addApiHeader"
-          name="add-more"
-          size={IconSize.LARGE}
-        />
+        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
         <Text case={Case.UPPERCASE} type={TextType.H5}>
           Add more
         </Text>

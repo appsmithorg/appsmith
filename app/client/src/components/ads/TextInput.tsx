@@ -16,7 +16,7 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
-
+import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
 
@@ -57,7 +57,13 @@ export type TextInputProps = CommonComponentProps & {
   readOnly?: boolean;
   dataType?: string;
   theme?: any;
+  leftIcon?: IconName;
+  helperText?: string;
   rightSideComponent?: React.ReactNode;
+  width?: string;
+  height?: string;
+  noBorder?: boolean;
+  noCaret?: boolean;
   onBlur?: EventHandler<FocusEvent<any>>;
   onFocus?: EventHandler<FocusEvent<any>>;
 };
@@ -101,12 +107,19 @@ const StyledInput = styled((props) => {
   const { dataType, inputRef, ...inputProps } = props;
 
   const omitProps = [
+    "hasLeftIcon",
     "inputStyle",
     "rightSideComponentWidth",
     "theme",
     "validator",
     "isValid",
     "cypressSelector",
+    "leftIcon",
+    "helperText",
+    "rightSideComponent",
+    "noBorder",
+    "isLoading",
+    "noCaret",
     "fill",
   ];
 
@@ -124,28 +137,28 @@ const StyledInput = styled((props) => {
     inputStyle: boxReturnType;
     isValid: boolean;
     rightSideComponentWidth: number;
+    hasLeftIcon: boolean;
   }
 >`
-  width: ${(props) => (props.fill ? "100%" : "320px")};
+  ${(props) => (props.noCaret ? "caret-color: white;" : null)}
+  color: ${(props) => props.inputStyle.color};
+  width: ${(props) =>
+    props.value && !props.noBorder && props.isFocused
+      ? "calc(100% - 50px)"
+      : "100%"};
   border-radius: 0;
-  caret-color: ${(props) => props.theme.colors.textInput.caretColor};
   outline: 0;
   box-shadow: none;
-  border: 1px solid ${(props) => props.inputStyle.borderColor};
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
+  border: none;
+  padding: 0;
   padding-right: ${(props) =>
-    props.rightSideComponentWidth + props.theme.spaces[6]}px;
-  height: 38px;
-  background-color: ${(props) => props.inputStyle.bgColor};
-  color: ${(props) => props.inputStyle.color};
-
-  &:-internal-autofill-selected,
-  &:-webkit-autofill,
-  &:-webkit-autofill:hover,
-  &:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px ${(props) => props.inputStyle.bgColor} inset !important;
-    -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
-  }
+    props.rightSideComponentWidth + props.theme.spaces[5]}px;
+  background-color: transparent;
+  font-size: ${(props) => props.theme.typography.p1.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.p1.fontWeight};
+  line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
+  letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
+  text-overflow: ellipsis;
 
   &::placeholder {
     color: ${(props) => props.theme.colors.textInput.placeholder};
@@ -153,35 +166,67 @@ const StyledInput = styled((props) => {
   &:disabled {
     cursor: not-allowed;
   }
+`;
+
+const InputWrapper = styled.div<{
+  value?: string;
+  isFocused: boolean;
+  fill?: number;
+  noBorder?: boolean;
+  height?: string;
+  width?: string;
+  inputStyle: boxReturnType;
+  isValid?: boolean;
+  disabled?: boolean;
+}>`
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
+  width: ${(props) =>
+    props.fill ? "100%" : props.width ? props.width : "260px"};
+  height: ${(props) => props.height || "36px"};
+  border: 1.2px solid ${(props) =>
+    props.noBorder ? "transparent" : props.inputStyle.borderColor};
+  background-color: ${(props) => props.inputStyle.bgColor};
+  color: ${(props) => props.inputStyle.color};
   ${(props) =>
-    !props.readOnly
+    props.isFocused && !props.noBorder
       ? `
-  &:focus {
-    border: 1px solid
+      border: 1.2px solid
       ${
         props.isValid
           ? props.theme.colors.info.main
           : props.theme.colors.danger.main
       };
-    box-shadow: ${
-      props.isValid
-        ? "0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
-        : "0px 0px 4px 4px rgba(226, 44, 44, 0.18)"
-    };
-  }
-  `
-      : null};
-`;
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  position: relative;
-  width: 100%;
+      `
+      : null}
 
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};
+  }
+  ​ .helper {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.textInput.helper};
+    }
+  }
+  &:hover {
+    background-color: ${(props) =>
+      props.disabled
+        ? props.inputStyle.bgColor
+        : props.theme.colors.textInput.hover.bg};
+  }
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
+`;
+
+const MsgWrapper = styled.div`
+  position: absolute;
+  bottom: -20px;
+  left: 0px;
+  &.helper {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.textInput.helper};
+    }
   }
 `;
 
@@ -190,11 +235,14 @@ const RightSideContainer = styled.div`
   right: 0;
   bottom: 0;
   top: 0;
+  display: flex;
+  align-items: center;
 `;
 
-const ErrorWrapper = styled.div`
-  position: absolute;
-  bottom: -17px;
+const IconWrapper = styled.div`
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[5]}px;
+  }
 `;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
@@ -212,6 +260,8 @@ const TextInput = forwardRef(
     }>(initialValidation());
 
     const [rightSideComponentWidth, setRightSideComponentWidth] = useState(0);
+    const [isFocused, setIsFocused] = useState(false);
+    const [inputValue, setInputValue] = useState(props.defaultValue);
 
     const setRightSideRef = useCallback((ref: HTMLDivElement) => {
       if (ref) {
@@ -228,6 +278,7 @@ const TextInput = forwardRef(
     const memoizedChangeHandler = useCallback(
       (el) => {
         const inputValue = el.target.value.trim();
+        setInputValue(inputValue);
         const validation = props.validator && props.validator(inputValue);
         if (validation) {
           props.validator && setValidation(validation);
@@ -242,13 +293,44 @@ const TextInput = forwardRef(
     );
 
     const ErrorMessage = (
-      <ErrorWrapper>
+      <MsgWrapper>
         <Text type={TextType.P3}>{validation.message}</Text>
-      </ErrorWrapper>
+      </MsgWrapper>
     );
 
+    const HelperMessage = (
+      <MsgWrapper className="helper">
+        <Text type={TextType.P3}>* {props.helperText}</Text>
+      </MsgWrapper>
+    );
+    const iconColor = !validation.isValid
+      ? props.theme.colors.danger.main
+      : props.theme.colors.textInput.icon;
+
+    const hasLeftIcon = props.leftIcon
+      ? IconCollection.includes(props.leftIcon)
+      : false;
     return (
-      <InputWrapper>
+      <InputWrapper
+        disabled={props.disabled}
+        fill={props.fill ? 1 : 0}
+        height={props.height || undefined}
+        inputStyle={inputStyle}
+        isFocused={isFocused}
+        isValid={validation.isValid}
+        noBorder={props.noBorder}
+        value={inputValue}
+        width={props.width || undefined}
+      >
+        {props.leftIcon && (
+          <IconWrapper className="left-icon">
+            <Icon
+              fillColor={iconColor}
+              name={props.leftIcon}
+              size={IconSize.MEDIUM}
+            />
+          </IconWrapper>
+        )}
         <StyledInput
           autoFocus={props.autoFocus}
           defaultValue={props.defaultValue}
@@ -258,12 +340,19 @@ const TextInput = forwardRef(
           type={props.dataType || "text"}
           {...props}
           data-cy={props.cypressSelector}
+          hasLeftIcon={hasLeftIcon}
           inputRef={ref}
+          onBlur={() => setIsFocused(false)}
           onChange={memoizedChangeHandler}
+          onFocus={() => setIsFocused(true)}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
           rightSideComponentWidth={rightSideComponentWidth}
         />
+        {validation.isValid &&
+          props.helperText &&
+          props.helperText.length > 0 &&
+          HelperMessage}
         {ErrorMessage}
         <RightSideContainer ref={setRightSideRef}>
           {props.rightSideComponent}

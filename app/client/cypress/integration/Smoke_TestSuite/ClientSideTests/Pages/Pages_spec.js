@@ -24,9 +24,7 @@ describe("Pages", function() {
       .its("length")
       .should("be.gt", 1);
 
-    cy.get(
-      ".bp3-icon-caret-right ~ .t--entity-name:contains(Datasources)",
-    ).click({
+    cy.get(".t--entity-name:contains(Datasources) ~ .t--entity-add-btn").click({
       multiple: true,
     });
     cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 2);

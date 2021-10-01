@@ -51,7 +51,7 @@ export function DataSourceContextMenu(props: {
         },
       ]}
       selectedValue=""
-      toggle={<ContextMenuTrigger />}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
 }
