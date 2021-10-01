@@ -218,8 +218,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         String pageId = refactorActionNameDTO.getPageId();
         String layoutId = refactorActionNameDTO.getLayoutId();
         String oldName = refactorActionNameDTO.getOldName();
+        final String oldFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
+                oldName :
+                refactorActionNameDTO.getCollectionName() + "." + oldName;
         String newName = refactorActionNameDTO.getNewName();
-        String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
+        final String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
                 newName :
                 refactorActionNameDTO.getCollectionName() + "." + newName;
         String actionId = refactorActionNameDTO.getActionId();
@@ -244,7 +247,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     }
                     return newActionService.updateUnpublishedAction(actionId, action);
                 })
-                .then(refactorName(pageId, layoutId, oldName, newName));
+                .then(refactorName(pageId, layoutId, oldFullyQualifiedName, newFullyQualifiedName));
     }
 
     /**
