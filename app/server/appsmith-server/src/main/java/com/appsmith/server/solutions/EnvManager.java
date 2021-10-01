@@ -19,10 +19,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -232,8 +234,16 @@ public class EnvManager {
                         commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove(Vars.APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    // If `changesCopy` is not empty here, then we need a restart.
-                    return Mono.just(new EnvChangesResponseDTO(!changesCopy.isEmpty()));
+                    // Ideally, we should only need a restart here if `changesCopy` is not empty. However, some of these
+                    // env variables are also used in client code, which means restart might be necessary there. So, to
+                    // provide a more uniform and predictable experience, we always restart.
+
+                    Mono.delay(Duration.ofSeconds(1))
+                            .flatMap(ignored -> restart())
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .subscribe();
+
+                    return Mono.just(new EnvChangesResponseDTO(true));
                 });
     }
 
