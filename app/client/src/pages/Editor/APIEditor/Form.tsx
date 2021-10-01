@@ -83,6 +83,9 @@ const MainConfiguration = styled.div`
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
   .api-info-row {
+    svg {
+      fill: #ffffff;
+    }
     .t--apiFormHttpMethod:hover {
       background: ${Colors.CODE_GRAY};
     }
@@ -147,7 +150,7 @@ export const TabbedViewContainer = styled.div`
     }
     .react-tabs__tab-panel {
       height: calc(100% - 36px);
-      background-color: ${(props) => props.theme.colors.apiPane.bg};
+      background-color: ${(props) => props.theme.colors.apiPane.tabBg};
       .eye-on-off {
         svg {
           fill: ${(props) =>

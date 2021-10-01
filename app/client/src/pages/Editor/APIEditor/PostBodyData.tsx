@@ -26,7 +26,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
-  background-color: ${(props) => props.theme.colors.apiPane.bg};
+  background-color: ${(props) => props.theme.colors.apiPane.tabBg};
   height: 100%;
 `;
 
