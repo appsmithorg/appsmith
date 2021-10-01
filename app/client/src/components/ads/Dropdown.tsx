@@ -102,11 +102,6 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `38px`};
   position: relative;
-  /* border: 1.2px solid ${Colors.ALTO2};
-  overflow: hidden;
-  & .${BluePrintClasses.POPOVER_TARGET} {
-    background-color: ${Colors.WHITE};
-  } */
 `;
 
 const DropdownTriggerWrapper = styled.div<{
@@ -150,7 +145,11 @@ const Selected = styled.div<{
     } else if (props.hasError) {
       return Colors.FAIR_PINK;
     }
-    return Colors.WHITE;
+    return !!props.bgColor
+      ? props.bgColor
+      : props.selected
+      ? props.theme.colors.dropdown.header.bg
+      : Colors.WHITE;
   }};
   box-sizing: border-box;
   display: flex;
@@ -175,8 +174,7 @@ const Selected = styled.div<{
         }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${Colors.ALTO2}
-        }`};
+      : `border: 1px solid ${!!props.bgColor ? props.bgColor : Colors.ALTO2}`};
   .${Classes.TEXT} {
     text-overflow: ellipsis;
     white-space: nowrap;
