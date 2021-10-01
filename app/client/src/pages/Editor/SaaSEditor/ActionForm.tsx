@@ -58,11 +58,25 @@ function ActionForm(props: Props) {
     dispatch(deleteAction({ id: apiId, name: actionName }));
   };
 
+  //Following if block is the fix for the missing where key
+  /**
+   * NOTE:
+   * Action object returned by getAction comes from state.entities.action
+   * action api's payload is created from state.entities.action and response is saved in the same key
+   * Data passed to redux form is the merge of values present in editorConfig, settingsConfig, formConfigs and has the correct datastrucure
+   * Data structure in state.entities.action is not correct
+   * Q. What does the following fix do?
+   * A. It calculates the diff between merged values and state.entities.action and saves the same in state.entities.action
+   * There is another key form that holds the formData
+   */
   if (!!props.difference) {
     let path = "";
     let value = "";
     for (let i = 0; i < props.difference.length; i++) {
+      //kind = N indicates a newly added property/element
+      //This property is present in initialValues but not in action object
       if (props.difference[i]?.kind === "N") {
+        // Calculate path from path [] in diff
         path = props.difference[i].path.reduce(
           (acc: string, item: number | string) => {
             if (typeof item === "string" && acc) {
@@ -74,6 +88,7 @@ function ActionForm(props: Props) {
           },
           "",
         );
+        // get value from diff object
         value = props.difference[i]?.rhs;
       }
     }
