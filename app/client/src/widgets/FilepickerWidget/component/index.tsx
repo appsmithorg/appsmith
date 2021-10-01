@@ -7,8 +7,7 @@ import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 
 class FilePickerComponent extends React.Component<
-  FilePickerComponentProps,
-  FilePickerComponentState
+  FilePickerComponentProps
 > {
   constructor(props: FilePickerComponentProps) {
     super(props); 
@@ -40,11 +39,7 @@ class FilePickerComponent extends React.Component<
     this.props.uppy.getPlugin("Dashboard").closeModal();
   }
 }
-
-export interface FilePickerComponentState {
-  isOpen: boolean;
-}
-
+ 
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   uppy: any;

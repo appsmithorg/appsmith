@@ -101,8 +101,7 @@ type IntegrationsHomeScreenProps = {
   mockDatasources: MockDatasource[];
 };
 
-type IntegrationsHomeScreenState = {
-  page: number;
+type IntegrationsHomeScreenState = { 
   activePrimaryMenuId: number;
   activeSecondaryMenuId: number;
   unsupportedPluginDialogVisible: boolean;
