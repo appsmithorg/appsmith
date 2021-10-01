@@ -1,0 +1,39 @@
+
+import math, random
+
+
+def generateOTP() :
+
+	
+	digits = "0123456789"
+	OTP = ""
+
+
+	for i in range(4) :
+		OTP += digits[math.floor(random.random() * 10)]
+
+	return OTP
+
+
+if __name__ == "__main__" :
+	
+	print("OTP of 4 digits:", generateOTP())
+
+
+
+
+def generateCAPTCHA() :
+
+	
+	string = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	CAPTCHA = ""
+	length = len(string)
+	for i in range(6) :
+		CAPTCHA += string[math.floor(random.random() * length)]
+
+	return CAPTCHA
+
+
+if __name__ == "__main__" :
+	
+	print("CAPTCHA of length 6:", generateCAPTCHA())
