@@ -33,6 +33,8 @@ public enum AppsmithPluginError {
             "datasource", ErrorType.CONNECTIVITY_ERROR),
     PLUGIN_AUTHENTICATION_ERROR(401, 4000, "Invalid authentication credentials. Please check datasource configuration.",
             AppsmithErrorAction.DEFAULT, "Datasource authentication error", ErrorType.AUTHENTICATION_ERROR),
+    PLUGIN_IN_MEMORY_FILTERING_ERROR(500, 5009, "{0}",
+            AppsmithErrorAction.LOG_EXTERNALLY, "Appsmith In Memory Filtering Failed", ErrorType.INTERNAL_ERROR),
     ;
 
     private final Integer httpErrorCode;

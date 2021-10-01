@@ -1,5 +1,7 @@
 const dsl = require("../../../../fixtures/ModalDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+const widgets = require("../../../../locators/Widgets.json");
 
 describe("Modal Widget Functionality", function() {
   beforeEach(() => {
@@ -20,5 +22,19 @@ describe("Modal Widget Functionality", function() {
       multiple: true,
     });
     cy.get(".t--modal-widget").should("exist");
+  });
+
+  it("display toast on close action", () => {
+    cy.SearchEntityandOpen("Modal1");
+
+    cy.get(".t--property-control-onclose")
+      .find(".t--js-toggle")
+      .click({ force: true });
+
+    cy.testJsontext("onclose", "{{showAlert('test','success')}}");
+
+    cy.get(widgets.iconWidgetBtn).click({ force: true });
+
+    cy.get(commonlocators.toastmsg).contains("test");
   });
 });
