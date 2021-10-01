@@ -36,6 +36,7 @@ const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
+    debugger;
     const result = userFunction.apply(self, ARGUMENTS);
     return result;
   }
@@ -141,6 +142,22 @@ const getLintingErrors = (
   });
 };
 
+export function setupEvaluationEnvironment() {
+  ///// Adding extra libraries separately
+  extraLibraries.forEach((library) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[library.accessor] = library.lib;
+  });
+
+  ///// Remove all unsafe functions
+  unsafeFunctionForEval.forEach((func) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[func] = undefined;
+  });
+}
+
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export default function evaluate(
@@ -207,19 +224,6 @@ export default function evaluate(
       getPositionInEvaluationScript(scriptType),
     );
 
-    ///// Adding extra libraries separately
-    extraLibraries.forEach((library) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[library.accessor] = library.lib;
-    });
-
-    ///// Remove all unsafe functions
-    unsafeFunctionForEval.forEach((func) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[func] = undefined;
-    });
     try {
       result = eval(script);
       if (isTriggerBased) {
