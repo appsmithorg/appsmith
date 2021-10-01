@@ -13,6 +13,7 @@ const StyledDialog = styled(Dialog)<{
   && {
     border-radius: 0;
     padding: 22px;
+    padding-bottom: 28px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
@@ -22,7 +23,7 @@ const StyledDialog = styled(Dialog)<{
     & .${Classes.DIALOG_HEADER} {
       position: relative;
       padding: 0px;
-      padding-bottom: 12px;
+      padding-bottom: 40px;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
       .${Classes.ICON} {
@@ -36,8 +37,6 @@ const StyledDialog = styled(Dialog)<{
 
     .${Classes.HEADING} {
       color: ${(props) => props.theme.colors.modal.headerText};
-      display: flex;
-      justify-content: left;
       font-weight: ${(props) => props.theme.typography.h1.fontWeight};
       font-size: ${(props) => props.theme.typography.h1.fontSize}px;
       line-height: ${(props) => props.theme.typography.h1.lineHeight}px;

@@ -1866,7 +1866,7 @@ export const dark: ColorType = {
     },
     text: darkShades[9],
     placeholder: darkShades[5],
-    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+    shadow: "none",
   },
   callout: {
     info: {
@@ -2490,13 +2490,13 @@ export const light: ColorType = {
     hoverState: lightShades[3],
   },
   tagInput: {
-    bg: lightShades[2],
+    bg: lightShades[11],
     tag: {
       text: lightShades[11],
     },
     text: lightShades[9],
     placeholder: darkShades[7],
-    shadow: "0px 0px 4px 4px rgba(203, 72, 16, 0.18)",
+    shadow: "none",
   },
   callout: {
     info: {
