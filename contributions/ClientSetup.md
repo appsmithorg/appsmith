@@ -1,6 +1,6 @@
 ## Running Client Codebase
 
-Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows. We use VS Code Editor as our primary editor.
+Appsmith's client (UI/frontend) uses ReactJS and Typescript. For the workflow of the application, the react-redux and redux-saga libraries are also used. The application is edited primarily in Visual Studio Code Editor.
 
 
 [![How to Setup Appsmith for Client Side Development](../static/images/client-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=FwJlVWVx0X0)
@@ -49,8 +49,8 @@ On your development machine, please ensure that:
 
    Note:
 
-   - Please be careful when copying the above string as space between the IP and the string goes missing sometimes.
-   - Please check that the string is copied properly
+   - If you copy the above string, please be careful as the space between the IP and the string can disappear.
+   - Check that the string has been copied correctly
 
    ```
    cat /etc/hosts | grep appsmith
@@ -76,7 +76,7 @@ On your development machine, please ensure that:
 
     Note:
 
-    - On the Ubuntu Linux platform, please run the following cmd before step 2 below:
+    - Before completing step 2 below, run the following command on the Ubuntu Linux platform:
 
         ```
         echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
@@ -86,7 +86,7 @@ On your development machine, please ensure that:
 
     🎉 Your Appsmith client is now running on https://dev.appsmith.com.
 
-    This URL must be opened with https and not have port 3000 in it.
+    URLs must be opened with https instead of port 3000.
 
 #### Note:
 
@@ -95,7 +95,7 @@ On your development machine, please ensure that:
 
 #### If yarn start throws mismatch node version error
 
-This error occurs because the node version is not compatible with the app environment. In this case, Node version manager can be used, allowing multiple node versions in different projects. Check below for installation and usage details:
+The node version is not compatible with the app environment, which results in this error. The use of Node version manager, in this case, can allow different projects to have multiple node versions. Installation and usage details can be found below:
 
 1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
 1. In the project's root, run `nvm use 14.15.4` or `fnm use 14.15.4`.
