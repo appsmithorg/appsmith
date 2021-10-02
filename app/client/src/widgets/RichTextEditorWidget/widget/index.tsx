@@ -6,7 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
-const showdown = require("showdown");
+import showdown from "showdown";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",

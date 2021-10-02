@@ -14,6 +14,8 @@ import {
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
 import log from "loglevel";
+// Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
+// FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
   Charts: require("fusioncharts/fusioncharts.charts"),
