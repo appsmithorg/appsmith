@@ -14,7 +14,7 @@ import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
 
-const ENTITY_ICON_SIZE = 16;
+export const ENTITY_ICON_SIZE = 16;
 
 const PagesIcon = MenuIcons.PAGES_ICON;
 export const pageGroupIcon = (

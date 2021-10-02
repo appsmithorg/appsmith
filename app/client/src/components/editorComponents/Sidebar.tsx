@@ -18,6 +18,12 @@ import Switcher from "components/ads/Switcher";
 import { useDispatch } from "react-redux";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { AppState } from "reducers";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import history from "utils/history";
 
 const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
   background-color: ${Colors.WHITE};
@@ -46,6 +52,10 @@ const initialPanel = { component: ExplorerSidebar };
 
 export const Sidebar = memo(() => {
   const dispatch = useDispatch();
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+  const onCanvas =
+    BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
   const switches = [
     {
       id: "explorer",
@@ -55,7 +65,10 @@ export const Sidebar = memo(() => {
     {
       id: "widgets",
       text: "Widgets",
-      action: () => dispatch(forceOpenWidgetPanel(true)),
+      action: () => {
+        !onCanvas && history.push(BUILDER_PAGE_URL(applicationId, pageId));
+        setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
+      },
     },
   ];
   const [activeSwitch, setActiveSwitch] = useState(switches[0]);

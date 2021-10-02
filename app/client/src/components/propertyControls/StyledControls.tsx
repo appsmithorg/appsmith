@@ -169,7 +169,6 @@ export const StyledMenuItem = styled(MenuItem)`
     }
     &.${Classes.ACTIVE} {
       background: ${(props) => props.theme.dropdown[Skin.LIGHT].hoverBG};
-      color: ${(props) => props.theme.dropdown[Skin.LIGHT].hoverText};
       position: relative;
       &.single-select {
         &:before {

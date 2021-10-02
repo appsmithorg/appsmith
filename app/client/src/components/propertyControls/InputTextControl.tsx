@@ -43,7 +43,7 @@ export function InputText(props: {
     <StyledDynamicInput>
       <CodeEditor
         additionalDynamicData={props.additionalAutocomplete}
-        border={CodeEditorBorder.NONE}
+        border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}

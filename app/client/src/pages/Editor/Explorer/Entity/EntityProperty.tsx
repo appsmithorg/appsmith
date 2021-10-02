@@ -3,12 +3,7 @@ import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
-import {
-  Classes,
-  Icon,
-  Popover,
-  PopoverInteractionKind,
-} from "@blueprintjs/core";
+import { Classes, Popover, PopoverInteractionKind } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
@@ -19,6 +14,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { EntityClassNames } from ".";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const StyledValue = styled.pre<{ step: number }>`
   & {
@@ -217,7 +213,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
         ref={propertyRef}
         skin={Skin.DARK}
       />
-      <Icon color={Colors.ALTO} icon="duplicate" iconSize={14} />
+      <Icon fillColor={Colors.ALTO} name="duplicate" size={IconSize.MEDIUM} />
       {propertyValue}
     </Wrapper>
   );

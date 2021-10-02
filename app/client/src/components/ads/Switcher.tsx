@@ -52,13 +52,18 @@ function Switcher(props: SwitcherProps) {
 
   useEffect(() => {
     if (activeObj) {
-      switchClickHandler(activeObj);
+      switchClickHandler(activeObj, true);
     }
   }, [activeObj]);
 
-  const switchClickHandler = (switchObj: Switch) => {
-    setActiveSlot(switchObj.id);
-    switchObj.action && switchObj.action();
+  const switchClickHandler = (
+    switchObj: Switch,
+    preventSwitchAction = false,
+  ) => {
+    if (switchObj.id !== activeSlot) {
+      setActiveSlot(switchObj.id);
+      !preventSwitchAction && switchObj.action && switchObj.action();
+    }
   };
 
   return (

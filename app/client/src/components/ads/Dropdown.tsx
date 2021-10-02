@@ -2,11 +2,7 @@ import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
-import {
-  Popover,
-  Position,
-  Classes as BluePrintClasses,
-} from "@blueprintjs/core";
+import { Popover, Position } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
@@ -102,11 +98,6 @@ export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
   height: ${(props) => props.height || `38px`};
   position: relative;
-  /* border: 1.2px solid ${Colors.ALTO2};
-  overflow: hidden;
-  & .${BluePrintClasses.POPOVER_TARGET} {
-    background-color: ${Colors.WHITE};
-  } */
 `;
 
 const DropdownTriggerWrapper = styled.div<{
@@ -175,8 +166,7 @@ const Selected = styled.div<{
         }`
       : props.disabled
       ? `border: 1px solid ${props.theme.colors.dropdown.header.disabledBg}`
-      : `border: 1px solid ${Colors.ALTO2}
-        }`};
+      : `border: 1px solid ${!!props.bgColor ? props.bgColor : Colors.ALTO2}`};
   .${Classes.TEXT} {
     text-overflow: ellipsis;
     white-space: nowrap;
