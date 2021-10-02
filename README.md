@@ -199,6 +199,8 @@ We love our contributors! We're committed to fostering an open and welcoming env
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
+## *Dont forget to star this repo*
+
 ## License
 
 Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
