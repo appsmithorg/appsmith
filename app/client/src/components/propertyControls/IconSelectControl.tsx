@@ -15,8 +15,12 @@ const IconSelectContainerStyles = createGlobalStyle<{
     width: ${({ targetWidth }) => targetWidth}px;
 
     .bp3-input-group {
-      margin: 5px !important;
+      margin-bottom: 5px !important;
     }
+  }
+  .bp3-popover-content {
+    padding: 5px !important;
+    box-shadow: 0px 0px 0px 1px #e1e1e;
   }
 `;
 
