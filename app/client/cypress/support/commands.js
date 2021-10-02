@@ -6,6 +6,7 @@ require("cypress-file-upload");
 const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
+const signupPage = require("../locators/SignupPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
@@ -405,6 +406,26 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
+  cy.wait("@getUser");
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  initLocalstorage();
+});
+
+Cypress.Commands.add("Signup", (uname, pword) => {
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/signup");
+  cy.get(signupPage.username).should("be.visible");
+  cy.get(signupPage.username).type(uname);
+  cy.get(signupPage.password).type(pword);
+  cy.get(signupPage.submitBtn).click();
   cy.wait("@getUser");
   cy.wait("@applications").should(
     "have.nested.property",

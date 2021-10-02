@@ -77,19 +77,19 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       plugin?: Plugin,
     ) => {
       if (pluginType === PluginType.SAAS) {
-        return `${SAAS_EDITOR_API_ID_URL(
+        return SAAS_EDITOR_API_ID_URL(
           defaultApplicationId,
           pageId,
           !!plugin ? plugin.packageName : "",
           id,
-        )}`;
+        );
       } else if (
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return `${QUERIES_EDITOR_ID_URL(defaultApplicationId, pageId, id)}`;
+        return QUERIES_EDITOR_ID_URL(defaultApplicationId, pageId, id);
       } else {
-        return `${API_EDITOR_ID_URL(defaultApplicationId, pageId, id)}`;
+        return API_EDITOR_ID_URL(defaultApplicationId, pageId, id);
       }
     },
     getIcon: (action: any, plugin: Plugin) => {

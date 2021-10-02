@@ -51,6 +51,8 @@ import PagesEditor from "./PagesEditor";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
 import { AppState } from "reducers";
 
+import { trimQueryString } from "utils/helpers";
+
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
   top: 0;
@@ -107,9 +109,9 @@ class EditorsRouter extends React.Component<Props, RouterState> {
   isMatchPath = () => {
     return matchPath(this.props.location.pathname, {
       path: [
-        INTEGRATION_EDITOR_URL(),
-        API_EDITOR_ID_URL(),
-        QUERIES_EDITOR_ID_URL(),
+        trimQueryString(INTEGRATION_EDITOR_URL()),
+        trimQueryString(API_EDITOR_ID_URL()),
+        trimQueryString(QUERIES_EDITOR_ID_URL()),
       ],
       exact: true,
       strict: false,
