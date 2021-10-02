@@ -1,12 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -20,6 +20,7 @@ import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -46,6 +47,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -892,5 +895,61 @@ public class LayoutActionServiceTest {
                     assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("NewNameTable1");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRefactorCollection_withModifiedName_ignoresName() {
+        ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
+        originalActionCollectionDTO.setName("originalName");
+        originalActionCollectionDTO.setApplicationId(testApp.getId());
+        originalActionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        originalActionCollectionDTO.setPageId(testPage.getId());
+        originalActionCollectionDTO.setPluginId(jsDatasource.getPluginId());
+        originalActionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("Table1");
+
+        originalActionCollectionDTO.setActions(List.of(action1));
+
+        final ActionCollectionDTO dto = layoutCollectionService.createCollection(originalActionCollectionDTO).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        assert dto != null;
+        actionCollectionDTO.setId(dto.getId());
+        actionCollectionDTO.setBody("body");
+        actionCollectionDTO.setName("newName");
+
+        RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO = new RefactorActionNameInCollectionDTO();
+        refactorActionNameInCollectionDTO.setActionCollection(actionCollectionDTO);
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO(
+                dto.getActions().get(0).getId(),
+                testPage.getId(),
+                testPage.getLayouts().get(0).getId(),
+                "testAction1",
+                "newTestAction",
+                "originalName"
+        );
+        refactorActionNameInCollectionDTO.setRefactorAction(refactorActionNameDTO);
+
+        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = layoutCollectionService
+                .refactorAction(refactorActionNameInCollectionDTO)
+                .then(actionCollectionService.getById(dto.getId())
+                        .zipWith(newActionService.findById(dto.getActions().get(0).getId())));
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(tuple -> {
+                    final ActionCollectionDTO actionCollectionDTOResult = tuple.getT1().getUnpublishedCollection();
+                    final NewAction newAction = tuple.getT2();
+                    assertEquals("originalName", actionCollectionDTOResult.getName());
+                    assertEquals("body", actionCollectionDTOResult.getBody());
+                    assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
+                    assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
+                })
+                .verifyComplete();
+
     }
 }

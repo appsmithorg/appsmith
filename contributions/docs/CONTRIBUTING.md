@@ -11,7 +11,7 @@ If you feel parts of our documentation can be improved or have incorrect informa
 
 ## Contributing
 
-Our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22+label%3A%22Documentation%22+no%3Aassignee) list is the best place to begin contributing
+Our [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22+label%3A%22Documentation%22+no%3Aassignee) or [Documentation issues](https://github.com/appsmithorg/appsmith-docs/issues) list is the best place to begin contributing
 
 ### Updating the docs
 
@@ -32,4 +32,5 @@ To maintain consistency, we have a set structure for the different types of docu
 - [Documenting Widgets](Widgets.md)
 - [Documenting Functions](InternalFunctions.md)
 - [Documenting DB Integrations](DB%20Integrations.md)
+- [Adding Guides](adding_guides.md)
 - [Uploading Assets](UploadingAssets.md)

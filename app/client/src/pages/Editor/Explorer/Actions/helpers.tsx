@@ -77,12 +77,12 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       plugin?: Plugin,
     ) => {
       if (pluginType === PluginType.SAAS) {
-        return `${SAAS_EDITOR_API_ID_URL(
+        return SAAS_EDITOR_API_ID_URL(
           defaultApplicationId,
           pageId,
           !!plugin ? plugin.packageName : "",
           id,
-        )}`;
+        );
       } else if (
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE

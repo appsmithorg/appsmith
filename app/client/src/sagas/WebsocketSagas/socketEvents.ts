@@ -1,4 +1,9 @@
-export const SOCKET_EVENTS = {
+export const SOCKET_CONNECTION_EVENTS = {
+  CONNECT: "connect",
+  DISCONNECT: "disconnect",
+};
+
+export const APP_LEVEL_SOCKET_EVENTS = {
   // comment events
   // SET_COMMENTS: "SET_COMMENTS",
   INSERT_COMMENT_THREAD: "insert:commentThread",
@@ -11,4 +16,11 @@ export const SOCKET_EVENTS = {
 
   // notification events
   INSERT_NOTIFICATION: "insert:notification",
+};
+
+export const PAGE_LEVEL_SOCKET_EVENTS = {
+  START_EDITING_APP: "collab:start_edit",
+  STOP_EDITING_APP: "collab:leave_edit",
+  LIST_ONLINE_APP_EDITORS: "collab:online_editors", // user presence
+  SHARE_USER_POINTER: "collab:mouse_pointer", // multi pointer
 };
