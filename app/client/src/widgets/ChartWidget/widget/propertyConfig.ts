@@ -221,7 +221,8 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
+        hidden: (x: ChartWidgetProps) =>
+          x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
         dependencies: ["chartType"],
       },
     ],

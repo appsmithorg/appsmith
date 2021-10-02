@@ -88,29 +88,17 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       case "PIE_CHART":
         return "pie2d";
       case "LINE_CHART":
-        return allowScroll
-          ? "scrollline2d"
-          : isMSChart
-          ? "msline"
-          : "line";
+        return allowScroll ? "scrollline2d" : isMSChart ? "msline" : "line";
       case "BAR_CHART":
-        return allowScroll
-          ? "scrollBar2D"
-          : isMSChart
-          ? "msbar2d"
-          : "bar2d";
+        return allowScroll ? "scrollBar2D" : isMSChart ? "msbar2d" : "bar2d";
+      case "AREA_CHART":
+        return allowScroll ? "scrollarea2d" : isMSChart ? "msarea" : "area2d";
       case "COLUMN_CHART":
         return allowScroll
           ? "scrollColumn2D"
           : isMSChart
           ? "mscolumn2d"
           : "column2d";
-      case "AREA_CHART":
-        return allowScroll
-          ? "scrollarea2d"
-          : isMSChart
-          ? "msarea"
-          : "area2d";
       default:
         return allowScroll ? "scrollColumn2D" : "mscolumn2d";
     }
@@ -470,10 +458,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       }
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
-      if (
-        this.props.allowScroll &&
-        this.props.chartType !== "PIE_CHART"
-      ) {
+      if (this.props.allowScroll && this.props.chartType !== "PIE_CHART") {
         this.chartInstance.setChartData(this.getScrollChartDataSource());
       } else {
         this.chartInstance.setChartData(this.getChartDataSource());
