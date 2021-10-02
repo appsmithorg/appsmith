@@ -87,9 +87,9 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return `${QUERIES_EDITOR_ID_URL(defaultApplicationId, pageId, id)}`;
+        return QUERIES_EDITOR_ID_URL(defaultApplicationId, pageId, id);
       } else {
-        return `${API_EDITOR_ID_URL(defaultApplicationId, pageId, id)}`;
+        return API_EDITOR_ID_URL(defaultApplicationId, pageId, id);
       }
     },
     getIcon: (action: any, plugin: Plugin) => {

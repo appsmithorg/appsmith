@@ -240,14 +240,16 @@ export const INTEGRATION_EDITOR_URL = (
   selectedTab = ":selectedTab",
   mode = "",
   params = {},
+  suffix = "",
 ): string => {
   if (mode) {
     (params as any).mode = mode;
   }
+  const suffixPath = suffix ? `/${suffix}` : "";
   return BUILDER_PAGE_URL({
     defaultApplicationId,
     pageId,
-    suffix: `datasources/${selectedTab}`,
+    suffix: `datasources/${selectedTab}${suffixPath}`,
     params,
   });
 };
@@ -345,11 +347,13 @@ export function convertToQueryParams(
 export const getCurlImportPageURL = (
   defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
+  params = {},
 ): string =>
   BUILDER_PAGE_URL({
     defaultApplicationId,
     pageId,
     suffix: "api/curl/curl-import",
+    params,
   });
 
 export const getProviderTemplatesURL = (
