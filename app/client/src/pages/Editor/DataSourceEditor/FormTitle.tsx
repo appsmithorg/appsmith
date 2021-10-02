@@ -3,8 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import EditableText, {
   EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
+} from "components/editorComponents/EditableText";
 
 import { AppState } from "reducers";
 import { getDatasource, getDatasources } from "selectors/entitiesSelector";
@@ -12,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
-import { Classes as BlueprintClasses, Spinner } from "@blueprintjs/core";
+import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
 
@@ -22,14 +21,6 @@ const Wrapper = styled.div`
   font-weight: 500;
   line-height: 24px;
   display: flex;
-  .t--edit-datasource-name {
-    .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
-      .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
-      height: ${(props) => props.theme.typography.p2.lineHeight}px !important;
-      line-height: ${(props) =>
-        props.theme.typography.p2.lineHeight}px !important;
-    }
-  }
 `;
 
 interface ComponentProps {
@@ -124,7 +115,7 @@ function FormTitle(props: FormTitleProps) {
         isInvalid={isInvalidDatasourceName}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource Name"
-        savingState={SavingState.NOT_STARTED}
+        type="text"
         updating={saveStatus.isSaving}
       />
       {saveStatus.isSaving && <Spinner size={16} />}
