@@ -24,7 +24,7 @@ export const StyledImage = styled.div<
   flex-direction: "row";
   background-size: ${(props) => props.objectFit ?? "contain"};
   cursor: ${(props) =>
-    props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
+    props.showHoverPointer && props.onClick ? "pointer !important" : "inherit"};
   background: ${(props) => props.backgroundColor};
   background-image: ${(props) =>
     `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
