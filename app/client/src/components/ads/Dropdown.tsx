@@ -391,12 +391,6 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
-const HelperText = styled.span`
-  ${(props) => getTypographyByKey(props, "p3")};
-  color: ${Colors.GRAY};
-  margin-top: ${(props) => props.theme.spaces[3]}px;
-`;
-
 function DefaultDropDownValueNode({
   errorMsg,
   optionWidth,
@@ -661,12 +655,9 @@ export default function Dropdown(props: DropdownProps) {
           )
         )}
       </Selected>
-      {errorMsg.length < 1 && helperText && helperText.length > 0 && (
-        <HelperMsg>* {helperText}</HelperMsg>
-      )}
       {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
       {helperText && !isOpen && !errorMsg && (
-        <HelperText>{helperText}</HelperText>
+        <HelperMsg>{helperText}</HelperMsg>
       )}
     </DropdownSelect>
   );
