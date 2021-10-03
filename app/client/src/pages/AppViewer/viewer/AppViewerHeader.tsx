@@ -27,7 +27,6 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
@@ -35,6 +34,7 @@ import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
+import { ShareButtonComponent } from "../../Editor/EditorHeader";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -171,12 +171,12 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <div style={{ flex: 1 }}>
+            <div>
               <PrimaryLogoLink to={APPLICATIONS_URL}>
                 <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
               </PrimaryLogoLink>
             </div>
-            <div style={{ flex: 1 }}>
+            <div>
               <ToggleCommentModeButton />
             </div>
           </HeaderSection>
@@ -195,14 +195,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   isOpen={showAppInviteUsersDialog}
                   orgId={currentOrgId}
                   title={currentApplicationDetails.name}
-                  trigger={
-                    <Button
-                      className="t--application-share-btn header__application-share-btn"
-                      icon={"share"}
-                      size={Size.small}
-                      text={"Share"}
-                    />
-                  }
+                  trigger={<ShareButtonComponent />}
                 />
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
