@@ -22,7 +22,7 @@ export const CONFIG = {
           props: {
             containerStyle: "none",
             canExtend: false,
-            detachFromLayout: true,
+            detachFromLayout: false,
             children: [],
             version: 1,
             blueprint: {

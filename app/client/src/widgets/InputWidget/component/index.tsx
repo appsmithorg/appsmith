@@ -24,6 +24,7 @@ import {
   TextArea,
   Tag,
   Position,
+  IRef,
 } from "@blueprintjs/core";
 import Tooltip from "components/ads/Tooltip";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
@@ -329,6 +330,15 @@ class InputComponent extends React.Component<
     }
   };
 
+  onBlur = (
+    event:
+      | React.FocusEvent<HTMLInputElement>
+      | React.FocusEvent<HTMLTextAreaElement>,
+  ) => {
+    this.setFocusState(false);
+    this.props?.onBlurHandler?.(event);
+  };
+
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon(
       this.props.inputType,
@@ -355,7 +365,7 @@ class InputComponent extends React.Component<
         minorStepSize={
           minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
         }
-        onBlur={() => this.setFocusState(false)}
+        onBlur={this.onBlur}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
         onValueChange={this.onNumberChange}
@@ -371,9 +381,10 @@ class InputComponent extends React.Component<
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
       growVertically={false}
+      inputRef={this.props.inputRef}
       intent={this.props.intent}
       maxLength={this.props.maxChars}
-      onBlur={() => this.setFocusState(false)}
+      onBlur={this.onBlur}
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
@@ -391,6 +402,7 @@ class InputComponent extends React.Component<
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
+        inputRef={this.props.inputRef}
         intent={this.props.intent}
         leftIcon={
           this.props.iconName && this.props.iconAlign === "left"
@@ -398,7 +410,7 @@ class InputComponent extends React.Component<
             : undefined
         }
         maxLength={this.props.maxChars}
-        onBlur={() => this.setFocusState(false)}
+        onBlur={this.onBlur}
         onChange={this.onTextChange}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
@@ -546,6 +558,11 @@ export interface InputComponentProps extends ComponentProps {
   showError: boolean;
   onFocusChange: (state: boolean) => void;
   disableNewLineOnPressEnterKey?: boolean;
+  // For FormBuilderWidget - starts
+  inputRef?: IRef<any>;
+  onBlurHandler?: React.FocusEventHandler;
+  // For FormBuilderWidget - ends
+  name?: string;
   onKeyDown?: (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
