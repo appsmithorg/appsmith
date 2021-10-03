@@ -9,6 +9,7 @@ import {
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
+import Checkbox from "components/ads/Checkbox";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -48,16 +49,20 @@ type UserGitProfileSettingsProps = {
   authType: string;
   authorInfo: AuthorInfo;
   setAuthorInfo: (authorInfo: AuthorInfo) => void;
-  disabled: boolean;
+  useGlobalConfig: boolean;
+  toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
+  isLocalConfigDefined: boolean;
+  isGlobalConfigDefined: boolean;
 };
 
 function UserGitProfileSettings({
   authorInfo,
-  disabled,
+  isGlobalConfigDefined,
+  isLocalConfigDefined,
   setAuthorInfo,
+  toggleUseDefaultConfig,
+  useGlobalConfig,
 }: UserGitProfileSettingsProps) {
-  const isValidRemoteURL = true;
-
   const setAuthorState = (label: string, value: string) => {
     switch (label) {
       case AUTHOR_INFO_LABEL.NAME:
@@ -77,6 +82,8 @@ function UserGitProfileSettings({
     }
   };
 
+  const disableInput = isGlobalConfigDefined && useGlobalConfig;
+
   return (
     <MainContainer>
       <TitleWrapper>
@@ -84,45 +91,47 @@ function UserGitProfileSettings({
           {createMessage(USER_PROFILE_SETTINGS_TITLE)}
         </span>
       </TitleWrapper>
+      {!isLocalConfigDefined && isGlobalConfigDefined ? (
+        <Checkbox
+          isDefaultChecked={useGlobalConfig}
+          label="Use Default Configuration"
+          onCheckChange={toggleUseDefaultConfig}
+        />
+      ) : null}
 
       <Space size={7} />
-      {isValidRemoteURL ? (
-        <>
-          <LabelContainer>
-            <span className="label">{createMessage(AUTHOR_NAME)}</span>
-          </LabelContainer>
 
-          <InputContainer>
-            <TextInput
-              dataType="text"
-              defaultValue={authorInfo.authorName}
-              disabled={disabled}
-              fill
-              onChange={(value) =>
-                setAuthorState(AUTHOR_INFO_LABEL.NAME, value)
-              }
-            />
-          </InputContainer>
+      <>
+        <LabelContainer>
+          <span className="label">{createMessage(AUTHOR_NAME)}</span>
+        </LabelContainer>
 
-          <Space size={7} />
+        <InputContainer>
+          <TextInput
+            dataType="text"
+            defaultValue={authorInfo.authorName}
+            disabled={disableInput}
+            fill
+            onChange={(value) => setAuthorState(AUTHOR_INFO_LABEL.NAME, value)}
+          />
+        </InputContainer>
 
-          <LabelContainer>
-            <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
-          </LabelContainer>
-          <InputContainer>
-            <TextInput
-              dataType="email"
-              defaultValue={authorInfo.authorEmail}
-              disabled={disabled}
-              fill
-              onChange={(value) =>
-                setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)
-              }
-              validator={emailValidator}
-            />
-          </InputContainer>
-        </>
-      ) : null}
+        <Space size={7} />
+
+        <LabelContainer>
+          <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
+        </LabelContainer>
+        <InputContainer>
+          <TextInput
+            dataType="email"
+            defaultValue={authorInfo.authorEmail}
+            disabled={disableInput}
+            fill
+            onChange={(value) => setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)}
+            validator={emailValidator}
+          />
+        </InputContainer>
+      </>
     </MainContainer>
   );
 }

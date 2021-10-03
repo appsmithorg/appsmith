@@ -563,6 +563,8 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
+export const GIT_DISCONNECT = () => "Disconnect";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your Git SSH URL";
 
 // Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
