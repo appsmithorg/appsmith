@@ -523,7 +523,7 @@ export function TableHeaderCell(props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
-  const disableSort = () => editMode === false && isSortable === false;
+  const disableSort = editMode === false && isSortable === false;
 
   return (
     <div
