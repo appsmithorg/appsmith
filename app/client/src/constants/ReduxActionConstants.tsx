@@ -10,6 +10,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes = {
+  FETCH_GIT_STATUS_INIT: "FETCH_GIT_STATUS_INIT",
+  FETCH_GIT_STATUS_SUCCESS: "FETCH_GIT_STATUS_SUCCESS",
   FETCH_SSH_KEY_PAIR_INIT: "FETCH_SSH_KEY_PAIR_INIT",
   FETCH_SSH_KEY_PAIR_SUCCESS: "FETCH_SSH_KEY_PAIR_SUCCESS",
   SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
@@ -595,6 +597,7 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  FETCH_GIT_STATUS_ERROR: "FETCH_GIT_STATUS_ERROR",
   FETCH_LOCAL_GIT_CONFIG_ERROR: "FETCH_LOCAL_GIT_CONFIG_ERROR",
   UPDATE_LOCAL_GIT_CONFIG_ERROR: "UPDATE_LOCAL_GIT_CONFIG_ERROR",
   PUSH_TO_GIT_ERROR: "PUSH_TO_GIT_ERROR",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Title } from "../components/StyledComponents";
 import {
   DEPLOY_YOUR_APPLICATION,
@@ -9,8 +9,8 @@ import {
   PUSH_TO,
   createMessage,
   COMMIT_AND_PUSH,
-  COMMITTED_SUCCESSFULLY,
-  PUSHED_SUCCESSFULLY,
+  // COMMITTED_SUCCESSFULLY,
+  // PUSHED_SUCCESSFULLY,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -20,10 +20,11 @@ import Checkbox, { LabelContainer } from "components/ads/Checkbox";
 import { DEFAULT_REMOTE } from "../constants";
 
 import {
-  getIsCommitSuccessful,
+  getGitStatus,
+  // getIsCommitSuccessful,
   getIsCommittingInProgress,
   getIsPushingToGit,
-  getIsPushSuccessful,
+  // getIsPushSuccessful,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { commitToRepoInit } from "actions/gitSyncActions";
@@ -36,6 +37,9 @@ import { withTheme } from "styled-components";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { pushToRepoInit } from "actions/gitSyncActions";
 import DeployPreview from "../components/DeployPreview";
+import { fetchGitStatusInit } from "actions/gitSyncActions";
+import { getGitPushError } from "selectors/gitSyncSelectors";
+import Text, { TextType } from "components/ads/Text";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -61,21 +65,59 @@ const Container = styled.div`
   }
 `;
 
-const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
+const ErrorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  .error-text {
+    color: ${Colors.POMEGRANATE2};
+  }
+`;
+
+const ErrorMsgWrapper = styled.div<{ $show: boolean }>`
+  max-height: 160px;
+  max-width: 96%;
+  overflow-y: ${(props) => (props.$show ? "hidden" : "scroll")};
+  .git-error-text {
+    margin: 0px;
+    padding: 0px;
+    font-size: 12px;
+    white-space: pre-line;
+    word-break: break-word;
+  }
+`;
+
+function Deploy({ theme }: { theme: Theme }) {
   const [pushImmediately, setPushImmediately] = useState(true);
   const [commitMessage, setCommitMessage] = useState("Initial Commit");
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
   const isPushingToGit = useSelector(getIsPushingToGit);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const gitStatus = useSelector(getGitStatus);
+  const gitPushError = useSelector(getGitPushError);
+  const errorMsgRef = useRef<HTMLDivElement>(null);
 
-  const isCommitSuccessful = useSelector(getIsCommitSuccessful);
-  const isPushSuccessful = useSelector(getIsPushSuccessful);
+  const hasChangesToCommit =
+    (gitStatus && gitStatus?.uncommitted?.length > 0) ||
+    (gitStatus && gitStatus?.untracked?.length > 0);
+
+  const hasCommitsToPush = gitStatus?.isClean;
+
+  // const isCommitSuccessful = useSelector(getIsCommitSuccessful);
+  // const isPushSuccessful = useSelector(getIsPushSuccessful);
 
   const currentBranchName = gitMetaData?.branchName;
+
   const dispatch = useDispatch();
 
   const handleCommit = () => {
-    dispatch(commitToRepoInit({ commitMessage, doPush: pushImmediately }));
+    if (currentBranchName) {
+      dispatch(
+        commitToRepoInit({
+          commitMessage,
+          doPush: pushImmediately,
+        }),
+      );
+    }
   };
 
   const handlePushToGit = () => {
@@ -84,23 +126,39 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
 
   let commitButtonText = "";
 
-  if (isCommitSuccessful) {
-    if (pushImmediately) {
-      commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
-    } else {
-      commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
-    }
+  // if (isCommitSuccessful) {
+  // if (pushImmediately) {
+  //   commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
+  // } else {
+  //   commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
+  // }
+  // } else {
+  if (pushImmediately) {
+    commitButtonText = createMessage(COMMIT_AND_PUSH);
   } else {
-    if (pushImmediately) {
-      commitButtonText = createMessage(COMMIT_AND_PUSH);
-    } else {
-      commitButtonText = createMessage(COMMIT);
+    commitButtonText = createMessage(COMMIT);
+  }
+  // }
+
+  const pushButtonText =
+    // isPushSuccessful
+    //   ? createMessage(PUSHED_SUCCESSFULLY) :
+    createMessage(PUSH_CHANGES);
+
+  useEffect(() => {
+    dispatch(fetchGitStatusInit());
+  }, []);
+
+  const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
+  const pushButtonDisabled = !hasCommitsToPush;
+
+  let errorMsgShowMoreEnabled = false;
+  if (errorMsgRef && errorMsgRef.current) {
+    const element = errorMsgRef.current;
+    if (element && element?.offsetHeight && element?.scrollHeight) {
+      errorMsgShowMoreEnabled = element?.offsetHeight < element?.scrollHeight;
     }
   }
-
-  const pushButtonText = isPushSuccessful
-    ? createMessage(PUSHED_SUCCESSFULLY)
-    : createMessage(PUSH_CHANGES);
 
   return (
     <Container>
@@ -116,13 +174,13 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
         <TextInput
           autoFocus
           defaultValue={commitMessage}
-          disabled={isCommitSuccessful}
+          disabled={hasCommitsToPush}
           fill
           onChange={setCommitMessage}
         />
         <Space size={3} />
         <Checkbox
-          disabled={isCommitSuccessful}
+          disabled={hasCommitsToPush}
           isDefaultChecked
           label={`${createMessage(
             PUSH_CHANGES_IMMEDIATELY_TO,
@@ -131,10 +189,11 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
         />
         <Space size={11} />
         <Button
-          disabled={isCommitSuccessful}
+          disabled={commitButtonDisabled}
           isLoading={isCommittingInProgress}
           onClick={handleCommit}
           size={Size.medium}
+          tag="button"
           text={commitButtonText}
           width="max-content"
         />
@@ -159,20 +218,34 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
           <Space size={3} />
           <Button
             category={Category.tertiary}
-            disabled={isPushSuccessful}
+            disabled={pushButtonDisabled}
             isLoading={isPushingToGit}
             onClick={handlePushToGit}
             size={Size.medium}
+            tag="button"
             text={pushButtonText}
             width="max-content"
           />
         </Section>
       ) : null}
-      {(isPushSuccessful || (pushImmediately && isCommitSuccessful)) && (
+
+      {!hasChangesToCommit && !hasCommitsToPush && !gitPushError && (
         <DeployPreview />
+      )}
+      {gitPushError && (
+        <ErrorContainer>
+          <Text className="error-text" type={TextType.P1}>
+            Error while pushing
+          </Text>
+          {/* Add Show More toggle */}
+          <ErrorMsgWrapper $show={errorMsgShowMoreEnabled} ref={errorMsgRef}>
+            <pre className="git-error-text error-text">{gitPushError}</pre>
+          </ErrorMsgWrapper>
+          {errorMsgShowMoreEnabled ? "Show More" : "Nothing much"}
+        </ErrorContainer>
       )}
     </Container>
   );
-});
+}
 
-export default Commit;
+export default withTheme(Deploy);
