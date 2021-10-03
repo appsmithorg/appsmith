@@ -59,7 +59,6 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
 import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
-import SharedUserList from "pages/common/SharedUserList";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
 
@@ -346,7 +345,6 @@ export function EditorHeader(props: EditorHeaderProps) {
           <EditorSaveIndicator />
           <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
-            <SharedUserList userRoles={props.sharedUserList} />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}

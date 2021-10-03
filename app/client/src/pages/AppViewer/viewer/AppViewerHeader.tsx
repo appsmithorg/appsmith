@@ -3,7 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import AppsmithLogo from "assets/images/appsmith_logo.png";
+// import AppsmithLogo from "assets/images/appsmith_logo.png";
+import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -78,6 +79,10 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   & ${Profile} {
     width: 24px;
     height: 24px;
+
+    span {
+      font-size: 12px;
+    }
   }
 
   & .current-app-name {
@@ -103,9 +108,11 @@ const HeaderSection = styled.div<{ justify: string }>`
   justify-content: ${(props) => props.justify};
 `;
 
-const AppsmithLogoImg = styled.img`
-  padding-left: ${(props) => props.theme.spaces[7]}px;
+const AppsmithLogoImg = styled(AppsmithLogo)`
   max-width: 110px;
+  width: 110px;
+  margin-right: 40px;
+  margin-left: 16px;
 `;
 
 const HeaderRightItemContainer = styled.div`
@@ -173,7 +180,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
           <HeaderSection justify={"flex-start"}>
             <div>
               <PrimaryLogoLink to={APPLICATIONS_URL}>
-                <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
+                <AppsmithLogoImg />
               </PrimaryLogoLink>
             </div>
             <div>
@@ -208,7 +215,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   modifiers={{
                     offset: {
                       enabled: true,
-                      offset: `0, ${pages.length > 1 ? 35 : 0}`,
+                      offset: `0, 0`,
                     },
                   }}
                   name={currentUser.name}
