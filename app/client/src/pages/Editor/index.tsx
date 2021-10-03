@@ -38,7 +38,10 @@ import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
-import { collabStartSharingPointerEvent } from "actions/appCollabActions";
+import {
+  collabStartSharingPointerEvent,
+  collabStopSharingPointerEvent,
+} from "actions/appCollabActions";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -58,6 +61,7 @@ type EditorProps = {
   updateCurrentPage: (pageId: string) => void;
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
+  collabStopSharingPointerEvent: () => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -121,6 +125,7 @@ class Editor extends Component<Props> {
   componentWillUnmount() {
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
+    this.props.collabStopSharingPointerEvent();
   }
 
   handleHistoryChange = (location: any) => {
@@ -195,6 +200,8 @@ const mapDispatchToProps = (dispatch: any) => {
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     collabStartSharingPointerEvent: (pageId: string) =>
       dispatch(collabStartSharingPointerEvent(pageId)),
+    collabStopSharingPointerEvent: () =>
+      dispatch(collabStopSharingPointerEvent()),
   };
 };
 
