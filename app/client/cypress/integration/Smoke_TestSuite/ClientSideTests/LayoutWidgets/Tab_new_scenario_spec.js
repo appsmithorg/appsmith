@@ -1,10 +1,6 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../locators/Layout.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tabsWithWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 
 describe("Tab widget test", function() {
   before(() => {

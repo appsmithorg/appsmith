@@ -1,11 +1,9 @@
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import tinycolor from "tinycolor2";
 
 describe("Update Application", function() {
   let appname;
   let iconname;
-  let colorname;
   let veryLongAppName = `gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1${Math.random()
     .toString(36)
     .slice(2, -1)}`;

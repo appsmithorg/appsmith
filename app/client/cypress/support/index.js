@@ -13,20 +13,19 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 require("cypress-xpath");
-let pageid;
 let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
 
-Cypress.on("uncaught:exception", (err, runnable) => {
+Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
   // failing the test
   return false;
 });
 
-Cypress.on("fail", (error, runnable) => {
+Cypress.on("fail", (error) => {
   throw error; // throw error to have test still fail
 });
 

@@ -1,9 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const apiPage = require("../../../../locators/ApiEditor.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
   let apiData;

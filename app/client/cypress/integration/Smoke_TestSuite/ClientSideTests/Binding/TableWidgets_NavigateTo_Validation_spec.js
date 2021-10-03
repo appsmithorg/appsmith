@@ -1,11 +1,8 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Table Widget and Navigate to functionality validation", function() {

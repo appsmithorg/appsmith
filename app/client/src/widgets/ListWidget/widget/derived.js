@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getSelectedItem: (props, moment, _) => {
+  getSelectedItem: (props) => {
     const selectedItemIndex =
       props.selectedItemIndex === undefined ||
       Number.isNaN(parseInt(props.selectedItemIndex))
@@ -36,7 +36,6 @@ export default {
       for (var i = 0; i < widgetKeys.length; i++) {
         const currentWidgetName = widgetKeys[i];
         let currentWidget = currentItem[currentWidgetName];
-        const filteredWidget = {};
 
         const dynamicPaths = _.compact(
           currentWidget.dynamicBindingPathList?.map((path) => path.key),
@@ -138,7 +137,7 @@ export default {
   },
   //
   // this is just a patch for #7520
-  getChildAutoComplete: (props, moment, _) => {
+  getChildAutoComplete: (props) => {
     const data = [...props.listData];
 
     const structure =

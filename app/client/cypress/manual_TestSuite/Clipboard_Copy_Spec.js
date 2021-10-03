@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/tableWidgetDsl.json");
-
 describe("Test for Clipboard Copy", function() {
   it(" Clipboard copy on selecting a row ", function() {
     // Add a table widget

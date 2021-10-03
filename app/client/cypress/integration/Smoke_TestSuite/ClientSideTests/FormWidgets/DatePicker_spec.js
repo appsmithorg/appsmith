@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-const pages = require("../../../../locators/Pages.json");
 const dayjs = require("dayjs");
 
 describe("DatePicker Widget Functionality", function() {
@@ -52,9 +51,6 @@ describe("DatePicker Widget Functionality", function() {
   });
 
   it("Datepicker-Clear date validation", function() {
-    const today = dayjs()
-      .add(0, "days")
-      .format("DD/MM/YYYY");
     cy.get(formWidgetsPage.defaultDate).click();
     cy.ClearDate();
     cy.PublishtheApp();

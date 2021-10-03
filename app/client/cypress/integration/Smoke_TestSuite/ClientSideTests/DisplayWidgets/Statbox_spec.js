@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/StatboxDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Statbox Widget Functionality", function() {
   beforeEach(() => {

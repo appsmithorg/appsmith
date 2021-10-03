@@ -10,7 +10,7 @@ describe("Check for product updates button and modal", function() {
       .its("store")
       .invoke("getState")
       .then((state) => {
-        const { newReleasesCount, releaseItems } = state.ui.releases;
+        const { releaseItems } = state.ui.releases;
         if (Array.isArray(releaseItems) && releaseItems.length > 0) {
           cy.get("[data-cy=t--product-updates-btn]")
             .contains("What's New?")

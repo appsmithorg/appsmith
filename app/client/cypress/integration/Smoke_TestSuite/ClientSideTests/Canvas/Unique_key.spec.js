@@ -1,4 +1,3 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/basicDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");

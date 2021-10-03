@@ -1,8 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/MultipleInput.json");
-const pages = require("../../../../locators/Pages.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -11,7 +8,7 @@ describe("Binding the multiple input Widget", function() {
     cy.addDsl(dsl);
   });
 
-  Cypress.on("uncaught:exception", (err, runnable) => {
+  Cypress.on("uncaught:exception", () => {
     // returning false here prevents Cypress from
     // failing the test
     return false;

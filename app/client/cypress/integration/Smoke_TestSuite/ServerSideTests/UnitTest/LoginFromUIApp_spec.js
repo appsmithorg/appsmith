@@ -1,7 +1,6 @@
 const homePage = require("../../../../locators/HomePage.json");
 const HelpLocators = require("../../../../locators/HelpLocators.json");
 let pageid;
-let appId;
 
 describe("Login from UI and check the functionality", function() {
   it("Login/create page/delete page/delete app from UI", function() {

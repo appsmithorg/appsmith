@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  getSelectedRow: (props, moment, _) => {
+  getSelectedRow: (props) => {
     const selectedRowIndex =
       props.selectedRowIndex === undefined ||
       Number.isNaN(parseInt(props.selectedRowIndex))
@@ -19,7 +18,7 @@ export default {
     return selectedRow;
   },
   //
-  getTriggeredRow: (props, moment, _) => {
+  getTriggeredRow: (props) => {
     const triggeredRowIndex =
       props.triggeredRowIndex === undefined ||
       Number.isNaN(parseInt(props.triggeredRowIndex))
@@ -37,7 +36,7 @@ export default {
     return triggeredRow;
   },
   //
-  getSelectedRows: (props, moment, _) => {
+  getSelectedRows: (props) => {
     const selectedRowIndices = Array.isArray(props.selectedRowIndices)
       ? props.selectedRowIndices
       : [props.selectedRowIndices];
@@ -50,7 +49,7 @@ export default {
     return selectedRows;
   },
   //
-  getPageSize: (props, moment, _) => {
+  getPageSize: (props) => {
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
@@ -93,7 +92,7 @@ export default {
     return pageSize;
   },
   //
-  getSanitizedTableData: (props, moment, _) => {
+  getSanitizedTableData: (props) => {
     const separatorRegex = /\W+/;
 
     if (props.tableData && Array.isArray(props.tableData)) {

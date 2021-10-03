@@ -1,6 +1,5 @@
 const dsl = require("../../../../fixtures/buttondsl.json");
 const debuggerLocators = require("../../../../locators/Debugger.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 
 describe("Widget error state", function() {

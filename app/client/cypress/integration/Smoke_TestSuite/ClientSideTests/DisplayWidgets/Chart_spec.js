@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/chartUpdatedDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 

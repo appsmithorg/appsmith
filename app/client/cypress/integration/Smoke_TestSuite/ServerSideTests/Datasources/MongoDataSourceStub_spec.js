@@ -1,7 +1,4 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const plugins = require("../../../../fixtures/plugins.json");
-let datasourceName;
 
 describe("Create, test, save then delete a mongo datasource", function() {
   it("Create, test, save then delete a mongo datasource", function() {

@@ -1,5 +1,4 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const plugins = require("../../../../fixtures/plugins.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let datasourceName;

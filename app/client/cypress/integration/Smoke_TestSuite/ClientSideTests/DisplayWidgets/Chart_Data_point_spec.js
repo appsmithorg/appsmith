@@ -1,9 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../locators/commonlocators.json");
-const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/ChartDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 

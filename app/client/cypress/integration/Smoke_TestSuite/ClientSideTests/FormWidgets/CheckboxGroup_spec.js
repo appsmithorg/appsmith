@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/checkboxgroupDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Checkbox Group Widget Functionality", function() {
   before(() => {

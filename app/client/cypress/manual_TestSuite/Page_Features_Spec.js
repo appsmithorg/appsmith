@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/pageWidgetDsl.json");
-
 describe("Page functionality ", function() {
   it("Simple Page hide and show back", function() {
     // Add addtional page

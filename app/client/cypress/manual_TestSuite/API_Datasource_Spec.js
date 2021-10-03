@@ -1,5 +1,3 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-
 describe("API associated with Datasource", function() {
   it("Edit name of the Datasource from Pane and refeclected in the Page ", function() {
     // Click on the API datasource

@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/uiBindDsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Binding the Datepicker and Text Widget", function() {
   let nextDay;

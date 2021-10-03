@@ -1,7 +1,3 @@
-const queryLocators = require("../../../locators/QueryEditor.json");
-const queryEditor = require("../../../locators/QueryEditor.json");
-let datasourceName;
-
 describe("Test Ideas for Mongo DB Form Input", function() {
   it("Insert a Document", function() {
     //Ensure by choosing command as 'Insert a Document' the following fields will be displayed 'Collection Name' and 'Documents'

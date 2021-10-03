@@ -2,8 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/chartUpdatedDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Chart Widget Functionality around custom chart feature", function() {
@@ -121,7 +119,6 @@ describe("Chart Widget Functionality around custom chart feature", function() {
   });
 
   it("Chart-Copy Verification", function() {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
 

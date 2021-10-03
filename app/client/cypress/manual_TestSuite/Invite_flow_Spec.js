@@ -1,5 +1,3 @@
-const homePage = require("../../../locators/HomePage.json");
-
 describe("adding role without Email Id", function() {
   it("Empty Email ID Invite flow", function() {
     // Navigate to Home Page

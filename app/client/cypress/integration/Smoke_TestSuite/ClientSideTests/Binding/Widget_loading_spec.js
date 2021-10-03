@@ -1,16 +1,11 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/rundsl.json");
-const pages = require("../../../../locators/Pages.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-const pageid = "MyPage";
-let updatedName;
 let datasourceName;
 
 describe("Binding the multiple widgets and validating default data", function() {
