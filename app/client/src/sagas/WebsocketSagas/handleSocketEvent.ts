@@ -1,6 +1,5 @@
 import { put, select } from "redux-saga/effects";
-import { SOCKET_EVENTS } from "./constants";
-import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
+import { APP_LEVEL_SOCKET_EVENTS } from "./socketEvents";
 
 import {
   newCommentEvent,
@@ -95,8 +94,8 @@ export default function* handleSocketEvent(event: any) {
       return;
     }
     // Collab V2 - Realtime Editing
-    case APP_COLLAB_EVENTS.LIST_ONLINE_APP_EDITORS: {
-      yield put(collabListAppEditorsEvent(event.payload[0]));
+    case APP_LEVEL_SOCKET_EVENTS.LIST_ONLINE_APP_EDITORS: {
+      yield put(collabSetAppEditors(event.payload[0]));
       return;
     }
   }

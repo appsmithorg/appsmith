@@ -22,6 +22,7 @@ type ToastProps = ToastOptions &
     showDebugButton?: boolean;
     hideProgressBar?: boolean;
     hideActionElementSpace?: boolean;
+    width?: string;
   };
 
 const WrappedToastContainer = styled.div`
@@ -55,8 +56,9 @@ const ToastBody = styled.div<{
   variant?: Variant;
   isUndo?: boolean;
   dispatchableAction?: { type: ReduxActionType; payload: any };
+  width?: string;
 }>`
-  width: 264px;
+  width: ${(props) => props.width || "264px"};
   background: ${(props) => props.theme.colors.toast.bg};
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[5]}px;
@@ -117,6 +119,7 @@ const FlexContainer = styled.div`
 
 const ToastTextWrapper = styled.div`
   flex: 1;
+  min-width: 0;
 `;
 
 const StyledDebugButton = styled(DebugButton)`
@@ -138,8 +141,9 @@ export function ToastComponent(
       dispatchableAction={props.dispatchableAction}
       isUndo={!!props.onUndo}
       variant={props.variant || Variant.info}
+      width={props.width}
     >
-      <FlexContainer>
+      <FlexContainer style={{ minWidth: 0 }}>
         {props.variant === Variant.success ? (
           <Icon fillColor={Colors.GREEN} name="success" size={IconSize.XXL} />
         ) : props.variant === Variant.warning ? (

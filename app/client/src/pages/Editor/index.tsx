@@ -37,6 +37,8 @@ import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
+import { collabStartSharingPointerEvent } from "actions/appCollabActions";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -54,6 +56,8 @@ type EditorProps = {
   handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
+  isPageLevelSocketConnected: boolean;
+  collabStartSharingPointerEvent: (pageId: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -75,6 +79,10 @@ class Editor extends Component<Props> {
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
+
+    if (this.props.isPageLevelSocketConnected && pageId) {
+      this.props.collabStartSharingPointerEvent(pageId);
+    }
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
@@ -90,16 +98,23 @@ class Editor extends Component<Props> {
         this.props.isEditorInitializeError ||
       nextProps.creatingOnboardingDatabase !==
         this.props.creatingOnboardingDatabase ||
-      nextState.registered !== this.state.registered
+      nextState.registered !== this.state.registered ||
+      (nextProps.isPageLevelSocketConnected &&
+        !this.props.isPageLevelSocketConnected)
     );
   }
 
   componentDidUpdate(prevProps: Props) {
     const { pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
-    if (pageId && pageId !== prevPageId) {
+    const isPageIdUpdated = pageId !== prevPageId;
+    if (pageId && isPageIdUpdated) {
       this.props.updateCurrentPage(pageId);
       this.props.fetchPage(pageId);
+    }
+
+    if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
+      this.props.collabStartSharingPointerEvent(pageId);
     }
   }
 
@@ -166,6 +181,7 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
+  isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -177,6 +193,8 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(handlePathUpdated(location)),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
+    collabStartSharingPointerEvent: (pageId: string) =>
+      dispatch(collabStartSharingPointerEvent(pageId)),
   };
 };
 
