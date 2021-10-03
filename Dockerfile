@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Install MongoDB v4.0.5, Redis, NodeJS - Service Layer
+# Install MongoDB v4.0.5, Redis, NodeJS - Service Layers
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get remove wget -y
@@ -41,7 +41,7 @@ RUN rm -rf \
 VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
-# Add backend server - Application Layer
+# Add backend server - Application Layers
 ARG JAR_FILE=./app/server/dist/server-*.jar
 ARG PLUGIN_JARS=./app/server/dist/plugins/*.jar
 ARG APPSMITH_SEGMENT_CE_KEY
@@ -56,7 +56,7 @@ COPY ${PLUGIN_JARS} backend/plugins/
 # Add client UI - Application Layer
 COPY ./app/client/build editor/
 
-# Add RTS - Application Layer
+# Add RTS - Application Layers
 COPY ./app/rts/package.json ./app/rts/dist/* rts/
 COPY ./app/rts/node_modules rts/node_modules
 
