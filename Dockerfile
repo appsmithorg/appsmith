@@ -26,7 +26,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-# Clean up cache file - Service layer
+# Clean up cache file - Service layers
 RUN rm -rf \
   /root/.cache \
   /root/.npm \
