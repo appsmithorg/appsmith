@@ -240,10 +240,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties,
             originalIndex,
           );
-
           if (columnProperties.columnType === "button") {
+            let isSelected = false;
+            if (this.props.multiRowSelection) {
+              isSelected =
+                Array.isArray(this.props.selectedRowIndices) &&
+                this.props.selectedRowIndices.includes(rowIndex);
+            } else {
+              isSelected = this.props.selectedRowIndex === rowIndex;
+            }
             const buttonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
