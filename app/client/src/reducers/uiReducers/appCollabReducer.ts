@@ -1,6 +1,7 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { User } from "entities/AppCollab/CollabInterfaces";
+import { cloneDeep } from "lodash";
 
 const initialState: AppCollabReducerState = {
   editors: [],
@@ -59,6 +60,10 @@ const appCollabReducer = createReducer(initialState, {
     pageEditors: action.payload,
   }),
 });
+
+type PointerDataType = {
+  [s: string]: any;
+};
 
 export type AppCollabReducerState = {
   editors: User[];

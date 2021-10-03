@@ -1,4 +1,9 @@
-export const SOCKET_EVENTS = {
+export const SOCKET_CONNECTION_EVENTS = {
+  CONNECT: "connect",
+  DISCONNECT: "disconnect",
+};
+
+export const APP_LEVEL_SOCKET_EVENTS = {
   // comment events
   // SET_COMMENTS: "SET_COMMENTS",
   INSERT_COMMENT_THREAD: "insert:commentThread",

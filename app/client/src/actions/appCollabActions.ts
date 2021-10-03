@@ -1,25 +1,30 @@
-import { websocketWriteEvent } from "./websocketActions";
-import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
+import {
+  appLevelWebsocketWriteEvent,
+  pageLevelWebsocketWriteEvent,
+} from "./websocketActions";
 import { ReduxActionTypes } from "../constants/ReduxActionConstants";
+import { PAGE_LEVEL_SOCKET_EVENTS } from "../sagas/WebsocketSagas/socketEvents";
 
+// App Editors presence Socket actions
 export const collabStartEditingAppEvent = (appId: string) =>
-  websocketWriteEvent({
-    type: APP_COLLAB_EVENTS.START_EDITING_APP,
+  appLevelWebsocketWriteEvent({
+    type: PAGE_LEVEL_SOCKET_EVENTS.START_EDITING_APP,
     payload: appId,
   });
 
 export const collabStopEditingAppEvent = (appId: string) =>
-  websocketWriteEvent({
-    type: APP_COLLAB_EVENTS.STOP_EDITING_APP,
+  appLevelWebsocketWriteEvent({
+    type: PAGE_LEVEL_SOCKET_EVENTS.STOP_EDITING_APP,
     payload: appId,
   });
 
-export const collabListAppEditorsEvent = (payload: any) => ({
+// App Editor presence Redux actions
+export const collabSetAppEditors = (payload: any) => ({
   type: ReduxActionTypes.APP_COLLAB_LIST_EDITORS,
   payload,
 });
 
-export const collabResetAppEditorsEvent = () => ({
+export const collabResetAppEditors = () => ({
   type: ReduxActionTypes.APP_COLLAB_RESET_EDITORS,
 });
 

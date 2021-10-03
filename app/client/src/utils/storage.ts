@@ -154,29 +154,6 @@ export const deleteRecentAppEntities = async (appId: string) => {
   }
 };
 
-export const setCommentsIntroSeen = async (flag: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.COMMENTS_INTRO_SEEN, flag);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting COMMENTS_INTRO_SEEN");
-    log.error(error);
-    return false;
-  }
-};
-
-export const getCommentsIntroSeen = async () => {
-  try {
-    const commentsIntroSeen = (await store.getItem(
-      STORAGE_KEYS.COMMENTS_INTRO_SEEN,
-    )) as boolean;
-    return commentsIntroSeen;
-  } catch (error) {
-    log.error("An error occurred while fetching COMMENTS_INTRO_SEEN");
-    log.error(error);
-  }
-};
-
 export const setOnboardingFormInProgress = async (flag?: boolean) => {
   try {
     await store.setItem(STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS, flag);

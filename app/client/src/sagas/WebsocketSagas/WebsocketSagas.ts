@@ -8,36 +8,38 @@ import {
 import {
   WEBSOCKET_EVENTS,
   RTS_BASE_PATH,
+  WEBSOCKET_NAMESPACE,
   websocketDisconnectedEvent,
   websocketConnectedEvent,
 } from "constants/WebsocketConstants";
 
 import {
-  setIsWebsocketConnected,
-  retrySocketConnection,
+  setIsAppLevelWebsocketConnected,
+  setIsPageLevelWebsocketConnected,
+  retryAppLevelSocketConnection,
+  retryPageLevelSocketConnection,
 } from "actions/websocketActions";
 
-import handleSocketEvent from "./handleSocketEvent";
+import handleAppLevelSocketEvents from "./handleAppLevelSocketEvents";
+import handlePageLevelSocketEvents from "./handlePageLevelSocketEvents";
 import * as Sentry from "@sentry/react";
 import { SOCKET_CONNECTION_EVENTS } from "./socketEvents";
-import { debug } from "loglevel";
 
-function connect() {
-  const socket = io({
+function connect(namespace?: string) {
+  const options = {
     path: RTS_BASE_PATH,
   };
   const socket = !!namespace ? io(namespace, options) : io(options);
-  debug("connected req", namespace);
+
   return new Promise((resolve) => {
     socket.on(SOCKET_CONNECTION_EVENTS.CONNECT, () => {
-      debug("connected", namespace);
       socket.off(SOCKET_CONNECTION_EVENTS.CONNECT);
       resolve(socket);
     });
   });
 }
 
-function subscribe(socket: any) {
+function listenToSocket(socket: any) {
   return eventChannel((emit) => {
     socket.onAny((event: any, ...args: any) => {
       emit({
@@ -45,10 +47,10 @@ function subscribe(socket: any) {
         payload: args,
       });
     });
-    socket.on("disconnect", () => {
+    socket.on(SOCKET_CONNECTION_EVENTS.DISCONNECT, () => {
       emit(websocketDisconnectedEvent());
     });
-    socket.on("connect", () => {
+    socket.on(SOCKET_CONNECTION_EVENTS.CONNECT, () => {
       emit(websocketConnectedEvent());
     });
     return () => {
@@ -57,31 +59,33 @@ function subscribe(socket: any) {
   });
 }
 
-function* read(socket: any) {
-  const channel = yield call(subscribe, socket);
+function* readFromAppSocket(socket: any) {
+  const channel = yield call(listenToSocket, socket);
   while (true) {
     const action = yield take(channel);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
-        yield put(setIsWebsocketConnected(false));
+        yield put(setIsAppLevelWebsocketConnected(false));
         break;
       case WEBSOCKET_EVENTS.CONNECTED:
-        yield put(setIsWebsocketConnected(true));
+        yield put(setIsAppLevelWebsocketConnected(true));
         break;
       default: {
-        yield call(handleSocketEvent, action);
+        yield call(handleAppLevelSocketEvents, action);
       }
     }
   }
 }
 
-function* write(socket: any) {
+function* writeToAppSocket(socket: any) {
   while (true) {
-    const { payload } = yield take(ReduxSagaChannels.WEBSOCKET_WRITE_CHANNEL);
+    const { payload } = yield take(
+      ReduxSagaChannels.WEBSOCKET_APP_LEVEL_WRITE_CHANNEL,
+    );
     // reconnect to reset connection at the server
     try {
       if (payload.type === WEBSOCKET_EVENTS.RECONNECT) {
-        yield put(setIsWebsocketConnected(false));
+        yield put(setIsAppLevelWebsocketConnected(false));
         socket.disconnect().connect();
       } else {
         socket.emit(payload.type, payload.payload);
@@ -92,16 +96,16 @@ function* write(socket: any) {
   }
 }
 
-function* handleIO(socket: any) {
-  yield fork(read, socket);
-  yield fork(write, socket);
+function* handleAppSocketIO(socket: any) {
+  yield fork(readFromAppSocket, socket);
+  yield fork(writeToAppSocket, socket);
 }
 
-function* flow() {
+function* openAppLevelSocketConnection() {
   while (true) {
     yield take([
-      ReduxActionTypes.INIT_SOCKET_CONNECTION,
-      ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION, // for manually triggering reconnection
+      ReduxActionTypes.INIT_APP_LEVEL_SOCKET_CONNECTION,
+      ReduxActionTypes.RETRY_PAGE_LEVEL_WEBSOCKET_CONNECTION, // for manually triggering reconnection
     ]);
     try {
       /**
@@ -131,7 +135,6 @@ function* readFromPageSocket(socket: any) {
   const channel = yield call(listenToSocket, socket);
   while (true) {
     const action = yield take(channel);
-    debug(action);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsPageLevelWebsocketConnected(false));
@@ -181,19 +184,19 @@ function* openPageLevelSocketConnection() {
       const task = yield fork(handlePageSocketIO, socket);
       yield put(setIsPageLevelWebsocketConnected(true));
       yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
-      yield take();
       yield cancel(task);
       socket.disconnect();
     } catch (e) {
       // this has to be non blocking
       yield fork(function*() {
         yield delay(3000);
-        yield put(retrySocketConnection());
+        yield put(retryPageLevelSocketConnection());
       });
     }
   }
 }
 
 export default function* rootSaga() {
-  yield fork(flow);
+  yield fork(openAppLevelSocketConnection);
+  yield fork(openPageLevelSocketConnection);
 }
