@@ -8,24 +8,22 @@ import {
   getIsConcurrentEditorWarningToastHidden,
 } from "utils/storage";
 import { getCurrentPageName } from "selectors/editorSelectors";
+import { Layers } from "constants/Layers";
 
 const Container = styled.div<{ visible?: boolean }>`
   position: fixed;
   top: 37px;
   transition: right 0.3s linear;
   right: ${(props) =>
-    props.visible ? "1em" : "-300px"}; /* to move away from the viewport */
+    props.visible ? "1em" : "-500px"}; /* to move away from the viewport */
 
   & {
-    .some-text {
+    .concurrent-editing-warning-text {
       width: 100%;
       overflow: hidden;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      display: -webkit-box;
-      white-space: pre;
     }
   }
+  z-index: ${Layers.concurrentEditorWarning};
 `;
 
 const ActionElement = styled.span`
@@ -40,9 +38,7 @@ const getMessage = (currentPageName = "") => {
     currentPageName.length > 9
       ? `${currentPageName.slice(0, 9)}...`
       : currentPageName;
-  const msg = `Your changes may get overwritten on ${truncatedPageName}
-(Realtime Editing is coming soon)
-`;
+  const msg = `Your changes may get overwritten on ${truncatedPageName} (Realtime Editing is coming soon)`;
   return msg;
 };
 
@@ -72,7 +68,7 @@ export default function ConcurrentPageEditorToast() {
           actionElement={
             <ActionElement onClick={hidePermanently}>Dismiss</ActionElement>
           }
-          contentClassName="some-text "
+          contentClassName="concurrent-editing-warning-text "
           hideActionElementSpace
           text={getMessage(currentPageName)}
           width={"327px"}

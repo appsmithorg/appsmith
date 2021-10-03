@@ -46,7 +46,6 @@ const initialState: CommentsReduxState = {
   unpublishedThreadDraftComment: null,
   commentThreadsFetched: false,
   lastUpdatedCommentThreadId: null,
-  isConcurrentPageEditorToastVisible: false,
 };
 
 /**
@@ -328,13 +327,6 @@ const commentsReducer = createReducer(initialState, {
   ) => ({
     ...state,
     commentThreadsFetched: false,
-  }),
-  [ReduxActionTypes.SET_IS_CONCURRENT_PAGE_EDITOR_TOAST_VISIBLE]: (
-    state: CommentsReduxState,
-    action: ReduxAction<boolean>,
-  ) => ({
-    ...state,
-    isConcurrentPageEditorToastVisible: action.payload,
   }),
 });
 

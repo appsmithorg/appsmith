@@ -121,8 +121,7 @@ export function* getCurrentUserSaga() {
       ) {
         AnalyticsUtil.identifyUser(response.data);
         // make fetch feature call only if logged in
-        // yield put(fetchFeatureFlagsInit());
-        yield put(fetchFeatureFlagsSuccess());
+        yield put(fetchFeatureFlagsInit());
       } else {
         // reset the flagsFetched flag
         yield put(fetchFeatureFlagsSuccess());
