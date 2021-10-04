@@ -12,9 +12,9 @@ The images should be focused on the content and should not include unnecessary p
 Gifs can be recorded using the screen recorder like loom and converted to a gif using gifski. Gifs should be of 26 - 30 fps and be of high quality. If you do not have access to a good gif converter, please upload the video as it is and raise a PR. We will be happy to help with Gif creation!
 
 ## Embedding Videos
-Videos must be uploaded to the appsmith youtube channel. Contact nikhil@appsmith.com to have your video uploaded.
-Videos must be of very high quality and abide by our [Code of Conduct](/CODE_OF_CONDUCT.md)
-Videos can be embedded inside pages using the following syntax
+- Videos must be uploaded to the appsmith youtube channel. Contact nikhil@appsmith.com to have your video uploaded.
+- Videos must be of very high quality and abide by our [Code of Conduct](/CODE_OF_CONDUCT.md).
+- Videos can be embedded inside pages using the following syntax.
 ```
 {% embed url="https://www.youtube.com/watch?v=mzqK0QIZRLs&feature=youtu.be" %}
 ```
