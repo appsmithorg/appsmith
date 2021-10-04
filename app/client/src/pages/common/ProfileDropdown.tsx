@@ -1,7 +1,7 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import Menu from "components/ads/Menu";
 import MenuDivider from "components/ads/MenuDivider";
