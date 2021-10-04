@@ -69,6 +69,7 @@ public class ActionDTO {
     Set<String> invalids;
 
     @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> messages = new HashSet<>();
 
 
