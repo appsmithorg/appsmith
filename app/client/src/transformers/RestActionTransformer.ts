@@ -55,6 +55,8 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
   return action;
 };
 
+// Filters empty key value pairs from form data, headers and query params
+// to support multipart form body data, we don't filter if the "type" field has a value
 function removeEmptyPairs(keyValueArray: any) {
   if (!keyValueArray || !keyValueArray.length) return keyValueArray;
   return keyValueArray.filter(

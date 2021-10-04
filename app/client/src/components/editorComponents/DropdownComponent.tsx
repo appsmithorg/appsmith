@@ -49,7 +49,7 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
-// Check if dropdown is of type 'FormDropdownComponentProps'
+// function checks if dropdown is connected to a redux form (of interface 'FormDropdownComponentProps')
 const isFormDropdown = (
   props: DropdownComponentProps | FormDropdownComponentProps,
 ): props is FormDropdownComponentProps => {
@@ -120,6 +120,7 @@ class DropdownComponent extends Component<
         option.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
     );
   };
+  // function is called after user selects an option
   onItemSelect = (item: DropdownOption): void => {
     if (isFormDropdown(this.props)) {
       this.props.input.onChange(item.value);
@@ -147,12 +148,16 @@ class DropdownComponent extends Component<
     );
   };
 
+  // helper function that returns a dropdown option given its value
+  // returns undefined if option isn't found
   getDropdownOption = (
     value: string | undefined,
   ): DropdownOption | undefined => {
     return this.props.options.find((option) => option.value === value);
   };
 
+  // this function returns the selected item's label
+  // returns the "placeholder" in the event that no option is selected.
   getSelectedDisplayText = () => {
     const value = isFormDropdown(this.props)
       ? this.props.input.value
@@ -162,6 +167,8 @@ class DropdownComponent extends Component<
     return item ? item.label : this.props.placeholder;
   };
 
+  // this function returns the active option
+  // returns undefined if no option is selected
   getActiveOption = (): DropdownOption | undefined => {
     if (isFormDropdown(this.props)) {
       return this.getDropdownOption(this.props.input.value);
@@ -185,6 +192,7 @@ class DropdownComponent extends Component<
         noResults={<MenuItem disabled text="No results." />}
         onItemSelect={this.onItemSelect}
         popoverProps={{ minimal: true }}
+        // Destructure the "input" prop if dropdown is form-connected
         {...(isFormDropdown(this.props) ? this.props.input : {})}
       >
         {this.props.toggle || (
@@ -202,7 +210,10 @@ class DropdownComponent extends Component<
     );
   }
 }
+// Dropdown can either be connected to a redux-form
+// or be a stand-alone component
 
+// Props common to both classes of dropdowns
 export interface BaseDropdownComponentProps {
   addItem?: {
     displayText: string;
@@ -219,13 +230,14 @@ export interface BaseDropdownComponentProps {
   toggle?: ReactNode;
   width?: string;
 }
-// Dropdown can either be connected to a redux-form
-// or be a stand-alone component
+
+// stand-alone dropdown interface
 export interface DropdownComponentProps extends BaseDropdownComponentProps {
   selectHandler: (selectedValue: string) => void;
   selected: DropdownOption | undefined;
 }
 
+// Form-connected dropdown interface
 export interface FormDropdownComponentProps extends BaseDropdownComponentProps {
   input: WrappedFieldInputProps;
 }
