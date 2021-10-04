@@ -80,6 +80,7 @@ import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
 import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
+import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
@@ -184,6 +185,7 @@ export const IconCollection = [
   "chevron-left",
   "chevron-right",
   "close",
+  "close-circle",
   "close-modal",
   "close-x",
   "column",
@@ -375,6 +377,9 @@ const Icon = forwardRef(
         break;
       case "close":
         returnIcon = <CloseIcon />;
+        break;
+      case "close-circle":
+        returnIcon = <CloseCircleIcon />;
         break;
       case "close-modal":
       case "close-x":

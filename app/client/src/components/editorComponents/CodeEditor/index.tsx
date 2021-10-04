@@ -361,13 +361,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    const entityInformation = this.getEntityInformation();
-    if (
-      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
-      this.editor.getValue().length === 0 &&
-      !this.editor.state.completionActive
-    )
-      this.handleAutocompleteVisibility(this.editor);
   };
 
   handleEditorBlur = () => {
