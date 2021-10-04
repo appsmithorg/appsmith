@@ -4,12 +4,12 @@ Asset files cannot be larger than 25mb.
 Refer to the assets using a relative path from the root folder Ex. `.gitbook/assets/asset.jpg`
 
 ## Embedding Images & Gifs
-Images are gifs can be embedded into a page using the following syntax
+Images and gifs can be embedded into a page using the following syntax
 ```
 ![Click to expand](/.gitbook/assets/asset-name.png)
 ```
-The images should be focused on the content and not include unnecessary parts of the UI ex. header / empty canvas etc.
-Gifs can be recorded using the a screen recorder like loom and converted to a gif using gifski. Gifs should be of 26 - 30 fps and be of high quality. If you do not have access to a good gif converter, please upload the video as is and raise a PR. We will be happy to help with Gif creation!
+The images should be focused on the content and should not include unnecessary parts of the UI ex. header / empty canvas etc.
+Gifs can be recorded using the screen recorder like loom and converted to a gif using gifski. Gifs should be of 26 - 30 fps and be of high quality. If you do not have access to a good gif converter, please upload the video as it is and raise a PR. We will be happy to help with Gif creation!
 
 ## Embedding Videos
 Videos must be uploaded to the appsmith youtube channel. Contact nikhil@appsmith.com to have your video uploaded.
