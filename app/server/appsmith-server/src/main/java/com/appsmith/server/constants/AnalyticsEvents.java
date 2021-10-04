@@ -16,7 +16,7 @@ public enum AnalyticsEvents {
     CREATE_SUPERUSER,
     SUBSCRIBE_MARKETING_EMAILS,
     UNSUBSCRIBE_MARKETING_EMAILS,
-    INSTALLATION_TELEMETRY("Installation Telemetry"),
+    INSTALLATION_TELEMETRY("Installation Setup Complete"),
     ;
 
     private final String eventName;
