@@ -272,7 +272,7 @@ export const hideConcurrentEditorWarningToast = async () => {
     return true;
   } catch (error) {
     log.error(
-      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+      "An error occurred while setting HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
     );
     log.error(error);
   }
@@ -286,7 +286,7 @@ export const getIsConcurrentEditorWarningToastHidden = async () => {
     return flag;
   } catch (error) {
     log.error(
-      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+      "An error occurred while fetching HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
     );
     log.error(error);
   }
