@@ -702,87 +702,92 @@ export default [
                   ],
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "select";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SELECT,
+                    ]);
                   },
                 },
                 {
                   helpText: "Selects the option with value by default",
                   propertyName: "defaultOptionValue",
                   label: "Default Value",
-                  controlType: "INPUT_TEXT",
-                  placeholderText: "Enter option value",
+                  controlType: "COMPUTE_VALUE",
                   isBindProperty: true,
                   isTriggerProperty: false,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "select";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SELECT,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.TEXT,
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "placeholderText",
                   label: "Placeholder",
-                  controlType: "INPUT_TEXT",
+                  controlType: "COMPUTE_VALUE",
                   placeholderText: "Enter placeholder text",
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "select";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SELECT,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.TEXT,
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "switchLabel",
                   label: "Label",
-                  controlType: "INPUT_TEXT",
-                  helpText: "Displays a label next to the widget",
+                  controlType: "COMPUTE_VALUE",
+                  helpText: "Displays a label next to the switch",
                   placeholderText: "Enter label text",
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "switch";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SWITCH,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.TEXT,
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "checkboxLabel",
@@ -833,19 +838,15 @@ export default [
                   helpText:
                     "On / Off the Switch by default. Changes to the default selection update the widget state",
                   controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.BOOLEAN },
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "switch";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SWITCH,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -888,10 +889,10 @@ export default [
                   propertyName: "isDisabled",
                   label: "Disabled",
                   controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.BOOLEAN },
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -905,31 +906,14 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                },
-                {
-                  helpText: "Enables server side filtering of the data",
-                  propertyName: "serverSideFiltering",
-                  label: "Server Side Filtering",
-                  controlType: "SWITCH",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: { type: ValidationTypes.BOOLEAN },
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "select";
+                  validation: {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.BOOLEAN,
+                      },
+                    },
                   },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
                 },
                 {
                   propertyName: "onClick",
@@ -959,18 +943,22 @@ export default [
                   propertyName: "onOptionChange",
                   label: "onOptionChange",
                   controlType: "ACTION_SELECTOR",
+                  additionalAutoComplete: (props: TableWidgetProps) => ({
+                    currentRow: Object.assign(
+                      {},
+                      ...Object.keys(props.primaryColumns).map((key) => ({
+                        [key]: "",
+                      })),
+                    ),
+                  }),
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: true,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "select";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SELECT,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -984,6 +972,14 @@ export default [
                   propertyName: "onChange",
                   label: "onChange",
                   controlType: "ACTION_SELECTOR",
+                  additionalAutoComplete: (props: TableWidgetProps) => ({
+                    currentRow: Object.assign(
+                      {},
+                      ...Object.keys(props.primaryColumns).map((key) => ({
+                        [key]: "",
+                      })),
+                    ),
+                  }),
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: true,
@@ -1242,55 +1238,6 @@ export default [
                   },
                 },
                 {
-                  propertyName: "iconButtonStyle",
-                  label: "Icon Color",
-                  controlType: "DROP_DOWN",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  helpText: "Sets the style of the icon button",
-                  options: [
-                    {
-                      label: "Primary",
-                      value: "PRIMARY",
-                    },
-                    {
-                      label: "Warning",
-                      value: "WARNING",
-                    },
-                    {
-                      label: "Danger",
-                      value: "DANGER",
-                    },
-                    {
-                      label: "Info",
-                      value: "INFO",
-                    },
-                    {
-                      label: "Secondary",
-                      value: "SECONDARY",
-                    },
-                  ],
-
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.ICON_BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "plus",
-                    },
-                  },
-                },
-                {
                   propertyName: "isDisabled",
                   label: "Disabled",
                   updateHook: updateDerivedColumnsHook,
@@ -1321,7 +1268,7 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  propertyName: "buttonStyle",
+                  propertyName: "buttonColor",
                   label: "Button Color",
                   controlType: "COLOR_PICKER",
                   helpText: "Changes the color of the button",
@@ -1332,6 +1279,7 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
+                      ColumnTypes.ICON_BUTTON,
                     ]);
                   },
                   dependencies: [

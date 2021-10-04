@@ -5,9 +5,9 @@ import { IconName } from "@blueprintjs/icons";
 import {
   ButtonBorderRadius,
   ButtonBoxShadow,
-  ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
+import { DropdownOption } from "widgets/DropdownWidget/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -103,7 +103,7 @@ export interface CellLayoutProperties {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   buttonLabel?: string;
   isVisible?: boolean;
@@ -114,8 +114,12 @@ export interface CellLayoutProperties {
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
-  iconButtonStyle: ButtonStyleType;
   isCellVisible: boolean;
+  // column type select related properties
+  placeholderText?: string;
+  // column type switch related properties
+  defaultSwitchState?: boolean;
+  switchLabel?: string;
 }
 
 export interface TableColumnMetaProps {
@@ -160,24 +164,32 @@ export interface ColumnProperties {
   isDerived: boolean;
   computedValue: string;
   buttonLabel?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   onClick?: string;
   outputFormat?: string;
   inputFormat?: string;
   dropdownOptions?: string;
-  onOptionChange?: string;
   displayText?: string;
   iconName?: IconName;
   buttonVariant?: ButtonVariant;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
-  defaultOptionValue?: string;
-  defaultSwitchState?: boolean;
+  // column type checkbox related properties
   defaultCheckedState?: boolean;
+  // column type switch related properties
+  defaultSwitchState?: boolean[];
+  switchLabel?: string[];
+  onChange?: string;
+  alignWidget?: string;
+  // column type select related properties
+  options?: DropdownOption[];
+  placeholderText?: string[];
+  onOptionChange?: string;
+  // used in column type select and switch
+  defaultOptionValue?: string[];
 }
 
 export const ConditionFunctions: {

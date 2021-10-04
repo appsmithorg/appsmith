@@ -1,4 +1,4 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { RefObject, useEffect, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -71,6 +71,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SearchSnippets from "components/ads/SnippetButton";
+import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -430,6 +431,17 @@ export function EditorJSONtoForm(props: Props) {
     window.innerHeight,
   );
 
+  useEffect(() => {
+    if (selectedIndex !== initialIndex) setSelectedIndex(initialIndex);
+  }, [initialIndex]);
+
+  useEffect(() => {
+    // reset on unmount
+    return () => {
+      dispatch(setActionTabsInitialIndex(0));
+    };
+  }, []);
+
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
   const actions: Action[] = useSelector((state: AppState) =>
@@ -729,7 +741,7 @@ export function EditorJSONtoForm(props: Props) {
         tabName: responseTabs[index].key,
       });
     }
-
+    dispatch(setActionTabsInitialIndex(index));
     setSelectedIndex(index);
   };
   const { entityDependencies, hasDependencies } = useEntityDependencies(

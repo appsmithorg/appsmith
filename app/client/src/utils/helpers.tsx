@@ -2,6 +2,7 @@ import React from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
+import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
@@ -325,6 +326,10 @@ export const getSubstringBetweenTwoWords = (
 
 export const playOnboardingAnimation = () => {
   playLottieAnimation("#root", confetti);
+};
+
+export const playWelcomeAnimation = (container: string) => {
+  playLottieAnimation(container, welcomeConfetti);
 };
 
 export const playOnboardingStepCompletionAnimation = () => {
