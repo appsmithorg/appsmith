@@ -14,7 +14,7 @@ public class ApiKeyAuthenticationTest {
     public void testCreateMethodWithQueryParamsLabel() {
         String label = "label";
         String value = "value";
-        ApiKeyAuth.Type type = ApiKeyAuth.Type.QUERY_PARAMS;
+        ApiKeyAuth.Type type = ApiKeyAuth.Type.QUERY_PARAM;
         ApiKeyAuth apiKeyAuthDTO = new ApiKeyAuth(type, label, null, value);
         Mono<ApiKeyAuthentication> connectionMono = ApiKeyAuthentication.create(apiKeyAuthDTO);
         StepVerifier.create(connectionMono)

@@ -155,6 +155,12 @@ public class PluginUtils {
         return false;
     }
 
+    /**
+     * Check if the URL supplied by user is pointing to localhost. If so, then return a hint message.
+     *
+     * @param datasourceConfiguration
+     * @return a set containing a hint message.
+     */
     public static Set<String> getHintMessageForLocalhostUrl(DatasourceConfiguration datasourceConfiguration) {
         Set<String> message = new HashSet<>();
         if (datasourceConfiguration != null) {

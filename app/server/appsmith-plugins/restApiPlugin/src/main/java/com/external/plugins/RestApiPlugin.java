@@ -688,7 +688,14 @@ public class RestApiPlugin extends BasePlugin {
                                            DatasourceConfiguration datasourceConfiguration) {
 
             Set<String> datasourceHintMessages = new HashSet<>();
+
+            /* Get hint message for localhost URL. */
             datasourceHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
+
+            /**
+             * Get datasource specific hint message for duplicate headers. ActionConfiguration parameter is passed as
+             * `null` so that the hint message that gets generated is only relevant for the datasource.
+             */
             Set<String> duplicateHeadersInDatasource = getAllDuplicateHeaders(null, datasourceConfiguration);
             if (!duplicateHeadersInDatasource.isEmpty()) {
                 datasourceHintMessages.add("API queries linked to this datasource may not run as expected because " +
@@ -696,6 +703,10 @@ public class RestApiPlugin extends BasePlugin {
                         ". Please remove the duplicate definition(s) to resolve this warning.");
             }
 
+            /**
+             * Get datasource specific hint message for duplicate query params. ActionConfiguration parameter is passed
+             * as `null` so that the hint message that gets generated is only relevant for the datasource.
+             */
             Set<String> duplicateParamsInDatasource = getAllDuplicateParams(null, datasourceConfiguration);
             if (!duplicateParamsInDatasource.isEmpty()) {
                 datasourceHintMessages.add("API queries linked to this datasource may not run as expected because " +
@@ -704,7 +715,20 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             Set<String> actionHintMessages = new HashSet<>();
+
+            /**
+             * Get hint message for localhost URL. For the case of REST API action, the URL is also displayed on the
+             * query editor page, hence, this hint message is also added to the action related hint messages - so that
+             * it can be displayed on the query editor page too. Same won't apply to other datasources - i.e. datasource
+             * attributes generally remain confined to the datasource.
+             */
             actionHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
+
+            /**
+             * Get API query page specific hint messages for duplicate headers. It also considers datasource
+             * configuration apart from the action configuration since an API inherits all the headers defined in its
+             * datasource.
+             */
             Set<String> allDuplicateHeaders = getAllDuplicateHeaders(actionConfiguration, datasourceConfiguration);
             if (!allDuplicateHeaders.isEmpty()) {
                 actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
@@ -712,6 +736,11 @@ public class RestApiPlugin extends BasePlugin {
                         "in case you cannot find the duplicate header(s) in the API query pane.");
             }
 
+            /**
+             * Get API query page specific hint messages for duplicate query params. It also considers datasource
+             * configuration apart from the action configuration since an API inherits all the params defined in its
+             * datasource.
+             */
             Set<String> allDuplicateParams = getAllDuplicateParams(actionConfiguration, datasourceConfiguration);
             if (!allDuplicateParams.isEmpty()) {
                 actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +

@@ -584,37 +584,40 @@ public class RestApiPluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         List<Property> dsHeaders = new ArrayList<>();
         dsHeaders.add(new Property("myHeader1", "myVal"));
-        dsHeaders.add(new Property("myHeader1", "myVal"));
+        dsHeaders.add(new Property("myHeader1", "myVal")); // duplicate header
         dsHeaders.add(new Property("myHeader2", "myVal"));
-        dsHeaders.add(new Property("myHeader2", "myVal"));
-        dsHeaders.add(new Property("myHeader3", "myVal"));
+        dsHeaders.add(new Property("myHeader2", "myVal")); // duplicate header
+        dsHeaders.add(new Property("myHeader3", "myVal")); // unique header in datasource config
         dsConfig.setHeaders(dsHeaders);
 
+        // This authentication mechanism will add `apiKey` as header.
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "apiKey", "Token", "test");
         dsConfig.setAuthentication(authenticationDTO);
         dsConfig.getAuthentication().setAuthenticationType(API_KEY);
 
         List<Property> dsParams = new ArrayList<>();
         dsParams.add(new Property("myParam1", "myVal"));
-        dsParams.add(new Property("myParam1", "myVal"));
+        dsParams.add(new Property("myParam1", "myVal")); // duplicate param
         dsParams.add(new Property("myParam2", "myVal"));
-        dsParams.add(new Property("myParam2", "myVal"));
-        dsParams.add(new Property("myParam3", "myVal"));
+        dsParams.add(new Property("myParam2", "myVal")); // duplicate param
+        dsParams.add(new Property("myParam3", "myVal")); // unique param in datasource
         dsConfig.setQueryParameters(dsParams);
 
+        // Add headers to API query editor page.
         ActionConfiguration actionConfig = new ActionConfiguration();
         ArrayList<Property> actionHeaders = new ArrayList<>();
-        actionHeaders.add(new Property("myHeader3", "myVal"));
+        actionHeaders.add(new Property("myHeader3", "myVal")); // duplicate - because also inherited from datasource.
         actionHeaders.add(new Property("myHeader4", "myVal"));
-        actionHeaders.add(new Property("myHeader4", "myVal"));
+        actionHeaders.add(new Property("myHeader4", "myVal")); // duplicate
         actionHeaders.add(new Property("myHeader5", "myVal"));
-        actionHeaders.add(new Property("apiKey", "myVal"));
+        actionHeaders.add(new Property("apiKey", "myVal"));  // duplicate - because also inherited from authentication
         actionConfig.setHeaders(actionHeaders);
 
+        // Add params to API query editor page.
         ArrayList<Property> actionParams = new ArrayList<>();
-        actionParams.add(new Property("myParam3", "myVal"));
+        actionParams.add(new Property("myParam3", "myVal")); // duplicate - because also inherited from datasource.
         actionParams.add(new Property("myParam4", "myVal"));
-        actionParams.add(new Property("myParam4", "myVal"));
+        actionParams.add(new Property("myParam4", "myVal")); // duplicate
         actionParams.add(new Property("myParam5", "myVal"));
         actionConfig.setQueryParameters(actionParams);
 
@@ -648,18 +651,24 @@ public class RestApiPluginTest {
         assertTrue(expectedDuplicateParams.equals(allDuplicateParams));
     }
 
+    /**
+     * This test case is only meant to test the actual hint statement i.e. how it is worded. It is not meant to test
+     * the correctness of duplication finding flow - since it is done as part of the test case named
+     * `testGetDuplicateHeadersAndParams`. A separate test is used instead of a single test because the list of
+     * duplicates is returned as a set, hence order cannot be ascertained beforehand. 
+     */
     @Test
     public void testHintMessageForDuplicateHeadersAndParamsWithDatasourceConfigOnly() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         List<Property> headers = new ArrayList<>();
         headers.add(new Property("myHeader1", "myVal"));
-        headers.add(new Property("myHeader1", "myVal"));
+        headers.add(new Property("myHeader1", "myVal")); // duplicate
         headers.add(new Property("myHeader2", "myVal"));
         dsConfig.setHeaders(headers);
 
         List<Property> params = new ArrayList<>();
         params.add(new Property("myParam1", "myVal"));
-        params.add(new Property("myParam1", "myVal"));
+        params.add(new Property("myParam1", "myVal")); // duplicate
         params.add(new Property("myParam2", "myVal"));
         dsConfig.setQueryParameters(params);
 
