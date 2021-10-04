@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
@@ -372,7 +373,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
         return actionCollectionMono
                 .map(actionCollection -> {
                     // From the existing collection, if an action id is not referenced at all anymore,
-                    // actionCollectionService means the action has been somehow deleted
+                    // this means the action has been somehow deleted
                     final Set<String> oldActionIds = new HashSet<>();
                     if (actionCollection.getUnpublishedCollection().getActionIds() != null) {
                         oldActionIds.addAll(actionCollection
@@ -415,5 +416,30 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)));
+    }
+
+    @Override
+    public Mono<LayoutDTO> refactorAction(RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO) {
+        // First perform refactor of the action itself
+        final Mono<LayoutDTO> layoutDTOMono = layoutActionService
+                .refactorActionName(refactorActionNameInCollectionDTO.getRefactorAction())
+                .cache();
+
+        final ActionCollectionDTO actionCollectionDTO = refactorActionNameInCollectionDTO.getActionCollection();
+        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(actionCollectionDTO.getId(), MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, actionCollectionDTO.getId())));
+
+        return layoutDTOMono
+                .then(actionCollectionMono)
+                .map(dbActionCollection -> {
+                    // Make sure that the action related fields and name are not edited
+                    actionCollectionDTO.setName(dbActionCollection.getUnpublishedCollection().getName());
+                    actionCollectionDTO.setActionIds(dbActionCollection.getUnpublishedCollection().getActionIds());
+                    actionCollectionDTO.setArchivedActionIds(dbActionCollection.getUnpublishedCollection().getArchivedActionIds());
+                    copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+                    return dbActionCollection;
+                })
+                .flatMap(actionCollection -> actionCollectionService.update(actionCollectionDTO.getId(), actionCollection))
+                .then(layoutDTOMono);
     }
 }
