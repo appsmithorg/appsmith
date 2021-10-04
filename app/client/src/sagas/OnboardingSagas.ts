@@ -113,9 +113,11 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   getFirstTimeUserOnboardingApplicationId,
   getIsFirstTimeUserOnboardingEnabled,
+  getOnboardingOrganisations,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { Organization } from "constants/orgConstants";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -576,7 +578,8 @@ function* createApplication() {
     AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
 
   const currentUser = yield select(getCurrentUser);
-  const userOrgs = yield select(getUserApplicationsOrgs);
+  const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
   const isFirstTimeUserOnboardingdEnabled = yield select(

@@ -434,6 +434,7 @@ export const JS_FUNCTION_UPDATE_SUCCESS = () =>
   "JS Function updated successfully";
 export const JS_FUNCTION_DELETE_SUCCESS = () =>
   "JS function deleted successfully";
+export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
