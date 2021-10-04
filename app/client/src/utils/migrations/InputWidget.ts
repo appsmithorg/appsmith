@@ -11,8 +11,6 @@ export const migrateInputWidgetDefaultSelectedPhoneNumberCode = (
         const ISDCodeOption = ISDCodeOptions.find((item: ISDCodeProps) => {
           return item.code === child.phoneNumberCountryCode;
         });
-        // eslint-disable-next-line no-console
-        console.log({ ISDCodeOption });
         if (ISDCodeOption) {
           child.phoneNumberCountryCode = ISDCodeOption.dial_code;
         }
