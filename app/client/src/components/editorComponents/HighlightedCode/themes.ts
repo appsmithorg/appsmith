@@ -271,9 +271,7 @@ export const DARK = css`
   }
 
   .token.important,
-  .token.import { Color } from 'constants/Colors';
-bold {import { Colors } from '../../../constants/Colors';
-
+  .token.bold {
     font-weight: bold;
   }
   .token.italic {

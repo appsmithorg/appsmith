@@ -19,6 +19,7 @@ import {
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants";
+import { Colors } from "constants/Colors";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -54,12 +55,21 @@ const AddMoreAction = styled.div`
   margin-left: 12px;
   .${Classes.TEXT} {
     margin-left: 8px;
-    color: #858282;
+    color: ${Colors.GRAY};
   }
   svg {
-    fill: #858282;
+    fill: ${Colors.GRAY};
     path {
       fill: unset;
+    }
+  }
+
+  &:hover {
+    .${Classes.TEXT} {
+      color: ${Colors.CHARCOAL};
+    }
+    svg {
+      fill: ${Colors.CHARCOAL};
     }
   }
 `;
