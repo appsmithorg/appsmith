@@ -696,4 +696,5 @@ export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
 export const WELCOME_ACTION = () => "Get Started";
-export const EMPTY_QUERY_STATE = () => "Write your query here";
+export const EMPTY_QUERY_STATE = () =>
+  "Write your query here or look up snippets to get started.";
