@@ -96,12 +96,24 @@ function* getFormEvaluation(formId: string, actionConfiguration: any): any {
 function* setFormEvaluationSaga(type: string, payload: any) {
   if (type === ReduxActionTypes.INIT_FORM_EVALUATION) {
     finalEvalObj = {};
-    payload.editorConfig.forEach((config: any) => {
-      generateInitialEvalState(config);
-    });
-    payload.settingConfig.forEach((config: any) => {
-      generateInitialEvalState(config);
-    });
+    if (
+      "editorConfig" in payload &&
+      !!payload.editorConfig &&
+      payload.editorConfig.length > 0
+    ) {
+      payload.editorConfig.forEach((config: any) => {
+        generateInitialEvalState(config);
+      });
+    }
+    if (
+      "settingConfig" in payload &&
+      !!payload.settingConfig &&
+      payload.settingConfig.length > 0
+    ) {
+      payload.settingConfig.forEach((config: any) => {
+        generateInitialEvalState(config);
+      });
+    }
     yield put({
       type: ReduxActionTypes.SET_FORM_EVALUATION,
       payload: {

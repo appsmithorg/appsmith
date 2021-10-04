@@ -40,7 +40,6 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
-import getFeatureFlags from "utils/featureFlags";
 import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
@@ -76,12 +75,11 @@ function logLatestEvalPropertyErrors(
         getEvalErrorPath(evaluatedPath, false),
         [],
       );
-      // If linting flag is not own, filter out all lint errors
-      if (!getFeatureFlags().LINTING) {
-        allEvalErrors = allEvalErrors.filter(
-          (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
-        );
-      }
+
+      allEvalErrors = allEvalErrors.filter(
+        (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
+      );
+
       const evaluatedValue = get(
         entity,
         getEvalValuePath(evaluatedPath, false),
