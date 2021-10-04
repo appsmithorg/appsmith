@@ -1,6 +1,6 @@
 import http from "http"
 import path from "path"
-import express from "express"
+import express, { response } from "express"
 import { Server, Socket } from "socket.io"
 import { MongoClient, ObjectId } from "mongodb"
 import type mongodb from "mongodb"
@@ -20,6 +20,10 @@ const EDITORS_EVENT_NAME : string = "collab:online_editors"
 const START_EDIT_EVENT_NAME : string = "collab:start_edit"
 const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
 const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
+const RELEASE_VERSION_EVENT_NAME : string = "collab:mouse_pointer"
+
+// release version of the api
+let apiReleaseVersion = ""
 
 // Setting the logLevel for all log messages
 const logLevel : LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL || "debug") as LogLevelDesc
@@ -93,13 +97,27 @@ function main() {
 		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
 	});
 
-	watchMongoDB(io)
-		.catch((error) => log.error("Error watching MongoDB", error))
-
 	app.use(express.static(path.join(__dirname, "static")))
-	server.listen(port, () => {
-		log.info(`RTS running at http://localhost:${port}`)
+
+	// get api release version
+	axios.get(API_BASE_URL + "/release")
+	.then(function(response) {
+		apiReleaseVersion = response.data.data;
+
+		// start watching mongodb
+		watchMongoDB(io)
+			.catch((error) => log.error("Error watching MongoDB", error))
+
+		// run the server
+		server.listen(port, () => {
+			log.info(`RTS will communicate with API: ${API_BASE_URL}, release version: ${apiReleaseVersion}`)
+			log.info(`RTS running at http://localhost:${port}`)
+		})
 	})
+	.catch(function (error) {
+		log.error(`Failed to connect to ${API_BASE_URL}/release`, error);
+		log.error('Aborting... Please make sure API is running and then try again')
+	});
 }
 
 function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
