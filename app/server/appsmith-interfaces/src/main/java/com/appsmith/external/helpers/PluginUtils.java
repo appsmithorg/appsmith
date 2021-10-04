@@ -1,6 +1,5 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import org.springframework.util.CollectionUtils;
