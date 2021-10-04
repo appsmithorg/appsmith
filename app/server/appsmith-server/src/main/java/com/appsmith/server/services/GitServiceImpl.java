@@ -602,7 +602,7 @@ public class GitServiceImpl implements GitService {
                     * There are two cases. If the branchName is defaultBranch, defaultApplication will be used
                     * Else, get the Application object for the given branchName
                     * */
-                    if (!application.getGitApplicationMetadata().getBranchName().equals(branchName)) {
+                    if (application.getGitApplicationMetadata().getBranchName().equals(branchName)) {
                         return Mono.zip(
                                 Mono.just(application),
                                 importExportApplicationService.exportApplicationById(defaultApplicationId, SerialiseApplicationObjective.VERSION_CONTROL),
