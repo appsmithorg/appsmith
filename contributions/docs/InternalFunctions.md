@@ -28,5 +28,5 @@ description: >-
 ## Image / gif of the function being used
 ```
 
-[Example Doc](https://github.com/appsmithorg/appsmith-docs/blob/v1.2/function-reference/show-modal.md)
+Example: [Doc](https://github.com/appsmithorg/appsmith-docs/blob/v1.2/function-reference/show-modal.md)
 
