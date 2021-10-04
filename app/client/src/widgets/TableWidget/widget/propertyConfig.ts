@@ -1311,6 +1311,17 @@ export default [
         },
       },
       {
+        helpText:
+          "Lets you persist a selected row based on unique row value in a column on table data update, if left blank this will be set to the rowIndex.",
+        propertyName: "primaryColumnId",
+        dependencies: ["primaryColumns"],
+        label: "Selected row key",
+        controlType: "PRIMARY_COLUMNS_DROPDOWN",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
         propertyName: "defaultSearchText",
         label: "Default Search Text",
         controlType: "INPUT_TEXT",
