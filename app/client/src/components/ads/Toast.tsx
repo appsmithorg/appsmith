@@ -9,7 +9,6 @@ import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
-import GlobalStyles from "globalStyles";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
