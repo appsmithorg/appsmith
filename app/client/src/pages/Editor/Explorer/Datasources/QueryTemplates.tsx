@@ -17,7 +17,8 @@ import { getDefaultApplicationId } from "selectors/applicationSelectors";
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};
   color: ${(props) => props.theme.colors.textOnDarkBG};
-  width: 250px;
+  min-width: 160px;
+  padding: 5px;
 `;
 
 const TemplateType = styled.div`
@@ -25,8 +26,7 @@ const TemplateType = styled.div`
   padding: 8px;
   &:hover {
     cursor: pointer;
-    color: ${Colors.WHITE};
-    background: ${Colors.TUNDORA};
+    background: ${Colors.Gallery};
   }
 `;
 

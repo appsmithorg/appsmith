@@ -18,6 +18,7 @@ import { DropdownOption } from "components/constants";
 import { WrappedFieldInputProps } from "redux-form";
 
 interface ButtonWrapperProps {
+  height?: string;
   width?: string;
 }
 interface MenuProps {
@@ -31,6 +32,14 @@ const StyledDropdown = styled(Dropdown)``;
 
 const StyledButtonWrapper = styled.div<ButtonWrapperProps>`
   width: ${(props) => props.width || "100%"};
+  height: ${(props) => props.height || "100%"};
+  button.bp3-button {
+    border: 1px solid ${(props) => props.theme.colors.border} !important;
+    background: #fff !important;
+    & > span {
+      color: ${(props) => props.theme.colors.dropdown.header.text} !important;
+    }
+  }
 `;
 const StyledMenu = styled(Menu)<MenuComponentProps>`
   min-width: ${(props) => props.width || "100%"};
@@ -38,8 +47,14 @@ const StyledMenu = styled(Menu)<MenuComponentProps>`
 `;
 const StyledMenuItem = styled(MenuItem)`
   border-radius: 0;
+  color: ${(props) => props.theme.colors.dropdown.header.text};
+  &&&:hover {
+    color: ${(props) => props.theme.colors.dropdown.menu.hoverText};
+    background: ${(props) => props.theme.colors.dropdown.menu.hover};
+  }
   &&&.bp3-active {
-    background: ${(props) => props.theme.colors.propertyPane.activeButtonText};
+    color: ${(props) => props.theme.colors.dropdown.selected.text};
+    background: ${(props) => props.theme.colors.dropdown.selected.bg};
   }
 `;
 
@@ -167,7 +182,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   };
 
   render() {
-    const { autocomplete, input, options, width } = this.props;
+    const { autocomplete, height, input, options, width } = this.props;
 
     return (
       <StyledDropdown
@@ -184,9 +199,8 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         {...input}
       >
         {this.props.toggle || (
-          <StyledButtonWrapper width={width}>
+          <StyledButtonWrapper height={height} width={width}>
             <BaseButton
-              buttonStyle="PRIMARY"
               buttonVariant="OUTLINE"
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
@@ -213,6 +227,7 @@ export interface DropdownComponentProps {
   };
   toggle?: ReactNode;
   input?: WrappedFieldInputProps;
+  height?: string;
   width?: string;
 }
 

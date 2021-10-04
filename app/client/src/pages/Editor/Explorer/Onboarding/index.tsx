@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import Loading from "./Loading";
 import DBQueryGroup from "./DBQueryGroup";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "reducers";
 import { IPanelProps } from "@blueprintjs/core";
 import { BUILDER_PAGE_URL } from "constants/routes";
@@ -12,6 +12,7 @@ import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -20,6 +21,7 @@ const Wrapper = styled.div`
 
 function OnboardingExplorer(props: IPanelProps) {
   const wrapperRef = React.createRef<HTMLDivElement>();
+  const dispatch = useDispatch();
 
   let node = <Loading />;
   const { pageId } = useParams<ExplorerURLParams>();
@@ -28,6 +30,7 @@ function OnboardingExplorer(props: IPanelProps) {
   const showWidgetsSidebar = useCallback(() => {
     history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }));
     openPanel({ component: WidgetSidebar });
+    dispatch(forceOpenWidgetPanel(true));
   }, [openPanel, defaultApplicationId, pageId]);
 
   const createdDBQuery = useSelector(
