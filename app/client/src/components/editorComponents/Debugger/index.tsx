@@ -100,6 +100,7 @@ export function DebuggerTrigger() {
 
   return (
     <TriggerContainer
+      className="t--debugger"
       errorCount={messageCounters.errors}
       warningCount={messageCounters.warnings}
     >
