@@ -39,6 +39,8 @@ const ProfileImageListPopover = styled.ul`
 
 const ProfileImageListItem = styled.li`
   padding: 3px;
+  display: flex;
+  align-items: center;
 `;
 
 const ProfileImageListName = styled.span`
