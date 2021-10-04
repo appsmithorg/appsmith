@@ -29,6 +29,7 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget change text size and validate", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
     cy.openPropertyPane("tablewidget");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
     cy.get(widgetsPage.toggleTextAlign)
       .first()
@@ -47,6 +48,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table widget toggle test for text size", function() {
     cy.openPropertyPane("tablewidget");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
     cy.get(widgetsPage.toggleTextSize)
       .first()
@@ -61,6 +63,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table widget toggle test for vertical Alignment", function() {
     cy.openPropertyPane("tablewidget");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
     cy.get(widgetsPage.toggleTextSize)
       .first()
@@ -80,6 +83,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table widget toggle test for style Alignment", function() {
     cy.openPropertyPane("tablewidget");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
     cy.get(widgetsPage.toggleVerticalAlig)
       .first()
@@ -99,6 +103,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table widget toggle test for text color", function() {
     cy.openPropertyPane("tablewidget");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
     cy.get(widgetsPage.toggleVerticalAlig)
       .first()
@@ -119,6 +124,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table widget toggle test for background color", function() {
     cy.openPropertyPane("tablewidget");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
     cy.get(widgetsPage.toggleJsColor)
       .first()
