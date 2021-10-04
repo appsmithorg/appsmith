@@ -21,8 +21,8 @@ function setFlagForTour() {
 
 function typeIntoDraftEditor(selector, text) {
   cy.get(selector).then((input) => {
-    var textarea = input.get(0);
-    var textEvent = document.createEvent("TextEvent");
+    let textarea = input.get(0);
+    let textEvent = document.createEvent("TextEvent");
     
     textarea.dispatchEvent(new Event("focus"));
 
