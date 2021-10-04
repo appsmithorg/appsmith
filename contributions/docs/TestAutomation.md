@@ -14,7 +14,7 @@
 
 1. For default settings, check the `app/client/cypress.json` file.
 
-1. You can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
+1. You can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods from their [docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
    ```json
    {
@@ -30,7 +30,7 @@
 1. Cypress tests can be executed in 2 modes: run mode and open mode.
    If you are willing to execute tests in headless mode through command line follow [run mode](https://docs.cypress.io/guides/guides/command-line.html#How-to-run-commands) else you can use cypress client to run in [open mode](https://docs.cypress.io/guides/guides/launching-browsers.html#Browsers)
 
-1. Command to open cypress client `$(npm bin)/cypress open` Cypress supports Chrome/Firefox/electron browsers. Select a suitable browser and check the status of your tests.
+1. Command to open cypress client `$(npm bin)/cypress open` Cypress supports Chrome/Firefox/Electron browsers. Select a suitable browser and check the status of your tests.
 
 1. For run mode, you can use CLI args. Example: To run the entire `Smoke_TestSuite`, use `$(npm bin)/cypress run --headless --browser chrome --spec "cypress/integration/Smoke_TestSuite/*/*"`
 
@@ -45,9 +45,9 @@ All ENV variables from your `.env` file and all `APPSMITH_*` env variables from 
 
 **Note:** This can only be done by the project maintainers. Please contact one of them if you require this step to be accomplished.
 
-1. Go to [https://github.com/appsmithorg/appsmith/settings/secrets/actions](https://github.com/appsmithorg/appsmith/settings/secrets/actions).
+1. Go to [here](https://github.com/appsmithorg/appsmith/settings/secrets/actions).
 1. Click on "New Repository Secret"
-1. Add the secret key & value here. These values will be masked in the CI output logs incase they are printed out.
+1. Add the secret key & value here. These values will be masked in the CI output logs in case they are printed out.
 1. Save the value.
 1. In the file `.github/workflows/client.yml`, find the steps named: "Setting up the cypress tests" & "Run the cypress test". These steps are responsible for setting up & executing the Cypress tests.
 1. Add the env variable there in the form:
