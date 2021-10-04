@@ -63,10 +63,7 @@ import {
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
-import {
-  getDefaultApplicationId,
-  getUserApplicationsOrgs,
-} from "selectors/applicationSelectors";
+import { getDefaultApplicationId } from "selectors/applicationSelectors";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,

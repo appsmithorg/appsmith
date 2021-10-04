@@ -1,4 +1,4 @@
-import React, { useEffect, useState, MutableRefObject } from "react";
+import React, { useEffect, useState } from "react";
 import TextInput from "components/ads/TextInput";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -23,7 +23,6 @@ import Skeleton from "components/utils/Skeleton";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import BranchListHotkeys from "./BranchListHotkeys";
-import { debug } from "loglevel";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -174,7 +173,7 @@ export default function BranchList(props: {
     else setActiveHoverIndexInState(index);
   };
 
-  const getIsCreateNewBranchInputIsValid = () => true;
+  // const getIsCreateNewBranchInputIsValid = () => true;
 
   const handleUpKey = () => setActiveHoverIndex(activeHoverIndex - 1);
 
