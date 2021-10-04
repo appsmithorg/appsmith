@@ -94,7 +94,7 @@ function AppInviteUsersForm(props: any) {
       )}
       <Title>
         <Text type={TextType.H5}>
-          Get Shareable link for this for this application
+          Get shareable link for this for this application
         </Text>
       </Title>
       <CopyToClipBoard copyText={getViewApplicationURL()} />
