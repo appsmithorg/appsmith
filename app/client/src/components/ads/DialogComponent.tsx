@@ -86,7 +86,9 @@ const StyledDialog = styled(Dialog)<{
   }
 `;
 
-const TriggerWrapper = styled.div``;
+const TriggerWrapper = styled.div`
+  margin-right: 4px;
+`;
 
 type DialogComponentProps = {
   isOpen?: boolean;

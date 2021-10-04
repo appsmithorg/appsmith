@@ -22,7 +22,7 @@ const SaveStatusContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 8px;
+  margin-right: 10px;
   margin-top: 2px;
   .bp3-popover-target {
     display: flex;

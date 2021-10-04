@@ -124,7 +124,7 @@ const DeploySection = styled.div`
 `;
 
 const ProfileDropdownContainer = styled.div`
-  margin: 0 8px;
+  margin: 0 10px;
   margin-right: 0px;
 `;
 
