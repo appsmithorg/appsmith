@@ -36,12 +36,12 @@ const ActionElement = styled.span`
 // move existing toast below to make space for the warning toast
 const ToastStyle = createGlobalStyle`
   .Toastify__toast-container--top-right {
-    top: 10.5em !important;
+    top: 9.5em !important;
   }
 `;
 
 const getMessage = () => {
-  const msg = `Someone else is also editing this page. Your changes may get overwritten. Realtime Editing is coming soon.`;
+  const msg = `Other users editing this page may overwrite your changes. Realtime editing is coming soon!`;
   return msg;
 };
 
