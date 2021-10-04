@@ -22,10 +22,10 @@ import {
   INTEGRATION_EDITOR_MODES,
 } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
+import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const HeaderFlex = styled.div`
@@ -484,7 +484,7 @@ class IntegrationsHomeScreen extends React.Component<
     }
     return (
       <>
-        <CloseEditor />
+        <BackButton />
         <UnsupportedPluginDialog
           isModalOpen={unsupportedPluginDialogVisible}
           onClose={() =>

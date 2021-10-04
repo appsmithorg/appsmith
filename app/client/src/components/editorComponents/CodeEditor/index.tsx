@@ -79,7 +79,6 @@ import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
-import getFeatureFlags from "utils/featureFlags";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
@@ -273,9 +272,8 @@ class CodeEditor extends Component<Props, State> {
           this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
-        if (getFeatureFlags().LINTING) {
-          this.lintCode(editor);
-        }
+
+        this.lintCode(editor);
       };
 
       // Finally create the Codemirror editor
@@ -588,9 +586,7 @@ class CodeEditor extends Component<Props, State> {
     }
     /*  Evaluation results for snippet snippets */
 
-    if (getFeatureFlags().LINTING) {
-      this.lintCode(this.editor);
-    }
+    this.lintCode(this.editor);
 
     const showEvaluatedValue =
       this.state.isFocused &&
