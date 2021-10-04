@@ -79,6 +79,7 @@ function IconSelector(props: IconSelectorProps) {
         _iconPalette?.splice(0, 0, props.selectedIcon);
         setIconPalette(_iconPalette);
       }
+      // icon position change ends here
       setSelected(props.selectedIcon);
     }
   }, [props.selectedIcon]);
