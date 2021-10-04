@@ -125,7 +125,7 @@ const TabTitleWrapper = styled.div<{
   }
 
   .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[2]}px;
+    margin-right: ${(props) => props.theme.spaces[1]}px;
     border-radius: 50%;
     svg {
       width: 16px;
