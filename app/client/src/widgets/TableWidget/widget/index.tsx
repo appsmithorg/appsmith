@@ -681,8 +681,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : -1;
-      // eslint-disable-next-line no-console
-      console.log("updateSelectedRowIndex", selectedRowIndex);
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
@@ -770,8 +768,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   applyFilters = (filters: ReactTableFilter[]) => {
-    // eslint-disable-next-line no-console
-    console.log("applyFilters");
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("filters", filters);
 
@@ -866,8 +862,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleColumnSorting = (column: string, asc: boolean) => {
-    // eslint-disable-next-line no-console
-    console.log("handleColumnSorting");
     this.resetSelectedRowIndex();
     const sortOrderProps =
       column === ""
@@ -898,8 +892,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
-    // eslint-disable-next-line no-console
-    console.log("handleSearchTable");
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
@@ -1025,8 +1017,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     if (this.props.onPageChange) {
-      // eslint-disable-next-line no-console
-      console.log("updatePageNumber");
       this.resetSelectedRowIndex();
     }
   };
@@ -1042,8 +1032,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       },
     });
     if (this.props.onPageChange) {
-      // eslint-disable-next-line no-console
-      console.log("handleNextPageClick");
       this.resetSelectedRowIndex();
     }
   };
@@ -1053,8 +1041,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : -1;
-      // eslint-disable-next-line no-console
-      console.log("resetSelectedRowIndex", selectedRowIndex);
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
@@ -1079,8 +1065,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       });
       if (this.props.onPageChange) {
-        // eslint-disable-next-line no-console
-        console.log("handlePrevPageClick");
         this.resetSelectedRowIndex();
       }
     }
