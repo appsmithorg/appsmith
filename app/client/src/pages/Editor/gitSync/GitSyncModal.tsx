@@ -31,28 +31,22 @@ const Container = styled.div`
 
 const BodyContainer = styled.div`
   flex: 3;
-  padding-left: ${(props) => props.theme.spaces[11]}px;
-  padding-bottom: ${(props) => props.theme.spaces[13]}px;
-  padding-right: ${(props) => props.theme.spaces[13]}px;
-  overflow-y: auto;
   height: 100%;
-  &&::-webkit-scrollbar-thumb {
+  padding: 0px 16px 0px 0px;
+  /* &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
   &::-webkit-scrollbar {
     width: 4px;
-  }
+  } */
 `;
 
-const MenuContainer = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[10]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
-`;
+const MenuContainer = styled.div``;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 30px;
-  top: 34px;
+  right: ${(props) => props.theme.spaces[6]}px;
+  top: ${(props) => props.theme.spaces[8]}px;
   &:hover {
     background-color: ${(props) => props.theme.colors.modal.hoverState};
   }

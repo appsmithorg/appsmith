@@ -197,17 +197,17 @@ function GitConnection({ isImport, onSuccess }: Props) {
       authorEmail: "",
     };
 
-    if (isLocalConfigDefined) {
-      initialAuthInfo = {
-        authorName: localGitConfig.authorName || "",
-        authorEmail: localGitConfig.authorEmail || "",
-      };
-    }
-
     if (isGlobalConfigDefined) {
       initialAuthInfo = {
         authorName: globalGitConfig.authorName || "",
         authorEmail: globalGitConfig.authorEmail || "",
+      };
+    }
+    // when local config is defined we will only show local config
+    if (isLocalConfigDefined) {
+      initialAuthInfo = {
+        authorName: localGitConfig.authorName || "",
+        authorEmail: localGitConfig.authorEmail || "",
       };
     }
 
@@ -357,8 +357,15 @@ function GitConnection({ isImport, onSuccess }: Props) {
   }, []);
 
   useEffect(() => {
-    setAuthorInfo(localGitConfig);
-  }, [localGitConfig.authorEmail, localGitConfig.authorName, setAuthorInfo]);
+    // on local config update
+    setAuthorInfo(getInitGitConfig());
+  }, [
+    localGitConfig.authorEmail,
+    localGitConfig.authorName,
+    setAuthorInfo,
+    globalGitConfig.authorEmail,
+    globalGitConfig.authorEmail,
+  ]);
 
   const showDirectDeployOption = !SSHKeyPair && !remoteUrl;
 

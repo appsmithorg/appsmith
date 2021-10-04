@@ -9,13 +9,11 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { IconProps } from "constants/IconConstants";
 import Button, { Category, Size } from "components/ads/Button";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useSelector } from "react-redux";
 import {
   GIT_DISCONNECT_POPUP_TITLE,
   GIT_DISCONNECT_POPUP_SUBTITLE,
   GIT_DISCONNECT_POPUP_MAIN_HEADING,
 } from "constants/messages";
-import { getIsDisconnectingGit } from "selectors/gitSyncSelectors";
 
 type Props = {
   isModalOpen: boolean;
