@@ -9,6 +9,7 @@ import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import GlobalStyles from "globalStyles";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -41,7 +42,7 @@ const WrappedToastContainer = styled.div`
     margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
   .Toastify__toast-container--top-right {
-    top: 8.2em;
+    top: 8em;
   }
 `;
 export function StyledToastContainer(props: ToastOptions) {

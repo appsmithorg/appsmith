@@ -9,10 +9,11 @@ import {
 } from "utils/storage";
 import { getCurrentPageName } from "selectors/editorSelectors";
 import { Layers } from "constants/Layers";
+import { createGlobalStyle } from "styled-components";
 
 const Container = styled.div<{ visible?: boolean }>`
   position: fixed;
-  top: 37px;
+  top: 50px;
   transition: right 0.3s linear;
   right: ${(props) =>
     props.visible ? "1em" : "-500px"}; /* to move away from the viewport */
@@ -31,6 +32,13 @@ const ActionElement = styled.span`
   display: inline-block;
   width: 100%;
   text-align: right;
+`;
+
+// move existing toast below to make space for the warning toast
+const ToastStyle = createGlobalStyle`
+  .Toastify__toast-container--top-right {
+    top: 9.5em !important;
+  }
 `;
 
 const getMessage = (currentPageName = "") => {
@@ -74,6 +82,7 @@ export default function ConcurrentPageEditorToast() {
           width={"327px"}
         />
       )}
+      {showToast && <ToastStyle />}
     </Container>
   );
 }
