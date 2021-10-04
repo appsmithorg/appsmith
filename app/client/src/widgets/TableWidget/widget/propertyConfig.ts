@@ -1409,6 +1409,8 @@ export default [
                   enableSearch: true,
                   dropdownHeight: "195px",
                   controlType: "DROP_DOWN",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   placeholderText: "Search by code or name",
                   options: CurrencyDropdownOptions,
                   isBindProperty: false,
@@ -1425,6 +1427,8 @@ export default [
                   propertyName: "decimalsInCurrency",
                   label: "Decimals",
                   controlType: "DROP_DOWN",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   options: [
                     {
                       label: "1",
@@ -1452,6 +1456,14 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: true,
+                  additionalAutoComplete: (props: TableWidgetProps) => ({
+                    currentRow: Object.assign(
+                      {},
+                      ...Object.keys(props.primaryColumns).map((key) => ({
+                        [key]: "",
+                      })),
+                    ),
+                  }),
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",

@@ -842,7 +842,7 @@ export function SwitchCell(props: {
   );
 }
 
-// check value is number or not
+// check value is number or not otherwise show red border around textbox
 export function isNumberValidator(value: string) {
   const isValid =
     (/^\d+\.?\d*$/.test(value) && Number(value) > 0) || value === "";
@@ -852,6 +852,11 @@ export function isNumberValidator(value: string) {
   };
 }
 
+/**
+ * renders select component for each cell where column type is "currency"
+ * column properties have additional props related to select i.e. currencyCountryCode, decimalsInCurrency, onTextChanged
+ * when user typing, changes stored in state, onBlur changed text set into meta properties via onTextChanged
+ */
 export function CurrencyCell(props: {
   value: any;
   currencyCountryCode?: string;
@@ -859,10 +864,10 @@ export function CurrencyCell(props: {
   action: string;
   columnId: string;
   isHidden: boolean;
-  onChange: (
+  onTextChanged: (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     newValue: string,
   ) => void;
   cellProperties: CellLayoutProperties;
@@ -878,7 +883,12 @@ export function CurrencyCell(props: {
     (isFocused: boolean) => {
       // fire action if input blur and value is changed
       if (!isFocused && value !== props.value) {
-        props.onChange(props.columnId, props.rowIndex, props.action, value);
+        props.onTextChanged(
+          props.columnId,
+          props.rowIndex,
+          props.action,
+          value,
+        );
       }
     },
     [props.columnId, props.rowIndex, props.action, value],

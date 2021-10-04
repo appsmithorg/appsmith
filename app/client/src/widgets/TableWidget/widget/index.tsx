@@ -216,6 +216,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
+      // column type currency related properties
+      currencyCountryCode: this.getPropertyValue(
+        columnProperties.currencyCountryCode,
+        rowIndex,
+        true,
+      ),
+      decimalsInCurrency: this.getPropertyValue(
+        columnProperties.decimalsInCurrency,
+        rowIndex,
+        true,
+      ),
     };
     return cellProperties;
   };
@@ -293,21 +304,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleCurrencyValueChange = (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     newValue: string,
   ) => {
     const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], newValue, Object);
 
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
-      triggerPropertyName: "onTextChanged",
-      dynamicString: action,
-      event: {
-        type: EventType.ON_TEXT_CHANGE,
-      },
-    });
-
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+    this.handleColumnAction(
+      rowIndex,
+      "onTextChanged",
+      dynamicString,
+      EventType.ON_TEXT_CHANGE,
+    );
   };
 
   getTableColumns = () => {
@@ -464,12 +474,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 action={columnProperties.onTextChanged}
                 cellProperties={cellProperties}
                 columnId={accessor}
-                currencyCountryCode={columnProperties.currencyCountryCode}
-                decimalsInCurrency={columnProperties.decimalsInCurrency}
+                currencyCountryCode={cellProperties.currencyCountryCode}
+                decimalsInCurrency={cellProperties.decimalsInCurrency}
                 isCellVisible={isCellVisible}
                 isHidden={isHidden}
-                key={accessor + rowIndex}
-                onChange={this.handleCurrencyValueChange}
+                onTextChanged={this.handleCurrencyValueChange}
                 rowIndex={rowIndex}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}

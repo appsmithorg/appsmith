@@ -120,6 +120,9 @@ export interface CellLayoutProperties {
   // column type switch related properties
   defaultSwitchState?: boolean;
   switchLabel?: string;
+  // column type switch currency properties
+  currencyCountryCode?: string;
+  decimalsInCurrency?: number;
 }
 
 export interface TableColumnMetaProps {
@@ -188,6 +191,9 @@ export interface ColumnProperties {
   onOptionChange?: string;
   // used in column type select and switch
   defaultOptionValue?: string[];
+  // column type switch currency properties
+  currencyCountryCode?: string[];
+  decimalsInCurrency?: number[];
 }
 
 export const ConditionFunctions: {

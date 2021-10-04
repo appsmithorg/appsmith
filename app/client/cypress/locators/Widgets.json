@@ -111,6 +111,8 @@
     "inputToggleDisable": "div.t--property-control-disabled div.CodeMirror-code pre span",
     "toggleOnClick": ".t--property-control-onclick .t--js-toggle",
     "toggleChartType": ".t--property-control-charttype .t--js-toggle",
+    "toggleDecimals": ".t--property-control-decimals .t--js-toggle",
+    "toggleCurrency": ".t--property-control-currency .t--js-toggle",
     "inputToggleOnClick": ".t--property-control-onclick div.CodeMirror-lines",
     "tableBtn": ".t--draggable-tablewidget .bp3-button",
     "toastAction": ".Toastify__toast-container--top-right .t--toast-action",
