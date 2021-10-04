@@ -24,7 +24,7 @@ const UserImageContainer = styled.div`
     height: 24px;
   }
 
-  div:first-chilc {
+  div:first-child {
     margin-left: 0px;
   }
 
