@@ -72,7 +72,10 @@ function PropertyPaneView(
       {
         tooltipContent: "Copy Widget",
         icon: (
-          <button className="p-1 hover:bg-warmGray-100 group" onClick={onCopy}>
+          <button
+            className="p-1 hover:bg-warmGray-100 group t--copy-widget"
+            onClick={onCopy}
+          >
             <CopyIcon className="w-4 h-4 text-gray-500" />
           </button>
         ),
@@ -80,7 +83,10 @@ function PropertyPaneView(
       {
         tooltipContent: "Delete Widget",
         icon: (
-          <button className="p-1 hover:bg-warmGray-100 group" onClick={onCopy}>
+          <button
+            className="p-1 hover:bg-warmGray-100 group t--delete-widget"
+            onClick={onDelete}
+          >
             <DeleteIcon className="w-4 h-4 text-gray-500" />
           </button>
         ),

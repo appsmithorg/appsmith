@@ -63,7 +63,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
       .type(this.data.ylabel);
 
     //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     cy.PublishtheApp();
   });
 

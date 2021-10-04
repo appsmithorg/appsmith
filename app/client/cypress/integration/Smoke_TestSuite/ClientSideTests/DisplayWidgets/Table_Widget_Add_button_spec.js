@@ -27,7 +27,6 @@ describe("Table Widget property pane feature validation", function() {
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
     // Close Property pane
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
     // Validating the button action by clicking
     cy.get(widgetsPage.tableBtn)
