@@ -204,6 +204,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
+      // column type switch related properties
+      defaultSwitchState: this.getPropertyValue(
+        columnProperties.defaultSwitchState,
+        rowIndex,
+        true,
+      ),
+      switchLabel: this.getPropertyValue(
+        columnProperties.switchLabel,
+        rowIndex,
+        true,
+      ),
     };
     return cellProperties;
   };
@@ -262,21 +273,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleSwitchChange = (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     isSwitchedOn: boolean,
   ) => {
     const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], isSwitchedOn, Object);
 
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
-      triggerPropertyName: "onChange",
-      dynamicString: action,
-      event: {
-        type: EventType.ON_SWITCH_CHANGE,
-      },
-    });
-
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+    this.handleColumnAction(
+      rowIndex,
+      "onChange",
+      dynamicString,
+      EventType.ON_SWITCH_CHANGE,
+    );
   };
 
   getTableColumns = () => {
@@ -415,13 +425,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 alignWidget={columnProperties.alignWidget}
                 cellProperties={cellProperties}
                 columnId={accessor}
-                defaultSwitchState={columnProperties.defaultSwitchState}
+                defaultSwitchState={cellProperties.defaultSwitchState}
                 isCellVisible={isCellVisible}
-                isDisabled={columnProperties.isDisabled}
+                isDisabled={cellProperties.isDisabled}
                 isHidden={isHidden}
-                label={columnProperties.switchLabel}
                 onChange={this.handleSwitchChange}
                 rowIndex={rowIndex}
+                switchLabel={cellProperties.switchLabel as string}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
               />
@@ -889,7 +899,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         setWith(
           editedColumnData,
           [column.id, "defaultOptionValue"],
-          !!column?.defaultSwitchState,
+          column.defaultSwitchState,
           Object,
         );
       } else {

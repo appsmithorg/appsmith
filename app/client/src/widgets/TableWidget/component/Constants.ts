@@ -117,6 +117,9 @@ export interface CellLayoutProperties {
   isCellVisible: boolean;
   // column type select related properties
   placeholderText?: string;
+  // column type switch related properties
+  defaultSwitchState?: boolean;
+  switchLabel?: string;
 }
 
 export interface TableColumnMetaProps {
@@ -175,7 +178,10 @@ export interface ColumnProperties {
   boxShadowColor?: string;
   isCellVisible?: boolean;
   // column type switch related properties
-  defaultSwitchState?: boolean;
+  defaultSwitchState?: boolean[];
+  switchLabel?: string[];
+  onChange?: string;
+  alignWidget?: string;
   // column type select related properties
   options?: DropdownOption[];
   placeholderText?: string[];

@@ -781,19 +781,24 @@ export function SelectCell(props: {
   );
 }
 
+/**
+ * renders select component for each cell where column type is "switch"
+ * column properties have additional props related to select i.e. defaultSwitchState, switchLabel, alignWidget, onChange
+ * onChange call, parent handler set new data into meta properties
+ */
 export function SwitchCell(props: {
   value: any;
-  defaultSwitchState: boolean;
-  label: string;
+  defaultSwitchState?: boolean;
+  switchLabel: string;
   action: string;
   columnId: string;
-  isDisabled: boolean;
+  isDisabled?: boolean;
   alignWidget: AlignWidget;
   isHidden: boolean;
   onChange: (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     isSwitchedOn: boolean,
   ) => void;
   cellProperties: CellLayoutProperties;
@@ -819,7 +824,7 @@ export function SwitchCell(props: {
         isLoading={false}
         isSwitchedOn={isSwitchOn}
         key={props.widgetId}
-        label={props.label || "Label"}
+        label={props.switchLabel}
         onChange={(isSwitchedOn: boolean) => {
           props.onChange(
             props.columnId,

@@ -840,6 +840,7 @@ export default [
                   propertyName: "isDisabled",
                   label: "Disabled",
                   controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
