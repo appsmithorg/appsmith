@@ -36,7 +36,6 @@ const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
-    debugger;
     const result = userFunction.apply(self, ARGUMENTS);
     return result;
   }

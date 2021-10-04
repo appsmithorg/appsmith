@@ -108,7 +108,7 @@ export type SetIntervalDescription = {
   payload: {
     callback: string;
     interval: number;
-    id: string;
+    id?: string;
   };
 };
 

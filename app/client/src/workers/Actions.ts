@@ -297,14 +297,14 @@ const DATA_TREE_FUNCTIONS: Record<
       ]);
     },
   },
-  setInterval: function(callback: Function, interval: number) {
+  setInterval: function(callback: Function, interval: number, id?: string) {
     return new AppsmithPromise([
       {
         type: ActionTriggerType.SET_INTERVAL,
         payload: {
           callback: callback.toString(),
           interval,
-          id: "1",
+          id,
         },
       },
     ]);

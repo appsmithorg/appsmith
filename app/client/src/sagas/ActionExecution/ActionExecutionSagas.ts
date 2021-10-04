@@ -33,7 +33,10 @@ import {
   logActionExecutionError,
   TriggerEvaluationError,
 } from "sagas/ActionExecution/errorUtils";
-import { setIntervalSaga } from "sagas/ActionExecution/SetIntervalSaga";
+import {
+  clearIntervalSaga,
+  setIntervalSaga,
+} from "sagas/ActionExecution/SetIntervalSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -94,6 +97,9 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.SET_INTERVAL:
       yield call(setIntervalSaga, trigger.payload, triggerMeta);
+      break;
+    case ActionTriggerType.CLEAR_INTERVAL:
+      yield call(clearIntervalSaga, trigger.payload, triggerMeta);
       break;
     default:
       log.error("Trigger type unknown", trigger);
