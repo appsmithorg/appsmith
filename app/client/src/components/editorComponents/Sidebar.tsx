@@ -54,8 +54,6 @@ export const Sidebar = memo(() => {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
-  const onCanvas =
-    BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
   const switches = [
     {
       id: "explorer",
@@ -66,7 +64,9 @@ export const Sidebar = memo(() => {
       id: "widgets",
       text: "Widgets",
       action: () => {
-        !onCanvas && history.push(BUILDER_PAGE_URL(applicationId, pageId));
+        !(
+          BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname
+        ) && history.push(BUILDER_PAGE_URL(applicationId, pageId));
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
       },
     },
