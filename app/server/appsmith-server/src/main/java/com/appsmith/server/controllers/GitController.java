@@ -48,7 +48,7 @@ public class GitController {
                 .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/profile/default")
     public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
         return service.getGitProfileForUser()
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));

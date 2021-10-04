@@ -464,6 +464,7 @@ public class ExamplesOrganizationCloner {
         // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.
         domain.setId(null);
+        domain.setUpdatedAt(null);
         if (domain.getPolicies() != null) {
             domain.getPolicies().clear();
         }
