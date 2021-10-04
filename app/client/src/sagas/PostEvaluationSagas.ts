@@ -33,6 +33,7 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
   VALUE_IS_INVALID,
+  JS_OBJECT_BODY_INVALID,
 } from "constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
@@ -147,7 +148,9 @@ function logLatestEvalPropertyErrors(
                 widgetType: entity.type,
               }
             : {};
-
+          const logPropertyPath = !isJSAction(entity)
+            ? propertyPath
+            : entityName;
           // Add or update
           AppsmithConsole.addError(
             {
@@ -155,16 +158,18 @@ function logLatestEvalPropertyErrors(
               logType: isWarning ? LOG_TYPE.EVAL_WARNING : LOG_TYPE.EVAL_ERROR,
               // Unless the intention is to change the message shown in the debugger please do not
               // change the text shown here
-              text: createMessage(VALUE_IS_INVALID, propertyPath),
+              text: isJSAction(entity)
+                ? createMessage(JS_OBJECT_BODY_INVALID)
+                : createMessage(VALUE_IS_INVALID, propertyPath),
               messages: errorMessages,
               source: {
                 id: idField,
                 name: nameField,
                 type: entityType,
-                propertyPath: propertyPath,
+                propertyPath: logPropertyPath,
               },
               state: {
-                [propertyPath]: evaluatedValue,
+                [logPropertyPath]: evaluatedValue,
               },
               analytics: analyticsData,
             },

@@ -83,7 +83,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     },
     getIcon: (action: any, plugin: Plugin) => {
       if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
-        return <QueryIcon plugin={plugin} />;
+        return <QueryIcon />;
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
 
       const method = action.actionConfiguration.httpMethod;
