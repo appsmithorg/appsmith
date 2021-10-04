@@ -418,8 +418,6 @@ public class ImportExportApplicationService {
             errorField = FieldName.ACTIONS;
         } else if (importedDatasourceList == null) {
             errorField = FieldName.DATASOURCE;
-        } else if (importedActionCollectionList == null) {
-            errorField = FieldName.ACTION_COLLECTION;
         }
 
         if (!errorField.isEmpty()) {
@@ -576,10 +574,10 @@ public class ImportExportApplicationService {
                                     publishedAppPage.setId(newPage.getId());
                                     pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                 }
-                                if (unpublishedAppPage.getId() != null) {
+                                if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
                                     applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
                                 }
-                                if (publishedAppPage.getId() != null) {
+                                if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
                                     applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                                 }
                                 return applicationPages;
@@ -676,7 +674,9 @@ public class ImportExportApplicationService {
                                     .collectList());
                 })
                 .flatMap(existingActionCollections -> {
-                    assert importedActionCollectionList != null;
+                    if (importedActionCollectionList == null) {
+                        return Mono.just(true);
+                    }
 
                     return Flux.fromIterable(importedActionCollectionList)
                             .flatMap(actionCollection -> {
@@ -702,7 +702,6 @@ public class ImportExportApplicationService {
                                 actionCollection.setOrganizationId(organizationId);
                                 actionCollection.setApplicationId(importedApplication.getId());
                                 actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
-
                                 return actionCollectionService.save(actionCollection)
                                         .flatMapMany(createdActionCollection -> {
                                             unpublishedActionCollectionIdMap

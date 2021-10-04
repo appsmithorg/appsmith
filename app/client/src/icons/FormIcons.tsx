@@ -3,9 +3,10 @@ import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { IconProps, IconWrapper } from "constants/IconConstants";
 import { ReactComponent as InfoIcon } from "assets/icons/form/info-outline.svg";
-import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
 import { ReactComponent as AddNewIcon } from "assets/icons/form/add-new.svg";
 import { ReactComponent as LockIcon } from "assets/icons/form/lock.svg";
+
+import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 
 /* eslint-disable react/display-name */
 

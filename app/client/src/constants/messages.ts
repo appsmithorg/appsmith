@@ -40,8 +40,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
 export const LOGIN_PAGE_TITLE = () => `Sign In to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
-export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
+export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
+  `Enter your email address`;
+export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
+  `Enter your password`;
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
@@ -434,6 +436,7 @@ export const JS_FUNCTION_UPDATE_SUCCESS = () =>
   "JS Function updated successfully";
 export const JS_FUNCTION_DELETE_SUCCESS = () =>
   "JS function deleted successfully";
+export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
