@@ -98,7 +98,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
         <button
-          className="p-1 hover:bg-warmGray-100 group"
+          className="p-1 hover:bg-warmGray-100 group t--property-pane-back-btn"
           onClick={props.onBackClick}
         >
           <BackIcon className="w-4 h-4 text-gray-500" />
