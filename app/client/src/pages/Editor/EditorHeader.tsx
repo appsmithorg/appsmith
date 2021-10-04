@@ -124,7 +124,7 @@ const DeploySection = styled.div`
 `;
 
 const ProfileDropdownContainer = styled.div`
-  margin: 0 ${(props) => props.theme.spaces[7]}px;
+  margin: 0 8px;
   margin-right: 0px;
 `;
 
@@ -383,7 +383,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 trigger={
                   <StyledDeployIcon
                     fillColor="#fff"
-                    name={isPopoverOpen ? "upArrow" : "down-arrow"}
+                    name={"down-arrow"}
                     size={IconSize.XXL}
                   />
                 }
