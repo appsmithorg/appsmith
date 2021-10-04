@@ -1,5 +1,11 @@
-import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect, useSelector } from "react-redux";
+import React, {
+  useState,
+  useRef,
+  RefObject,
+  useCallback,
+  useEffect,
+} from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -35,6 +41,7 @@ import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import Button, { Size } from "components/ads/Button";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
+import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -225,6 +232,7 @@ function ApiResponseView(props: Props) {
     hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
   }
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const dispatch = useDispatch();
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -321,6 +329,17 @@ function ApiResponseView(props: Props) {
     },
   ];
 
+  useEffect(() => {
+    if (selectedIndex !== initialIndex) setSelectedIndex(initialIndex);
+  }, [initialIndex]);
+
+  useEffect(() => {
+    // reset on unmount
+    return () => {
+      dispatch(setActionTabsInitialIndex(0));
+    };
+  }, []);
+
   const onTabSelect = (index: number) => {
     const debuggerTabKeys = ["ERROR", "LOGS"];
     if (
@@ -331,7 +350,7 @@ function ApiResponseView(props: Props) {
         tabName: tabs[index].key,
       });
     }
-
+    dispatch(setActionTabsInitialIndex(index));
     setSelectedIndex(index);
   };
 

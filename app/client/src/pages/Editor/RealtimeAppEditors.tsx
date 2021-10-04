@@ -5,12 +5,13 @@ import TooltipComponent from "components/ads/Tooltip";
 import ProfileImage from "../common/ProfileImage";
 import UserApi from "api/UserApi";
 import styled from "styled-components";
-import { AppState } from "reducers";
 import {
   collabStartEditingAppEvent,
   collabStopEditingAppEvent,
-  collabResetAppEditorsEvent,
+  collabResetAppEditors,
 } from "actions/appCollabActions";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
 
 const UserImageContainer = styled.div`
   display: flex;
@@ -35,9 +36,9 @@ type RealtimeAppEditorsProps = {
 export function useEditAppCollabEvents(applicationId?: string) {
   const dispatch = useDispatch();
 
-  const isWebsocketConnected = useSelector(
-    (state: AppState) => state.ui.websocket.connected,
-  );
+  const isWebsocketConnected = useSelector(getIsAppLevelSocketConnected);
+
+  const currentPageId = useSelector(getCurrentPageId);
 
   useEffect(() => {
     // websocket has to be connected as we only fire this event once.
@@ -45,12 +46,12 @@ export function useEditAppCollabEvents(applicationId?: string) {
       applicationId &&
       dispatch(collabStartEditingAppEvent(applicationId));
     return () => {
-      dispatch(collabResetAppEditorsEvent());
+      dispatch(collabResetAppEditors());
       isWebsocketConnected &&
         applicationId &&
         dispatch(collabStopEditingAppEvent(applicationId));
     };
-  }, [applicationId, isWebsocketConnected]);
+  }, [applicationId, currentPageId, isWebsocketConnected]);
 }
 
 function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
