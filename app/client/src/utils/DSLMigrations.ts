@@ -932,9 +932,34 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 40) {
     currentDSL = revertButtonStyleToButtonColor(currentDSL);
+    currentDSL.version = 41;
+  }
+
+  if (currentDSL.version === 41) {
+    currentDSL = migrateCustomChartConfig(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+const migrateCustomChartConfig = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "CHART_WIDGET") {
+    if (currentDSL.hasOwnProperty("customFusionChartConfig")) {
+      currentDSL.customFusionChartType =
+        currentDSL.customFusionChartConfig.type;
+      currentDSL.customFusionChartConfig =
+        currentDSL.customFusionChartConfig.dataSource;
+    }
+    return currentDSL;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateCustomChartConfig(child),
+    );
+  }
   return currentDSL;
 };
 
