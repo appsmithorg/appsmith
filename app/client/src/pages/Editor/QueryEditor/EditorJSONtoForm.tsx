@@ -264,6 +264,15 @@ const ActionsWrapper = styled.div`
 const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
+
+  .t--switch-datasource > div {
+    min-height: 30px;
+    height: 30px;
+
+    & > div {
+      height: 100%;
+    }
+  }
 `;
 
 const CreateDatasource = styled.div`

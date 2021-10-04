@@ -1,14 +1,18 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -25,39 +29,50 @@ public class AnalyticsService {
     private final SessionUserService sessionUserService;
     private final CommonConfig commonConfig;
     private final ConfigService configService;
+    private final PolicyUtils policyUtils;
 
     @Autowired
     public AnalyticsService(@Autowired(required = false) Analytics analytics,
                             SessionUserService sessionUserService,
                             CommonConfig commonConfig,
-                            ConfigService configService) {
+                            ConfigService configService,
+                            PolicyUtils policyUtils) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
         this.configService = configService;
+        this.policyUtils = policyUtils;
     }
+
     public boolean isActive() {
         return analytics != null;
     }
 
-    public Mono<User> trackNewUser(User user) {
+    private String hash(String value) {
+        return value == null ? "" : DigestUtils.sha256Hex(value);
+    }
+
+    public Mono<User> trackNewUser(User user, UserData userData) {
         if (!isActive()) {
             return Mono.just(user);
         }
 
         return Mono.just(user)
                 .map(savedUser -> {
-                    Map<String, String> traitsMap = new HashMap<>();
-                    if (savedUser.getName() != null) {
-                        traitsMap.put("name", savedUser.getName());
-                    }
-                    traitsMap.put("email", savedUser.getEmail());
-                    if (savedUser.getSource() != null) {
-                        traitsMap.put("source", savedUser.getSource().toString());
-                    }
+                    final Boolean isSuperUser = policyUtils.isPermissionPresentForUser(
+                            savedUser.getPolicies(),
+                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                            savedUser.getUsername()
+                    );
                     analytics.enqueue(IdentifyMessage.builder()
-                            .userId(savedUser.getUsername())
-                            .traits(traitsMap)
+                            .userId(hash(savedUser.getUsername()))
+                            .traits(Map.of(
+                                    "name", hash(savedUser.getName()),
+                                    "email", hash(savedUser.getEmail()),
+                                    "isSuperUser", isSuperUser != null && isSuperUser,
+                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
+                            ))
                     );
                     analytics.flush();
                     return savedUser;
@@ -85,7 +100,7 @@ public class AnalyticsService {
                 && !commonConfig.isCloudHosting()
                 // But send the email intact for the subscribe event, which is sent only if the user has explicitly agreed to it.
                 && !AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name().equals(event)) {
-            final String hashedUserId = DigestUtils.sha256Hex(userId);
+            final String hashedUserId = hash(userId);
             analyticsProperties.remove("request");
             for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
                 if (userId.equals(entry.getValue())) {
