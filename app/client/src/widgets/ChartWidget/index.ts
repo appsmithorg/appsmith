@@ -39,30 +39,28 @@ export const CONFIG = {
     xAxisName: "Product Line",
     yAxisName: "Revenue($)",
     labelOrientation: LabelOrientation.AUTO,
+    customFusionChartType: "column2d",
     customFusionChartConfig: {
-      type: "column2d",
-      dataSource: {
-        chart: {
-          caption: "Sales Report",
-          xAxisName: "Product Line",
-          yAxisName: "Revenue($)",
-          theme: "fusion",
-        },
-        data: [
-          {
-            label: "Product1",
-            value: 20000,
-          },
-          {
-            label: "Product2",
-            value: 22000,
-          },
-          {
-            label: "Product3",
-            value: 32000,
-          },
-        ],
+      chart: {
+        caption: "Sales Report",
+        xAxisName: "Product Line",
+        yAxisName: "Revenue($)",
+        theme: "fusion",
       },
+      data: [
+        {
+          label: "Product1",
+          value: 20000,
+        },
+        {
+          label: "Product2",
+          value: 22000,
+        },
+        {
+          label: "Product3",
+          value: 32000,
+        },
+      ],
     },
   },
   properties: {
