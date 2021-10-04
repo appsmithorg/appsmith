@@ -27,7 +27,6 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -513,14 +512,15 @@ public class GitServiceImpl implements GitService {
         return applicationService.getApplicationByBranchNameAndDefaultApplication(branch, defaultApplicationId, MANAGE_APPLICATIONS)
             .flatMap(srcApplication -> {
                 GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
-                if (srcBranchGitData == null || srcBranchGitData.getDefaultApplicationId() == null || srcBranchGitData.getRepoName() == null) {
+                if (srcBranchGitData == null
+                        || srcBranchGitData.getDefaultApplicationId() == null
+                        || srcBranchGitData.getRepoName() == null) {
                     throw new AppsmithException(
                             AppsmithError.INVALID_GIT_CONFIGURATION,
                             "Unable to find the parent branch. Please create a branch from other available branches"
                     );
                 }
-                Path repoSuffix =
-                        Paths.get(srcApplication.getOrganizationId(), srcBranchGitData.getDefaultApplicationId(), srcBranchGitData.getRepoName());
+                Path repoSuffix = Paths.get(srcApplication.getOrganizationId(), srcBranchGitData.getDefaultApplicationId(), srcBranchGitData.getRepoName());
                 try {
 
                     // Create a new branch from the parent checked out branch
@@ -614,7 +614,7 @@ public class GitServiceImpl implements GitService {
                         return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName)
                                 .zipWith(Mono.just(application));
                     } catch (IOException | GitAPIException e) {
-                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage());
+                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
                     }
                 })
                 .flatMap( applicationTuple-> {
