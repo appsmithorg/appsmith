@@ -2,6 +2,7 @@
     "imageWidget": ".t--draggable-imagewidget",
     "chartWidget": ".t--draggable-chartwidget",
     "chartType": ".t--property-control-charttype .bp3-popover-target",
+    "customChartType": ".t--property-control-customcharttype .CodeMirror-code",
     "destin": ".appsmith_widget_01ewdomru7",
     "mapWidget": ".t--draggable-mapwidget",
     "dropdownSelectButton": ".t--open-dropdown-Select",

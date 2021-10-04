@@ -72,6 +72,10 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Custom Chart");
 
+    cy.get(viewWidgetsPage.customChartType)
+      .click({ force: true })
+      .type(this.data.CustomChartType);
+
     cy.testJsontext(
       "customfusionchart",
       `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
