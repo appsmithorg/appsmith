@@ -199,7 +199,8 @@ public class UserSignup {
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     return Mono.when(
-                            configService.getInstanceId()
+                            userDataService.updateForUser(user, userData)
+                                    .then(configService.getInstanceId())
                                     .doOnSuccess(instanceId -> analyticsService.sendEvent(
                                             AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                             instanceId,
@@ -214,7 +215,6 @@ public class UserSignup {
                                     "APPSMITH_DISABLE_TELEMETRY",
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
                             )),
-                            userDataService.updateForUser(user, userData),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
                 });
