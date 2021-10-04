@@ -36,7 +36,6 @@ import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
 import {
-  ButtonStyleType,
   ButtonVariant,
   ButtonBoxShadow,
   ButtonBorderRadius,
@@ -177,7 +176,7 @@ interface RenderIconButtonProps {
   columnActions?: ColumnAction[];
   iconName?: IconName;
   buttonVariant: ButtonVariant;
-  buttonStyle: ButtonStyleType;
+  buttonColor: string;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
@@ -205,7 +204,7 @@ export const renderIconButton = (
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
             boxShadowColor={props.boxShadowColor}
-            buttonStyle={props.buttonStyle}
+            buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
             iconName={props.iconName}
             isSelected={props.isSelected}
@@ -222,7 +221,7 @@ function IconButton(props: {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isSelected: boolean;
   action: ColumnAction;
-  buttonStyle: ButtonStyleType;
+  buttonColor: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -251,7 +250,7 @@ function IconButton(props: {
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
         boxShadowColor={props.boxShadowColor}
-        buttonStyle={props.buttonStyle}
+        buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         icon={props.iconName}
         loading={loading}
@@ -327,7 +326,11 @@ function TableAction(props: {
     <ActionWrapper
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
-      onClick={stopClickEventPropagation}
+      onClick={(e) => {
+        if (props.isSelected) {
+          e.stopPropagation();
+        }
+      }}
     >
       {props.isCellVisible ? (
         <Button

@@ -513,6 +513,7 @@ export interface RecorderComponentProps {
   isDisabled: boolean;
   onRecordingStart: () => void;
   onRecordingComplete: (blobUrl?: string, blob?: Blob) => void;
+  value?: Blob;
   width: number;
 }
 
@@ -524,6 +525,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     isDisabled,
     onRecordingComplete,
     onRecordingStart,
+    value,
     width,
   } = props;
 
@@ -575,6 +577,12 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     }
   }, [error]);
 
+  useEffect(() => {
+    if (recorderStatus !== RecorderStatusTypes.DEFAULT && value === undefined) {
+      resetRecorder();
+    }
+  }, [value]);
+
   const dimension = useMemo(() => {
     if (containerWidth > height) {
       return height - WIDGET_PADDING * 2;
@@ -582,6 +590,14 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
 
     return containerWidth;
   }, [containerWidth, height, width]);
+
+  const resetRecorder = () => {
+    setRecorderStatus(RecorderStatusTypes.DEFAULT);
+    setStatusMessage("Press to start recording");
+    setIsClear(true);
+    setIsReadyPlayerTimer(false);
+    reset(0, false);
+  };
 
   const handleRecorderClick = () => {
     switch (recorderStatus) {
@@ -602,11 +618,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
         setStatusMessage("Recording saved");
         break;
       case RecorderStatusTypes.SAVED:
-        setRecorderStatus(RecorderStatusTypes.DEFAULT);
-        setStatusMessage("Press to start recording");
-        setIsClear(true);
-        setIsReadyPlayerTimer(false);
-        reset(0, false);
+        resetRecorder();
         break;
 
       default:

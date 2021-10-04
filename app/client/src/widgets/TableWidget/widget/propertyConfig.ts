@@ -1176,55 +1176,6 @@ export default [
                   },
                 },
                 {
-                  propertyName: "iconButtonStyle",
-                  label: "Icon Color",
-                  controlType: "DROP_DOWN",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  helpText: "Sets the style of the icon button",
-                  options: [
-                    {
-                      label: "Primary",
-                      value: "PRIMARY",
-                    },
-                    {
-                      label: "Warning",
-                      value: "WARNING",
-                    },
-                    {
-                      label: "Danger",
-                      value: "DANGER",
-                    },
-                    {
-                      label: "Info",
-                      value: "INFO",
-                    },
-                    {
-                      label: "Secondary",
-                      value: "SECONDARY",
-                    },
-                  ],
-
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.ICON_BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "plus",
-                    },
-                  },
-                },
-                {
                   propertyName: "isDisabled",
                   label: "Disabled",
                   updateHook: updateDerivedColumnsHook,
@@ -1255,7 +1206,7 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  propertyName: "buttonStyle",
+                  propertyName: "buttonColor",
                   label: "Button Color",
                   controlType: "COLOR_PICKER",
                   helpText: "Changes the color of the button",
@@ -1266,6 +1217,7 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
+                      ColumnTypes.ICON_BUTTON,
                     ]);
                   },
                   dependencies: [
