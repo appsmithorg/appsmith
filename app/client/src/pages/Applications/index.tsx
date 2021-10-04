@@ -98,6 +98,7 @@ import history from "utils/history";
 import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
+import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -398,6 +399,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
 function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
+  const onboardingOrgs = useSelector(getOnboardingOrganisations);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { releaseItems } = useSelector((state: AppState) => state.ui.releases);
   const howMuchTimeBefore =
@@ -470,20 +472,22 @@ function LeftPane() {
             }}
             text={createMessage(DOCUMENTATION)}
           />
-          <MenuItem
-            containerClassName={
-              isFetchingApplications
-                ? BlueprintClasses.SKELETON
-                : "t--welcome-tour"
-            }
-            icon="guide"
-            onSelect={() => {
-              AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+          {!!onboardingOrgs.length && (
+            <MenuItem
+              containerClassName={
+                isFetchingApplications
+                  ? BlueprintClasses.SKELETON
+                  : "t--welcome-tour"
+              }
+              icon="guide"
+              onSelect={() => {
+                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
 
-              initiateOnboarding();
-            }}
-            text={createMessage(WELCOME_TOUR)}
-          />
+                initiateOnboarding();
+              }}
+              text={createMessage(WELCOME_TOUR)}
+            />
+          )}
           <ProductUpdatesModal />
           <LeftPaneVersionData>
             <span>Appsmith v1.5</span>
