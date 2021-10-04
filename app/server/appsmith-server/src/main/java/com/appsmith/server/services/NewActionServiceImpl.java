@@ -59,7 +59,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
-import javax.sql.DataSource;
 import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;

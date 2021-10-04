@@ -41,7 +41,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNestedNonNullProperties;
-import static com.appsmith.external.helpers.PluginUtils.endpointContainsLocalhost;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
