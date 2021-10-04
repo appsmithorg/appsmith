@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import { Classes, CommonComponentProps } from "./common";
 import { useEffect } from "react";
+import { Indices } from "constants/Layers";
 
 export type TabProp = {
   key: string;
@@ -162,6 +163,7 @@ const TabTitleWrapper = styled.div<{
     left: ${props.theme.spaces[0]}px;
     height: ${props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
     background-color: ${props.theme.colors.info.main};
+    z-index: ${Indices.Layer3};
   }
   `
       : ""}
