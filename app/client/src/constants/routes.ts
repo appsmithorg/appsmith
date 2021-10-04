@@ -79,11 +79,6 @@ export const extractAppIdAndPageIdFromUrl = (url = "") => {
 
 export const compileBuilderUrl = compile(BUILDER_URL);
 
-export const addOrReplaceBranch = (branchName: string, currentPath: string) => {
-  const regEx = /(.*)\/applications/;
-  return currentPath.replace(regEx, `/branch/${branchName}/applications`);
-};
-
 export const getDefaultPathForBranch = (params: any, mode?: APP_MODE) => {
   const modeDependentPath = mode === APP_MODE.PUBLISHED ? "" : "/edit";
   return `/applications/${params.applicationId}${modeDependentPath}?${GIT_BRANCH_QUERY_KEY}=${params.branchName}`;
@@ -240,14 +235,16 @@ export const INTEGRATION_EDITOR_URL = (
   selectedTab = ":selectedTab",
   mode = "",
   params = {},
+  suffix = "",
 ): string => {
   if (mode) {
     (params as any).mode = mode;
   }
+  const suffixPath = suffix ? `/${suffix}` : "";
   return BUILDER_PAGE_URL({
     defaultApplicationId,
     pageId,
-    suffix: `datasources/${selectedTab}`,
+    suffix: `datasources/${selectedTab}${suffixPath}`,
     params,
   });
 };
@@ -321,7 +318,18 @@ export const getApplicationViewerPageURL = (props: {
   } = props;
 
   const url = `/applications/${defaultApplicationId}/pages/${pageId}`;
-  const queryString = convertToQueryParams(params);
+
+  const existingParams = getQueryParamsObject() || {};
+
+  // not persisting the entire query currently, since that's the current behaviour
+  const { branch } = existingParams;
+
+  let modifiedParams = { ...params };
+  if (branch) {
+    modifiedParams = { branch, ...params };
+  }
+
+  const queryString = convertToQueryParams(modifiedParams);
   const suffixPath = suffix ? `/${suffix}` : "";
   return url + suffixPath + queryString;
 };
@@ -345,11 +353,13 @@ export function convertToQueryParams(
 export const getCurlImportPageURL = (
   defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
+  params = {},
 ): string =>
   BUILDER_PAGE_URL({
     defaultApplicationId,
     pageId,
     suffix: "api/curl/curl-import",
+    params,
   });
 
 export const getProviderTemplatesURL = (

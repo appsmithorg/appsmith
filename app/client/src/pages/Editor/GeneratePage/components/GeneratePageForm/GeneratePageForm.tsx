@@ -483,11 +483,13 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      `${INTEGRATION_EDITOR_URL(
+      INTEGRATION_EDITOR_URL(
         defaultApplicationId,
         currentPageId,
         INTEGRATION_TABS.NEW,
-      )}?isGeneratePageMode=generate-page`,
+        "",
+        { isGeneratePageMode: "generate-page" },
+      ),
     );
   };
 

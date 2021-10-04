@@ -69,7 +69,10 @@ import {
 import { showCompletionDialog } from "./OnboardingSagas";
 
 import { deleteRecentAppEntities } from "utils/storage";
-import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
+import {
+  reconnectAppLevelWebsocket,
+  reconnectPageLevelWebsocket,
+} from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 
@@ -516,7 +519,8 @@ export function* createApplicationSaga(
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting
         // ensures user receives the updates in the app just created
-        yield put(reconnectWebsocketAction());
+        yield put(reconnectAppLevelWebsocket());
+        yield put(reconnectPageLevelWebsocket());
       }
     }
   } catch (error) {
