@@ -15,6 +15,7 @@ import {
   StyledLink as Link,
 } from "./common";
 import { TELEMETRY_URL } from "constants/ThirdPartyConstants";
+import { useState } from "react";
 
 const DataCollectionFormWrapper = styled.div`
   width: 100%;
@@ -28,15 +29,16 @@ const StyledLink = styled(Link)`
 `;
 
 export default memo(function DataCollectionForm() {
+  const [allowCollection, setAllowCollection] = useState(true);
   return (
     <DataCollectionFormWrapper>
       <FormHeaderWrapper>
         <FormHeaderIndex>2.</FormHeaderIndex>
         <FormHeaderLabel>Usage data preference</FormHeaderLabel>
         <FormHeaderSubtext>
-          Your data. Your choice. Data is collected anonymously. <br />
+          Share anonymous usage data to help improve the product. <br />
           <StyledLink href={TELEMETRY_URL} target="_blank">
-            List of tracked items
+            See what is shared
           </StyledLink>
         </FormHeaderSubtext>
       </FormHeaderWrapper>
@@ -46,12 +48,14 @@ export default memo(function DataCollectionForm() {
             <AllowToggle>
               <Toggle
                 name="allowCollectingAnonymousData"
-                onToggle={() => noop}
+                onToggle={(value) => setAllowCollection(value)}
                 value
               />
             </AllowToggle>
             <AllowToggleLabel>
-              Allow Appsmith to collect usage data anonymously
+              {allowCollection
+                ? "Share data & make appsmith better!"
+                : "Don't share any data"}
             </AllowToggleLabel>
           </AllowToggleWrapper>
         </ControlWrapper>
