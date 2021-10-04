@@ -175,7 +175,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
                         expected={expected}
-                        height="100%"
+                        height="36px"
                         hoverInteraction
                         name={`${field}.key`}
                         placeholder={`Key ${index + 1}`}
@@ -184,7 +184,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 
                       <DynamicDropdownFieldWrapper>
                         <DynamicDropdownField
-                          height="34px"
+                          height="36px"
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
                           width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
@@ -197,7 +197,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
                       expected={expected}
-                      height="100%"
+                      height="36px"
                       hoverInteraction
                       name={`${field}.key`}
                       placeholder={`Key ${index + 1}`}
@@ -213,7 +213,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={expected}
-                      height="100%"
+                      height="36px"
                       hoverInteraction
                       name={`${field}.value`}
                       placeholder={`Value ${index + 1}`}
@@ -234,7 +234,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         )
                       }
                       expected={expected}
-                      height="100%"
+                      height="36px"
                       name={`${field}.value`}
                       placeholder={
                         props.placeholder
