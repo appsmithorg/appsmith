@@ -136,6 +136,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                 label: "Africa",
                 value: MapTypes.AFRICA,
               },
+              {
+                label: "Custom",
+                value: MapTypes.CUSTOM,
+              },
             ],
             isJSconvertible: true,
             isBindProperty: true,
@@ -341,6 +345,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
   getPageView() {
     const {
       bottomRow,
+      customFusionMapConfig,
       data,
       isVisible,
       leftColumn,
@@ -357,6 +362,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <MapChartComponent
           caption={mapTitle}
+          customConfig={customFusionMapConfig}
           data={data}
           height={(bottomRow - topRow) * parentRowSpace}
           isVisible={isVisible}

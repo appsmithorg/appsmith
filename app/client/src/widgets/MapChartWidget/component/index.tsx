@@ -96,6 +96,7 @@ export interface EntityData {
 function MapChartComponent(props: MapChartComponentProps) {
   const {
     caption,
+    customConfig,
     data,
     height,
     onEntityClick,
@@ -189,6 +190,11 @@ function MapChartComponent(props: MapChartComponentProps) {
     setChartConfigs(newChartConfigs);
   }, [showLabels]);
 
+  useEffect(() => {
+    // handleCustomConfigChange();
+    console.error(customConfig);
+  }, [customConfig]);
+
   // Called by FC-React component to return the rendered chart
   const renderComplete = (chart: FusionCharts.FusionCharts) => {
     setChart(chart);
@@ -196,6 +202,19 @@ function MapChartComponent(props: MapChartComponentProps) {
 
   const entityClick = (eventObj: any) => {
     onEntityClick(eventObj.data);
+  };
+
+  const handleCustomConfigChange = async () => {
+    const { type } = customConfig;
+
+    if (type) {
+      const mapDefinition = await import(
+        `fusionmaps/maps/fusioncharts.${type.substr(5)}`
+      );
+      // Adding the chart and theme as dependency to the core fusioncharts
+      ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
+      setChartConfigs(customConfig);
+    }
   };
 
   return (
@@ -207,6 +226,7 @@ function MapChartComponent(props: MapChartComponentProps) {
 
 export interface MapChartComponentProps {
   caption: string;
+  customConfig: ChartObject;
   data: MapData[];
   height: number;
   isVisible: boolean;
