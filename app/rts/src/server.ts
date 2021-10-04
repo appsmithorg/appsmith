@@ -85,6 +85,7 @@ function main() {
 		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
 			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
 		}
+		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
 	});
 
 	io.of(PAGE_EDIT_NAMESPACE).adapter.on("join-room", (room, id) => {
