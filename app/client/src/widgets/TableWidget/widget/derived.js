@@ -4,13 +4,18 @@ export default {
     const selectedRowIndices = Array.isArray(props.selectedRowIndices)
       ? props.selectedRowIndices
       : [props.selectedRowIndices];
-    const selectedRowIndex =
-      props.selectedRowIndex === undefined ||
-      Number.isNaN(parseInt(props.selectedRowIndex))
-        ? selectedRowIndices.length
-          ? selectedRowIndices[selectedRowIndices.length - 1]
-          : -1
-        : parseInt(props.selectedRowIndex);
+    let selectedRowIndex;
+    if (props.multiRowSelection) {
+      selectedRowIndex = selectedRowIndices.length
+        ? selectedRowIndices[selectedRowIndices.length - 1]
+        : -1;
+    } else {
+      selectedRowIndex =
+        props.selectedRowIndex === undefined ||
+        Number.isNaN(parseInt(props.selectedRowIndex))
+          ? -1
+          : parseInt(props.selectedRowIndex);
+    }
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
     if (selectedRowIndex === -1) {
