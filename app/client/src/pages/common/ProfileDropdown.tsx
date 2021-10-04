@@ -15,12 +15,29 @@ import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE } from "constants/routes";
 import UserApi from "api/UserApi";
+import { Colors } from "constants/Colors";
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
   name: string;
   modifiers?: PopperModifiers;
 };
+
+const StyledMenuItem = styled(MenuItem)`
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: ${Colors.GRAY};
+    path {
+      fill: ${Colors.GRAY};
+    }
+  }
+
+  .cs-text {
+    color: ${Colors.CODE_GRAY};
+    line-height: unset;
+  }
+`;
 
 const ProfileMenuStyle = createGlobalStyle`
   .bp3-popover {
@@ -107,9 +124,9 @@ export default function ProfileDropdown(props: TagProps) {
           </UserNameWrapper>
         </UserInformation>
         <MenuDivider />
-        <MenuItem
+        <StyledMenuItem
           className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
-          icon="edit"
+          icon="edit-underline"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
               path: PROFILE,
@@ -117,7 +134,7 @@ export default function ProfileDropdown(props: TagProps) {
           }}
           text="Edit Profile"
         />
-        <MenuItem
+        <StyledMenuItem
           className="t--logout-icon"
           icon="logout"
           onSelect={() =>

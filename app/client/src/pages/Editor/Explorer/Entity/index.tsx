@@ -45,22 +45,22 @@ export const EntityItem = styled.div<{
   position: relative;
   border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
   border-bottom: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
-  font-size: 12px;
+  font-size: 14px;
   user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
-  background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
+  background: ${(props) => (props.active ? Colors.ALABASTER_ALT : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: ${(props) =>
     props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
   border-radius: 0;
-  color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
+  color: ${Colors.CODE_GRAY};
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.TUNDORA};
+    background: ${Colors.ALABASTER_ALT};
   }
   & .${Classes.POPOVER_TARGET}, & .${Classes.POPOVER_WRAPPER} {
     width: 100%;
@@ -69,6 +69,15 @@ export const EntityItem = styled.div<{
     justify-content: center;
     align-items: center;
   }
+
+  & .${EntityClassNames.COLLAPSE_TOGGLE} {
+    svg {
+      path {
+        fill: ${Colors.GRAY};
+      }
+    }
+  }
+
   &&&& .${EntityClassNames.CONTEXT_MENU} {
     display: block;
     width: 100%;
@@ -95,6 +104,12 @@ export const EntityItem = styled.div<{
   & .${EntityClassNames.RIGHT_ICON}:hover {
     background: ${(props) =>
       props.rightIconClickable ? Colors.SHARK2 : "initial"};
+    svg {
+      path {
+        fill: ${(props) =>
+          props.rightIconClickable ? Colors.WHITE : "initial"};
+      }
+    }
   }
 
   & .${EntityClassNames.RIGHT_ICON} svg {
@@ -108,6 +123,11 @@ export const EntityItem = styled.div<{
 
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
+  color: ${Colors.CHARCOAL};
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 export type EntityProps = {

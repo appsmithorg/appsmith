@@ -36,7 +36,7 @@ const Trigger = withTheme(({ theme }: { theme: Theme }) => (
     <Icon
       fillColor={theme.colors.globalSearch.helpIcon}
       name="help"
-      size={IconSize.XS}
+      size={IconSize.LARGE}
     />
   </StyledTrigger>
 ));
