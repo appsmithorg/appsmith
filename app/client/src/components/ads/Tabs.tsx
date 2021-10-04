@@ -126,11 +126,10 @@ const TabTitleWrapper = styled.div<{
 
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[2]}px;
-    width: 25px;
-    height: 25px;
     border-radius: 50%;
-    background: ${Colors.ALTO};
     svg {
+      width: 16px;
+      height: 16px;
       margin: auto;
       fill: ${(props) => props.theme.colors.tabs.normal};
       path {
