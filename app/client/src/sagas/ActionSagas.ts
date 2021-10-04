@@ -782,18 +782,35 @@ function* buildMetaForSnippets(
   expectedType: string,
   propertyPath: string,
 ) {
+  /*
+    Score is set to sort the snippets in the following order.
+      1. Field (10)
+      2. Entity + (All Queries / All Widgets) +Data Type (9)
+      3. Entity + Data Type (8)
+      4. Entity (5)
+      5. All Queries / All Widgets + Data Type (4)
+      6. All Queries / All Widgets 1
+  */
+  /*
+  UNKNOWN is given priority over other non matching dataTypes.
+  Eg. If there are no snippets matching a dataType criteria, we are promote snippets of type UNKNOWN
+ */
   const refinements: any = {
     entities: [entityType],
   };
-  const fieldMeta: { dataType: string; fields?: string; entities?: string } = {
-    dataType: expectedType,
+  const fieldMeta: {
+    dataType: Array<string>;
+    fields?: Array<string>;
+    entities?: Array<string>;
+  } = {
+    dataType: [`${expectedType}<score=3>`, `UNKNOWN<score=1>`],
   };
   if (propertyPath) {
     const relevantField = propertyPath
       .split(".")
       .slice(-1)
       .pop();
-    fieldMeta.fields = `${relevantField}<score=2>`;
+    fieldMeta.fields = [`${relevantField}<score=10>`];
   }
   if (entityType === ENTITY_TYPE.ACTION && entityId) {
     const currentEntity: Action = yield select(getActionById, {
@@ -802,7 +819,7 @@ function* buildMetaForSnippets(
     const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
     const type: string = plugin.packageName || "";
     refinements.entities = [type, entityType];
-    fieldMeta.entities = type;
+    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
@@ -811,7 +828,7 @@ function* buildMetaForSnippets(
     );
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
-    fieldMeta.entities = type;
+    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
   }
   return { refinements, fieldMeta };
 }
