@@ -11,6 +11,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Provider;
@@ -58,6 +59,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
+import javax.sql.DataSource;
 import javax.validation.Validator;
 import java.time.Duration;
 import java.time.Instant;
@@ -1013,11 +1015,21 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          */
         Mono<Plugin> pluginMono = pluginService.findById(action.getDatasource().getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
-        return pluginExecutorMono
-                .flatMap(pluginExecutor ->
-                        pluginExecutor.getHintMessages(action.getActionConfiguration(),
-                            action.getDatasource().getDatasourceConfiguration())
-                )
+        Mono<DatasourceConfiguration> dsConfigMono;
+        if (action.getDatasource().getId() != null) {
+            dsConfigMono = datasourceService.findById(action.getDatasource().getId())
+                    .flatMap(datasource -> Mono.just(datasource.getDatasourceConfiguration()));
+        }
+        else {
+            dsConfigMono = Mono.just(new DatasourceConfiguration());
+        }
+
+        return Mono.zip(pluginExecutorMono, dsConfigMono)
+                .flatMap(tuple ->{
+                        PluginExecutor pluginExecutor = tuple.getT1();
+                        DatasourceConfiguration dsConfig = tuple.getT2();
+                        return pluginExecutor.getHintMessages(action.getActionConfiguration(), dsConfig);
+                })
                 .flatMap(tuple -> {
                     Set datasourceHintMessages = ((Tuple2<Set, Set>) tuple).getT1();
                     action.getDatasource().getMessages().addAll(datasourceHintMessages);

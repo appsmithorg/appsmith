@@ -8,6 +8,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -61,6 +62,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -68,7 +70,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.Authentication.API_KEY;
+import static com.appsmith.external.constants.Authentication.AUTHORIZATION_HEADER;
+import static com.appsmith.external.constants.Authentication.BASIC;
+import static com.appsmith.external.constants.Authentication.BEARER_TOKEN;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
+import static com.appsmith.external.models.ApiKeyAuth.Type.HEADER;
+import static com.appsmith.external.models.ApiKeyAuth.Type.QUERY_PARAMS;
+import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
+import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -689,61 +699,37 @@ public class RestApiPlugin extends BasePlugin {
 
             Set<String> datasourceHintMessages = new HashSet<>();
             datasourceHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
-
-            Set<String> actionHintMessages = new HashSet<>();
-
-            Set<String> duplicateHeaders = getAllDuplicateHeaders(actionConfiguration, datasourceConfiguration);
-            if (!duplicateHeaders.isEmpty()) {
-                actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
-                        "(s) for header(s): " + duplicateHeaders + ". Please check out the API's saved datasource in " +
-                        "case you cannot find the duplicate header(s) in the API query pane.");
+            Set<String> duplicateHeadersInDatasource = getAllDuplicateHeaders(null, datasourceConfiguration);
+            if (!duplicateHeadersInDatasource.isEmpty()) {
+                datasourceHintMessages.add("API queries linked to this datasource may not run as expected because " +
+                        "this datasource has duplicate definition(s) for header(s): " + duplicateHeadersInDatasource +
+                        ". Please remove the duplicate definition(s) to resolve this warning.");
             }
 
-            Set<String> duplicateParams = getAllDuplicateParams(actionConfiguration, datasourceConfiguration);
-            if (!duplicateParams.isEmpty()) {
+            Set<String> duplicateParamsInDatasource = getAllDuplicateParams(null, datasourceConfiguration);
+            if (!duplicateParamsInDatasource.isEmpty()) {
+                datasourceHintMessages.add("API queries linked to this datasource may not run as expected because " +
+                        "this datasource has duplicate definition(s) for param(s): " + duplicateParamsInDatasource +
+                        ". Please remove the duplicate definition(s) to resolve this warning.");
+            }
+
+            Set<String> actionHintMessages = new HashSet<>();
+            actionHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
+            Set<String> allDuplicateHeaders = getAllDuplicateHeaders(actionConfiguration, datasourceConfiguration);
+            if (!allDuplicateHeaders.isEmpty()) {
                 actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
-                        "(s) for param(s): " + duplicateParams + ". Please check out the API's saved datasource in " +
-                        "case you cannot find the duplicate param(s) in the API query pane.");
+                        "(s) for header(s): " + allDuplicateHeaders + ". Please check out the API's saved datasource " +
+                        "in case you cannot find the duplicate header(s) in the API query pane.");
+            }
+
+            Set<String> allDuplicateParams = getAllDuplicateParams(actionConfiguration, datasourceConfiguration);
+            if (!allDuplicateParams.isEmpty()) {
+                actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
+                        "(s) for param(s): " + allDuplicateParams + ". Please check out the API's saved datasource in" +
+                        " case you cannot find the duplicate param(s) in the API query pane.");
             }
 
             return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
         }
-
-        private Set<String> getAllDuplicateParams(ActionConfiguration actionConfiguration,
-                                                  DatasourceConfiguration datasourceConfiguration) {
-            // TODO: fix it.
-            return new HashSet<>();
-        }
-
-        private Set<String> getAllDuplicateHeaders(ActionConfiguration actionConfiguration,
-                                                   DatasourceConfiguration datasourceConfiguration) {
-            Set duplicateHeaders = new HashSet<String>();
-            Set allUniqueHeaders = new HashSet<String>();
-            List allHeaders = new ArrayList<String>();
-
-            if (!CollectionUtils.isEmpty(actionConfiguration.getHeaders())) {
-                allHeaders.addAll(actionConfiguration.getHeaders());
-            }
-
-            if (!CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
-                allHeaders.addAll(datasourceConfiguration.getHeaders());
-            }
-
-            if (!CollectionUtils.isEmpty(actionConfiguration.getHeaders())) {
-                actionConfiguration.getHeaders().stream()
-                        .map(item -> item.getKey())
-                        .forEach(header -> {
-                            if (allUniqueHeaders.contains(header)) {
-                                duplicateHeaders.add(header);
-                            }
-
-                            allUniqueHeaders.add(header);
-                        });
-            }
-
-            // TODO: fix it.
-            return new HashSet<>();
-        }
     }
-
 }
