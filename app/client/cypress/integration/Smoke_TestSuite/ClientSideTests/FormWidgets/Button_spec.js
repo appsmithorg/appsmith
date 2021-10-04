@@ -22,6 +22,25 @@ describe("Button Widget Functionality", function() {
     cy.changeButtonColor("rgb(255, 0, 0)");
   });
 
+  it.only("Button default variant validation", function() {
+    // Checks whether the default variant is PRIMARY or not
+    cy.get(widgetsPage.widgetBtn).should(
+      "have.css",
+      "background-color",
+      "rgb(3, 179, 101)",
+    );
+    cy.get(widgetsPage.widgetBtnText).should(
+      "have.css",
+      "color",
+      "rgb(255, 255, 255)",
+    );
+    cy.get(widgetsPage.widgetBtn).should(
+      "have.attr",
+      "data-test-variant",
+      "PRIMARY",
+    );
+  });
+
   it("Button-Name validation", function() {
     //changing the Button Name
     cy.widgetText(

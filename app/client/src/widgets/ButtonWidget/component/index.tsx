@@ -265,6 +265,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         className={className}
+        data-test-variant={buttonVariant}
         disabled={disabled}
         fill
         icon={icon}
@@ -285,6 +286,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       className={className}
+      data-test-variant={buttonVariant}
       disabled={disabled}
       fill
       icon={iconName || icon}
