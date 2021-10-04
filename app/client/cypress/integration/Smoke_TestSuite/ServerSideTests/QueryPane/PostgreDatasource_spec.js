@@ -29,7 +29,7 @@ describe("Create a query with a postgres datasource, run, save and then delete t
       .find(queryLocators.createQuery)
       .click();
 
-    cy.get(queryLocators.templateMenu).click();
+    //cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -46,7 +46,7 @@ describe("Create a query with a postgres datasource, run, save and then delete t
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
-    cy.get(queryLocators.templateMenu).click();
+    //cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

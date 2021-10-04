@@ -91,7 +91,7 @@ describe("Entity explorer datasource structure", function() {
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
-    cy.get(queryLocators.templateMenu).click();
+    //cy.get(queryLocators.templateMenu).click();
 
     cy.GlobalSearchEntity(datasourceName);
     cy.get(`.t--entity.datasource:contains(${datasourceName})`)

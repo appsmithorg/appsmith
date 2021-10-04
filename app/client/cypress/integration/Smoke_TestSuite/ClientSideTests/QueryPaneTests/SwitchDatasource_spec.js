@@ -62,7 +62,7 @@ describe("Switch datasource", function() {
       .find(queryLocators.createQuery)
       .click();
 
-    cy.get(queryLocators.templateMenu).click();
+    //cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

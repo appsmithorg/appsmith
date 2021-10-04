@@ -31,7 +31,7 @@ describe("API Panel Test Functionality", function() {
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
-    cy.get(queryLocators.templateMenu).click();
+    //cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch)
       .last()
