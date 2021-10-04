@@ -34,7 +34,7 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -46,12 +46,12 @@ import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
-import { Icon as ButtonIcon } from "@blueprintjs/core";
 import get from "lodash/get";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import { getActionResponses } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
+import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
@@ -65,6 +65,7 @@ const Form = styled.form`
     padding: ${(props) => props.theme.spaces[3]}px;
   }
   ${FormRow} {
+    align-items: center;
     ${FormLabel} {
       padding: 0;
       width: 100%;
@@ -81,6 +82,14 @@ const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
+  .api-info-row {
+    svg {
+      fill: #ffffff;
+    }
+    .t--apiFormHttpMethod:hover {
+      background: ${Colors.CODE_GRAY};
+    }
+  }
 `;
 
 const ActionButtons = styled.div`
@@ -133,10 +142,28 @@ export const TabbedViewContainer = styled.div`
       padding: 0px ${(props) => props.theme.spaces[12]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
+      li.react-tabs__tab--selected {
+        > div {
+          color: ${(props) => props.theme.colors.apiPane.closeIcon};
+        }
+      }
     }
     .react-tabs__tab-panel {
       height: calc(100% - 36px);
-      background-color: ${(props) => props.theme.colors.apiPane.bg};
+      background-color: ${(props) => props.theme.colors.apiPane.tabBg};
+      .eye-on-off {
+        svg {
+          fill: ${(props) =>
+            props.theme.colors.apiPane.requestTree.header.icon};
+          &:hover {
+            fill: ${(props) =>
+              props.theme.colors.apiPane.requestTree.header.icon};
+          }
+          path {
+            fill: unset;
+          }
+        }
+      }
     }
   }
 `;
@@ -180,6 +207,7 @@ const Link = styled.a`
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   .${Classes.ICON} {
     margin-left: ${(props) => props.theme.spaces[1] + 1}px;
+    margin-top: -2px;
   }
 `;
 
@@ -265,19 +293,20 @@ const FlexContainer = styled.div`
   width: calc(100% - 30px);
 
   .key-value {
-    padding: ${(props) => props.theme.spaces[2]}px 0px
-      ${(props) => props.theme.spaces[2]}px
-      ${(props) => props.theme.spaces[1]}px;
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.apiPane.text};
+      padding: ${(props) => props.theme.spaces[2]}px 0px
+        ${(props) => props.theme.spaces[2]}px
+        ${(props) => props.theme.spaces[5]}px;
     }
+    border-bottom: 0px;
   }
   .key-value:nth-child(2) {
     margin-left: ${(props) => props.theme.spaces[4]}px;
   }
   .disabled {
     background: #e8e8e8;
-    margin-bottom: 2px;
+    margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
   }
 `;
 
@@ -335,9 +364,10 @@ function renderImportedHeadersButton(
           onClick(!showInheritedAttributes);
         }}
       >
-        <ButtonIcon
-          icon={showInheritedAttributes ? "eye-open" : "eye-off"}
-          iconSize={14}
+        <Icon
+          className="eye-on-off"
+          name={showInheritedAttributes ? "eye-on" : "eye-off"}
+          size={IconSize.XXL}
         />
         &nbsp;&nbsp;
         <Text case={Case.CAPITALIZE} type={TextType.P2}>
@@ -368,7 +398,7 @@ function renderHelpSection(
               <Text case={Case.UPPERCASE} type={TextType.H6}>
                 Learn How
               </Text>
-              <Icon name="right-arrow" />
+              <Icon name="right-arrow" size={IconSize.XL} />
             </Link>
           </CalloutContent>
         }

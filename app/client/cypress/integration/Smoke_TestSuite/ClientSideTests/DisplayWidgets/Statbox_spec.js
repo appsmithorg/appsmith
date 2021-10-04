@@ -7,11 +7,13 @@ describe("Statbox Widget Functionality", function() {
   });
 
   it("Open Existing Statbox from created Widgets list", () => {
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Widgets)").click({
+    cy.get(
+      ".t--entity-collapse-toggle ~ .t--entity-name:contains(Widgets)",
+    ).click({
       multiple: true,
     });
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Statbox1)").click({
-      multiple: true,
+    cy.get(".t--entity-name:contains(Statbox1) ~ .entity-context-menu").click({
+      force: true,
     });
   });
 });
