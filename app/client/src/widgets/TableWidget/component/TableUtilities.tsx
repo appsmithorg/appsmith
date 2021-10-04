@@ -479,12 +479,12 @@ export const renderEmptyRows = (
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  top: 12px;
+  top: 3px;
   cursor: pointer;
   transform: rotate(180deg);
   && svg {
     path {
-      fill: ${(props) => props.theme.colors.secondary};
+      fill: ${Colors.OXFORD_BLUE};
     }
   }
 `;
@@ -496,7 +496,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   && svg {
     path {
-      fill: ${(props) => props.theme.colors.secondary};
+      fill: ${Colors.OXFORD_BLUE};
     }
   }
 `;
@@ -536,7 +536,9 @@ export function TableHeaderCell(props: {
             <DescendingIcon height={16} width={16} />
           )}
         </SortIconWrapper>
-      ) : null}
+      ) : (
+        <div style={{ minWidth: "11px" }} />
+      )}
       <DraggableHeaderWrapper
         className={
           !props.isHidden
