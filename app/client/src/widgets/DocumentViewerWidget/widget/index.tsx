@@ -15,9 +15,9 @@ class DocumentViewerWidget extends BaseWidget<
           {
             helpText: "Document url for preview",
             propertyName: "docUrl",
-            label: "Document Url",
+            label: "Document Link",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter url of document",
+            placeholderText: "URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
