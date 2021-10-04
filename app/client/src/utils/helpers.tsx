@@ -508,12 +508,12 @@ export const howMuchTimeBeforeText = (date: string) => {
   const hours = now.diff(checkDate, "hours");
   const minutes = now.diff(checkDate, "minutes");
   const seconds = now.diff(checkDate, "seconds");
-  if (years > 0) return `${years} year${years > 1 ? "s" : ""}`;
-  else if (months > 0) return `${months} month${months > 1 ? "s" : ""}`;
+  if (years > 0) return `${years} yr${years > 1 ? "s" : ""}`;
+  else if (months > 0) return `${months} mth${months > 1 ? "s" : ""}`;
   else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
-  else if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
-  else if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""}`;
-  else return `${seconds} second${seconds > 1 ? "s" : ""}`;
+  else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
+  else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
+  else return `${seconds} sec${seconds > 1 ? "s" : ""}`;
 };
 
 /**
