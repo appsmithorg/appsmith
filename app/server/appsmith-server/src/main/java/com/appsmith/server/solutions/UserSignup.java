@@ -20,6 +20,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -207,7 +208,9 @@ public class UserSignup {
                                             Map.of(
                                                     "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
                                                     "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
-                                                    "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : ""
+                                                    "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
+                                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
                                             ),
                                             false
                                     )),
