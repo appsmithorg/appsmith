@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, MutableRefObject } from "react";
 import TextInput from "components/ads/TextInput";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -13,11 +13,17 @@ import {
   switchGitBranchInit,
 } from "actions/gitSyncActions";
 import {
+  getCurrentGitBranch,
   getFetchingBranches,
   getGitBranches,
 } from "selectors/gitSyncSelectors";
 
 import Skeleton from "components/utils/Skeleton";
+
+import scrollIntoView from "scroll-into-view-if-needed";
+
+import BranchListHotkeys from "./BranchListHotkeys";
+import { debug } from "loglevel";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -26,7 +32,10 @@ const ListContainer = styled.div`
   position: relative;
 `;
 
-const BranchListItemContainer = styled.div`
+const BranchListItemContainer = styled.div<{
+  hovered?: boolean;
+  active?: boolean;
+}>`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[5]}px`};
   ${(props) => getTypographyByKey(props, "p1")};
@@ -39,15 +48,28 @@ const BranchListItemContainer = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background-color: ${(props) =>
+    props.hovered || props.active ? Colors.GREY_3 : ""};
 `;
 
 // used for skeletons
 const textInputHeight = 38;
 const textHeight = 18;
 
-function BranchListItem({ branch, onClick }: any) {
+function BranchListItem({ active, branch, hovered, onClick }: any) {
+  const itemRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (itemRef.current)
+      scrollIntoView(itemRef.current, {
+        scrollMode: "if-needed",
+        block: "nearest",
+        inline: "nearest",
+      });
+  }, [active]);
+
   return (
-    <BranchListItemContainer onClick={onClick}>
+    <BranchListItemContainer hovered={hovered} onClick={onClick} ref={itemRef}>
       {branch}
     </BranchListItemContainer>
   );
@@ -80,6 +102,7 @@ export default function BranchList(props: {
   setShowCreateNewBranchForm?: (flag: boolean) => void;
 }) {
   const branches = useSelector(getGitBranches);
+  const [activeHoverIndex, setActiveHoverIndexInState] = useState(0);
 
   useEffect(() => {
     dispatch(fetchBranchesInit());
@@ -99,6 +122,7 @@ export default function BranchList(props: {
     false,
   );
   const fetchingBranches = useSelector(getFetchingBranches);
+  const currentBranch = useSelector(getCurrentGitBranch);
 
   const setShowCreateNewBranchForm = (flag: boolean) => {
     setShowCreateNewBranchFormInState(flag);
@@ -144,54 +168,99 @@ export default function BranchList(props: {
     dispatch(switchGitBranchInit(branch));
   };
 
-  return showCreateBranchForm ? (
-    <CreateNewBranchForm
-      defaultBranchValue={filteredBranches.length === 0 ? searchText : ""}
-      isCreatingNewBranch={isCreatingNewBranch}
-      onCancel={() => {
-        setShowCreateNewBranchForm(false);
-        changeSearchText("");
-      }}
-      onSubmit={handleCreateNewBranch}
-    />
-  ) : (
-    <>
-      <div style={{ width: 300 }}>
-        {fetchingBranches && (
-          <div style={{ width: "100%", height: textInputHeight }}>
-            <Skeleton />
-          </div>
-        )}
-        {!fetchingBranches && (
-          <TextInput
-            className="debugger-search"
-            fill
-            onChange={changeSearchText}
-          />
-        )}
-      </div>
-      {fetchingBranches && <BranchesLoading />}
-      {!fetchingBranches && (
+  const setActiveHoverIndex = (index: number) => {
+    if (index < 0) setActiveHoverIndexInState(filteredBranches.length);
+    if (index > filteredBranches.length) setActiveHoverIndexInState(0);
+    else setActiveHoverIndexInState(index);
+  };
+
+  const getIsCreateNewBranchInputIsValid = () => true;
+
+  const handleUpKey = () => setActiveHoverIndex(activeHoverIndex - 1);
+
+  const handleDownKey = () => setActiveHoverIndex(activeHoverIndex + 1);
+
+  const handleSubmitKey = () => {
+    // if (showCreateBranchForm) {
+    //   handleCreateNewBranch();
+    // }
+
+    if (activeHoverIndex === 0) {
+      handleCreateNew();
+    } else {
+      switchBranch(filteredBranches[activeHoverIndex + 1]);
+    }
+  };
+
+  const handleCancelCreateNewBranch = () => {
+    setShowCreateNewBranchForm(false);
+    changeSearchText("");
+  };
+
+  const handleEscKey = () => {
+    if (showCreateBranchForm) handleCancelCreateNewBranch();
+  };
+
+  return (
+    <BranchListHotkeys
+      handleDownKey={handleDownKey}
+      handleEscKey={handleEscKey}
+      handleSubmitKey={handleSubmitKey}
+      handleUpKey={handleUpKey}
+    >
+      {showCreateBranchForm ? (
+        <CreateNewBranchForm
+          defaultBranchValue={filteredBranches.length === 0 ? searchText : ""}
+          isCreatingNewBranch={isCreatingNewBranch}
+          onCancel={handleCancelCreateNewBranch}
+          onSubmit={handleCreateNewBranch}
+        />
+      ) : (
         <>
-          <BranchListItemContainer onClick={handleCreateNew}>
-            <span>
-              Create new
-              {filteredBranches.length === 0 && (
-                <span>:&nbsp;{searchText}</span>
-              )}
-            </span>
-          </BranchListItemContainer>
-          <ListContainer>
-            {filteredBranches.map((branch: string) => (
-              <BranchListItem
-                branch={branch}
-                key={branch}
-                onClick={() => switchBranch(branch)}
+          <div style={{ width: 300 }}>
+            {fetchingBranches && (
+              <div style={{ width: "100%", height: textInputHeight }}>
+                <Skeleton />
+              </div>
+            )}
+            {!fetchingBranches && (
+              <TextInput
+                autoFocus
+                className="debugger-search"
+                fill
+                onChange={changeSearchText}
               />
-            ))}
-          </ListContainer>
+            )}
+          </div>
+          {fetchingBranches && <BranchesLoading />}
+          {!fetchingBranches && (
+            <>
+              <BranchListItemContainer
+                hovered={activeHoverIndex === 0}
+                onClick={handleCreateNew}
+              >
+                <span>
+                  Create new
+                  {filteredBranches.length === 0 && (
+                    <span>:&nbsp;{searchText}</span>
+                  )}
+                </span>
+              </BranchListItemContainer>
+              <ListContainer>
+                {filteredBranches.map((branch: string, index: number) => (
+                  <BranchListItem
+                    active={currentBranch === branch}
+                    branch={branch}
+                    hovered={activeHoverIndex - 1 === index}
+                    key={branch}
+                    onClick={() => switchBranch(branch)}
+                  />
+                ))}
+              </ListContainer>
+            </>
+          )}
         </>
       )}
-    </>
+    </BranchListHotkeys>
   );
 }
