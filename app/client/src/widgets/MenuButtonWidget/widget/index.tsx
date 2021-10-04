@@ -365,10 +365,12 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
+    const menuDropDownWidth = 12 * this.props.parentColumnSpace;
 
     return (
       <MenuButtonComponent
         {...this.props}
+        menuDropDownWidth={menuDropDownWidth}
         onItemClicked={this.menuItemClickHandler}
         width={componentWidth}
       />

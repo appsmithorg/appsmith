@@ -23,8 +23,6 @@ import {
 } from "widgets/ButtonWidget/component";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 
-const MIN_MENU_POPOVER_WIDTH = 180;
-
 export const MenuButtonContainer = styled.div`
   width: 100%;
   height: 100%;
@@ -35,15 +33,18 @@ export const MenuButtonContainer = styled.div`
   }
 `;
 
-const PopoverStyles = createGlobalStyle<{ parentWidth: number }>`
+const PopoverStyles = createGlobalStyle<{
+  parentWidth: number;
+  menuDropDownWidth: number;
+}>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
   .menu-button-popover {
-     min-width:${({ parentWidth }) =>
-       parentWidth > MIN_MENU_POPOVER_WIDTH
+     min-width:${({ menuDropDownWidth, parentWidth }) =>
+       parentWidth > menuDropDownWidth
          ? `${parentWidth}px`
-         : `${MIN_MENU_POPOVER_WIDTH}px`} ;
+         : `${menuDropDownWidth}px`} ;
   }
 `;
 
@@ -354,6 +355,7 @@ export interface MenuButtonComponentProps {
   onItemClicked: (onClick: string | undefined) => void;
   backgroundColor?: string;
   width: number;
+  menuDropDownWidth: number;
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
@@ -367,6 +369,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     isDisabled,
     label,
     menuColor,
+    menuDropDownWidth,
     menuItems,
     menuVariant,
     onItemClicked,
@@ -375,7 +378,10 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
 
   return (
     <MenuButtonContainer>
-      <PopoverStyles parentWidth={width - WidgetContainerDiff} />
+      <PopoverStyles
+        menuDropDownWidth={menuDropDownWidth}
+        parentWidth={width - WidgetContainerDiff}
+      />
       <Popover2
         content={
           <PopoverContent

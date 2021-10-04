@@ -206,6 +206,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+    const dropDownWidth = 12 * this.props.parentColumnSpace;
 
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
@@ -215,6 +216,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     return (
       <DropDownComponent
         disabled={this.props.isDisabled}
+        dropDownWidth={dropDownWidth}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
