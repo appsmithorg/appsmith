@@ -39,6 +39,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import { Classes } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -129,6 +130,19 @@ const MoreOptionsContainer = styled.div`
 const CollapseComponentWrapper = styled.div`
   display: flex;
   width: fit-content;
+`;
+
+const RedMenuItem = styled(MenuItem)`
+  &&,
+  && .cs-text {
+    color: ${Colors.DANGER_SOLID};
+  }
+  && {
+    svg,
+    svg path {
+      fill: ${Colors.DANGER_SOLID};
+    }
+  }
 `;
 
 type DatasourceCardProps = {
@@ -283,7 +297,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   </MoreOptionsContainer>
                 }
               >
-                <MenuItem
+                <RedMenuItem
                   className="t--datasource-option-delete"
                   icon="delete"
                   isLoading={isDeletingDatasource}
