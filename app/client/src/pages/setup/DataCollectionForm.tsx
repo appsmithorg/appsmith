@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import styled from "styled-components";
 import Toggle from "components/ads/Toggle";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
@@ -14,7 +14,6 @@ import {
   StyledLink as Link,
 } from "./common";
 import { TELEMETRY_URL } from "constants/ThirdPartyConstants";
-import { useState } from "react";
 
 const DataCollectionFormWrapper = styled.div`
   width: 100%;
