@@ -120,6 +120,11 @@ export interface CellLayoutProperties {
   // column type switch related properties
   defaultSwitchState?: boolean;
   switchLabel?: string;
+  // column type rating related properties
+  isAllowHalf?: boolean;
+  inactiveColor?: string;
+  activeColor?: string;
+  maxCount?: number;
 }
 
 export interface TableColumnMetaProps {
@@ -188,6 +193,12 @@ export interface ColumnProperties {
   onOptionChange?: string;
   // used in column type select and switch
   defaultOptionValue?: string[];
+  // column type rating related properties
+  isAllowHalf?: boolean[];
+  inactiveColor?: string[];
+  activeColor?: string[];
+  maxCount?: number[];
+  onRateChanged?: string;
 }
 
 export const ConditionFunctions: {

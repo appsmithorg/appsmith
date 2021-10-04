@@ -216,6 +216,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
+      // column type rating related properties
+      maxCount: this.getPropertyValue(columnProperties.maxCount, rowIndex),
+      activeColor: this.getPropertyValue(
+        columnProperties.activeColor,
+        rowIndex,
+        true,
+      ),
+      inactiveColor: this.getPropertyValue(
+        columnProperties.inactiveColor,
+        rowIndex,
+        true,
+      ),
+      isAllowHalf: this.getBooleanPropertyValue(
+        columnProperties.isAllowHalf,
+        rowIndex,
+      ),
     };
     return cellProperties;
   };
@@ -293,22 +309,22 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleRatingChange = (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     newValue: number,
   ) => {
     const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], newValue, Object);
 
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
-      triggerPropertyName: "onRateChanged",
-      dynamicString: action,
-      event: {
-        type: EventType.ON_RATE_CHANGED,
-      },
-    });
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     // also update selectedRowIndex because we are preventing propogation for "rating cell"
     this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+    this.handleColumnAction(
+      rowIndex,
+      "onRateChanged",
+      dynamicString,
+      EventType.ON_RATE_CHANGED,
+    );
   };
 
   getTableColumns = () => {
@@ -463,15 +479,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             return (
               <RatingCell
                 action={columnProperties.onRateChanged}
-                activeColor={columnProperties.activeColor}
+                activeColor={cellProperties.activeColor}
                 cellProperties={cellProperties}
                 columnId={accessor}
-                inactiveColor={columnProperties.inactiveColor}
-                isAllowHalf={columnProperties.isAllowHalf}
+                inactiveColor={cellProperties.inactiveColor}
+                isAllowHalf={cellProperties.isAllowHalf}
                 isCellVisible={isCellVisible}
-                isDisabled={columnProperties.isDisabled}
+                isDisabled={cellProperties.isDisabled}
                 isHidden={isHidden}
-                maxCount={columnProperties.maxCount}
+                maxCount={cellProperties.maxCount || 5}
                 onChange={this.handleRatingChange}
                 rowIndex={rowIndex}
                 value={props.cell.value}

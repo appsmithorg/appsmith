@@ -848,16 +848,16 @@ export function RatingCell(props: {
   value: any;
   maxCount: number;
   action: string;
-  activeColor: string;
-  inactiveColor: string;
-  isAllowHalf: boolean;
+  activeColor?: string;
+  inactiveColor?: string;
+  isAllowHalf?: boolean;
   columnId: string;
-  isDisabled: boolean;
+  isDisabled?: boolean;
   isHidden: boolean;
   onChange: (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     newValue: number,
   ) => void;
   cellProperties: CellLayoutProperties;
