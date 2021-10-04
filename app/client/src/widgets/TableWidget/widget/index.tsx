@@ -215,6 +215,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
+      // column type checkbox related properties
+      checkboxLabel: this.getPropertyValue(
+        columnProperties.checkboxLabel,
+        rowIndex,
+        true,
+      ),
+      defaultCheckedState: this.getPropertyValue(
+        columnProperties.defaultCheckedState,
+        rowIndex,
+      ),
     };
     return cellProperties;
   };
@@ -292,21 +302,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleCheckboxChange = (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     isSwitchedOn: boolean,
   ) => {
     const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], isSwitchedOn, Object);
 
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
-      triggerPropertyName: "onCheckChange",
-      dynamicString: action,
-      event: {
-        type: EventType.ON_CHECK_CHANGE,
-      },
-    });
-
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+
+    this.handleColumnAction(
+      rowIndex,
+      "onCheckChange",
+      dynamicString,
+      EventType.ON_SWITCH_CHANGE,
+    );
   };
 
   getTableColumns = () => {
@@ -463,13 +473,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 action={columnProperties.onCheckChange}
                 alignWidget={columnProperties.alignWidget}
                 cellProperties={cellProperties}
+                checkboxLabel={cellProperties.checkboxLabel as string}
                 columnId={accessor}
-                defaultCheckedState={columnProperties.defaultCheckedState}
+                defaultCheckedState={cellProperties.defaultCheckedState}
                 isCellVisible={isCellVisible}
-                isDisabled={columnProperties.isDisabled}
+                isDisabled={cellProperties.isDisabled}
                 isHidden={isHidden}
-                label={columnProperties.checkboxLabel}
-                onChange={this.handleCheckboxChange}
+                onCheckChange={this.handleCheckboxChange}
                 rowIndex={rowIndex}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
@@ -939,6 +949,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           editedColumnData,
           [column.id, "defaultOptionValue"],
           column.defaultSwitchState,
+          Object,
+        );
+      } else if (column.columnType === "checkbox") {
+        setWith(
+          editedColumnData,
+          [column.id, "defaultOptionValue"],
+          column.defaultCheckedState,
           Object,
         );
       } else {

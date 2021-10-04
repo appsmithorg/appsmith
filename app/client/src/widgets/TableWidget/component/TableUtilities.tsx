@@ -837,19 +837,24 @@ export function SwitchCell(props: {
   );
 }
 
+/**
+ * renders select component for each cell where column type is "checkbox"
+ * column properties have additional props related to select i.e. defaultCheckedState, checkboxLabel, alignWidget, onCheckChange
+ * onCheckChange call, parent handler set new data into meta properties
+ */
 export function CheckboxCell(props: {
   value: any;
-  defaultCheckedState: boolean;
-  label: string;
+  defaultCheckedState?: boolean;
+  checkboxLabel: string;
   action: string;
   columnId: string;
-  isDisabled: boolean;
+  isDisabled?: boolean;
   alignWidget: AlignWidget;
   isHidden: boolean;
-  onChange: (
+  onCheckChange: (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     isSwitchedOn: boolean,
   ) => void;
   cellProperties: CellLayoutProperties;
@@ -858,7 +863,12 @@ export function CheckboxCell(props: {
   rowIndex: number;
 }) {
   const handleCheckboxChange = (isChecked: boolean) => {
-    props.onChange(props.columnId, props.rowIndex, props.action, isChecked);
+    props.onCheckChange(
+      props.columnId,
+      props.rowIndex,
+      props.action,
+      isChecked,
+    );
   };
   let isCheckboxChecked;
   try {
@@ -878,7 +888,7 @@ export function CheckboxCell(props: {
         isDisabled={props.isDisabled}
         isLoading={false}
         key={props.widgetId}
-        label={props.label}
+        label={props.checkboxLabel}
         onCheckChange={handleCheckboxChange}
         rowSpace={0}
         widgetId={props.widgetId}

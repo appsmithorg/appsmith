@@ -120,6 +120,9 @@ export interface CellLayoutProperties {
   // column type switch related properties
   defaultSwitchState?: boolean;
   switchLabel?: string;
+  // column type checkbox related properties
+  defaultCheckedState?: boolean;
+  checkboxLabel?: string;
 }
 
 export interface TableColumnMetaProps {
@@ -178,7 +181,9 @@ export interface ColumnProperties {
   boxShadowColor?: string;
   isCellVisible?: boolean;
   // column type checkbox related properties
-  defaultCheckedState?: boolean;
+  defaultCheckedState?: boolean[];
+  checkboxLabel?: string[];
+  onCheckChange?: string;
   // column type switch related properties
   defaultSwitchState?: boolean[];
   switchLabel?: string[];

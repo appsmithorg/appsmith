@@ -792,12 +792,11 @@ export default [
                 {
                   propertyName: "checkboxLabel",
                   label: "Label",
-                  controlType: "INPUT_TEXT",
+                  controlType: "COMPUTE_VALUE",
                   helpText: "Displays a label next to checkbox",
                   placeholderText: "Enter label text",
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -809,6 +808,14 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.TEXT,
+                      },
+                    },
+                  },
                 },
                 {
                   propertyName: "defaultCheckedState",
@@ -816,10 +823,10 @@ export default [
                   helpText:
                     "Checks / un-checks the checkbox by default. Changes to the default selection update the cell state",
                   controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.BOOLEAN },
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -1001,6 +1008,14 @@ export default [
                   propertyName: "onCheckChange",
                   label: "onCheckChange",
                   controlType: "ACTION_SELECTOR",
+                  additionalAutoComplete: (props: TableWidgetProps) => ({
+                    currentRow: Object.assign(
+                      {},
+                      ...Object.keys(props.primaryColumns).map((key) => ({
+                        [key]: "",
+                      })),
+                    ),
+                  }),
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: true,
