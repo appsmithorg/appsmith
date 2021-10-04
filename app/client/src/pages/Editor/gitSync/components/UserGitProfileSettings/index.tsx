@@ -10,6 +10,10 @@ import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
+import { GIT_PROFILE_ROUTE } from "constants/routes";
+import history from "utils/history";
+import { Colors } from "constants/Colors";
+import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -37,6 +41,29 @@ const MainContainer = styled.div`
   width: calc(100% - 30px);
 `;
 
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding-top: 2px;
+  margin-left: ${(props) => props.theme.spaces[6]}px;
+  cursor: pointer;
+  .edit-config-link {
+    font-size: 12px;
+    display: flex;
+    color: ${Colors.GRAY};
+  }
+`;
+
+const IconWrapper = styled.div`
+  margin-left: 2px;
+`;
+
+const DefaultConfigContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  margin-top: ${(props) => props.theme.spaces[2]}px;
+`;
+
 type AuthorInfo = { authorName: string; authorEmail: string };
 
 const AUTHOR_INFO_LABEL = {
@@ -53,6 +80,10 @@ type UserGitProfileSettingsProps = {
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
   isLocalConfigDefined: boolean;
   isGlobalConfigDefined: boolean;
+};
+
+const goToGitProfile = () => {
+  history.push(GIT_PROFILE_ROUTE);
 };
 
 function UserGitProfileSettings({
@@ -92,11 +123,20 @@ function UserGitProfileSettings({
         </span>
       </TitleWrapper>
       {!isLocalConfigDefined && isGlobalConfigDefined ? (
-        <Checkbox
-          isDefaultChecked={useGlobalConfig}
-          label="Use Default Configuration"
-          onCheckChange={toggleUseDefaultConfig}
-        />
+        <DefaultConfigContainer>
+          <Checkbox
+            fill={false}
+            isDefaultChecked={useGlobalConfig}
+            label="Use Default Configuration"
+            onCheckChange={toggleUseDefaultConfig}
+          />
+          <ButtonWrapper onClick={goToGitProfile}>
+            <span className="edit-config-link">EDIT</span>
+            <IconWrapper>
+              <RightArrow width={14} />
+            </IconWrapper>
+          </ButtonWrapper>
+        </DefaultConfigContainer>
       ) : null}
 
       <Space size={7} />

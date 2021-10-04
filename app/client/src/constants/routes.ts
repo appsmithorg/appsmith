@@ -8,6 +8,8 @@ export const APPLICATIONS_URL = `/applications`;
 export const BUILDER_URL = "/applications/:applicationId/pages/:pageId/edit";
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
+
+export const GIT_PROFILE_ROUTE = `${PROFILE}/git`;
 export const USERS_URL = "/users";
 export const VIEWER_URL_REGEX = /applications\/.*?\/pages\/.*/;
 export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";

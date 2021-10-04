@@ -62,11 +62,11 @@ class GitSyncAPI extends Api {
   }
 
   static getGlobalConfig() {
-    return Api.get(`${GitSyncAPI.baseURL}/profile`);
+    return Api.get(`${GitSyncAPI.baseURL}/profile/default`);
   }
 
   static setGlobalConfig(payload: GitConfig) {
-    return Api.post(`${GitSyncAPI.baseURL}/profile/save`, payload);
+    return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
   static getLocalConfig(defaultApplicationId: string) {

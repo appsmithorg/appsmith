@@ -71,13 +71,20 @@ const ErrorContainer = styled.div`
   .error-text {
     color: ${Colors.POMEGRANATE2};
   }
+  .see-more-text {
+    font-size: 12px;
+    cursor: pointer;
+    color: ${Colors.GRAY};
+  }
 `;
 
-const ErrorMsgWrapper = styled.div<{ $show: boolean }>`
+const ErrorMsgWrapper = styled.div<{ $hide: boolean }>`
+  margin-top: ${(props) => props.theme.spaces[8]}px;
   max-height: 160px;
   max-width: 96%;
-  overflow-y: ${(props) => (props.$show ? "hidden" : "scroll")};
+  overflow-y: ${(props) => (props.$hide ? "hidden" : "scroll")};
   .git-error-text {
+    height: 100%;
     margin: 0px;
     padding: 0px;
     font-size: 12px;
@@ -89,6 +96,7 @@ const ErrorMsgWrapper = styled.div<{ $show: boolean }>`
 function Deploy({ theme }: { theme: Theme }) {
   const [pushImmediately, setPushImmediately] = useState(true);
   const [commitMessage, setCommitMessage] = useState("Initial Commit");
+  const [showCompleteError, setShowCompleteError] = useState(false);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
   const isPushingToGit = useSelector(getIsPushingToGit);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
@@ -232,16 +240,24 @@ function Deploy({ theme }: { theme: Theme }) {
       {!hasChangesToCommit && !hasCommitsToPush && !gitPushError && (
         <DeployPreview />
       )}
-      {gitPushError && (
+      {/* Disabled currently */}
+      {gitPushError && false && (
         <ErrorContainer>
           <Text className="error-text" type={TextType.P1}>
             Error while pushing
           </Text>
           {/* Add Show More toggle */}
-          <ErrorMsgWrapper $show={errorMsgShowMoreEnabled} ref={errorMsgRef}>
+          <ErrorMsgWrapper $hide={!showCompleteError} ref={errorMsgRef}>
             <pre className="git-error-text error-text">{gitPushError}</pre>
           </ErrorMsgWrapper>
-          {errorMsgShowMoreEnabled ? "Show More" : "Nothing much"}
+          {errorMsgShowMoreEnabled && (
+            <span
+              className="see-more-text"
+              onClick={() => setShowCompleteError(!showCompleteError)}
+            >
+              {showCompleteError ? "SEE LESS" : "SEE MORE"}
+            </span>
+          )}
         </ErrorContainer>
       )}
     </Container>

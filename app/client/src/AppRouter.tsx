@@ -128,7 +128,7 @@ class AppRouter extends React.Component<any, any> {
                   component={AppViewerLoader}
                   path={getApplicationViewerPageURL()}
                 />
-                <SentryRoute component={UserProfile} exact path={PROFILE} />
+                <SentryRoute component={UserProfile} path={PROFILE} />
                 <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
                 <SentryRoute
                   component={UnsubscribeEmail}

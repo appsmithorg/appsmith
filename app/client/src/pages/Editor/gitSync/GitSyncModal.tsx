@@ -36,6 +36,12 @@ const BodyContainer = styled.div`
   padding-right: ${(props) => props.theme.spaces[13]}px;
   overflow-y: auto;
   height: 100%;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.colors.modal.scrollbar};
+  }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 `;
 
 const MenuContainer = styled.div`
@@ -54,16 +60,10 @@ const CloseBtnContainer = styled.div`
   border-radius: ${(props) => props.theme.radii[1]}px;
 `;
 
-// function NoopComponent() {
-//   return <div />;
-// }
-
 const ComponentsByTab = {
   [MENU_ITEM.GIT_CONNECTION]: GitConnection,
   [MENU_ITEM.DEPLOY]: Deploy,
   [MENU_ITEM.MERGE]: Merge,
-  // [MENU_ITEM.SHARE_APPLICATION]: NoopComponent,
-  // [MENU_ITEM.SETTINGS]: NoopComponent,
 };
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
