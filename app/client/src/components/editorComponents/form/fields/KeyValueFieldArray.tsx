@@ -161,7 +161,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                   {props.hasType ? (
                     <DynamicTextFieldWithDropdownWrapper>
                       <DynamicTextField
-                        border={CodeEditorBorder.NONE}
+                        border={CodeEditorBorder.ALL_SIDE}
                         className={`t--${field}.key.${index}`}
                         dataTreePath={`${props.dataTreePath}[${index}].key`}
                         expected={expected}
@@ -183,7 +183,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     </DynamicTextFieldWithDropdownWrapper>
                   ) : (
                     <DynamicTextField
-                      border={CodeEditorBorder.NONE}
+                      border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.key.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].key`}
                       expected={expected}
@@ -199,7 +199,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                 {!props.actionConfig && (
                   <Flex size={3}>
                     <DynamicTextField
-                      border={CodeEditorBorder.NONE}
+                      border={CodeEditorBorder.ALL_SIDE}
                       className={`t--${field}.value.${index}`}
                       dataTreePath={`${props.dataTreePath}[${index}].value`}
                       expected={expected}
@@ -242,7 +242,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                       }
                       theme={props.theme}
                       {...otherProps}
-                      border={CodeEditorBorder.NONE}
+                      border={CodeEditorBorder.ALL_SIDE}
                       hoverInteraction
                     />
                   </Flex>

@@ -157,7 +157,7 @@ export default function Pagination(props: PaginationProps) {
             <Step type={TextType.P1}>Previous url</Step>
             <PaginationFieldWrapper>
               <DynamicTextField
-                border={CodeEditorBorder.NONE}
+                border={CodeEditorBorder.ALL_SIDE}
                 className="t--apiFormPaginationPrev"
                 fill={!!true}
                 height="100%"
@@ -180,7 +180,7 @@ export default function Pagination(props: PaginationProps) {
             <Step type={TextType.P1}>Next url</Step>
             <PaginationFieldWrapper>
               <DynamicTextField
-                border={CodeEditorBorder.NONE}
+                border={CodeEditorBorder.ALL_SIDE}
                 className="t--apiFormPaginationNext"
                 fill={!!true}
                 height="100%"
