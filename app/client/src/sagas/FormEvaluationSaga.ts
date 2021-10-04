@@ -75,21 +75,23 @@ function* evaluate(
   return currentEvalState;
 }
 
+// Fetches current evaluation and runs a new one based on the new data
 function* getFormEvaluation(formId: string, actionConfiguration: any): any {
   const currentEvalState: any = yield select(getFormEvaluationState);
 
-  if (currentEvalState.hasOwnProperty(formId)) {
+  // Only change the form evaluation state if the form ID is same or the evaluation state is present
+  if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
     currentEvalState[formId] = yield call(
       evaluate,
       actionConfiguration,
       currentEvalState[formId],
     );
-  }
 
-  yield put({
-    type: ReduxActionTypes.SET_FORM_EVALUATION,
-    payload: currentEvalState,
-  });
+    yield put({
+      type: ReduxActionTypes.SET_FORM_EVALUATION,
+      payload: currentEvalState,
+    });
+  }
 }
 
 // Filter function to assign a function to the Action dispatched
