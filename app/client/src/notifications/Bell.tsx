@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import NotificationsList from "./NotificationsList";
-import { ReactComponent as BellIcon } from "assets/icons/ads/bell.svg";
+import BellIcon from "remixicon-react/Notification3LineIcon";
 import { Popover2 } from "@blueprintjs/popover2";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
@@ -14,6 +14,7 @@ import {
   setIsNotificationsListVisible,
 } from "actions/notificationActions";
 import styled from "styled-components";
+import { Colors } from "constants/Colors";
 
 import {
   unreadCountSelector,
@@ -24,7 +25,6 @@ const Container = styled.div`
   position: relative;
   padding: ${(props) => props.theme.spaces[1]}px;
   margin-right: ${(props) => props.theme.spaces[9]}px;
-  top: 3px;
   cursor: pointer;
 `;
 
@@ -89,7 +89,7 @@ function Bell() {
       placement={"bottom-end"}
     >
       <Container>
-        <StyledBellIcon />
+        <StyledBellIcon color={Colors.GRAY} />
         {showIndicator && (
           <BellIndicatorContainer>
             {/** Not using overflow ellipsis here for UI specs */}
