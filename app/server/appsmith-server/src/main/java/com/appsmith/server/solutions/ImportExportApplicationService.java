@@ -467,15 +467,15 @@ public class ImportExportApplicationService {
 
                                     // Since the resource is already present in DB, just update resource
                                     Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId());
-                            datasource.setId(null);
-                            // Don't update datasource config as the saved datasource is already configured as per user
-                            // for this instance
-                            datasource.setDatasourceConfiguration(null);
-                            datasource.setPluginId(null);
-                            BeanCopyUtils.copyNewFieldValuesIntoOldObject(datasource, existingDatasource);
-                            existingDatasource.setStructure(null);
-                            return datasourceService.update(existingDatasource.getId(), existingDatasource);
-                        }
+                                    datasource.setId(null);
+                                    // Don't update datasource config as the saved datasource is already configured as per user
+                                    // for this instance
+                                    datasource.setDatasourceConfiguration(null);
+                                    datasource.setPluginId(null);
+                                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(datasource, existingDatasource);
+                                    existingDatasource.setStructure(null);
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
+                                }
 
                                 // This is explicitly copied over from the map we created before
                                 datasource.setPluginId(pluginMap.get(datasource.getPluginId()));

@@ -3,13 +3,15 @@ package com.appsmith.git.service;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.CreateBranchCommand;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
@@ -111,15 +113,15 @@ public class GitExecutorImpl implements GitExecutor {
         List<GitLogDTO> commitLogs = new ArrayList<>();
         Path repoPath = createRepoPath(repoSuffix);
         Git git = Git.open(repoPath.toFile());
-        Iterable<RevCommit> gitLogs = git.log().call();
+        Iterable<RevCommit> gitLogs = git.log().setMaxCount(Constraint.MAX_COMMIT_LOGS).call();
         gitLogs.forEach(revCommit -> {
             PersonIdent author = revCommit.getAuthorIdent();
             GitLogDTO gitLog = new GitLogDTO(
-                revCommit.getName(),
-                author.getName(),
-                author.getEmailAddress(),
-                revCommit.getFullMessage(),
-                ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
+                    revCommit.getName(),
+                    author.getName(),
+                    author.getEmailAddress(),
+                    revCommit.getFullMessage(),
+                    ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
             );
             commitLogs.add(gitLog);
         });
@@ -254,29 +256,23 @@ public class GitExecutorImpl implements GitExecutor {
                           String remoteUrl,
                           String branchName,
                           String privateKey,
-                          String publicKey) throws IOException {
-
-        Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+                          String publicKey) throws IOException, GitAPIException {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
-        try {
-            Long count = Arrays.stream(git
+        Git git = Git.open(repoPath.toFile());
+            long count = Arrays.stream(git
                     .pull()
                     .setRemoteBranchName(branchName)
                     .setTransportConfigCallback(transportConfigCallback)
+                    .setFastForward(MergeCommand.FastForwardMode.FF)
                     .call()
                     .getMergeResult()
                     .getMergedCommits())
                     .count();
             git.close();
-            if (count > 0) {
-                return count + "commits merged from origin/" + branchName;
-            }
-            return "Your branch is upto-date with latest commits";
-        } catch (GitAPIException e) {
-            //TODO Check out the branchName, check if file exists for the path without branchName,else update the file to new path
-            log.error("Git merge from remote branch failed, {}", e.getMessage());
-            return e.getMessage();
+        if (count > 0) {
+            return count + "commits merged from origin/" + branchName;
         }
+        return "Your branch is up-to-date with latest commits";
     }
 
     @Override

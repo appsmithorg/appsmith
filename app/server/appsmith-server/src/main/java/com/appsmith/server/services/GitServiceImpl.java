@@ -504,12 +504,12 @@ public class GitServiceImpl implements GitService {
         3. Rehydrate the application from source application reference
          */
 
-        final String branch = params.getFirst(FieldName.BRANCH_NAME);
-        if (StringUtils.isEmptyOrNull(branch)) {
+        final String srcBranch = params.getFirst(FieldName.BRANCH_NAME);
+        if (StringUtils.isEmptyOrNull(srcBranch)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(branch, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.getApplicationByBranchNameAndDefaultApplication(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
             .flatMap(srcApplication -> {
                 GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
                 if (srcBranchGitData == null
@@ -609,7 +609,7 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
 
-                    // 1. Rehydrate application from db
+                    // 1. Dehydrate application from db and save to repo after the branch checkout
                     try {
                         return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName)
                                 .zipWith(Mono.just(application));
@@ -617,14 +617,15 @@ public class GitServiceImpl implements GitService {
                         throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
                     }
                 })
-                .flatMap( applicationTuple-> {
-                    try {
-                        Path repoPath = applicationTuple.getT1();
-                        Application application = applicationTuple.getT2();
-                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                .flatMap(tuple -> {
 
+                    Path repoPath = tuple.getT1();
+                    Application application = tuple.getT2();
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+
+                    try {
                         //2. git pull origin branchName
-                        String status = gitExecutor.pullApplication(
+                        gitExecutor.pullApplication(
                                 repoPath,
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getBranchName(),
