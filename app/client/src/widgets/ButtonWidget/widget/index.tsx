@@ -12,6 +12,7 @@ import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
   ButtonVariant,
+  ButtonVariantTypes,
 } from "components/constants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
@@ -147,12 +148,13 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                allowedVAlues: ["SOLID", "OUTLINE", "GHOST"],
+                default: ButtonVariantTypes.SOLID,
+                allowedValues: ["SOLID", "OUTLINE", "GHOST"],
               },
             },
           },

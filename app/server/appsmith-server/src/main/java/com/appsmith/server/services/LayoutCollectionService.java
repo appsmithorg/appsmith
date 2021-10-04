@@ -4,6 +4,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import reactor.core.publisher.Mono;
 
 public interface LayoutCollectionService {
@@ -14,4 +15,6 @@ public interface LayoutCollectionService {
     Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO);
 
     Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO);
+
+    Mono<LayoutDTO> refactorAction(RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO);
 }
