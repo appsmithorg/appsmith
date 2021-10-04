@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
@@ -715,15 +715,18 @@ const StyledDropDownComponent = styled.div`
   width: 100%;
 `;
 
+/**
+ * renders select component for each cell where column type is "select"
+ * column properties have additional props related to select i.e. options, defaultOptionValue, onOptionChange
+ * onOptionChange call, parent handler set new data into meta properties
+ */
 export function SelectCell(props: {
   value: any;
   action: string;
   columnId: string;
   options: DropdownOption[];
-  defaultOptionValue: string | undefined;
   placeholderText: string | undefined;
   isDisabled: boolean;
-  serverSideFiltering: boolean;
   isHidden: boolean;
   onOptionChange: (
     columnId: string,
@@ -740,11 +743,23 @@ export function SelectCell(props: {
     props.options,
     (option) => option.value === props.value,
   );
+  const handleOptionChange = useCallback(
+    (optionSelected) => {
+      props.onOptionChange(
+        props.columnId,
+        props.rowIndex,
+        props.action,
+        optionSelected,
+      );
+    },
+    [props.columnId, props.rowIndex, props.action],
+  );
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
+      onClick={stopClickEventPropagation}
     >
       <StyledDropDownComponent>
         <DropDownComponent
@@ -753,18 +768,11 @@ export function SelectCell(props: {
           isFilterable={false}
           isLoading={false}
           onFilterChange={noop}
-          onOptionSelected={(optionSelected) => {
-            props.onOptionChange(
-              props.columnId,
-              props.rowIndex,
-              props.action,
-              optionSelected,
-            );
-          }}
+          onOptionSelected={handleOptionChange}
           options={props.options}
           placeholder={props.placeholderText}
           selectedIndex={selectedIndex}
-          serverSideFiltering={props.serverSideFiltering}
+          serverSideFiltering={false}
           widgetId={`dropdown-${props.widgetId}`}
           width={0}
         />
