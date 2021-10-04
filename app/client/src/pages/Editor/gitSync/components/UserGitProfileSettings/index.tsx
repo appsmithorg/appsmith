@@ -7,7 +7,10 @@ import {
   AUTHOR_EMAIL,
 } from "constants/messages";
 import styled from "styled-components";
-import TextInput, { emailValidator } from "components/ads/TextInput";
+import TextInput, {
+  emailValidator,
+  notEmptyValidator,
+} from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
@@ -153,6 +156,7 @@ function UserGitProfileSettings({
             disabled={disableInput}
             fill
             onChange={(value) => setAuthorState(AUTHOR_INFO_LABEL.NAME, value)}
+            validator={notEmptyValidator}
           />
         </InputContainer>
 
@@ -164,11 +168,15 @@ function UserGitProfileSettings({
         <InputContainer>
           <TextInput
             dataType="email"
-            defaultValue={authorInfo.authorEmail}
             disabled={disableInput}
+            errorMsg={
+              emailValidator(authorInfo.authorEmail).isValid
+                ? ""
+                : "Please enter a valid email"
+            }
             fill
             onChange={(value) => setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)}
-            validator={emailValidator}
+            value={authorInfo.authorEmail}
           />
         </InputContainer>
       </>

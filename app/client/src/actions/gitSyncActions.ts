@@ -65,6 +65,16 @@ export const connectToGitSuccess = (payload: ConnectToGitResponse) => ({
   payload,
 });
 
+export const disconnectToGitInit = () => ({
+  type: ReduxActionTypes.DISCONNECT_TO_GIT_INIT,
+  payload: null,
+});
+
+export const disconnectToGitSuccess = (payload: unknown) => ({
+  type: ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS,
+  payload,
+});
+
 export const switchGitBranchInit = (branchName: string) => ({
   type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
   payload: branchName,

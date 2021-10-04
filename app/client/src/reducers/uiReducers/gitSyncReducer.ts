@@ -29,6 +29,7 @@ const initialState: GitSyncReducerState = {
   isFetchingGitStatus: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
   localGitConfig: { authorEmail: "", authorName: "" },
+  isDisconnectingGit: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -197,6 +198,22 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitStatus: false,
   }),
+  [ReduxActionTypes.DISCONNECT_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isDisconnectingGit: true,
+  }),
+  [ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isDisconnectingGit: false,
+  }),
+  [ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isDisconnectingGit: false,
+  }),
 });
 
 export type GitStatusData = {
@@ -222,6 +239,8 @@ export type GitSyncReducerState = {
   gitPushError?: string;
   globalGitConfig: GitConfig;
   isFetchingGitConfig?: boolean;
+
+  isDisconnectingGit: boolean;
 
   isFetchingLocalGitConfig?: boolean;
   isFetchingGitStatus: boolean;

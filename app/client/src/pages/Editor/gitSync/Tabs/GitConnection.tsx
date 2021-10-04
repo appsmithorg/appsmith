@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { Subtitle, Title, Space } from "../components/StyledComponents";
 import {
   CONNECT_TO_GIT,
@@ -37,6 +43,8 @@ import TooltipComponent from "components/ads/Tooltip";
 import { getLocalGitConfig } from "selectors/gitSyncSelectors";
 import { GIT_DISCONNECT } from "constants/messages";
 import { emailValidator } from "components/ads/TextInput";
+import DisconnectGitConfirmPopup from "../components/DisconnectGitConfirmPopup";
+import { disconnectToGitInit } from "actions/gitSyncActions";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -163,10 +171,11 @@ type Props = {
 };
 
 function GitConnection({ isImport, onSuccess }: Props) {
-  const { remoteUrl: remoteUrlInStore } =
+  const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
-  const [remoteUrl, setRemoteUrl] = useState<string>(remoteUrlInStore);
+  const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore);
+  const [showDisconnectPopup, setShowDisconnectPopup] = useState(false);
 
   const isGitConnected = !!remoteUrlInStore;
 
@@ -265,14 +274,26 @@ function GitConnection({ isImport, onSuccess }: Props) {
     }
   };
 
+  useEffect(() => {
+    // when disconnected remoteURL becomes undefined
+    if (!remoteUrlInStore) {
+      setRemoteUrl("");
+    }
+  }, [remoteUrlInStore]);
+
   const placeholderText = createMessage(REMOTE_URL_INPUT_PLACEHOLDER);
 
-  const isAuthorInfoUpdated = () => {
+  const isAuthorInfoUpdated = useCallback(() => {
     return (
       authorInfo.authorEmail !== initialAuthorInfoRef.current.authorEmail ||
       authorInfo.authorName !== initialAuthorInfoRef.current.authorName
     );
-  };
+  }, [
+    authorInfo.authorEmail,
+    authorInfo.authorName,
+    initialAuthorInfoRef.current.authorEmail,
+    initialAuthorInfoRef.current.authorName,
+  ]);
 
   const isRemoteUrlUpdated = () => {
     return remoteUrl !== remoteUrlInStore;
@@ -316,11 +337,18 @@ function GitConnection({ isImport, onSuccess }: Props) {
     setRemoteUrl(value);
   };
 
-  const remoteUrlIsValid = (value: string) => value.startsWith(HTTP_LITERAL);
+  const remoteUrlIsValid = useCallback(
+    (value: string) => value.startsWith(HTTP_LITERAL),
+    [],
+  );
 
-  const submitButtonDisabled = isGitConnected
-    ? useGlobalConfig
-    : !authorInfo.authorEmail || !authorInfo.authorName;
+  const submitButtonDisabled = useMemo(
+    () =>
+      !authorInfo.authorEmail ||
+      !authorInfo.authorName ||
+      !emailValidator(authorInfo.authorEmail).isValid,
+    [authorInfo.authorEmail, authorInfo.authorName],
+  );
 
   useEffect(() => {
     // OnMount fetch global and local config
@@ -336,6 +364,14 @@ function GitConnection({ isImport, onSuccess }: Props) {
 
   const toggleHandler = () => {
     setUseGlobalConfig(!useGlobalConfig);
+  };
+
+  const disconnectHandler = () => {
+    dispatch(disconnectToGitInit());
+  };
+
+  const showDisconnectConfirmationPopup = () => {
+    setShowDisconnectPopup(true);
   };
 
   return (
@@ -363,16 +399,18 @@ function GitConnection({ isImport, onSuccess }: Props) {
               value={remoteUrl}
             />
           </UrlInputContainer>
-          <TooltipComponent content={createMessage(GIT_DISCONNECT)}>
-            <Icon
-              color={Colors.DARK_GRAY}
-              hoverColor={Colors.GRAY2}
-              onClick={() => setRemoteUrl("")}
-              size="22px"
-            >
-              <LinkSvg />
-            </Icon>
-          </TooltipComponent>
+          {isGitConnected && (
+            <TooltipComponent content={createMessage(GIT_DISCONNECT)}>
+              <Icon
+                color={Colors.DARK_GRAY}
+                hoverColor={Colors.GRAY2}
+                onClick={showDisconnectConfirmationPopup}
+                size="22px"
+              >
+                <LinkSvg />
+              </Icon>
+            </TooltipComponent>
+          )}
         </UrlContainer>
 
         {!SSHKeyPair ? (
@@ -465,6 +503,11 @@ function GitConnection({ isImport, onSuccess }: Props) {
       ) : (
         showDirectDeployOption && <DirectDeploy />
       )}
+      <DisconnectGitConfirmPopup
+        isModalOpen={showDisconnectPopup}
+        onClose={() => setShowDisconnectPopup(false)}
+        onContinue={disconnectHandler}
+      />
     </Container>
   );
 }

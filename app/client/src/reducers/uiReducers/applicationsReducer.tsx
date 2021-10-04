@@ -403,6 +403,17 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
+  // TEMPORARY IMPLEMENTATION
+  [ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      SSHKeyPair: "",
+      gitApplicationMetadata: null,
+    },
+  }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;

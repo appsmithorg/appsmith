@@ -60,3 +60,8 @@ export const getGitStatus = createSelector(
   getGitSyncState,
   (gitSync) => gitSync.gitStatus,
 );
+
+export const getIsDisconnectingGit = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isDisconnectingGit,
+);

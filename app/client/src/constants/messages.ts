@@ -511,6 +511,14 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
+
+export const GIT_DISCONNECT_POPUP_TITLE = () =>
+  `This will disconnect the git repository from this application`;
+
+export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
+  `Git features will no more be shown for this application`;
+export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
+
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";

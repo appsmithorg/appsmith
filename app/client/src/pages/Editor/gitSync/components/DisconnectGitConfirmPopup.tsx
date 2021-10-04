@@ -8,12 +8,14 @@ import Dialog from "components/ads/DialogComponent";
 import Icon, { IconSize } from "components/ads/Icon";
 import { IconProps } from "constants/IconConstants";
 import Button, { Category, Size } from "components/ads/Button";
-import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+// import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
 import {
-  UNSUPPORTED_PLUGIN_DIALOG_TITLE,
-  UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
+  GIT_DISCONNECT_POPUP_TITLE,
+  GIT_DISCONNECT_POPUP_SUBTITLE,
+  GIT_DISCONNECT_POPUP_MAIN_HEADING,
 } from "constants/messages";
+import { getIsDisconnectingGit } from "selectors/gitSyncSelectors";
 
 type Props = {
   isModalOpen: boolean;
@@ -105,7 +107,7 @@ const Header = withTheme(
             name="warning-triangle"
             size={IconSize.XL}
           />
-          {UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING()}
+          {GIT_DISCONNECT_POPUP_MAIN_HEADING()}
         </Heading>
         <HeaderRight>
           <CloseIconContainer
@@ -127,7 +129,7 @@ const Header = withTheme(
   ),
 );
 // Unsupported Plugin for gen CRUD page
-function UnsupportedPluginDialog(props: Props) {
+function DisconnectGitConfirmPopup(props: Props) {
   const { isModalOpen, onContinue } = props;
   const handleClose = () => {
     props.onClose();
@@ -142,17 +144,16 @@ function UnsupportedPluginDialog(props: Props) {
       setModalClose={handleClose}
     >
       <Content>
-        <Text type={TextType.H5}>{UNSUPPORTED_PLUGIN_DIALOG_TITLE()}</Text>
+        <Text type={TextType.H5}>{GIT_DISCONNECT_POPUP_TITLE()}</Text>
         <br />
         <br />
-        <Text type={TextType.P1}>{UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE()}</Text>
+        <Text type={TextType.P1}>{GIT_DISCONNECT_POPUP_SUBTITLE()}</Text>
       </Content>
 
       <ActionButtonWrapper>
         <ActionButton
           category={Category.tertiary}
           onClick={() => {
-            AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_BACK_ACTION");
             handleClose();
           }}
           size={Size.medium}
@@ -161,16 +162,15 @@ function UnsupportedPluginDialog(props: Props) {
         <ActionButton
           category={Category.primary}
           onClick={() => {
-            handleClose();
-            AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_CONTINUE_ACTION");
             onContinue();
+            handleClose();
           }}
           size={Size.medium}
-          text="CONTINUE BUILDING"
+          text="DISCONNECT"
         />
       </ActionButtonWrapper>
     </Dialog>
   );
 }
 
-export default UnsupportedPluginDialog;
+export default DisconnectGitConfirmPopup;

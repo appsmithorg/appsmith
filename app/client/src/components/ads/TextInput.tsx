@@ -60,6 +60,7 @@ export type TextInputProps = CommonComponentProps & {
   rightSideComponent?: React.ReactNode;
   onBlur?: EventHandler<FocusEvent<any>>;
   onFocus?: EventHandler<FocusEvent<any>>;
+  errorMsg?: string;
 };
 
 type boxReturnType = {
@@ -108,6 +109,7 @@ const StyledInput = styled((props) => {
     "isValid",
     "cypressSelector",
     "fill",
+    "errorMsg",
   ];
 
   return props.asyncControl ? (
@@ -243,7 +245,9 @@ const TextInput = forwardRef(
 
     const ErrorMessage = (
       <ErrorWrapper>
-        <Text type={TextType.P3}>{validation.message}</Text>
+        <Text type={TextType.P3}>
+          {props.validator ? validation.message : props.errorMsg || ""}
+        </Text>
       </ErrorWrapper>
     );
 
