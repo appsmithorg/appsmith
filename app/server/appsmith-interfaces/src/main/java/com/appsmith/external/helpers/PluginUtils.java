@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,8 +31,6 @@ public class PluginUtils {
      * - ref: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
      */
     public static String MATCH_QUOTED_WORDS_REGEX = "([\\\"'])(?:(?=(\\\\?))\\2.)*?\\1";
-    private static final String LOCALHOST_STRING = "localhost";
-    private static final String LOCALHOST_IP = "127.0.0.1";
 
     public static List<String> getColumnsListForJdbcPlugin(ResultSetMetaData metaData) throws SQLException {
         List<String> columnsList = IntStream
@@ -147,12 +146,14 @@ public class PluginUtils {
             return false;
         }
 
-        String host = endpoint.getHost().toLowerCase();
-        if (host.contains(LOCALHOST_STRING) || host.contains(LOCALHOST_IP)) {
-            return true;
-        }
+        List<String> localhostUrlIdentifiers = new ArrayList<>();
+        localhostUrlIdentifiers.add("localhost");
+        localhostUrlIdentifiers.add("host.docker.internal");
+        localhostUrlIdentifiers.add("127.0.0.1");
 
-        return false;
+        String host = endpoint.getHost().toLowerCase();
+        return localhostUrlIdentifiers.stream()
+                .anyMatch(identifier -> host.contains(identifier));
     }
 
     /**
