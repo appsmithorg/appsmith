@@ -406,6 +406,8 @@ function LeftPane() {
     releaseItems && releaseItems.length > 0
       ? howMuchTimeBeforeText(releaseItems[0]["publishedAt"])
       : "";
+  const appVersion =
+    releaseItems && releaseItems.length > 0 ? releaseItems[0]["tagName"] : "";
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -490,7 +492,7 @@ function LeftPane() {
           )}
           <ProductUpdatesModal />
           <LeftPaneVersionData>
-            <span>Appsmith v1.5</span>
+            <span>Appsmith {appVersion}</span>
             {howMuchTimeBefore !== "" && (
               <span>Released {howMuchTimeBefore} ago</span>
             )}
