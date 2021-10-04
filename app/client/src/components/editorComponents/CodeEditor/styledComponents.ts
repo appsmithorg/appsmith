@@ -56,7 +56,6 @@ export const EditorWrapper = styled.div<{
     props.size === EditorSize.COMPACT && props.isFocused
       ? `
   z-index: 5;
-  position: absolute;
   right: 0;
   left: 0;
   top: 0;
@@ -90,13 +89,7 @@ export const EditorWrapper = styled.div<{
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
         border-radius: 0px;
-        background: ${
-          !props.isNotHover
-            ? Colors.Gallery
-            : props.isFocused
-            ? Colors.MERCURY
-            : Colors.WHITE
-        };
+        background: ${Colors.GREY_1};
       }
     }
   }`
@@ -111,15 +104,26 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
+      padding: 0 6px;
       border-radius: 0px;
-      ${(props) =>
-        props.border === "none"
-          ? `border: 0px`
-          : props.border === "bottom-side"
-          ? `border-bottom: 1px solid ${Colors.MERCURY}`
-          : `border: 1px solid ${Colors.MERCURY}`};
+      border: 1px solid ${(props) => {
+        switch (true) {
+          case props.border === "none":
+            return "transparent";
+          case props.border === "bottom-side":
+            return Colors.MERCURY;
+          case props.hasError:
+            return "red";
+          case props.isFocused:
+            return Colors.PRIMARY_ORANGE;
+          default:
+            return Colors.GREY_5;
+        }
+      }};
       background: ${(props) =>
-        props.isFocused || props.fill ? Colors.MERCURY : "#FAFAFA"};
+        props.isFocused
+          ? props.theme.colors.apiPane.requestTree.header.bg
+          : props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
@@ -215,7 +219,7 @@ export const EditorWrapper = styled.div<{
       border-right: 1px dotted #ccc;
     }
   `}
-  
+
   .bp3-popover-target {
     padding-right: 10px;
     padding-top: 5px;
@@ -287,7 +291,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   height: 100%;
   flex: 1;
   position: relative;
-  border: 1px solid ${(props) => (!props.isError ? "transparent" : "red")};
   > span:first-of-type {
     width: 30px;
     position: absolute;

@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import { Classes, CommonComponentProps } from "./common";
 import { useEffect } from "react";
+import { Colors } from "constants/Colors";
 
 export type TabProp = {
   key: string;
@@ -34,10 +35,14 @@ const TabsWrapper = styled.div<{
     display: flex;
     flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
     align-items: ${(props) => (!!props.vertical ? "stretch" : "center")};
-    border-bottom: none;
+    ${(props) =>
+      !props.vertical
+        ? `border-bottom: 1px solid ${Colors.ALTO};`
+        : "border-bottom: none;"}
+    
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
-      fill: ${(props) => props.theme.colors.tabs.normal};
+      fill: ${(props) => props.theme.colors.tabs.icon};
     }
     ${(props) =>
       props.shouldOverflow &&
@@ -54,7 +59,7 @@ const TabsWrapper = styled.div<{
     justify-content: center;
     border-color: transparent;
     position: relative;
-    padding: 0;
+    padding: 0px 3px;
     margin-right: ${(props) =>
       !props.vertical ? `${props.theme.spaces[12] - 3}px` : 0};
   }
@@ -70,6 +75,9 @@ const TabsWrapper = styled.div<{
 
   .react-tabs__tab--selected {
     background-color: transparent;
+    path {
+      fill: ${(props) => props.theme.colors.tabs.hover};
+    }
   }
 `;
 
@@ -99,39 +107,63 @@ const TabTitleWrapper = styled.div<{
 }>`
   display: flex;
   width: 100%;
-
   padding: ${(props) => props.theme.spaces[3] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)}
     ${(props) => props.theme.spaces[4] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)};
-
+  color: ${(props) => props.theme.colors.tabs.normal};
   &:hover {
     color: ${(props) => props.theme.colors.tabs.hover};
-    path {
-      fill: ${(props) => props.theme.colors.tabs.hover};
+    .${Classes.ICON} {
+      svg {
+        fill: ${(props) => props.theme.colors.tabs.hover};
+        path {
+          fill: ${(props) => props.theme.colors.tabs.hover};
+        }
+      }
     }
   }
 
   .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[2]}px;
+    margin-right: ${(props) => props.theme.spaces[1]}px;
+    border-radius: 50%;
+    svg {
+      width: 16px;
+      height: 16px;
+      margin: auto;
+      fill: ${(props) => props.theme.colors.tabs.normal};
+      path {
+        fill: ${(props) => props.theme.colors.tabs.normal};
+      }
+    }
   }
 
   ${(props) =>
     props.selected
       ? `
-  color: ${props.theme.colors.tabs.hover};
   background-color: transparent;
+  color: ${props.theme.colors.tabs.hover};
+  .${Classes.ICON} {
+    svg {
+      fill: ${props.theme.colors.tabs.icon};
+      path {
+        fill: ${props.theme.colors.tabs.icon};
+      }
+    }
+  }
 
-  path {
-    fill: ${props.theme.colors.tabs.hover};
+  .tab-title {
+    font-weight: 700;
   }
 
   &::after {
     content: "";
     position: absolute;
     width: ${props.vertical ? `${props.theme.spaces[1] - 2}px` : "100%"};
-    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[1] - 2}px`};
-    top: ${props.vertical ? `${props.theme.spaces[0] - 1}px` : "unset"};
+    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[0] - 1}px`};
+    top: ${
+      props.vertical ? `${props.theme.spaces[0] - 1}px` : "calc(100% - 2px)"
+    };
     left: ${props.theme.spaces[0]}px;
     height: ${props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
     background-color: ${props.theme.colors.info.main};
@@ -156,13 +188,13 @@ function DefaultTabItem(props: TabItemProps) {
           size={tab.iconSize ? tab.iconSize : IconSize.XXXL}
         />
       ) : null}
-      <TabTitle>{tab.title}</TabTitle>
+      <TabTitle className="tab-title">{tab.title}</TabTitle>
       {tab.count && tab.count > 0 ? <TabCount>{tab.count}</TabCount> : null}
     </TabTitleWrapper>
   );
 }
 
-type TabbedViewComponentType = CommonComponentProps & {
+export type TabbedViewComponentType = CommonComponentProps & {
   tabs: Array<TabProp>;
   selectedIndex?: number;
   onSelect?: (tabIndex: number) => void;
