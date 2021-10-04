@@ -288,6 +288,7 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
@@ -298,6 +299,7 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
+                    updates.setDatasource(d2);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 // fetch the unpublished page
