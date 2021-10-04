@@ -34,6 +34,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   columnSizeMap?: { [key: string]: number };
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
+  primaryColumnId?: string;
   primaryColumns: Record<string, ColumnProperties>;
   derivedColumns: Record<string, ColumnProperties>;
   sortOrder: {

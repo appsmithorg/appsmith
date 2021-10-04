@@ -631,7 +631,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       JSON.stringify(prevProps.sanitizedTableData);
 
     if (tableDataModified) {
-      this.updateSelectedRowIndex();
+      this.updateMetaRowData(
+        prevProps.filteredTableData,
+        this.props.filteredTableData,
+      );
     }
 
     // If the user has changed the tableData OR
@@ -646,7 +649,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           condition: "",
         },
       ];
-      this.applyFilters(defaultFilter);
+      this.props.updateWidgetMetaProperty("filters", defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
@@ -728,11 +731,73 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : -1;
+      // eslint-disable-next-line no-console
+      console.log("updateSelectedRowIndex", selectedRowIndex);
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : [];
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndices",
+        selectedRowIndices,
+      );
+    }
+  };
+
+  getOriginalRowIndex = (
+    oldTableData: Array<Record<string, unknown>>,
+    newTableData: Array<Record<string, unknown>>,
+    selectedRowIndex: number,
+  ) => {
+    const primaryKey = oldTableData[selectedRowIndex].__primaryKey__;
+    if (primaryKey) {
+      const selectedRow = newTableData.find(
+        (item) => item.__primaryKey__ === primaryKey,
+      );
+      if (selectedRow) {
+        return selectedRow.__originalIndex__ as number;
+      }
+    }
+  };
+
+  updateMetaRowData = (
+    oldTableData: Array<Record<string, unknown>>,
+    newTableData: Array<Record<string, unknown>>,
+  ) => {
+    if (!this.props.multiRowSelection) {
+      let selectedRowIndex = isNumber(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : -1;
+      if (
+        this.props.selectedRowIndex !== -1 &&
+        this.props.selectedRowIndex !== undefined &&
+        this.props.primaryColumnId
+      ) {
+        const rowIndex = this.getOriginalRowIndex(
+          oldTableData,
+          newTableData,
+          this.props.selectedRowIndex,
+        );
+        if (rowIndex !== undefined) {
+          selectedRowIndex = rowIndex;
+        }
+      }
+      this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
+    } else {
+      const rowIndices = Array.isArray(this.props.selectedRowIndices)
+        ? this.props.selectedRowIndices
+        : Array.isArray(this.props.defaultSelectedRow)
+        ? this.props.defaultSelectedRow
+        : [];
+      const selectedRowIndices = rowIndices.map((index) => {
+        const rowIndex = this.getOriginalRowIndex(
+          oldTableData,
+          newTableData,
+          index,
+        );
+        return rowIndex;
+      });
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
@@ -755,6 +820,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   applyFilters = (filters: ReactTableFilter[]) => {
+    // eslint-disable-next-line no-console
+    console.log("applyFilters");
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("filters", filters);
   };
@@ -843,6 +910,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleColumnSorting = (column: string, asc: boolean) => {
+    // eslint-disable-next-line no-console
+    console.log("handleColumnSorting");
     this.resetSelectedRowIndex();
     const sortOrderProps =
       column === ""
@@ -873,6 +942,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
+    // eslint-disable-next-line no-console
+    console.log("handleSearchTable");
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
@@ -998,6 +1069,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
     if (this.props.onPageChange) {
+      // eslint-disable-next-line no-console
+      console.log("updatePageNumber");
       this.resetSelectedRowIndex();
     }
   };
@@ -1013,6 +1086,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       },
     });
     if (this.props.onPageChange) {
+      // eslint-disable-next-line no-console
+      console.log("handleNextPageClick");
       this.resetSelectedRowIndex();
     }
   };
@@ -1022,6 +1097,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : -1;
+      // eslint-disable-next-line no-console
+      console.log("resetSelectedRowIndex", selectedRowIndex);
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
@@ -1046,6 +1123,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       });
       if (this.props.onPageChange) {
+        // eslint-disable-next-line no-console
+        console.log("handlePrevPageClick");
         this.resetSelectedRowIndex();
       }
     }
