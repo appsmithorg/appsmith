@@ -844,6 +844,12 @@ export function SwitchCell(props: {
   );
 }
 
+/**
+ * renders select component for each cell where column type is "rating"
+ * column properties have additional props
+ * i.e. maxCount, activeColor, inactiveColor, isAllowHalf, onRateChanged
+ * onRateChanged call, parent handler set new data into meta properties
+ */
 export function RatingCell(props: {
   value: any;
   maxCount: number;
@@ -854,7 +860,7 @@ export function RatingCell(props: {
   columnId: string;
   isDisabled?: boolean;
   isHidden: boolean;
-  onChange: (
+  onRateChanged: (
     columnId: string,
     rowIndex: number,
     dynamicString: string,
@@ -876,7 +882,12 @@ export function RatingCell(props: {
   );
   const handleChange = useCallback(
     (newValue: number) => {
-      props.onChange(props.columnId, props.rowIndex, props.action, newValue);
+      props.onRateChanged(
+        props.columnId,
+        props.rowIndex,
+        props.action,
+        newValue,
+      );
     },
     [props.columnId, props.rowIndex, props.action],
   );

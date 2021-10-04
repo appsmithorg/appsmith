@@ -488,7 +488,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 isDisabled={cellProperties.isDisabled}
                 isHidden={isHidden}
                 maxCount={cellProperties.maxCount || 5}
-                onChange={this.handleRatingChange}
+                onRateChanged={this.handleRatingChange}
                 rowIndex={rowIndex}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
