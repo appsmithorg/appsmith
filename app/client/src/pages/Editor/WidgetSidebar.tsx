@@ -112,7 +112,7 @@ function WidgetSidebar(props: IPanelProps) {
     <div className="py-3 space-y-2 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400">
       <div className="flex items-center px-3 space-x-2">
         <button
-          className="p-1 hover:bg-warmGray-700"
+          className="p-1 hover:bg-warmGray-700 t--close-widgets-sidebar"
           onClick={closeWidgetPanel}
         >
           <BackIcon className="w-4 h-4" />
