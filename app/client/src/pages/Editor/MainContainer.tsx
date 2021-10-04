@@ -7,6 +7,8 @@ import WidgetsEditor from "./WidgetsEditor";
 import Sidebar from "components/editorComponents/Sidebar";
 import BottomBar from "./BottomBar";
 
+import getFeatureFlags from "utils/featureFlags";
+
 import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -15,7 +17,8 @@ const Container = styled.div`
   display: flex;
   height: calc(
     100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight}
+      ${(props) =>
+        getFeatureFlags().GIT ? props.theme.bottomBarHeight : "0px"}
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
@@ -44,7 +47,7 @@ function MainContainer() {
           </Switch>
         </EditorContainer>
       </Container>
-      <BottomBar />
+      {getFeatureFlags().GIT && <BottomBar />}
     </>
   );
 }

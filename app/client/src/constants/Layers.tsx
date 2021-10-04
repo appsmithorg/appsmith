@@ -56,7 +56,6 @@ export const Layers = {
   max: Indices.LayerMax,
   sideStickyBar: Indices.Layer7,
   evaluationPopper: Indices.Layer3,
-  concurrentEditorWarning: Indices.Layer2,
 };
 
 export const LayersContext = React.createContext(Layers);

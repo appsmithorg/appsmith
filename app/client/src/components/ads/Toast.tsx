@@ -12,7 +12,6 @@ import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
 type ToastProps = ToastOptions &
   CommonComponentProps & {
-    contentClassName?: string;
     text: string;
     actionElement?: JSX.Element;
     variant?: Variant;
@@ -21,8 +20,6 @@ type ToastProps = ToastOptions &
     dispatchableAction?: { type: ReduxActionType; payload: any };
     showDebugButton?: boolean;
     hideProgressBar?: boolean;
-    hideActionElementSpace?: boolean;
-    width?: string;
   };
 
 const WrappedToastContainer = styled.div`
@@ -56,9 +53,8 @@ const ToastBody = styled.div<{
   variant?: Variant;
   isUndo?: boolean;
   dispatchableAction?: { type: ReduxActionType; payload: any };
-  width?: string;
 }>`
-  width: ${(props) => props.width || "264px"};
+  width: 264px;
   background: ${(props) => props.theme.colors.toast.bg};
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[5]}px;
@@ -119,7 +115,6 @@ const FlexContainer = styled.div`
 
 const ToastTextWrapper = styled.div`
   flex: 1;
-  min-width: 0;
 `;
 
 const StyledDebugButton = styled(DebugButton)`
@@ -130,9 +125,7 @@ const StyledActionText = styled(Text)`
   color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
 `;
 
-export function ToastComponent(
-  props: ToastProps & { undoAction?: () => void },
-) {
+function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
   const dispatch = useDispatch();
 
   return (
@@ -141,9 +134,8 @@ export function ToastComponent(
       dispatchableAction={props.dispatchableAction}
       isUndo={!!props.onUndo}
       variant={props.variant || Variant.info}
-      width={props.width}
     >
-      <FlexContainer style={{ minWidth: 0 }}>
+      <FlexContainer>
         {props.variant === Variant.success ? (
           <Icon fillColor={Colors.GREEN} name="success" size={IconSize.XXL} />
         ) : props.variant === Variant.warning ? (
@@ -153,13 +145,10 @@ export function ToastComponent(
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
         <ToastTextWrapper>
-          <Text className={props.contentClassName} type={TextType.P1}>
-            {props.text}
-          </Text>
+          <Text type={TextType.P1}>{props.text}</Text>
           {props.actionElement && (
             <StyledActionText type={TextType.P1}>
-              {!props.hideActionElementSpace ? <>&nbsp;</> : ""}
-              {props.actionElement}
+              &nbsp;{props.actionElement}
             </StyledActionText>
           )}
           {props.variant === Variant.danger && props.showDebugButton ? (

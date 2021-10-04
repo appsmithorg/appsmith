@@ -60,8 +60,3 @@ export const collabUnsetEditorsPointersData = (payload: any) => ({
 export const collabResetEditorsPointersData = () => ({
   type: ReduxActionTypes.APP_COLLAB_RESET_EDITORS_POINTER_DATA,
 });
-
-export const collabConcurrentPageEditorsData = (payload: any) => ({
-  type: ReduxActionTypes.APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS,
-  payload,
-});
