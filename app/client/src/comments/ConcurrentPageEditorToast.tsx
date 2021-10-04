@@ -7,7 +7,6 @@ import {
   hideConcurrentEditorWarningToast,
   getIsConcurrentEditorWarningToastHidden,
 } from "utils/storage";
-import { getCurrentPageName } from "selectors/editorSelectors";
 import { Layers } from "constants/Layers";
 import { createGlobalStyle } from "styled-components";
 
@@ -37,23 +36,18 @@ const ActionElement = styled.span`
 // move existing toast below to make space for the warning toast
 const ToastStyle = createGlobalStyle`
   .Toastify__toast-container--top-right {
-    top: 9.5em !important;
+    top: 10.5em !important;
   }
 `;
 
-const getMessage = (currentPageName = "") => {
-  const truncatedPageName =
-    currentPageName.length > 9
-      ? `${currentPageName.slice(0, 9)}...`
-      : currentPageName;
-  const msg = `Your changes may get overwritten on ${truncatedPageName} (Realtime Editing is coming soon)`;
+const getMessage = () => {
+  const msg = `Someone else is also editing this page. Your changes may get overwritten. Realtime Editing is coming soon.`;
   return msg;
 };
 
 export default function ConcurrentPageEditorToast() {
   const [isForceHidden, setIsForceHidden] = useState(true);
   const isVisible = useSelector(isConcurrentPageEditorToastVisible);
-  const currentPageName = useSelector(getCurrentPageName);
 
   useEffect(() => {
     (async () => {
@@ -78,7 +72,7 @@ export default function ConcurrentPageEditorToast() {
           }
           contentClassName="concurrent-editing-warning-text "
           hideActionElementSpace
-          text={getMessage(currentPageName)}
+          text={getMessage()}
           width={"327px"}
         />
       )}
