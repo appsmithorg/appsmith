@@ -53,7 +53,10 @@ import { Variant } from "components/ads/common";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
-import { initSocketConnection } from "actions/websocketActions";
+import {
+  initAppLevelSocketConnection,
+  initPageLevelSocketConnection,
+} from "actions/websocketActions";
 import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
@@ -107,7 +110,8 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(initSocketConnection());
+      yield put(initAppLevelSocketConnection());
+      yield put(initPageLevelSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME

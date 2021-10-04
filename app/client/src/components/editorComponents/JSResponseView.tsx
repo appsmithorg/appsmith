@@ -1,4 +1,4 @@
-import React, { useState, useRef, RefObject } from "react";
+import React, { useState, useRef, RefObject, useCallback } from "react";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -10,7 +10,6 @@ import {
   DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
   EMPTY_JS_OBJECT,
-  PARSING_WARNING,
   PARSING_ERROR,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
@@ -34,6 +33,9 @@ import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
+import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { DebugButton } from "./Debugger/DebugCTA";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -64,6 +66,9 @@ const ResponseTabActionsList = styled.ul`
   width: 20%;
   list-style: none;
   padding-left: 0;
+  ${thinScrollbar};
+  scrollbar-width: thin;
+  overflow: auto;
 `;
 
 const ResponseTabAction = styled.li`
@@ -129,6 +134,18 @@ const HelpSection = styled.div`
   padding-top: 10px;
 `;
 
+const FailedMessage = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+`;
+
+const StyledCallout = styled(Callout)`
+  .${Classes.TEXT} {
+    line-height: normal;
+  }
+`;
+
 interface ReduxStateProps {
   responses: Record<string, any>;
   isExecuting: Record<string, boolean>;
@@ -158,9 +175,14 @@ function JSResponseView(props: Props) {
   const errorsList = errors.filter((er) => {
     return er.severity === Severity.ERROR;
   });
-  const warningsList = errors.filter((er) => {
-    return er.severity === Severity.WARNING;
-  });
+
+  const onDebugClick = useCallback(() => {
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "JS_OBJECT",
+    });
+    setSelectedIndex(1);
+  }, []);
+
   const tabs = [
     {
       key: "body",
@@ -169,18 +191,15 @@ function JSResponseView(props: Props) {
         <>
           <HelpSection>
             {errorsList.length > 0 ? (
-              <Callout
+              <StyledCallout
                 fill
-                key={"error"}
+                label={
+                  <FailedMessage>
+                    <DebugButton onClick={onDebugClick} />
+                  </FailedMessage>
+                }
                 text={createMessage(PARSING_ERROR)}
                 variant={Variant.danger}
-              />
-            ) : warningsList.length > 0 ? (
-              <Callout
-                fill
-                key={"error"}
-                text={createMessage(PARSING_WARNING)}
-                variant={Variant.warning}
               />
             ) : (
               ""
@@ -268,10 +287,12 @@ function JSResponseView(props: Props) {
 
   const runAction = (action: JSAction) => {
     setSelectActionId(action.id);
+    const collectionId = getJSCollectionIdFromURL();
     dispatch(
       executeJSFunction({
         collectionName: jsObject?.name || "",
         action: action,
+        collectionId: collectionId || "",
       }),
     );
   };
