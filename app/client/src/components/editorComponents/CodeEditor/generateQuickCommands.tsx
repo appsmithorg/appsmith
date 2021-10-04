@@ -14,7 +14,6 @@ import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import getFeatureFlags from "utils/featureFlags";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -221,10 +220,7 @@ export const generateQuickCommands = (
     recentEntities,
     5,
   );
-  const actionCommands = [newBinding];
-  if (getFeatureFlags().SNIPPET) {
-    actionCommands.push(insertSnippet);
-  }
+  const actionCommands = [newBinding, insertSnippet];
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),
