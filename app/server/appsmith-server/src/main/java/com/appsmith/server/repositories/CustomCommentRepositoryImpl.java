@@ -66,8 +66,8 @@ public class CustomCommentRepositoryImpl extends BaseAppsmithRepositoryImpl<Comm
     public Mono<Void> updateAuthorNames(String authorId, String authorName) {
         return mongoOperations
                 .updateMulti(
-                        Query.query(Criteria.where("authorId").is(authorId)),
-                        Update.update("authorName", authorName),
+                        Query.query(Criteria.where(fieldName(QComment.comment.authorId)).is(authorId)),
+                        Update.update(fieldName(QComment.comment.authorName), authorName),
                         Comment.class
                 )
                 .then();

@@ -87,6 +87,11 @@ function main() {
 		}
 	});
 
+	io.of(PAGE_EDIT_NAMESPACE).adapter.on("join-room", (room, id) => {
+		log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
+	});
+
 	watchMongoDB(io)
 		.catch((error) => log.error("Error watching MongoDB", error))
 
