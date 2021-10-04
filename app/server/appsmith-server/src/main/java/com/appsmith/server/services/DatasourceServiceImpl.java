@@ -152,6 +152,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN,
                         datasource.getPluginId())));
 
+        /**
+         * Delegate the task of generating hint messages to the concerned plugin, since only the
+         * concerned plugin can correctly interpret their configuration.
+         */
         return pluginExecutorMono
                 .flatMap(pluginExecutor -> pluginExecutor.getHintMessages(null,
                         datasource.getDatasourceConfiguration()))

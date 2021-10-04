@@ -4,7 +4,6 @@ import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -12,7 +11,6 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -22,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.endpointContainsLocalhost;
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
 
 public interface PluginExecutor<C> extends ExtensionPoint {
@@ -182,6 +179,20 @@ public interface PluginExecutor<C> extends ExtensionPoint {
         }
     }
 
+    /**
+     * This method generates hint messages after reading the action configuration and the datasource configuration
+     * defined by user. Each plugin must override this method to provide their plugin specific hint messages - since
+     * the configuration related constraints can only be meaningfully interpreted by the respective plugins for which
+     * they are defined. Otherwise, this default implementation will be used.
+     *
+     * It generates two set of hint messages - one for action configuration and another for the datasource
+     * configuration. The datasource related hint messages are meant to be displayed on the datasource configuration
+     * page and the action related hint messages are meant to be displayed on the query editor page.
+     *
+     * @param actionConfiguration
+     * @param datasourceConfiguration
+     * @return A tuple of datasource and action configuration related hint messages.
+     */
     default Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
                                                                         DatasourceConfiguration datasourceConfiguration) {
         Set<String> datasourceHintMessages = new HashSet<>();

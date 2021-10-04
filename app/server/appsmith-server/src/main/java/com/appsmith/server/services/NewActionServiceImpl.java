@@ -1028,6 +1028,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(tuple ->{
                         PluginExecutor pluginExecutor = tuple.getT1();
                         DatasourceConfiguration dsConfig = tuple.getT2();
+
+                        /**
+                         * Delegate the task of generating hint messages to the concerned plugin, since only the
+                         * concerned plugin can correctly interpret their configuration.
+                         */
                         return pluginExecutor.getHintMessages(action.getActionConfiguration(), dsConfig);
                 })
                 .flatMap(tuple -> {
