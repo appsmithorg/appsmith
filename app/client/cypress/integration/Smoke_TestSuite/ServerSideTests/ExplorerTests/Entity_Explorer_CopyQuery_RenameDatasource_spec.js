@@ -39,7 +39,6 @@ describe("Entity explorer tests related to copy query", function() {
       200,
     );
 
-    //cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

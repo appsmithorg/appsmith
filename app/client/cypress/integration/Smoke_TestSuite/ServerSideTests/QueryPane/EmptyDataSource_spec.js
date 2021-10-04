@@ -23,7 +23,6 @@ describe("Create a query with a empty datasource, run, save the query", function
       .find(queryLocators.createQuery)
       .click();
 
-    //cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
