@@ -48,6 +48,7 @@ import {
 import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
+import { Colors } from "constants/Colors";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -140,8 +141,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnProperties.cellBackground,
         rowIndex,
       ),
-      buttonStyle: this.getPropertyValue(
-        columnProperties.buttonStyle,
+      buttonColor: this.getPropertyValue(
+        columnProperties.buttonColor,
         rowIndex,
       ),
       buttonLabelColor: this.getPropertyValue(
@@ -178,11 +179,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
-      iconButtonStyle: this.getPropertyValue(
-        columnProperties.iconButtonStyle,
-        rowIndex,
-        true,
-      ),
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
@@ -203,6 +199,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
+      // column type select related properties
+      placeholderText: this.getPropertyValue(
+        columnProperties.placeholderText,
+        rowIndex,
+        true,
+      ),
+      // column type switch related properties
+      defaultSwitchState: this.getPropertyValue(
+        columnProperties.defaultSwitchState,
+        rowIndex,
+        true,
+      ),
+      switchLabel: this.getPropertyValue(
+        columnProperties.switchLabel,
+        rowIndex,
+        true,
+      ),
     };
     return cellProperties;
   };
@@ -210,7 +223,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   handleDropdowOptionChange = (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     optionSelected: DropdownOption,
   ) => {
     const editedColumnData = { ...this.props.editedColumnData };
@@ -221,35 +234,60 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       Object,
     );
 
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
-      triggerPropertyName: "onOptionChange",
-      dynamicString: action,
-      event: {
-        type: EventType.ON_OPTION_CHANGE,
-      },
-    });
-
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+    this.handleColumnAction(
+      rowIndex,
+      "onOptionChange",
+      dynamicString,
+      EventType.ON_OPTION_CHANGE,
+    );
+  };
+
+  handleColumnAction = (
+    rowIndex: number,
+    triggerPropertyName: string,
+    dynamicString: string,
+    eventType: EventType,
+  ) => {
+    try {
+      const rowData = [this.props.filteredTableData[rowIndex]];
+      const { jsSnippets } = getDynamicBindings(dynamicString);
+      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
+        return prev + `{{(currentRow) => { ${next} }}} `;
+      }, "");
+      if (modifiedAction) {
+        super.executeAction({
+          triggerPropertyName,
+          dynamicString: modifiedAction,
+          event: {
+            type: eventType,
+          },
+          responseData: rowData,
+        });
+      }
+    } catch (error) {
+      log.debug("Error parsing row action", error);
+    }
   };
 
   handleSwitchChange = (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     isSwitchedOn: boolean,
   ) => {
     const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], isSwitchedOn, Object);
 
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
-      triggerPropertyName: "onChange",
-      dynamicString: action,
-      event: {
-        type: EventType.ON_SWITCH_CHANGE,
-      },
-    });
-
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+    this.handleColumnAction(
+      rowIndex,
+      "onChange",
+      dynamicString,
+      EventType.ON_SWITCH_CHANGE,
+    );
   };
 
   handleCurrencyValueChange = (
@@ -317,13 +355,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties,
             originalIndex,
           );
-
           if (columnProperties.columnType === "button") {
+            let isSelected = false;
+            if (this.props.multiRowSelection) {
+              isSelected =
+                Array.isArray(this.props.selectedRowIndices) &&
+                this.props.selectedRowIndices.includes(rowIndex);
+            } else {
+              isSelected = this.props.selectedRowIndex === rowIndex;
+            }
             const buttonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
+              backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -382,15 +427,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 action={columnProperties.onOptionChange}
                 cellProperties={cellProperties}
                 columnId={accessor}
-                defaultOptionValue={columnProperties.defaultOptionValue}
                 isCellVisible={isCellVisible}
-                isDisabled={columnProperties.isDisabled}
+                isDisabled={Boolean(cellProperties.isDisabled)}
                 isHidden={isHidden}
                 onOptionChange={this.handleDropdowOptionChange}
                 options={options}
-                placeholderText={columnProperties.placeholderText}
+                placeholderText={cellProperties.placeholderText}
                 rowIndex={rowIndex}
-                serverSideFiltering={columnProperties.serverSideFiltering}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
               />
@@ -403,13 +446,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 alignWidget={columnProperties.alignWidget}
                 cellProperties={cellProperties}
                 columnId={accessor}
-                defaultSwitchState={columnProperties.defaultSwitchState}
+                defaultSwitchState={cellProperties.defaultSwitchState}
                 isCellVisible={isCellVisible}
-                isDisabled={columnProperties.isDisabled}
+                isDisabled={cellProperties.isDisabled}
                 isHidden={isHidden}
-                label={columnProperties.switchLabel}
                 onChange={this.handleSwitchChange}
                 rowIndex={rowIndex}
+                switchLabel={cellProperties.switchLabel as string}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
               />
@@ -444,7 +487,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
               iconName: cellProperties.iconName as IconName,
-              buttonStyle: cellProperties.iconButtonStyle,
+              buttonColor: cellProperties.buttonColor || Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant,
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
@@ -752,32 +795,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
 
-    // set defaultOptionValue for column type "select" and "switch" if exist
-    const columnIds = Object.keys(this.props.primaryColumns);
-    const editedColumnData = { ...this.props.editedColumnData };
-    for (let index = 0; index < columnIds.length; index++) {
-      const column = this.props.primaryColumns[columnIds[index]];
-      if (column.columnType === "select") {
-        // set default value if exist
-        if (column?.defaultOptionValue) {
-          setWith(
-            editedColumnData,
-            [column.id, "defaultOptionValue"],
-            column?.defaultOptionValue,
-            Object,
-          );
-        }
-      } else if (column.columnType === "switch") {
-        setWith(
-          editedColumnData,
-          [column.id, "defaultOptionValue"],
-          !!column?.defaultSwitchState,
-          Object,
-        );
-      }
-    }
-
-    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
+    this.updateEditedColumnData();
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -891,35 +909,47 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     //Runs only when column properties are updated,
     // basically column type or column deleted
     if (!isEqual(this.props.primaryColumns, prevProps.primaryColumns)) {
-      const columnIds = Object.keys(this.props.primaryColumns);
-      const editedColumnData = { ...this.props.editedColumnData };
-      for (let index = 0; index < columnIds.length; index++) {
-        const column = this.props.primaryColumns[columnIds[index]];
-        if (column.columnType === "select") {
-          // set default value if exist
-          if (column?.defaultOptionValue) {
-            setWith(
-              editedColumnData,
-              [column.id, "defaultOptionValue"],
-              column?.defaultOptionValue,
-              Object,
-            );
-          }
-        } else if (column.columnType === "switch") {
+      this.updateEditedColumnData(true, true);
+    }
+  }
+
+  // editedColumnData is used to show temparary changed values in cell
+  // update edited column data based on various column type
+  // on componentDidMount and componentDidUpdate
+  updateEditedColumnData = (
+    shouldCleanData?: boolean,
+    shouldStopResettingIndex?: boolean,
+  ) => {
+    const columnIds = Object.keys(this.props.primaryColumns);
+    const editedColumnData = { ...this.props.editedColumnData };
+    for (let index = 0; index < columnIds.length; index++) {
+      const column = this.props.primaryColumns[columnIds[index]];
+      if (column.columnType === "select") {
+        // set default value if values exist
+        if (column?.defaultOptionValue) {
           setWith(
             editedColumnData,
             [column.id, "defaultOptionValue"],
-            !!column?.defaultSwitchState,
+            column.defaultOptionValue,
             Object,
           );
-        } else {
-          if (column.columnType !== "currency") {
-            // clean column data if column type change
-            delete editedColumnData[column.id];
-          }
+        }
+      } else if (column.columnType === "switch") {
+        setWith(
+          editedColumnData,
+          [column.id, "defaultOptionValue"],
+          column.defaultSwitchState,
+          Object,
+        );
+      } else {
+        if (column.columnType !== "currency") {
+          // clean column data if column type change
+          delete editedColumnData[column.id];
         }
       }
-      // clean column data if column is deleted
+    }
+    // value will be True when called from componentDidUpdate
+    if (shouldCleanData) {
       const editedColumnDataKeys = Object.keys(editedColumnData);
       for (let index = 0; index < editedColumnDataKeys.length; index++) {
         const editedKey = editedColumnDataKeys[index];
@@ -927,22 +957,21 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           delete editedColumnData[editedKey];
         }
       }
-      this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
-      // if column edited by "select", do not reset selectedRowIndex
-      // keep selectedRowIndex as last selected edited row
-      if (size(editedColumnData)) {
-        if (
-          this.props.editedRowIndex !== -1 &&
-          this.props.editedRowIndex !== this.props.selectedRowIndex
-        ) {
-          this.props.updateWidgetMetaProperty(
-            "selectedRowIndex",
-            this.props.editedRowIndex,
-          );
-        }
+    }
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
+
+    // if column edited by "select", do not reset selectedRowIndex
+    // keep selectedRowIndex as last selected edited row
+    // value will be True when called from componentDidUpdate
+    if (shouldStopResettingIndex && size(editedColumnData)) {
+      if (this.props.editedRowIndex !== this.props.selectedRowIndex) {
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndex",
+          this.props.editedRowIndex,
+        );
       }
     }
-  }
+  };
 
   updateSelectedRowIndex = () => {
     if (!this.props.multiRowSelection) {

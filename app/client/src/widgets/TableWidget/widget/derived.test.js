@@ -823,4 +823,147 @@ describe("Validates Derived Properties", () => {
     let result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
+
+  it("validates generated filtered table data and selectedRow updated correctly after update dropdown option and defalut option for column type - select", () => {
+    const { getFilteredTableData, getSelectedRow } = derivedProperty;
+    let input = {
+      sanitizedTableData: [
+        { id: 123, name: "John Doe" },
+        { id: 234, name: "Jane Doe" },
+      ],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+      columnOrder: ["id", "name"],
+      editedColumnData: {
+        name: {
+          0: "RED",
+          defaultOptionValue: ["BLUE", "PINK"],
+        },
+        customColumn1: {
+          1: "GREEN",
+          defaultOptionValue: ["PINK", "BLUE"],
+        },
+      },
+      primaryColumns: {
+        id: {
+          index: 0,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [123, 234],
+        },
+        name: {
+          index: 1,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["John Doe", "Jane Doe"],
+        },
+        customColumn1: {
+          index: 2,
+          width: 150,
+          id: "customColumn1",
+          columnType: "select",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDisabled: false,
+          isCellVisible: true,
+          isDerived: true,
+          label: "color",
+          buttonStyle: "rgb(3, 179, 101)",
+          buttonLabelColor: "#FFFFFF",
+          computedValue: [null, null],
+          options: [
+            { label: "Blue", value: "BLUE" },
+            { label: "Green", value: "GREEN" },
+            { label: "Red", value: "RED" },
+            { label: "Pink", value: "PINK" },
+          ],
+        },
+      },
+      selectedRowIndex: 0,
+    };
+    const expected = [
+      { id: 123, name: "RED", customColumn1: "PINK", __originalIndex__: 0 },
+      {
+        id: 234,
+        name: "PINK",
+        customColumn1: "GREEN",
+        __originalIndex__: 1,
+      },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+
+    // added filteredTableData into input data
+    input.filteredTableData = result;
+    input.selectedRowIndex = 0;
+    // check 1st selected row
+    let row = getSelectedRow(input, moment, _);
+    expect(row).toStrictEqual({
+      id: 123,
+      name: "RED",
+      customColumn1: "PINK",
+      __originalIndex__: 0,
+    });
+
+    input.selectedRowIndex = 1;
+    // check 2nd selected row
+    let row = getSelectedRow(input, moment, _);
+    expect(row).toStrictEqual({
+      id: 234,
+      name: "PINK",
+      customColumn1: "GREEN",
+      __originalIndex__: 1,
+    });
+  });
+
+  it("validates generated sanitized table data should not update for empty edited ColumnData", () => {
+    const { getSanitizedTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 123, name: "John Doe" },
+        { id: 234, name: "Jane Doe" },
+      ],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+      columnOrder: ["id", "name"],
+      editedColumnData: {},
+    };
+    const expected = [
+      { id: 123, name: "John Doe" },
+      { id: 234, name: "Jane Doe" },
+    ];
+
+    let result = getSanitizedTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
 });

@@ -48,13 +48,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -220,7 +221,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 //i.e. the rest of the code flow would only happen when there is a plugin found for the organization that can
                 //be uninstalled.
                 .flatMap(organization -> {
-                    List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                    Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
                     organizationPluginList.removeIf(listPlugin -> listPlugin.getPluginId().equals(pluginDTO.getPluginId()));
                     organization.setPlugins(organizationPluginList);
                     return organizationService.save(organization);
@@ -262,9 +263,9 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                             .then(organizationService.getById(pluginDTO.getOrganizationId()))
                             .flatMap(organization -> {
 
-                                List<OrganizationPlugin> organizationPluginList = organization.getPlugins();
+                                Set<OrganizationPlugin> organizationPluginList = organization.getPlugins();
                                 if (organizationPluginList == null) {
-                                    organizationPluginList = new ArrayList<>();
+                                    organizationPluginList = new HashSet<>();
                                 }
 
                                 OrganizationPlugin organizationPlugin = new OrganizationPlugin();

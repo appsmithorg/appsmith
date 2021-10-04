@@ -15,6 +15,7 @@ import {
   pushToRepoSuccess,
   fetchLocalGitConfigSuccess,
   updateLocalGitConfigSuccess,
+  fetchLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -151,6 +152,7 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
 
     if (isValidResponse) {
       yield put(updateLocalGitConfigSuccess(response.data));
+      yield put(fetchLocalGitConfigInit());
       Toaster.show({
         text: createMessage(GIT_USER_UPDATED_SUCCESSFULLY),
         variant: Variant.success,
