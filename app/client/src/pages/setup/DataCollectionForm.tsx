@@ -54,7 +54,7 @@ export default memo(function DataCollectionForm() {
             </AllowToggle>
             <AllowToggleLabel>
               {allowCollection
-                ? "Share data & make appsmith better!"
+                ? "Share data & make Appsmith better!"
                 : "Don't share any data"}
             </AllowToggleLabel>
           </AllowToggleWrapper>
