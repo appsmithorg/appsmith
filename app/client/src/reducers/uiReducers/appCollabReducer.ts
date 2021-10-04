@@ -1,9 +1,11 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { User } from "entities/AppCollab/CollabInterfaces";
+import { cloneDeep } from "lodash";
 
 const initialState: AppCollabReducerState = {
   editors: [],
+  pointerData: {},
 };
 
 const appCollabReducer = createReducer(initialState, {
@@ -18,10 +20,46 @@ const appCollabReducer = createReducer(initialState, {
   ) => {
     return { ...state, editors: [] };
   },
+  [ReduxActionTypes.APP_COLLAB_SET_EDITORS_POINTER_DATA]: (
+    state: AppCollabReducerState,
+    action: ReduxAction<any>,
+  ) => {
+    return {
+      ...state,
+      pointerData: {
+        ...state.pointerData,
+        [action.payload.socketId]: action.payload,
+      },
+    };
+  },
+  [ReduxActionTypes.APP_COLLAB_UNSET_EDITORS_POINTER_DATA]: (
+    state: AppCollabReducerState,
+    action: ReduxAction<any>,
+  ) => {
+    const clonedPointerData = cloneDeep(state.pointerData);
+    delete clonedPointerData[action.payload];
+    return {
+      ...state,
+      clonedPointerData,
+    };
+  },
+  [ReduxActionTypes.APP_COLLAB_RESET_EDITORS_POINTER_DATA]: (
+    state: AppCollabReducerState,
+  ) => {
+    return {
+      ...state,
+      pointerData: {},
+    };
+  },
 });
+
+type PointerDataType = {
+  [s: string]: any;
+};
 
 export type AppCollabReducerState = {
   editors: User[];
+  pointerData: PointerDataType;
 };
 
 export default appCollabReducer;

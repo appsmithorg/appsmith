@@ -6,7 +6,6 @@ import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -14,6 +13,7 @@ import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -65,6 +65,7 @@ public class UserSignup {
     private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
     private final ApplicationPageService applicationPageService;
+    private final EnvManager envManager;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -115,18 +116,10 @@ public class UserSignup {
                     MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
                     String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
-                    if(StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(organizationId)) {
-                        // need to create default application
-                        Application application = new Application();
-                        application.setOrganizationId(organizationId);
-                        application.setName("My first application");
-                        return applicationPageService.createApplication(application).flatMap(createdApplication ->
-                                authenticationSuccessHandler
-                                .onAuthenticationSuccess(webFilterExchange, authentication, createdApplication, true)
-                                .thenReturn(savedUser));
-                    }
+                    boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(organizationId);
+                    // need to create default application
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication, null, true)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true)
                             .thenReturn(savedUser);
                 });
     }
@@ -217,6 +210,17 @@ public class UserSignup {
                     }
 
                     return Mono.when(
+                            NetworkUtils.getExternalAddress()
+                                    .doOnSuccess(address -> analyticsService.sendEvent(
+                                            AnalyticsEvents.INSTALLATION_TELEMETRY.getEventName(),
+                                            address,
+                                            Map.of("disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData()),
+                                            false
+                                    )),
+                            envManager.applyChanges(Map.of(
+                                    "APPSMITH_DISABLE_TELEMETRY",
+                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
+                            )),
                             userDataService.updateForUser(user, userData),
                             configService.save(ConfigNames.USE_CASE, Map.of("value", userFromRequest.getUseCase())),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)

@@ -161,9 +161,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const filteredChildOccupiedSpaces = childrenOccupiedSpaces.filter(
     (each) => !selectedWidgets.includes(each.id),
   );
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const onDrop = (drawingBlocks: WidgetDraggingBlock[]) => {
     const cannotDrop = drawingBlocks.some((each) => {
@@ -192,31 +190,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           };
         });
       dispatchDrop(draggedBlocksToUpdate);
-      persistCanvasRows(
-        draggedBlocksToUpdate[draggedBlocksToUpdate.length - 1],
-      );
     }
-  };
-
-  const persistCanvasRows = (bottomMostBlock: {
-    updateWidgetParams: WidgetOperationParams;
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-    columnWidth: number;
-    rowHeight: number;
-    widgetId: string;
-    isNotColliding: boolean;
-    detachFromLayout?: boolean | undefined;
-  }) => {
-    const widget = newWidget ? newWidget : allWidgets[bottomMostBlock.widgetId];
-    const { updateWidgetParams } = bottomMostBlock;
-    const widgetBottomRow =
-      updateWidgetParams.payload.topRow +
-      (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
-    persistDropTargetRows &&
-      persistDropTargetRows(bottomMostBlock.widgetId, widgetBottomRow);
   };
 
   const dispatchDrop = (
@@ -236,6 +210,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
       type: ReduxActionTypes.WIDGETS_MOVE,
       payload: {
         draggedBlocksToUpdate,
+        canvasId: widgetId,
       },
     });
   };
