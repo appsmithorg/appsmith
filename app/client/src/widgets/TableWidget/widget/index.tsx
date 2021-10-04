@@ -581,7 +581,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         });
 
         // If new columnOrders have different values from the original columnOrders
-        if (xor(newColumnIds, columnOrder).length > 0) {
+        // Only update when there are new Columns
+        if (
+          xor(newColumnIds, columnOrder).length > 0 &&
+          newColumnIds.length > 0
+        ) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
 
