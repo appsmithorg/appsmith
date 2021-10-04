@@ -114,7 +114,7 @@ const Wrapper = styled.div<{ step: number }>`
 `;
 
 const StyledPopoverContent = styled.div`
-  background: black;
+  background: ${Colors.WHITE};
   max-height: 500px;
   width: 400px;
   padding: 10px;
