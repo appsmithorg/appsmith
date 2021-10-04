@@ -201,7 +201,7 @@ public class UserSignup {
                     return Mono.when(
                             configService.getInstanceId()
                                     .doOnSuccess(instanceId -> analyticsService.sendEvent(
-                                            AnalyticsEvents.INSTALLATION_TELEMETRY.getEventName(),
+                                            AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                             instanceId,
                                             Map.of(
                                                     "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
