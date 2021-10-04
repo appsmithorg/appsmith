@@ -1,4 +1,3 @@
-import { noop } from "lodash";
 import React, { memo } from "react";
 import styled from "styled-components";
 import Toggle from "components/ads/Toggle";
