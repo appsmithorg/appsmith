@@ -6,8 +6,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
@@ -49,6 +51,8 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
+    private final ApplicationPageService applicationPageService;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -64,23 +68,24 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             WebFilterExchange webFilterExchange,
             Authentication authentication
     ) {
-        return onAuthenticationSuccess(webFilterExchange, authentication, null, false);
+        return onAuthenticationSuccess(webFilterExchange, authentication, false, false);
     }
 
     public Mono<Void> onAuthenticationSuccess(
             WebFilterExchange webFilterExchange,
             Authentication authentication,
-            Application defaultApplication,
+            boolean createDefaultApplication,
             boolean isFromSignup
     ) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
+        Mono<Void> redirectionMono;
+        User user = (User) authentication.getPrincipal();
 
         if (authentication instanceof OAuth2AuthenticationToken) {
             // In case of OAuth2 based authentication, there is no way to identify if this was a user signup (new user
             // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
             // If and when we find a better way to do identify this, let's please move away from this approximation.
             // If the user object was created within the last 5 seconds, we treat it as a new user.
-            User user = (User) authentication.getPrincipal();
             isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
             // If user has previously signed up using password and now using OAuth as a sign in method we are removing
             // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
@@ -94,27 +99,39 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 // Update the user in separate thread
                 userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
             }
+            if(isFromSignup) {
+                boolean finalIsFromSignup = isFromSignup;
+                redirectionMono = createDefaultApplication(user)
+                        .flatMap(defaultApplication->handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
+            } else {
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
+            }
+        } else {
+            boolean finalIsFromSignup = isFromSignup;
+            if(createDefaultApplication && isFromSignup) {
+                redirectionMono = createDefaultApplication(user).flatMap(
+                        defaultApplication->handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
+                );
+            } else {
+                redirectionMono = handleRedirect(webFilterExchange, null, finalIsFromSignup);
+            }
         }
-
-        Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
-                ? handleOAuth2Redirect(webFilterExchange, isFromSignup)
-                : handleRedirect(webFilterExchange, defaultApplication, isFromSignup);
 
         final boolean isFromSignupFinal = isFromSignup;
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> {
+                .flatMap(currentUser -> {
                     List<Mono<?>> monos = new ArrayList<>();
-                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(user));
+                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
                     if (isFromSignupFinal) {
-                        final boolean isFromInvite = user.getInviteToken() != null;
+                        final boolean isFromInvite = currentUser.getInviteToken() != null;
                         String modeOfLogin = "FormSignUp";
                         if(authentication instanceof OAuth2AuthenticationToken) {
                             modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
                         monos.add(analyticsService.sendObjectEvent(
                                 AnalyticsEvents.FIRST_LOGIN,
-                                user,
+                                currentUser,
                                 Map.of("isFromInvite", isFromInvite, "modeOfLogin", modeOfLogin)));
                         monos.add(examplesOrganizationCloner.cloneExamplesOrganization());
                     }
@@ -122,6 +139,16 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                     return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
+    }
+
+    private Mono<Application> createDefaultApplication(User user) {
+        // need to create default application
+        String organizationId = user.getOrganizationIds().iterator().next();
+
+        Application application = new Application();
+        application.setOrganizationId(organizationId);
+        application.setName("My first application");
+        return applicationPageService.createApplication(application);
     }
 
     /**
@@ -139,7 +166,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
            "JavadocReference"
     )
-    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, boolean isFromSignup) {
+    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
@@ -154,8 +181,14 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             }
         }
 
+        boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
-            redirectUrl = buildSignupSuccessUrl(redirectUrl, false);
+            if(redirectUrl.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+                addFirstTimeExperienceParam = true;
+                HttpHeaders headers = exchange.getRequest().getHeaders();
+                redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
+            }
+            redirectUrl = buildSignupSuccessUrl(redirectUrl, addFirstTimeExperienceParam);
         }
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));

@@ -92,7 +92,10 @@ export default {
     }
     return pageSize;
   },
-  //
+  // sanitizedTableData gets updated when editedColumnData has values
+  // case 1: if single row is updated, set columnName.index in editedColumnData
+  // case 2: if defaultOptionValue exist, update all not selected cell values of column
+  // i.e. editedColumnData = { [columnName] : { [rowindex]: "value1", defaultOptionValue: "default" } }
   getSanitizedTableData: (props, moment, _) => {
     const separatorRegex = /\W+/;
 
@@ -111,8 +114,11 @@ export default {
           } else if (
             _.has(props.editedColumnData, `${sanitizedKey}.defaultOptionValue`)
           ) {
-            sanitizedData[sanitizedKey] =
-              props.editedColumnData[sanitizedKey].defaultOptionValue;
+            sanitizedData[sanitizedKey] = _.get(
+              props.editedColumnData,
+              `${sanitizedKey}.defaultOptionValue.${index}`,
+              "",
+            );
           } else {
             sanitizedData[sanitizedKey] = value;
           }
@@ -256,8 +262,11 @@ export default {
           } else if (
             _.has(props.editedColumnData, `${columnId}.defaultOptionValue`)
           ) {
-            derivedTableData[index][columnId] =
-              props.editedColumnData[columnId].defaultOptionValue;
+            derivedTableData[index][columnId] = _.get(
+              props.editedColumnData,
+              `${columnId}.defaultOptionValue.${index}`,
+              "",
+            );
           }
         }
       });

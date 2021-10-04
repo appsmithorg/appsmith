@@ -36,7 +36,6 @@ import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
 import {
-  ButtonStyleType,
   ButtonVariant,
   ButtonBoxShadow,
   ButtonBorderRadius,
@@ -178,7 +177,7 @@ interface RenderIconButtonProps {
   columnActions?: ColumnAction[];
   iconName?: IconName;
   buttonVariant: ButtonVariant;
-  buttonStyle: ButtonStyleType;
+  buttonColor: string;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
@@ -206,7 +205,7 @@ export const renderIconButton = (
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
             boxShadowColor={props.boxShadowColor}
-            buttonStyle={props.buttonStyle}
+            buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
             iconName={props.iconName}
             isSelected={props.isSelected}
@@ -223,7 +222,7 @@ function IconButton(props: {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isSelected: boolean;
   action: ColumnAction;
-  buttonStyle: ButtonStyleType;
+  buttonColor: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -252,7 +251,7 @@ function IconButton(props: {
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
         boxShadowColor={props.boxShadowColor}
-        buttonStyle={props.buttonStyle}
+        buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         icon={props.iconName}
         loading={loading}
@@ -328,7 +327,11 @@ function TableAction(props: {
     <ActionWrapper
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
-      onClick={stopClickEventPropagation}
+      onClick={(e) => {
+        if (props.isSelected) {
+          e.stopPropagation();
+        }
+      }}
     >
       {props.isCellVisible ? (
         <Button
@@ -713,15 +716,18 @@ const StyledDropDownComponent = styled.div`
   width: 100%;
 `;
 
+/**
+ * renders select component for each cell where column type is "select"
+ * column properties have additional props related to select i.e. options, defaultOptionValue, onOptionChange
+ * onOptionChange call, parent handler set new data into meta properties
+ */
 export function SelectCell(props: {
   value: any;
   action: string;
   columnId: string;
   options: DropdownOption[];
-  defaultOptionValue: string | undefined;
   placeholderText: string | undefined;
   isDisabled: boolean;
-  serverSideFiltering: boolean;
   isHidden: boolean;
   onOptionChange: (
     columnId: string,
@@ -754,6 +760,7 @@ export function SelectCell(props: {
       cellProperties={props.cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
+      onClick={stopClickEventPropagation}
     >
       <StyledDropDownComponent>
         <DropDownComponent
@@ -766,7 +773,7 @@ export function SelectCell(props: {
           options={props.options}
           placeholder={props.placeholderText}
           selectedIndex={selectedIndex}
-          serverSideFiltering={props.serverSideFiltering}
+          serverSideFiltering={false}
           widgetId={`dropdown-${props.widgetId}`}
           width={0}
         />
@@ -775,19 +782,24 @@ export function SelectCell(props: {
   );
 }
 
+/**
+ * renders select component for each cell where column type is "switch"
+ * column properties have additional props related to select i.e. defaultSwitchState, switchLabel, alignWidget, onChange
+ * onChange call, parent handler set new data into meta properties
+ */
 export function SwitchCell(props: {
   value: any;
-  defaultSwitchState: boolean;
-  label: string;
+  defaultSwitchState?: boolean;
+  switchLabel: string;
   action: string;
   columnId: string;
-  isDisabled: boolean;
+  isDisabled?: boolean;
   alignWidget: AlignWidget;
   isHidden: boolean;
   onChange: (
     columnId: string,
     rowIndex: number,
-    action: string,
+    dynamicString: string,
     isSwitchedOn: boolean,
   ) => void;
   cellProperties: CellLayoutProperties;
@@ -824,7 +836,7 @@ export function SwitchCell(props: {
         isLoading={false}
         isSwitchedOn={isSwitchOn}
         key={props.widgetId}
-        label={props.label || "Label"}
+        label={props.switchLabel}
         onChange={handleChange}
         widgetId={props.widgetId}
       />

@@ -7,7 +7,7 @@
   •
   <a href="https://community.appsmith.com/">Community</a>
   •
-  <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
+  <a href="https://docs.appsmith.com/tutorials">Tutorials</a>
   •
   <a href="https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">Events</a>
   •

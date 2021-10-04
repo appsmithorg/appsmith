@@ -824,61 +824,7 @@ describe("Validates Derived Properties", () => {
     expect(result).toStrictEqual(expected);
   });
 
-  it("validates generated sanitized table data updated correctly after changed option in dropdown for column type - select", () => {
-    const { getSanitizedTableData } = derivedProperty;
-    const input = {
-      tableData: [
-        { id: 123, name: "John Doe" },
-        { id: 234, name: "Jane Doe" },
-      ],
-      sortOrder: {
-        column: "",
-        order: null,
-      },
-      columnOrder: ["id", "name"],
-      editedColumnData: {
-        name: {
-          1: "Naruto Uzumaki",
-        },
-      },
-    };
-    const expected = [
-      { id: 123, name: "John Doe" },
-      { id: 234, name: "Naruto Uzumaki" },
-    ];
-
-    let result = getSanitizedTableData(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("validates generated sanitized table data updated correctly after changed set default selected option for column type - select", () => {
-    const { getSanitizedTableData } = derivedProperty;
-    const input = {
-      tableData: [
-        { id: 123, name: "John Doe" },
-        { id: 234, name: "Jane Doe" },
-      ],
-      sortOrder: {
-        column: "",
-        order: null,
-      },
-      columnOrder: ["id", "name"],
-      editedColumnData: {
-        name: {
-          defaultOptionValue: "Naruto Uzumaki",
-        },
-      },
-    };
-    const expected = [
-      { id: 123, name: "Naruto Uzumaki" },
-      { id: 234, name: "Naruto Uzumaki" },
-    ];
-
-    let result = getSanitizedTableData(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("validates generated filtered table data and selectedRow updated correctly after adding derivedColumn and changed option in dropdown for column type - select", () => {
+  it("validates generated filtered table data and selectedRow updated correctly after update dropdown option and defalut option for column type - select", () => {
     const { getFilteredTableData, getSelectedRow } = derivedProperty;
     let input = {
       sanitizedTableData: [
@@ -891,8 +837,13 @@ describe("Validates Derived Properties", () => {
       },
       columnOrder: ["id", "name"],
       editedColumnData: {
+        name: {
+          0: "RED",
+          defaultOptionValue: ["BLUE", "PINK"],
+        },
         customColumn1: {
           1: "GREEN",
+          defaultOptionValue: ["PINK", "BLUE"],
         },
       },
       primaryColumns: {
@@ -951,16 +902,17 @@ describe("Validates Derived Properties", () => {
             { label: "Blue", value: "BLUE" },
             { label: "Green", value: "GREEN" },
             { label: "Red", value: "RED" },
+            { label: "Pink", value: "PINK" },
           ],
         },
       },
       selectedRowIndex: 0,
     };
     const expected = [
-      { id: 123, name: "John Doe", customColumn1: null, __originalIndex__: 0 },
+      { id: 123, name: "RED", customColumn1: "PINK", __originalIndex__: 0 },
       {
         id: 234,
-        name: "Jane Doe",
+        name: "PINK",
         customColumn1: "GREEN",
         __originalIndex__: 1,
       },
@@ -976,8 +928,8 @@ describe("Validates Derived Properties", () => {
     let row = getSelectedRow(input, moment, _);
     expect(row).toStrictEqual({
       id: 123,
-      name: "John Doe",
-      customColumn1: null,
+      name: "RED",
+      customColumn1: "PINK",
       __originalIndex__: 0,
     });
 
@@ -986,7 +938,7 @@ describe("Validates Derived Properties", () => {
     let row = getSelectedRow(input, moment, _);
     expect(row).toStrictEqual({
       id: 234,
-      name: "Jane Doe",
+      name: "PINK",
       customColumn1: "GREEN",
       __originalIndex__: 1,
     });
@@ -1009,33 +961,6 @@ describe("Validates Derived Properties", () => {
     const expected = [
       { id: 123, name: "John Doe" },
       { id: 234, name: "Jane Doe" },
-    ];
-
-    let result = getSanitizedTableData(input, moment, _);
-    expect(result).toStrictEqual(expected);
-  });
-
-  it("validates generated sanitized table data updated correctly after changed rating for column type - rating", () => {
-    const { getSanitizedTableData } = derivedProperty;
-    const input = {
-      tableData: [
-        { id: 123, name: "John Doe", rating: 0 },
-        { id: 234, name: "Jane Doe", rating: 0 },
-      ],
-      sortOrder: {
-        column: "",
-        order: null,
-      },
-      columnOrder: ["id", "name"],
-      editedColumnData: {
-        rating: {
-          0: 3,
-        },
-      },
-    };
-    const expected = [
-      { id: 123, name: "John Doe", rating: 3 },
-      { id: 234, name: "Jane Doe", rating: 0 },
     ];
 
     let result = getSanitizedTableData(input, moment, _);

@@ -20,7 +20,7 @@ export enum ValidationTypes {
 export type ValidationResponse = {
   isValid: boolean;
   parsed: any;
-  message?: string;
+  messages?: string[];
   transformed?: any;
 };
 

@@ -6,6 +6,7 @@ require("cypress-file-upload");
 const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
+const signupPage = require("../locators/SignupPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
@@ -405,6 +406,26 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
+  cy.wait("@getUser");
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  initLocalstorage();
+});
+
+Cypress.Commands.add("Signup", (uname, pword) => {
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/signup");
+  cy.get(signupPage.username).should("be.visible");
+  cy.get(signupPage.username).type(uname);
+  cy.get(signupPage.password).type(pword);
+  cy.get(signupPage.submitBtn).click();
   cy.wait("@getUser");
   cy.wait("@applications").should(
     "have.nested.property",
@@ -2363,22 +2384,17 @@ Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   }
 });
 
-Cypress.Commands.add("changeButtonStyle", (index, buttonColor, hoverColor) => {
-  cy.get(widgetsPage.buttonStyleDropdown).click({ force: true });
-  cy.get(
-    ".bp3-popover-content .t--dropdown-option:nth-child(" + index + ")",
-  ).click({ force: true });
+Cypress.Commands.add("changeButtonColor", (buttonColor) => {
+  cy.get(widgetsPage.buttonColor)
+    .click({ force: true })
+    .clear()
+    .type(buttonColor);
   cy.PublishtheApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
     "background-color",
     buttonColor,
   );
-  // cy.get(buttonBackground)
-  //   .first()
-  //   .trigger('mouseover', { force: true });
-  // cy.get(buttonBackground)
-  //   .should('have.css', 'background-color', hoverColor);
   cy.wait(1000);
 });
 

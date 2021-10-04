@@ -32,8 +32,7 @@ const PageWrapper = styled.div`
 `;
 
 const SetupFormContainer = styled.div`
-  width: 566px;
-  padding-top: 120px;
+  padding: 120px 42px 0px 0px;
 `;
 
 const SetupStep = styled.div<{ active: boolean }>`
