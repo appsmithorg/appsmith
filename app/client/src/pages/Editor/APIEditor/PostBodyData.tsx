@@ -72,7 +72,7 @@ function PostBodyData(props: Props) {
       [ApiContentTypes.JSON]: (
         <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
           <DynamicTextField
-            border={CodeEditorBorder.NONE}
+            border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
@@ -113,7 +113,7 @@ function PostBodyData(props: Props) {
       [ApiContentTypes.RAW]: (
         <JSONEditorFieldWrapper key={key}>
           <DynamicTextField
-            border={CodeEditorBorder.NONE}
+            border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
             mode={EditorModes.TEXT_WITH_BINDING}
             name="actionConfiguration.body"

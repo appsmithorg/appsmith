@@ -309,7 +309,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
     return (
       <DatasourceContainer>
-        <CodeEditor {...props} border={CodeEditorBorder.NONE} height="33px" />
+        <CodeEditor
+          {...props}
+          border={CodeEditorBorder.NONE}
+          className="t--datasource-editor"
+          height="35px"
+        />
         {displayValue && datasource && !("id" in datasource) ? (
           <StoreAsDatasource enable={!!displayValue} />
         ) : datasource && "id" in datasource ? (
