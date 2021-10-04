@@ -24,7 +24,7 @@ export const StyledImage = styled.div<
   flex-direction: "row";
   background-size: ${(props) => props.objectFit ?? "contain"};
   cursor: ${(props) =>
-    props.showHoverPointer && props.onClick ? "pointer !important" : "inherit"};
+    props.showHoverPointer && props.onClick ? "pointer" : "inherit"};
   background: ${(props) => props.backgroundColor};
   background-image: ${(props) =>
     `url(${props.imageError ? props.defaultImageUrl : props.imageUrl})`};
@@ -191,8 +191,9 @@ class ImageComponent extends React.Component<
                     }
                     this.isPanning = false;
                   }}
+                  // Checking if onClick event is associated, changing cursor to pointer.
                   style={{
-                    cursor,
+                    cursor: `${this.props.onClick ? "pointer" : "inherit"}`,
                     transform: `rotate(${imageRotation}deg)`,
                   }}
                 >
