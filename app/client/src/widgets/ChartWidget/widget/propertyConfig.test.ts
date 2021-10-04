@@ -81,7 +81,7 @@ describe("Validate Chart Widget's property config", () => {
 
   it("Validates that sections are hidden when chartType is CUSTOM_FUSION_CHART", () => {
     const hiddenFns = [
-      get(config, "[0].children.[3].hidden"),
+      get(config, "[0].children.[4].hidden"),
       get(config, "[1].children.[0].hidden"),
       get(config, "[1].children.[1].hidden"),
       get(config, "[1].children.[2].hidden"),
