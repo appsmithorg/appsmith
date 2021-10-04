@@ -101,6 +101,7 @@ import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
 import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
+import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -407,6 +408,7 @@ const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
 function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
+  const onboardingOrgs = useSelector(getOnboardingOrganisations);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   let userOrgs;
   if (!isFetchingApplications) {
@@ -471,20 +473,27 @@ function LeftPane() {
             }}
             text={createMessage(DOCUMENTATION)}
           />
-          <MenuItem
-            containerClassName={
-              isFetchingApplications
-                ? BlueprintClasses.SKELETON
-                : "t--welcome-tour"
-            }
-            icon="shine"
-            onSelect={() => {
-              AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+          {/* 
+              Hiding onboarding when there are no organisations(or no orgs where we can 
+              create an application) 
+              TODO: Maybe we could create an organisation and then create an application in it
+          */}
+          {!!onboardingOrgs.length && (
+            <MenuItem
+              containerClassName={
+                isFetchingApplications
+                  ? BlueprintClasses.SKELETON
+                  : "t--welcome-tour"
+              }
+              icon="shine"
+              onSelect={() => {
+                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
 
-              initiateOnboarding();
-            }}
-            text={createMessage(WELCOME_TOUR)}
-          />
+                initiateOnboarding();
+              }}
+              text={createMessage(WELCOME_TOUR)}
+            />
+          )}
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>

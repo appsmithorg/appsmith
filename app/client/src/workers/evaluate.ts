@@ -241,7 +241,9 @@ export default function evaluate(
       Object.keys(resolvedFunctions).forEach((datum: any) => {
         const resolvedObject = resolvedFunctions[datum];
         Object.keys(resolvedObject).forEach((key: any) => {
-          self[datum][key] = resolvedObject[key].toString();
+          if (resolvedObject[key]) {
+            self[datum][key] = resolvedObject[key].toString();
+          }
         });
       });
     }

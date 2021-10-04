@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -66,6 +65,10 @@ public class AnalyticsService {
     }
 
     public void sendEvent(String event, String userId, Map<String, Object> properties) {
+        sendEvent(event, userId, properties, true);
+    }
+
+    public void sendEvent(String event, String userId, Map<String, Object> properties, boolean hashUserId) {
         if (!isActive()) {
             return;
         }
@@ -77,29 +80,25 @@ public class AnalyticsService {
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
         // Hash usernames at all places for self-hosted instance
-        if (!commonConfig.isCloudHosting()
+        if (userId != null
+                && hashUserId
+                && !commonConfig.isCloudHosting()
                 // But send the email intact for the subscribe event, which is sent only if the user has explicitly agreed to it.
                 && !AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name().equals(event)) {
             final String hashedUserId = DigestUtils.sha256Hex(userId);
             analyticsProperties.remove("request");
-            if (!CollectionUtils.isEmpty(analyticsProperties)) {
-                for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
-                    if (entry.getValue() == null) {
-                        analyticsProperties.put(entry.getKey(), "");
-                    } else if (entry.getValue().equals(userId)) {
-                        analyticsProperties.put(entry.getKey(), hashedUserId);
-                    }
+            for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+                if (userId.equals(entry.getValue())) {
+                    analyticsProperties.put(entry.getKey(), hashedUserId);
                 }
             }
             userId = hashedUserId;
         }
 
-        if (!CollectionUtils.isEmpty(analyticsProperties) && commonConfig.isCloudHosting()) {
-            // Segment throws an NPE if any value in `properties` is null.
-            for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
-                if (entry.getValue() == null) {
-                    analyticsProperties.put(entry.getKey(), "");
-                }
+        // Segment throws an NPE if any value in `properties` is null.
+        for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+            if (entry.getValue() == null) {
+                analyticsProperties.put(entry.getKey(), "");
             }
         }
 

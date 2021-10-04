@@ -278,42 +278,42 @@ function WidgetsEditor() {
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />
       ) : (
-        <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+        <div
+          className={classNames({
+            "relative flex flex-col items-stretch justify-start flex-1 overflow-hidden": true,
+            "cursor-grab": isPanningEnabled && isPanning === false,
+            "cursor-grabbing": isPanning === true,
+          })}
+          data-testid="widgets-editor"
+          draggable
+          onClick={handleWrapperClick}
+          onDragStart={onDragStart}
+          ref={(el) => setContainer(el)}
+          {...panZoomHandlers}
+        >
           <div
             className={classNames({
-              "relative flex flex-col items-stretch justify-start flex-1 overflow-hidden": true,
-              "cursor-grab": isPanningEnabled && isPanning === false,
-              "cursor-grabbing": isPanning === true,
+              "transform  bg-gray-50": true,
+              "translate-y-0 ease-in transition": isPreviewMode,
+              "-translate-y-full duration-0": !isPreviewMode,
             })}
-            data-testid="widgets-editor"
-            draggable
-            onClick={handleWrapperClick}
-            onDragStart={onDragStart}
-            ref={(el) => setContainer(el)}
-            {...panZoomHandlers}
           >
-            <div
-              className={classNames({
-                "transform  bg-gray-50": true,
-                "translate-y-0 ease-in transition": isPreviewMode,
-                "-translate-y-full duration-0": !isPreviewMode,
-              })}
-            >
-              <PageTabsContainer
-                currentApplicationDetails={currentApplicationDetails}
-                pages={pages}
-              />
-            </div>
-            <CanvasContainer
-              className={getCanvasClassName()}
-              key={currentPageId}
-              style={{ transform }}
-            >
-              {node}
-            </CanvasContainer>
-            <Debugger />
-            <CrudInfoModal />
+            <PageTabsContainer
+              currentApplicationDetails={currentApplicationDetails}
+              pages={pages}
+            />
           </div>
+          <CanvasContainer
+            className={getCanvasClassName()}
+            key={currentPageId}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            style={{ transform }}
+          >
+            {node}
+          </CanvasContainer>
+          <CrudInfoModal />
+          <Debugger />
         </div>
       )}
     </EditorContextProvider>
