@@ -38,6 +38,12 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   generateSSHKeyPairSuccess,
+  generateSSHKeyPairError,
+  getSSHKeyPairSuccess,
+  getSSHKeyPairError,
+  GenerateSSHKeyPairReduxAction,
+  GetSSHKeyPairReduxAction,
+  FetchApplicationReduxAction,
 } from "actions/applicationActions";
 import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -60,15 +66,13 @@ import {
 import { showCompletionDialog } from "./OnboardingSagas";
 
 import { deleteRecentAppEntities } from "utils/storage";
-import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
+import {
+  reconnectAppLevelWebsocket,
+  reconnectPageLevelWebsocket,
+} from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
-import { generateSSHKeyPairRequest } from "../api/ApplicationApi";
-import {
-  generateSSHKeyPairError,
-  generateSSHKeyPairReduxAction,
-  FetchApplicationReduxAction,
-} from "../actions/applicationActions";
+
 import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
@@ -507,7 +511,8 @@ export function* createApplicationSaga(
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting
         // ensures user receives the updates in the app just created
-        yield put(reconnectWebsocketAction());
+        yield put(reconnectAppLevelWebsocket());
+        yield put(reconnectPageLevelWebsocket());
       }
     }
   } catch (error) {
@@ -607,12 +612,34 @@ export function* importApplicationSaga(
   }
 }
 
-export function* generateSSHKeyPairSaga(action: generateSSHKeyPairReduxAction) {
+export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
   try {
-    const request: generateSSHKeyPairRequest = action.payload;
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield call(
+      ApplicationApi.getSSHKeyPair,
+      applicationId,
+    );
+    const isValidResponse = yield validateResponse(response, false);
+    if (isValidResponse) {
+      yield put(getSSHKeyPairSuccess(response.data));
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback(response);
+      }
+    }
+  } catch (error) {
+    yield put(getSSHKeyPairError({ error, show: false }));
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error);
+    }
+  }
+}
+
+export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield call(
       ApplicationApi.generateSSHKeyPair,
-      request,
+      applicationId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -662,5 +689,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
       generateSSHKeyPairSaga,
     ),
+    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
   ]);
 }

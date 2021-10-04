@@ -2,6 +2,7 @@ import {
   DependencyMap,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEvalErrorPath,
@@ -16,11 +17,11 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeJSAction,
   DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
@@ -33,15 +34,15 @@ import {
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   getValidatedTree,
+  isAction,
+  isDynamicLeaf,
+  isJSAction,
+  isWidget,
   makeParentsDependOnChildren,
   removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
-  isDynamicLeaf,
-  isWidget,
-  isAction,
-  isJSAction,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -660,15 +661,39 @@ export default class DataTreeEvaluator {
         }
       });
 
-      // if it is just one binding, return that directly
-      if (stringSegments.length === 1) return values[0];
-      // else return a combined value according to the evaluation type
-      return substituteDynamicBindingWithValues(
-        dynamicBinding,
-        stringSegments,
-        values,
-        evaluationSubstitutionType,
-      );
+      // We dont need to substitute template of the result if only one binding exists
+      // But it should not be of prepared statements since that does need a string
+      if (
+        stringSegments.length === 1 &&
+        evaluationSubstitutionType !== EvaluationSubstitutionType.PARAMETER
+      ) {
+        return values[0];
+      }
+      try {
+        // else return a combined value according to the evaluation type
+        return substituteDynamicBindingWithValues(
+          dynamicBinding,
+          stringSegments,
+          values,
+          evaluationSubstitutionType,
+        );
+      } catch (e) {
+        if (fullPropertyPath) {
+          addErrorToEntityProperty(
+            [
+              {
+                raw: dynamicBinding,
+                errorType: PropertyEvaluationErrorType.PARSE,
+                errorMessage: e.message,
+                severity: Severity.ERROR,
+              },
+            ],
+            data,
+            fullPropertyPath,
+          );
+        }
+        return undefined;
+      }
     }
     return undefined;
   }
@@ -731,7 +756,7 @@ export default class DataTreeEvaluator {
     }
     const validation = widget.validationPaths[propertyPath];
 
-    const { isValid, message, parsed, transformed } = validateWidgetProperty(
+    const { isValid, messages, parsed, transformed } = validateWidgetProperty(
       validation,
       valueToValidate,
       widget,
@@ -749,18 +774,16 @@ export default class DataTreeEvaluator {
       safeEvaluatedValue,
     );
     if (!isValid) {
-      addErrorToEntityProperty(
-        [
-          {
+      const evalErrors: EvaluationError[] =
+        messages?.map((message) => {
+          return {
             raw: unEvalPropertyValue,
             errorMessage: message || "",
             errorType: PropertyEvaluationErrorType.VALIDATION,
             severity: Severity.ERROR,
-          },
-        ],
-        currentTree,
-        fullPropertyPath,
-      );
+          };
+        }) ?? [];
+      addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
     }
 
     if (isPathADynamicTrigger(widget, propertyPath)) {

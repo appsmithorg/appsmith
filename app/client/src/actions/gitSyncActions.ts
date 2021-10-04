@@ -2,6 +2,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig } from "entities/GitSync";
+import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
@@ -23,7 +24,17 @@ export const commitToRepoSuccess = () => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_SUCCESS,
 });
 
-export type ConnectToGitResponse = any;
+export const pushToRepoInit = () => ({
+  type: ReduxActionTypes.PUSH_TO_GIT_INIT,
+});
+
+export const pushToRepoSuccess = () => ({
+  type: ReduxActionTypes.PUSH_TO_GIT_SUCCESS,
+});
+
+export type ConnectToGitResponse = {
+  gitApplicationMetadata: GitApplicationMetadata;
+};
 
 type ConnectToGitRequestParams = {
   payload: ConnectToGitPayload;
@@ -81,12 +92,12 @@ export const setIsImportAppViaGitModalOpen = (payload: {
 });
 
 export const updateGlobalGitConfigInit = (payload: GitConfig) => ({
-  type: ReduxActionTypes.UPDATE_GIT_CONFIG_INIT,
+  type: ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT,
   payload,
 });
 
 export const updateGlobalGitConfigSuccess = (payload: GitConfig) => ({
-  type: ReduxActionTypes.UPDATE_GIT_CONFIG_SUCCESS,
+  type: ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_SUCCESS,
   payload,
 });
 
@@ -96,5 +107,25 @@ export const fetchGlobalGitConfigInit = () => ({
 
 export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   type: ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+// Local Git config is repo level
+export const updateLocalGitConfigInit = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
+  payload,
+});
+
+export const updateLocalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+export const fetchLocalGitConfigInit = () => ({
+  type: ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT,
+});
+
+export const fetchLocalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS,
   payload,
 });

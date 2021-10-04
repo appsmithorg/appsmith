@@ -4,11 +4,11 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -218,8 +218,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         String pageId = refactorActionNameDTO.getPageId();
         String layoutId = refactorActionNameDTO.getLayoutId();
         String oldName = refactorActionNameDTO.getOldName();
+        final String oldFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
+                oldName :
+                refactorActionNameDTO.getCollectionName() + "." + oldName;
         String newName = refactorActionNameDTO.getNewName();
-        String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
+        final String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
                 newName :
                 refactorActionNameDTO.getCollectionName() + "." + newName;
         String actionId = refactorActionNameDTO.getActionId();
@@ -239,9 +242,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 })
                 .flatMap(action -> {
                     action.setName(newName);
+                    if (!StringUtils.isEmpty(refactorActionNameDTO.getCollectionName())) {
+                        action.setFullyQualifiedName(newFullyQualifiedName);
+                    }
                     return newActionService.updateUnpublishedAction(actionId, action);
                 })
-                .then(refactorName(pageId, layoutId, oldName, newName));
+                .then(refactorName(pageId, layoutId, oldFullyQualifiedName, newFullyQualifiedName));
     }
 
     /**
@@ -306,43 +312,50 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
                  * to look for replacement pattern.
                  */
-                .flatMap(newAction -> {
-                    ActionDTO action = newAction.getUnpublishedAction();
-                    boolean actionUpdateRequired = false;
-                    ActionConfiguration actionConfiguration = action.getActionConfiguration();
-                    Set<String> jsonPathKeys = action.getJsonPathKeys();
+                .flatMap(newAction1 -> {
+                    final NewAction newAction = newAction1;
+                    // We need actionDTO to be populated with pluginType from NewAction
+                    // so that we can check for the JS path
+                    Mono<ActionDTO> actionMono = newActionService.generateActionByViewMode(newAction, false);
+                    return actionMono.flatMap(action -> {
+                        newAction.setUnpublishedAction(action);
+                        boolean actionUpdateRequired = false;
+                        ActionConfiguration actionConfiguration = action.getActionConfiguration();
+                        Set<String> jsonPathKeys = action.getJsonPathKeys();
 
-                    if (jsonPathKeys != null && !jsonPathKeys.isEmpty()) {
-                        // Since json path keys actually contain the entire inline js function instead of just the widget/action
-                        // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
-                        // in the set and see if the old name is a substring of the json path key.
-                        for (String key : jsonPathKeys) {
-                            if (key.contains(oldName)) {
-                                actionUpdateRequired = true;
-                                break;
+                        if (jsonPathKeys != null && !jsonPathKeys.isEmpty()) {
+                            // Since json path keys actually contain the entire inline js function instead of just the widget/action
+                            // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
+                            // in the set and see if the old name is a substring of the json path key.
+                            for (String key : jsonPathKeys) {
+                                if (key.contains(oldName)) {
+                                    actionUpdateRequired = true;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (!actionUpdateRequired || actionConfiguration == null) {
-                        return Mono.just(newAction);
-                    }
-                    // if actionUpdateRequired is true AND actionConfiguration is not null
-                    if (action.getCollectionId() != null) {
-                        updatableCollectionIds.add(action.getCollectionId());
-                    }
-                    try {
-                        String actionConfigurationAsString = objectMapper.writeValueAsString(actionConfiguration);
-                        Matcher matcher = oldNamePattern.matcher(actionConfigurationAsString);
-                        String newActionConfigurationAsString = matcher.replaceAll(newName);
-                        ActionConfiguration newActionConfiguration = objectMapper.readValue(newActionConfigurationAsString, ActionConfiguration.class);
-                        action.setActionConfiguration(newActionConfiguration);
-                        newAction = newActionService.extractAndSetJsonPathKeys(newAction);
-                        return newActionService.save(newAction);
-                    } catch (JsonProcessingException e) {
-                        log.debug("Exception caught during conversion between string and action configuration object ", e);
-                        return Mono.just(newAction);
-                    }
+                        if (!actionUpdateRequired || actionConfiguration == null) {
+                            return Mono.just(newAction);
+                        }
+                        // if actionUpdateRequired is true AND actionConfiguration is not null
+                        if (action.getCollectionId() != null) {
+                            updatableCollectionIds.add(action.getCollectionId());
+                        }
+                        try {
+                            String actionConfigurationAsString = objectMapper.writeValueAsString(actionConfiguration);
+                            Matcher matcher = oldNamePattern.matcher(actionConfigurationAsString);
+                            String newActionConfigurationAsString = matcher.replaceAll(newName);
+                            ActionConfiguration newActionConfiguration = objectMapper.readValue(newActionConfigurationAsString, ActionConfiguration.class);
+                            action.setActionConfiguration(newActionConfiguration);
+                            NewAction newAction2 = newActionService.extractAndSetJsonPathKeys(newAction);
+                            return newActionService.save(newAction2);
+                        } catch (JsonProcessingException e) {
+                            log.debug("Exception caught during conversion between string and action configuration object ", e);
+                            return Mono.just(newAction);
+                        }
+                    });
+
                 })
                 .map(savedAction -> savedAction.getUnpublishedAction().getName())
                 .collect(toSet())

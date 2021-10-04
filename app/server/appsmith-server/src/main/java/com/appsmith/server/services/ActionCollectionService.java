@@ -29,7 +29,6 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Flux<ActionCollectionDTO> getActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
 
-
     Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
@@ -39,5 +38,7 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
     Mono<ActionCollection> findById(String id, AclPermission aclPermission);
 
     Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
+
+    Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
 
 }

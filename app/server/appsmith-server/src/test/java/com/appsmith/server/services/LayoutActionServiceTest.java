@@ -1,23 +1,26 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -44,6 +47,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,6 +61,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -88,7 +93,7 @@ public class LayoutActionServiceTest {
     LayoutActionService layoutActionService;
 
     @Autowired
-    LayoutService layoutService;
+    LayoutCollectionService layoutCollectionService;
 
     @Autowired
     NewPageService newPageService;
@@ -96,11 +101,16 @@ public class LayoutActionServiceTest {
     @Autowired
     NewActionRepository actionRepository;
 
+    @Autowired
+    ActionCollectionService actionCollectionService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
 
     Datasource datasource;
+
+    Datasource jsDatasource;
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -159,6 +169,13 @@ public class LayoutActionServiceTest {
         datasource.setOrganizationId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
+
+        jsDatasource = new Datasource();
+        jsDatasource.setName("Default JS Database");
+        jsDatasource.setOrganizationId(orgId);
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        assert installedJsPlugin != null;
+        jsDatasource.setPluginId(installedJsPlugin.getId());
     }
 
     @After
@@ -817,5 +834,122 @@ public class LayoutActionServiceTest {
                     assertThat(widgetName).isEqualTo("NewNameTable1");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // Set up table widget in DSL
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "Table1");
+        dsl.put("type", "TABLE_WIDGET");
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        // Create an action collection that refers to the table
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setPageId(testPage.getId());
+        actionCollectionDTO1.setApplicationId(testApp.getId());
+        actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("Table1");
+        actionCollectionDTO1.setBody("Table1");
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("Table1");
+        refactorNameDTO.setNewName("NewNameTable1");
+
+        LayoutDTO updatedLayout = layoutActionService.refactorWidgetName(refactorNameDTO).block();
+
+        assert createdActionCollectionDTO1 != null;
+        final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO1.getId());
+        final Optional<String> optional = createdActionCollectionDTO1.getActionIds().stream().findFirst();
+        assert optional.isPresent();
+        final Mono<NewAction> actionMono = newActionService.findById(optional.get());
+
+        StepVerifier
+                .create(Mono.zip(actionCollectionMono, actionMono))
+                .assertNext(tuple -> {
+                    final ActionCollection actionCollection = tuple.getT1();
+                    final NewAction action = tuple.getT2();
+                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("NewNameTable1");
+                    final ActionDTO unpublishedAction = action.getUnpublishedAction();
+                    assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
+                    final Optional<String> first = unpublishedAction.getJsonPathKeys().stream().findFirst();
+                    assert first.isPresent();
+                    assertThat(first.get()).isEqualTo("NewNameTable1");
+                    assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("NewNameTable1");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRefactorCollection_withModifiedName_ignoresName() {
+        ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
+        originalActionCollectionDTO.setName("originalName");
+        originalActionCollectionDTO.setApplicationId(testApp.getId());
+        originalActionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        originalActionCollectionDTO.setPageId(testPage.getId());
+        originalActionCollectionDTO.setPluginId(jsDatasource.getPluginId());
+        originalActionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("Table1");
+
+        originalActionCollectionDTO.setActions(List.of(action1));
+
+        final ActionCollectionDTO dto = layoutCollectionService.createCollection(originalActionCollectionDTO).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        assert dto != null;
+        actionCollectionDTO.setId(dto.getId());
+        actionCollectionDTO.setBody("body");
+        actionCollectionDTO.setName("newName");
+
+        RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO = new RefactorActionNameInCollectionDTO();
+        refactorActionNameInCollectionDTO.setActionCollection(actionCollectionDTO);
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO(
+                dto.getActions().get(0).getId(),
+                testPage.getId(),
+                testPage.getLayouts().get(0).getId(),
+                "testAction1",
+                "newTestAction",
+                "originalName"
+        );
+        refactorActionNameInCollectionDTO.setRefactorAction(refactorActionNameDTO);
+
+        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = layoutCollectionService
+                .refactorAction(refactorActionNameInCollectionDTO)
+                .then(actionCollectionService.getById(dto.getId())
+                        .zipWith(newActionService.findById(dto.getActions().get(0).getId())));
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(tuple -> {
+                    final ActionCollectionDTO actionCollectionDTOResult = tuple.getT1().getUnpublishedCollection();
+                    final NewAction newAction = tuple.getT2();
+                    assertEquals("originalName", actionCollectionDTOResult.getName());
+                    assertEquals("body", actionCollectionDTOResult.getBody());
+                    assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
+                    assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
+                })
+                .verifyComplete();
+
     }
 }

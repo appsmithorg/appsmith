@@ -303,7 +303,7 @@ describe("Tern server sorting", () => {
       expectedType: AutocompleteDataType.OBJECT,
     });
     TernServer.defEntityInformation = defEntityInformation;
-    const sortedCompletions = TernServer.sortCompletions(
+    const sortedCompletions = TernServer.sortAndFilterCompletions(
       _.shuffle(completions),
       true,
       "",

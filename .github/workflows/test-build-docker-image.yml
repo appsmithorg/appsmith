@@ -22,11 +22,6 @@ on:
       - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
-# Change the working directory for all the jobs in this workflow
-defaults:
-  run:
-    working-directory: app/client
-
 jobs:
   buildClient:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
@@ -112,9 +107,14 @@ jobs:
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
         run: |
+          if [[ $GITHUB_REF == "refs/heads/release" ]]; then
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          else
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
-            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
@@ -122,12 +122,13 @@ jobs:
             REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
             REACT_APP_IS_APPSMITH_CLOUD=${{ secrets.IS_APPSMITH_CLOUD }} \
             yarn build
+          ls -l build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: build
+          name: client-build
           path: app/client/build/
 
   buildServer:
@@ -209,12 +210,13 @@ jobs:
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           ./build.sh -DskipTests
+          ls -l dist
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
   buildRts:
@@ -256,14 +258,22 @@ jobs:
           echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
       - name: Build
-        run: ./build.sh
+        run: |
+          ./build.sh
+          ls -l dist
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: build
+          name: rts-build
           path: app/rts/dist/
+
+      - name: Upload RTS dependencies bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
 
   ui-test:
     needs: [buildClient, buildServer, buildRts]
@@ -321,7 +331,7 @@ jobs:
       - name: Download the server build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: server-build
           path: app/server/dist
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
@@ -364,23 +374,20 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
         run: |
-            ls -l
-            ls -l scripts/
-            ls -l dist/
-            nohup ./scripts/start-dev-server.sh 2>&1 &
+          ls -l
+          ls -l scripts/
+          ls -l dist/
+          nohup ./scripts/start-dev-server.sh 2>&1 &
 
-      - name: Wait for 30 seconds for server to start
+      - name: Wait for 30s and check if server is running
         run: |
           sleep 30s
-
-      - name: "Exit if Server hasn't started"
-        run: |
-          lsof -i :8080 || true;
-          if [[ `ps -ef | grep server | grep java |wc -l` == 0 ]]; then
-            echo "Server Not Started";
-            exit 1;
+          if lsof -i :8080; then
+            echo "Server Found"
           else
-            echo "Server Found";
+            echo "Server Not Started. Printing logs from server process"
+            cat app/server/nohup.out
+            exit 1
           fi
 
       - name: Use Node.js 14.15.4
@@ -412,7 +419,7 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Installing Yarn serve
@@ -503,11 +510,9 @@ jobs:
   package:
     needs: ui-test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/client
-    # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: (success() && github.ref == 'refs/heads/release') || github.ref == 'refs/heads/master'
+
+    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
+    if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
 
     steps:
       # Checkout the code
@@ -524,20 +529,26 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: server-build
           path: app/server/dist
 
-      - name: Download the server build artifact
+      - name: Download the rts build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: rts-build
           path: app/rts/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
@@ -545,13 +556,24 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
+      - name: Set up QEMU (needed for docker buildx)
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
       # Build release Docker image and push to Docker Hub
       - name: Push client release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: app/client
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
@@ -561,17 +583,42 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+
+      - name: Build and push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
+            $tag_args \
+            .
+
+      - name: Build and push master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
+          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            $tag_args \
+            .
 
       # Build release Docker image and push to Docker Hub
       - name: Push server release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
         working-directory: app/server
         run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
@@ -581,7 +628,6 @@ jobs:
         run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
@@ -591,7 +637,6 @@ jobs:
         working-directory: app/rts
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
@@ -601,27 +646,5 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
-
-      - name: Build and push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
-          docker build \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}} \
-            .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
-
-      - name: Build and push master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
-          docker build \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly \
-            .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce

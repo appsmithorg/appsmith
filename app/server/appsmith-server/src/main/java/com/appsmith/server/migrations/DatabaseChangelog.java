@@ -97,6 +97,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -183,7 +184,7 @@ public class DatabaseChangelog {
     private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
         for (Organization organization : mongockTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
+                organization.setPlugins(new HashSet<>());
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
@@ -452,7 +453,7 @@ public class DatabaseChangelog {
 
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
+                organization.setPlugins(new HashSet<>());
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
@@ -3186,4 +3187,101 @@ public class DatabaseChangelog {
             mongoTemplate.save(mongoAction);
         }
     }
+
+    @ChangeSet(order = "088", id = "migrate-mongo-uqi-dynamicBindingPathList", author = "")
+    public void migrateMongoPluginDynamicBindingListUqi(MongoTemplate mongoTemplate) {
+
+        Plugin mongoPlugin = mongoTemplate.findOne(
+                query(where("packageName").is("mongo-plugin")),
+                Plugin.class
+        );
+
+        // Now migrate all the existing actions dynamicBindingList to the new UQI structure.
+        List<NewAction> mongoActions = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId())
+                        )),
+                NewAction.class
+        );
+
+        for (NewAction mongoAction : mongoActions) {
+            if (mongoAction.getUnpublishedAction() == null ||
+                    mongoAction.getUnpublishedAction().getDynamicBindingPathList() == null ||
+                    mongoAction.getUnpublishedAction().getDynamicBindingPathList().isEmpty()) {
+                // No migrations required
+                continue;
+            }
+
+            List<Property> dynamicBindingPathList = mongoAction.getUnpublishedAction().getDynamicBindingPathList();
+            List<Property> newDynamicBindingPathList = new ArrayList<>();
+
+            for (Property path : dynamicBindingPathList) {
+                String pathKey = path.getKey();
+                if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                    // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                    Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                    Matcher matcher = pattern.matcher(pathKey);
+
+                    while (matcher.find()) {
+                        int index = Integer.parseInt(matcher.group());
+                        String partialPath = mongoMigrationMap.get(index);
+                        Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                        newDynamicBindingPathList.add(dynamicBindingPath);
+                    }
+                } else {
+                    // this dynamic binding is for body. Add as is
+                    newDynamicBindingPathList.add(path);
+                }
+            }
+
+            mongoAction.getUnpublishedAction().setDynamicBindingPathList(newDynamicBindingPathList);
+
+            mongoTemplate.save(mongoAction);
+        }
+    }
+
+    @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
+    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
+
+        ensureIndexes(mongoTemplate, Plugin.class,
+                makeIndex("pluginName", "packageName", "version")
+                        .unique().named("plugin_name_package_name_version_index")
+        );
+    }
+
+    @ChangeSet(order = "090", id = "delete-orphan-actions", author = "")
+    public void deleteOrphanActions(MongockTemplate mongockTemplate) {
+        final Update deletionUpdates = new Update();
+        deletionUpdates.set(fieldName(QNewAction.newAction.deleted), true);
+        deletionUpdates.set(fieldName(QNewAction.newAction.deletedAt), Instant.now());
+
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true));
+        actionQuery.fields().include(fieldName(QNewAction.newAction.applicationId));
+
+        final List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
+
+        for (final NewAction action : actions) {
+            final String applicationId = action.getApplicationId();
+
+            final boolean shouldDelete = StringUtils.isEmpty(applicationId) || mongockTemplate.exists(
+                    query(
+                            where(fieldName(QApplication.application.id)).is(applicationId)
+                                    .and(fieldName(QApplication.application.deleted)).is(true)
+                    ),
+                    Application.class
+            );
+
+            if (shouldDelete) {
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
+                        deletionUpdates,
+                        NewAction.class
+                );
+            }
+        }
+    }
+
 }

@@ -38,17 +38,18 @@ describe("Entity explorer tests related to widgets and validation", function() {
       .last()
       .click({ force: true });
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(10);
+      expect($lis).to.have.length(11);
       expect($lis.eq(0)).to.contain("{{Table1.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1.selectedRows}}");
-      expect($lis.eq(2)).to.contain("{{Table1.selectedRowIndex}}");
-      expect($lis.eq(3)).to.contain("{{Table1.tableData}}");
-      expect($lis.eq(4)).to.contain("{{Table1.pageNo}}");
-      expect($lis.eq(5)).to.contain("{{Table1.pageSize}}");
-      expect($lis.eq(6)).to.contain("{{Table1.isVisible}}");
-      expect($lis.eq(7)).to.contain("{{Table1.searchText}}");
-      expect($lis.eq(8)).to.contain("{{Table1.totalRecordsCount}}");
-      expect($lis.eq(9)).to.contain("{{Table1.sortOrder}}");
+      expect($lis.eq(2)).to.contain("{{Table1.triggeredRow}}");
+      expect($lis.eq(3)).to.contain("{{Table1.selectedRowIndex}}");
+      expect($lis.eq(4)).to.contain("{{Table1.tableData}}");
+      expect($lis.eq(5)).to.contain("{{Table1.pageNo}}");
+      expect($lis.eq(6)).to.contain("{{Table1.pageSize}}");
+      expect($lis.eq(7)).to.contain("{{Table1.isVisible}}");
+      expect($lis.eq(8)).to.contain("{{Table1.searchText}}");
+      expect($lis.eq(9)).to.contain("{{Table1.totalRecordsCount}}");
+      expect($lis.eq(10)).to.contain("{{Table1.sortOrder}}");
     });
   });
 

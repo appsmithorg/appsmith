@@ -121,7 +121,7 @@ public class EncryptionHandler {
 
                         field.setAccessible(true);
                         Object fieldValue = ReflectionUtils.getField(field, source);
-                        List<?> list = (List<?>) fieldValue;
+                        Collection<?> list = (Collection<?>) fieldValue;
 
                         if (list == null || list.isEmpty()) {
                             finalCandidateFields.add(new CandidateField(field, CandidateField.Type.APPSMITH_LIST_UNKNOWN));
