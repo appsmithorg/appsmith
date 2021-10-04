@@ -59,7 +59,7 @@ public class FileUtilsImpl implements FileInterface {
 
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
-    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*).(md|git)$");
+    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*).(md|git|gitignore|LICENSE)$");
 
 
     /**
