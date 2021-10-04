@@ -1,9 +1,4 @@
-import {
-  BUILDER_PAGE_URL,
-  BUILDER_URL,
-  convertToQueryParams,
-  addBranchPath,
-} from "constants/routes";
+import { BUILDER_PAGE_URL, BUILDER_URL } from "constants/routes";
 
 export const SAAS_BASE_PATH = `${BUILDER_URL}/saas`;
 export const SAAS_EDITOR_PATH = `${SAAS_BASE_PATH}/:pluginPackageName`;
@@ -13,16 +8,18 @@ export const SAAS_EDITOR_API_ID_PATH = `${SAAS_EDITOR_PATH}/api/:apiId`;
 export const SAAS_BASE_URL = (
   defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
-) => addBranchPath(`${BUILDER_PAGE_URL(defaultApplicationId, pageId)}/saas`);
+) => BUILDER_PAGE_URL({ defaultApplicationId, pageId, suffix: "saas" });
 
 export const SAAS_EDITOR_URL = (
   defaultApplicationId = ":defaultApplicationId",
   pageId = ":pageId",
   pluginPackageName = ":pluginPackageName",
 ): string => {
-  return addBranchPath(
-    `${SAAS_BASE_URL(defaultApplicationId, pageId)}/${pluginPackageName}`,
-  );
+  return BUILDER_PAGE_URL({
+    defaultApplicationId,
+    pageId,
+    suffix: `saas/${pluginPackageName}`,
+  });
 };
 
 export const SAAS_EDITOR_DATASOURCE_ID_URL = (
@@ -31,16 +28,13 @@ export const SAAS_EDITOR_DATASOURCE_ID_URL = (
   pluginPackageName = ":pluginPackageName",
   datasourceId = ":datasourceId",
   params = {},
-): string => {
-  const queryParams = convertToQueryParams(params);
-  return addBranchPath(
-    `${SAAS_EDITOR_URL(
-      defaultApplicationId,
-      pageId,
-      pluginPackageName,
-    )}/datasources/${datasourceId}${queryParams}`,
-  );
-};
+): string =>
+  BUILDER_PAGE_URL({
+    defaultApplicationId,
+    pageId,
+    suffix: `saas/${pluginPackageName}/datasources/${datasourceId}`,
+    params,
+  });
 
 export const SAAS_EDITOR_API_ID_URL = (
   defaultApplicationId = ":defaultApplicationId",
@@ -48,15 +42,12 @@ export const SAAS_EDITOR_API_ID_URL = (
   pluginPackageName = ":pluginPackageName",
   apiId = ":apiId",
   params = {},
-): string => {
-  const queryParams = convertToQueryParams(params);
-  return addBranchPath(
-    `${SAAS_EDITOR_URL(
-      defaultApplicationId,
-      pageId,
-      pluginPackageName,
-    )}/api/${apiId}${queryParams}`,
-  );
-};
+): string =>
+  BUILDER_PAGE_URL({
+    defaultApplicationId,
+    pageId,
+    suffix: `saas/${pluginPackageName}/api/${apiId}`,
+    params,
+  });
 
 export const APPSMITH_TOKEN_STORAGE_KEY = "APPSMITH_AUTH_TOKEN";

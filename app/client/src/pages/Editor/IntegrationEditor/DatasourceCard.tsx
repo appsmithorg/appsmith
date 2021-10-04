@@ -209,10 +209,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
-      `${getGenerateTemplateFormURL(
-        defaultApplicationId,
-        params.pageId,
-      )}?datasourceId=${datasource.id}&new_page=true`,
+      getGenerateTemplateFormURL(defaultApplicationId, params.pageId, {
+        datasourceId: datasource.id,
+        new_page: true,
+      }),
     );
   };
 

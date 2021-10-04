@@ -36,8 +36,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { extractBranchNameFromPath } from "constants/routes";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
@@ -103,7 +103,7 @@ export function* addApiToPageSaga(
       });
 
       const defaultApplicationId = yield select(getDefaultApplicationId);
-      const branchName = extractBranchNameFromPath();
+      const branchName = yield select(getCurrentGitBranch);
       yield put(fetchActions({ defaultApplicationId, branchName }, []));
     }
   } catch (error) {

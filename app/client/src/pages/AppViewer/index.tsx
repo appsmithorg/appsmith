@@ -7,7 +7,9 @@ import { AppState } from "reducers";
 import {
   AppViewerRouteParams,
   BuilderRouteParams,
-  getApplicationViewerPageURL,
+  GIT_BRANCH_QUERY_KEY,
+  VIEWER_FORK_PATH,
+  VIEWER_URL,
 } from "constants/routes";
 import {
   PageListPayload,
@@ -33,10 +35,7 @@ import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 
-const getSearchQuery = (search = "", key: string) => {
-  const params = new URLSearchParams(search);
-  return params.get(key) || "";
-};
+import { getSearchQuery } from "utils/helpers";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -103,7 +102,7 @@ class AppViewer extends Component<Props> {
     const {
       location: { search },
     } = this.props;
-    const branch = getSearchQuery(search, "branch");
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
     if (defaultApplicationId) {
       this.props.initializeAppViewer({
@@ -123,8 +122,8 @@ class AppViewer extends Component<Props> {
       location: { search },
     } = this.props;
 
-    const prevBranch = getSearchQuery(prevSearch, "branch");
-    const branch = getSearchQuery(search, "branch");
+    const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
     if (branch && branch !== prevBranch && defaultApplicationId && pageId) {
       this.props.initializeAppViewer({
@@ -160,12 +159,12 @@ class AppViewer extends Component<Props> {
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={getApplicationViewerPageURL()}
+                        path={VIEWER_URL}
                       />
                       <SentryRoute
                         component={AppViewerPageContainer}
                         exact
-                        path={`${getApplicationViewerPageURL()}/fork`}
+                        path={VIEWER_FORK_PATH}
                       />
                     </Switch>
                   )}

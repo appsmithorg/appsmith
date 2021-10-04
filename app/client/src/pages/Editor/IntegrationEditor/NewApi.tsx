@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL, convertToQueryParams } from "constants/routes";
+import { getCurlImportPageURL } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -218,9 +218,10 @@ function NewApiScreen(props: Props) {
         });
 
         delete queryParams.isGeneratePageMode;
-        const curlImportURL =
-          getCurlImportPageURL(applicationId, pageId) +
-          convertToQueryParams({ from: "datasources", ...queryParams });
+        const curlImportURL = getCurlImportPageURL(applicationId, pageId, {
+          from: "datasources",
+          ...queryParams,
+        });
 
         history.push(curlImportURL);
         break;

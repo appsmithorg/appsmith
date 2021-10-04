@@ -354,7 +354,7 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application -> {
                     String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                     String defaultPageId = "";
-                    if(application.getPages().isEmpty()) {
+                    if(!application.getPages().isEmpty()) {
                         defaultPageId = application.getPages()
                                 .stream()
                                 .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))

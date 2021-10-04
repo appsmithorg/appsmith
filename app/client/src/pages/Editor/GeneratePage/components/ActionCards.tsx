@@ -28,7 +28,9 @@ const routeToEmptyEditorFromGenPage = ({
   pageId,
 }: routeId): void => {
   AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
-  history.push(BUILDER_PAGE_URL(applicationId, pageId));
+  history.push(
+    BUILDER_PAGE_URL({ defaultApplicationId: applicationId, pageId }),
+  );
 };
 
 const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {

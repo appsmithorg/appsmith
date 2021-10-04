@@ -53,6 +53,7 @@ import {
 import {
   playOnboardingAnimation,
   playOnboardingStepCompletionAnimation,
+  trimQueryString,
 } from "utils/helpers";
 import {
   OnboardingConfig,
@@ -84,6 +85,7 @@ import {
   BUILDER_PAGE_URL,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
+  matchBuilderPath,
 } from "constants/routes";
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
@@ -213,16 +215,21 @@ function* listenForAddInputWidget() {
       (widget: any) => widget.type === "INPUT_WIDGET",
     );
 
+    const isOnBuilder = matchBuilderPath(window.location.pathname);
+
+    trimQueryString(
+      BUILDER_PAGE_URL({
+        defaultApplicationId,
+        pageId: currentPageId,
+      }),
+    );
+
     if (
       inputWidget &&
       inputWidget.type === "INPUT_WIDGET" &&
       canvasWidgets[inputWidget.widgetId]
     ) {
-      if (
-        !window.location.pathname.includes(
-          BUILDER_PAGE_URL(defaultApplicationId, currentPageId),
-        )
-      ) {
+      if (!isOnBuilder) {
         yield cancel();
       }
 

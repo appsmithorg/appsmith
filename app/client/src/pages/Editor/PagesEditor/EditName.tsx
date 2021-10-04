@@ -75,7 +75,9 @@ function EditName(props: Props) {
 
   const switchPage = useCallback(() => {
     if (!!defaultApplicationId && !isEditing) {
-      history.push(BUILDER_PAGE_URL(defaultApplicationId, props.page.pageId));
+      history.push(
+        BUILDER_PAGE_URL({ defaultApplicationId, pageId: props.page.pageId }),
+      );
     }
   }, [props.page.pageId, defaultApplicationId]);
 

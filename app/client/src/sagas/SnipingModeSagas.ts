@@ -147,7 +147,12 @@ export function* bindDataToWidgetSaga(
       },
     });
     const defaultApplicationId = yield select(getDefaultApplicationId);
-    history.replace(BUILDER_PAGE_URL(defaultApplicationId, pageId, {}));
+    history.replace(
+      BUILDER_PAGE_URL({
+        defaultApplicationId,
+        pageId,
+      }),
+    );
   } else {
     queryId &&
       Toaster.show({

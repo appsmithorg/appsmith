@@ -478,7 +478,9 @@ function GlobalSearch() {
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL(defaultApplicationId, item.pageId));
+    history.push(
+      BUILDER_PAGE_URL({ defaultApplicationId, pageId: item.pageId }),
+    );
   };
 
   const onEnterSnippet = useSelector(

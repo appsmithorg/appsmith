@@ -44,7 +44,9 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
 
   const switchPage = useCallback(() => {
     if (!!defaultApplicationId) {
-      history.push(BUILDER_PAGE_URL(defaultApplicationId, props.page.pageId));
+      history.push(
+        BUILDER_PAGE_URL({ defaultApplicationId, pageId: props.page.pageId }),
+      );
     }
   }, [props.page.pageId, defaultApplicationId]);
 
