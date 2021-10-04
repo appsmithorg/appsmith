@@ -74,24 +74,22 @@ function BranchListItem({ active, branch, hovered, onClick }: any) {
   );
 }
 
+function LoadingRow() {
+  return (
+    <BranchListItemContainer>
+      <div style={{ height: textHeight, width: "100%" }}>
+        <Skeleton />
+      </div>
+    </BranchListItemContainer>
+  );
+}
+
 function BranchesLoading() {
   return (
     <>
-      <BranchListItemContainer>
-        <div style={{ height: textHeight, width: "100%" }}>
-          <Skeleton />
-        </div>
-      </BranchListItemContainer>
-      <BranchListItemContainer>
-        <div style={{ height: textHeight, width: "100%" }}>
-          <Skeleton />
-        </div>
-      </BranchListItemContainer>
-      <BranchListItemContainer>
-        <div style={{ height: textHeight, width: "100%" }}>
-          <Skeleton />
-        </div>
-      </BranchListItemContainer>
+      <LoadingRow />
+      <LoadingRow />
+      <LoadingRow />
     </>
   );
 }
@@ -110,6 +108,7 @@ export default function BranchList(props: {
   const dispatch = useDispatch();
   const [filteredBranches, setFilteredBranches] = useState(branches || []);
   const [isCreatingNewBranch, setIsCreatingNewBranch] = useState(false);
+  const [createNewBranchValue, setCreateNewBranchValue] = useState("");
 
   useEffect(() => {
     setFilteredBranches(branches);
@@ -180,9 +179,9 @@ export default function BranchList(props: {
   const handleDownKey = () => setActiveHoverIndex(activeHoverIndex + 1);
 
   const handleSubmitKey = () => {
-    // if (showCreateBranchForm) {
-    //   handleCreateNewBranch();
-    // }
+    if (showCreateBranchForm) {
+      handleCreateNewBranch(createNewBranchValue);
+    }
 
     if (activeHoverIndex === 0) {
       handleCreateNew();
@@ -212,6 +211,7 @@ export default function BranchList(props: {
           defaultBranchValue={filteredBranches.length === 0 ? searchText : ""}
           isCreatingNewBranch={isCreatingNewBranch}
           onCancel={handleCancelCreateNewBranch}
+          onChange={setCreateNewBranchValue}
           onSubmit={handleCreateNewBranch}
         />
       ) : (

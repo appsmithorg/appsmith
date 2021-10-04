@@ -7,14 +7,20 @@ export default function CreateNewBranchForm({
   defaultBranchValue,
   isCreatingNewBranch,
   onCancel,
+  onChange,
   onSubmit,
 }: {
   defaultBranchValue: string;
   isCreatingNewBranch: boolean;
   onSubmit: (branchName: string) => void;
   onCancel: () => void;
+  onChange: (value: string) => void;
 }) {
-  const [branchName, setBranchName] = useState(defaultBranchValue);
+  const [branchName, setBranchNameInState] = useState(defaultBranchValue);
+  const setBranchName = (value: string) => {
+    setBranchNameInState(value);
+    if (typeof onChange === "function") onChange(value);
+  };
 
   return (
     <div>
