@@ -1884,6 +1884,7 @@ Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
     .click({ force: true })
+    .pause()
     .clear({ force: true })
     .type(text)
     .wait(200);
