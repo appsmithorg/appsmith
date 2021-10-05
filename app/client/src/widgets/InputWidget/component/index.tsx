@@ -399,6 +399,7 @@ class InputComponent extends React.Component<
     return (
       <StyledNumericInput
         allowNumericCharactersOnly
+        autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         intent={this.props.intent}

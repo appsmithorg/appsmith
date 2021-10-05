@@ -13,6 +13,7 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import { AppState } from "reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -25,7 +26,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
-  background-color: ${(props) => props.theme.colors.apiPane.bg};
+  background-color: ${(props) => props.theme.colors.apiPane.tabBg};
   height: 100%;
 `;
 
@@ -71,6 +72,7 @@ function PostBodyData(props: Props) {
       [ApiContentTypes.JSON]: (
         <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
           <DynamicTextField
+            border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
             expected={expectedPostBody}
             mode={EditorModes.JSON_WITH_BINDING}
@@ -111,6 +113,7 @@ function PostBodyData(props: Props) {
       [ApiContentTypes.RAW]: (
         <JSONEditorFieldWrapper key={key}>
           <DynamicTextField
+            border={CodeEditorBorder.ALL_SIDE}
             dataTreePath={`${dataTreePath}.body`}
             mode={EditorModes.TEXT_WITH_BINDING}
             name="actionConfiguration.body"

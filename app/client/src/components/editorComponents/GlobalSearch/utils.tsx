@@ -118,8 +118,12 @@ export type SearchCategory = {
 };
 
 export function getOptionalFilters(optionalFilterMeta: any) {
-  return Object.keys(optionalFilterMeta || {}).map(
-    (field) => `${field}:${optionalFilterMeta[field]}`,
+  return Object.entries(optionalFilterMeta || {}).reduce(
+    (acc: Array<string>, [key, value]: any) => {
+      value.forEach((value: string) => acc.push(`${key}:${value}`));
+      return acc;
+    },
+    [],
   );
 }
 
