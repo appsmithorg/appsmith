@@ -52,7 +52,7 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
  * W117: `x` is undefined
  */
 const errorCodesToIgnoreInDebugger = ["W117"];
-const errorCodesForJSEditorInDebugger = ["E041"];
+const errorCodesForJSEditorInDebugger = ["E041"]; //how much object parsed error example 90% parsed
 
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
