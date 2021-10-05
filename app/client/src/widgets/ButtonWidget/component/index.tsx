@@ -106,10 +106,6 @@ const RecaptchaWrapper = styled.div`
   }
 `;
 
-const ToolTipContent = styled.div`
-  max-width: 350px;
-`;
-
 const ToolTipWrapper = styled.div`
   height: 100%;
   && .bp3-popover-target {
@@ -494,7 +490,8 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     return (
       <ToolTipWrapper>
         <Tooltip
-          content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
+          content={props.tooltip}
+          disabled={props.isDisabled}
           hoverOpenDelay={200}
           position={Position.TOP}
         >
