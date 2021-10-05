@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;
@@ -23,16 +23,19 @@ public class ItemServiceImpl implements ItemService {
     private final PluginService pluginService;
     private final MarketplaceService marketplaceService;
     private final NewActionService newActionService;
+    private final LayoutActionService layoutActionService;
     private static final String RAPID_API_PLUGIN = "rapidapi-plugin";
 
     public ItemServiceImpl(ApiTemplateService apiTemplateService,
                            PluginService pluginService,
                            MarketplaceService marketplaceService,
-                           NewActionService newActionService) {
+                           NewActionService newActionService,
+                           LayoutActionService layoutActionService) {
         this.apiTemplateService = apiTemplateService;
         this.pluginService = pluginService;
         this.marketplaceService = marketplaceService;
         this.newActionService = newActionService;
+        this.layoutActionService = layoutActionService;
     }
 
     @Override
@@ -108,6 +111,6 @@ public class ItemServiceImpl implements ItemService {
                     action.setPluginType(plugin.getType());
                     return action;
                 })
-                .flatMap(newActionService::createAction);
+                .flatMap(layoutActionService::createSingleAction);
     }
 }

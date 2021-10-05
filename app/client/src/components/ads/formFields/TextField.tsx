@@ -17,14 +17,16 @@ const renderComponent = (
   const showError = componentProps.meta.touched && !componentProps.meta.active;
 
   return (
-    <React.Fragment>
+    <>
       <InputComponent {...componentProps} {...componentProps.input} fill />
-      <FormFieldError error={showError && componentProps.meta.error} />
-    </React.Fragment>
+      {!componentProps.hideErrorMessage && (
+        <FormFieldError error={showError && componentProps.meta.error} />
+      )}
+    </>
   );
 };
 
-type FormTextFieldProps = {
+export type FormTextFieldProps = {
   name: string;
   placeholder: string;
   type?: InputType;
@@ -32,14 +34,11 @@ type FormTextFieldProps = {
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;
+  hideErrorMessage?: boolean;
 };
 
-const FormTextField = (props: FormTextFieldProps) => {
-  return (
-    <React.Fragment>
-      <Field component={renderComponent} {...props} asyncControl />
-    </React.Fragment>
-  );
-};
+function FormTextField(props: FormTextFieldProps) {
+  return <Field component={renderComponent} {...props} asyncControl />;
+}
 
 export default FormTextField;

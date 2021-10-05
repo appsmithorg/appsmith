@@ -32,6 +32,7 @@ export type INJECTED_CONFIGS = {
     apiId: string;
     apiKey: string;
     indexName: string;
+    snippetIndex: string;
   };
   logLevel: "debug" | "error";
   appVersion: {
@@ -41,6 +42,10 @@ export type INJECTED_CONFIGS = {
   intercomAppID: string;
   mailEnabled: boolean;
   disableTelemetry: boolean;
+  cloudServicesBaseUrl: string;
+  googleRecaptchaSiteKey: string;
+  supportEmail: string;
+  isAppsmithCloud: boolean;
 };
 declare global {
   interface Window {
@@ -88,12 +93,13 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
       apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
       indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
+      snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
         | "debug"
         | "error"
-        | undefined) || "debug",
+        | undefined) || "error",
     google: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "",
     enableTNCPP: process.env.REACT_APP_TNC_PP
       ? process.env.REACT_APP_TNC_PP.length > 0
@@ -113,6 +119,11 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
     disableTelemetry: true,
+    cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
+    googleRecaptchaSiteKey:
+      process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
+    supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
+    isAppsmithCloud: !!process.env.REACT_APP_IS_APPSMITH_CLOUD,
   };
 };
 
@@ -163,6 +174,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   );
   const google = getConfig(ENV_CONFIG.google, APPSMITH_FEATURE_CONFIGS.google);
 
+  const googleRecaptchaSiteKey = getConfig(
+    ENV_CONFIG.googleRecaptchaSiteKey,
+    APPSMITH_FEATURE_CONFIGS.googleRecaptchaSiteKey,
+  );
+
   // As the following shows, the config variables can be set using a combination
   // of env variables and injected configs
   const smartLook = getConfig(
@@ -181,6 +197,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const algoliaIndex = getConfig(
     ENV_CONFIG.algolia.indexName,
     APPSMITH_FEATURE_CONFIGS.algolia.indexName,
+  );
+  const algoliaSnippetIndex = getConfig(
+    ENV_CONFIG.algolia.indexName,
+    APPSMITH_FEATURE_CONFIGS.algolia.snippetIndex,
   );
 
   const segmentCEKey = getConfig(
@@ -236,10 +256,15 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
       apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
       indexName: algoliaIndex.value || "test_appsmith",
+      snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     google: {
       enabled: google.enabled,
       apiKey: google.value,
+    },
+    googleRecaptchaSiteKey: {
+      enabled: googleRecaptchaSiteKey.enabled,
+      apiKey: googleRecaptchaSiteKey.value,
     },
     enableRapidAPI:
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
@@ -263,5 +288,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS.intercomAppID,
     mailEnabled: ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS.mailEnabled,
     disableTelemetry: APPSMITH_FEATURE_CONFIGS.disableTelemetry,
+    commentsTestModeEnabled: false,
+    cloudServicesBaseUrl:
+      ENV_CONFIG.cloudServicesBaseUrl ||
+      APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
+    appsmithSupportEmail: ENV_CONFIG.supportEmail,
+    isAppsmithCloud: ENV_CONFIG.isAppsmithCloud,
   };
 };

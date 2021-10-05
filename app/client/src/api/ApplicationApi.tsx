@@ -24,6 +24,13 @@ export interface ApplicationPagePayload {
   isDefault: boolean;
 }
 
+export type GitApplicationMetadata = {
+  branchName?: string;
+  remoteUrl?: string;
+  repoName?: string;
+  defaultApplicationId: string;
+};
+
 export interface ApplicationResponsePayload {
   id: string;
   name: string;
@@ -31,11 +38,13 @@ export interface ApplicationResponsePayload {
   pages?: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
+  unreadCommentThreads?: number;
+  gitApplicationMetadata?: GitApplicationMetadata;
 }
 
-// export interface FetchApplicationResponse extends ApiResponse {
-//   data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
-// }
+export interface FetchApplicationResponse extends ApiResponse {
+  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+}
 
 export interface FetchApplicationsResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
@@ -64,7 +73,6 @@ export interface DeleteApplicationRequest {
 export interface DuplicateApplicationRequest {
   applicationId: string;
 }
-
 export interface ForkApplicationRequest {
   applicationId: string;
   organizationId: string;
@@ -119,6 +127,13 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   };
 }
 
+export interface ImportApplicationRequest {
+  orgId: string;
+  applicationFile?: File;
+  progress?: (progressEvent: ProgressEvent) => void;
+  onSuccessCallback?: () => void;
+}
+
 class ApplicationApi extends Api {
   static baseURL = "v1/applications/";
   static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
@@ -147,13 +162,13 @@ class ApplicationApi extends Api {
 
   static fetchApplication(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationsResponse> {
+  ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + applicationId);
   }
 
   static fetchApplicationForViewMode(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationsResponse> {
+  ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
   }
 
@@ -211,6 +226,29 @@ class ApplicationApi extends Api {
         "/fork/" +
         request.organizationId,
     );
+  }
+
+  static importApplicationToOrg(
+    request: ImportApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+    if (request.applicationFile) {
+      formData.append("file", request.applicationFile);
+    }
+    return Api.post("v1/applications/import/" + request.orgId, formData, null, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: request.progress,
+    });
+  }
+
+  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+  }
+
+  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
   }
 }
 

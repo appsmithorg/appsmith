@@ -23,12 +23,14 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
+import { isEqual } from "lodash";
+import { Colors } from "constants/Colors";
 
 const FixedTitle = styled.div`
   position: fixed;
   z-index: 3;
-  width: ${(props) =>
-    props.theme.propertyPane.width - 2 * props.theme.spaces[5]}px;
+  width: ${(props) => props.theme.propertyPane.width}px;
+  padding: 0px ${(props) => props.theme.spaces[5]}px;
 `;
 
 const Wrapper = styled.div<{ iconCount: number }>`
@@ -37,21 +39,18 @@ const Wrapper = styled.div<{ iconCount: number }>`
   justify-items: center;
   align-items: center;
   height: ${(props) => props.theme.propertyPane.titleHeight}px;
-  background-color: ${(props) => props.theme.colors.propertyPane.bg};
-
+  background-color: ${Colors.GREY_1};
   & span.${BlueprintClasses.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     height: auto;
     padding: 0;
     width: 100%;
   }
-
   &&&
     .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
     &&&
@@ -59,7 +58,6 @@ const Wrapper = styled.div<{ iconCount: number }>`
     color: ${(props) => props.theme.colors.propertyPane.title};
     font-size: ${(props) => props.theme.fontSizes[4]}px;
   }
-
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.label};
   }
@@ -71,7 +69,6 @@ const NameWrapper = styled.div<{ isPanelTitle?: boolean }>`
   min-width: 100%;
   padding-right: 25px;
   max-width: 134px;
-
   &&&&&&& > * {
     overflow: hidden;
   }
@@ -106,13 +103,18 @@ type PropertyPaneTitleProps = {
 };
 
 /* eslint-disable react/display-name */
-const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
+const PropertyPaneTitle = memo(function PropertyPaneTitle(
+  props: PropertyPaneTitleProps,
+) {
   const dispatch = useDispatch();
-  const { updating } = useSelector((state: AppState) => ({
-    updating: state.ui.editor.loadingStates.updatingWidgetName,
-  }));
+  const updating = useSelector(
+    (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
+  );
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
-  const widgets = useSelector(getExistingWidgetNames);
+
+  // Pass custom equality check function. Shouldn't be expensive than the render
+  // as it is just a small array #perf
+  const widgets = useSelector(getExistingWidgetNames, isEqual);
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
   const valueRef = useRef("");
@@ -121,7 +123,11 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
   const { title, updatePropertyTitle } = props;
   const updateNewTitle = useCallback(
     (value: string) => {
-      if (value && value.trim().length > 0 && value.trim() !== title.trim()) {
+      if (
+        value &&
+        value.trim().length > 0 &&
+        value.trim() !== (title && title.trim())
+      ) {
         updatePropertyTitle && updatePropertyTitle(value.trim());
       }
     },
@@ -160,26 +166,28 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
           <>
             {props.isPanelTitle && (
               <StyledBackIcon
-                onClick={props.onBackClick}
                 className="t--property-pane-back-btn"
+                onClick={props.onBackClick}
               />
             )}
 
             <EditableText
-              valueTransform={removeSpecialChars}
+              className="t--propery-page-title"
               defaultValue={name}
-              placeholder={props.title}
               editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              hideEditIcon
               isEditingDefault={!props.isPanelTitle ? isNew : undefined}
               onBlur={!props.isPanelTitle ? updateTitle : undefined}
               onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-              hideEditIcon
-              className="t--propery-page-title"
+              placeholder={props.title}
               savingState={
                 updating ? SavingState.STARTED : SavingState.NOT_STARTED
               }
-              fill
               underline
+              valueTransform={
+                !props.isPanelTitle ? removeSpecialChars : undefined
+              }
             />
           </>
         </NameWrapper>
@@ -197,5 +205,4 @@ const PropertyPaneTitle = memo((props: PropertyPaneTitleProps) => {
     </FixedTitle>
   ) : null;
 });
-
 export default PropertyPaneTitle;

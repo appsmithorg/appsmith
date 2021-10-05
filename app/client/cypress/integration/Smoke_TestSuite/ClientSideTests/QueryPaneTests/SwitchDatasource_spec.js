@@ -1,5 +1,6 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
+const queryEditor = require("../../../../locators/QueryEditor.json");
 
 describe("Switch datasource", function() {
   let postgresDatasourceName;
@@ -92,7 +93,8 @@ describe("Switch datasource", function() {
   });
 
   it("Delete the query and datasources", function() {
-    cy.get(queryLocators.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",

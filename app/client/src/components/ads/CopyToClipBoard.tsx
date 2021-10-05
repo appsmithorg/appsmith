@@ -6,16 +6,19 @@ import Button, { Category, Size } from "components/ads/Button";
 
 const Wrapper = styled.div`
   display: flex;
+  height: 38px;
+  background: none;
 
   div {
-    flex-basis: calc(100% - 110px);
+    flex-basis: calc(100% - 120px);
+    height: 100%;
   }
   a {
     flex-basis: 110px;
   }
 `;
 
-const CopyToClipboard = (props: any) => {
+function CopyToClipboard(props: any) {
   const { copyText } = props;
   const copyURLInput = createRef<HTMLInputElement>();
   const [isCopied, setIsCopied] = useState(false);
@@ -36,25 +39,24 @@ const CopyToClipboard = (props: any) => {
   return (
     <Wrapper>
       <TextInput
-        fill
-        ref={copyURLInput}
-        readOnly
+        defaultValue={copyText}
         onChange={() => {
           selectText();
         }}
-        defaultValue={copyText}
+        readOnly
+        ref={copyURLInput}
       />
 
       <Button
-        text={isCopied ? "Copied" : "Copy"}
         category={Category.tertiary}
         onClick={() => {
           copyToClipboard(copyText);
         }}
         size={Size.large}
+        text={isCopied ? "Copied" : "Copy"}
       />
     </Wrapper>
   );
-};
+}
 
 export default CopyToClipboard;

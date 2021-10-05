@@ -3,10 +3,12 @@ import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
-import IconComponent from "components/designSystems/appsmith/IconComponent";
+import { Icon } from "@blueprintjs/core";
 import { Link } from "react-router-dom";
 import General from "./General";
 import { Colors } from "constants/Colors";
+import getFeatureFlags from "utils/featureFlags";
+import GitConfig from "./GitConfig";
 
 const ProfileWrapper = styled.div`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -26,7 +28,7 @@ const LinkToApplications = styled(Link)`
   }
 `;
 
-const UserProfile = () => {
+function UserProfile() {
   const tabs: TabProp[] = [
     {
       key: "general",
@@ -36,20 +38,26 @@ const UserProfile = () => {
     },
   ];
 
+  if (getFeatureFlags().GIT) {
+    tabs.push({
+      key: "gitConfig",
+      title: "Git user config",
+      panelComponent: <GitConfig />,
+      icon: "git-branch",
+    });
+  }
+
   return (
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
-        <LinkToApplications to={"/applications"} className="t--back">
-          <IconComponent
-            iconName="chevron-left"
-            color={Colors.SILVER_CHALICE}
-          ></IconComponent>
+        <LinkToApplications className="t--back" to={"/applications"}>
+          <Icon color={Colors.SILVER_CHALICE} icon="chevron-left" />
           <Text type={TextType.H1}>Profile</Text>
         </LinkToApplications>
         <TabComponent tabs={tabs} />
       </ProfileWrapper>
     </PageWrapper>
   );
-};
+}
 
 export default UserProfile;

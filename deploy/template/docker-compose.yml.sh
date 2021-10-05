@@ -27,6 +27,7 @@ services:
       com.centurylinklabs.watchtower.enable: "true"
     networks:
       - appsmith
+    restart: always
 
   certbot:
     image: certbot/certbot
@@ -36,6 +37,7 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait \$\${!}; done;'"
     networks:
       - appsmith
+    restart: always
 
   appsmith-internal-server:
     image: index.docker.io/appsmith/appsmith-server
@@ -53,20 +55,20 @@ services:
       com.centurylinklabs.watchtower.enable: "true"
     networks:
       - appsmith
+    restart: always
 
   mongo:
-    image: mongo
+    image: mongo:4.4.6
     expose:
       - "27017"
-    environment:
-      - MONGO_INITDB_DATABASE=$mongo_database
-      - MONGO_INITDB_ROOT_USERNAME=$mongo_root_user
-      - MONGO_INITDB_ROOT_PASSWORD=$mongo_root_password
+    env_file:
+      - ./docker.env
     volumes:
       - ./data/mongo/db:/data/db
       - ./data/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
     networks:
       - appsmith
+    restart: always
 
   redis:
     image: redis
@@ -74,6 +76,7 @@ services:
       - "6379"
     networks:
       - appsmith
+    restart: always
 
   watchtower:
     image: containrrr/watchtower
@@ -83,6 +86,7 @@ services:
     command: --interval 300 --label-enable --cleanup
     networks:
       - appsmith
+    restart: always
 
 networks:
   appsmith:

@@ -20,7 +20,7 @@ type FormFieldErrorProps = {
   className?: string;
 };
 
-export const FormFieldError = (props: FormFieldErrorProps) => {
+export function FormFieldError(props: FormFieldErrorProps) {
   return (
     <StyledError
       className={props.className ? props.className : undefined}
@@ -29,6 +29,6 @@ export const FormFieldError = (props: FormFieldErrorProps) => {
       {props.error || "&nbsp;"}
     </StyledError>
   );
-};
+}
 
 export default FormFieldError;

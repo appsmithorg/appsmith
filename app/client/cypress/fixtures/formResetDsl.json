@@ -85,7 +85,7 @@
                 "label": "Data",
                 "widgetName": "Table1",
                 "searchKey": "",
-                "tableData": "[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]",
+                "tableData": "{{[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]}}",
                 "type": "TABLE_WIDGET",
                 "isLoading": false,
                 "parentColumnSpace": 71.5,
@@ -137,6 +137,27 @@
                 "parentId": "qrqizehc5b",
                 "widgetId": "672gf8vm2q",
                 "dynamicBindingPathList": []
+              },
+              {
+                "defaultOptionValue": "",
+                "dynamicBindingPathList": [],
+                "dynamicTriggerPathList": [],
+                "isLoading": false,
+                "isVisible": true,
+                "label": "",
+                "options": "[\n  {\n    \"label\": \"Option 1\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"Option 2\",\n    \"value\": \"2\"\n  },\n  {\n    \"label\": \"Option 3\",\n    \"value\": \"3\"\n  },\n  {\n    \"label\": \"Option 4\",\n    \"value\": \"4\"\n  },\n  {\n    \"label\": \"Option 5\",\n    \"value\": \"5\"\n  }\n]",
+                "parentId": "qrqizehc5b",
+                "parentColumnSpace": 71.5,
+                "parentRowSpace": 40,
+                "selectionType": "MULTI_SELECT",
+                "leftColumn": 6,
+                "rightColumn": 16,
+                "topRow": 9,
+                "bottomRow": 10,
+                "type": "DROP_DOWN_WIDGET",
+                "version": 1,
+                "widgetId": "dwh49bulj9",
+                "widgetName": "Dropdown1"
               }
             ],
             "blueprint": {

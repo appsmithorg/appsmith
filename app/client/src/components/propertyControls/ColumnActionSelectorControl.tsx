@@ -10,7 +10,7 @@ import { InputText } from "components/propertyControls/InputTextControl";
 import { ActionCreator } from "components/editorComponents/ActionCreator";
 import { Size, Category } from "components/ads/Button";
 export interface ColumnAction {
-  label: string;
+  label?: string;
   id: string;
   dynamicTrigger: string;
 }
@@ -39,7 +39,7 @@ class ColumnActionSelectorControl extends BaseControl<
 > {
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.props.propertyValue &&
           this.props.propertyValue.map((columnAction: ColumnAction) => {
             return (
@@ -51,47 +51,44 @@ class ColumnActionSelectorControl extends BaseControl<
               >
                 <InputTextWrapper>
                   <InputText
-                    label={columnAction.label}
-                    value={columnAction.label}
+                    evaluatedValue={columnAction.label}
+                    label={columnAction.label || ""}
                     onChange={this.updateColumnActionLabel.bind(
                       this,
                       columnAction,
                     )}
-                    evaluatedValue={columnAction.label}
-                    isValid={true}
                     theme={this.props.theme}
+                    value={columnAction.label as string}
                   />
                 </InputTextWrapper>
                 <Wrapper>
                   <ActionCreator
-                    value={columnAction.dynamicTrigger}
-                    isValid={(columnAction as any).isValid}
-                    validationMessage={(columnAction as any).message}
                     onValueChange={this.updateColumnActionFunction.bind(
                       this,
                       columnAction,
                     )}
+                    value={columnAction.dynamicTrigger}
                   />
                 </Wrapper>
                 <StyledDeleteIcon
                   height={20}
-                  width={20}
                   onClick={this.removeColumnAction.bind(this, columnAction)}
+                  width={20}
                 />
               </div>
             );
           })}
 
         <StyledPropertyPaneButton
+          category={Category.tertiary}
           icon="plus"
-          tag="button"
-          type="button"
-          text="New Button"
           onClick={this.addColumnAction}
           size={Size.medium}
-          category={Category.tertiary}
+          tag="button"
+          text="New Button"
+          type="button"
         />
-      </React.Fragment>
+      </>
     );
   }
 

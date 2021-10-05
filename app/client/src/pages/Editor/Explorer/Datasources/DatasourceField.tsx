@@ -16,14 +16,14 @@ const Wrapper = styled.div<{ step: number }>`
   height: 30px;
   width: 100%;
   &:hover {
-    background: ${Colors.TUNDORA};
+    background: ${Colors.Gallery};
   }
   align-items: center;
   cursor: pointer;
 `;
 
 const FieldName = styled.div`
-  color: ${Colors.ALTO};
+  color: ${Colors.GREY_9};
   flex: 1;
   font-size: 12px;
   white-space: nowrap;
@@ -63,12 +63,12 @@ const PopoverContent = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  background-color: #2b2b2b;
+  background-color: ${Colors.WHITE};
   padding: 11px;
 `;
 
 const PopupValue = styled.div`
-  color: ${Colors.ALTO};
+  color: ${Colors.GREY_9};
   font-size: 12px;
   :nth-child(2) {
     text-align: right;
@@ -84,14 +84,14 @@ type DatabaseFieldProps = {
   step: number;
 };
 
-export const DatabaseColumns = (props: DatabaseFieldProps) => {
+export function DatabaseColumns(props: DatabaseFieldProps) {
   const field = props.field;
   const fieldName = field.name;
   const fieldType = field.type;
   const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType] || datasourceColumnIcon;
 
   const content = (
-    <Wrapper step={props.step + 1} className="t--datasource-column">
+    <Wrapper className="t--datasource-column" step={props.step + 1}>
       {icon}
       <Content>
         <FieldName>{fieldName}</FieldName>
@@ -102,11 +102,11 @@ export const DatabaseColumns = (props: DatabaseFieldProps) => {
 
   return (
     <Popover
-      minimal
-      position={Position.RIGHT_TOP}
       boundary={"viewport"}
       hoverCloseDelay={0}
       interactionKind={PopoverInteractionKind.HOVER}
+      minimal
+      position={Position.RIGHT_TOP}
     >
       {content}
       <Container>
@@ -118,6 +118,6 @@ export const DatabaseColumns = (props: DatabaseFieldProps) => {
       </Container>
     </Popover>
   );
-};
+}
 
 export default DatabaseColumns;

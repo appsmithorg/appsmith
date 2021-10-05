@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import OnboardingHelper from "./Helper";
 
-const EndTourHelper = () => {
+function EndTourHelper() {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -11,6 +11,6 @@ const EndTourHelper = () => {
   }, []);
 
   return <OnboardingHelper />;
-};
+}
 
 export default EndTourHelper;

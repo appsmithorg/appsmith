@@ -7,7 +7,10 @@ import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import Text, { Case, TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  CodeEditorBorder,
+  EditorTheme,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import GifPlayerComponent from "components/ads/GifPlayerComponent";
 import { Classes } from "components/ads/common";
 import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
@@ -64,8 +67,7 @@ const NumberBox = styled.div`
 `;
 
 const PaginationTypeView = styled.div`
-  margin-left: 330px;
-  width: 100%;
+  margin-left: 20px;
   display: flex;
   justify-content: space-between;
 `;
@@ -112,16 +114,10 @@ const GifContainer = styled.div`
 export default function Pagination(props: PaginationProps) {
   return (
     <PaginationSection>
-      <FormRow
-        style={{
-          position: "fixed",
-        }}
-      >
+      <FormRow>
         <RadioFieldGroup
-          placeholder="Method"
-          name="actionConfiguration.paginationType"
           className="t--apiFormPaginationType"
-          rows={3}
+          name="actionConfiguration.paginationType"
           options={[
             {
               label: "None",
@@ -136,13 +132,15 @@ export default function Pagination(props: PaginationProps) {
               value: PaginationType.URL,
             },
           ]}
+          placeholder="Method"
+          rows={3}
         />
       </FormRow>
 
       {props.paginationType === PaginationType.URL && (
         <PaginationTypeView>
           <div>
-            <Description type={TextType.H6} case={Case.UPPERCASE}>
+            <Description case={Case.UPPERCASE} type={TextType.H6}>
               Pagination with response url
             </Description>
             <StepTitle>
@@ -159,39 +157,47 @@ export default function Pagination(props: PaginationProps) {
             <Step type={TextType.P1}>Previous url</Step>
             <PaginationFieldWrapper>
               <DynamicTextField
+                border={CodeEditorBorder.ALL_SIDE}
                 className="t--apiFormPaginationPrev"
+                fill={!!true}
+                height="100%"
                 name="actionConfiguration.prev"
                 theme={props.theme}
-                fill
               />
               <Button
-                className="t--apiFormPaginationPrevTest"
                 category={Category.tertiary}
+                className="t--apiFormPaginationPrevTest"
+                height="auto"
                 onClick={() => {
                   props.onTestClick("PREV");
                 }}
-                text={"Test"}
                 size={Size.medium}
                 tag="button"
+                text={"Test"}
+                type="button"
               />
             </PaginationFieldWrapper>
             <Step type={TextType.P1}>Next url</Step>
             <PaginationFieldWrapper>
               <DynamicTextField
+                border={CodeEditorBorder.ALL_SIDE}
                 className="t--apiFormPaginationNext"
+                fill={!!true}
+                height="100%"
                 name="actionConfiguration.next"
                 theme={props.theme}
-                fill
               />
               <Button
-                className="t--apiFormPaginationNextTest"
                 category={Category.tertiary}
+                className="t--apiFormPaginationNextTest"
+                height="auto"
                 onClick={() => {
                   props.onTestClick("NEXT");
                 }}
-                text={"Test"}
                 size={Size.medium}
                 tag="button"
+                text={"Test"}
+                type="button"
               />
             </PaginationFieldWrapper>
           </div>
@@ -215,7 +221,7 @@ export default function Pagination(props: PaginationProps) {
       {props.paginationType === PaginationType.PAGE_NO && (
         <PaginationTypeView>
           <div>
-            <Description type={TextType.H6} case={Case.UPPERCASE}>
+            <Description case={Case.UPPERCASE} type={TextType.H6}>
               Pagination with Table Page number
             </Description>
             <StepTitle>
@@ -228,7 +234,7 @@ export default function Pagination(props: PaginationProps) {
               <NumberBox>2</NumberBox>
               <Text type={TextType.P1}>Configure Request Parameters</Text>
             </StepTitle>
-            <Step type={TextType.P1} style={{ width: "336px" }}>
+            <Step style={{ width: "336px" }} type={TextType.P1}>
               1. Map appropiate parameter or header in your request to
               UsersTable’s page number property
             </Step>

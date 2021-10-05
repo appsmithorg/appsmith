@@ -1,48 +1,33 @@
-import { WidgetProps } from "widgets/BaseWidget";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationConfig } from "./PropertyControlConstants";
 
-// Always add a validator function in ./Validators for these types
-export const VALIDATION_TYPES = {
-  TEXT: "TEXT",
-  REGEX: "REGEX",
-  NUMBER: "NUMBER",
-  BOOLEAN: "BOOLEAN",
-  OBJECT: "OBJECT",
-  ARRAY: "ARRAY",
-  TABLE_DATA: "TABLE_DATA",
-  OPTIONS_DATA: "OPTIONS_DATA",
-  DATE_ISO_STRING: "DATE_ISO_STRING",
-  DEFAULT_DATE: "DEFAULT_DATE",
-  MIN_DATE: "MIN_DATE",
-  MAX_DATE: "MAX_DATE",
-  TABS_DATA: "TABS_DATA",
-  CHART_DATA: "CHART_DATA",
-  CUSTOM_FUSION_CHARTS_DATA: "CUSTOM_FUSION_CHARTS_DATA",
-  MARKERS: "MARKERS",
-  ACTION_SELECTOR: "ACTION_SELECTOR",
-  ARRAY_ACTION_SELECTOR: "ARRAY_ACTION_SELECTOR",
-  SELECTED_TAB: "SELECTED_TAB",
-  DEFAULT_OPTION_VALUE: "DEFAULT_OPTION_VALUE",
-  DEFAULT_SELECTED_ROW: "DEFAULT_SELECTED_ROW",
-  COLUMN_PROPERTIES_ARRAY: "COLUMN_PROPERTIES_ARRAY",
-  LAT_LONG: "LAT_LONG",
-  TABLE_PAGE_NO: "TABLE_PAGE_NO",
-  ROW_INDICES: "ROW_INDICES",
-};
+// Always add a validator function in ./worker/validation for these types
+export enum ValidationTypes {
+  TEXT = "TEXT",
+  REGEX = "REGEX",
+  NUMBER = "NUMBER",
+  BOOLEAN = "BOOLEAN",
+  OBJECT = "OBJECT",
+  ARRAY = "ARRAY",
+  OBJECT_ARRAY = "OBJECT_ARRAY",
+  NESTED_OBJECT_ARRAY = "NESTED_OBJECT_ARRAY",
+  DATE_ISO_STRING = "DATE_ISO_STRING",
+  IMAGE_URL = "IMAGE_URL",
+  FUNCTION = "FUNCTION",
+  SAFE_URL = "SAFE_URL",
+}
 
 export type ValidationResponse = {
   isValid: boolean;
   parsed: any;
-  message?: string;
+  messages?: string[];
   transformed?: any;
 };
 
-export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];
 export type Validator = (
-  value: any,
-  props: WidgetProps,
-  dataTree?: DataTree,
+  config: ValidationConfig,
+  value: unknown,
+  props: Record<string, unknown>,
 ) => ValidationResponse;
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
@@ -101,4 +86,65 @@ export const DATA_TREE_KEYWORDS = {
   appsmith: "appsmith",
   pageList: "pageList",
   [EXECUTION_PARAM_KEY]: EXECUTION_PARAM_KEY,
+};
+
+export const WINDOW_OBJECT_PROPERTIES = {
+  closed: "closed",
+  console: "console",
+  defaultStatus: "defaultStatus",
+  document: "document",
+  frameElement: "frameElement",
+  frames: "frames",
+  history: "history",
+  innerHeight: "innerHeight",
+  innerWidth: "innerWidth",
+  length: "length",
+  localStorage: "localStorage",
+  location: "location",
+  name: "name",
+  navigator: "navigator",
+  opener: "opener",
+  outerHeight: "outerHeight",
+  outerWidth: "outerWidth",
+  pageXOffset: "pageXOffset",
+  pageYOffset: "pageYOffset",
+  parent: "parent",
+  screen: "screen",
+  screenLeft: "screenLeft",
+  screenTop: "screenTop",
+  screenY: "screenY",
+  scrollX: "scrollX",
+  scrollY: "scrollY",
+  self: "self",
+  status: "status",
+  top: "top",
+};
+
+export const WINDOW_OBJECT_METHODS = {
+  alert: "alert",
+  atob: "atob",
+  blur: "blur",
+  btoa: "btoa",
+  clearInterval: "clearInterval",
+  clearTimeout: "clearTimeout",
+  close: "close",
+  confirm: "confirm",
+  focus: "focus",
+  getComputedStyle: "getComputedStyle",
+  getSelection: "getSelection",
+  matchMedia: "matchMedia",
+  moveBy: "moveBy",
+  moveTo: "moveTo",
+  open: "open",
+  print: "print",
+  prompt: "prompt",
+  requestAnimationFrame: "requestAnimationFrame",
+  resizeBy: "resizeBy",
+  resizeTo: "resizeTo",
+  scroll: "scroll",
+  scrollBy: "scrollBy",
+  scrollTo: "scrollBy",
+  setInterval: "setInterval",
+  setTimeout: "setTimeout",
+  stop: "stop",
 };

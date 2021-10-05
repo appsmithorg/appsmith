@@ -9,7 +9,7 @@ type RenderComponentProps = TextInputProps & {
   };
 };
 
-const RenderComponent = (props: RenderComponentProps) => {
+function RenderComponent(props: RenderComponentProps) {
   const onChangeHandler = (value: number) => {
     props.input && props.input.onChange && props.input.onChange(value);
   };
@@ -21,7 +21,7 @@ const RenderComponent = (props: RenderComponentProps) => {
       onChange={(value: string) => onChangeHandler(Number(value))}
     />
   );
-};
+}
 
 class NumberField extends React.Component<BaseFieldProps & TextInputProps> {
   render() {
@@ -29,8 +29,8 @@ class NumberField extends React.Component<BaseFieldProps & TextInputProps> {
       <Field
         component={RenderComponent}
         {...this.props}
-        noValidate
         disabled={this.props.disabled}
+        noValidate
       />
     );
   }

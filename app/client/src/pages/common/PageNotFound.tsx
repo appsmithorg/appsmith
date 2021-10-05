@@ -30,15 +30,15 @@ interface Props {
   flushErrorsAndRedirect?: any;
 }
 
-const PageNotFound: React.FC<Props> = (props: Props) => {
+function PageNotFound(props: Props) {
   const { flushErrorsAndRedirect } = props;
 
   return (
     <Wrapper>
       <img
-        src={PageUnavailableImage}
         alt="Page Unavailable"
         className="page-unavailable-img"
+        src={PageUnavailableImage}
       />
       <div>
         <p className="bold-text">{createMessage(PAGE_NOT_FOUND)}</p>
@@ -48,19 +48,19 @@ const PageNotFound: React.FC<Props> = (props: Props) => {
           this page.
         </p>
         <Button
+          className="button-position"
           filled
-          text={createMessage(BACK_TO_HOMEPAGE)}
-          intent="primary"
           icon="arrow-right"
           iconAlignment="right"
-          size="small"
-          className="button-position"
+          intent="primary"
           onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
+          size="small"
+          text={createMessage(BACK_TO_HOMEPAGE)}
         />
       </div>
     </Wrapper>
   );
-};
+}
 
 export default connect(null, {
   flushErrorsAndRedirect,

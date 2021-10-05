@@ -2,14 +2,20 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface ConfigService extends CrudService<Config, String> {
+import java.util.Map;
+
+public interface ConfigService {
     Mono<Config> getByName(String name);
 
-    Mono<Config> updateByName(String name, Config config);
+    Mono<Config> updateByName(Config config);
+
+    Mono<Config> save(Config config);
+
+    Mono<Config> save(String name, Map<String, Object> config);
 
     Mono<String> getInstanceId();
 

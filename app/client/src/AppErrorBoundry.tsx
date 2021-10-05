@@ -51,7 +51,7 @@ class AppErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <Wrapper>
-          <img src={AppCrashImage} alt="App crashed" />
+          <img alt="App crashed" src={AppCrashImage} />
           <div>
             <p className="bold-text">Oops! Something went wrong</p>
             <p>

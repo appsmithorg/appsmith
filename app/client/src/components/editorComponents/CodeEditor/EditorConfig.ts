@@ -1,5 +1,6 @@
 import CodeMirror from "codemirror";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -40,13 +41,25 @@ export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.DARK]: "duotone-dark",
 };
 
+export type FieldEntityInformation = {
+  entityName?: string;
+  expectedType?: AutocompleteDataType;
+  entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET | ENTITY_TYPE.JSACTION;
+  entityId?: string;
+  propertyPath?: string;
+};
+
 export type HintHelper = (
   editor: CodeMirror.Editor,
   data: DataTree,
-  additionalData?: Record<string, Record<string, unknown>>,
+  customDataTree?: Record<string, Record<string, unknown>>,
 ) => Hinter;
 export type Hinter = {
-  showHint: (editor: CodeMirror.Editor) => void;
+  showHint: (
+    editor: CodeMirror.Editor,
+    entityInformation: FieldEntityInformation,
+    additionalData?: any,
+  ) => boolean;
   update?: (data: DataTree) => void;
   trigger?: (editor: CodeMirror.Editor) => void;
 };

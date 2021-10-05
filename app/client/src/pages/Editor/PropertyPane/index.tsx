@@ -1,17 +1,11 @@
-import React, { Component, useCallback } from "react";
+import React, { Component, ReactElement, useCallback, useMemo } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import {
-  PanelStack,
-  IPanel,
-  Classes,
-  IPanelProps,
-  Icon,
-} from "@blueprintjs/core";
+import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
@@ -28,31 +22,29 @@ import PropertyControlsGenerator from "./Generator";
 import PaneWrapper from "components/editorComponents/PaneWrapper";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
-import {
-  deleteSelectedWidget,
-  copyWidget,
-  selectWidget,
-} from "actions/widgetActions";
+import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
+import { get } from "lodash";
+import { Layers } from "constants/Layers";
+import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
+import PropertyPaneConnections from "./PropertyPaneConnections";
+import { WidgetType } from "constants/WidgetConstants";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
 }>`
-  width: 100%;
   max-height: ${(props) => props.theme.propertyPane.height}px;
   width: ${(props) => props.theme.propertyPane.width}px;
+  padding-top: 0px;
   margin-bottom: ${(props) => props.theme.spaces[2]}px;
   margin-left: ${(props) => props.theme.spaces[10]}px;
-  padding: ${(props) => props.theme.spaces[5]}px;
   padding-top: 0px;
-  padding-right: ${(props) => props.theme.spaces[5]}px;
   border-right: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   text-transform: none;
 `;
 
@@ -74,97 +66,151 @@ const StyledPanelStack = styled(PanelStack)`
 `;
 
 const CopyIcon = ControlIcons.COPY_CONTROL;
+const CloseIcon = ControlIcons.CLOSE_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
 
 export const PropertyControlsWrapper = styled.div`
-  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
+  overflow: hidden;
+  margin: ${(props) => props.theme.spaces[5]}px;
+  margin-top: 0px;
 `;
 
-const PropertyPaneView = (
+export const FixedHeader = styled.div`
+  position: fixed;
+  z-index: 3;
+`;
+
+export const PropertyPaneBodyWrapper = styled.div`
+  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
+  max-height: ${(props) =>
+    props.theme.propertyPane.height -
+    (props.theme.propertyPane.titleHeight +
+      props.theme.propertyPane.connectionsHeight)}px;
+  overflow: auto;
+`;
+
+// TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
+// Widgets where we do not want to show the CTA
+export const excludeList: WidgetType[] = [
+  "CONTAINER_WIDGET",
+  "TABS_WIDGET",
+  "FORM_WIDGET",
+  "MODAL_WIDGET",
+  "DIVIDER_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "BUTTON_WIDGET",
+  "CANVAS_WIDGET",
+  "AUDIO_RECORDER_WIDGET",
+  "IFRAME_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
+];
+
+function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
     theme: EditorTheme;
   } & IPanelProps,
-) => {
+) {
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const doActionsExist = useSelector(actionsExist);
+  const hideConnectDataCTA = useMemo(() => {
+    if (widgetProperties) {
+      return excludeList.includes(widgetProperties.type);
+    }
+
+    return true;
+  }, [widgetProperties?.type, excludeList]);
 
   const dispatch = useDispatch();
-  const handleDelete = useCallback(
-    () => dispatch(deleteSelectedWidget(false)),
-    [dispatch],
-  );
+  const handleDelete = useCallback(() => {
+    dispatch(deleteSelectedWidget(false));
+  }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+
+  const actions = useMemo((): Array<{
+    tooltipContent: any;
+    icon: ReactElement;
+  }> => {
+    return [
+      {
+        tooltipContent: "Copy Widget",
+        icon: (
+          <CopyIcon
+            className="t--copy-widget"
+            height={16}
+            onClick={handleCopy}
+            width={16}
+          />
+        ),
+      },
+      {
+        tooltipContent: "Delete Widget",
+        icon: (
+          <DeleteIcon
+            className="t--delete-widget"
+            height={16}
+            onClick={handleDelete}
+            width={16}
+          />
+        ),
+      },
+      {
+        tooltipContent: "Close",
+        icon: (
+          <CloseIcon
+            className={"t--property-pane-close-btn"}
+            height={16}
+            onClick={(e: any) => {
+              AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
+                widgetType: widgetProperties.widgetType,
+                widgetId: widgetProperties.widgetId,
+              });
+              hidePropertyPane();
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            width={16}
+          />
+        ),
+      },
+    ];
+  }, [hidePropertyPane, handleCopy, handleDelete]);
+  if (!widgetProperties) return null;
 
   return (
     <>
       <PropertyPaneTitle
+        actions={actions}
         key={widgetProperties.widgetId}
         title={widgetProperties.widgetName}
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
-        actions={[
-          {
-            tooltipContent: "Copy Widget",
-            icon: (
-              <CopyIcon
-                className="t--copy-widget"
-                width={14}
-                height={14}
-                onClick={handleCopy}
-              />
-            ),
-          },
-          {
-            tooltipContent: "Delete Widget",
-            icon: (
-              <DeleteIcon
-                className="t--delete-widget"
-                width={16}
-                height={16}
-                onClick={handleDelete}
-              />
-            ),
-          },
-          {
-            tooltipContent: <span>Explore widget related docs</span>,
-            icon: <PropertyPaneHelpButton />,
-          },
-          {
-            tooltipContent: "Close",
-            icon: (
-              <Icon
-                onClick={(e: any) => {
-                  AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-                    widgetType: widgetProperties.widgetType,
-                    widgetId: widgetProperties.widgetId,
-                  });
-                  hidePropertyPane();
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                iconSize={16}
-                icon="cross"
-                className={"t--property-pane-close-btn"}
-              />
-            ),
-          },
-        ]}
       />
-      <PropertyControlsWrapper>
-        <PropertyControlsGenerator
-          id={widgetProperties.widgetId}
-          type={widgetProperties.type}
-          panel={panel}
-          theme={theme}
-        />
-      </PropertyControlsWrapper>
+      <PropertyPaneBodyWrapper>
+        {!doActionsExist && !hideConnectDataCTA && (
+          <ConnectDataCTA
+            widgetId={widgetProperties.widgetId}
+            widgetTitle={widgetProperties.widgetName}
+            widgetType={widgetProperties?.type}
+          />
+        )}
+        <PropertyControlsWrapper>
+          <PropertyControlsGenerator
+            id={widgetProperties.widgetId}
+            panel={panel}
+            theme={theme}
+            type={widgetProperties.type}
+          />
+        </PropertyControlsWrapper>
+      </PropertyPaneBodyWrapper>
     </>
   );
-};
+}
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
@@ -177,30 +223,39 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return ThemeMode.LIGHT;
   }
 
+  onPositionChange = (position: any) => {
+    this.props.setPropPanePoistion(
+      position,
+      this.props.widgetProperties?.widgetId,
+    );
+  };
+
   render() {
+    if (
+      !get(this.props, "widgetProperties") ||
+      get(this.props, "widgetProperties.disablePropertyPane")
+    ) {
+      return null;
+    }
+
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
       const el = document.getElementsByClassName(
         generateClassName(this.props.widgetProperties?.widgetId),
       )[0];
-
       return (
         <Popper
-          themeMode={this.getPopperTheme()}
-          position={this.props?.propPanePreference?.position}
+          cypressSelectorDragHandle="t--property-pane-drag-handle"
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
-          onPositionChange={(position: any) =>
-            this.props.setPropPanePoistion(
-              position,
-              this.props.widgetProperties?.widgetId,
-            )
-          }
-          isDraggable={true}
-          isOpen={true}
-          targetNode={el}
-          zIndex={3}
+          isDraggable
+          isOpen
+          onPositionChange={this.onPositionChange}
           placement="right-start"
+          position={this.props?.propPanePreference?.position}
+          targetNode={el}
+          themeMode={this.getPopperTheme()}
+          zIndex={Layers.propertyPane}
         >
           {content}
         </Popper>
@@ -212,33 +267,37 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
   renderPropertyPane() {
     const { widgetProperties } = this.props;
-    if (!widgetProperties)
-      return (
-        <PropertyPaneWrapper
-          className={"t--propertypane"}
-          themeMode={this.getTheme()}
-        />
-      );
+
+    if (!widgetProperties) {
+      return null;
+    }
+
+    // if settings control is disabled, don't render anything
+    // for e.g - this will be true for list widget tempalte container widget
+    if (widgetProperties?.disablePropertyPane) return null;
+
     return (
       <PropertyPaneWrapper
         className={"t--propertypane"}
-        themeMode={this.getTheme()}
-        ref={this.panelWrapperRef}
+        data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
+        ref={this.panelWrapperRef}
+        themeMode={this.getTheme()}
       >
+        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         <StyledPanelStack
-          onOpen={() => {
-            const parent = this.panelWrapperRef.current;
-            parent?.scrollTo(0, 0);
-          }}
           initialPanel={{
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
               theme: this.getTheme(),
             },
+          }}
+          onOpen={() => {
+            const parent = this.panelWrapperRef.current;
+            parent?.scrollTo(0, 0);
           }}
           showPanelHeader={false}
         />
@@ -313,7 +372,7 @@ const mapDispatchToProps = (dispatch: any): PropertyPaneFunctions => {
           },
         },
       });
-      dispatch(selectWidget(widgetId));
+      dispatch(selectWidgetInitAction(widgetId));
     },
     hidePropertyPane: () =>
       dispatch({

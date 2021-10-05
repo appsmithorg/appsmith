@@ -1,0 +1,275 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 16,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 800,
+        "containerStyle": "none",
+        "snapRows": 33,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 18,
+        "minHeight": 240,
+        "parentColumnSpace": 1,
+        "dynamicTriggerPathList": [],
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "backgroundColor": "",
+                "itemBackgroundColor": "white",
+                "gridType": "vertical",
+                "enhancements": true,
+                "gridGap": 0,
+                "listData": "",
+                "widgetName": "List1",
+                "children": [
+                    {
+                        "isVisible": true,
+                        "widgetName": "Canvas1",
+                        "version": 1,
+                        "containerStyle": "none",
+                        "canExtend": false,
+                        "detachFromLayout": true,
+                        "dropDisabled": true,
+                        "noPad": true,
+                        "children": [
+                            {
+                                "isVisible": true,
+                                "backgroundColor": "white",
+                                "widgetName": "Container1",
+                                "containerStyle": "card",
+                                "children": [
+                                    {
+                                        "isVisible": true,
+                                        "widgetName": "Canvas2",
+                                        "version": 1,
+                                        "containerStyle": "none",
+                                        "canExtend": false,
+                                        "detachFromLayout": true,
+                                        "children": [
+                                            {
+                                                "isVisible": true,
+                                                "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                                "imageShape": "RECTANGLE",
+                                                "maxZoomLevel": 1,
+                                                "image": "{{currentItem.img}}",
+                                                "widgetName": "Image1",
+                                                "version": 1,
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "image"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "type": "IMAGE_WIDGET",
+                                                "isLoading": false,
+                                                "leftColumn": 0,
+                                                "rightColumn": 4,
+                                                "topRow": 0,
+                                                "bottomRow": 3,
+                                                "parentId": "muh6tmsm1f",
+                                                "widgetId": "vr29m4code"
+                                            },
+                                            {
+                                                "isVisible": true,
+                                                "text": "{{currentItem.name}}",
+                                                "fontSize": "PARAGRAPH",
+                                                "fontStyle": "BOLD",
+                                                "textAlign": "LEFT",
+                                                "textColor": "#231F20",
+                                                "widgetName": "Text1",
+                                                "version": 1,
+                                                "textStyle": "HEADING",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "text"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "type": "TEXT_WIDGET",
+                                                "isLoading": false,
+                                                "leftColumn": 4,
+                                                "rightColumn": 10,
+                                                "topRow": 0,
+                                                "bottomRow": 1,
+                                                "parentId": "muh6tmsm1f",
+                                                "widgetId": "envgv9f2j9"
+                                            },
+                                            {
+                                                "isVisible": true,
+                                                "text": "{{currentItem.num}}",
+                                                "fontSize": "PARAGRAPH",
+                                                "fontStyle": "BOLD",
+                                                "textAlign": "LEFT",
+                                                "textColor": "#231F20",
+                                                "widgetName": "Text2",
+                                                "version": 1,
+                                                "textStyle": "BODY",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "text"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "type": "TEXT_WIDGET",
+                                                "isLoading": false,
+                                                "leftColumn": 4,
+                                                "rightColumn": 10,
+                                                "topRow": 1,
+                                                "bottomRow": 2,
+                                                "parentId": "muh6tmsm1f",
+                                                "widgetId": "37xbmi0bbz"
+                                            }
+                                        ],
+                                        "minHeight": null,
+                                        "type": "CANVAS_WIDGET",
+                                        "isLoading": false,
+                                        "parentColumnSpace": 1,
+                                        "parentRowSpace": 1,
+                                        "leftColumn": 0,
+                                        "rightColumn": null,
+                                        "topRow": 0,
+                                        "bottomRow": null,
+                                        "parentId": "5q9jzp3d17",
+                                        "widgetId": "muh6tmsm1f"
+                                    }
+                                ],
+                                "version": 1,
+                                "dragDisabled": true,
+                                "isDeletable": false,
+                                "disallowCopy": true,
+                                "disablePropertyPane": true,
+                                "type": "CONTAINER_WIDGET",
+                                "isLoading": false,
+                                "leftColumn": 0,
+                                "rightColumn": 16,
+                                "topRow": 0,
+                                "bottomRow": 4,
+                                "parentId": "qt3cziyljx",
+                                "widgetId": "5q9jzp3d17"
+                            }
+                        ],
+                        "minHeight": 400,
+                        "type": "CANVAS_WIDGET",
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "parentRowSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 463,
+                        "topRow": 0,
+                        "bottomRow": 400,
+                        "parentId": "wmuvmnfqm0",
+                        "widgetId": "qt3cziyljx"
+                    }
+                ],
+                "type": "LIST_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 57.875,
+                "parentRowSpace": 40,
+                "leftColumn": 4,
+                "rightColumn": 12,
+                "topRow": 2,
+                "bottomRow": 20,
+                "parentId": "0",
+                "widgetId": "wmuvmnfqm0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "template.Image1.image"
+                    },
+                    {
+                        "key": "template.Text1.text"
+                    },
+                    {
+                        "key": "template.Text2.text"
+                    }
+                ],
+                "template": {
+                    "Image1": {
+                        "isVisible": true,
+                        "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                        "imageShape": "RECTANGLE",
+                        "maxZoomLevel": 1,
+                        "image": "{{List1.listData.map((currentItem) => currentItem.img)}}",
+                        "widgetName": "Image1",
+                        "version": 1,
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "image"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "type": "IMAGE_WIDGET",
+                        "isLoading": false,
+                        "leftColumn": 0,
+                        "rightColumn": 4,
+                        "topRow": 0,
+                        "bottomRow": 3,
+                        "parentId": "muh6tmsm1f",
+                        "widgetId": "vr29m4code"
+                    },
+                    "Text1": {
+                        "isVisible": true,
+                        "text": "{{List1.listData.map((currentItem) => currentItem.name)}}",
+                        "fontSize": "PARAGRAPH",
+                        "fontStyle": "BOLD",
+                        "textAlign": "LEFT",
+                        "textColor": "#231F20",
+                        "widgetName": "Text1",
+                        "version": 1,
+                        "textStyle": "HEADING",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "text"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "type": "TEXT_WIDGET",
+                        "isLoading": false,
+                        "leftColumn": 4,
+                        "rightColumn": 10,
+                        "topRow": 0,
+                        "bottomRow": 1,
+                        "parentId": "muh6tmsm1f",
+                        "widgetId": "envgv9f2j9"
+                    },
+                    "Text2": {
+                        "isVisible": true,
+                        "text": "{{List1.listData.map((currentItem) => currentItem.num)}}",
+                        "fontSize": "PARAGRAPH",
+                        "fontStyle": "BOLD",
+                        "textAlign": "LEFT",
+                        "textColor": "#231F20",
+                        "widgetName": "Text2",
+                        "version": 1,
+                        "textStyle": "BODY",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "text"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "type": "TEXT_WIDGET",
+                        "isLoading": false,
+                        "leftColumn": 4,
+                        "rightColumn": 10,
+                        "topRow": 1,
+                        "bottomRow": 2,
+                        "parentId": "muh6tmsm1f",
+                        "widgetId": "37xbmi0bbz"
+                    }
+                },
+                "childAutoComplete": {
+                    "currentItem": {}
+                },
+                "dynamicTriggerPathList": []
+            }
+        ]
+    }
+}

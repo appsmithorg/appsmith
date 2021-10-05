@@ -14,11 +14,8 @@ describe("API Panel Test Functionality", function() {
   });
 
   it("PUT Action test API fetaure", function() {
-    cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
-    cy.log("Creation of FirstAPI Action successful");
     cy.SelectAction(testdata.putAction);
     cy.EnterSourceDetailsWithbody(
       testdata.baseUrl,
@@ -147,6 +144,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Response code check successful");
     cy.ResponseCheck("Josh M Krantz");
     cy.log("Response data check successful");
+    cy.switchToPaginationTab();
     cy.enterUrl(apiname, apiwidget.panigationPrevUrl, testdata.prevUrl);
     cy.clickTest(apiwidget.TestPreUrl);
     cy.validateRequest(
@@ -184,7 +182,7 @@ describe("API Panel Test Functionality", function() {
     );
     cy.WaitAutoSave();
     cy.RunAPI();
-    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get);
+    cy.validateRequest(testdata.baseUrl, testdata.methods, testdata.Get, true);
     cy.ResponseStatusCheck("5000");
     cy.log("Response code check successful");
     cy.ResponseCheck("Invalid value for Content-Type");

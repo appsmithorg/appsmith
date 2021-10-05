@@ -1,15 +1,15 @@
 package com.external.plugins;
 
-import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -230,7 +231,7 @@ public class RedshiftPluginTest {
         when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
         when(mockResultSetMetaData.getColumnCount()).thenReturn(0).thenReturn(10);
         when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "varchar", "varchar",
-        "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
+                "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
         when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("id", "username", "password", "email",
                 "spouse_dob", "dob", "time1", "time_tz", "created_on", "created_on_tz");
 
@@ -273,6 +274,15 @@ public class RedshiftPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -372,8 +382,8 @@ public class RedshiftPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "timestamptz", "now()"),
-                                    new DatasourceStructure.Column("name", "timestamptz", "now()")
+                                    new DatasourceStructure.Column("id", "timestamptz", "now()", false),
+                                    new DatasourceStructure.Column("name", "timestamptz", "now()", false)
                             },
                             campusTable.getColumns().toArray()
                     );
@@ -384,9 +394,9 @@ public class RedshiftPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", null),
-                                    new DatasourceStructure.Column("title", "varchar", null),
-                                    new DatasourceStructure.Column("user_id", "int4", null),
+                                    new DatasourceStructure.Column("id", "int4", null, false),
+                                    new DatasourceStructure.Column("title", "varchar", null, false),
+                                    new DatasourceStructure.Column("user_id", "int4", null, false)
                             },
                             possessionsTable.getColumns().toArray()
                     );
@@ -425,9 +435,9 @@ public class RedshiftPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
                                     new DatasourceStructure.Column("id", "int4", "\"identity\"(101507, " +
-                                            "0, '1,1'::text)"),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null)
+                                            "0, '1,1'::text)", true),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("password", "varchar", null, false)
                             },
                             usersTable.getColumns().toArray()
                     );

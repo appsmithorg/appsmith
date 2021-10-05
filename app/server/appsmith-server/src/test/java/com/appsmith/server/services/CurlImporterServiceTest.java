@@ -4,7 +4,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
@@ -30,6 +29,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,9 +53,6 @@ public class CurlImporterServiceTest {
 
     @Autowired
     UserService userService;
-
-    @Autowired
-    OrganizationService organizationService;
 
     String orgId;
 
@@ -664,6 +661,23 @@ public class CurlImporterServiceTest {
     }
 
     @Test
+    public void parseMultiFormData() throws AppsmithException {
+        // In the curl command, we test for a combination of --form and -F
+        // Also some values are double-quoted while some aren't. This tests a permutation of all such fields
+        ActionDTO action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' -F 'somekey=value' --form 'anotherKey=\"anotherValue\"'");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://httpbin.org");
+        assertPath(action, "/post");
+        assertHeaders(action, new Property("Content-Type", "multipart/form-data"));
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("somekey", "value"),
+                new Property("anotherKey", "anotherValue")
+        );
+    }
+
+    @Test
     public void dontEatBackslashesInSingleQuotes() throws AppsmithException {
         ActionDTO action = curlImporterService.curlToAction("curl http://httpbin.org/post -d 'a\\n'");
         assertMethod(action, HttpMethod.POST);
@@ -675,6 +689,24 @@ public class CurlImporterServiceTest {
                 action,
                 new Property("a\\n", "")
         );
+    }
+
+    @Test
+    public void importInvalidMethod() {
+        assertThatThrownBy(() -> {
+            curlImporterService.curlToAction("curl -X invalid-method http://httpbin.org/get");
+        })
+                .isInstanceOf(AppsmithException.class)
+                .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_METHOD);
+    }
+
+    @Test
+    public void importInvalidHeader() {
+        assertThatThrownBy(() -> {
+            curlImporterService.curlToAction("curl -H x-custom http://httpbin.org/headers");
+        })
+                .isInstanceOf(AppsmithException.class)
+                .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_HEADER);
     }
 
     @Test

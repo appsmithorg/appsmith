@@ -1,5 +1,5 @@
 import { reduxBatch } from "@manaflair/redux-batch";
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, compose } from "redux";
 import {
   useSelector as useReduxSelector,
   TypedUseSelectorHook,
@@ -16,7 +16,7 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   actionTransformer: (action) => {
     if (
       action.type === ReduxActionTypes.SET_EVALUATED_TREE ||
-      action.type === ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS
+      action.type === ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS
     ) {
       // Return null to not log the action to Sentry
       action.payload = null;
@@ -34,6 +34,14 @@ export default createStore(
     sentryReduxEnhancer,
   ),
 );
+
+export const testStore = (initialState: Partial<AppState>) =>
+  createStore(
+    appReducer,
+    initialState,
+    compose(reduxBatch, applyMiddleware(sagaMiddleware), reduxBatch),
+  );
+
 sagaMiddleware.run(rootSaga);
 
 export const useSelector: TypedUseSelectorHook<AppState> = useReduxSelector;

@@ -34,6 +34,12 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
+    public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
+        Criteria applicationIdCriteria = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        return queryAll(List.of(applicationIdCriteria), aclPermission);
+    }
+
+    @Override
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
         Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
@@ -211,7 +217,8 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
         if (names != null) {
             Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
-            criteriaList.add(namesCriteria);
+            Criteria fullyQualifiedNamesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.fullyQualifiedName)).in(names);
+            criteriaList.add(new Criteria().orOperator(namesCriteria, fullyQualifiedNamesCriteria));
         }
         Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
         criteriaList.add(pageCriteria);

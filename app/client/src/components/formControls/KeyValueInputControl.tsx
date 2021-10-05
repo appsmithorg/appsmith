@@ -18,7 +18,7 @@ const FormRowWithLabel = styled.div`
   }
 `;
 
-const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
+function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   useEffect(() => {
     // Always maintain 1 row
     if (props.fields.length < 1) {
@@ -51,20 +51,20 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
                   {index === props.fields.length - 1 ? (
                     <Icon
                       className="t--add-field"
+                      color={"#A3B3BF"}
                       icon="plus"
                       iconSize={20}
                       onClick={() => props.fields.push({ key: "", value: "" })}
-                      color={"#A3B3BF"}
                       style={{ alignSelf: "center" }}
                     />
                   ) : (
                     <FormIcons.DELETE_ICON
                       className="t--delete-field"
-                      height={20}
-                      width={20}
                       color={Colors.CADET_BLUE}
+                      height={20}
                       onClick={() => props.fields.remove(index)}
                       style={{ alignSelf: "center" }}
+                      width={20}
                     />
                   )}
                 </div>
@@ -75,7 +75,7 @@ const KeyValueRow = (props: Props & WrappedFieldArrayProps) => {
       )}
     </div>
   );
-};
+}
 
 type Props = {
   name: string;

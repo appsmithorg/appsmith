@@ -24,13 +24,9 @@ import { Icon } from "@blueprintjs/core";
 import moment from "moment";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import { Colors } from "constants/Colors";
 
-const {
-  algolia,
-  appVersion,
-  cloudHosting,
-  intercomAppID,
-} = getAppsmithConfigs();
+const { algolia, appVersion, intercomAppID } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -39,17 +35,13 @@ const GithubIcon = HelpIcons.GITHUB;
 const ChatIcon = HelpIcons.CHAT;
 const DiscordIcon = HelpIcons.DISCORD;
 
-const StyledOpenLinkIcon = styled(OenLinkIcon)`
+const StyledOpenLinkIcon = styled(OenLinkIcon)<{ color?: string }>`
   position: absolute;
   right: 14px;
   top: 1px;
   width: 12px;
   height: 12px;
   display: none;
-  && svg {
-    width: 12px;
-    height: 12px;
-  }
 `;
 
 const StyledDocumentIcon = styled(DocumentIcon)`
@@ -84,7 +76,7 @@ const StyledDiscordIcon = styled(DiscordIcon)`
   }
 `;
 
-const Hit = (props: { hit: { path: string } }) => {
+function Hit(props: { hit: { path: string } }) {
   return (
     <div
       className="t--docHit"
@@ -93,21 +85,21 @@ const Hit = (props: { hit: { path: string } }) => {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon width={11.2} height={14} color="#181F24" />
+        <StyledDocumentIcon color="#4b4848" height={14} width={11.2} />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
-          color={"#181F24"}
+          color={"#4b4848"}
         />
       </div>
     </div>
   );
-};
+}
 
-const DefaultHelpMenuItem = (props: {
+function DefaultHelpMenuItem(props: {
   item: { label: string; link?: string; id?: string; icon: React.ReactNode };
   onSelect: () => void;
-}) => {
+}) {
   return (
     <li className="ais-Hits-item">
       <div
@@ -116,7 +108,7 @@ const DefaultHelpMenuItem = (props: {
         onClick={() => {
           if (props.item.link) window.open(props.item.link, "_blank");
           if (props.item.id === "intercom-trigger") {
-            if (cloudHosting && intercomAppID && window.Intercom) {
+            if (intercomAppID && window.Intercom) {
               window.Intercom("show");
             }
           }
@@ -128,13 +120,15 @@ const DefaultHelpMenuItem = (props: {
           <span className="ais-Highlight">{props.item.label}</span>
           <StyledOpenLinkIcon
             className="t--docOpenLink open-link"
-            color={"#181F24"}
+            color={"#4b4848"}
+            height={12}
+            width={12}
           />
         </div>
       </div>
     </li>
   );
-};
+}
 
 const SearchContainer = styled.div`
   height: 100%;
@@ -194,7 +188,7 @@ const SearchContainer = styled.div`
   }
 
   .ais-Hits-item:hover {
-    background-color: #313740;
+    background-color: ${(props) => props.theme.colors.helpModal.itemHighlight};
   }
   .ais-Hits-item:hover .open-link {
     display: block;
@@ -203,7 +197,7 @@ const SearchContainer = styled.div`
   .hit-name {
     font-size: 14px;
     line-height: 16px;
-    color: #e7e9e9;
+    color: #4b4848;
     position: relative;
   }
 
@@ -284,10 +278,10 @@ const HelpFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid ${Colors.ALTO};
   padding: 5px 10px;
   height: 30px;
-  color: rgba(255, 255, 255, 0.7);
+  color: ${Colors.DOVE_GRAY2};
   font-size: 6pt;
 `;
 
@@ -295,7 +289,7 @@ const HelpBody = styled.div<{ hideSearch?: boolean }>`
   ${(props) =>
     props.hideSearch
       ? `
-    padding: ${props.theme.spaces[2]}px; 
+    padding: ${props.theme.spaces[2]}px;
   `
       : `
     padding-top: 68px;
@@ -322,33 +316,28 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon width={11.2} height={14} color="#181F24" />,
+    icon: <StyledDocumentIcon color="#4b4848" height={14} width={14} />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon width={11.2} height={14} color="#fff" />,
+    icon: <StyledGithubIcon color="#4b4848" height={14} width={14} />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
-    label: "Chat with us",
-    link: "https://github.com/appsmithorg/appsmith/discussions",
-  },
-  {
-    icon: <StyledDiscordIcon width={16} height={16} />,
+    icon: <StyledDiscordIcon color="#4b4848" height={14} width={14} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
 ];
 
-if (cloudHosting) {
-  HELP_MENU_ITEMS[2] = {
-    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+if (intercomAppID && window.Intercom) {
+  HELP_MENU_ITEMS.push({
+    icon: <StyledChatIcon color="#4b4848" height={14} width={14} />,
     label: "Chat with us",
     id: "intercom-trigger",
-  };
+  });
 }
 
 class DocumentationSearch extends React.Component<Props, State> {
@@ -358,17 +347,7 @@ class DocumentationSearch extends React.Component<Props, State> {
       showResults: props.defaultRefinement.length > 0,
     };
   }
-  componentDidMount() {
-    const { user } = this.props;
-    if (cloudHosting && intercomAppID && window.Intercom) {
-      window.Intercom("boot", {
-        app_id: intercomAppID,
-        user_id: user?.username,
-        name: user?.name,
-        email: user?.email,
-      });
-    }
-  }
+
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
@@ -394,6 +373,10 @@ class DocumentationSearch extends React.Component<Props, State> {
         {!this.props.hideMinimizeBtn && (
           <Icon
             className="t--docsMinimize"
+            color="white"
+            icon="minus"
+            iconSize={14}
+            onClick={this.handleClose}
             style={{
               position: "absolute",
               top: 6,
@@ -401,10 +384,6 @@ class DocumentationSearch extends React.Component<Props, State> {
               cursor: "pointer",
               zIndex: 1,
             }}
-            icon="minus"
-            color="white"
-            iconSize={14}
-            onClick={this.handleClose}
           />
         )}
         <InstantSearch
@@ -417,8 +396,8 @@ class DocumentationSearch extends React.Component<Props, State> {
               <Header>
                 <StyledPoweredBy />
                 <SearchBox
-                  onChange={this.onSearchValueChange}
                   defaultRefinement={this.props.defaultRefinement}
+                  onChange={this.onSearchValueChange}
                 />
               </Header>
             )}
@@ -429,8 +408,8 @@ class DocumentationSearch extends React.Component<Props, State> {
                 <ul className="ais-Hits-list">
                   {HELP_MENU_ITEMS.map((item) => (
                     <DefaultHelpMenuItem
-                      key={item.label}
                       item={item}
+                      key={item.label}
                       onSelect={this.handleClose}
                     />
                   ))}

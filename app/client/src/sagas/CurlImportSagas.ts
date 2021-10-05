@@ -19,7 +19,7 @@ import { Variant } from "components/ads/common";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
-  const { type, pageId, name } = action.payload;
+  const { name, pageId, type } = action.payload;
   let { curl } = action.payload;
   try {
     curl = transformCurlImport(curl);

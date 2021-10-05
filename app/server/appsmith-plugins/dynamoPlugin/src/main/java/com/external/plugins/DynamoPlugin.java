@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -52,19 +53,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+
 public class DynamoPlugin extends BasePlugin {
 
-    private static final String SCAN_ACTION_VALUE = "Scan";
-    private static final String GET_ITEM_ACTION_VALUE = "GetItem";
-    private static final String BATCH_GET_ITEM_ACTION_VALUE = "BatchGetItem";
-    private static final String TRANSACT_GET_ITEMS_ACTION_VALUE = "TransactGetItems";
-    private static final String PUT_ITEM_ACTION_VALUE = "PutItem";
-    private static final String UPDATE_ITEM_ACTION_VALUE = "UpdateItem";
-    private static final String DELETE_ITEM_ACTION_VALUE = "DeleteItem";
-    private static final String ITEMS_KEY = "Items";
-    private static final String ITEM_KEY = "Item";
-    private static final String ATTRIBUTES_KEY = "Attributes";
-    private static final String RESPONSES_KEY = "Responses";
     private static final String DYNAMO_TYPE_STRING_LABEL = "S";
     private static final String DYNAMO_TYPE_NUMBER_LABEL = "N";
     private static final String DYNAMO_TYPE_BINARY_LABEL = "B";
@@ -168,6 +161,7 @@ public class DynamoPlugin extends BasePlugin {
                 return extractedValueMap;
             }
         }
+
         /*
          * - Transform response for easy consumption. For details please visit
          *   https://github.com/appsmithorg/appsmith/issues/3010
@@ -176,98 +170,17 @@ public class DynamoPlugin extends BasePlugin {
                                              String action) throws AppsmithPluginException {
 
             Map<String, Object> transformedResponse = new HashMap<>();
-
-            /*
-             * - Any action other than the following do not return transformed response:
-             *  - Scan
-             *  - GetItem
-             *  - PutItem
-             *  - UpdateItem
-             *  - DeleteItem
-             *  - BatchGetItem
-             *  - TransactGetItem
-             */
-            if (!SCAN_ACTION_VALUE.equals(action)
-                    && !GET_ITEM_ACTION_VALUE.equals(action)
-                    && !PUT_ITEM_ACTION_VALUE.equals(action)
-                    && !UPDATE_ITEM_ACTION_VALUE.equals(action)
-                    && !DELETE_ITEM_ACTION_VALUE.equals(action)
-                    && !BATCH_GET_ITEM_ACTION_VALUE.equals(action)
-                    && !TRANSACT_GET_ITEMS_ACTION_VALUE.equals(action)) {
-                return rawResponse;
-            }
-
-            /*
-             * - Transform response based on action.
-             */
-            String topLevelKey;
-            switch (action) {
-                case SCAN_ACTION_VALUE:
-                    topLevelKey = ITEMS_KEY;
-                    break;
-                case GET_ITEM_ACTION_VALUE:
-                    topLevelKey = ITEM_KEY;
-                    break;
-                case PUT_ITEM_ACTION_VALUE:
-                case UPDATE_ITEM_ACTION_VALUE:
-                case DELETE_ITEM_ACTION_VALUE:
-                    topLevelKey = ATTRIBUTES_KEY;
-                    break;
-                case BATCH_GET_ITEM_ACTION_VALUE:
-                case TRANSACT_GET_ITEMS_ACTION_VALUE:
-                    topLevelKey = RESPONSES_KEY;
-                    break;
-                default:
-                    throw new AppsmithPluginException(
-                            AppsmithPluginError.PLUGIN_ERROR,
-                            "Appsmith has encountered an unexpected error when transforming raw DynamoDb response" +
-                                    ". Please reach out to Appsmith customer support to resolve this."
-                    );
-            }
-
             for (Map.Entry<String, Object> responseEntry: rawResponse.entrySet()) {
-                if (!responseEntry.getKey().equals(topLevelKey)) {
-                    transformedResponse.put(responseEntry.getKey(), responseEntry.getValue());
-                }
-                else {
-                    if (rawResponse.get(topLevelKey) instanceof Collection) {
+                    Object rawItems = responseEntry.getValue();
+                    if (rawItems != null) {
                         /*
-                         * - Need to have an empty list if rawItems is null.
+                         * - Insert transformed values into extractedResponse list.
                          */
-                        List<Object> extractedResponse = new ArrayList<>();
-                        Collection<Object> rawItems = (Collection<Object>) (rawResponse.get(topLevelKey));
-                        if (rawItems != null) {
-                            /*
-                             * - Insert transformed values into extractedResponse list.
-                             */
-                            extractedResponse = rawItems
-                                    .stream()
-                                    .map(item -> extractValue(item))
-                                    .collect(Collectors.toList());
-                        }
-
-                        transformedResponse.put(topLevelKey, extractedResponse);
+                        transformedResponse.put(responseEntry.getKey(), extractValue(rawItems));
                     }
-                    else if (rawResponse.get(topLevelKey) instanceof Map) {
-                        /*
-                         * - Need to have an empty map if rawItems is null.
-                         */
-                        Map<Object, Object> extractedResponse = new HashMap<>();
-                        HashMap<String, Object> rawItems = (HashMap<String, Object>) rawResponse.get(topLevelKey);
-                        if (rawItems != null) {
-                            /*
-                             * - Insert transformed values into extractedResponse map.
-                             */
-                            extractedResponse = rawItems
-                                    .entrySet()
-                                    .stream()
-                                    .map(item -> Map.entry(item.getKey(), extractValue(item.getValue())))
-                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                        }
-
-                        transformedResponse.put(topLevelKey, extractedResponse);
+                    else {
+                        transformedResponse.put(responseEntry.getKey(), null);
                     }
-                }
             }
 
             return transformedResponse;
@@ -280,6 +193,7 @@ public class DynamoPlugin extends BasePlugin {
 
             final Map<String, Object> requestData = new HashMap<>();
             final String body = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = new ArrayList<>();
 
             return Mono.fromCallable(() -> {
                 ActionExecutionResult result = new ActionExecutionResult();
@@ -292,7 +206,8 @@ public class DynamoPlugin extends BasePlugin {
                     );
                 }
                 requestData.put("action", action);
-
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, action, null, null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null, null));
 
                 Map<String, Object> parameters = null;
                 try {
@@ -348,6 +263,7 @@ public class DynamoPlugin extends BasePlugin {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setProperties(requestData);
                         actionExecutionRequest.setQuery(body);
+                        actionExecutionRequest.setRequestParams(requestParams);
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         return actionExecutionResult;
                     })
@@ -453,6 +369,7 @@ public class DynamoPlugin extends BasePlugin {
                 for (final String tableName : listTablesResponse.tableNames()) {
                     tables.add(new DatasourceStructure.Table(
                             DatasourceStructure.TableType.TABLE,
+                            null,
                             tableName,
                             Collections.emptyList(),
                             Collections.emptyList(),

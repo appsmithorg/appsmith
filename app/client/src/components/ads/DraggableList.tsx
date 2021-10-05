@@ -4,7 +4,7 @@ import swap from "lodash-move";
 import { useDrag } from "react-use-gesture";
 import { useSprings, animated, interpolate } from "react-spring";
 import styled from "styled-components";
-import { debounce } from "lodash";
+import { debounce, get } from "lodash";
 
 interface SpringStyleProps {
   down: boolean;
@@ -32,7 +32,7 @@ const updateSpringStyles = (
 // Styles when items are dragged/idle
 const dragIdleSpringStyles = (
   order: Array<number>,
-  { down, originalIndex, curIndex, y, itemHeight }: SpringStyleProps,
+  { curIndex, down, itemHeight, originalIndex, y }: SpringStyleProps,
 ) => (index: number) => {
   // picked/dragged item style
   if (down && index === originalIndex) {
@@ -59,19 +59,24 @@ const DraggableListWrapper = styled.div`
   }
 `;
 
-const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
+function DraggableList(props: any) {
+  const { itemHeight, ItemRenderer, items, onUpdate } = props;
+  const shouldReRender = get(props, "shouldReRender", true);
   // order of items in the list
   const order = useRef<any>(items.map((_: any, index: any) => index));
 
-  const onDrop = () => {
-    onUpdate(order.current);
-    order.current = items.map((_: any, index: any) => index);
-    setSprings(updateSpringStyles(order.current, itemHeight));
+  const onDrop = (originalIndex: number, newIndex: number) => {
+    onUpdate(order.current, originalIndex, newIndex);
+
+    if (shouldReRender) {
+      order.current = items.map((_: any, index: any) => index);
+      setSprings(updateSpringStyles(order.current, itemHeight));
+    }
   };
 
   useEffect(() => {
     // when items are updated(added/removed/updated) reassign order and animate springs.
-    if (items.length !== order.current.length) {
+    if (items.length !== order.current.length || shouldReRender === false) {
       order.current = items.map((_: any, index: any) => index);
       setSprings(updateSpringStyles(order.current, itemHeight));
     }
@@ -105,21 +110,21 @@ const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
       if (!props.down) {
         order.current = newOrder;
         setSprings(updateSpringStyles(order.current, itemHeight));
-        debounce(onDrop, 400)();
+        debounce(onDrop, 400)(curIndex, curRow);
       }
     }
   });
   return (
     <DraggableListWrapper
+      className="content"
       onMouseDown={() => {
         // set events to null to stop other parent draggable elements execution(ex: Property pane)
         document.onmouseup = null;
         document.onmousemove = null;
       }}
-      className="content"
       style={{ height: items.length * itemHeight }}
     >
-      {springs.map(({ zIndex, y, scale }, i) => (
+      {springs.map(({ scale, y, zIndex }, i) => (
         <animated.div
           {...bind(i)}
           data-rbd-draggable-id={items[i].id}
@@ -134,13 +139,13 @@ const DraggableList = ({ items, ItemRenderer, onUpdate, itemHeight }: any) => {
           }}
         >
           <div>
-            <ItemRenderer item={items[i]} index={i} />
+            <ItemRenderer index={i} item={items[i]} />
           </div>
         </animated.div>
       ))}
     </DraggableListWrapper>
   );
-};
+}
 DraggableList.displayName = "DraggableList";
 
 export default DraggableList;

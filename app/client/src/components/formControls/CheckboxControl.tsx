@@ -17,9 +17,9 @@ class CheckboxControl extends BaseControl<CheckboxControlProps> {
   }
 
   render() {
-    const { configProperty, label, info } = this.props;
+    const { configProperty, info, label } = this.props;
 
-    return <StyledCheckbox name={configProperty} label={label} info={info} />;
+    return <StyledCheckbox info={info} label={label} name={configProperty} />;
   }
 }
 

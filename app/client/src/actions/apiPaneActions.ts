@@ -1,14 +1,16 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { ApiContentTypes } from "constants/ApiEditorConstants";
+import { SlashCommandPayload } from "entities/Action";
 
 export const changeApi = (
   id: string,
+  isSaas: boolean,
   newApi?: boolean,
-): ReduxAction<{ id: string; newApi?: boolean }> => {
+): ReduxAction<{ id: string; isSaas: boolean; newApi?: boolean }> => {
   return {
     type: ReduxActionTypes.API_PANE_CHANGE_API,
-    payload: { id, newApi },
+    payload: { id, isSaas, newApi },
   };
 };
 
@@ -68,4 +70,18 @@ export const updateBodyContentType = (
 ): ReduxAction<{ title: ApiContentTypes; apiId: string }> => ({
   type: ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
   payload: { title, apiId },
+});
+
+export const redirectToNewIntegrations = (
+  applicationId: string,
+  pageId: string,
+  params?: any,
+): ReduxAction<{ applicationId: string; pageId: string; params: any }> => ({
+  type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
+  payload: { applicationId, pageId, params },
+});
+
+export const executeCommandAction = (payload: SlashCommandPayload) => ({
+  type: ReduxActionTypes.EXECUTE_COMMAND,
+  payload: payload,
 });

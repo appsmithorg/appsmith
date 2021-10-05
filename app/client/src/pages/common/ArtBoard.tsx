@@ -6,5 +6,5 @@ export default styled.div<{ width: number }>`
   background: ${(props) => {
     return props.theme.colors.artboard;
   }};
-  padding: ${(props) => props.theme.canvasPadding};
+  padding: 0 0 ${(props) => props.theme.canvasBottomPadding}px 0px;
 `;

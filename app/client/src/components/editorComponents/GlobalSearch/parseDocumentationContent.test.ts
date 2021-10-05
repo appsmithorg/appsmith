@@ -37,6 +37,7 @@ describe("parseDocumentationContent", () => {
       rawTitle: sampleTitleResponse,
       rawDocument: sampleDocumentResponse,
       path: "master/security",
+      query: "Security",
     };
     const result = parseDocumentationContent(sampleItem);
     expect(result).toStrictEqual(expectedResult);

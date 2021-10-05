@@ -58,8 +58,9 @@ public class DocumentTypeMapper implements TypeInformationMapper {
 
     @Override
     public TypeInformation<?> resolveTypeFrom(Alias alias) {
-        if (aliasToTypeMap.containsKey((String) alias.getValue())) {
-            return aliasToTypeMap.get(alias.getValue());
+        final String aliasAsString = alias.mapTyped(String.class);
+        if (aliasAsString != null && aliasToTypeMap.containsKey(aliasAsString)) {
+            return aliasToTypeMap.get(aliasAsString);
         }
         return null;
     }

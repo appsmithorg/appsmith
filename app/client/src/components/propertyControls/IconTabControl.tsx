@@ -6,7 +6,7 @@ import IconTabsComponent, {
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
   selectOption = (value: string) => {
-    const { propertyValue, defaultValue } = this.props;
+    const { defaultValue, propertyValue } = this.props;
     if (propertyValue === value) {
       this.updateProperty(this.props.propertyName, defaultValue);
     } else {
@@ -14,12 +14,12 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
     }
   };
   render() {
-    const { propertyValue, options } = this.props;
+    const { options, propertyValue } = this.props;
     return (
       <IconTabsComponent
         options={options}
-        value={propertyValue}
         selectOption={this.selectOption}
+        value={propertyValue}
       />
     );
   }

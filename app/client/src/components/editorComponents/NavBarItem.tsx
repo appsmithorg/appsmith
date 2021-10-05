@@ -77,33 +77,33 @@ const ItemContainer = styled.div`
 class NavBarItem extends React.Component<Props> {
   render(): React.ReactNode {
     const {
-      title,
-      icon,
-      path,
       exact,
-      width,
       height,
-      onClick,
+      icon,
       isActive,
+      onClick,
+      path,
+      title,
+      width,
     } = this.props;
 
     return (
       <ItemContainer>
         <NavLink
+          className={this.props.className}
           exact={exact}
-          to={path}
           isActive={(match, location) => {
             return isActive(path, location.pathname);
           }}
-          className={this.props.className}
           onClick={() => {
             onClick && onClick();
             AnalyticsUtil.logEvent("SIDEBAR_NAVIGATION", {
               navPage: this.props.title.toUpperCase(),
             });
           }}
+          to={path}
         >
-          <IconContainer width={width} height={height}>
+          <IconContainer height={height} width={width}>
             {icon({ width, height })}
           </IconContainer>
           <span>{title}</span>

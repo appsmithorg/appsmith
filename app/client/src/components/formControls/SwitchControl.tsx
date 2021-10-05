@@ -23,12 +23,14 @@ const SwitchWrapped = styled.div`
   .bp3-control {
     margin-bottom: 0px;
   }
+  max-width: 60vw;
 `;
 
 const Info = styled.div`
   font-size: 12px;
   opacity: 0.7;
   margin-top: 8px;
+  max-width: 60vw;
 `;
 
 export class SwitchField extends React.Component<Props, any> {
@@ -42,7 +44,7 @@ export class SwitchField extends React.Component<Props, any> {
   }
 
   render() {
-    const { label, isRequired, input, info } = this.props;
+    const { info, input, isRequired, label } = this.props;
 
     return (
       <div>
@@ -52,8 +54,8 @@ export class SwitchField extends React.Component<Props, any> {
           </StyledFormLabel>
           <StyledSwitch
             checked={this.value}
-            onChange={(value) => input.onChange(value)}
             large
+            onChange={(value) => input.onChange(value)}
           />
         </SwitchWrapped>
         {info && <Info>{info}</Info>}
@@ -64,18 +66,16 @@ export class SwitchField extends React.Component<Props, any> {
 
 class SwitchControl extends BaseControl<SwitchControlProps> {
   render() {
-    const { configProperty, label, isRequired, info } = this.props;
+    const { configProperty, info, isRequired, label } = this.props;
 
     return (
-      <React.Fragment>
-        <Field
-          name={configProperty}
-          component={SwitchField}
-          label={label}
-          isRequired={isRequired}
-          info={info}
-        />
-      </React.Fragment>
+      <Field
+        component={SwitchField}
+        info={info}
+        isRequired={isRequired}
+        label={label}
+        name={configProperty}
+      />
     );
   }
 

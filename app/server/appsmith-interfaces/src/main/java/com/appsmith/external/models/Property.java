@@ -16,14 +16,14 @@ public class Property {
     /*
      * A convenience constructor to create a Property object with just a key and a value.
      */
-    public Property(String key, String value) {
+    public Property(String key, Object value) {
         this.key = key;
         this.value = value;
     }
 
     String key;
 
-    String value;
+    Object value;
 
     Boolean editable;
 

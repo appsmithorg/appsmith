@@ -6,7 +6,8 @@ import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "constants/ReduxActionConstants";
-import { getActions } from "../selectors/entitiesSelector";
+import { getActions, getPlugins } from "../selectors/entitiesSelector";
+import { Plugin } from "api/PluginApi";
 
 export const getWidgets = (
   state: AppState,
@@ -28,6 +29,18 @@ export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
+export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
+  Object.values(widgets)
+    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
+    .map((w) => {
+      return {
+        label: w.widgetName,
+        id: w.widgetName,
+        value: `"${w.widgetName}"`,
+      };
+    }),
+);
+
 export const getEditorConfigs = (
   state: AppState,
 ): { pageId: string; layoutId: string } | undefined => {
@@ -35,25 +48,6 @@ export const getEditorConfigs = (
   const layoutId = state.ui.editor.currentLayoutId;
   if (!pageId || !layoutId) return undefined;
   return { pageId, layoutId };
-};
-
-export const getDefaultWidgetConfig = (
-  state: AppState,
-  type: WidgetType,
-): Partial<WidgetProps> => {
-  const configs = state.entities.widgetConfig.config;
-  if (configs.hasOwnProperty(type)) {
-    const widgetConfig = { ...configs[type] };
-    return widgetConfig;
-  }
-  return {};
-};
-
-export const getWidgetNamePrefix = (
-  state: AppState,
-  type: WidgetType,
-): string => {
-  return state.entities.widgetConfig.config[type].widgetName;
 };
 
 export const getDefaultPageId = (state: AppState): string | undefined =>
@@ -82,6 +76,15 @@ export const getExistingActionNames = createSelector(
   },
 );
 
+export const getPluginIdToImageLocation = createSelector(
+  getPlugins,
+  (plugins) =>
+    plugins.reduce((acc: any, p: Plugin) => {
+      acc[p.id] = p.iconLocation;
+      return acc;
+    }, {}),
+);
+
 /**
  * returns a objects of existing page name in data tree
  *
@@ -108,6 +111,14 @@ export const getWidgetByName = (
   );
 };
 
+export const getWidgetById = (
+  state: AppState,
+  id: string,
+): FlattenedWidgetProps | undefined => {
+  const widgets = state.entities.canvasWidgets;
+  return widgets[id];
+};
+
 export const getAllPageIds = (state: AppState) => {
   return state.entities.pageList.pages.map((page) => page.pageId);
 };
@@ -122,8 +133,38 @@ export const getPluginIdOfPackageName = (
   return undefined;
 };
 
+export const getDragDetails = (state: AppState) => {
+  return state.ui.widgetDragResize.dragDetails;
+};
+
 export const getSelectedWidget = (state: AppState) => {
-  const selectedWidgetId = state.ui.widgetDragResize.selectedWidget;
+  const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];
 };
+
+export const getFocusedWidget = (state: AppState) => {
+  const focusedWidgetId = state.ui.widgetDragResize.focusedWidget;
+  if (!focusedWidgetId) return;
+  return state.entities.canvasWidgets[focusedWidgetId];
+};
+
+export const getWidgetImmediateChildren = createSelector(
+  getWidget,
+  (widget: WidgetProps) => {
+    const childrenIds: string[] = [];
+    if (widget === undefined) {
+      return [];
+    }
+    const { children = [] } = widget;
+    if (children && children.length) {
+      for (const childIndex in children) {
+        if (children.hasOwnProperty(childIndex)) {
+          const child = children[childIndex];
+          childrenIds.push(child);
+        }
+      }
+    }
+    return childrenIds;
+  },
+);

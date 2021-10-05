@@ -2,47 +2,42 @@ import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import { WidgetCardProps } from "widgets/BaseWidget";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getWidgetCards,
 } from "selectors/editorSelectors";
-import { getColorWithOpacity } from "constants/DefaultTheme";
-import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
+import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
 import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
+import {
+  getCurrentStep,
+  getCurrentSubStep,
+  inOnboarding,
+} from "sagas/OnboardingSagas";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { useLocation } from "react-router";
+import { AppState } from "reducers";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
   padding: 10px 10px 20px 10px;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
 
-  scrollbar-color: ${(props) => props.theme.colors.paneCard}
-    ${(props) => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 8px;
+  &:active,
+  &:focus,
+  &:hover {
+    overflow: auto;
   }
 
   &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneCard};
-    outline: 1px solid ${(props) => props.theme.paneText};
-    border-radius: ${(props) => props.theme.radii[1]}px;
+    background-color: transparent;
   }
 `;
 
@@ -52,18 +47,6 @@ const CardsWrapper = styled.div`
   grid-gap: ${(props) => props.theme.spaces[1]}px;
   justify-items: stretch;
   align-items: stretch;
-`;
-
-const CloseIcon = styled(Icon)`
-  &&.${Classes.ICON} {
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    opacity: 0.6;
-    &:hover {
-      opacity: 1;
-    }
-  }
 `;
 
 const Header = styled.div`
@@ -85,8 +68,12 @@ const Info = styled.div`
   }
 `;
 
-const WidgetSidebar = (props: IPanelProps) => {
+function WidgetSidebar(props: IPanelProps) {
+  const location = useLocation();
   const cards = useSelector(getWidgetCards);
+  const isForceOpenWidgetPanel = useSelector(
+    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
+  );
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {
@@ -94,7 +81,7 @@ const WidgetSidebar = (props: IPanelProps) => {
     if (keyword.trim().length > 0) {
       filteredCards = produce(cards, (draft) => {
         cards.forEach((card, index) => {
-          if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
+          if (card.displayName.toLowerCase().indexOf(keyword) === -1) {
             delete draft[index];
           }
         });
@@ -110,17 +97,23 @@ const WidgetSidebar = (props: IPanelProps) => {
   };
 
   // For onboarding
+  const isInOnboarding = useSelector(inOnboarding);
   const currentStep = useSelector(getCurrentStep);
   const currentSubStep = useSelector(getCurrentSubStep);
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const onCanvas =
     BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+
   useEffect(() => {
-    if (currentStep === OnboardingStep.DEPLOY && !onCanvas) {
+    if (
+      ((currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
+        !onCanvas) ||
+      isForceOpenWidgetPanel === false
+    ) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas]);
+  }, [currentStep, onCanvas, isInOnboarding, location, isForceOpenWidgetPanel]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
@@ -143,10 +136,11 @@ const WidgetSidebar = (props: IPanelProps) => {
     <>
       <Boxed step={OnboardingStep.DEPLOY}>
         <ExplorerSearch
-          ref={searchInputRef}
+          autoFocus
           clear={clearSearchInput}
+          hideClear
           placeholder="Search widgets..."
-          autoFocus={true}
+          ref={searchInputRef}
         />
       </Boxed>
 
@@ -155,32 +149,20 @@ const WidgetSidebar = (props: IPanelProps) => {
           <Info>
             <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
           </Info>
-          <CloseIcon
-            className="t--close-widgets-sidebar"
-            icon="cross"
-            iconSize={16}
-            color={Colors.WHITE}
-            onClick={props.closePanel}
-          />
         </Header>
         <CardsWrapper>
-          {filteredCards.map((card: WidgetCardProps) => (
+          {filteredCards.map((card) => (
             <Boxed
-              step={OnboardingStep.DEPLOY}
+              key={card.key}
               show={
                 (card.type === "TABLE_WIDGET" && showTableWidget) ||
                 (card.type === "INPUT_WIDGET" && showInputWidget)
               }
-              key={card.key}
+              step={OnboardingStep.DEPLOY}
             >
               <OnboardingIndicator
-                width={100}
-                hasButton={false}
                 className="onboarding-widget-menu"
-                step={
-                  OnboardingStep.RUN_QUERY_SUCCESS ||
-                  OnboardingStep.ADD_INPUT_WIDGET
-                }
+                hasButton={false}
                 show={
                   (card.type === "TABLE_WIDGET" &&
                     currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
@@ -188,6 +170,11 @@ const WidgetSidebar = (props: IPanelProps) => {
                     currentSubStep === 0 &&
                     currentStep === OnboardingStep.ADD_INPUT_WIDGET)
                 }
+                step={
+                  OnboardingStep.RUN_QUERY_SUCCESS ||
+                  OnboardingStep.ADD_INPUT_WIDGET
+                }
+                width={100}
               >
                 <WidgetCard details={card} />
               </OnboardingIndicator>
@@ -197,7 +184,7 @@ const WidgetSidebar = (props: IPanelProps) => {
       </MainWrapper>
     </>
   );
-};
+}
 
 WidgetSidebar.displayName = "WidgetSidebar";
 

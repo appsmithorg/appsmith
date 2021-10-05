@@ -3,49 +3,43 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
+import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @Service
-public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, String> implements ConfigService {
+public class ConfigServiceImpl implements ConfigService {
 
     private static final String TEMPLATE_ORGANIZATION_CONFIG_NAME = "template-organization";
 
     private final ApplicationRepository applicationRepository;
     private final DatasourceRepository datasourceRepository;
+    private final ConfigRepository repository;
 
     // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
     private String instanceId = null;
 
-    public ConfigServiceImpl(Scheduler scheduler,
-                             Validator validator,
-                             MongoConverter mongoConverter,
-                             ReactiveMongoTemplate reactiveMongoTemplate,
-                             ConfigRepository repository,
-                             AnalyticsService analyticsService,
+    public ConfigServiceImpl(ConfigRepository repository,
                              ApplicationRepository applicationRepository,
                              DatasourceRepository datasourceRepository) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationRepository = applicationRepository;
         this.datasourceRepository = datasourceRepository;
+        this.repository = repository;
     }
 
     @Override
@@ -55,7 +49,8 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
     }
 
     @Override
-    public Mono<Config> updateByName(String name, Config config) {
+    public Mono<Config> updateByName(Config config) {
+        final String name = config.getName();
         return repository.findByName(name)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
                 .flatMap(dbConfig -> {
@@ -63,6 +58,21 @@ public class ConfigServiceImpl extends BaseService<ConfigRepository, Config, Str
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
                 });
+    }
+
+    @Override
+    public Mono<Config> save(Config config) {
+        return repository.findByName(config.getName())
+                .flatMap(dbConfig -> {
+                    dbConfig.setConfig(config.getConfig());
+                    return repository.save(dbConfig);
+                })
+                .switchIfEmpty(Mono.defer(() -> repository.save(config)));
+    }
+
+    @Override
+    public Mono<Config> save(String name, Map<String, Object> config) {
+        return save(new Config(new JSONObject(config), name));
     }
 
     @Override

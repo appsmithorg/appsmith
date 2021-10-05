@@ -1,11 +1,10 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -18,7 +17,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 
@@ -59,7 +57,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this scenario");
 
         } else if (datasourceContextMap.get(datasourceId) != null
-                // The following condition happens when there's a timout in the middle of destroying a connection and
+                // The following condition happens when there's a timeout in the middle of destroying a connection and
                 // the reactive flow interrupts, resulting in the destroy operation not completing.
                 && datasourceContextMap.get(datasourceId).getConnection() != null
                 && !isStale) {
@@ -87,13 +85,6 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                 })
                 .flatMap(objects -> {
                     Datasource datasource1 = objects.getT1();
-
-                    // If authentication exists for the datasource, decrypt the fields
-                    if (datasource1.getDatasourceConfiguration() != null &&
-                            datasource1.getDatasourceConfiguration().getAuthentication() != null) {
-                        AuthenticationDTO authentication = datasource1.getDatasourceConfiguration().getAuthentication();
-                        datasource1.getDatasourceConfiguration().setAuthentication(decryptSensitiveFields(authentication));
-                    }
 
                     PluginExecutor<Object> pluginExecutor = objects.getT2();
 
@@ -184,19 +175,5 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     return datasourceContextMap.remove(datasourceId);
                 });
-    }
-
-    @Override
-    public AuthenticationDTO decryptSensitiveFields(AuthenticationDTO authentication) {
-        if (authentication != null && Boolean.TRUE.equals(authentication.isEncrypted())) {
-            Map<String, String> decryptedFields = authentication.getEncryptionFields().entrySet().stream()
-                    .filter(e -> e.getValue() != null)
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            e -> encryptionService.decryptString(e.getValue())));
-            authentication.setEncryptionFields(decryptedFields);
-            authentication.setIsEncrypted(false);
-        }
-        return authentication;
     }
 }

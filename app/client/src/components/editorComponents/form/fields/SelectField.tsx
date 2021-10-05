@@ -12,11 +12,7 @@ const renderComponent = (
     input: Partial<WrappedFieldInputProps>;
   },
 ) => {
-  return (
-    <React.Fragment>
-      <DropdownWrapper {...componentProps} />
-    </React.Fragment>
-  );
+  return <DropdownWrapper {...componentProps} />;
 };
 
 type SelectFieldProps = {
@@ -27,17 +23,17 @@ type SelectFieldProps = {
   outline?: boolean;
 };
 
-export const SelectField = (props: SelectFieldProps) => {
+export function SelectField(props: SelectFieldProps) {
   return (
     <Field
-      name={props.name}
-      placeholder={props.placeholder}
       component={renderComponent}
+      name={props.name}
       options={props.options}
-      size={props.size}
       outline={props.outline}
+      placeholder={props.placeholder}
+      size={props.size}
     />
   );
-};
+}
 
 export default SelectField;

@@ -15,8 +15,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Getter
 @Setter
@@ -46,6 +49,9 @@ public class Application extends BaseDomain {
     @Transient
     boolean appIsExample = false;
 
+    @Transient
+    long unreadCommentThreads;
+
     @JsonIgnore
     String clonedFromApplicationId;
 
@@ -58,6 +64,30 @@ public class Application extends BaseDomain {
 
     @JsonIgnore
     AppLayout publishedAppLayout;
+
+    GitApplicationMetadata gitApplicationMetadata;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Instant lastDeployedAt; // when this application was last deployed
+
+    /**
+     * This method has been added because the updatedAt property in base domain has @JsonIgnore annotation
+     * @return updated time as a string
+     */
+    @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
+    public String getLastUpdateTime() {
+        if(updatedAt != null) {
+            return ISO_FORMATTER.format(updatedAt);
+        }
+        return null;
+    }
+
+    public String getLastDeployedAt() {
+        if(lastDeployedAt != null) {
+            return ISO_FORMATTER.format(lastDeployedAt);
+        }
+        return null;
+    }
 
     Boolean forkingEnabled;
 

@@ -4,47 +4,57 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 
-const ExplorerSearchWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 30px 1fr 30px;
+const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
+  display: ${(props) => (props.isHidden ? "none" : "flex")};
   margin-bottom: 5px;
+  padding: 0 8px;
   height: 48px;
   justify-content: flex-start;
   align-items: center;
   position: sticky;
-  font-size: 12px;
+  font-size: 14px;
   top: 0;
   z-index: 1;
-  background: ${Colors.MINE_SHAFT};
+  background: ${Colors.ALABASTER_ALT};
   & {
     .${Classes.ICON} {
-      color: ${Colors.DOVE_GRAY};
+      color: ${Colors.GRAY};
       cursor: pointer;
-      width: 100%;
-      height: 100%;
+      width: 18px;
+      height: 18px;
       display: flex;
       justify-content: center;
       align-items: center;
       &:last-of-type {
-        color: ${Colors.MINE_SHAFT};
+        color: ${Colors.GRAY};
+      }
+      svg {
+        width: 16px;
+        height: 16px;
+
+        &:last-of-type {
+          width: 14px;
+          height: 14px;
+        }
       }
     }
     input {
       display: flex;
+      flex: 1;
+      min-width: 0; //firefox flex issue fix
       border: none;
       background: none;
       padding: 0px 10px 0px 10px;
-      color: ${Colors.WHITE};
+      color: ${Colors.DOVE_GRAY2};
       &::placeholder {
-        color: ${Colors.DOVE_GRAY};
+        color: ${Colors.DOVE_GRAY2};
       }
       &:focus {
-        background: ${Colors.COD_GRAY};
         & ~ div.underline {
           width: 100%;
         }
         & ~ .${Classes.ICON} {
-          color: ${Colors.WHITE};
+          color: ${Colors.GRAY};
         }
       }
     }
@@ -64,21 +74,29 @@ const Underline = styled.div`
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(
   (
-    props: { clear: () => void; placeholder?: string; autoFocus?: boolean },
+    props: {
+      clear: () => void;
+      placeholder?: string;
+      autoFocus?: boolean;
+      isHidden?: boolean;
+      hideClear?: boolean;
+    },
     ref: Ref<HTMLInputElement>,
   ) => {
     return (
-      <ExplorerSearchWrapper>
+      <ExplorerSearchWrapper isHidden={props.isHidden}>
         <Icon icon="search" iconSize={12} />
         <input
-          id={ENTITY_EXPLORER_SEARCH_ID}
-          type="text"
-          placeholder={props.placeholder || "Search entities..."}
-          ref={ref}
           autoComplete="off"
           autoFocus={props.autoFocus}
+          id={ENTITY_EXPLORER_SEARCH_ID}
+          placeholder={props.placeholder || "Search entities..."}
+          ref={ref}
+          type="text"
         />
-        <Icon icon="cross" iconSize={12} onClick={props.clear} />
+        {props.hideClear !== true && (
+          <Icon icon="cross" iconSize={12} onClick={props.clear} />
+        )}
         <Underline className="underline" />
       </ExplorerSearchWrapper>
     );

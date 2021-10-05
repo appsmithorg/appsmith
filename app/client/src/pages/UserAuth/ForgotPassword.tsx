@@ -6,7 +6,7 @@ import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,
   FormActions,
-  AuthCardNavLink,
+  BlackAuthCardNavLink,
   FormMessagesContainer,
 } from "./StyledComponents";
 import { withTheme } from "styled-components";
@@ -59,9 +59,9 @@ export const ForgotPassword = withTheme(
     const {
       error,
       handleSubmit,
-      submitting,
       submitFailed,
       submitSucceeded,
+      submitting,
     } = props;
 
     return (
@@ -70,28 +70,24 @@ export const ForgotPassword = withTheme(
           <h1>{createMessage(FORGOT_PASSWORD_PAGE_TITLE)}</h1>
         </AuthCardHeader>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <AuthCardNavLink to={AUTH_LOGIN_URL}>
+          <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
             <Icon
               icon="arrow-left"
               style={{ marginRight: props.theme.spaces[3] }}
             />
             {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
-          </AuthCardNavLink>
+          </BlackAuthCardNavLink>
         </div>
         <FormMessagesContainer>
           {submitSucceeded && (
             <FormMessage
-              intent="success"
+              intent="lightSuccess"
               message={`${createMessage(FORGOT_PASSWORD_SUCCESS_TEXT)} 
                 ${props.emailValue}`}
             />
           )}
           {!mailEnabled && (
             <FormMessage
-              intent="warning"
-              message={
-                "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
-              }
               actions={[
                 {
                   url: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
@@ -99,6 +95,10 @@ export const ForgotPassword = withTheme(
                   intent: "primary",
                 },
               ]}
+              intent="warning"
+              message={
+                "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
+              }
             />
           )}
           {submitFailed && error && (
@@ -111,22 +111,22 @@ export const ForgotPassword = withTheme(
             label={createMessage(FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL)}
           >
             <FormTextField
+              disabled={submitting}
               name="email"
               placeholder={createMessage(
                 FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER,
               )}
-              disabled={submitting}
             />
           </FormGroup>
           <FormActions>
             <Button
-              tag="button"
-              type="submit"
-              text={createMessage(FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT)}
-              fill
-              size={Size.large}
               disabled={!isEmail(props.emailValue)}
+              fill
               isLoading={submitting}
+              size={Size.large}
+              tag="button"
+              text={createMessage(FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT)}
+              type="submit"
             />
           </FormActions>
         </StyledForm>

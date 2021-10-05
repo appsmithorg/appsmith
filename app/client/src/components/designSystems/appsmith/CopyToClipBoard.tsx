@@ -2,7 +2,7 @@ import React, { createRef, useState } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import { BaseButton } from "./BaseButton";
 
 const Wrapper = styled.div`
   display: flex;
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const CopyToClipboard = (props: any) => {
+function CopyToClipboard(props: any) {
   const { copyText } = props;
   const copyURLInput = createRef<HTMLInputElement>();
   const [isCopied, setIsCopied] = useState(false);
@@ -40,22 +40,22 @@ const CopyToClipboard = (props: any) => {
   return (
     <Wrapper>
       <BaseTextInput
+        defaultValue={copyText}
+        disabled
         fill
-        disabled={true}
         onChange={() => {
           selectText();
         }}
-        defaultValue={copyText}
       />
 
       <BaseButton
-        text={isCopied ? "Copied" : "Copy"}
         onClick={() => {
           copyToClipboard(copyText);
         }}
+        text={isCopied ? "Copied" : "Copy"}
       />
     </Wrapper>
   );
-};
+}
 
 export default CopyToClipboard;

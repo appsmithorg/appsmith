@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps, Route } from "react-router";
 import { Switch } from "react-router-dom";
@@ -14,10 +14,9 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
-import { executeAction } from "actions/widgetActions";
-import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { executeTrigger } from "actions/widgetActions";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
-import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -26,8 +25,13 @@ import {
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
+import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
+import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
+import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { Theme } from "constants/DefaultTheme";
+import GlobalHotKeys from "./GlobalHotKeys";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -42,11 +46,24 @@ const AppViewerBody = styled.section<{ hasPages: boolean }>`
   );
 `;
 
+const ContainerWithComments = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: ${(props) => props.theme.colors.artboard};
+`;
+
+const AppViewerBodyContainer = styled.div<{ width?: string }>`
+  flex: 1;
+  overflow: auto;
+  margin: 0 auto;
+`;
+
 export type AppViewerProps = {
   initializeAppViewer: (applicationId: string, pageId?: string) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
-  executeAction: (actionPayload: ExecuteActionPayload) => void;
+  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
@@ -59,6 +76,7 @@ export type AppViewerProps = {
   ) => void;
   resetChildrenMetaProperty: (widgetId: string) => void;
   pages: PageListPayload;
+  lightTheme: Theme;
 } & RouteComponentProps<BuilderRouteParams>;
 
 class AppViewer extends Component<
@@ -73,7 +91,6 @@ class AppViewer extends Component<
       this.setState({ registered: true });
     });
     const { applicationId, pageId } = this.props.match.params;
-    log.debug({ applicationId, pageId });
     if (applicationId) {
       this.props.initializeAppViewer(applicationId, pageId);
     }
@@ -86,30 +103,41 @@ class AppViewer extends Component<
   public render() {
     const { isInitialized } = this.props;
     return (
-      <EditorContext.Provider
-        value={{
-          executeAction: this.props.executeAction,
-          updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
-          resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
-        }}
-      >
-        <AppViewerBody hasPages={this.props.pages.length > 1}>
-          {isInitialized && this.state.registered && (
-            <Switch>
-              <SentryRoute
-                path={getApplicationViewerPageURL()}
-                exact
-                component={AppViewerPageContainer}
-              />
-              <SentryRoute
-                path={`${getApplicationViewerPageURL()}/fork`}
-                component={AppViewerPageContainer}
-                exact
-              />
-            </Switch>
-          )}
-        </AppViewerBody>
-      </EditorContext.Provider>
+      <ThemeProvider theme={this.props.lightTheme}>
+        <GlobalHotKeys>
+          <EditorContext.Provider
+            value={{
+              executeAction: this.props.executeAction,
+              updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
+              resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+            }}
+          >
+            <ContainerWithComments>
+              <AppComments isInline />
+              <AppViewerBodyContainer>
+                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                  {isInitialized && this.state.registered && (
+                    <Switch>
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={getApplicationViewerPageURL()}
+                      />
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={`${getApplicationViewerPageURL()}/fork`}
+                      />
+                    </Switch>
+                  )}
+                </AppViewerBody>
+              </AppViewerBodyContainer>
+            </ContainerWithComments>
+            <AddCommentTourComponent />
+            <CommentShowCaseCarousel />
+          </EditorContext.Provider>
+        </GlobalHotKeys>
+      </ThemeProvider>
     );
   }
 }
@@ -117,23 +145,19 @@ class AppViewer extends Component<
 const mapStateToProps = (state: AppState) => ({
   isInitialized: getIsInitialized(state),
   pages: getViewModePageList(state),
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (actionPayload: ExecuteActionPayload) =>
-    dispatch(executeAction(actionPayload)),
+  executeAction: (actionPayload: ExecuteTriggerPayload) =>
+    dispatch(executeTrigger(actionPayload)),
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
     propertyValue: any,
   ) =>
     dispatch(
-      updateWidgetPropertyRequest(
-        widgetId,
-        propertyName,
-        propertyValue,
-        RenderModes.PAGE,
-      ),
+      updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
     ),
   updateWidgetMetaProperty: (
     widgetId: string,

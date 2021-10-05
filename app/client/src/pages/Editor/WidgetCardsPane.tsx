@@ -16,7 +16,7 @@ const CardsWrapper = styled.div`
   align-items: stretch;
 `;
 
-const WidgetCardsPane = (props: WidgetCardPaneProps) => {
+function WidgetCardsPane(props: WidgetCardPaneProps) {
   if (!props.cards) {
     return null;
   }
@@ -36,6 +36,6 @@ const WidgetCardsPane = (props: WidgetCardPaneProps) => {
       ))}
     </PaneWrapper>
   );
-};
+}
 
 export default WidgetCardsPane;

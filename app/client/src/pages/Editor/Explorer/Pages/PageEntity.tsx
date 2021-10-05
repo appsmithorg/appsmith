@@ -10,13 +10,16 @@ import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
-import { hiddenPageIcon, homePageIcon, pageIcon } from "../ExplorerIcons";
+import { hiddenPageIcon, pageIcon, defaultPageIcon } from "../ExplorerIcons";
 import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
+import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
+import getFeatureFlags from "utils/featureFlags";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -27,9 +30,10 @@ type ExplorerPageEntityProps = {
   step: number;
   searchKeyword?: string;
   showWidgetsSidebar: (pageId: string) => void;
+  jsActions: JSCollectionData[];
 };
 
-export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
+export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
   const params = useParams<ExplorerURLParams>();
 
   const currentPageId = useSelector((state: AppState) => {
@@ -43,19 +47,21 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
     }
   }, [props.page.pageId, params.applicationId]);
 
+  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
+
   const contextMenu = (
     <PageContextMenu
-      key={props.page.pageId}
       applicationId={params.applicationId}
-      pageId={props.page.pageId}
-      name={props.page.pageName}
       className={EntityClassNames.CONTEXT_MENU}
       isDefaultPage={props.page.isDefault}
       isHidden={!!props.page.isHidden}
+      key={props.page.pageId}
+      name={props.page.pageName}
+      pageId={props.page.pageId}
     />
   );
 
-  const icon = props.page.isDefault ? homePageIcon : pageIcon;
+  const icon = props.page.isDefault ? defaultPageIcon : pageIcon;
   const rightIcon = !!props.page.isHidden ? hiddenPageIcon : null;
 
   const addWidgetsFn = useCallback(
@@ -65,28 +71,28 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
 
   return (
     <Entity
-      icon={icon}
-      name={props.page.pageName}
-      className="page"
-      step={props.step}
       action={switchPage}
-      entityId={props.page.pageId}
       active={isCurrentPage}
-      isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
-      updateEntityName={(id, name) =>
-        updatePage(id, name, !!props.page.isHidden)
-      }
+      className="page"
       contextMenu={contextMenu}
+      entityId={props.page.pageId}
+      icon={icon}
+      isDefaultExpanded={isCurrentPage || !!props.searchKeyword}
+      name={props.page.pageName}
       onNameEdit={resolveAsSpaceChar}
       rightIcon={rightIcon}
       searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={(id, name) =>
+        updatePage(id, name, !!props.page.isHidden)
+      }
     >
       <ExplorerWidgetGroup
-        step={props.step + 1}
-        searchKeyword={props.searchKeyword}
-        widgets={props.widgets}
-        pageId={props.page.pageId}
         addWidgetsFn={addWidgetsFn}
+        pageId={props.page.pageId}
+        searchKeyword={props.searchKeyword}
+        step={props.step + 1}
+        widgets={props.widgets}
       />
 
       {getPluginGroups(
@@ -97,13 +103,19 @@ export const ExplorerPageEntity = (props: ExplorerPageEntityProps) => {
         props.plugins,
         props.searchKeyword,
       )}
+
+      {isJSEditorEnabled && (
+        <ExplorerJSCollectionGroup
+          jsActions={props.jsActions}
+          pageId={props.page.pageId}
+          searchKeyword={props.searchKeyword}
+          step={props.step + 1}
+        />
+      )}
     </Entity>
   );
-};
+}
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
-(ExplorerPageEntity as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default ExplorerPageEntity;

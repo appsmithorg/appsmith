@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { find, noop } from "lodash";
-import { DropdownOption } from "widgets/DropdownWidget";
 import {
   PopoverInteractionKind,
   PopoverPosition,
@@ -12,13 +11,17 @@ import {
   Classes,
 } from "@blueprintjs/core";
 import styled from "styled-components";
-import { IconNames } from "@blueprintjs/icons";
+import { Colors } from "constants/Colors";
+import { DropdownOption } from "components/constants";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
   children?: TreeDropdownOption[];
   className?: string;
   type?: string;
+  icon?: React.ReactNode;
+  args?: Array<any>;
 };
 
 type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
@@ -55,7 +58,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_ITEM} {
     border-radius: 0px;
     font-size: 14px;
-    line-height: 14px;
+    line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
     display: flex;
     align-items: center;
     height: 30px;
@@ -65,18 +68,24 @@ const StyledMenu = styled(Menu)`
       fill: #9f9f9f;
     }
 
+    &.t--apiFormDeleteBtn,
+    &.t--apiFormDeleteBtn:hover {
+      color: ${Colors.DANGER_SOLID};
+      .${Classes.ICON} svg {
+        fill: ${Colors.DANGER_SOLID};
+      }
+    }
+
     &:hover {
-      background-color: ${(props) =>
-        props.theme.colors.treeDropdown.menuBg.hover};
-      color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+      background-color: ${Colors.GREY_3};
+      color: ${Colors.GREY_10};
       .${Classes.ICON} > svg:not([fill]) {
-        fill: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+        fill: ${Colors.GREY_10};
       }
     }
 
     &.${Classes.ACTIVE} {
-      background-color: ${(props) =>
-        props.theme.colors.treeDropdown.menuBg.selected};
+      background-color: ${Colors.GREY_3};
       color: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
       .${Classes.ICON} > svg:not([fill]) {
         fill: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
@@ -86,9 +95,7 @@ const StyledMenu = styled(Menu)`
   .${Classes.MENU_SUBMENU}
     .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN}
     > .${Classes.MENU_ITEM} {
-    background-color: ${(props) =>
-      props.theme.colors.treeDropdown.menuBg.hover};
-    color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+    background-color: ${Colors.GREY_3};
   }
 `;
 
@@ -97,6 +104,8 @@ const DropdownTarget = styled.div`
     width: 100%;
     box-shadow: none;
     border-radius: 0px;
+    border: 1px solid ${Colors.GREY_5};
+    height: 36px;
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
     background-image: none;
@@ -135,15 +144,19 @@ function getSelectedOption(
   return selectedOption;
 }
 
+const getMoreIcons = (icon: React.ReactNode) => {
+  return <Icon name={icon as IconName} size={IconSize.XXL} />;
+};
+
 export default function TreeDropdown(props: TreeDropdownProps) {
   const {
-    selectedValue,
     defaultText,
-    optionTree,
-    onSelect,
-    getDefaults,
-    selectedLabelModifier,
     displayValue,
+    getDefaults,
+    onSelect,
+    optionTree,
+    selectedLabelModifier,
+    selectedValue,
     toggle,
   } = props;
   const selectedOption = getSelectedOption(
@@ -169,10 +182,11 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       selectedOption.type === option.value;
     return (
       <MenuItem
-        className={option.className || "single-select"}
         active={isSelected}
+        className={option.className || "single-select"}
+        icon={getMoreIcons(option.icon)}
+        intent={option.intent}
         key={option.value}
-        icon={option.icon}
         onClick={
           option.children
             ? noop
@@ -183,14 +197,13 @@ export default function TreeDropdown(props: TreeDropdownProps) {
                 e.stopPropagation();
               }
         }
-        text={option.label}
-        intent={option.intent}
         popoverProps={{
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
-          position: PopoverPosition.LEFT,
+          position: PopoverPosition.RIGHT_TOP,
           targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
+        text={option.label}
       >
         {option.children && option.children.map(renderTreeOption)}
       </MenuItem>
@@ -202,30 +215,30 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const defaultToggle = (
     <DropdownTarget>
       <Button
-        rightIcon={IconNames.CHEVRON_DOWN}
+        className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
+          selectedLabelModifier ? "code-highlight" : ""
+        }`}
+        rightIcon={getMoreIcons("downArrow")}
         text={
           selectedLabelModifier
             ? selectedLabelModifier(selectedOption, displayValue)
             : selectedOption.label
         }
-        className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
-          selectedLabelModifier ? "code-highlight" : ""
-        }`}
       />
     </DropdownTarget>
   );
   return (
     <Popover
+      className="wrapper-popover"
+      content={menuItems}
       isOpen={isOpen}
       minimal
-      content={menuItems}
-      position={PopoverPosition.LEFT}
-      className="wrapper-popover"
       modifiers={props.modifiers}
       onClose={() => {
         setIsOpen(false);
         props.onMenuToggle && props.onMenuToggle(false);
       }}
+      position={PopoverPosition.LEFT}
       targetProps={{
         onClick: (e: any) => {
           setIsOpen(true);

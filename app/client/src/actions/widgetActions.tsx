@@ -1,41 +1,22 @@
 import {
   ReduxActionTypes,
   ReduxAction,
-  ReduxActionErrorTypes,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  ExecuteActionPayload,
-  ExecuteErrorPayload,
-  PageAction,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { WidgetProps } from "widgets/BaseWidget";
 
-export const executeAction = (
-  payload: ExecuteActionPayload,
-): BatchAction<ExecuteActionPayload> =>
+export const executeTrigger = (
+  payload: ExecuteTriggerPayload,
+): BatchAction<ExecuteTriggerPayload> =>
   batchAction({
-    type: ReduxActionTypes.EXECUTE_ACTION,
+    type: ReduxActionTypes.EXECUTE_TRIGGER_REQUEST,
     payload,
   });
-
-export const executeActionError = (
-  executeErrorPayload: ExecuteErrorPayload,
-): ReduxAction<ExecuteErrorPayload> => {
-  return {
-    type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-    payload: executeErrorPayload,
-  };
-};
-
-export const executePageLoadActions = (
-  payload: PageAction[][],
-): ReduxAction<PageAction[][]> => ({
-  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-  payload,
-});
 
 export const disableDragAction = (
   isDraggingDisabled: boolean,
@@ -63,13 +44,6 @@ export const focusWidget = (
   widgetId?: string,
 ): ReduxAction<{ widgetId?: string }> => ({
   type: ReduxActionTypes.FOCUS_WIDGET,
-  payload: { widgetId },
-});
-
-export const selectWidget = (
-  widgetId?: string,
-): ReduxAction<{ widgetId?: string }> => ({
-  type: ReduxActionTypes.SELECT_WIDGET,
   payload: { widgetId },
 });
 
@@ -111,6 +85,15 @@ export const closePropertyPane = () => {
   };
 };
 
+export const closeTableFilterPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
+    payload: {
+      force: false,
+    },
+  };
+};
+
 export const copyWidget = (isShortcut: boolean) => {
   return {
     type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
@@ -120,9 +103,12 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = () => {
+export const pasteWidget = (groupWidgets = false) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    payload: {
+      groupWidgets: groupWidgets,
+    },
   };
 };
 
@@ -131,7 +117,7 @@ export const deleteSelectedWidget = (
   disallowUndo = false,
 ) => {
   return {
-    type: ReduxActionTypes.WIDGET_DELETE,
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
     payload: {
       isShortcut,
       disallowUndo,
@@ -145,9 +131,21 @@ export const cutWidget = () => {
   };
 };
 
-export const addTableWidgetFromQuery = (queryName: string) => {
+export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
   return {
-    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
-    payload: queryName,
+    type: ReduxActionTypes.ADD_SUGGESTED_WIDGET,
+    payload,
+  };
+};
+
+/**
+ * action to group selected widgets into container
+ *
+ * @param queryName
+ * @returns
+ */
+export const groupWidgets = () => {
+  return {
+    type: ReduxActionTypes.GROUP_WIDGETS_INIT,
   };
 };

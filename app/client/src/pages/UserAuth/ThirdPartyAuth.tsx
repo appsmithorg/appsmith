@@ -51,25 +51,26 @@ const ButtonLogo = styled.img`
   height: 14px;
 `;
 
-export const SocialLoginTypes: Record<string, string> = {
+export const SocialLoginTypes = {
   GOOGLE: "google",
   GITHUB: "github",
 };
 
 type SignInType = "SIGNIN" | "SIGNUP";
 
-const SocialLoginButton = (props: {
+function SocialLoginButton(props: {
   logo: string;
   name: string;
   url: string;
   type: SignInType;
-}) => {
+}) {
   const location = useLocation();
   const initiateOnboarding = useIntiateOnboarding();
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
-  if (queryParams.has("redirectUrl")) {
-    url += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  const redirectUrl = queryParams.get("redirectUrl");
+  if (redirectUrl != null) {
+    url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
   return (
     <StyledSocialLoginButton
@@ -97,18 +98,18 @@ const SocialLoginButton = (props: {
       <div className="login-method">{`continue with ${props.name}`}</div>
     </StyledSocialLoginButton>
   );
-};
+}
 
-export const ThirdPartyAuth = (props: {
+export function ThirdPartyAuth(props: {
   logins: SocialLoginType[];
   type: SignInType;
-}) => {
+}) {
   const socialLoginButtons = getSocialLoginButtonProps(props.logins).map(
     (item) => {
       return <SocialLoginButton key={item.name} {...item} type={props.type} />;
     },
   );
   return <ThirdPartyAuthWrapper>{socialLoginButtons}</ThirdPartyAuthWrapper>;
-};
+}
 
 export default ThirdPartyAuth;

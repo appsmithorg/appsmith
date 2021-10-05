@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
-export const handlePathUpdated = (pathName: string) => ({
+export const handlePathUpdated = (location: typeof window.location) => ({
   type: ReduxActionTypes.HANDLE_PATH_UPDATED,
-  payload: { pathName },
+  payload: { location },
 });

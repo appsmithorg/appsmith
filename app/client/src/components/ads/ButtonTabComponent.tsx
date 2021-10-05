@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Colors } from "constants/Colors";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
@@ -8,12 +9,13 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid ${Colors.GREY_5};
   background: ${(props) =>
     props.selected
-      ? props.theme.colors.propertyPane.activeButtonText
+      ? Colors.GREY_10
       : props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
   cursor: pointer;
-  &:first-of-type {
+  & {
     margin-right: 4px;
   }
   &&& svg {
@@ -27,7 +29,7 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
 `;
 
 const FlexWrapper = styled.div`
-  display: flex;
+  display: inline-flex;
 `;
 
 export interface ButtonTabOption {
@@ -41,7 +43,7 @@ interface ButtonTabComponentProps {
   selectButton: (value: string) => void;
 }
 
-const ButtonTabComponent = (props: ButtonTabComponentProps) => {
+function ButtonTabComponent(props: ButtonTabComponentProps) {
   return (
     <FlexWrapper>
       {props.options.map((option: ButtonTabOption, index: number) => {
@@ -50,17 +52,17 @@ const ButtonTabComponent = (props: ButtonTabComponentProps) => {
         const isSelected = props.values.includes(option.value);
         return (
           <ItemWrapper
-            key={index}
-            selected={isSelected}
-            onClick={() => props.selectButton(option.value)}
             className={`t--button-tab-${option.value}`}
+            key={index}
+            onClick={() => props.selectButton(option.value)}
+            selected={isSelected}
           >
-            <ControlIcon width={24} height={24} />
+            <ControlIcon height={24} width={24} />
           </ItemWrapper>
         );
       })}
     </FlexWrapper>
   );
-};
+}
 
 export default ButtonTabComponent;

@@ -22,14 +22,14 @@ const StyledValue = styled.span`
   user-select: text;
 `;
 
-const KeyValuePair = function(props: { hKey: string; hValue: string }) {
+function KeyValuePair(props: { hKey: string; hValue: string }) {
   return (
     <StyledValue>
       <StyledKey>{props.hKey}</StyledKey>
       {props.hValue}
     </StyledValue>
   );
-};
+}
 
 const StyledTreeContainer = styled.div`
   font-family: ${(props) => props.theme.fonts.text};
@@ -138,6 +138,7 @@ export function RequestView(props: {
   return (
     <StyledTreeContainer>
       <Tree
+        className={Classes.ELEVATION_0}
         contents={[
           {
             id: 1,
@@ -180,11 +181,11 @@ export function RequestView(props: {
                 id: 1,
                 label: (
                   <ReadOnlyEditor
+                    folding
+                    height={"100%"}
                     input={{
                       value: props.requestBody,
                     }}
-                    height={"100%"}
-                    folding={true}
                   />
                 ),
               },
@@ -194,7 +195,6 @@ export function RequestView(props: {
         onNodeClick={handleNodeClick}
         onNodeCollapse={handleNodeCollapse}
         onNodeExpand={handleNodeExpand}
-        className={Classes.ELEVATION_0}
       />
     </StyledTreeContainer>
   );

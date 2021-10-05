@@ -1,51 +1,72 @@
-import { Message, ActionableError, Severity } from "entities/AppsmithConsole";
+import {
+  addErrorLogInit,
+  debuggerLogInit,
+  deleteErrorLogInit,
+} from "actions/debuggerActions";
+import { ReduxAction } from "constants/ReduxActionConstants";
+import { Severity, LogActionPayload, Log } from "entities/AppsmithConsole";
+import moment from "moment";
+import store from "store";
 
-// Eventually, if/when we need to dispatch events, we can import store and use store.dispatch
-export function log(ev: Message) {
-  ev.timestamp = ev.timestamp || new Date();
-  switch (ev.severity) {
-    case Severity.DEBUG:
-      console.debug(ev);
-      break;
-    case Severity.INFO:
-      console.info(ev);
-      break;
-    case Severity.WARNING:
-      console.warn(ev);
-      break;
-    case (Severity.ERROR, Severity.CRITICAL):
-      console.error(ev);
-      break;
-    default:
-      console.error("received event with unknown event severity", ev);
-  }
+function dispatchAction(action: ReduxAction<unknown>) {
+  store.dispatch(action);
 }
 
-/**
- * Helper functions, always supposed to be 1:1 mapped with `entities/AppsmithConsole/index.ts`
- */
-
-export function debug(ev: Message) {
-  ev.severity = Severity.DEBUG;
-  log(ev);
+function log(ev: Log) {
+  dispatchAction(debuggerLogInit(ev));
 }
 
-export function info(ev: Message) {
-  ev.severity = Severity.INFO;
-  log(ev);
+function getTimeStamp() {
+  return moment().format("hh:mm:ss");
 }
 
-export function warning(ev: Message) {
-  ev.severity = Severity.WARNING;
-  log(ev);
+function info(ev: LogActionPayload) {
+  log({
+    ...ev,
+    severity: Severity.INFO,
+    timestamp: getTimeStamp(),
+  });
 }
 
-export function error(ev: ActionableError) {
-  ev.severity = Severity.ERROR;
-  log(ev);
+function warning(ev: LogActionPayload) {
+  log({
+    ...ev,
+    severity: Severity.WARNING,
+    timestamp: getTimeStamp(),
+  });
 }
 
-export function critical(ev: ActionableError) {
-  ev.severity = Severity.CRITICAL;
-  log(ev);
+// This is used to show a log as an error
+// NOTE: These logs won't appear in the errors tab
+// To add errors to the errors tab use the addError method.
+function error(ev: LogActionPayload) {
+  log({
+    ...ev,
+    severity: Severity.ERROR,
+    timestamp: getTimeStamp(),
+  });
 }
+
+// This is used to add an error to the errors tab
+function addError(payload: LogActionPayload, severity = Severity.ERROR) {
+  dispatchAction(
+    addErrorLogInit({
+      ...payload,
+      severity: severity,
+      timestamp: getTimeStamp(),
+    }),
+  );
+}
+
+// This is used to remove an error from the errors tab
+function deleteError(id: string, analytics?: Log["analytics"]) {
+  dispatchAction(deleteErrorLogInit(id, analytics));
+}
+
+export default {
+  info,
+  warning,
+  error,
+  addError,
+  deleteError,
+};

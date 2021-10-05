@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -30,12 +30,13 @@ const customSelectStyles = {
   ) => {
     return {
       ...styles,
+      color: Colors.CODE_GRAY,
       backgroundColor: isDisabled
         ? undefined
         : isSelected
-        ? theme.colors.primaryOld
+        ? Colors.GREY_3
         : isFocused
-        ? theme.colors.hover
+        ? Colors.GREY_2
         : undefined,
       ":active": {
         ...styles[":active"],
@@ -49,7 +50,7 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, options, label, isRequired, subtitle } = this.props;
+    const { configProperty, isRequired, label, options, subtitle } = this.props;
 
     return (
       <div>
@@ -64,10 +65,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         </FormLabel>
         <DropdownSelect data-cy={configProperty}>
           <DropdownField
-            placeholder=""
+            customSelectStyles={customSelectStyles}
             name={configProperty}
             options={options}
-            customSelectStyles={customSelectStyles}
+            placeholder=""
             width={"50vh"}
           />
         </DropdownSelect>
@@ -82,8 +83,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
-        className="single-select"
         active={isSelected}
+        className="single-select"
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}
