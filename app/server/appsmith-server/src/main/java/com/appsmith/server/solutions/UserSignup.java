@@ -20,6 +20,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -199,14 +200,17 @@ public class UserSignup {
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     return Mono.when(
-                            configService.getInstanceId()
+                            userDataService.updateForUser(user, userData)
+                                    .then(configService.getInstanceId())
                                     .doOnSuccess(instanceId -> analyticsService.sendEvent(
                                             AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                             instanceId,
                                             Map.of(
                                                     "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
                                                     "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
-                                                    "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : ""
+                                                    "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
+                                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
                                             ),
                                             false
                                     )),
@@ -214,7 +218,6 @@ public class UserSignup {
                                     "APPSMITH_DISABLE_TELEMETRY",
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
                             )),
-                            userDataService.updateForUser(user, userData),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
                 });

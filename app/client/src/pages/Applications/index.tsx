@@ -99,6 +99,7 @@ import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
+import { getAppsmithConfigs } from "configs";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -401,11 +402,8 @@ function LeftPane() {
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const onboardingOrgs = useSelector(getOnboardingOrganisations);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const { releaseItems } = useSelector((state: AppState) => state.ui.releases);
-  const howMuchTimeBefore =
-    releaseItems && releaseItems.length > 0
-      ? howMuchTimeBeforeText(releaseItems[0]["publishedAt"])
-      : "";
+  const { appVersion } = getAppsmithConfigs();
+  const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -490,7 +488,7 @@ function LeftPane() {
           )}
           <ProductUpdatesModal />
           <LeftPaneVersionData>
-            <span>Appsmith v1.5</span>
+            <span>Appsmith {appVersion.id}</span>
             {howMuchTimeBefore !== "" && (
               <span>Released {howMuchTimeBefore} ago</span>
             )}
