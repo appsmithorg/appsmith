@@ -484,7 +484,7 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   transform: rotate(180deg);
   && svg {
     path {
-      fill: ${Colors.OXFORD_BLUE};
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
 `;
@@ -496,7 +496,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   && svg {
     path {
-      fill: ${Colors.OXFORD_BLUE};
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
 `;
@@ -528,6 +528,12 @@ export function TableHeaderCell(props: {
       className="th header-reorder"
       onClick={handleSortColumn}
     >
+      <DraggableHeaderWrapper
+        className={!props.isHidden ? `draggable-header` : "hidden-header"}
+        horizontalAlignment={column.columnProperties.horizontalAlignment}
+      >
+        {props.columnName}
+      </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
         <SortIconWrapper>
           {props.isAscOrder ? (
@@ -536,21 +542,7 @@ export function TableHeaderCell(props: {
             <DescendingIcon height={16} width={16} />
           )}
         </SortIconWrapper>
-      ) : (
-        <div style={{ minWidth: "11px" }} />
-      )}
-      <DraggableHeaderWrapper
-        className={
-          !props.isHidden
-            ? `draggable-header ${
-                props.isAscOrder !== undefined ? "sorted" : ""
-              }`
-            : "hidden-header"
-        }
-        horizontalAlignment={column.columnProperties.horizontalAlignment}
-      >
-        {props.columnName}
-      </DraggableHeaderWrapper>
+      ) : null}
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
