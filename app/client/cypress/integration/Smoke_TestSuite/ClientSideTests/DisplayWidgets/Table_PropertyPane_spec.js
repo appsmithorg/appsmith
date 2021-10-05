@@ -20,7 +20,7 @@ describe("Table Widget property pane feature validation", function() {
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidget", { x: 300, y: 200 });
     // close Widget side bar
-    cy.get(widgetsPage.closeWidgetBar).click({ force: true });
+    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
     cy.wait(2000);
     cy.SearchEntityandOpen("Table2");
     // Verify default array data

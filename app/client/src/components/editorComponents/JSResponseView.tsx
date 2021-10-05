@@ -69,6 +69,7 @@ const ResponseTabActionsList = styled.ul`
   ${thinScrollbar};
   scrollbar-width: thin;
   overflow: auto;
+  padding-bottom: 40px;
 `;
 
 const ResponseTabAction = styled.li`
@@ -93,7 +94,7 @@ const ResponseTabAction = styled.li`
 `;
 
 const TabbedViewWrapper = styled.div`
-  height: calc(100% - 30px);
+  height: 100%;
 
   &&& {
     ul.react-tabs__tab-list {

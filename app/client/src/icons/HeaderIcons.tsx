@@ -1,10 +1,10 @@
 import React, { JSXElementConstructor } from "react";
 import { IconProps, IconWrapper } from "constants/IconConstants";
-import { ReactComponent as ShareIcon } from "assets/icons/header/share-white.svg";
-import { ReactComponent as DeployIcon } from "assets/icons/header/deploy.svg";
-import { ReactComponent as FeedbackIcon } from "assets/icons/header/feedback.svg";
-import { ReactComponent as SaveFailureIcon } from "assets/icons/header/save-failure.svg";
-import { ReactComponent as SaveSuccessIcon } from "assets/icons/header/save-success.svg";
+import ShareIcon from "remixicon-react/ShareBoxFillIcon";
+import DeployIcon from "remixicon-react/Rocket2FillIcon";
+import FeedbackIcon from "remixicon-react/FeedbackFillIcon";
+import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
+import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 /* eslint-disable react/display-name */
 
 export const HeaderIcons: {

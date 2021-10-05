@@ -5,7 +5,7 @@ import Icon, { IconSize } from "./Icon";
 import { Colors } from "constants/Colors";
 import Text, { TextType } from "./Text";
 
-type CalloutProps = CommonComponentProps & {
+export type CalloutProps = CommonComponentProps & {
   variant?: Variant;
   fill?: boolean;
   closeButton?: boolean;
@@ -56,7 +56,6 @@ const CalloutContainer = styled.div<{
 const Label = styled.div<{ variant: Variant }>`
   position: absolute;
   right: ${(props) => props.theme.spaces[12]}px;
-  top: ${(props) => props.theme.spaces[5]}px;
   .${Classes.ICON} {
     margin-right: 0px !important;
     cursor: pointer;
@@ -79,13 +78,13 @@ function Callout(props: CalloutProps) {
       variant={props.variant || Variant.info}
     >
       {props.text && props.variant !== Variant.info ? (
-        <Icon name={props.variant} size={IconSize.MEDIUM} />
+        <Icon name={props.variant} size={IconSize.XL} />
       ) : null}
       <Text type={TextType.P2}>{props.text}</Text>
       {props.label ? props.label : null}
       {props.closeButton ? (
         <Label onClick={props.onClose} variant={props.variant || Variant.info}>
-          <Icon name="close-modal" />
+          <Icon name="close-modal" size={IconSize.XXL} />
         </Label>
       ) : null}
     </CalloutContainer>

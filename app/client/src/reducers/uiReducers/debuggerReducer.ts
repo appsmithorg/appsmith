@@ -81,7 +81,8 @@ const debuggerReducer = createReducer(initialState, {
       currentTab: action.payload,
     };
   },
-  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
+  // Resetting debugger state after page switch
+  [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: () => {
     return {
       ...initialState,
     };
