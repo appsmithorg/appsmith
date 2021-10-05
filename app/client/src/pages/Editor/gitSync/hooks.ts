@@ -13,7 +13,11 @@ export const useSSHKeyPair = () => {
   const dispatch = useDispatch();
 
   const currentApplication = useSelector(getCurrentApplication);
-
+  //
+  //
+  // TODO: MAINTAIN SSHKeyPair in GitSyncReducer
+  //
+  //
   const SSHKeyPair = currentApplication?.SSHKeyPair;
   const deployKeyDocUrl = currentApplication?.deployKeyDocUrl || DOCS_BASE_URL;
 

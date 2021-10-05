@@ -5,9 +5,9 @@ import {
 } from "pages/Editor/gitSync/components/StyledComponents";
 import {
   createMessage,
-  CONNECT,
   DEPLOY_WITHOUT_GIT,
   DEPLOY_TO_CLOUD,
+  DEPLOY,
 } from "constants/messages";
 import styled from "styled-components";
 import Button, { Category, Size } from "components/ads/Button";
@@ -25,7 +25,6 @@ const Container = styled.div`
   align-items: flex-start;
 
   justify-content: flex-end;
-  /* bottom: ${(props) => `${props.theme.spaces[8]}px`}; */
   bottom: 30px;
   width: calc(100% - 30px);
   position: absolute;
@@ -62,7 +61,7 @@ export default function DirectDeploy() {
         category={Category.tertiary}
         onClick={handlePublish}
         size={Size.medium}
-        text={createMessage(CONNECT)}
+        text={createMessage(DEPLOY)}
         width="max-content"
       />
     </Container>

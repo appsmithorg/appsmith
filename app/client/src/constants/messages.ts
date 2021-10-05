@@ -514,6 +514,14 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
+
+export const GIT_DISCONNECT_POPUP_TITLE = () =>
+  `This will disconnect the git repository from this application`;
+
+export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
+  `Git features will no more be shown for this application`;
+export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
+
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
@@ -566,6 +574,8 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
+export const GIT_DISCONNECT = () => "Disconnect";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your Git SSH URL";
 
 // Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
