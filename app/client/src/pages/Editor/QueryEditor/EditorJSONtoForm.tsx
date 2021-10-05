@@ -665,7 +665,7 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB);
+                  dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
                 }}
                 secondHalfText={createMessage(
                   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
