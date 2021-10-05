@@ -274,14 +274,14 @@ export const REST_API_AUTHORIZATION_SUCCESSFUL = () =>
   "Authorization was successful!";
 export const REST_API_AUTHORIZATION_FAILED = () =>
   "Authorization failed. Please check your details or try again.";
-// Todo: improve this for Appsmith_error error message
+// Todo: improve this for appsmith_error error message
 export const REST_API_AUTHORIZATION_APPSMITH_ERROR = () =>
   "Something went wrong.";
 
 export const SAAS_AUTHORIZATION_SUCCESSFUL = "Authorization was successful!";
 export const SAAS_AUTHORIZATION_FAILED =
   "Authorization failed. Please check your details or try again.";
-// Todo: improve this for Appsmith_error error message
+// Todo: improve this for appsmith_error error message
 export const SAAS_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const SAAS_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
