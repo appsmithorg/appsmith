@@ -152,7 +152,7 @@ describe("Table Widget property pane feature validation", function() {
       .invoke("text")
       .then((text) => {
         const someText = text;
-        expect(someText).to.equal("Successful michael.lawson@reqres.in");
+        expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
   });
 });
