@@ -1418,7 +1418,7 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
     .type("{uparrow}", { force: true })
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
-    if ($cm.contents != "") {
+    if ($cm.contents !== "") {
       cy.log("The field is empty");
       cy.get(".CodeMirror textarea")
         .last()
