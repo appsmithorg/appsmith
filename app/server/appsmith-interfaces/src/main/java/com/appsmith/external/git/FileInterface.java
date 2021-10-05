@@ -37,10 +37,12 @@ public interface FileInterface {
      * @param organisationId To which organisation application needs to be rehydrated
      * @param defaultApplicationId To which organisation application needs to be rehydrated
      * @param branchName for which the application needs to be rehydrate
+     * @param repoName git repo name to access file system
      * @return application reference from which entire application can be rehydrated
      */
     ApplicationGitReference reconstructApplicationFromGitRepo(String organisationId,
                                                               String defaultApplicationId,
+                                                              String repoName,
                                                               String branchName) throws GitAPIException, IOException;
 
     /**
