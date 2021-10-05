@@ -431,11 +431,7 @@ export default {
           console.error(e);
         }
         const filterValue = result;
-        if (filterOperator === "AND") {
-          filter = filter && filterValue;
-        } else {
-          filter = filter || filterValue;
-        }
+        filterOperator === "AND" ? filter = filter && filterValue : filter = filter || filterValue;
       }
       return filter;
     });
