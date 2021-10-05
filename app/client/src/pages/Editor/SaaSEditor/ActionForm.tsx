@@ -27,12 +27,8 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
-import {
-  INTEGRATION_EDITOR_MODES,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
@@ -116,7 +112,6 @@ function ActionForm(props: Props) {
         defaultApplicationId,
         pageId,
         INTEGRATION_TABS.NEW,
-        INTEGRATION_EDITOR_MODES.AUTO,
       ),
     );
   };

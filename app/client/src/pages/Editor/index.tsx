@@ -39,6 +39,12 @@ import { fetchPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 import { getSearchQuery } from "utils/helpers";
+import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
+import {
+  collabStartSharingPointerEvent,
+  collabStopSharingPointerEvent,
+} from "actions/appCollabActions";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -62,6 +68,9 @@ type EditorProps = {
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branchName: string) => void;
   currentPageId?: string;
+  isPageLevelSocketConnected: boolean;
+  collabStartSharingPointerEvent: (pageId: string) => void;
+  collabStopSharingPointerEvent: () => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -89,6 +98,10 @@ class Editor extends Component<Props> {
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
+
+    if (this.props.isPageLevelSocketConnected && pageId) {
+      this.props.collabStartSharingPointerEvent(pageId);
+    }
   }
 
   getIsBranchUpdated(props1: Props, props2: Props) {
@@ -121,7 +134,9 @@ class Editor extends Component<Props> {
         this.props.isEditorInitializeError ||
       nextProps.creatingOnboardingDatabase !==
         this.props.creatingOnboardingDatabase ||
-      nextState.registered !== this.state.registered
+      nextState.registered !== this.state.registered ||
+      (nextProps.isPageLevelSocketConnected &&
+        !this.props.isPageLevelSocketConnected)
     );
   }
 
@@ -132,6 +147,8 @@ class Editor extends Component<Props> {
 
     const branch = getSearchQuery(this.props.location.search, "branch");
 
+    const isPageIdUpdated = pageId !== prevPageId;
+
     if (isBranchUpdated && defaultApplicationId) {
       this.props.initEditor(defaultApplicationId, pageId, branch);
     } else {
@@ -140,16 +157,21 @@ class Editor extends Component<Props> {
        * If we don't check for `prevPageId`: fetch page is retriggered
        * when redirected to the default page
        */
-      if (prevPageId && pageId && pageId !== prevPageId) {
+      if (prevPageId && pageId && isPageIdUpdated) {
         this.props.updateCurrentPage(pageId);
         this.props.fetchPage(pageId);
       }
+    }
+
+    if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
+      this.props.collabStartSharingPointerEvent(pageId);
     }
   }
 
   componentWillUnmount() {
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
+    this.props.collabStopSharingPointerEvent();
   }
 
   handleHistoryChange = (location: any) => {
@@ -189,6 +211,7 @@ class Editor extends Component<Props> {
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
+              <ConcurrentPageEditorToast />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />
@@ -210,6 +233,7 @@ const mapStateToProps = (state: AppState) => ({
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
+  isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -224,6 +248,10 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(handlePathUpdated(location)),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
+    collabStartSharingPointerEvent: (pageId: string) =>
+      dispatch(collabStartSharingPointerEvent(pageId)),
+    collabStopSharingPointerEvent: () =>
+      dispatch(collabStopSharingPointerEvent()),
   };
 };
 

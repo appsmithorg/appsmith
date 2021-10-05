@@ -4,7 +4,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.AnalyticsEvents;
-import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
@@ -13,10 +12,8 @@ import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
@@ -64,7 +61,6 @@ public class UserSignup {
     private final ConfigService configService;
     private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
-    private final ApplicationPageService applicationPageService;
     private final EnvManager envManager;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -200,21 +196,18 @@ public class UserSignup {
                 .flatMap(user -> {
                     final UserData userData = new UserData();
                     userData.setRole(userFromRequest.getRole());
-
-                    if (userFromRequest.isSignupForNewsletter()) {
-                        analyticsService.sendEvent(
-                                AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name(),
-                                user.getEmail(),
-                                Map.of("id", user.getEmail())
-                        );
-                    }
+                    userData.setUseCase(userFromRequest.getUseCase());
 
                     return Mono.when(
-                            NetworkUtils.getExternalAddress()
-                                    .doOnSuccess(address -> analyticsService.sendEvent(
-                                            AnalyticsEvents.INSTALLATION_TELEMETRY.getEventName(),
-                                            address,
-                                            Map.of("disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData()),
+                            configService.getInstanceId()
+                                    .doOnSuccess(instanceId -> analyticsService.sendEvent(
+                                            AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
+                                            instanceId,
+                                            Map.of(
+                                                    "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
+                                                    "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
+                                                    "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : ""
+                                            ),
                                             false
                                     )),
                             envManager.applyChanges(Map.of(
@@ -222,7 +215,6 @@ public class UserSignup {
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
                             )),
                             userDataService.updateForUser(user, userData),
-                            configService.save(ConfigNames.USE_CASE, Map.of("value", userFromRequest.getUseCase())),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
                 });

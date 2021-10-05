@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import {
-  INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
   QueryEditorRouteParams,
@@ -198,7 +197,6 @@ class QueryEditor extends React.Component<Props> {
           defaultApplicationId,
           pageId,
           INTEGRATION_TABS.NEW,
-          INTEGRATION_EDITOR_MODES.AUTO,
         ),
       );
     };
