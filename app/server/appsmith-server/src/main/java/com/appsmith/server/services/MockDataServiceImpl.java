@@ -78,7 +78,7 @@ public class MockDataServiceImpl implements MockDataService {
                         });
                     } else {
                         return Mono.error(new AppsmithException(
-                                AppsmithError.INTERNAL_SERVER_ERROR,
+                                AppsmithError.CLOUD_SERVICES_ERROR,
                                 "Unable to connect to cloud-services with error status {}", response.statusCode()));
                     }
                 })
