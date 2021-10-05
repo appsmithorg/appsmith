@@ -14,6 +14,14 @@ import {
   StyledLink as Link,
 } from "./common";
 import { TELEMETRY_URL } from "constants/ThirdPartyConstants";
+import {
+  createMessage,
+  WELCOME_FORM_DATA_COLLECTION_BODY,
+  WELCOME_FORM_DATA_COLLECTION_HEADER,
+  WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE,
+  WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE,
+  WELCOME_FORM_DATA_COLLECTION_LINK,
+} from "constants/messages";
 
 const DataCollectionFormWrapper = styled.div`
   width: 100%;
@@ -32,11 +40,14 @@ export default memo(function DataCollectionForm() {
     <DataCollectionFormWrapper>
       <FormHeaderWrapper>
         <FormHeaderIndex>2.</FormHeaderIndex>
-        <FormHeaderLabel>Usage data preference</FormHeaderLabel>
+        <FormHeaderLabel>
+          {createMessage(WELCOME_FORM_DATA_COLLECTION_HEADER)}
+        </FormHeaderLabel>
         <FormHeaderSubtext>
-          Share anonymous usage data to help improve the product. <br />
+          {createMessage(WELCOME_FORM_DATA_COLLECTION_BODY)}
+          <br />
           <StyledLink href={TELEMETRY_URL} target="_blank">
-            See what is shared
+            {createMessage(WELCOME_FORM_DATA_COLLECTION_LINK)}
           </StyledLink>
         </FormHeaderSubtext>
       </FormHeaderWrapper>
@@ -52,8 +63,8 @@ export default memo(function DataCollectionForm() {
             </AllowToggle>
             <AllowToggleLabel>
               {allowCollection
-                ? "Share data & make Appsmith better!"
-                : "Don't share any data"}
+                ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
+                : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
             </AllowToggleLabel>
           </AllowToggleWrapper>
         </ControlWrapper>
