@@ -117,12 +117,13 @@ public class GitFileUtils {
      */
     public ApplicationJson reconstructApplicationFromGitRepo(String organisationId,
                                                              String defaultApplicationId,
+                                                             String repoName,
                                                              String branchName) throws GitAPIException, IOException {
 
         ApplicationJson applicationJson = new ApplicationJson();
 
         ApplicationGitReference applicationReference =
-            fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, branchName);
+            fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName);
 
         // Extract application data from the json
         applicationJson.setExportedApplication((Application) applicationReference.getApplication());

@@ -639,10 +639,12 @@ public class GitServiceImpl implements GitService {
                 })
                 .flatMap( applicationTuple-> {
                     try {
-                        Path repoPath = applicationTuple.getT1();
                         Application application = applicationTuple.getT2();
                         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                         GitAuth gitAuth = applicationTuple.getT3();
+                        Path repoPath = Paths.get(application.getOrganizationId(),
+                                defaultApplicationId,
+                                application.getGitApplicationMetadata().getRepoName());
 
                         //2. git pull origin branchName
                         gitExecutor.pullApplication(
@@ -656,6 +658,7 @@ public class GitServiceImpl implements GitService {
                         ApplicationJson applicationJson = fileUtils.reconstructApplicationFromGitRepo(
                                 application.getOrganizationId(),
                                 defaultApplicationId,
+                                application.getGitApplicationMetadata().getRepoName(),
                                 branchName);
 
                         //4. Get the latest application mono with all the changes

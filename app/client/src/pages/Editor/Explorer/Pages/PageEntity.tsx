@@ -8,7 +8,7 @@ import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
-import { hiddenPageIcon, homePageIcon, pageIcon } from "../ExplorerIcons";
+import { hiddenPageIcon, pageIcon, defaultPageIcon } from "../ExplorerIcons";
 import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
@@ -64,7 +64,7 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
     />
   );
 
-  const icon = props.page.isDefault ? homePageIcon : pageIcon;
+  const icon = props.page.isDefault ? defaultPageIcon : pageIcon;
   const rightIcon = !!props.page.isHidden ? hiddenPageIcon : null;
 
   const addWidgetsFn = useCallback(

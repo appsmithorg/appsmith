@@ -14,21 +14,21 @@ import EditName from "./EditName";
 import { useSelector } from "react-redux";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
 
 // render over popover portals
 const Container = styled.div`
   padding: 12px;
   padding-top: 6px;
   width: 280px;
-  background-color: ${(props) => props.theme.colors.propertyPane.bg};
+  background-color: ${Colors.GREY_1};
 
   h4 {
     margin: 0;
     margin-top: 8px;
     margin-bottom: 10px;
     font-weight: normal;
-    font-size: 12px;
-    text-transform: uppercase;
+    font-size: 16px;
   }
 
   main {
@@ -39,8 +39,6 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: center;
-  border-bottom: 1px solid ${(props) => props.theme.borders[2].color};
-  padding-bottom: 8px;
 `;
 
 const MenuItem = styled.div`
@@ -50,21 +48,26 @@ const MenuItem = styled.div`
 
   & > div {
     flex-grow: 1;
-    font-size: 12px;
+    font-size: 14px;
   }
 `;
 
 const MenuItemToggle = styled(Toggle)`
   flex-basis: 48px;
   height: 23px;
+  transform: scale(0.85);
+
+  input:checked + .slider {
+    background-color: ${Colors.GREY_10};
+  }
 `;
 
 const Actions = styled.div`
   display: flex;
   align-items: center;
 
-  & > div {
-    margin-left: 4px;
+  & > button {
+    margin-left: 0px;
   }
 `;
 
@@ -120,7 +123,7 @@ function ContextMenu(props: Props) {
             <Actions>
               <Action>
                 <CopyIcon
-                  color={get(theme, "colors.propertyPane.iconColor")}
+                  color={Colors.GREY_9}
                   height={16}
                   onClick={() => onCopy(page.pageId)}
                   width={16}
@@ -131,7 +134,7 @@ function ContextMenu(props: Props) {
                   color={
                     page.isDefault
                       ? get(theme, "colors.propertyPane.deleteIconColor")
-                      : get(theme, "colors.propertyPane.iconColor")
+                      : Colors.GREY_9
                   }
                   disabled={page.isDefault}
                   height={16}
@@ -144,7 +147,7 @@ function ContextMenu(props: Props) {
                   color={
                     page.isDefault
                       ? get(theme, "colors.propertyPane.deleteIconColor")
-                      : get(theme, "colors.propertyPane.iconColor")
+                      : Colors.GREY_9
                   }
                   height={16}
                   onClick={() => setIsOpen(false)}
@@ -183,7 +186,7 @@ function ContextMenu(props: Props) {
     >
       <Action className={isOpen ? "active" : ""} type="button">
         <SettingsIcon
-          color={get(theme, "colors.propertyPane.iconColor")}
+          color={Colors.GREY_8}
           height={16}
           onClick={noop}
           width={16}

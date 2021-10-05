@@ -493,4 +493,10 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value ="api_user")
+    public void saveGitProfile_ApplicationSpecificGitConfig_Error() {
+
+    }
+
 }

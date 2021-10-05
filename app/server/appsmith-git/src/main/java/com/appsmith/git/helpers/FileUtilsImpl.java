@@ -59,7 +59,7 @@ public class FileUtilsImpl implements FileInterface {
 
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
-    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*).(md|git|gitignore|LICENSE)$");
+    private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*|LICENSE).(md|git|gitignore|)$");
 
 
     /**
@@ -206,6 +206,7 @@ public class FileUtilsImpl implements FileInterface {
      */
     public ApplicationGitReference reconstructApplicationFromGitRepo(String organisationId,
                                                                      String defaultApplicationId,
+                                                                     String repoName,
                                                                      String branchName) throws GitAPIException, IOException {
 
         // For implementing a branching model we are using worktree structure so each branch will have the separate
@@ -213,7 +214,7 @@ public class FileUtilsImpl implements FileInterface {
         // time
         // API reference for worktree : https://git-scm.com/docs/git-worktree
 
-        Path baseRepoSuffix = Paths.get(organisationId, defaultApplicationId);
+        Path baseRepoSuffix = Paths.get(organisationId, defaultApplicationId, repoName);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
 
