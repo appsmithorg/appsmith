@@ -100,7 +100,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.get(`.t--entity.action:contains(Query1)`)
       .scrollIntoView({ force: true })
       .find(explorer.collapse)
-      .click();
+      .click({ force: true });
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
