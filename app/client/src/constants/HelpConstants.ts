@@ -1,4 +1,8 @@
 export const HelpMap: Record<string, { path: string; searchKey: string }> = {
+  AUDIO_WIDGET: {
+    path: "/widget-reference/audio",
+    searchKey: "Audio",
+  },
   CONTAINER_WIDGET: {
     path: "/widget-reference/container",
     searchKey: "Container",

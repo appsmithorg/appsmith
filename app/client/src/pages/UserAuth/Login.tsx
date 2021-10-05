@@ -140,7 +140,7 @@ export function Login(props: LoginFormProps) {
                   },
                 ]
           }
-          intent="warning"
+          intent="danger"
           message={
             !!errorMsg
               ? errorMsg

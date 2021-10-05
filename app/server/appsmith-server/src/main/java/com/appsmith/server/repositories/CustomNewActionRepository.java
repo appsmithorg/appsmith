@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface CustomNewActionRepository extends AppsmithRepository<NewAction> {
+    Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
+
     Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);

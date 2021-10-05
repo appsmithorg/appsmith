@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import org.springframework.http.codec.multipart.Part;
@@ -36,4 +37,6 @@ public interface UserDataService {
     Mono<UserData> updateLastUsedOrgList(String currentOrgId);
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
+
+    Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState);
 }

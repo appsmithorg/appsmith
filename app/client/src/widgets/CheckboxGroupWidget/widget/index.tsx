@@ -57,7 +57,7 @@ function defaultSelectedValuesValidation(
   return {
     isValid: false,
     parsed: values,
-    message: messages.join(" "),
+    messages,
   };
 }
 
