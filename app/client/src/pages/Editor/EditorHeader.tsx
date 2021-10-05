@@ -114,7 +114,6 @@ const AppsmithLink = styled((props) => {
   // eslint-disable @typescript-eslint/no-unused-vars
   return <Link {...props} />;
 })`
-  margin-right: ${(props) => props.theme.spaces[4]}px;
   height: 20px;
   width: 20px;
   img {
@@ -293,20 +292,11 @@ export function EditorHeader(props: EditorHeaderProps) {
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper>
-        <HeaderSection>
-          <div
-            className={classNames({
-              "text-white pl-3 transform transition-all duration-400": true,
-              "ml-0": !pinned,
-              "-ml-8": pinned,
-            })}
-          >
-            <MenuIcon className="w-4 h-4 fill-current" />
-          </div>
+        <HeaderSection className="space-x-2">
           <AppsmithLink to={APPLICATIONS_URL}>
             <img
               alt="Appsmith logo"
-              className="ml-4 t--appsmith-logo"
+              className="t--appsmith-logo"
               src={AppsmithLogo}
             />
           </AppsmithLink>

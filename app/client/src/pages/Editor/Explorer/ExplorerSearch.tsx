@@ -27,7 +27,7 @@ export const ExplorerSearch = forwardRef(
     }, []);
 
     return (
-      <div className="sticky top-0">
+      <div className="sticky top-0 bg-gray-50">
         <div
           className={classNames({
             "flex px-3 items-center space-x-2": true,

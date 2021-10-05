@@ -90,23 +90,9 @@ function WidgetSidebar(props: IPanelProps) {
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
   }, 300);
-  useEffect(() => {
-    const el: HTMLInputElement | null = searchInputRef.current;
-
-    el?.addEventListener("keydown", search);
-    el?.addEventListener("cleared", search);
-    return () => {
-      el?.removeEventListener("keydown", search);
-      el?.removeEventListener("cleared", search);
-    };
-  }, [searchInputRef, search]);
 
   const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
   const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
-  const closeWidgetPanel = () => {
-    dispatch(forceOpenWidgetPanel(false));
-    props.closePanel();
-  };
 
   /**
    * toggles the pinned state of sidebar
@@ -121,6 +107,7 @@ function WidgetSidebar(props: IPanelProps) {
         <ExplorerSearch
           autoFocus
           clear={clearSearchInput}
+          onChange={search}
           placeholder="Search widgets..."
           ref={searchInputRef}
         />
