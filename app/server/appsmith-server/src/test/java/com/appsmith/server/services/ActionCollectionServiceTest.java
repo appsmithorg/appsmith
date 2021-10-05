@@ -1,12 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -322,6 +322,80 @@ public class ActionCollectionServiceTest {
                 .assertNext(action -> {
                     Assert.assertEquals(
                             "testCollection1.newTestAction1()",
+                            action.getUnpublishedAction().getActionConfiguration().getBody()
+                    );
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * For a given collection testCollection2, that refers to another action testCollection1.testAction1,
+     * When testAction1 is renamed to newTestAction1,
+     * Then the reference in testCollection2 should also get updated
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRefactorActionName_withActionNameEqualsRun_doesNotRefactorApiRunCalls() {
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setPageId(testPage.getId());
+        actionCollectionDTO1.setApplicationId(testApp.getId());
+        actionCollectionDTO1.setOrganizationId(orgId);
+        actionCollectionDTO1.setPluginId(datasource.getPluginId());
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("run");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
+
+        ActionCollectionDTO actionCollectionDTO2 = new ActionCollectionDTO();
+        actionCollectionDTO2.setName("testCollection2");
+        actionCollectionDTO2.setPageId(testPage.getId());
+        actionCollectionDTO2.setApplicationId(testApp.getId());
+        actionCollectionDTO2.setOrganizationId(orgId);
+        actionCollectionDTO2.setPluginId(datasource.getPluginId());
+        ActionDTO action2 = new ActionDTO();
+        action2.setActionConfiguration(new ActionConfiguration());
+        action2.setName("testAction2");
+        action2.getActionConfiguration().setBody("Api1.run()");
+        actionCollectionDTO2.setActions(List.of(action2));
+        actionCollectionDTO2.setPluginType(PluginType.JS);
+        actionCollectionDTO2.setBody("Api1.run()");
+
+        final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService.createCollection(actionCollectionDTO2).block();
+
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        assert createdActionCollectionDTO1 != null;
+        refactorActionNameDTO.setActionId(createdActionCollectionDTO1.getActions().stream().findFirst().get().getId());
+        refactorActionNameDTO.setPageId(testPage.getId());
+        refactorActionNameDTO.setLayoutId(testPage.getLayouts().get(0).getId());
+        refactorActionNameDTO.setCollectionName("testCollection1");
+        refactorActionNameDTO.setOldName("run");
+        refactorActionNameDTO.setNewName("newRun");
+
+        final LayoutDTO layoutDTO = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+
+        assert createdActionCollectionDTO2 != null;
+        final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO2.getId());
+
+        StepVerifier.create(actionCollectionMono)
+                .assertNext(actionCollection -> {
+                    Assert.assertEquals(
+                            "Api1.run()",
+                            actionCollection.getUnpublishedCollection().getBody()
+                    );
+                })
+                .verifyComplete();
+
+        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream().findFirst().get().getId());
+
+        StepVerifier.create(actionMono)
+                .assertNext(action -> {
+                    Assert.assertEquals(
+                            "Api1.run()",
                             action.getUnpublishedAction().getActionConfiguration().getBody()
                     );
                 })

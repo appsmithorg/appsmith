@@ -148,5 +148,7 @@
     "tbIndex0": "[class=td][data-colindex='0'][data-rowindex='0']",
     "filterApplyBtn":".t--apply-filter-btn",
     "filterCloseBtn":".t--close-filter-btn",
-    "header":"#header-root"
+    "header":"#header-root",
+    "explorerSwitchId": "#switcher--explorer",
+    "widgetSwitchId":"#switcher--widgets"
 }

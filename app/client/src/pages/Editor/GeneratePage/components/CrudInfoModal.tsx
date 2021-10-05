@@ -110,12 +110,16 @@ const STEP = {
   SHOW_INFO: "show_info",
 };
 
+const DELAY_TIME = 6000;
+
 function InfoContent({
   onClose,
+  successImageUrl,
   successMessage,
 }: {
   onClose: () => void;
   successMessage: string;
+  successImageUrl: string;
 }) {
   return (
     <>
@@ -128,7 +132,7 @@ function InfoContent({
           type={TextType.P1}
         />
         <ImageWrapper>
-          <InfoImage alt="CRUD Info" src={getInfoImage()} />
+          <InfoImage alt="CRUD Info" src={successImageUrl} />
         </ImageWrapper>
       </Content>
 
@@ -161,10 +165,14 @@ function GenCRUDSuccessModal(props: Props) {
     (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successMessage) ||
     createMessage(GEN_CRUD_INFO_DIALOG_SUBTITLE);
 
+  const successImageUrl =
+    (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successImageUrl) ||
+    getInfoImage();
+
   useEffect(() => {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
-    }, 2000);
+    }, DELAY_TIME);
     return () => {
       if (timerId) clearTimeout(timerId);
     };
@@ -189,7 +197,11 @@ function GenCRUDSuccessModal(props: Props) {
           </SuccessContentWrapper>
         ) : null}
         {step === STEP.SHOW_INFO ? (
-          <InfoContent onClose={onClose} successMessage={successMessage} />
+          <InfoContent
+            onClose={onClose}
+            successImageUrl={successImageUrl}
+            successMessage={successMessage}
+          />
         ) : null}
       </Wrapper>
     </Dialog>
