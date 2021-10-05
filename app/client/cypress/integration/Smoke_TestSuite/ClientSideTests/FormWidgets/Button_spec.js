@@ -5,7 +5,6 @@ const pages = require("../../../../locators/Pages.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Button Widget Functionality", function() {
   before(() => {
