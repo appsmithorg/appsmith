@@ -28,6 +28,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
+import { debug } from "loglevel";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -65,6 +66,10 @@ const QuickActionButtonContainer = styled.div`
   }
 `;
 
+const capitalizeFirstLetter = (string = " ") => {
+  return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
+};
+
 function QuickActionButton({
   count = 0,
   icon,
@@ -72,7 +77,7 @@ function QuickActionButton({
   tooltipText,
 }: QuickActionButtonProps) {
   return (
-    <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+    <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
       <QuickActionButtonContainer onClick={onClick}>
         {icon}
         {count > 0 && (
