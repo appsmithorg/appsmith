@@ -35,9 +35,10 @@ export const collabStartSharingPointerEvent = (pageId: string) =>
     payload: pageId,
   });
 
-export const collabStopSharingPointerEvent = () =>
+export const collabStopSharingPointerEvent = (pageId?: string) =>
   pageLevelWebsocketWriteEvent({
     type: PAGE_LEVEL_SOCKET_EVENTS.STOP_EDITING_APP,
+    payload: pageId,
   });
 
 export const collabShareUserPointerEvent = (payload: any) =>
