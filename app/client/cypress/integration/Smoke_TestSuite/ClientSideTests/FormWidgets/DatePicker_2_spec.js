@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/datePicker2dsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("DatePicker Widget Property pane tests with js bindings", function() {
   before(() => {
