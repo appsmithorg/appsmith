@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
-import { FieldType, FIELD_MAP, Schema, SchemaObject } from "../constants";
+import { FieldType, FIELD_MAP, SchemaObject } from "../constants";
 
 type ObjectFieldProps = {
   name?: string;
-  schema: Schema;
+  schemaObject: SchemaObject;
 };
 
 const WRAPPER_PADDING_Y = 10;
@@ -30,15 +30,15 @@ const fieldRenderer = (fieldName: string, schemaObject: SchemaObject) => {
   switch (fieldType) {
     case FieldType.OBJECT:
     case FieldType.ARRAY:
-      return <FieldComponent {...fieldProps} schema={children} />;
+      return <FieldComponent {...fieldProps} schemaObject={schemaObject} />;
     default:
       return <FieldComponent {...fieldProps} />;
       break;
   }
 };
 
-function ObjectField({ name, schema }: ObjectFieldProps) {
-  const entries = Object.entries(schema);
+function ObjectField({ name, schemaObject }: ObjectFieldProps) {
+  const entries = Object.entries(schemaObject.children);
 
   const renderFields = () => {
     return entries.map(([key, value]) => {

@@ -1,15 +1,20 @@
 import React, { PropsWithChildren } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 
-type FormProps = PropsWithChildren<{
-  onSubmit: (data: Record<string, any>) => void;
+type FormProps<TValues> = PropsWithChildren<{
+  defaultValues: TValues;
+  onSubmit: SubmitHandler<TValues>;
 }>;
 
-function Form(props: FormProps) {
-  const methods = useForm();
+function Form<TValues>({
+  children,
+  defaultValues,
+  onSubmit,
+}: FormProps<TValues>) {
+  const methods = useForm({
+    defaultValues,
+  });
   const { getValues, watch } = methods;
-
-  const { children, onSubmit } = props;
 
   // eslint-disable-next-line
   console.log("FORM VALUES", watch());

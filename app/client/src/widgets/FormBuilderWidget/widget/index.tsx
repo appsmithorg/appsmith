@@ -1,5 +1,5 @@
-import _ from "lodash";
 import React from "react";
+import equal from "fast-deep-equal/es6";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import FormBuilderComponent from "../component";
@@ -107,14 +107,22 @@ class FormBuilderWidget extends BaseWidget<
     const currFormData = this.props?.formData;
 
     // Hot path - early exit
-    if (_.isEqual(prevFormData, currFormData)) {
+    if (equal(prevFormData, currFormData)) {
       return;
     }
+
+    const currSchema = (() => {
+      if (this.props.schema?.__root__) {
+        return this.props.schema.__root__.children;
+      }
+
+      return;
+    })();
 
     const rootSchemaObject = Parser.getSchemaObjectFor("", currFormData, {
       currFormData,
       prevFormData,
-      currSchema: this.props.schema,
+      currSchema,
     });
 
     // eslint-disable-next-line
@@ -132,6 +140,7 @@ class FormBuilderWidget extends BaseWidget<
     return (
       <FormBuilderComponent
         backgroundColor={this.props.backgroundColor}
+        inputData={this.props?.formData}
         schema={this.props.schema}
       />
     );

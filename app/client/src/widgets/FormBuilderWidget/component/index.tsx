@@ -10,8 +10,9 @@ type StyledContainerProps = {
 };
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type FormBuilderComponentProps = {
+export type FormBuilderComponentProps<TValues> = {
   backgroundColor?: string;
+  inputData: TValues;
   schema: Schema;
 };
 
@@ -19,21 +20,22 @@ const StyledContainer = styled.div<StyledContainerProps>`
   background: ${({ backgroundColor }) => backgroundColor};
 `;
 
-function FormBuilderComponent({
+function FormBuilderComponent<TValues>({
   backgroundColor,
+  inputData,
   schema,
-}: FormBuilderComponentProps) {
+}: FormBuilderComponentProps<TValues>) {
   if (isEmpty(schema)) return null;
 
-  const rootSchema = schema.__root__;
+  const rootSchemaObject = schema.__root__;
 
-  const RootField = FIELD_MAP[rootSchema.fieldType]?.fieldComponent;
+  const RootField = FIELD_MAP[rootSchemaObject.fieldType]?.fieldComponent;
 
   return (
     <StyledContainer backgroundColor={backgroundColor}>
       {/* eslint-disable-next-line */}
-      <Form onSubmit={console.log}>
-        <RootField schema={rootSchema.children} />
+      <Form defaultValues={inputData} onSubmit={console.log}>
+        <RootField schemaObject={rootSchemaObject} />
       </Form>
     </StyledContainer>
   );

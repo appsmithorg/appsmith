@@ -2,6 +2,7 @@ import { omit } from "lodash";
 
 import ArrayField from "./fields/ArrayField";
 import InputField from "./fields/InputField";
+import MultiSelectField from "./fields/MultiSelectField";
 import ObjectField from "./fields/ObjectField";
 import { CONFIG as INPUT_WIDGET_CONFIG } from "widgets/InputWidget";
 import { CONFIG as SWITCH_WIDGET_CONFIG } from "widgets/SwitchWidget";
@@ -42,12 +43,13 @@ export enum DataType {
 }
 
 export type SchemaObject = {
+  children: Schema;
   config: SchemaObjectConfig;
   dataType: DataType;
-  name: string;
-  title: string;
   fieldType: FieldType;
-  children: Schema;
+  name: string;
+  subDataType?: DataType;
+  title: string;
 };
 
 export type Schema = Record<string, SchemaObject>;
@@ -101,7 +103,7 @@ export const FIELD_MAP: Record<FieldType, ComponentMapObj> = {
     defaultProps: {},
   },
   [FieldType.MULTI_SELECT]: {
-    fieldComponent: InputField,
+    fieldComponent: MultiSelectField,
     defaultProps: {},
   },
   [FieldType.SELECT]: {
