@@ -13,11 +13,15 @@ import {
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
-import { Icon, IPanelProps } from "@blueprintjs/core";
+import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
 import { PropertyControlsWrapper, PropertyPaneBodyWrapper } from ".";
+import { ControlIcons } from "icons/ControlIcons";
+
+const QuestionIcon = ControlIcons.QUESTION;
+const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -36,15 +40,14 @@ function PanelHeader(props: PanelHeaderProps) {
                 <span> to a widget property</span>
               </div>
             ),
-            icon: <Icon icon="help" iconSize={16} />,
+            icon: <QuestionIcon height={16} width={16} />,
           },
           {
             tooltipContent: "Close",
             icon: (
-              <Icon
+              <CloseIcon
                 className={"t--property-pane-close-btn"}
-                icon="cross"
-                iconSize={16}
+                height={16}
                 onClick={(e: any) => {
                   props.hidePropertyPane();
                   e.preventDefault();

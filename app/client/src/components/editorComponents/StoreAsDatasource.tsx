@@ -14,7 +14,7 @@ export const DatasourceIcon = styled.div<{ enable?: boolean }>`
   height: 100%;
   min-height: 37px;
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.text.heading};
+    color: ${(props) => props.theme.colors.apiPane.settings.textColor};
   }
   .${Classes.ICON} {
     margin-right: 5px;
