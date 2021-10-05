@@ -486,6 +486,10 @@ public class GitServiceImpl implements GitService {
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata){
 
+        if(Optional.ofNullable(gitApplicationMetadata).isEmpty() || gitApplicationMetadata == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Git metadata values cannot be null"));
+        }
+
         // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
         // @Encrypted annotation used for private SSH keys
         return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
