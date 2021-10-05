@@ -236,7 +236,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                                   },
                                   {
                                     name: "value",
-                                    type: ValidationTypes.NUMBER,
+                                    type: ValidationTypes.TEXT,
                                   },
                                 ],
                               },
@@ -362,7 +362,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <MapChartComponent
           caption={mapTitle}
-          customConfig={customFusionMapConfig}
+          customConfigs={customFusionMapConfig}
           data={data}
           height={(bottomRow - topRow) * parentRowSpace}
           isVisible={isVisible}

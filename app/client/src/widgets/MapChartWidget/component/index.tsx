@@ -8,13 +8,13 @@ import FusionCharts, { ChartObject } from "fusioncharts";
 // Import FusionMaps
 import FusionMaps from "fusioncharts/fusioncharts.maps";
 import World from "fusioncharts/maps/fusioncharts.world";
-import WorldWithAntarctica from "fusionmaps/maps/fusioncharts.worldwithantarctica";
-import Europe from "fusionmaps/maps/fusioncharts.europe";
-import NorthAmerica from "fusionmaps/maps/fusioncharts.northamerica";
-import SouthAmerica from "fusionmaps/maps/fusioncharts.southamerica";
-import Asia from "fusionmaps/maps/fusioncharts.asia";
-import Oceania from "fusionmaps/maps/fusioncharts.oceania";
-import Africa from "fusionmaps/maps/fusioncharts.africa";
+// import WorldWithAntarctica from "fusionmaps/maps/fusioncharts.worldwithantarctica";
+// import Europe from "fusionmaps/maps/fusioncharts.europe";
+// import NorthAmerica from "fusionmaps/maps/fusioncharts.northamerica";
+// import SouthAmerica from "fusionmaps/maps/fusioncharts.southamerica";
+// import Asia from "fusionmaps/maps/fusioncharts.asia";
+// import Oceania from "fusionmaps/maps/fusioncharts.oceania";
+// import Africa from "fusionmaps/maps/fusioncharts.africa";
 
 // Include the theme as fusion
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
@@ -26,13 +26,13 @@ import { colorRange, dataSetForWorld, MapTypes } from "../constants";
 
 // Adding the chart and theme as dependency to the core fusioncharts
 ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
-ReactFC.fcRoot(FusionCharts, FusionMaps, WorldWithAntarctica, FusionTheme);
-ReactFC.fcRoot(FusionCharts, FusionMaps, Europe, FusionTheme);
-ReactFC.fcRoot(FusionCharts, FusionMaps, NorthAmerica, FusionTheme);
-ReactFC.fcRoot(FusionCharts, FusionMaps, SouthAmerica, FusionTheme);
-ReactFC.fcRoot(FusionCharts, FusionMaps, Asia, FusionTheme);
-ReactFC.fcRoot(FusionCharts, FusionMaps, Oceania, FusionTheme);
-ReactFC.fcRoot(FusionCharts, FusionMaps, Africa, FusionTheme);
+// ReactFC.fcRoot(FusionCharts, FusionMaps, WorldWithAntarctica, FusionTheme);
+// ReactFC.fcRoot(FusionCharts, FusionMaps, Europe, FusionTheme);
+// ReactFC.fcRoot(FusionCharts, FusionMaps, NorthAmerica, FusionTheme);
+// ReactFC.fcRoot(FusionCharts, FusionMaps, SouthAmerica, FusionTheme);
+// ReactFC.fcRoot(FusionCharts, FusionMaps, Asia, FusionTheme);
+// ReactFC.fcRoot(FusionCharts, FusionMaps, Oceania, FusionTheme);
+// ReactFC.fcRoot(FusionCharts, FusionMaps, Africa, FusionTheme);
 
 // Creating the JSON object to store the chart configurations
 const defaultChartConfigs: ChartObject = {
@@ -96,7 +96,7 @@ export interface EntityData {
 function MapChartComponent(props: MapChartComponentProps) {
   const {
     caption,
-    customConfig,
+    customConfigs,
     data,
     height,
     onEntityClick,
@@ -119,8 +119,17 @@ function MapChartComponent(props: MapChartComponentProps) {
   }, []);
 
   useEffect(() => {
+    if (type === MapTypes.CUSTOM) {
+      initializeMap(customConfigs);
+      return;
+    }
+
     const newChartConfigs = {
       ...chartConfigs,
+      dataSource: {
+        ...(chartConfigs.dataSource || {}),
+        data,
+      },
     };
 
     switch (type) {
@@ -151,13 +160,12 @@ function MapChartComponent(props: MapChartComponentProps) {
         break;
     }
 
-    setChartConfigs({
-      ...newChartConfigs,
-      dataSource: {
-        ...(newChartConfigs.dataSource || {}),
-        data,
-      },
-    });
+    if (type === MapTypes.WORLD) {
+      setChartConfigs(newChartConfigs);
+      return;
+    }
+
+    initializeMap(newChartConfigs);
   }, [data, type]);
 
   useEffect(() => {
@@ -191,9 +199,10 @@ function MapChartComponent(props: MapChartComponentProps) {
   }, [showLabels]);
 
   useEffect(() => {
-    // handleCustomConfigChange();
-    console.error(customConfig);
-  }, [customConfig]);
+    if (type === MapTypes.CUSTOM) {
+      initializeMap(customConfigs);
+    }
+  }, [customConfigs]);
 
   // Called by FC-React component to return the rendered chart
   const renderComplete = (chart: FusionCharts.FusionCharts) => {
@@ -204,16 +213,38 @@ function MapChartComponent(props: MapChartComponentProps) {
     onEntityClick(eventObj.data);
   };
 
-  const handleCustomConfigChange = async () => {
-    const { type } = customConfig;
+  const normalizeCustomConfigs = () => {
+    const newChartConfigs: any = JSON.parse(JSON.stringify(customConfigs));
 
-    if (type) {
-      const mapDefinition = await import(
-        `fusionmaps/maps/fusioncharts.${type.substr(5)}`
-      );
-      // Adding the chart and theme as dependency to the core fusioncharts
-      ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
-      setChartConfigs(customConfig);
+    newChartConfigs["dataSource"]["chart"]["caption"] = caption;
+    const targetValue = showLabels ? "1" : "0";
+    newChartConfigs["dataSource"]["chart"]["showLabels"] = targetValue;
+    return { ...newChartConfigs };
+  };
+
+  const initializeMap = (configs: ChartObject) => {
+    const { type: mapType } = configs;
+    let newChartConfigs = configs;
+    if (mapType) {
+      const alias = mapType.substr(5);
+      if (type === MapTypes.CUSTOM) {
+        newChartConfigs = normalizeCustomConfigs();
+      }
+      // Dynamically import the map definition file
+      import(
+        /* webpackChunkName: "[request]" */
+        `fusionmaps/maps/fusioncharts.${alias}.js`
+      )
+        .then(({ default: mapDefinition }) => {
+          // Adding the chart and theme as dependency to the core fusioncharts
+          ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
+
+          setChartConfigs(newChartConfigs);
+        })
+        .catch((err) => {
+          console.error(err);
+          return;
+        });
     }
   };
 
@@ -226,7 +257,7 @@ function MapChartComponent(props: MapChartComponentProps) {
 
 export interface MapChartComponentProps {
   caption: string;
-  customConfig: ChartObject;
+  customConfigs: ChartObject;
   data: MapData[];
   height: number;
   isVisible: boolean;
