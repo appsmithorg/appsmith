@@ -1747,7 +1747,7 @@ Cypress.Commands.add("DeleteAppByApi", () => {
     const match = myRegexp.exec(currentURL);
     appId = match ? match[1].split("/")[1] : null;
 
-    if (appId != null) {
+    if (appId !== null) {
       cy.log(appId + "appId");
       cy.request("DELETE", "api/v1/applications/" + appId);
     }
