@@ -1,9 +1,13 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.ParsedDataType;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -15,6 +19,9 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.apache.commons.validator.routines.DateValidator;
+import org.bson.BsonInvalidOperationException;
+import org.bson.Document;
+import org.bson.json.JsonParseException;
 import reactor.core.Exceptions;
 
 import java.io.IOException;
@@ -23,9 +30,14 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
+import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
 
 @Slf4j
 public class DataTypeStringUtils {
@@ -33,6 +45,8 @@ public class DataTypeStringUtils {
     private static String regexForQuestionMark = "\\?";
 
     private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
+
+    private static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -141,6 +155,13 @@ public class DataTypeStringUtils {
             // Not a strict JSON object
         }
 
+        try {
+            Document.parse(input);
+            return DataType.BSON;
+        } catch (JsonParseException | BsonInvalidOperationException e) {
+            // Not BSON
+        }
+
         /**
          * TODO : ASCII, Binary and Bytes Array
          */
@@ -165,9 +186,9 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
-    public static String jsonSmartReplacementQuestionWithValue(String input,
-                                                               String replacement,
-                                                               List<Map.Entry<String, String>> insertedParams) {
+    public static String jsonSmartReplacementPlaceholderWithValue(String input,
+                                                                  String replacement,
+                                                                  List<Map.Entry<String, String>> insertedParams) {
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
 
@@ -181,12 +202,12 @@ public class DataTypeStringUtils {
             case DOUBLE:
             case NULL:
             case BOOLEAN:
-                input = questionPattern.matcher(input).replaceFirst(String.valueOf(replacement));
+                input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(replacement));
                 break;
             case ARRAY:
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
-                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
+                    input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -200,7 +221,9 @@ public class DataTypeStringUtils {
             case JSON_OBJECT:
                 try {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
-                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonObject)));
+                    String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
+                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
+                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -211,6 +234,9 @@ public class DataTypeStringUtils {
                     );
                 }
                 break;
+            case BSON:
+                input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
+                break;
             case DATE:
             case TIME:
             case ASCII:
@@ -219,7 +245,9 @@ public class DataTypeStringUtils {
             case STRING:
             default:
                 try {
-                    input = questionPattern.matcher(input).replaceFirst(objectMapper.writeValueAsString(replacement));
+                    replacement = escapeSpecialCharacters(replacement);
+                    String valueAsString = objectMapper.writeValueAsString(replacement);
+                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(valueAsString));
                 } catch (JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -234,6 +262,19 @@ public class DataTypeStringUtils {
         return input;
     }
 
+    private static String escapeSpecialCharacters(String raw) {
+        String escaped = raw;
+        escaped = escaped.replace("\\", "\\\\");
+        escaped = escaped.replace("\"", "\\\"");
+        escaped = escaped.replace("\b", "\\b");
+        escaped = escaped.replace("\f", "\\f");
+        escaped = escaped.replace("\n", "\\n");
+        escaped = escaped.replace("\r", "\\r");
+        escaped = escaped.replace("\t", "\\t");
+        // TODO: escape other non-printing characters using uXXXX notation
+        return escaped;
+    }
+
     private static boolean isBinary(String input) {
         for (int i = 0; i < input.length(); i++) {
             int tempB = input.charAt(i);
@@ -246,4 +287,79 @@ public class DataTypeStringUtils {
         return true;
     }
 
+    private static boolean isDisplayTypeTable(Object data) {
+        if (data instanceof List) {
+            // Check if the data is a list of simple json objects i.e. all values in the key value pairs are simple
+            // objects or their wrappers.
+            return ((List)data).stream()
+                    .allMatch(item -> item instanceof Map
+                            && ((Map)item).entrySet().stream()
+                            .allMatch(e -> ((Map.Entry)e).getValue() == null ||
+                            isPrimitiveOrWrapper(((Map.Entry)e).getValue().getClass())));
+        }
+        else if (data instanceof JsonNode) {
+            // Check if the data is an array of simple json objects
+            try {
+                objectMapper.convertValue(data, new TypeReference<List<Map<String, String>>>() {});
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+        else if (data instanceof String) {
+            // Check if the data is an array of simple json objects
+            try {
+                objectMapper.readValue((String)data, new TypeReference<List<Map<String, String>>>() {});
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+    
+    private static boolean isDisplayTypeJson(Object data) {
+        /*
+         * - Any non string non primitive object is converted into a json when serializing.
+         * - https://stackoverflow.com/questions/25039080/java-how-to-determine-if-type-is-any-of-primitive-wrapper-string-or-something/25039320
+         */
+        if (!isPrimitiveOrWrapper(data.getClass()) && !(data instanceof String)) {
+            return true;
+        }
+        else if (data instanceof String) {
+            try {
+                objectMapper.readTree((String)data);
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    public static List<ParsedDataType> getDisplayDataTypes(Object data) {
+
+        if (data == null) {
+            return new ArrayList<>();
+        }
+
+        List<ParsedDataType> dataTypes = new ArrayList<>();
+
+        // Check if the data is a valid table.
+        if (isDisplayTypeTable(data)) {
+            dataTypes.add(new ParsedDataType(DisplayDataType.TABLE));
+        }
+
+        // Check if the data is a valid json.
+        if (isDisplayTypeJson(data)) {
+            dataTypes.add(new ParsedDataType(DisplayDataType.JSON));
+        }
+
+        // All data types can be categorized as raw by default.
+        dataTypes.add(new ParsedDataType(DisplayDataType.RAW));
+
+        return dataTypes;
+    }
 }

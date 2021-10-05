@@ -18,14 +18,14 @@ class MultiSelectControl extends BaseControl<MultiSelectControlProps> {
 
     return (
       <StyledMultiSelectDropDown
-        options={this.props.options}
-        selected={selectedItems}
         onSelect={this.onItemSelect}
-        width="100%"
-        showLabelOnly={true}
         optionWidth="187px"
-        selectAll={true}
+        options={this.props.options}
+        selectAll
         selectAllQuantifier="*"
+        selected={selectedItems}
+        showLabelOnly
+        width="100%"
       />
     );
   }

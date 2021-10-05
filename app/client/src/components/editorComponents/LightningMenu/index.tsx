@@ -68,9 +68,9 @@ type LightningMenuProps = {
   theme: Theme;
 };
 
-export const LightningMenu = (props: LightningMenuProps) => {
+export function LightningMenu(props: LightningMenuProps) {
   const widgets = useWidgets();
-  const { apis, queries } = useActions();
+  const { apis, queries, saas } = useActions();
   const pageId = usePageId();
   const dispatch = useDispatch();
 
@@ -78,23 +78,23 @@ export const LightningMenu = (props: LightningMenuProps) => {
     <CustomizedDropdown
       {...lightningMenuOptions(
         props.skin,
-        apis,
+        [...apis, ...saas],
         queries,
         widgets,
         pageId,
         dispatch,
         props.updateDynamicInputValue,
         <LightningMenuTrigger
-          skin={props.skin}
-          theme={props.theme}
           isFocused={props.isFocused}
           isOpened={props.isOpened}
           onOpenLightningMenu={props.onOpenLightningMenu}
+          skin={props.skin}
+          theme={props.theme}
         />,
         props.onCloseLightningMenu,
       )}
     />
   );
-};
+}
 
 export default withTheme(LightningMenu);

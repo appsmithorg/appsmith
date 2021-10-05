@@ -1,16 +1,22 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,63 +27,105 @@ public class AnalyticsService {
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
+    private final CommonConfig commonConfig;
+    private final ConfigService configService;
+    private final PolicyUtils policyUtils;
 
     @Autowired
-    public AnalyticsService(@Autowired(required = false) Analytics analytics, SessionUserService sessionUserService) {
+    public AnalyticsService(@Autowired(required = false) Analytics analytics,
+                            SessionUserService sessionUserService,
+                            CommonConfig commonConfig,
+                            ConfigService configService,
+                            PolicyUtils policyUtils) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
+        this.commonConfig = commonConfig;
+        this.configService = configService;
+        this.policyUtils = policyUtils;
     }
 
     public boolean isActive() {
         return analytics != null;
     }
 
-    public Mono<User> trackNewUser(User user) {
+    private String hash(String value) {
+        return value == null ? "" : DigestUtils.sha256Hex(value);
+    }
+
+    public Mono<User> trackNewUser(User user, UserData userData) {
         if (!isActive()) {
             return Mono.just(user);
         }
 
         return Mono.just(user)
                 .map(savedUser -> {
-                    Map<String, String> traitsMap = new HashMap<>();
-                    if (savedUser.getName() != null) {
-                        traitsMap.put("name", savedUser.getName());
-                    }
-                    traitsMap.put("email", savedUser.getEmail());
-                    if (savedUser.getSource() != null) {
-                        traitsMap.put("source", savedUser.getSource().toString());
-                    }
+                    final Boolean isSuperUser = policyUtils.isPermissionPresentForUser(
+                            savedUser.getPolicies(),
+                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                            savedUser.getUsername()
+                    );
                     analytics.enqueue(IdentifyMessage.builder()
-                            .userId(savedUser.getUsername())
-                            .traits(traitsMap)
+                            .userId(hash(savedUser.getUsername()))
+                            .traits(Map.of(
+                                    "name", hash(savedUser.getName()),
+                                    "email", hash(savedUser.getEmail()),
+                                    "isSuperUser", isSuperUser != null && isSuperUser,
+                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
+                            ))
                     );
                     analytics.flush();
                     return savedUser;
                 });
     }
 
-    public void sendEvent(String event, String userId) {
-        sendEvent(event, userId, null);
+    public void sendEvent(String event, String userId, Map<String, Object> properties) {
+        sendEvent(event, userId, properties, true);
     }
 
-    public void sendEvent(String event, String userId, Map<String, Object> properties) {
+    public void sendEvent(String event, String userId, Map<String, Object> properties, boolean hashUserId) {
         if (!isActive()) {
             return;
         }
 
-        TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
+        // Can't update the properties directly as it's throwing ImmutableCollection error
+        // java.lang.UnsupportedOperationException: null
+        // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
+        // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
+        Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
-        if (!CollectionUtils.isEmpty(properties)) {
-            // Segment throws an NPE if any value in `properties` is null.
-            for (final Map.Entry<String, Object> entry : properties.entrySet()) {
-                if (entry.getValue() == null) {
-                    properties.put(entry.getKey(), "");
+        // Hash usernames at all places for self-hosted instance
+        if (userId != null
+                && hashUserId
+                && !commonConfig.isCloudHosting()
+                // But send the email intact for the subscribe event, which is sent only if the user has explicitly agreed to it.
+                && !AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name().equals(event)) {
+            final String hashedUserId = hash(userId);
+            analyticsProperties.remove("request");
+            for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+                if (userId.equals(entry.getValue())) {
+                    analyticsProperties.put(entry.getKey(), hashedUserId);
                 }
             }
-            messageBuilder = messageBuilder.properties(properties);
+            userId = hashedUserId;
         }
 
-        analytics.enqueue(messageBuilder);
+        // Segment throws an NPE if any value in `properties` is null.
+        for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+            if (entry.getValue() == null) {
+                analyticsProperties.put(entry.getKey(), "");
+            }
+        }
+
+        final String finalUserId = userId;
+        configService.getInstanceId().map(instanceId -> {
+            TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
+            analyticsProperties.put("originService", "appsmith-server");
+            analyticsProperties.put("instanceId", instanceId);
+            messageBuilder = messageBuilder.properties(analyticsProperties);
+            analytics.enqueue(messageBuilder);
+            return instanceId;
+        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
     }
 
     public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
@@ -104,7 +152,6 @@ public class AnalyticsService {
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
                     analyticsProperties.put("oid", object.getId());
-                    analyticsProperties.put("originService", "appsmith-server");
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                     }
@@ -138,4 +185,11 @@ public class AnalyticsService {
         return sendDeleteEvent(object, null);
     }
 
+    public <T extends BaseDomain> Mono<T> sendArchiveEvent(T object) {
+        return sendArchiveEvent(object, null);
+    }
+
+    private <T extends BaseDomain> Mono<T> sendArchiveEvent(T object, Map<String, Object> extraProperties) {
+        return sendObjectEvent(AnalyticsEvents.ARCHIVE, object, extraProperties);
+    }
 }

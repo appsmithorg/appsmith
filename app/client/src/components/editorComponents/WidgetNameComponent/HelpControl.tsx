@@ -13,7 +13,7 @@ import { WidgetType } from "constants/WidgetConstants";
 
 const HelpIcon = ControlIcons.HELP_CONTROL;
 const helpControlIcon = (
-  <HelpIcon width={14} height={14} background="transparent" />
+  <HelpIcon background="transparent" height={14} width={14} />
 );
 
 const StyledHelpIcon = styled.div`
@@ -38,7 +38,7 @@ const StyledHelpIcon = styled.div`
   }
 `;
 
-export const HelpControl = (props: { type: WidgetType; show: boolean }) => {
+export function HelpControl(props: { type: WidgetType; show: boolean }) {
   const dispatch = useDispatch();
   return props.show ? (
     <StyledHelpIcon
@@ -54,6 +54,6 @@ export const HelpControl = (props: { type: WidgetType; show: boolean }) => {
       </Tooltip>
     </StyledHelpIcon>
   ) : null;
-};
+}
 
 export default HelpControl;

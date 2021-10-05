@@ -13,25 +13,13 @@ describe("Binding the multiple input Widget", function() {
 
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
+    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  it("Binding second input widget with first input widget and validating", function() {
-    cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultMoustacheData);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.reload();
   });
 
   it("validation of data displayed in all widgets based on row selected", function() {
@@ -45,10 +33,10 @@ describe("Binding the multiple input Widget", function() {
         .first()
         .invoke("attr", "value")
         .should("contain", tabValue);
-      cy.get(publish.inputWidget + " " + "input")
-        .last()
-        .invoke("attr", "value")
-        .should("contain", tabValue);
+      //       cy.get(publish.inputWidget + " " + "input")
+      //         .last()
+      //         .invoke("attr", "value")
+      //         .should("contain", tabValue);
     });
   });
 });

@@ -3,18 +3,18 @@ import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import AppsmithLogo from "assets/images/appsmith_logo.png";
-import { createMessage, EDIT_APP, FORK_APP, SIGN_IN } from "constants/messages";
+// import AppsmithLogo from "assets/images/appsmith_logo.png";
+import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
 import { getViewModePageList } from "selectors/editorSelectors";
@@ -28,12 +28,14 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
+import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
+import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
+import { ShareButtonComponent } from "../../Editor/EditorHeader";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -77,6 +79,10 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   & ${Profile} {
     width: 24px;
     height: 24px;
+
+    span {
+      font-size: 12px;
+    }
   }
 
   & .current-app-name {
@@ -102,22 +108,13 @@ const HeaderSection = styled.div<{ justify: string }>`
   justify-content: ${(props) => props.justify};
 `;
 
-const AppsmithLogoImg = styled.img`
-  padding-left: ${(props) => props.theme.spaces[7]}px;
+const AppsmithLogoImg = styled(AppsmithLogo)`
   max-width: 110px;
+  width: 110px;
+  margin-right: 40px;
+  margin-left: 16px;
 `;
 
-const Cta = styled(Button)`
-  ${(props) => getTypographyByKey(props, "btnLarge")}
-  height: 100%;
-`;
-
-const ForkButton = styled(Cta)`
-  svg {
-    transform: rotate(-90deg);
-  }
-  height: ${(props) => `calc(${props.theme.smallHeaderHeight})`};
-`;
 const HeaderRightItemContainer = styled.div`
   display: flex;
   align-items: center;
@@ -132,14 +129,14 @@ const PrimaryLogoLink = styled(Link)`
 
 type AppViewerHeaderProps = {
   url?: string;
-  currentApplicationDetails?: ApplicationPayload;
+  currentApplicationDetails?: CurrentApplicationData;
   pages: PageListPayload;
   currentOrgId: string;
   currentUser?: User;
   lightTheme: Theme;
 };
 
-export const AppViewerHeader = (props: AppViewerHeaderProps) => {
+export function AppViewerHeader(props: AppViewerHeaderProps) {
   const { currentApplicationDetails, currentOrgId, currentUser, pages } = props;
   const userPermissions = currentApplicationDetails?.userPermissions ?? [];
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
@@ -149,55 +146,31 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
 
-  const HtmlTitle = () => {
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
+
+  function HtmlTitle() {
     if (!currentApplicationDetails?.name) return null;
     return (
       <Helmet>
         <title>{currentApplicationDetails?.name}</title>
       </Helmet>
     );
-  };
+  }
   if (hideHeader) return <HtmlTitle />;
 
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
-  let CTA = null;
-
-  if (props.url && canEdit) {
-    CTA = (
-      <Cta
-        className="t--back-to-editor"
-        href={props.url}
-        icon="arrow-left"
-        text={createMessage(EDIT_APP)}
-      />
-    );
-  } else if (
-    currentApplicationDetails?.forkingEnabled &&
-    currentApplicationDetails?.isPublic &&
-    currentUser?.username === ANONYMOUS_USERNAME
-  ) {
-    CTA = (
-      <ForkButton
-        className="t--fork-app"
-        href={forkUrl}
-        text={createMessage(FORK_APP)}
-        icon="fork"
-      />
-    );
-  } else if (
-    currentApplicationDetails?.isPublic &&
-    currentUser?.username === ANONYMOUS_USERNAME
-  ) {
-    CTA = (
-      <Cta
-        className="t--sign-in"
-        href={loginUrl}
-        text={createMessage(SIGN_IN)}
-      />
-    );
-  }
+  const CTA = GetAppViewerHeaderCTA({
+    url: props.url,
+    canEdit,
+    currentApplicationDetails,
+    currentUser,
+    forkUrl,
+    loginUrl,
+  });
 
   return (
     <ThemeProvider theme={props.lightTheme}>
@@ -205,11 +178,16 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <PrimaryLogoLink to={APPLICATIONS_URL}>
-              <AppsmithLogoImg src={AppsmithLogo} alt="Appsmith logo" />
-            </PrimaryLogoLink>
+            <div>
+              <PrimaryLogoLink to={APPLICATIONS_URL}>
+                <AppsmithLogoImg />
+              </PrimaryLogoLink>
+            </div>
+            <div>
+              <ToggleCommentModeButton />
+            </div>
           </HeaderSection>
-          <HeaderSection justify={"center"} className="current-app-name">
+          <HeaderSection className="current-app-name" justify={"center"}>
             {currentApplicationDetails && (
               <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
             )}
@@ -218,29 +196,14 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent
-                  trigger={
-                    <Button
-                      text={"Share"}
-                      icon={"share"}
-                      size={Size.small}
-                      className="t--application-share-btn header__application-share-btn"
-                    />
-                  }
                   Form={AppInviteUsersForm}
-                  orgId={currentOrgId}
                   applicationId={currentApplicationDetails.id}
+                  canOutsideClickClose
+                  isOpen={showAppInviteUsersDialog}
+                  orgId={currentOrgId}
                   title={currentApplicationDetails.name}
-                  canOutsideClickClose={true}
+                  trigger={<ShareButtonComponent />}
                 />
-                {currentUser &&
-                  currentUser.username !== ANONYMOUS_USERNAME &&
-                  currentApplicationDetails?.forkingEnabled && (
-                    <div className="header__application-fork-btn-wrapper">
-                      <ForkApplicationModal
-                        applicationId={currentApplicationDetails.id}
-                      />
-                    </div>
-                  )}
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
                 )}
@@ -249,28 +212,27 @@ export const AppViewerHeader = (props: AppViewerHeaderProps) => {
             {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
                 <ProfileDropdown
-                  name={currentUser.name}
-                  userName={currentUser?.username || ""}
-                  hideThemeSwitch
                   modifiers={{
                     offset: {
                       enabled: true,
-                      offset: `0, ${pages.length > 1 ? 35 : 0}`,
+                      offset: `0, 0`,
                     },
                   }}
+                  name={currentUser.name}
+                  userName={currentUser?.username || ""}
                 />
               </HeaderRightItemContainer>
             )}
           </HeaderSection>
         </HeaderRow>
         <PageTabsContainer
-          pages={pages}
           currentApplicationDetails={currentApplicationDetails}
+          pages={pages}
         />
       </HeaderWrapper>
     </ThemeProvider>
   );
-};
+}
 
 const mapStateToProps = (state: AppState): AppViewerHeaderProps => ({
   pages: getViewModePageList(state),

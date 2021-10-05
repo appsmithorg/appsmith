@@ -8,4 +8,8 @@ public interface CustomUserRepository extends AppsmithRepository<User> {
 
     Mono<User> findByEmail(String email, AclPermission aclPermission);
 
+    Mono<User> findByCaseInsensitiveEmail(String email);
+
+    Mono<Boolean> isUsersEmpty();
+
 }

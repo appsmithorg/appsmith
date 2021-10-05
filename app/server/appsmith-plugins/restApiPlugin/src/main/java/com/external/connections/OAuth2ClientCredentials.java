@@ -6,7 +6,9 @@ import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -31,6 +33,7 @@ import java.util.Map;
 
 @Setter
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OAuth2ClientCredentials extends APIConnection implements UpdatableConnection {
 
     private final Clock clock = Clock.systemUTC();
@@ -40,9 +43,6 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private Instant expiresAt;
     private Object tokenResponse;
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
-
-    private OAuth2ClientCredentials() {
-    }
 
     public static Mono<OAuth2ClientCredentials> create(OAuth2 oAuth2) {
         if (oAuth2 == null) {
@@ -165,6 +165,14 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS)
                 .with(Authentication.CLIENT_ID, oAuth2.getClientId())
                 .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+        // Adding optional audience parameter
+        if (!StringUtils.isEmpty(oAuth2.getAudience())) {
+            body.with(Authentication.AUDIENCE, oAuth2.getAudience());
+        }
+        // Adding optional resource parameter
+        if (!StringUtils.isEmpty(oAuth2.getResource())) {
+            body.with(Authentication.RESOURCE, oAuth2.getResource());
+        }
         // Optionally add scope, if applicable
         if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));

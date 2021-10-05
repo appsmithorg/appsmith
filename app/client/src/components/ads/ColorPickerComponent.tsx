@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -9,6 +9,7 @@ import {
 } from "@blueprintjs/core";
 import { ReactComponent as CheckedIcon } from "assets/icons/control/checkmark.svg";
 import { debounce } from "lodash";
+import { Colors } from "constants/Colors";
 
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
@@ -16,8 +17,8 @@ const ColorIcon = styled.div<{ color: string }>`
   border: 3px solid ${(props) => props.theme.colors.propertyPane.bg};
   position: absolute;
   z-index: 1;
-  top: 3px;
-  left: 3px;
+  top: 6px;
+  left: 6px;
   background: ${(props) => (props.color ? props.color : "transparent")};
 `;
 
@@ -26,15 +27,20 @@ const StyledInputGroup = styled(InputGroup)`
     box-shadow: none;
     border-radius: 0;
     &:focus {
-      border: 1px solid ${(props) => props.theme.colors.info.main};
       box-shadow: none;
     }
   }
   &&& input {
     padding-left: 36px;
+    height: 36px;
+    border: 1px solid ${Colors.GREY_5};
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
+
+    &:focus {
+      border: 1px solid ${Colors.PRIMARY_ORANGE};
+    }
   }
 `;
 
@@ -64,14 +70,16 @@ const ColorTab = styled.div<{ color: string }>`
 `;
 
 const defaultColors: string[] = [
-  "rgb(3, 179, 101)",
+  "#03b365",
   "#FFC13D",
   "#38AFF4",
   "#DD4B34",
   "#3366FF",
   "#2E3D49",
   "#F6F7F8",
+  "#FFFFFF",
   "#231F20",
+  "#F86A2B",
 ];
 
 interface ColorBoardProps {
@@ -93,14 +101,14 @@ const EmptyColorIconWrapper = styled.div`
   }
 `;
 
-const ColorBoard = (props: ColorBoardProps) => {
+function ColorBoard(props: ColorBoardProps) {
   return (
     <ColorsWrapper>
       {defaultColors.map((color: string, index: number) => (
         <ColorTab
-          key={index}
-          color={color}
           className={Classes.POPOVER_DISMISS}
+          color={color}
+          key={index}
           onClick={() => props.selectColor(color)}
         >
           {props.selectedColor === color && <CheckedIcon />}
@@ -113,13 +121,13 @@ const ColorBoard = (props: ColorBoardProps) => {
       </EmptyColorIconWrapper>
     </ColorsWrapper>
   );
-};
+}
 
 const NoColorIconWrapper = styled.div`
   position: absolute;
   z-index: 1;
-  top: 3px;
-  left: 3px;
+  top: 6px;
+  left: 6px;
   width: 24px;
   height: 24px;
   .line {
@@ -148,7 +156,7 @@ interface ColorPickerProps {
   changeColor: (color: string) => void;
 }
 
-const ColorPickerComponent = (props: ColorPickerProps) => {
+function ColorPickerComponent(props: ColorPickerProps) {
   const [color, setColor] = React.useState(props.color);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
@@ -159,18 +167,27 @@ const ColorPickerComponent = (props: ColorPickerProps) => {
     debouncedOnChange(value);
     setColor(value);
   };
+
+  // if props.color changes and state color is different,
+  // sets the state color to props color
+  useEffect(() => {
+    if (props.color !== color) {
+      setColor(props.color);
+    }
+  }, [props.color]);
+
   return (
     <Popover
-      minimal
-      usePortal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
+      minimal
       modifiers={{
         offset: {
           offset: "0, 24px",
         },
       }}
+      position={Position.BOTTOM}
+      usePortal
     >
       <StyledInputGroup
         leftIcon={
@@ -186,17 +203,17 @@ const ColorPickerComponent = (props: ColorPickerProps) => {
         }
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
-        value={color}
+        value={color || ""}
       />
       <ColorBoard
-        selectedColor={color}
         selectColor={(color) => {
           setColor(color);
           props.changeColor(color);
         }}
+        selectedColor={color}
       />
     </Popover>
   );
-};
+}
 
 export default ColorPickerComponent;

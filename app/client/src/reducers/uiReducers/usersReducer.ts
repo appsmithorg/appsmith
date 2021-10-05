@@ -6,7 +6,11 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 
-import { DefaultCurrentUserDetails, User } from "constants/userConstants";
+import {
+  CommentsOnboardingState,
+  DefaultCurrentUserDetails,
+  User,
+} from "constants/userConstants";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -18,6 +22,7 @@ const initialState: UsersReduxState = {
   error: "",
   current: undefined,
   currentUser: undefined,
+  featureFlagFetched: false,
 };
 
 const usersReducer = createReducer(initialState, {
@@ -79,7 +84,10 @@ const usersReducer = createReducer(initialState, {
         fetchingUser: false,
       },
       users,
-      currentUser: action.payload,
+      currentUser: {
+        ...state.currentUser,
+        ...action.payload,
+      },
     };
   },
   [ReduxActionTypes.FETCH_USER_SUCCESS]: (
@@ -120,11 +128,42 @@ const usersReducer = createReducer(initialState, {
     ...state,
     current: action.payload,
   }),
-  [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (state: UsersReduxState) => ({
+  [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
     ...state,
     current: undefined,
-    currentUser: DefaultCurrentUserDetails,
-    users: [DefaultCurrentUserDetails],
+    currentUser: {
+      ...DefaultCurrentUserDetails,
+      emptyInstance: action.payload,
+    },
+    users: [
+      {
+        ...DefaultCurrentUserDetails,
+        emptyInstance: action.payload,
+      },
+    ],
+  }),
+  [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (state: UsersReduxState) => ({
+    ...state,
+    featureFlagFetched: true,
+  }),
+  [ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR]: (
+    state: UsersReduxState,
+  ) => ({
+    ...state,
+    featureFlagFetched: true,
+  }),
+  [ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE]: (
+    state: UsersReduxState,
+    action: ReduxAction<CommentsOnboardingState>,
+  ) => ({
+    ...state,
+    currentUser: {
+      ...state.currentUser,
+      commentOnboardingState: action.payload,
+    },
   }),
 });
 
@@ -146,6 +185,7 @@ export interface UsersReduxState {
   currentUser?: User;
   error: string;
   propPanePreferences?: PropertyPanePositionConfig;
+  featureFlagFetched: boolean;
 }
 
 export default usersReducer;

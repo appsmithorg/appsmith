@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -12,13 +12,14 @@ import history from "utils/history";
 import { Datasource, QueryTemplate } from "entities/Datasource";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID } from "constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};
   color: ${(props) => props.theme.colors.textOnDarkBG};
-  width: 250px;
+  min-width: 160px;
+  padding: 5px;
 `;
 
 const TemplateType = styled.div`
@@ -26,8 +27,7 @@ const TemplateType = styled.div`
   padding: 8px;
   &:hover {
     cursor: pointer;
-    color: ${Colors.WHITE};
-    background: ${Colors.TUNDORA};
+    background: ${Colors.Gallery};
   }
 `;
 
@@ -36,7 +36,7 @@ type QueryTemplatesProps = {
   datasourceId: string;
 };
 
-export const QueryTemplates = (props: QueryTemplatesProps) => {
+export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
   const actions = useSelector((state: AppState) => state.entities.actions);
@@ -50,6 +50,8 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
       const queryactionConfiguration: Partial<QueryAction> = {
         actionConfiguration: {
           body: template.body,
+          pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
+          formData: template.configuration,
         },
       };
 
@@ -69,10 +71,10 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
         }),
       );
       history.push(
-        QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+        INTEGRATION_EDITOR_URL(
           params.applicationId,
           currentPageId,
-          currentPageId,
+          INTEGRATION_TABS.ACTIVE,
         ),
       );
     },
@@ -91,8 +93,8 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
       {props.templates.map((template) => {
         return (
           <TemplateType
-            key={template.title}
             className={Classes.POPOVER_DISMISS}
+            key={template.title}
             onClick={() => createQueryAction(template)}
           >
             {template.title}
@@ -101,6 +103,6 @@ export const QueryTemplates = (props: QueryTemplatesProps) => {
       })}
     </Container>
   );
-};
+}
 
 export default QueryTemplates;

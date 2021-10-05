@@ -29,17 +29,6 @@ describe("RichTextEditor Widget Functionality", function() {
       "h1",
       "This is a Heading",
     );
-
-    // validate after reload
-    cy.reload(true);
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.validateHTMLText(
-      formWidgetsPage.richTextEditorWidget,
-      "h1",
-      "This is a Heading",
-    );
-
     cy.PublishtheApp();
     cy.validateHTMLText(
       publishPage.richTextEditorWidget,
@@ -93,6 +82,6 @@ describe("RichTextEditor Widget Functionality", function() {
   });
 
   afterEach(() => {
-    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.goToEditFromPublish();
   });
 });

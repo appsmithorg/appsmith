@@ -9,12 +9,14 @@ export type CheckboxProps = CommonComponentProps & {
   isDefaultChecked?: boolean;
   onCheckChange?: (isChecked: boolean) => void;
   info?: string;
+  backgroundColor?: string;
 };
 
 const Checkmark = styled.span<{
   disabled?: boolean;
   isChecked?: boolean;
   info?: string;
+  backgroundColor?: string;
 }>`
   position: absolute;
   top: ${(props) => (props.info ? "6px" : "1px")};
@@ -25,14 +27,18 @@ const Checkmark = styled.span<{
     props.isChecked
       ? props.disabled
         ? props.theme.colors.checkbox.disabled
-        : props.theme.colors.info.main
+        : props.backgroundColor || props.theme.colors.info.main
+      : props.disabled
+      ? props.theme.colors.checkbox.disabled
       : "transparent"};
-  border: 2px solid
+  border: 1.8px solid
     ${(props) =>
       props.isChecked
         ? props.disabled
           ? props.theme.colors.checkbox.disabled
-          : props.theme.colors.info.main
+          : props.backgroundColor || props.theme.colors.info.main
+        : props.disabled
+        ? props.theme.colors.checkbox.disabled
         : props.theme.colors.checkbox.unchecked};
 
   &::after {
@@ -76,7 +82,7 @@ const StyledCheckbox = styled.label<{
   }
 `;
 
-const LabelContainer = styled.div<{ info?: string }>`
+export const LabelContainer = styled.div<{ info?: string }>`
   display: flex;
   flex-direction: column;
   .${Classes.TEXT}:first-child {
@@ -106,7 +112,7 @@ const useUpdate = (intitialValue?: boolean) => {
   return [checked, setChecked] as const;
 };
 
-const Checkbox = (props: CheckboxProps) => {
+function Checkbox(props: CheckboxProps) {
   const [checked, setChecked] = useUpdate(props.isDefaultChecked);
 
   const onChangeHandler = (checked: boolean) => {
@@ -121,20 +127,21 @@ const Checkbox = (props: CheckboxProps) => {
         {props.info ? <Text type={TextType.P3}>{props.info}</Text> : null}
       </LabelContainer>
       <input
-        type="checkbox"
-        disabled={props.disabled}
         checked={checked}
+        disabled={props.disabled}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)
         }
+        type="checkbox"
       />
       <Checkmark
+        backgroundColor={props.backgroundColor}
         disabled={props.disabled}
-        isChecked={checked}
         info={props.info}
+        isChecked={checked}
       />
     </StyledCheckbox>
   );
-};
+}
 
 export default Checkbox;

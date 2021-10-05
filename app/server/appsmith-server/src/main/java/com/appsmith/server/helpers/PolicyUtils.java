@@ -4,20 +4,27 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.CommentThread;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import lombok.AllArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +37,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 
 @Component
+@AllArgsConstructor
 public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
@@ -37,25 +45,21 @@ public class PolicyUtils {
     private final DatasourceRepository datasourceRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
-
-    public PolicyUtils(PolicyGenerator policyGenerator,
-                       ApplicationRepository applicationRepository,
-                       DatasourceRepository datasourceRepository,
-                       NewPageRepository newPageRepository,
-                       NewActionRepository newActionRepository) {
-        this.policyGenerator = policyGenerator;
-        this.applicationRepository = applicationRepository;
-        this.datasourceRepository = datasourceRepository;
-        this.newPageRepository = newPageRepository;
-        this.newActionRepository = newActionRepository;
-    }
+    private final CommentThreadRepository commentThreadRepository;
+    private final ActionCollectionRepository actionCollectionRepository;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
         final Map<String, Policy> policyMap1 = new HashMap<>();
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
-            policyMap1.put(entry.getKey(), entry.getValue());
+            Policy entryValue = entry.getValue();
+            Policy policy = Policy.builder()
+                    .users(new HashSet<>(entryValue.getUsers()))
+                    .permission(entryValue.getPermission())
+                    .groups(new HashSet<>(entryValue.getGroups()))
+                    .build();
+            policyMap1.put(entry.getKey(), policy);
         }
 
         // Append the user to the existing permission policy if it already exists.
@@ -113,13 +117,17 @@ public class PolicyUtils {
      * @return
      */
     public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
+        return generatePolicyFromPermission(permissions, user.getUsername());
+    }
+
+    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
                     Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                            .users(Set.of(user.getUsername())).build();
+                            .users(Set.of(username)).build();
                     // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(user.getUsername()), null);
+                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(username), null);
                     policiesForUser.add(policyWithCurrentPermission);
                     return policiesForUser;
                 })
@@ -222,6 +230,30 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
+    public Flux<CommentThread> updateCommentThreadPermissions(
+            String applicationId, Map<String, Policy> commentThreadPolicyMap, String username, boolean addPolicyToObject) {
+
+        return
+                // fetch comment threads with read permissions
+                commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD)
+                .switchIfEmpty(Mono.empty())
+                .map(thread -> {
+                    if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
+                        if (addPolicyToObject) {
+                            return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
+                        } else {
+                            if(CollectionUtils.isNotEmpty(thread.getSubscribers())) {
+                                thread.getSubscribers().remove(username);
+                            }
+                            return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                        }
+                    }
+                    return thread;
+                })
+                .collectList()
+                .flatMapMany(commentThreadRepository::saveAll);
+    }
+
     /**
      * Instead of fetching actions by pageId, fetch actions by applicationId and then update the action policies
      * using the new ActionPoliciesMap. This ensures the following :
@@ -247,12 +279,28 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedActions -> newActionRepository.saveAll(updatedActions));
+                .flatMapMany(newActionRepository::saveAll);
+    }
+
+    public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+
+        return actionCollectionRepository
+                .findByApplicationId(applicationId)
+                .switchIfEmpty(Mono.empty())
+                .map(action -> {
+                    if (addPolicyToObject) {
+                        return addPoliciesToExistingObject(newActionPoliciesMap, action);
+                    } else {
+                        return removePoliciesFromExistingObject(newActionPoliciesMap, action);
+                    }
+                })
+                .collectList()
+                .flatMapMany(actionCollectionRepository::saveAll);
     }
 
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
-                                                                           Class sourceEntity,
-                                                                           Class destinationEntity) {
+                                                                           Class<? extends BaseDomain> sourceEntity,
+                                                                           Class<? extends BaseDomain> destinationEntity) {
         Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicyMap.values());
 
         return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
@@ -282,4 +330,18 @@ public class PolicyUtils {
 
         return false;
     }
+
+    public Set<String> findUsernamesWithPermission(Set<Policy> policies, AclPermission permission) {
+        if (CollectionUtils.isNotEmpty(policies) && permission != null) {
+            final String permissionString = permission.getValue();
+            for (Policy policy : policies) {
+                if (permissionString.equals(policy.getPermission())) {
+                    return policy.getUsers();
+                }
+            }
+        }
+
+        return Collections.emptySet();
+    }
+
 }

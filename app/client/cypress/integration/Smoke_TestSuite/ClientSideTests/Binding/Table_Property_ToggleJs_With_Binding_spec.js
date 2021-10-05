@@ -18,6 +18,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingAlign);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -32,10 +33,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.textSize)
       .last()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.selectTextSize("Heading 1");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -48,6 +51,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextSize)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingSize);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -61,10 +65,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleTextSize)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.toggleVerticalAlig)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingVerticalAlig);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -78,10 +84,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleVerticalAlig)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.toggleTextStyle)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingStyle);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -95,10 +103,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleVerticalAlig)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.toggleJsColor)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingTextColor);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
@@ -113,10 +123,12 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.toggleJsColor)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(widgetsPage.toggleJsBcgColor)
       .first()
       .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingTextColor);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });

@@ -25,7 +25,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public abstract class BaseDomain implements Persistable<String> {
+public abstract class BaseDomain implements Persistable<String>, AppsmithDomain {
 
     private static final long serialVersionUID = 7459916000501322517L;
 

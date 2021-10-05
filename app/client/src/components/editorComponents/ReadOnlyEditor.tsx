@@ -16,9 +16,10 @@ interface Props {
   };
   height: string;
   folding: boolean;
+  showLineNumbers?: boolean;
 }
 
-const ReadOnlyEditor = (props: Props) => {
+function ReadOnlyEditor(props: Props) {
   const editorProps: EditorProps = {
     hinting: [],
     input: props.input,
@@ -29,11 +30,13 @@ const ReadOnlyEditor = (props: Props) => {
     theme: EditorTheme.LIGHT,
     height: props.height,
     showLightningMenu: false,
-    showLineNumbers: true,
+    showLineNumbers: props.hasOwnProperty("showLineNumbers")
+      ? props.showLineNumbers
+      : true,
     borderLess: true,
     folding: props.folding,
   };
   return <CodeEditor {...editorProps} />;
-};
+}
 
 export default ReadOnlyEditor;

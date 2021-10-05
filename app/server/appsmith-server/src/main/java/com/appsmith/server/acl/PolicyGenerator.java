@@ -1,5 +1,6 @@
 package com.appsmith.server.acl;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +19,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.COMMENT_ON_THREAD;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -27,15 +31,18 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_COMMENT;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_THREAD;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.USER_READ_ORGANIZATIONS;
@@ -74,6 +81,7 @@ public class PolicyGenerator {
         createApplicationPolicyGraph();
         createPagePolicyGraph();
         createActionPolicyGraph();
+        createCommentPolicyGraph();
     }
 
     /**
@@ -109,9 +117,13 @@ public class PolicyGenerator {
         hierarchyGraph.addEdge(ORGANIZATION_READ_APPLICATIONS, READ_APPLICATIONS);
         hierarchyGraph.addEdge(ORGANIZATION_PUBLISH_APPLICATIONS, PUBLISH_APPLICATIONS);
         hierarchyGraph.addEdge(MANAGE_ORGANIZATIONS, MAKE_PUBLIC_APPLICATIONS);
+        hierarchyGraph.addEdge(ORGANIZATION_EXPORT_APPLICATIONS, EXPORT_APPLICATIONS);
 
         // If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION perm
         lateralGraph.addEdge(MANAGE_APPLICATIONS, READ_APPLICATIONS);
+
+        // If the user can read an application, the should be able to comment on it.
+        lateralGraph.addEdge(READ_APPLICATIONS, COMMENT_ON_APPLICATIONS);
     }
 
     private void createActionPolicyGraph() {
@@ -130,7 +142,15 @@ public class PolicyGenerator {
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }
 
-    public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class destinationEntity) {
+    private void createCommentPolicyGraph() {
+        hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREAD);
+
+        lateralGraph.addEdge(COMMENT_ON_THREAD, READ_THREAD);
+
+        hierarchyGraph.addEdge(COMMENT_ON_THREAD, READ_COMMENT);
+    }
+
+    public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class<? extends BaseDomain> destinationEntity) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
         return lateralEdges.stream()
                 .map(edge -> lateralGraph.getEdgeTarget(edge))
@@ -156,7 +176,7 @@ public class PolicyGenerator {
      * @param destinationEntity
      * @return
      */
-    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class destinationEntity) {
+    public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
         // Check the hierarchy graph to derive child permissions that must be given to this
         // document
         Set<Policy> childPolicySet = new HashSet<>();
@@ -176,7 +196,7 @@ public class PolicyGenerator {
         return childPolicySet;
     }
 
-    public Set<Policy> getAllChildPolicies(Set<Policy> policySet, Class sourceEntity, Class destinationEntity) {
+    public Set<Policy> getAllChildPolicies(Set<Policy> policySet, Class<? extends BaseDomain> sourceEntity, Class<? extends BaseDomain> destinationEntity) {
         Set<Policy> policies = policySet.stream()
                 .map(policy -> {
                     AclPermission aclPermission = AclPermission

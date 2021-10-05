@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -11,16 +11,16 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   getDefaultColumnProperties,
   getTableStyles,
-  reorderColumns,
-} from "components/designSystems/appsmith/TableComponent/TableUtilities";
+} from "widgets/TableWidget/component/TableUtilities";
 import { debounce } from "lodash";
 import { Size, Category } from "components/ads/Button";
+import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -38,17 +38,18 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   margin-bottom: 2px;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 10px;
+  padding-right: 60px;
+  text-overflow: ellipsis;
+  background: inherit;
   &&& {
     input {
       padding-left: 24px;
       border: none;
       color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -91,14 +92,20 @@ const getOriginalColumn = (
 
 function ColumnControlComponent(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && props.item && props.item.label)
+      setValue(props.item.label);
+  }, [props.item?.label, isEditing]);
 
   const {
-    updateOption,
-    onEdit,
-    item,
     deleteOption,
-    toggleVisibility,
     index,
+    item,
+    onEdit,
+    toggleVisibility,
+    updateOption,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
   const debouncedUpdate = debounce(updateOption, 1000);
@@ -109,53 +116,59 @@ function ColumnControlComponent(props: RenderComponentProps) {
     },
     [updateOption],
   );
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        placeholder="Column Title"
+        onBlur={onBlur}
         onChange={(value: string) => {
           onChange(index, value);
         }}
-        defaultValue={value}
+        onFocus={onFocus}
+        placeholder="Column Title"
+        value={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
         height={20}
-        width={20}
         onClick={() => {
           onEdit && onEdit(index);
         }}
+        width={20}
       />
       {!!item.isDerived ? (
         <StyledDeleteIcon
           className="t--delete-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             deleteOption && deleteOption(index);
           }}
+          width={20}
         />
       ) : visibility ? (
         <StyledVisibleIcon
           className="t--show-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       ) : (
         <StyledHiddenIcon
           className="t--show-column-btn"
           height={20}
-          width={20}
           onClick={() => {
             setVisibility(!visibility);
             toggleVisibility && toggleVisibility(index);
           }}
+          width={20}
         />
       )}
     </ItemWrapper>
@@ -198,25 +211,25 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
-          items={draggableComponentColumns}
-          itemHeight={45}
-          renderComponent={ColumnControlComponent}
-          updateOption={this.updateOption}
-          updateItems={this.updateItems}
           deleteOption={this.deleteOption}
-          toggleVisibility={this.toggleVisibility}
+          itemHeight={45}
+          items={draggableComponentColumns}
           onEdit={this.onEdit}
+          renderComponent={ColumnControlComponent}
+          toggleVisibility={this.toggleVisibility}
+          updateItems={this.updateItems}
+          updateOption={this.updateOption}
         />
 
         <AddColumnButton
+          category={Category.tertiary}
           className="t--add-column-btn"
           icon="plus"
-          tag="button"
-          type="button"
-          text="Add a new column"
           onClick={this.addNewColumn}
           size={Size.medium}
-          category={Category.tertiary}
+          tag="button"
+          text="Add a new column"
+          type="button"
         />
       </TabsWrapper>
     );
@@ -239,6 +252,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       ...columnProps,
       buttonStyle: "rgb(3, 179, 101)",
       buttonLabelColor: "#FFFFFF",
+      isDisabled: false,
       ...tableStyles,
     };
 
@@ -257,7 +271,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
 
     this.props.openNextPanel({
       ...originalColumn,
-      widgetId: this.props.widgetProperties.widgetId,
+      propPaneId: this.props.widgetProperties.widgetId,
     });
   };
   //Used to reorder columns

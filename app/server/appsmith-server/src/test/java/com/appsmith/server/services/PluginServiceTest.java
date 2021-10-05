@@ -70,6 +70,8 @@ public class PluginServiceTest {
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("setting.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("dependency.json")))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
         Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
 
@@ -90,6 +92,8 @@ public class PluginServiceTest {
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("setting.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("dependency.json")))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
         Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
         StepVerifier.create(formConfig)
@@ -98,9 +102,11 @@ public class PluginServiceTest {
                     assertThat(form.get("form")).isNotNull();
                     assertThat(form.get("editor")).isNull();
                     assertThat(form.get("setting")).isNull();
+                    assertThat(form.get("dependencies")).isNull();
                 })
                 .verifyComplete();
     }
+
 
     @Test
     public void getPluginFormValid() {
@@ -113,12 +119,17 @@ public class PluginServiceTest {
         Map settingMap = new HashMap();
         settingMap.put("setting", new Object());
 
+        Map dependencyMap = new HashMap();
+        dependencyMap.put("dependencies", new Object());
+
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("form.json")))
                 .thenReturn(Mono.just(formMap));
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("editor.json")))
                 .thenReturn(Mono.just(editorMap));
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("setting.json")))
                 .thenReturn(Mono.just(settingMap));
+        Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("dependency.json")))
+                .thenReturn(Mono.just(dependencyMap));
 
         Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
         StepVerifier.create(formConfig)

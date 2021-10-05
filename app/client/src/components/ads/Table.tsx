@@ -87,20 +87,20 @@ const Styles = styled.div`
 const HiddenArrow = styled(DownArrow)`
   visibility: hidden;
 `;
-interface TableProps {
+export interface TableProps {
   data: any[];
   columns: any[];
 }
 
 function Table(props: TableProps) {
-  const { data, columns } = props;
+  const { columns, data } = props;
 
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
   } = useTable({ columns, data }, useSortBy);
 
   return (
@@ -138,8 +138,8 @@ function Table(props: TableProps) {
                   return (
                     <td
                       {...cell.getCellProps()}
-                      key={index}
                       data-colindex={index}
+                      key={index}
                     >
                       {cell.render("Cell")}
                     </td>

@@ -1,6 +1,10 @@
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Create a rest datasource", function() {
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create a rest datasource", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("Testapi");

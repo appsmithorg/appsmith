@@ -1,23 +1,27 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
+import TreeDropdown, {
+  TreeDropdownOption,
+} from "pages/Editor/Explorer/TreeDropdown";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "../helpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { AppState } from "reducers";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import {
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "constants/ReduxActionConstants";
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
-export const WidgetContextMenu = (props: {
+export function WidgetContextMenu(props: {
   widgetId: string;
   pageId: string;
   className?: string;
-}) => {
+}) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
-    // console.log(state.ui.pageWidgets[props.pageId], props.widgetId);
     return state.ui.pageWidgets[props.pageId][props.widgetId].parentId;
   });
   const widget = useSelector((state: AppState) => {
@@ -33,26 +37,19 @@ export const WidgetContextMenu = (props: {
     // If the widget is a tab we are updating the `tabs` of the property of the widget
     // This is similar to deleting a tab from the property pane
     if (widget.tabName && parentWidget.type === WidgetTypes.TABS_WIDGET) {
-      const filteredTabs = parentWidget.tabs.filter(
-        (tab: any) => tab.widgetId !== widgetId,
-      );
-
+      const tabsObj = { ...parentWidget.tabsObj };
+      const filteredTabs = Object.values(tabsObj);
       if (widget.parentId && !!filteredTabs.length) {
-        dispatch(
-          updateWidgetPropertyRequest(
-            widget.parentId,
-            "tabs",
-            filteredTabs,
-            RenderModes.CANVAS,
-          ),
-        );
+        dispatch({
+          type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
+          payload: { ...tabsObj[widget.tabId] },
+        });
       }
-
       return;
     }
 
     dispatch({
-      type: ReduxActionTypes.WIDGET_DELETE,
+      type: WidgetReduxActionTypes.WIDGET_DELETE,
       payload: {
         widgetId,
         parentId,
@@ -65,29 +62,37 @@ export const WidgetContextMenu = (props: {
     [dispatch, widgetId],
   );
 
+  const optionTree: TreeDropdownOption[] = [
+    {
+      value: "rename",
+      onSelect: editWidgetName,
+      label: "Edit Name",
+    },
+  ];
+
+  if (widget.isDeletable !== false) {
+    const option: TreeDropdownOption = {
+      value: "delete",
+      onSelect: dispatchDelete,
+      label: "Delete",
+      intent: "danger",
+    };
+
+    optionTree.push(option);
+  }
   return (
     <TreeDropdown
       className={props.className}
-      modifiers={ContextMenuPopoverModifiers}
       defaultText=""
+      modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
+      optionTree={optionTree}
       selectedValue=""
-      optionTree={[
-        {
-          value: "rename",
-          onSelect: editWidgetName,
-          label: "Edit Name",
-        },
-        {
-          value: "delete",
-          onSelect: dispatchDelete,
-          label: "Delete",
-          intent: "danger",
-        },
-      ]}
-      toggle={<ContextMenuTrigger />}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
-};
+}
+
+WidgetContextMenu.displayName = "WidgetContextMenu";
 
 export default WidgetContextMenu;

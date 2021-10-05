@@ -29,14 +29,26 @@ describe("Text Widget Functionality", function() {
       commonlocators.headingTextStyle,
       this.data.TextLabelValue,
     );
+    cy.wait("@updateLayout");
     cy.PublishtheApp();
-    cy.get(commonlocators.headingTextStyle).should(
-      "have.text",
-      this.data.TextLabelValue,
+    cy.get(commonlocators.headingTextStyle)
+      .should("have.text", this.data.TextLabelValue)
+      .should("have.css", "font-size", "24px");
+  });
+
+  it("Text Email Parsing Validation", function() {
+    cy.testCodeMirror("ab.end@domain.com");
+    cy.wait("@updateLayout");
+    cy.PublishtheApp();
+    cy.get(commonlocators.headingTextStyle + " a").should(
+      "have.attr",
+      "href",
+      "mailto:ab.end@domain.com",
     );
   });
 
   it("Text-TextStyle Label Validation", function() {
+    cy.testCodeMirror(this.data.TextLabelValue);
     //Changing the Text Style's and validating
     cy.ChangeTextStyle(
       this.data.TextLabel,
@@ -44,10 +56,9 @@ describe("Text Widget Functionality", function() {
       this.data.TextLabelValue,
     );
     cy.PublishtheApp();
-    cy.get(commonlocators.labelTextStyle).should(
-      "have.text",
-      this.data.TextLabelValue,
-    );
+    cy.get(commonlocators.labelTextStyle)
+      .should("have.text", this.data.TextLabelValue)
+      .should("have.css", "font-size", "14px");
   });
 
   it("Text-TextStyle Body Validation", function() {
@@ -57,29 +68,13 @@ describe("Text Widget Functionality", function() {
       this.data.TextLabelValue,
     );
     cy.PublishtheApp();
-    cy.get(commonlocators.bodyTextStyle).should(
-      "have.text",
-      this.data.TextLabelValue,
-    );
+    cy.get(commonlocators.bodyTextStyle)
+      .should("have.text", this.data.TextLabelValue)
+      .should("have.css", "font-size", "18px");
   });
 
   it("Text widget depends on itself", function() {
-    cy.getCodeMirror().then(($cm) => {
-      if ($cm.val() !== "") {
-        cy.get(".CodeMirror textarea")
-          .first()
-          .clear({
-            force: true,
-          });
-      }
-
-      cy.get(".CodeMirror textarea")
-        .first()
-        .type(`{{${this.data.TextName}}}`, {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
-    });
+    cy.testJsontext("text", `{{${this.data.TextName}}}`);
     cy.get(commonlocators.toastBody)
       .first()
       .contains("Cyclic");

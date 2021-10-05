@@ -4,6 +4,10 @@ let datasourceName;
 
 describe("Confirm run action", function() {
   beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
+  beforeEach(() => {
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
@@ -37,7 +41,8 @@ describe("Confirm run action", function() {
       200,
     );
 
-    cy.get(queryEditor.deleteQuery).click();
+    cy.get(queryEditor.queryMoreAction).click();
+    cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
       "have.nested.property",
       "response.body.responseMeta.status",

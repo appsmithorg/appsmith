@@ -1,10 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
+import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -15,12 +18,18 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -33,6 +42,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 
@@ -42,6 +52,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     private final PolicyUtils policyUtils;
     private final ConfigService configService;
+    private final CommentThreadRepository commentThreadRepository;
+    private final SessionUserService sessionUserService;
+    private final EncryptionService encryptionService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -51,10 +64,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
-                                  ConfigService configService) {
+                                  ConfigService configService,
+                                  CommentThreadRepository commentThreadRepository,
+                                  SessionUserService sessionUserService,
+                                  EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
+        this.commentThreadRepository = commentThreadRepository;
+        this.sessionUserService = sessionUserService;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -70,7 +89,25 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return repository.findById(id, READ_APPLICATIONS)
                 .flatMap(this::setTransientFields)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
+                });
+    }
+
+    private Mono<Application> setUnreadCommentCount(Application application, User user) {
+        if(!user.isAnonymous()) {
+            return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
+                    .map(aLong -> {
+                        application.setUnreadCommentThreads(aLong);
+                        return application;
+                    });
+        } else {
+            return Mono.just(application);
+        }
     }
 
     @Override
@@ -127,7 +164,21 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
         return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
-                .flatMap(analyticsService::sendUpdateEvent);
+            .onErrorResume(error -> {
+                if (error instanceof DuplicateKeyException) {
+                    // Error message : E11000 duplicate key error collection: appsmith.application index:
+                    // organization_application_deleted_gitRepo_gitBranch_compound_index dup key:
+                    // { organizationId: "******", name: "AppName", deletedAt: null }
+                    if (error.getCause().getMessage().contains("organization_application_deleted_gitRepo_gitBranch_compound_index")) {
+                        return Mono.error(
+                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
+                        );
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, error.getCause().getMessage()));
+                }
+                return Mono.error(error);
+            })
+            .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
@@ -135,11 +186,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.archive(application);
     }
 
-
-
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        return repository
+        Mono<Application> updateApplicationMono = repository
                 .findById(id, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
@@ -156,6 +205,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setIsPublic(applicationAccessDTO.getPublicAccess());
                     return generateAndSetPoliciesForPublicView(application, applicationAccessDTO.getPublicAccess());
                 });
+
+        //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
+        //  subscriber has cancelled its subscription, the create method will still generates its event.
+        return Mono.create(sink -> updateApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
@@ -169,6 +224,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
+                })
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
                 });
     }
 
@@ -250,5 +311,59 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setAppIsExample(templateApplicationIds.contains(application.getId()));
                     return application;
                 });
+    }
+
+    @Override
+    public Mono<String> generateSshKeyPair(String applicationId) {
+        JSch jsch = new JSch();
+        KeyPair kpair;
+        try {
+            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
+        } catch (JSchException e) {
+            log.error("failed to generate RSA key pair", e);
+            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
+        }
+
+        StringOutputStream privateKeyOutput = new StringOutputStream();
+        StringOutputStream publicKeyOutput = new StringOutputStream();
+
+        kpair.writePrivateKey(privateKeyOutput);
+        kpair.writePublicKey(publicKeyOutput, "appsmith");
+
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey(publicKeyOutput.toString());
+        gitAuth.setPrivateKey(encryptionService.encryptString(privateKeyOutput.toString()));
+
+        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
+                ))
+                .map(application -> {
+                    String targetApplicationId = application.getId(); // by default, we'll update the provided app
+                    if(application.getGitApplicationMetadata() != null
+                            && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
+                        // this is a child application, update the master application
+                        targetApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
+                    }
+                    return targetApplicationId;
+                })
+                .flatMap(targetApplicationId -> repository
+                        .setGitAuth(targetApplicationId, gitAuth, MANAGE_APPLICATIONS)
+                        .thenReturn(gitAuth.getPublicKey())
+                );
+    }
+    /**
+     * Sets the updatedAt and modifiedBy fields of the Application
+     * @param applicationId Application ID
+     * @return Application Mono of updated Application
+     */
+    @Override
+    public Mono<Application> saveLastEditInformation(String applicationId) {
+        Application application = new Application();
+        /*
+          We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
+          by the updateById method of the BaseAppsmithRepositoryImpl
+         */
+        return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
     }
 }

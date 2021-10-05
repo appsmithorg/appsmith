@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
-public class Connection {
+public class Connection implements AppsmithDomain {
 
     public enum Mode {
         READ_ONLY, READ_WRITE

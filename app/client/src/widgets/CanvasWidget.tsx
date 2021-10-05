@@ -1,19 +1,21 @@
 import React, { CSSProperties } from "react";
 import { WidgetProps } from "widgets/BaseWidget";
-import ContainerWidget, { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetTypes, GridDefaults } from "constants/WidgetConstants";
+import ContainerWidget, {
+  ContainerWidgetProps,
+} from "widgets/ContainerWidget/widget";
+import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
-import * as Sentry from "@sentry/react";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
     return [];
   }
-  getWidgetType = () => {
-    return WidgetTypes.CANVAS_WIDGET;
-  };
+  static getWidgetType() {
+    return "CANVAS_WIDGET";
+  }
 
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {
     return {
@@ -23,6 +25,7 @@ class CanvasWidget extends ContainerWidget {
       topRow: 0,
       leftColumn: 0,
       containerStyle: "none",
+      detachFromLayout: true,
     };
   }
 
@@ -39,12 +42,30 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+    if (!childWidgetData) return null;
+    // For now, isVisible prop defines whether to render a detached widget
+    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+      return null;
+    }
+    const snapSpaces = this.getSnapSpaces();
+
+    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+    if (this.props.noPad) childWidgetData.noContainerOffset = true;
+    childWidgetData.parentId = this.props.widgetId;
+
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+  }
+
   getPageView() {
+    let height = 0;
     const snapRows = getCanvasSnapRows(
       this.props.bottomRow,
       this.props.canExtend,
     );
-    const height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     const style: CSSProperties = {
       width: "100%",
       height: `${height}px`,
@@ -61,9 +82,42 @@ class CanvasWidget extends ContainerWidget {
   }
 
   getCanvasView() {
-    return this.renderAsDropTarget();
+    if (!this.props.dropDisabled) {
+      return this.renderAsDropTarget();
+    }
+    return this.getPageView();
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+  // TODO Find a way to enforce this, (dont let it be set)
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
   }
 }
 
+export const CONFIG = {
+  type: CanvasWidget.getWidgetType(),
+  name: "Canvas",
+  hideCard: true,
+  defaults: {
+    rows: 0,
+    columns: 0,
+    widgetName: "Canvas",
+    version: 1,
+    detachFromLayout: true,
+  },
+  properties: {
+    derived: CanvasWidget.getDerivedPropertiesMap(),
+    default: CanvasWidget.getDefaultPropertiesMap(),
+    meta: CanvasWidget.getMetaPropertiesMap(),
+    config: CanvasWidget.getPropertyPaneConfig(),
+  },
+};
+
 export default CanvasWidget;
-export const ProfiledCanvasWidget = Sentry.withProfiler(CanvasWidget);

@@ -31,4 +31,12 @@ public class CustomUserDataRepositoryImpl extends BaseAppsmithRepositoryImpl<Use
                 );
     }
 
+    @Override
+    public Mono<UpdateResult> removeOrgFromRecentlyUsedList(String userId, String organizationId) {
+        return mongoOperations.updateFirst(
+                query(where(fieldName(QUserData.userData.userId)).is(userId)),
+                new Update().pull(fieldName(QUserData.userData.recentlyUsedOrgIds), organizationId),
+                UserData.class
+                );
+    }
 }

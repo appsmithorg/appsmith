@@ -1,449 +1,152 @@
-import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { registerWidget } from "./WidgetRegisterHelpers";
+import CanvasWidget, {
+  CONFIG as CANVAS_WIDGET_CONFIG,
+} from "widgets/CanvasWidget";
+import SkeletonWidget, {
+  CONFIG as SKELETON_WIDGET_CONFIG,
+} from "widgets/SkeletonWidget";
+import TextWidget, { CONFIG as TEXT_WIDGET_CONFIG } from "widgets/TextWidget";
+import TableWidget, {
+  CONFIG as TABLE_WIDGET_CONFIG,
+} from "widgets/TableWidget";
 import ContainerWidget, {
-  ContainerWidgetProps,
-  ProfiledContainerWidget,
+  CONFIG as CONTAINER_WIDGET_CONFIG,
 } from "widgets/ContainerWidget";
-import TextWidget, {
-  TextWidgetProps,
-  ProfiledTextWidget,
-} from "widgets/TextWidget";
-import InputWidget, {
-  InputWidgetProps,
-  ProfiledInputWidget,
-} from "widgets/InputWidget";
 import CheckboxWidget, {
-  CheckboxWidgetProps,
-  ProfiledCheckboxWidget,
+  CONFIG as CHECKBOX_WIDGET_CONFIG,
 } from "widgets/CheckboxWidget";
 import RadioGroupWidget, {
-  RadioGroupWidgetProps,
-  ProfiledRadioGroupWidget,
+  CONFIG as RADIO_GROUP_WIDGET_CONFIG,
 } from "widgets/RadioGroupWidget";
-import WidgetFactory from "./WidgetFactory";
-import React from "react";
 import ButtonWidget, {
-  ButtonWidgetProps,
-  ProfiledButtonWidget,
+  CONFIG as BUTTON_WIDGET_CONFIG,
 } from "widgets/ButtonWidget";
 import DropdownWidget, {
-  DropdownWidgetProps,
-  ProfiledDropDownWidget,
+  CONFIG as DROPDOWN_WIDGET_CONFIG,
 } from "widgets/DropdownWidget";
 import ImageWidget, {
-  ImageWidgetProps,
-  ProfiledImageWidget,
+  CONFIG as IMAGE_WIDGET_CONFIG,
 } from "widgets/ImageWidget";
-import TableWidget, { ProfiledTableWidget } from "widgets/TableWidget";
-import { TableWidgetProps } from "widgets/TableWidget/TableWidgetConstants";
 import VideoWidget, {
-  VideoWidgetProps,
-  ProfiledVideoWidget,
+  CONFIG as VIDEO_WIDGET_CONFIG,
 } from "widgets/VideoWidget";
-import TabsWidget, {
-  TabsWidgetProps,
-  TabContainerWidgetProps,
-  ProfiledTabsWidget,
-} from "widgets/TabsWidget";
-import {
-  ModalWidgetProps,
-  ProfiledModalWidget,
-  ModalWidget,
+import TabsWidget, { CONFIG as TABS_WIDGET_CONFIG } from "widgets/TabsWidget";
+import InputWidget, {
+  CONFIG as INPUT_WIDGET_CONFIG,
+} from "widgets/InputWidget";
+import ModalWidget, {
+  CONFIG as MODAL_WIDGET_CONFIG,
 } from "widgets/ModalWidget";
-import RichTextEditorWidget, {
-  RichTextEditorWidgetProps,
-  ProfiledRichTextEditorWidget,
-} from "widgets/RichTextEditorWidget";
 import ChartWidget, {
-  ChartWidgetProps,
-  ProfiledChartWidget,
+  CONFIG as CHART_WIDGET_CONFIG,
 } from "widgets/ChartWidget";
-import MapWidget, {
-  MapWidgetProps,
-  ProfiledMapWidget,
-} from "widgets/MapWidget";
-
+import MapWidget, { CONFIG as MAP_WIDGET_CONFIG } from "widgets/MapWidget";
 import FilePickerWidget, {
-  FilePickerWidgetProps,
-  ProfiledFilePickerWidget,
+  CONFIG as FILEPICKER_WIDGET_CONFIG,
 } from "widgets/FilepickerWidget";
+import RichTextEditorWidget, {
+  CONFIG as RICH_TEXT_EDITOR_WIDGET_CONFIG,
+} from "widgets/RichTextEditorWidget";
 import DatePickerWidget, {
-  DatePickerWidgetProps,
-  ProfiledDatePickerWidget,
+  CONFIG as DATE_PICKER_WIDGET_CONFIG,
 } from "widgets/DatePickerWidget";
 import DatePickerWidget2, {
-  DatePickerWidget2Props,
-  ProfiledDatePickerWidget2,
+  CONFIG as DATE_PICKER_WIDGET_2_CONFIG,
 } from "widgets/DatePickerWidget2";
-import FormWidget, { ProfiledFormWidget } from "widgets/FormWidget";
-import FormButtonWidget, {
-  FormButtonWidgetProps,
-  ProfiledFormButtonWidget,
-} from "widgets/FormButtonWidget";
-import IconWidget, {
-  IconWidgetProps,
-  ProfiledIconWidget,
-} from "widgets/IconWidget";
-
-import CanvasWidget, { ProfiledCanvasWidget } from "widgets/CanvasWidget";
-import SkeletonWidget, {
-  ProfiledSkeletonWidget,
-  SkeletonWidgetProps,
-} from "../widgets/SkeletonWidget";
+import ListWidget, { CONFIG as LIST_WIDGET_CONFIG } from "widgets/ListWidget";
 import SwitchWidget, {
-  ProfiledSwitchWidget,
-  SwitchWidgetProps,
+  CONFIG as SWITCH_WIDGET_CONFIG,
 } from "widgets/SwitchWidget";
-export default class WidgetBuilderRegistry {
-  static registerWidgetBuilders() {
-    WidgetFactory.registerWidgetBuilder(
-      "CONTAINER_WIDGET",
-      {
-        buildWidget(
-          widgetData: ContainerWidgetProps<WidgetProps>,
-        ): JSX.Element {
-          return <ProfiledContainerWidget {...widgetData} />;
-        },
-      },
-      ContainerWidget.getPropertyValidationMap(),
-      ContainerWidget.getDerivedPropertiesMap(),
-      ContainerWidget.getDefaultPropertiesMap(),
-      ContainerWidget.getMetaPropertiesMap(),
-      ContainerWidget.getPropertyPaneConfig(),
-    );
+import DividerWidget, {
+  CONFIG as DIVIDER_WIDGET_CONFIG,
+} from "widgets/DividerWidget";
+import TabsMigratorWidget, {
+  CONFIG as TABS_MIGRATOR_WIDGET_CONFIG,
+} from "widgets/TabsMigrator";
+import RateWidget, { CONFIG as RATE_WIDGET_CONFIG } from "widgets/RateWidget";
+import IframeWidget, {
+  CONFIG as IFRAME_WIDGET_CONFIG,
+} from "widgets/IframeWidget";
+import MenuButtonWidget, {
+  CONFIG as MENU_BUTTON_WIDGET_CONFIG,
+} from "widgets/MenuButtonWidget";
+import MultiSelectWidget, {
+  CONFIG as MULTI_SELECT_WIDGET_CONFIG,
+} from "widgets/MultiSelectWidget";
+import FormWidget, { CONFIG as FORM_WIDGET_CONFIG } from "widgets/FormWidget";
+import FormButtonWidget, {
+  CONFIG as FORM_BUTTON_WIDGET_CONFIG,
+} from "widgets/FormButtonWidget";
+import IconWidget, { CONFIG as ICON_WIDGET_CONFIG } from "widgets/IconWidget";
+import IconButtonWidget, {
+  CONFIG as ICON_BUTTON_WIDGET_CONFIG,
+} from "widgets/IconButtonWidget";
+import CheckboxGroupWidget, {
+  CONFIG as CHECKBOX_GROUP_WIDGET_CONFIG,
+} from "widgets/CheckboxGroupWidget";
+import StatboxWidget, {
+  CONFIG as STATBOX_WIDGET_CONFIG,
+} from "widgets/StatboxWidget";
+import FilePickerWidgetV2, {
+  CONFIG as FILEPICKER_WIDGET_V2_CONFIG,
+} from "widgets/FilePickerWidgetV2";
+import AudioWidget, {
+  CONFIG as AUDIO_WIDGET_CONFIG,
+} from "widgets/AudioWidget";
 
-    WidgetFactory.registerWidgetBuilder(
-      "TEXT_WIDGET",
-      {
-        buildWidget(widgetData: TextWidgetProps): JSX.Element {
-          return <ProfiledTextWidget {...widgetData} />;
-        },
-      },
-      TextWidget.getPropertyValidationMap(),
-      TextWidget.getDerivedPropertiesMap(),
-      TextWidget.getDefaultPropertiesMap(),
-      TextWidget.getMetaPropertiesMap(),
-      TextWidget.getPropertyPaneConfig(),
-    );
+import AudioRecorderWidget, {
+  CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
+} from "widgets/AudioRecorderWidget";
 
-    WidgetFactory.registerWidgetBuilder(
-      "BUTTON_WIDGET",
-      {
-        buildWidget(widgetData: ButtonWidgetProps): JSX.Element {
-          return <ProfiledButtonWidget {...widgetData} />;
-        },
-      },
-      ButtonWidget.getPropertyValidationMap(),
-      ButtonWidget.getDerivedPropertiesMap(),
-      ButtonWidget.getDefaultPropertiesMap(),
-      ButtonWidget.getMetaPropertiesMap(),
-      ButtonWidget.getPropertyPaneConfig(),
-    );
+import log from "loglevel";
+import SingleSelectTreeWidget, {
+  CONFIG as SINGLE_SELECT_TREE_WIDGET_CONFIG,
+} from "widgets/SingleSelectTreeWidget";
+import MultiSelectTreeWidget, {
+  CONFIG as MULTI_SELECT_TREE_WIDGET_CONFIG,
+} from "widgets/MultiSelectTreeWidget";
 
-    WidgetFactory.registerWidgetBuilder(
-      "INPUT_WIDGET",
-      {
-        buildWidget(widgetData: InputWidgetProps): JSX.Element {
-          return <ProfiledInputWidget {...widgetData} />;
-        },
-      },
-      InputWidget.getPropertyValidationMap(),
-      InputWidget.getDerivedPropertiesMap(),
-      InputWidget.getDefaultPropertiesMap(),
-      InputWidget.getMetaPropertiesMap(),
-      InputWidget.getPropertyPaneConfig(),
-    );
+export const registerWidgets = () => {
+  const start = performance.now();
+  registerWidget(CanvasWidget, CANVAS_WIDGET_CONFIG);
+  registerWidget(SkeletonWidget, SKELETON_WIDGET_CONFIG);
+  registerWidget(ContainerWidget, CONTAINER_WIDGET_CONFIG);
+  registerWidget(TextWidget, TEXT_WIDGET_CONFIG);
+  registerWidget(TableWidget, TABLE_WIDGET_CONFIG);
+  registerWidget(CheckboxWidget, CHECKBOX_WIDGET_CONFIG);
+  registerWidget(RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG);
+  registerWidget(ButtonWidget, BUTTON_WIDGET_CONFIG);
+  registerWidget(DropdownWidget, DROPDOWN_WIDGET_CONFIG);
+  registerWidget(ImageWidget, IMAGE_WIDGET_CONFIG);
+  registerWidget(VideoWidget, VIDEO_WIDGET_CONFIG);
+  registerWidget(TabsWidget, TABS_WIDGET_CONFIG);
+  registerWidget(InputWidget, INPUT_WIDGET_CONFIG);
+  registerWidget(ModalWidget, MODAL_WIDGET_CONFIG);
+  registerWidget(ChartWidget, CHART_WIDGET_CONFIG);
+  registerWidget(MapWidget, MAP_WIDGET_CONFIG);
+  registerWidget(FilePickerWidget, FILEPICKER_WIDGET_CONFIG);
+  registerWidget(RichTextEditorWidget, RICH_TEXT_EDITOR_WIDGET_CONFIG);
+  registerWidget(DatePickerWidget, DATE_PICKER_WIDGET_CONFIG);
+  registerWidget(DatePickerWidget2, DATE_PICKER_WIDGET_2_CONFIG);
+  registerWidget(SwitchWidget, SWITCH_WIDGET_CONFIG);
+  registerWidget(FormWidget, FORM_WIDGET_CONFIG);
+  registerWidget(FormButtonWidget, FORM_BUTTON_WIDGET_CONFIG);
+  registerWidget(IconWidget, ICON_WIDGET_CONFIG);
+  registerWidget(ListWidget, LIST_WIDGET_CONFIG);
+  registerWidget(RateWidget, RATE_WIDGET_CONFIG);
+  registerWidget(IframeWidget, IFRAME_WIDGET_CONFIG);
+  registerWidget(TabsMigratorWidget, TABS_MIGRATOR_WIDGET_CONFIG);
+  registerWidget(DividerWidget, DIVIDER_WIDGET_CONFIG);
+  registerWidget(MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG);
+  registerWidget(MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG);
+  registerWidget(IconButtonWidget, ICON_BUTTON_WIDGET_CONFIG);
+  registerWidget(CheckboxGroupWidget, CHECKBOX_GROUP_WIDGET_CONFIG);
+  registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
+  registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
+  registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
+  registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
+  registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
+  registerWidget(AudioWidget, AUDIO_WIDGET_CONFIG);
 
-    WidgetFactory.registerWidgetBuilder(
-      "CHECKBOX_WIDGET",
-      {
-        buildWidget(widgetData: CheckboxWidgetProps): JSX.Element {
-          return <ProfiledCheckboxWidget {...widgetData} />;
-        },
-      },
-      CheckboxWidget.getPropertyValidationMap(),
-      CheckboxWidget.getDerivedPropertiesMap(),
-      CheckboxWidget.getDefaultPropertiesMap(),
-      CheckboxWidget.getMetaPropertiesMap(),
-      CheckboxWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "SWITCH_WIDGET",
-      {
-        buildWidget(widgetData: SwitchWidgetProps): JSX.Element {
-          return <ProfiledSwitchWidget {...widgetData} />;
-        },
-      },
-      SwitchWidget.getPropertyValidationMap(),
-      SwitchWidget.getDerivedPropertiesMap(),
-      SwitchWidget.getDefaultPropertiesMap(),
-      SwitchWidget.getMetaPropertiesMap(),
-      SwitchWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "DROP_DOWN_WIDGET",
-      {
-        buildWidget(widgetData: DropdownWidgetProps): JSX.Element {
-          return <ProfiledDropDownWidget {...widgetData} />;
-        },
-      },
-      DropdownWidget.getPropertyValidationMap(),
-      DropdownWidget.getDerivedPropertiesMap(),
-      DropdownWidget.getDefaultPropertiesMap(),
-      DropdownWidget.getMetaPropertiesMap(),
-      DropdownWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "RADIO_GROUP_WIDGET",
-      {
-        buildWidget(widgetData: RadioGroupWidgetProps): JSX.Element {
-          return <ProfiledRadioGroupWidget {...widgetData} />;
-        },
-      },
-      RadioGroupWidget.getPropertyValidationMap(),
-      RadioGroupWidget.getDerivedPropertiesMap(),
-      RadioGroupWidget.getDefaultPropertiesMap(),
-      RadioGroupWidget.getMetaPropertiesMap(),
-      RadioGroupWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "IMAGE_WIDGET",
-      {
-        buildWidget(widgetData: ImageWidgetProps): JSX.Element {
-          return <ProfiledImageWidget {...widgetData} />;
-        },
-      },
-      ImageWidget.getPropertyValidationMap(),
-      ImageWidget.getDerivedPropertiesMap(),
-      ImageWidget.getDefaultPropertiesMap(),
-      ImageWidget.getMetaPropertiesMap(),
-      ImageWidget.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      "TABLE_WIDGET",
-      {
-        buildWidget(widgetData: TableWidgetProps): JSX.Element {
-          return <ProfiledTableWidget {...widgetData} />;
-        },
-      },
-      TableWidget.getPropertyValidationMap(),
-      TableWidget.getDerivedPropertiesMap(),
-      TableWidget.getDefaultPropertiesMap(),
-      TableWidget.getMetaPropertiesMap(),
-      TableWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "VIDEO_WIDGET",
-      {
-        buildWidget(widgetData: VideoWidgetProps): JSX.Element {
-          return <ProfiledVideoWidget {...widgetData} />;
-        },
-      },
-      VideoWidget.getPropertyValidationMap(),
-      VideoWidget.getDerivedPropertiesMap(),
-      VideoWidget.getDefaultPropertiesMap(),
-      VideoWidget.getMetaPropertiesMap(),
-      VideoWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "FILE_PICKER_WIDGET",
-      {
-        buildWidget(widgetData: FilePickerWidgetProps): JSX.Element {
-          return <ProfiledFilePickerWidget {...widgetData} />;
-        },
-      },
-      FilePickerWidget.getPropertyValidationMap(),
-      FilePickerWidget.getDerivedPropertiesMap(),
-      FilePickerWidget.getDefaultPropertiesMap(),
-      FilePickerWidget.getMetaPropertiesMap(),
-      FilePickerWidget.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      "DATE_PICKER_WIDGET",
-      {
-        buildWidget(widgetData: DatePickerWidgetProps): JSX.Element {
-          return <ProfiledDatePickerWidget {...widgetData} />;
-        },
-      },
-      DatePickerWidget.getPropertyValidationMap(),
-      DatePickerWidget.getDerivedPropertiesMap(),
-      DatePickerWidget.getDefaultPropertiesMap(),
-      DatePickerWidget.getMetaPropertiesMap(),
-      DatePickerWidget.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      "DATE_PICKER_WIDGET2",
-      {
-        buildWidget(widgetData: DatePickerWidget2Props): JSX.Element {
-          return <ProfiledDatePickerWidget2 {...widgetData} />;
-        },
-      },
-      DatePickerWidget2.getPropertyValidationMap(),
-      DatePickerWidget2.getDerivedPropertiesMap(),
-      DatePickerWidget2.getDefaultPropertiesMap(),
-      DatePickerWidget2.getMetaPropertiesMap(),
-      DatePickerWidget2.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      "TABS_WIDGET",
-      {
-        buildWidget(
-          widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
-        ): JSX.Element {
-          return <ProfiledTabsWidget {...widgetProps} />;
-        },
-      },
-      TabsWidget.getPropertyValidationMap(),
-      TabsWidget.getDerivedPropertiesMap(),
-      TabsWidget.getDefaultPropertiesMap(),
-      TabsWidget.getMetaPropertiesMap(),
-      TabsWidget.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.MODAL_WIDGET,
-      {
-        buildWidget(widgetProps: ModalWidgetProps): JSX.Element {
-          return <ProfiledModalWidget {...widgetProps} />;
-        },
-      },
-      BaseWidget.getPropertyValidationMap(),
-      BaseWidget.getDerivedPropertiesMap(),
-      BaseWidget.getDefaultPropertiesMap(),
-      BaseWidget.getMetaPropertiesMap(),
-      ModalWidget.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      "RICH_TEXT_EDITOR_WIDGET",
-      {
-        buildWidget(widgetData: RichTextEditorWidgetProps): JSX.Element {
-          return <ProfiledRichTextEditorWidget {...widgetData} />;
-        },
-      },
-      RichTextEditorWidget.getPropertyValidationMap(),
-      RichTextEditorWidget.getDerivedPropertiesMap(),
-      RichTextEditorWidget.getDefaultPropertiesMap(),
-      RichTextEditorWidget.getMetaPropertiesMap(),
-      RichTextEditorWidget.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      "CHART_WIDGET",
-      {
-        buildWidget(widgetData: ChartWidgetProps): JSX.Element {
-          return <ProfiledChartWidget {...widgetData} />;
-        },
-      },
-      ChartWidget.getPropertyValidationMap(),
-      ChartWidget.getDerivedPropertiesMap(),
-      ChartWidget.getDefaultPropertiesMap(),
-      ChartWidget.getMetaPropertiesMap(),
-      ChartWidget.getPropertyPaneConfig(),
-    );
-    WidgetFactory.registerWidgetBuilder(
-      "FORM_WIDGET",
-      {
-        buildWidget(
-          widgetProps: ContainerWidgetProps<WidgetProps>,
-        ): JSX.Element {
-          return <ProfiledFormWidget {...widgetProps} />;
-        },
-      },
-      FormWidget.getPropertyValidationMap(),
-      FormWidget.getDerivedPropertiesMap(),
-      FormWidget.getDefaultPropertiesMap(),
-      FormWidget.getMetaPropertiesMap(),
-      FormWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "FORM_BUTTON_WIDGET",
-      {
-        buildWidget(widgetProps: FormButtonWidgetProps): JSX.Element {
-          return <ProfiledFormButtonWidget {...widgetProps} />;
-        },
-      },
-      FormButtonWidget.getPropertyValidationMap(),
-      FormButtonWidget.getDerivedPropertiesMap(),
-      FormButtonWidget.getDefaultPropertiesMap(),
-      FormButtonWidget.getMetaPropertiesMap(),
-      FormButtonWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      "MAP_WIDGET",
-      {
-        buildWidget(widgetProps: MapWidgetProps): JSX.Element {
-          return <ProfiledMapWidget {...widgetProps} />;
-        },
-      },
-      MapWidget.getPropertyValidationMap(),
-      MapWidget.getDerivedPropertiesMap(),
-      MapWidget.getDefaultPropertiesMap(),
-      MapWidget.getMetaPropertiesMap(),
-      MapWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.CANVAS_WIDGET,
-      {
-        buildWidget(
-          widgetData: ContainerWidgetProps<WidgetProps>,
-        ): JSX.Element {
-          return <ProfiledCanvasWidget {...widgetData} />;
-        },
-      },
-      CanvasWidget.getPropertyValidationMap(),
-      CanvasWidget.getDerivedPropertiesMap(),
-      CanvasWidget.getDefaultPropertiesMap(),
-      CanvasWidget.getMetaPropertiesMap(),
-      CanvasWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.ICON_WIDGET,
-      {
-        buildWidget(widgetProps: IconWidgetProps): JSX.Element {
-          return <ProfiledIconWidget {...widgetProps} />;
-        },
-      },
-      IconWidget.getPropertyValidationMap(),
-      IconWidget.getDerivedPropertiesMap(),
-      IconWidget.getDefaultPropertiesMap(),
-      IconWidget.getMetaPropertiesMap(),
-      IconWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.SKELETON_WIDGET,
-      {
-        buildWidget(widgetProps: SkeletonWidgetProps): JSX.Element {
-          return <ProfiledSkeletonWidget {...widgetProps} />;
-        },
-      },
-      SkeletonWidget.getPropertyValidationMap(),
-      SkeletonWidget.getDerivedPropertiesMap(),
-      SkeletonWidget.getDefaultPropertiesMap(),
-      SkeletonWidget.getMetaPropertiesMap(),
-      SkeletonWidget.getPropertyPaneConfig(),
-    );
-
-    WidgetFactory.registerWidgetBuilder(
-      WidgetTypes.MODAL_WIDGET,
-      {
-        buildWidget(widgetData: ModalWidgetProps): JSX.Element {
-          return <ProfiledModalWidget {...widgetData} />;
-        },
-      },
-      ModalWidget.getPropertyValidationMap(),
-      ModalWidget.getDerivedPropertiesMap(),
-      ModalWidget.getDefaultPropertiesMap(),
-      ModalWidget.getMetaPropertiesMap(),
-      ModalWidget.getPropertyPaneConfig(),
-    );
-  }
-}
+  log.debug("Widget registration took: ", performance.now() - start, "ms");
+};

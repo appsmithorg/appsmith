@@ -1,13 +1,43 @@
-import React, { useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  EditorTheme,
+  FieldEntityInformation,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import Tooltip from "components/ads/Tooltip";
+import { Toaster } from "components/ads/Toast";
+import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import { UNDEFINED_VALIDATION } from "utils/validation/common";
+import { IPopoverSharedProps } from "@blueprintjs/core";
+import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import copy from "copy-to-clipboard";
 
+import { EvaluationError } from "utils/DynamicBindingUtils";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
+import { Indices, Layers } from "constants/Layers";
+import { Variant } from "components/ads/common";
+
+const modifiers: IPopoverSharedProps["modifiers"] = {
+  offset: {
+    enabled: true,
+    offset: "0, 15",
+  },
+  preventOverflow: {
+    enabled: true,
+    boundariesElement: "viewport",
+  },
+};
 const Wrapper = styled.div`
   position: relative;
   flex: 1;
@@ -55,29 +85,42 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   max-height: 300px;
+  min-height: 1rem;
   overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
+  padding-right: 30px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  position: relative;
+`;
+
+const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
+  color: ${(props) => THEMES[props.colorTheme].textColor};
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  padding: 0;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   margin: 0px 0px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
-  font-size: 14px;
+  font-size: 12px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
   word-break: break-all;
 `;
 
-const TypeText = styled.pre<{ colorTheme: EditorTheme }>`
-  padding: ${(props) => props.theme.spaces[3]}px;
+const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
+  padding: ${(props) => (props.padded ? "8px" : 0)};
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   color: ${(props) => THEMES[props.colorTheme].editorColor};
   font-size: 12px;
   margin: 5px 0;
   -ms-overflow-style: none;
+  white-space: pre-wrap;
 `;
 
 const ErrorText = styled.p`
@@ -93,167 +136,359 @@ const ErrorText = styled.p`
   color: ${(props) => props.theme.colors.errorMessage};
 `;
 
+const StyledIcon = styled(Icon)`
+  &.open-collapse {
+    transform: rotate(90deg);
+  }
+  float: right;
+`;
+
 const StyledTitle = styled.p`
   margin: 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
 `;
+
+function CollapseToggle(props: { isOpen: boolean }) {
+  const { isOpen } = props;
+  return (
+    <StyledIcon
+      className={isOpen ? "open-collapse" : ""}
+      icon={IconNames.CHEVRON_RIGHT}
+    />
+  );
+}
+
+function copyContent(content: any) {
+  copy(content);
+  Toaster.show({
+    text: `Evaluated value copied to clipboard`,
+    variant: Variant.success,
+  });
+}
 
 interface Props {
   theme: EditorTheme;
   isOpen: boolean;
   hasError: boolean;
-  expected?: string;
+  expected?: CodeEditorExpected;
   evaluatedValue?: any;
   children: JSX.Element;
-  error?: string;
+  errors: EvaluationError[];
   useValidationMessage?: boolean;
+  hideEvaluatedValue?: boolean;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
+  entity?: FieldEntityInformation;
+  popperZIndex?: Indices;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
-  expected?: string;
-  error?: string;
+  entity?: FieldEntityInformation;
+  expected?: CodeEditorExpected;
+  errors: EvaluationError[];
   useValidationMessage?: boolean;
   evaluatedValue: any;
   theme: EditorTheme;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  hideEvaluatedValue?: boolean;
+  preparedStatementViewer: boolean;
 }
 
-export const CurrentValueViewer = (props: {
-  theme: EditorTheme;
-  evaluatedValue: any;
-  hideLabel?: boolean;
-}) => {
-  const currentValueWrapperRef = React.createRef<HTMLDivElement>();
-  const codeWrapperRef = React.createRef<HTMLPreElement>();
-
-  let content = (
-    <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
-      {"undefined"}
-      <ScrollIndicator containerRef={codeWrapperRef} />
-    </CodeWrapper>
-  );
-  if (props.evaluatedValue !== undefined) {
-    if (
-      _.isObject(props.evaluatedValue) ||
-      Array.isArray(props.evaluatedValue)
-    ) {
-      const reactJsonProps = {
-        theme: props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
-        name: null,
-        enableClipboard: false,
-        displayObjectSize: false,
-        displayDataTypes: false,
-        style: {
-          fontSize: "12px",
-        },
-        collapsed: 2,
-        collapseStringsAfterLength: 20,
-      };
-      content = <ReactJson src={props.evaluatedValue} {...reactJsonProps} />;
-    } else {
-      content = (
-        <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
-          {props.evaluatedValue === null
-            ? "null"
-            : props.evaluatedValue.toString()}
-          <ScrollIndicator containerRef={codeWrapperRef} />
-        </CodeWrapper>
-      );
-    }
+const PreparedStatementViewerContainer = styled.span`
+  .${Classes.POPOVER_TARGET} {
+    display: inline-block;
   }
-  return (
-    <React.Fragment>
-      {!props.hideLabel && <StyledTitle>Evaluated Value</StyledTitle>}
-      <CurrentValueWrapper colorTheme={props.theme}>
-        <>
-          {content}
-          <ScrollIndicator containerRef={currentValueWrapperRef} />
-        </>
-      </CurrentValueWrapper>
-    </React.Fragment>
-  );
-};
+`;
 
-const PopoverContent = (props: PopoverContentProps) => {
+const PreparedStatementParameter = styled.span`
+  cursor: pointer;
+  text-decoration: underline;
+  color: #333;
+`;
+
+type PreparedStatementValue = {
+  value: string;
+  parameters: Record<string, number | string>;
+};
+export function PreparedStatementViewer(props: {
+  evaluatedValue: PreparedStatementValue;
+}) {
+  const { parameters, value } = props.evaluatedValue;
+  if (!value) {
+    Sentry.captureException("Prepared Statement got no value", {
+      level: Severity.Debug,
+      extra: { props },
+    });
+    return <div />;
+  }
+  const stringSegments = value.split(/\$\d/);
+  const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
+  const paramsWithTooltips = $params.map((param) => (
+    <Tooltip content={<span>{parameters[param]}</span>} key={param}>
+      <PreparedStatementParameter key={param}>
+        {param}
+      </PreparedStatementParameter>
+    </Tooltip>
+  ));
+
+  return (
+    <PreparedStatementViewerContainer>
+      {stringSegments.map((segment, index) => (
+        <span key={segment}>
+          {segment}
+          {paramsWithTooltips[index]}
+        </span>
+      ))}
+    </PreparedStatementViewerContainer>
+  );
+}
+
+export const CurrentValueViewer = memo(
+  function CurrentValueViewer(props: {
+    theme: EditorTheme;
+    evaluatedValue: any;
+    hideLabel?: boolean;
+    preparedStatementViewer?: boolean;
+  }) {
+    const codeWrapperRef = React.createRef<HTMLPreElement>();
+    const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+    const toggleEvaluatedValue = () => {
+      setOpenEvaluatedValue(!openEvaluatedValue);
+    };
+    let content = (
+      <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+        {"undefined"}
+        <ScrollIndicator containerRef={codeWrapperRef} />
+      </CodeWrapper>
+    );
+    if (props.evaluatedValue !== undefined) {
+      if (
+        _.isObject(props.evaluatedValue) ||
+        Array.isArray(props.evaluatedValue)
+      ) {
+        if (props.preparedStatementViewer) {
+          content = (
+            <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+              <PreparedStatementViewer
+                evaluatedValue={props.evaluatedValue as PreparedStatementValue}
+              />
+              <ScrollIndicator containerRef={codeWrapperRef} />
+            </CodeWrapper>
+          );
+        } else {
+          const reactJsonProps = {
+            theme:
+              props.theme === EditorTheme.DARK ? "summerfruit" : "rjv-default",
+            name: null,
+            enableClipboard: false,
+            displayObjectSize: false,
+            displayDataTypes: false,
+            style: {
+              fontSize: "12px",
+            },
+            collapsed: 2,
+            collapseStringsAfterLength: 20,
+            shouldCollapse: (field: any) => {
+              const index = field.name * 1;
+              return index >= 2;
+            },
+          };
+          content = (
+            <ReactJson src={props.evaluatedValue} {...reactJsonProps} />
+          );
+        }
+      } else {
+        content = (
+          <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
+            {props.evaluatedValue === null
+              ? "null"
+              : props.evaluatedValue.toString()}
+            <ScrollIndicator containerRef={codeWrapperRef} />
+          </CodeWrapper>
+        );
+      }
+    }
+    return (
+      <>
+        {!props.hideLabel && (
+          <StyledTitle
+            data-testid="evaluated-value-popup-title"
+            onClick={toggleEvaluatedValue}
+          >
+            Evaluated Value
+            <CollapseToggle isOpen={openEvaluatedValue} />
+          </StyledTitle>
+        )}
+        <Collapse isOpen={openEvaluatedValue}>
+          <CurrentValueWrapper colorTheme={props.theme}>
+            {content}
+            {props.hasOwnProperty("evaluatedValue") && (
+              <CopyIconWrapper
+                colorTheme={props.theme}
+                minimal
+                onClick={() => copyContent(props.evaluatedValue)}
+              >
+                <CopyIcon />
+              </CopyIconWrapper>
+            )}
+          </CurrentValueWrapper>
+        </Collapse>
+      </>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.theme === nextProps.theme &&
+      prevProps.hideLabel === nextProps.hideLabel &&
+      // Deep-compare evaluated values to ensure we only rerender
+      // when the array actually changes
+      _.isEqual(prevProps.evaluatedValue, nextProps.evaluatedValue)
+    );
+  },
+);
+
+function PopoverContent(props: PopoverContentProps) {
   const typeTextRef = React.createRef<HTMLPreElement>();
+  const [openExpectedDataType, setOpenExpectedDataType] = useState(false);
+  const toggleExpectedDataType = () =>
+    setOpenExpectedDataType(!openExpectedDataType);
+
+  const [openExpectedExample, setOpenExpectedExample] = useState(false);
+  const toggleExpectedExample = () =>
+    setOpenExpectedExample(!openExpectedExample);
+  const {
+    errors,
+    expected,
+    hasError,
+    onMouseEnter,
+    onMouseLeave,
+    theme,
+  } = props;
+  let error: EvaluationError | undefined;
+  if (hasError) {
+    error = errors[0];
+  }
+
   return (
     <ContentWrapper
-      onMouseEnter={props.onMouseEnter}
-      onMouseLeave={props.onMouseLeave}
-      colorTheme={props.theme}
       className="t--CodeEditor-evaluatedValue"
+      colorTheme={theme}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      {props.hasError && (
+      {hasError && error && (
         <ErrorText>
-          {props.useValidationMessage && props.error
-            ? props.error
-            : `This value does not evaluate to type "${props.expected}". Transform it using JS inside '{{ }}'`}
+          <span className="t--evaluatedPopup-error">
+            {/* errorMessage could be an empty string */}
+            {error.errorMessage ||
+              `This value does not evaluate to type "${expected?.type}".`}
+          </span>
+          <EvaluatedValueDebugButton
+            entity={props.entity}
+            error={{ type: error.errorType, message: error.errorMessage }}
+          />
         </ErrorText>
       )}
-      {!props.hasError && props.expected && (
-        <React.Fragment>
-          <StyledTitle>Expected Data Type</StyledTitle>
-          <TypeText colorTheme={props.theme} ref={typeTextRef}>
-            {props.expected}
-            <ScrollIndicator containerRef={typeTextRef} />
-          </TypeText>
-        </React.Fragment>
+      {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
+        <>
+          <StyledTitle onClick={toggleExpectedDataType}>
+            Expected Structure
+            <CollapseToggle isOpen={openExpectedDataType} />
+          </StyledTitle>
+          <Collapse isOpen={openExpectedDataType}>
+            <TypeText colorTheme={props.theme} padded ref={typeTextRef}>
+              {props.expected.type}
+            </TypeText>
+          </Collapse>
+        </>
       )}
-      <CurrentValueViewer
-        theme={props.theme}
-        evaluatedValue={props.evaluatedValue}
-      />
+      {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
+        <>
+          <StyledTitle onClick={toggleExpectedExample}>
+            Expected Structure - Example
+            <CollapseToggle isOpen={openExpectedExample} />
+          </StyledTitle>
+          <Collapse isOpen={openExpectedExample}>
+            <TypeText colorTheme={props.theme} ref={typeTextRef}>
+              <CurrentValueViewer
+                evaluatedValue={props.expected.example}
+                hideLabel
+                theme={props.theme}
+              />
+            </TypeText>
+          </Collapse>
+        </>
+      )}
+      {!props.hideEvaluatedValue && (
+        <CurrentValueViewer
+          evaluatedValue={props.evaluatedValue}
+          preparedStatementViewer={props.preparedStatementViewer}
+          theme={props.theme}
+        />
+      )}
     </ContentWrapper>
   );
-};
+}
 
-const EvaluatedValuePopup = (props: Props) => {
+function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
+  const [timeoutId, setTimeoutId] = useState(0);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  let placement: Placement = "left-start";
-  if (wrapperRef.current) {
-    const boundingRect = wrapperRef.current.getBoundingClientRect();
-    if (boundingRect.left < theme.evaluatedValuePopup.width) {
-      placement = "right-start";
+  const placement: Placement = useMemo(() => {
+    if (props.popperPlacement) return props.popperPlacement;
+    if (wrapperRef.current) {
+      const boundingRect = wrapperRef.current.getBoundingClientRect();
+      if (boundingRect.left < theme.evaluatedValuePopup.width) {
+        return "right-start";
+      }
     }
-  }
+    return "left-start";
+  }, [wrapperRef.current]);
 
   return (
     <Wrapper ref={wrapperRef}>
-      {(props.isOpen || contentHovered) && (
-        <Popper
-          targetNode={wrapperRef.current || undefined}
-          isOpen
-          zIndex={15}
-          placement={placement}
-          modifiers={{
-            offset: {
-              enabled: true,
-              offset: "0, 15",
-            },
+      <Popper
+        isOpen={props.isOpen || contentHovered}
+        modifiers={modifiers}
+        placement={placement}
+        targetNode={wrapperRef.current || undefined}
+        zIndex={props.popperZIndex || Layers.evaluationPopper}
+      >
+        <PopoverContent
+          entity={props.entity}
+          errors={props.errors}
+          evaluatedValue={props.evaluatedValue}
+          expected={props.expected}
+          hasError={props.hasError}
+          hideEvaluatedValue={props.hideEvaluatedValue}
+          onMouseEnter={() => {
+            clearTimeout(timeoutId);
+            setContentHovered(true);
           }}
-        >
-          <PopoverContent
-            expected={props.expected}
-            evaluatedValue={props.evaluatedValue}
-            error={props.error}
-            useValidationMessage={props.useValidationMessage}
-            hasError={props.hasError}
-            theme={props.theme}
-            onMouseLeave={() => {
-              setContentHovered(false);
-            }}
-            onMouseEnter={() => {
-              setContentHovered(true);
-            }}
-          />
-        </Popper>
-      )}
+          onMouseLeave={() => {
+            const id = setTimeout(() => setContentHovered(false), 500);
+            setTimeoutId(id);
+          }}
+          preparedStatementViewer={
+            props.evaluationSubstitutionType
+              ? props.evaluationSubstitutionType ===
+                EvaluationSubstitutionType.PARAMETER
+              : false
+          }
+          theme={props.theme}
+          useValidationMessage={props.useValidationMessage}
+        />
+      </Popper>
+
       {props.children}
     </Wrapper>
   );
-};
+}
 
 export default EvaluatedValuePopup;

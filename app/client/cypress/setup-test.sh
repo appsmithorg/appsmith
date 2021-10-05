@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
@@ -35,13 +35,50 @@ sudo docker run --network host --name postgres -d -p 5432:5432 \
  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
  postgres:latest &
 
+sudo docker run -p 127.0.0.1:3306:3306  --name mariadb -e MARIADB_ROOT_PASSWORD=root123 -d mariadb
+
+echo "Sleeping for 30 seconds to let the MySQL start"
+sleep 30
+
+sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-mysql-dump-for-test.sql
+
+
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
 echo "Checking if the containers have started"
-sudo docker ps -a 
+sudo docker ps -a
+for fcid in $(sudo docker ps -a | awk '/Exited/ { print $1 }'); do
+  echo "Logs for container '$fcid'."
+  docker logs "$fcid"
+done
+if sudo docker ps -a | grep -q Exited; then
+  echo "One or more containers failed to start." >&2
+  exit 1
+fi
 
-# Create the test user 
+echo "Checking if the server has started"
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+
+retry_count=1
+
+while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
+	echo "Hit 502.Server not started retrying..."
+	retry_count=$((1 + $retry_count))
+	sleep 30
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+done
+
+echo "Checking if client and server have started"
+ps -ef |grep java 2>&1
+ps -ef |grep  serve 2>&1
+
+if [ "$status_code" -eq "502" ]; then
+  echo "Unable to connect to server"
+  exit 1
+fi
+
+# Create the test user
 curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \
 --header 'Content-Type: application/json' \
 --data-raw '{

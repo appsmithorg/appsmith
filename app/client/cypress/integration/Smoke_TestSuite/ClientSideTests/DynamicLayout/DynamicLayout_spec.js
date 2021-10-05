@@ -23,6 +23,9 @@ describe("Dynamic Layout Functionality", function() {
     cy.get(pages.AddPage)
       .first()
       .click();
+
+    cy.skipGenerateCRUDPage();
+
     cy.get(commonlocators.canvas)
       .invoke("width")
       .should("be.eq", 450);

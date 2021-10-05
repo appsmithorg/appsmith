@@ -7,7 +7,7 @@ import {
   moveActionRequest,
   copyActionRequest,
   deleteAction,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
@@ -15,6 +15,7 @@ import TreeDropdown from "components/ads/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "components/ads/common";
 
 type EntityContextMenuProps = {
   id: string;
@@ -36,7 +37,7 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
     width: auto;
   }
 
-  &&&& svg > path {
+  .${Classes.ICON} {
     fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.normal};
   }
 
@@ -45,7 +46,7 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
       ? `
 		background-color: ${props.theme.colors.treeDropdown.targetBg};
 
-    &&&& svg > path {
+    &&&& .${Classes.ICON} {
       fill: ${props.theme.colors.treeDropdown.targetIcon.hover};
     }
 	`
@@ -54,13 +55,13 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
   &:hover {
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
 
-    &&&& svg > path {
+    &&&& .${Classes.ICON} {
       fill: ${(props) => props.theme.colors.treeDropdown.targetIcon.hover};
     }
   }
 `;
 
-export const MoreActionsMenu = (props: EntityContextMenuProps) => {
+export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nextEntityName = useNewActionName();
 
@@ -107,8 +108,8 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
+      onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
       onSelect={noop}
-      selectedValue=""
       optionTree={[
         {
           icon: "duplicate",
@@ -149,17 +150,17 @@ export const MoreActionsMenu = (props: EntityContextMenuProps) => {
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      selectedValue=""
       toggle={
         <MoreActionablesContainer
           className={props.className}
           isOpen={isMenuOpen}
         >
-          <Icon name="context-menu" size={IconSize.XXXL}></Icon>
+          <Icon name="context-menu" size={IconSize.XXXL} />
         </MoreActionablesContainer>
       }
-      onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
     />
   );
-};
+}
 
 export default MoreActionsMenu;

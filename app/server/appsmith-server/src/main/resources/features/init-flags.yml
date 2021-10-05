@@ -1,0 +1,46 @@
+# Check sample file at: https://github.com/ff4j/ff4j-samples/blob/master/spring-boot-2x/ff4j-sample-springboot2x/src/main/resources/ff4j-init-dataset.yml
+
+# -----------------------------
+# Core FF4J
+# -----------------------------
+ff4j:
+  autocreate: false
+  audit: false
+
+  features:
+
+    - uid: JS_EDITOR
+      enable: true
+      description: Enable JS editor by email domain of the user
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
+
+    - uid: LINTING
+      enable: true
+      description: Enable linting feature by email domain of the user
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
+
+    - uid: MULTIPLAYER
+      enable: true
+      description: Enable collaboration by sharing mouse pointers of concurrent app editors
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
+
+    - uid: GIT
+      enable: true
+      description: Enable git for apps
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: test.com

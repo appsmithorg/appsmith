@@ -5,30 +5,21 @@ import _ from "lodash";
 import * as log from "loglevel";
 
 export enum PerformanceTransactionName {
-  DEPLOY_APPLICATION = "DEPLOY_APPLICATION",
   DATA_TREE_EVALUATION = "DATA_TREE_EVALUATION",
-  DATA_TREE_WORKER_EVALUATION = "DATA_TREE_WORKER_EVALUATION",
-  EVAL_REDUX_UPDATE = "EVAL_REDUX_UPDATE",
-  CONSTRUCT_UNEVAL_TREE = "CONSTRUCT_UNEVAL_TREE",
-  CONSTRUCT_CANVAS_DSL = "CONSTRUCT_CANVAS_DSL",
-  CREATE_DEPENDENCIES = "CREATE_DEPENDENCIES",
-  SORTED_DEPENDENCY_EVALUATION = "SORTED_DEPENDENCY_EVALUATION",
-  SET_WIDGET_LOADING = "SET_WIDGET_LOADING",
-  VALIDATE_DATA_TREE = "VALIDATE_DATA_TREE",
+  SET_EVALUATED_TREE = "SET_EVALUATED_TREE",
   EXECUTE_PAGE_LOAD_ACTIONS = "EXECUTE_PAGE_LOAD_ACTIONS",
-  EVALUATE_BINDING = "EVALUATE_BINDING",
   ENTITY_EXPLORER_ENTITY = "ENTITY_EXPLORER_ENTITY",
   ENTITY_EXPLORER = "ENTITY_EXPLORER",
   CLOSE_SIDE_PANE = "CLOSE_SIDE_PANE",
   OPEN_ACTION = "OPEN_ACTION",
-  EDITOR_MOUNT = "EDITOR_MOUNT",
   SIDE_BAR_MOUNT = "SIDE_BAR_MOUNT",
-  CANVAS_MOUNT = "CANVAS_MOUNT",
   EXECUTE_ACTION = "EXECUTE_ACTION",
   CHANGE_API_SAGA = "CHANGE_API_SAGA",
   SYNC_PARAMS_SAGA = "SYNC_PARAMS_SAGA",
   RUN_API_CLICK = "RUN_API_CLICK",
+  RUN_API_SHORTCUT = "RUN_API_SHORTCUT",
   RUN_QUERY_CLICK = "RUN_QUERY_CLICK",
+  RUN_QUERY_SHORTCUT = "RUN_QUERY_SHORTCUT",
   FETCH_ACTIONS_API = "FETCH_ACTIONS_API",
   FETCH_PAGE_LIST_API = "FETCH_PAGE_LIST_API",
   FETCH_PAGE_ACTIONS_API = "FETCH_PAGE_ACTIONS_API",
@@ -40,16 +31,15 @@ export enum PerformanceTransactionName {
   USER_ME_API = "USER_ME_API",
   SIGN_UP = "SIGN_UP",
   LOGIN_CLICK = "LOGIN_CLICK",
-  SET_EVALUATED = "SET_EVALUATED",
+  INIT_EDIT_APP = "INIT_EDIT_APP",
+  INIT_VIEW_APP = "INIT_VIEW_APP",
+  SHOW_RESIZE_HANDLES = "SHOW_RESIZE_HANDLES",
 }
 
-export enum PerformanceTagNames {
-  PAGE_ID = "pageId",
-  APP_ID = "appId",
-  APP_MODE = "appMode",
-  TRANSACTION_SUCCESS = "transaction.success",
-}
-
+export type PerfTag = {
+  name: string;
+  value: string;
+};
 export interface PerfLog {
   sentrySpan: Span;
   skipLog?: boolean;
@@ -66,6 +56,7 @@ class PerformanceTracker {
     eventName: PerformanceTransactionName,
     data?: any,
     skipLog = false,
+    tags: Array<PerfTag> = [],
   ) => {
     if (appsmithConfigs.sentry.enabled) {
       const currentTransaction = Sentry.getCurrentHub()
@@ -93,6 +84,11 @@ class PerformanceTracker {
           );
         }
         const newTransaction = Sentry.startTransaction({ name: eventName });
+
+        tags.forEach(({ name: tagName, value }) => {
+          newTransaction.setTag(tagName, value);
+        });
+
         newTransaction.setData("startData", data);
         Sentry.getCurrentHub().configureScope((scope) =>
           scope.setSpan(newTransaction),

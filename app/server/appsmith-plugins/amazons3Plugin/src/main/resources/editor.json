@@ -134,6 +134,34 @@
           }
         },
         {
+          "label": "Generate Un-signed URL Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "generateUnsignedUrl"
+        },
+        {
+          "label": "Generate Un-signed URL",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ],
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "LIST"
+          }
+        },
+        {
           "label": "Base64 Encode File - Yes/No",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
           "controlType": "DROP_DOWN",

@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all } from "redux-saga/effects";
+import { call, takeLatest, put, all, select, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -13,8 +13,14 @@ import UserApi, {
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
+  LeaveOrgRequest,
 } from "api/UserApi";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
+  BASE_URL,
+  SETUP,
+} from "constants/routes";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -29,6 +35,9 @@ import {
   verifyInviteError,
   invitedUserSignupError,
   invitedUserSignupSuccess,
+  fetchFeatureFlagsSuccess,
+  fetchFeatureFlagsError,
+  fetchFeatureFlagsInit,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -36,15 +45,31 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ERROR_CODES } from "constants/ApiConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import {
+  ANONYMOUS_USERNAME,
+  CommentsOnboardingState,
+} from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 import log from "loglevel";
+
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  initAppLevelSocketConnection,
+  initPageLevelSocketConnection,
+} from "actions/websocketActions";
+import {
+  getEnableFirstTimeUserOnboarding,
+  getFirstTimeUserOnboardingApplicationId,
+  getFirstTimeUserOnboardingIntroModalVisibility,
+} from "utils/storage";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
 ) {
-  const { email, password, resolve, reject } = action.payload;
+  const { email, password, reject, resolve } = action.payload;
   try {
     const request: CreateUserRequest = { email, password };
     const response: CreateUserResponse = yield callAPI(
@@ -57,7 +82,7 @@ export function* createUserSaga(
       const errorMessage = getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
-      const { email, name, id } = response.data;
+      const { email, id, name } = response.data;
       yield put({
         type: ReduxActionTypes.CREATE_USER_SUCCESS,
         payload: {
@@ -88,23 +113,32 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      yield put(initAppLevelSocketConnection());
+      yield put(initPageLevelSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME
       ) {
         AnalyticsUtil.identifyUser(response.data);
+        // make fetch feature call only if logged in
+        yield put(fetchFeatureFlagsInit());
+      } else {
+        // reset the flagsFetched flag
+        yield put(fetchFeatureFlagsSuccess());
       }
-      if (window.location.pathname === BASE_URL) {
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+        payload: response.data,
+      });
+      if (response.data.emptyInstance) {
+        history.replace(SETUP);
+      } else if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
         } else {
           history.replace(APPLICATIONS_URL);
         }
       }
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-        payload: response.data,
-      });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,
       );
@@ -133,7 +167,7 @@ export function* getCurrentUserSaga() {
 export function* forgotPasswordSaga(
   action: ReduxActionWithPromise<ForgotPasswordRequest>,
 ) {
-  const { email, resolve, reject } = action.payload;
+  const { email, reject, resolve } = action.payload;
 
   try {
     const request: ForgotPasswordRequest = { email };
@@ -163,7 +197,7 @@ export function* forgotPasswordSaga(
 export function* resetPasswordSaga(
   action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
 ) {
-  const { email, token, password, resolve, reject } = action.payload;
+  const { email, password, reject, resolve, token } = action.payload;
   try {
     const request: TokenPasswordUpdateRequest = {
       email,
@@ -196,7 +230,7 @@ export function* resetPasswordSaga(
 export function* invitedUserSignupSaga(
   action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
 ) {
-  const { email, token, password, resolve, reject } = action.payload;
+  const { email, password, reject, resolve, token } = action.payload;
   try {
     const request: TokenPasswordUpdateRequest = { email, password, token };
     const response: ApiResponse = yield callAPI(
@@ -240,7 +274,7 @@ export function* inviteUsers(
     data: { usernames: string[]; orgId: string; roleName: string };
   }>,
 ) {
-  const { data, resolve, reject } = action.payload;
+  const { data, reject, resolve } = action.payload;
   try {
     const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
       usernames: data.usernames,
@@ -274,8 +308,9 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { name } = action.payload;
+    const { email, name } = action.payload;
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
+      email,
       name,
     });
     const isValidResponse = yield validateResponse(response);
@@ -304,9 +339,13 @@ export function* verifyResetPasswordTokenSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
       });
     }
   } catch (error) {
@@ -331,19 +370,95 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
   }
 }
 
-export function* logoutSaga() {
+export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
   try {
+    const redirectURL = action.payload?.redirectURL;
     const response: ApiResponse = yield call(UserApi.logoutUser);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.reset();
-      yield put(logoutUserSuccess());
+      const currentUser = yield select(getCurrentUser);
+      yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
       localStorage.clear();
-      yield put(flushErrorsAndRedirect(AUTH_LOGIN_URL));
+      yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }
   } catch (error) {
     log.error(error);
     yield put(logoutUserError(error));
+  }
+}
+
+export function* waitForFetchUserSuccess() {
+  const currentUser = yield select(getCurrentUser);
+  if (!currentUser) {
+    yield take(ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS);
+  }
+}
+
+function* removePhoto(action: ReduxAction<{ callback: () => void }>) {
+  try {
+    yield call(UserApi.deletePhoto);
+    if (action.payload.callback) action.payload.callback();
+  } catch (error) {
+    log.error(error);
+  }
+}
+
+function* updatePhoto(
+  action: ReduxAction<{ file: File; callback: () => void }>,
+) {
+  try {
+    yield call(UserApi.uploadPhoto, { file: action.payload.file });
+    if (action.payload.callback) action.payload.callback();
+  } catch (error) {
+    log.error(error);
+  }
+}
+
+function* fetchFeatureFlags() {
+  try {
+    const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      (window as any).FEATURE_FLAGS = response.data;
+      yield put(fetchFeatureFlagsSuccess());
+    }
+  } catch (error) {
+    log.error(error);
+    yield put(fetchFeatureFlagsError(error));
+  }
+}
+
+function* updateFirstTimeUserOnboardingSage() {
+  const enable = yield getEnableFirstTimeUserOnboarding();
+
+  if (enable) {
+    const applicationId = yield getFirstTimeUserOnboardingApplicationId() || "";
+    const introModalVisibility = yield getFirstTimeUserOnboardingIntroModalVisibility();
+    yield put({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      payload: true,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      payload: applicationId,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+      payload: introModalVisibility,
+    });
+  }
+}
+
+export function* updateUsersCommentsOnboardingState(
+  action: ReduxAction<CommentsOnboardingState>,
+) {
+  try {
+    yield call(UserApi.updateUsersCommentOnboardingState, {
+      commentOnboardingState: action.payload,
+    });
+  } catch (error) {
+    log.error(error);
   }
 }
 
@@ -368,5 +483,36 @@ export default function* userSagas() {
       ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
       updateUserDetailsSaga,
     ),
+    takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
+    takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
+    takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
+    takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
+    takeLatest(
+      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      updateFirstTimeUserOnboardingSage,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE,
+      updateUsersCommentsOnboardingState,
+    ),
   ]);
+}
+
+export function* leaveOrgSaga(action: ReduxAction<LeaveOrgRequest>) {
+  try {
+    const request: LeaveOrgRequest = action.payload;
+    const response: ApiResponse = yield call(UserApi.leaveOrg, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+      });
+      Toaster.show({
+        text: `You have successfully left the organization`,
+        variant: Variant.success,
+      });
+    }
+  } catch (error) {
+    // do nothing as it's already handled globally
+  }
 }

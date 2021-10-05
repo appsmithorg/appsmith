@@ -17,13 +17,14 @@ const StyledUpdatesButton = styled.div`
   cursor: pointer;
   background-color: ${(props) =>
     props.theme.colors.floatingBtn.backgroundColor};
+  border: 1px solid ${(props) => props.theme.colors.floatingBtn.borderColor};
 `;
 
 const StyledTag = styled.div`
   font-weight: ${(props) => props.theme.typography.p2.fontWeight};
   font-size: ${(props) => props.theme.typography.p2.fontSize}px;
   line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.p2.letterSpacing}};
+  letter-spacing: ${(props) => props.theme.typography.p2.letterSpacing};
   padding: ${(props) => props.theme.spaces[1]}px;
   background: ${(props) => props.theme.colors.floatingBtn.tagBackground};
   border-radius: 100px;
@@ -43,26 +44,30 @@ const UpdatesButtonTextContainer = styled.div`
     props.theme.typography.floatingBtn.letterSpacing}px;
   display: flex;
   align-items: center;
-  margin-left: ${(props) => props.theme.spaces[3]}px;
+  margin-left: ${(props) => props.theme.spaces[5]}px;
   color: ${(props) => props.theme.colors.text.normal};
 `;
 
 const UpdatesIcon = withTheme(({ theme }) => (
   <HelpIcons.UPDATES
+    color={theme.colors.floatingBtn.iconColor}
     height={12}
     width={13}
-    color={theme.colors.floatingBtn.iconColor}
   />
 ));
 
-const UpdatesButton = ({ newReleasesCount }: { newReleasesCount: string }) => (
-  <StyledUpdatesButton data-cy="t--product-updates-btn">
-    <div style={{ display: "flex" }}>
-      <UpdatesIcon />
-      <UpdatesButtonTextContainer>What&apos;s New?</UpdatesButtonTextContainer>
-    </div>
-    {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}
-  </StyledUpdatesButton>
-);
+function UpdatesButton({ newReleasesCount }: { newReleasesCount: string }) {
+  return (
+    <StyledUpdatesButton data-cy="t--product-updates-btn">
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <UpdatesIcon />
+        <UpdatesButtonTextContainer>
+          What&apos;s New?
+        </UpdatesButtonTextContainer>
+      </div>
+      {newReleasesCount && <StyledTag>{newReleasesCount}</StyledTag>}
+    </StyledUpdatesButton>
+  );
+}
 
 export default UpdatesButton;

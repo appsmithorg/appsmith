@@ -58,7 +58,9 @@
                             "chartType": "LINE_CHART",
                             "chartName": "Sales on working days",
                             "allowHorizontalScroll": false,
-                            "chartData": [{"seriesName":"Sales","data":""}],
+                            "chartData": {
+                              "some-random-id": {"seriesName":"Sales","data": []}
+                            },
                             "xAxisName": "Last Week",
                             "yAxisName": "Total Order Revenue $",
                             "type": "CHART_WIDGET",

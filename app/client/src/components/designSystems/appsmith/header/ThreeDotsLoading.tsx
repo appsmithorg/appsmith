@@ -9,7 +9,7 @@ const Spinner = styled.div`
   && > div {
     width: 4px;
     height: 4px;
-    background-color: #fff;
+    background-color: #4b4848;
 
     border-radius: 100%;
     display: inline-block;
@@ -56,7 +56,7 @@ type Props = {
   className?: string;
 };
 
-const ThreeDotLoading = (props: Props) => {
+function ThreeDotLoading(props: Props) {
   return (
     <Spinner className={props.className}>
       <div className="bounce1" />
@@ -64,6 +64,6 @@ const ThreeDotLoading = (props: Props) => {
       <div className="bounce3" />
     </Spinner>
   );
-};
+}
 
 export default ThreeDotLoading;

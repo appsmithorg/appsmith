@@ -17,11 +17,11 @@
           "info": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "[Beta] Use Prepared Statement",
-          "info": "Turning on Prepared Statement makes the query parametrized. This in turn makes it resilient against SQL injections",
+          "label": "Use Prepared Statement",
+          "info": "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "SWITCH",
-          "initialValue": false
+          "initialValue": true
         },
         {
           "label": "Query timeout (in milliseconds)",

@@ -7,15 +7,22 @@ import { toast, ToastOptions, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
+import { Colors } from "constants/Colors";
+import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
-type ToastProps = ToastOptions &
+export type ToastProps = ToastOptions &
   CommonComponentProps & {
+    contentClassName?: string;
     text: string;
+    actionElement?: JSX.Element;
     variant?: Variant;
     duration?: number;
     onUndo?: () => void;
     dispatchableAction?: { type: ReduxActionType; payload: any };
+    showDebugButton?: boolean;
     hideProgressBar?: boolean;
+    hideActionElementSpace?: boolean;
+    width?: string;
   };
 
 const WrappedToastContainer = styled.div`
@@ -34,32 +41,36 @@ const WrappedToastContainer = styled.div`
     margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
   .Toastify__toast-container--top-right {
-    top: 4em;
+    top: 8em;
   }
 `;
-export const StyledToastContainer = (props: ToastOptions) => {
+export function StyledToastContainer(props: ToastOptions) {
   return (
     <WrappedToastContainer>
       <ToastContainer {...props} />
     </WrappedToastContainer>
   );
-};
+}
 
 const ToastBody = styled.div<{
   variant?: Variant;
   isUndo?: boolean;
   dispatchableAction?: { type: ReduxActionType; payload: any };
+  width?: string;
 }>`
-  width: 264px;
+  width: ${(props) => props.width || "264px"};
   background: ${(props) => props.theme.colors.toast.bg};
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[5]}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  // Using word-break here, as overflow-wrap: anywhere
+  // has no effect in safari
+  word-break: break-word;
   overflow-wrap: anywhere;
 
-  .${Classes.ICON} {
+  div > .${Classes.ICON} {
     cursor: auto;
     margin-right: ${(props) => props.theme.spaces[3]}px;
     margin-top: ${(props) => props.theme.spaces[1] / 2}px;
@@ -94,6 +105,7 @@ const ToastBody = styled.div<{
       color: ${props.theme.colors.toast.undo};
       line-height: 18px;
       font-weight: 600;
+      white-space: nowrap
     }
     `
       : null}
@@ -102,33 +114,65 @@ const ToastBody = styled.div<{
 const FlexContainer = styled.div`
   display: flex;
   align-items: flex-start;
+  flex: 1;
 `;
 
-const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
+const ToastTextWrapper = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const StyledDebugButton = styled(DebugButton)`
+  margin-left: auto;
+`;
+
+const StyledActionText = styled(Text)`
+  color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
+`;
+
+export function ToastComponent(
+  props: ToastProps & { undoAction?: () => void },
+) {
   const dispatch = useDispatch();
 
   return (
     <ToastBody
-      variant={props.variant || Variant.info}
-      isUndo={!!props.onUndo}
-      dispatchableAction={props.dispatchableAction}
       className="t--toast-action"
+      dispatchableAction={props.dispatchableAction}
+      isUndo={!!props.onUndo}
+      variant={props.variant || Variant.info}
+      width={props.width}
     >
-      <FlexContainer>
+      <FlexContainer style={{ minWidth: 0 }}>
         {props.variant === Variant.success ? (
-          <Icon name="success" size={IconSize.XXL} />
+          <Icon fillColor={Colors.GREEN} name="success" size={IconSize.XXL} />
         ) : props.variant === Variant.warning ? (
           <Icon name="warning" size={IconSize.XXL} />
         ) : null}
         {props.variant === Variant.danger ? (
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
-        <Text type={TextType.P1}>{props.text}</Text>
+        <ToastTextWrapper>
+          <Text className={props.contentClassName} type={TextType.P1}>
+            {props.text}
+          </Text>
+          {props.actionElement && (
+            <StyledActionText type={TextType.P1}>
+              {!props.hideActionElementSpace ? <>&nbsp;</> : ""}
+              {props.actionElement}
+            </StyledActionText>
+          )}
+          {props.variant === Variant.danger && props.showDebugButton ? (
+            <StyledDebugButton
+              className="t--toast-debug-button"
+              source={"TOAST"}
+            />
+          ) : null}
+        </ToastTextWrapper>
       </FlexContainer>
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (
           <Text
-            type={TextType.H6}
             onClick={() => {
               if (props.dispatchableAction) {
                 dispatch(props.dispatchableAction);
@@ -137,6 +181,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
                 props.undoAction && props.undoAction();
               }
             }}
+            type={TextType.H6}
           >
             UNDO
           </Text>
@@ -144,7 +189,7 @@ const ToastComponent = (props: ToastProps & { undoAction?: () => void }) => {
       </div>
     </ToastBody>
   );
-};
+}
 
 export const Toaster = {
   show: (config: ToastProps) => {

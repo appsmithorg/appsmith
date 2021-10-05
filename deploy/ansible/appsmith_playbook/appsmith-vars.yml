@@ -39,4 +39,7 @@ tnc_pp: ''
 version_id: ''
 version_release_date: ''
 intercom_app_id: ''
-
+google_recaptcha_site_key: ''
+google_recaptcha_secret_key: ''
+google_recaptcha_enabled: 'false'
+disable_intercom: 'false'

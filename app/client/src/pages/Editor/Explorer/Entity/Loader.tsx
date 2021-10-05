@@ -43,13 +43,13 @@ const Wrapper = styled.div`
     }
   }
 `;
-export const EntityLoader = (props: { isVisible: boolean }) => {
+export function EntityLoader(props: { isVisible: boolean }) {
   if (!props.isVisible) return null;
   return (
     <Wrapper>
-      <div></div>
+      <div />
     </Wrapper>
   );
-};
+}
 
 export default EntityLoader;

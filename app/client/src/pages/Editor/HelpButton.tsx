@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled, { createGlobalStyle, withTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
@@ -8,6 +8,10 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Theme } from "constants/DefaultTheme";
+import { getCurrentUser } from "../../selectors/usersSelectors";
+import { useSelector } from "react-redux";
+import { bootIntercom } from "utils/helpers";
+import { Colors } from "constants/Colors";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -23,17 +27,21 @@ const StyledTrigger = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 ${(props) => props.theme.spaces[2]}px;
+  margin: 0 ${(props) => props.theme.spaces[4]}px;
   background: ${(props) =>
     props.theme.colors.globalSearch.helpButtonBackground};
+
+  &:hover {
+    border: 1.5px solid ${Colors.GREY_10};
+  }
 `;
 
 const Trigger = withTheme(({ theme }: { theme: Theme }) => (
   <StyledTrigger>
     <Icon
-      name="help"
-      size={IconSize.XS}
       fillColor={theme.colors.globalSearch.helpIcon}
+      name="help"
+      size={IconSize.LARGE}
     />
   </StyledTrigger>
 ));
@@ -41,29 +49,36 @@ const Trigger = withTheme(({ theme }: { theme: Theme }) => (
 const onOpened = () => {
   AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
 };
-const HelpButton = () => {
+
+function HelpButton() {
+  const user = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    bootIntercom(user);
+  }, [user?.email]);
+
   return (
     <Popover
+      minimal
       modifiers={{
         offset: {
           enabled: true,
           offset: "0, 6",
         },
       }}
-      minimal
-      position={Position.BOTTOM_RIGHT}
       onOpened={onOpened}
       popoverClassName="navbar-help-popover"
+      position={Position.BOTTOM_RIGHT}
     >
       <>
         <HelpPopoverStyle />
         <Trigger />
       </>
       <div style={{ width: HELP_MODAL_WIDTH }}>
-        <DocumentationSearch hitsPerPage={4} hideSearch hideMinimizeBtn />
+        <DocumentationSearch hideMinimizeBtn hideSearch hitsPerPage={4} />
       </div>
     </Popover>
   );
-};
+}
 
 export default HelpButton;

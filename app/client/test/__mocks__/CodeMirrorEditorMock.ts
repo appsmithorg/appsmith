@@ -11,3 +11,20 @@ export const MockCodemirrorEditor = {
   getRange: jest.fn(),
   getDoc: jest.fn(),
 };
+
+export const mockCodemirrorRender = () => {
+  document.createRange = () => {
+    const range = new Range();
+
+    range.getBoundingClientRect = jest.fn();
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    range.getClientRects = jest.fn(() => ({
+      item: () => null,
+      length: 0,
+    }));
+
+    return range;
+  };
+};

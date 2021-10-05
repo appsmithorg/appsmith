@@ -31,4 +31,8 @@ public interface ApplicationService extends CrudService<Application, String> {
     Flux<Application> findAllApplicationsByOrganizationId(String organizationId);
 
     Mono<Application> getApplicationInViewMode(String applicationId);
+
+    Mono<Application> saveLastEditInformation(String applicationId);
+
+    Mono<String> generateSshKeyPair(String applicationId);
 }

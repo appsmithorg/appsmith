@@ -43,11 +43,6 @@ else
     export $(grep -v '^[[:space:]]*#' ${ENV_FILE} | xargs)
 fi
 
-# Stop and remove existing container
-# Ignore outcome in case someone decides to set -e later
-docker rm -f wildcard-nginx || true
-
-
 default_server_proxy="http://host.docker.internal:8080"
 default_client_proxy="http://host.docker.internal:3000"
 
@@ -56,14 +51,23 @@ default_linux_client_proxy="http://localhost:3000"
 
 # default server to internal docker
 server_proxy_pass="${1:-$default_server_proxy}"
+if [[ $server_proxy_pass =~ /$ ]]; then
+    echo "The given server proxy ($1) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
+    echo "Exiting. Please run again, removing the trailing slash(es) for the server proxy endpoint." >&2
+    exit 1
+fi
+
+# Stop and remove existing container
+# Ignore outcome in case someone decides to set -e later
+docker rm -f wildcard-nginx || true
 
 uname_out="$(uname -s)"
 vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z0-9_]\+" ../../.env | xargs))"
 client_proxy_pass="${default_client_proxy}"
 network_mode="bridge"
 case "${uname_out}" in
-    Linux*)     machine=Linux
-        
+    Linux*)
+
         source ../util/is_wsl.sh
         if [ $IS_WSL ]; then
             : # ignore to continue using host.docker.internal
@@ -86,15 +90,7 @@ case "${uname_out}" in
     visit https://dev.appsmith.com
         "
     ;;
-    Darwin*)    machine=Mac
-        # workaround for apple silicon until host.docker.interal works as expected
-        if [[ "$(uname -m)" = "arm64" ]]; then
-            # if no server was passed
-            if [[ -z $1 ]]; then
-                server_proxy_pass='http://"$(ipconfig getifaddr en0)":8080'
-            fi
-            client_proxy_pass='http://"$(ipconfig getifaddr en0)":3000'
-        fi
+    Darwin*)
         echo "
     Starting nginx for MacOS...
         "

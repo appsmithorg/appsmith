@@ -1,58 +1,64 @@
-import React from "react";
+import React, { useContext } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import { InputType } from "widgets/InputWidget";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import { InputType } from "components/constants";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 
 export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
-  isValid: boolean;
-  errorMessage?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
   additionalAutocomplete?: Record<string, Record<string, unknown>>;
   theme?: EditorTheme;
+  hideEvaluatedValue?: boolean;
 }) {
   const {
-    errorMessage,
-    expected,
-    value,
-    isValid,
-    onChange,
-    placeholder,
     dataTreePath,
     evaluatedValue,
+    expected,
+    hideEvaluatedValue,
+    onChange,
+    placeholder,
+    value,
   } = props;
+
+  //subscribing to context to help re-render component on Property section open or close
+  const isOpen = useContext(CollapseContext);
+
   return (
     <StyledDynamicInput>
       <CodeEditor
+        additionalDynamicData={props.additionalAutocomplete}
+        border={CodeEditorBorder.ALL_SIDE}
+        dataTreePath={dataTreePath}
+        evaluatedValue={evaluatedValue}
+        expected={expected}
+        hideEvaluatedValue={hideEvaluatedValue}
+        hoverInteraction
         input={{
           value: value,
           onChange: onChange,
         }}
-        evaluatedValue={evaluatedValue}
-        expected={expected}
-        dataTreePath={dataTreePath}
-        meta={{
-          error: isValid ? "" : errorMessage,
-          touched: true,
-        }}
-        theme={props.theme || EditorTheme.LIGHT}
+        isEditorHidden={!isOpen}
         mode={EditorModes.TEXT_WITH_BINDING}
-        tabBehaviour={TabBehaviour.INDENT}
-        size={EditorSize.EXTENDED}
         placeholder={placeholder}
-        additionalDynamicData={props.additionalAutocomplete}
+        size={EditorSize.EXTENDED}
+        tabBehaviour={TabBehaviour.INDENT}
+        theme={props.theme || EditorTheme.LIGHT}
       />
     </StyledDynamicInput>
   );
@@ -61,26 +67,27 @@ export function InputText(props: {
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
+      additionalAutoComplete,
+      dataTreePath,
+      defaultValue,
       expected,
-      propertyValue,
-      isValid,
+      hideEvaluatedValue,
       label,
       placeholderText,
-      dataTreePath,
-      validationMessage,
-      defaultValue,
+      propertyValue,
     } = this.props;
+
     return (
       <InputText
-        label={label}
-        value={propertyValue ? propertyValue : defaultValue}
-        onChange={this.onTextChange}
-        isValid={isValid}
-        errorMessage={validationMessage}
-        expected={expected}
+        additionalAutocomplete={additionalAutoComplete}
         dataTreePath={dataTreePath}
+        expected={expected}
+        hideEvaluatedValue={hideEvaluatedValue}
+        label={label}
+        onChange={this.onTextChange}
         placeholder={placeholderText}
         theme={this.props.theme}
+        value={propertyValue ? propertyValue : defaultValue}
       />
     );
   }

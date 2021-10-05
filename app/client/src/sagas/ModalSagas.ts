@@ -9,32 +9,43 @@ import {
 } from "redux-saga/effects";
 
 import { generateReactKey } from "utils/generators";
-import { WidgetAddChild } from "actions/pageActions";
 import {
+  updateAndSaveLayout,
+  WidgetAddChild,
+  ModalWidgetResize,
+} from "actions/pageActions";
+import {
+  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WidgetTypes,
 } from "constants/WidgetConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxAction,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 
 import {
+  getWidget,
   getWidgets,
   getWidgetByName,
   getWidgetsMeta,
   getWidgetIdsByType,
   getWidgetMetaProps,
 } from "sagas/selectors";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
-  resetChildrenMetaProperty,
-  updateWidgetMetaProperty,
-} from "actions/metaActions";
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { updateWidgetMetaProperty } from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
+import AppsmithConsole from "utils/AppsmithConsole";
+
+import WidgetFactory from "utils/WidgetFactory";
+import { Toaster } from "components/ads/Toast";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -53,7 +64,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       tabId: "",
     };
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: props,
     });
 
@@ -81,6 +92,12 @@ export function* showModalByNameSaga(
       widget.widgetName === action.payload.modalName,
   );
   if (modal) {
+    AppsmithConsole.info({
+      text: action.payload.modalName
+        ? `showModal('${action.payload.modalName}') was triggered`
+        : `showModal() was triggered`,
+    });
+
     yield put({
       type: ReduxActionTypes.SHOW_MODAL,
       payload: {
@@ -112,7 +129,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 
   yield put({
-    type: ReduxActionTypes.SELECT_WIDGET,
+    type: ReduxActionTypes.SELECT_WIDGET_INIT,
     payload: { widgetId: action.payload.modalId },
   });
   yield put(focusWidget(action.payload.modalId));
@@ -179,7 +196,6 @@ export function* closeModalSaga(
           widgetIds.map((widgetId: string) => {
             return [
               put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
-              put(resetChildrenMetaProperty(widgetId)),
             ];
           }),
         ),
@@ -190,12 +206,104 @@ export function* closeModalSaga(
   }
 }
 
+export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
+  try {
+    Toaster.clear();
+    const start = performance.now();
+    const { canvasWidgetId, height, widgetId, width } = resizeAction.payload;
+
+    const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    const stateWidgets = yield select(getWidgets);
+
+    let widget = { ...stateWidget };
+    const widgets = { ...stateWidgets };
+
+    widget = { ...widget, height, width };
+    widgets[widgetId] = widget;
+
+    if (canvasWidgetId) {
+      const bottomRow = getModalCanvasBottomRow(
+        widgets,
+        canvasWidgetId,
+        height,
+      );
+      const stateModalContainerWidget: FlattenedWidgetProps = yield select(
+        getWidget,
+        canvasWidgetId,
+      );
+      let modalContainerWidget = { ...stateModalContainerWidget };
+
+      modalContainerWidget = {
+        ...modalContainerWidget,
+        bottomRow,
+        minHeight: height,
+      };
+
+      widgets[canvasWidgetId] = modalContainerWidget;
+    }
+
+    log.debug("resize computations took", performance.now() - start, "ms");
+    yield put(updateAndSaveLayout(widgets));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: WidgetReduxActionTypes.WIDGET_RESIZE,
+        error,
+      },
+    });
+  }
+}
+
+/**
+ * Note: returns bottomRow of the lowest widget on the canvas
+ * @param finalWidgets
+ * @param parentId
+ * @param height
+ */
+const getModalCanvasBottomRow = (
+  finalWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  height: number,
+): number => {
+  if (
+    !finalWidgets[parentId] ||
+    finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
+  ) {
+    return height;
+  }
+  const lowestBottomRowHeight =
+    height -
+    GridDefaults.CANVAS_EXTENSION_OFFSET *
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+  let lowestBottomRow = Math.ceil(
+    lowestBottomRowHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+  const childIds = finalWidgets[parentId].children || [];
+
+  // find lowest row
+  childIds.forEach((cId: string) => {
+    const child = finalWidgets[cId];
+
+    if (child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+  return (
+    (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+  );
+};
+
 export default function* modalSagas() {
   yield all([
     takeEvery(ReduxActionTypes.CLOSE_MODAL, closeModalSaga),
     takeLatest(ReduxActionTypes.CREATE_MODAL_INIT, createModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL, showModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL_BY_NAME, showModalByNameSaga),
-    takeLatest(ReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
+    takeLatest(WidgetReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
+    takeLatest(WidgetReduxActionTypes.WIDGET_MODAL_RESIZE, resizeModalSaga),
   ]);
 }

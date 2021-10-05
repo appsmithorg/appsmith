@@ -9,10 +9,10 @@ import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import { DatasourceTable } from "entities/Datasource";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
-    color: #ff7235;
     svg,
     svg path {
       fill: #ff7235;
@@ -21,10 +21,10 @@ const Wrapper = styled(EntityTogglesWrapper)`
   span {
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     margin-left: 5px;
-    color: white;
     padding-top: 2px;
   }
   padding: 0 5px;
+  color: ${Colors.GRAY2};
 `;
 
 const StyledEntity = styled(Entity)`
@@ -39,7 +39,7 @@ type DatasourceStructureProps = {
   datasourceId: string;
 };
 
-export const DatasourceStructure = (props: DatasourceStructureProps) => {
+export function DatasourceStructure(props: DatasourceStructureProps) {
   const dbStructure = props.dbStructure;
   const iconProps: IconProps = {
     width: 12,
@@ -66,34 +66,34 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
 
   return (
     <Popover
-      canEscapeKeyClose={true}
-      isOpen={active}
-      className={`t--structure-template-menu`}
-      minimal
-      position={Position.RIGHT_TOP}
       boundary={"viewport"}
+      canEscapeKeyClose
+      className={`t--structure-template-menu`}
+      isOpen={active}
+      minimal
       onInteraction={(nextOpenState: boolean) => {
         if (!nextOpenState) {
           setActive(false);
         }
       }}
+      position={Position.RIGHT_TOP}
     >
       <StyledEntity
-        entityId={"DatasourceStructure"}
-        className={`datasourceStructure`}
-        name={dbStructure.name}
-        icon={datasourceTableIcon}
-        step={props.step}
-        active={active}
-        contextMenu={templateMenu}
         action={() => setActive(!active)}
+        active={active}
+        className={`datasourceStructure`}
+        contextMenu={templateMenu}
+        entityId={"DatasourceStructure"}
+        icon={datasourceTableIcon}
+        name={dbStructure.name}
+        step={props.step}
       >
         {columnsAndKeys.map((field, index) => {
           return (
             <DatasourceField
+              field={field}
               key={`${field.name}${index}`}
               step={props.step + 1}
-              field={field}
             />
           );
         })}
@@ -104,6 +104,6 @@ export const DatasourceStructure = (props: DatasourceStructureProps) => {
       />
     </Popover>
   );
-};
+}
 
 export default DatasourceStructure;

@@ -7,6 +7,7 @@ describe("Create new org and share with a user", function() {
   let orgid;
   let appid;
   let currentUrl;
+  let newOrganizationName;
 
   it("create org and then share with a user from Application share option within application", function() {
     cy.NavigateToHome();
@@ -14,7 +15,11 @@ describe("Create new org and share with a user", function() {
       orgid = uid;
       appid = uid;
       localStorage.setItem("OrgName", orgid);
-      cy.createOrg(orgid);
+      cy.createOrg();
+      cy.wait("@createOrg").then((interception) => {
+        newOrganizationName = interception.response.body.data.name;
+        cy.renameOrg(newOrganizationName, orgid);
+      });
       cy.CreateAppForOrg(orgid, appid);
       cy.wait("@getPagesForCreateApp").should(
         "have.nested.property",
@@ -68,6 +73,21 @@ describe("Create new org and share with a user", function() {
     });
     cy.get(publish.backToEditor).click();
     cy.LogOut();
+  });
+
+  it("Open the app without login and validate public access of Application", function() {
+    cy.visit(currentUrl);
+    cy.wait("@getPagesForViewApp").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(publish.pageInfo)
+      .invoke("text")
+      .then((text) => {
+        const someText = text;
+        expect(someText).to.equal("This page seems to be blank");
+      });
   });
 
   it("login as uninvited user and then validate public access of Application", function() {

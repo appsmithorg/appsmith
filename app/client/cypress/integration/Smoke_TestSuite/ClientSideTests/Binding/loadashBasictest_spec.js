@@ -13,7 +13,7 @@ describe("Loadash basic test with input Widget", function() {
 
   it("Input widget test with default value from another Input widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputBinding);
+    cy.testJsontext("defaulttext", testdata.defaultInputBinding + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -24,14 +24,13 @@ describe("Loadash basic test with input Widget", function() {
 
   it("Input widget test with default value for loadash function", function() {
     cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput).type(testdata.loadashInput);
+    cy.testJsontext("defaulttext", testdata.loadashInput + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.reload();
   });
 
   it("publish widget and validate the data displayed in input widgets from loadash function", function() {

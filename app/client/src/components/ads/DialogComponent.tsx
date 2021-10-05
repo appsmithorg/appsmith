@@ -1,24 +1,29 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
   width?: string;
   maxHeight?: string;
+  maxWidth?: string;
   showHeaderUnderline?: boolean;
 }>`
   && {
     border-radius: 0;
-    padding-bottom: ${(props) => props.theme.spaces[2]}px;
+    padding: 22px;
+    padding-bottom: 28px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
     ${(props) => props.setMaxWidth && `width: 100vh;`}
+    ${(props) => props.maxWidth && `max-width: ${props.maxWidth};`}
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
-      padding: ${(props) => props.theme.spaces[4]}px;
+      padding: 0px;
+      padding-bottom: 0;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
       .${Classes.ICON} {
@@ -32,13 +37,20 @@ const StyledDialog = styled(Dialog)<{
 
     .${Classes.HEADING} {
       color: ${(props) => props.theme.colors.modal.headerText};
-      display: flex;
-      justify-content: center;
-      margin-top: ${(props) => props.theme.spaces[9]}px;
       font-weight: ${(props) => props.theme.typography.h1.fontWeight};
       font-size: ${(props) => props.theme.typography.h1.fontSize}px;
       line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
       letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
+    }
+
+    .${Classes.DIALOG_CLOSE_BUTTON} {
+      color: ${Colors.CHARCOAL};
+      min-width: 0;
+      padding: 0;
+
+      svg {
+        fill: ${Colors.CHARCOAL};
+      }
     }
 
     ${(props) =>
@@ -63,7 +75,7 @@ const StyledDialog = styled(Dialog)<{
         : ""}
 
     & .${Classes.DIALOG_BODY} {
-      padding: ${(props) => props.theme.spaces[9]}px;
+      padding-top: ${(props) => props.theme.spaces[9]}px;
       margin: 0;
       overflow: auto;
     }
@@ -74,30 +86,38 @@ const StyledDialog = styled(Dialog)<{
   }
 `;
 
-const TriggerWrapper = styled.div``;
+const TriggerWrapper = styled.div`
+  margin-right: 4px;
+`;
 
 type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
   title?: string;
-  trigger: ReactNode;
+  trigger?: ReactNode;
   setMaxWidth?: boolean;
   children: ReactNode;
   width?: string;
   maxHeight?: string;
   onOpening?: () => void;
+  onClose?: () => void;
+  setModalClose?: (close: boolean) => void;
   triggerZIndex?: number;
   showHeaderUnderline?: boolean;
   getHeader?: () => ReactNode;
   canEscapeKeyClose?: boolean;
   className?: string;
+  maxWidth?: string;
 };
 
-export const DialogComponent = (props: DialogComponentProps) => {
+export function DialogComponent(props: DialogComponentProps) {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
+  const { onClose: onCloseProp, setModalClose } = props;
   const onClose = () => {
+    setModalClose ? setModalClose(false) : null;
     setIsOpen(false);
+    onCloseProp && onCloseProp();
   };
 
   useEffect(() => {
@@ -107,34 +127,37 @@ export const DialogComponent = (props: DialogComponentProps) => {
   const getHeader = props.getHeader;
 
   return (
-    <React.Fragment>
-      <TriggerWrapper
-        className="ads-dialog-trigger"
-        onClick={() => {
-          setIsOpen(true);
-        }}
-        style={{ zIndex: props.triggerZIndex }}
-      >
-        {props.trigger}
-      </TriggerWrapper>
+    <>
+      {props.trigger && (
+        <TriggerWrapper
+          className="ads-dialog-trigger"
+          onClick={() => {
+            setIsOpen(true);
+          }}
+          style={{ zIndex: props.triggerZIndex }}
+        >
+          {props.trigger}
+        </TriggerWrapper>
+      )}
       <StyledDialog
-        canOutsideClickClose={!!props.canOutsideClickClose}
         canEscapeKeyClose={!!props.canEscapeKeyClose}
-        title={props.title}
-        onClose={onClose}
-        isOpen={isOpen}
-        width={props.width}
-        setMaxWidth={props.setMaxWidth}
-        maxHeight={props.maxHeight}
-        onOpening={props.onOpening}
-        showHeaderUnderline={props.showHeaderUnderline}
+        canOutsideClickClose={!!props.canOutsideClickClose}
         className={props.className}
+        isOpen={isOpen}
+        maxHeight={props.maxHeight}
+        maxWidth={props.maxWidth}
+        onClose={onClose}
+        onOpening={props.onOpening}
+        setMaxWidth={props.setMaxWidth}
+        showHeaderUnderline={props.showHeaderUnderline}
+        title={props.title}
+        width={props.width}
       >
         {getHeader && getHeader()}
         <div className={Classes.DIALOG_BODY}>{props.children}</div>
       </StyledDialog>
-    </React.Fragment>
+    </>
   );
-};
+}
 
 export default DialogComponent;

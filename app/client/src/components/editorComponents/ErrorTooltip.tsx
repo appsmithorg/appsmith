@@ -39,23 +39,23 @@ interface Props {
   children: JSX.Element;
 }
 
-const ErrorTooltip = (props: Props) => {
+function ErrorTooltip(props: Props) {
   return (
     <Wrapper>
       <TooltipStyles />
       <Popover
-        autoFocus={true}
-        canEscapeKeyClose={true}
+        autoFocus
+        canEscapeKeyClose
         content={props.message}
-        position="bottom"
         isOpen={props.isOpen && !!props.message}
-        usePortal
         portalClassName="error-tooltip"
+        position="bottom"
+        usePortal
       >
         {props.children}
       </Popover>
     </Wrapper>
   );
-};
+}
 
 export default ErrorTooltip;

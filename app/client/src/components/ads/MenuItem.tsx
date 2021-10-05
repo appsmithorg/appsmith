@@ -14,6 +14,7 @@ export type MenuItemProps = CommonComponentProps & {
   type?: "warning";
   ellipsize?: number;
   selected?: boolean;
+  containerClassName?: string;
   onSelect?: () => void;
 };
 
@@ -90,7 +91,7 @@ const IconContainer = styled.span`
 const MenuItem = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     return props.ellipsize && props.text.length > props.ellipsize ? (
-      <TooltipComponent position={Position.BOTTOM} content={props.text}>
+      <TooltipComponent content={props.text} position={Position.BOTTOM}>
         <MenuItemContent ref={ref} {...props} />
       </TooltipComponent>
     ) : (
@@ -102,23 +103,31 @@ const MenuItemContent = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     return (
       <ItemRow
+        className={props.className}
+        data-cy={props.cypressSelector}
+        disabled={props.disabled}
         href={props.href}
         onClick={props.onSelect}
-        disabled={props.disabled}
-        data-cy={props.cypressSelector}
-        type={props.type}
         ref={ref}
         selected={props.selected}
+        type={props.type}
       >
-        <IconContainer className={props.className}>
-          {props.icon ? <Icon name={props.icon} size={IconSize.LARGE} /> : null}
-          {props.text ? (
+        <IconContainer className={props.containerClassName}>
+          {props.icon ? (
+            <Icon
+              isLoading={props.isLoading}
+              loaderWithIconWrapper
+              name={props.icon}
+              size={IconSize.LARGE}
+            />
+          ) : null}
+          {props.text && (
             <Text type={TextType.H5} weight={FontWeight.NORMAL}>
               {props.ellipsize
                 ? ellipsize(props.ellipsize, props.text)
                 : props.text}
             </Text>
-          ) : null}
+          )}
         </IconContainer>
         {props.label ? props.label : null}
       </ItemRow>

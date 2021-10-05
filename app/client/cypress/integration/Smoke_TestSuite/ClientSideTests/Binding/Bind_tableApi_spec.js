@@ -3,6 +3,7 @@ const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 const pages = require("../../../../locators/Pages.json");
 const apiPage = require("../../../../locators/ApiEditor.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
   let apiData;
@@ -40,6 +41,18 @@ describe("Test Create Api and Bind to Table widget", function() {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });
     cy.PublishtheApp();
+    cy.readTabledataPublish("0", "1").then((tabData) => {
+      expect(apiData).to.eq(`\"${tabData}\"`);
+    });
+    cy.get(commonlocators.backToEditor).click();
+  });
+
+  it("Validate onSearchTextChanged function is called when configured for search text", function() {
+    cy.SearchEntityandOpen("Table1");
+    cy.get(".t--widget-tablewidget .t--search-input")
+      .first()
+      .type("Currey");
+    cy.wait(5000);
     cy.readTabledataPublish("0", "1").then((tabData) => {
       expect(apiData).to.eq(`\"${tabData}\"`);
     });

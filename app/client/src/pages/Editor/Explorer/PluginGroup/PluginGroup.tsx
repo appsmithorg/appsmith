@@ -12,6 +12,7 @@ import ExplorerDatasourceEntity from "../Datasources/DatasourceEntity";
 import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
+import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 
 type ExplorerPluginGroupProps = {
   step: number;
@@ -28,7 +29,8 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
     const path = props.actionConfig?.generateCreatePageURL(
       params?.applicationId,
       props.page.pageId,
-      props.page.pageId,
+      INTEGRATION_TABS.NEW,
+      INTEGRATION_EDITOR_MODES.AUTO,
     );
     history.push(path);
   }, [props.actionConfig, props.page.pageId, params]);
@@ -45,30 +47,28 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
 
   const emptyNode = (
     <EntityPlaceholder step={props.step + 1}>
-      No {props.actionConfig?.groupName || "Plugin Groups"} yet. Please click
-      the <strong>+</strong> icon on
-      <strong> {props.actionConfig?.groupName || "Plugin Groups"}</strong>{" "}
-      above, to create.
+      Please click the <strong>+</strong> icon above, to create new{" "}
+      {props.actionConfig?.groupName || "Plugin Groups"}
     </EntityPlaceholder>
   );
 
   return (
     <Entity
-      entityId={props.page.pageId + "_" + props.actionConfig?.type}
-      step={props.step}
+      active={props.actionConfig?.isGroupActive(params, props.page.pageId)}
       className={`group ${props.actionConfig?.groupName
         .toLowerCase()
         .replace(/ /g, "")}`}
-      name={props.actionConfig?.groupName || "Plugin Group"}
+      disabled={disableGroup}
+      entityId={props.page.pageId + "_" + props.actionConfig?.types.join("_")}
       icon={props.actionConfig?.icon}
-      active={props.actionConfig?.isGroupActive(params, props.page.pageId)}
       isDefaultExpanded={
         props.actionConfig?.isGroupExpanded(params, props.page.pageId) ||
         !!props.searchKeyword ||
         !!props.datasources.length
       }
-      disabled={disableGroup}
+      name={props.actionConfig?.groupName || "Plugin Group"}
       onCreate={switchToCreateActionPage}
+      step={props.step}
     >
       {isEmpty ? (
         emptyNode
@@ -76,21 +76,21 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
         <>
           <ExplorerActionsGroup
             actions={props.actions}
-            step={props.step}
-            page={props.page}
-            searchKeyword={props.searchKeyword}
             config={props.actionConfig}
+            page={props.page}
             plugins={pluginGroups}
+            searchKeyword={props.searchKeyword}
+            step={props.step}
           />
           {props.datasources.map((datasource: Datasource) => {
             return (
               <ExplorerDatasourceEntity
-                key={datasource.id}
-                plugin={pluginGroups[datasource.pluginId]}
                 datasource={datasource}
-                step={props.step + 1}
-                searchKeyword={props.searchKeyword}
+                key={datasource.id}
                 pageId={props.page.pageId}
+                plugin={pluginGroups[datasource.pluginId]}
+                searchKeyword={props.searchKeyword}
+                step={props.step + 1}
               />
             );
           })}

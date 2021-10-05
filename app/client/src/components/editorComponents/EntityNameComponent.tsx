@@ -127,29 +127,29 @@ class EntityNameComponent extends React.Component<
     const { focused } = this.state;
     const {
       isValid,
+      onChange,
+      placeholder,
       validationMessage,
       value,
-      placeholder,
-      onChange,
     } = this.props;
 
     return (
       <ErrorTooltip isOpen={!isValid} message={validationMessage || ""}>
         <InputContainer focused={focused} isValid={isValid}>
           <input
-            value={value}
-            placeholder={placeholder}
+            onBlur={this.onBlur}
             onChange={onChange}
+            onFocus={this.onFocus}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
                 this.onPressEnter(e);
               }
             }}
-            onFocus={this.onFocus}
-            onBlur={this.onBlur}
+            placeholder={placeholder}
+            value={value}
           />
           {!focused && (
-            <EditPen onClick={this.onFocus} src={Edit} alt="Edit pen" />
+            <EditPen alt="Edit pen" onClick={this.onFocus} src={Edit} />
           )}
         </InputContainer>
       </ErrorTooltip>

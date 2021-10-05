@@ -26,5 +26,10 @@
         <module>firestorePlugin</module>
         <module>redshiftPlugin</module>
         <module>amazons3Plugin</module>
+        <module>googleSheetsPlugin</module>
+        <module>snowflakePlugin</module>
+        <module>arangoDBPlugin</module>
+        <module>jsPlugin</module>
+        <module>saasPlugin</module>
     </modules>
 </project>

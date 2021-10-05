@@ -5,6 +5,9 @@ import {
 } from "constants/ReduxActionConstants";
 import { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
+import { PluginType } from "entities/Action";
+import { executeDatasourceQueryRequest } from "../api/DatasourcesApi";
+import { ResponseMeta } from "../api/ApiResponses";
 
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {
@@ -26,24 +29,45 @@ export const updateDatasource = (
   };
 };
 
+export type UpdateDatasourceSuccessAction = {
+  type: string;
+  payload: Datasource;
+  redirect: boolean;
+  queryParams?: Record<string, string>;
+};
+
+export const updateDatasourceSuccess = (
+  payload: Datasource,
+  redirect = true,
+  queryParams = {},
+): UpdateDatasourceSuccessAction => ({
+  type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
+  payload,
+  redirect,
+  queryParams,
+});
+
 export const redirectAuthorizationCode = (
   pageId: string,
   datasourceId: string,
+  pluginType: PluginType,
 ) => {
   return {
     type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
     payload: {
       pageId,
       datasourceId,
+      pluginType,
     },
   };
 };
 
-export const fetchDatasourceStructure = (id: string) => {
+export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT,
     payload: {
       id,
+      ignoreCache,
     },
   };
 };
@@ -90,10 +114,18 @@ export const testDatasource = (payload: Partial<Datasource>) => {
   };
 };
 
-export const deleteDatasource = (payload: Partial<Datasource>) => {
+export const deleteDatasource = (
+  payload: Partial<Datasource>,
+  onSuccess?: ReduxAction<unknown>,
+  onError?: ReduxAction<unknown>,
+  onSuccessCallback?: () => void,
+): ReduxActionWithCallbacks<Partial<Datasource>, unknown, unknown> => {
   return {
     type: ReduxActionTypes.DELETE_DATASOURCE_INIT,
     payload,
+    onSuccess,
+    onError,
+    onSuccessCallback,
   };
 };
 
@@ -113,12 +145,34 @@ export const fetchDatasources = () => {
   };
 };
 
-export const selectPlugin = (pluginId: string) => {
+export const fetchMockDatasources = () => {
   return {
-    type: ReduxActionTypes.SELECT_PLUGIN,
-    payload: {
-      pluginId,
-    },
+    type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
+  };
+};
+
+export interface addMockRequest
+  extends ReduxAction<{
+    name: string;
+    organizationId: string;
+    pluginId: string;
+    packageName: string;
+    isGeneratePageMode?: string;
+  }> {
+  extraParams?: any;
+}
+
+export const addMockDatasourceToOrg = (
+  name: string,
+  organizationId: string,
+  pluginId: string,
+  packageName: string,
+  isGeneratePageMode?: string,
+): addMockRequest => {
+  return {
+    type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
+    payload: { name, packageName, pluginId, organizationId },
+    extraParams: { isGeneratePageMode },
   };
 };
 
@@ -138,8 +192,50 @@ export const storeAsDatasource = () => {
   };
 };
 
+export const getOAuthAccessToken = (datasourceId: string) => {
+  return {
+    type: ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
+    payload: { datasourceId },
+  };
+};
+
+export type executeDatasourceQuerySuccessPayload<T> = {
+  responseMeta: ResponseMeta;
+  data: {
+    body: T;
+    headers: Record<string, string[]>;
+    statusCode: string;
+    isExecutionSuccess: boolean;
+  };
+};
+type errorPayload = string;
+
+export type executeDatasourceQueryReduxAction<T> = ReduxActionWithCallbacks<
+  executeDatasourceQueryRequest,
+  executeDatasourceQuerySuccessPayload<T>,
+  errorPayload
+>;
+
+export const executeDatasourceQuery = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: {
+  onErrorCallback?: (payload: errorPayload) => void;
+  onSuccessCallback?: (
+    payload: executeDatasourceQuerySuccessPayload<any>,
+  ) => void;
+  payload: executeDatasourceQueryRequest;
+}): executeDatasourceQueryReduxAction<any> => {
+  return {
+    type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
+    payload,
+    onErrorCallback,
+    onSuccessCallback,
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,
-  selectPlugin,
 };

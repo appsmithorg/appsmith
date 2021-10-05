@@ -6,6 +6,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.log4j.Log4j;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -170,7 +173,6 @@ public class DynamoPluginTest {
                    actualTables.add(((Map<String, ArrayList<String>>) result.getBody()).get("TableNames").get(1));
 
                    assertTrue(expectedTables.equals(actualTables));
-
                 })
                 .verifyComplete();
     }
@@ -188,6 +190,18 @@ public class DynamoPluginTest {
                     assertNotNull(result.getBody());
                     final Map<String, Object> table =  ((Map<String, Map<String, Object>>) result.getBody()).get("Table");
                     assertEquals("cities", table.get("TableName"));
+
+                    /*
+                     * - Adding only in this test as the query editor form for Dynamo plugin is exactly same for each
+                     *  query type. Hence, checking with only one query should suffice.
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, "DescribeTable", null,
+                            null, null));
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  body, null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -210,6 +224,29 @@ public class DynamoPluginTest {
                     assertNotNull(result.getBody());
                     Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
                     Map<String, String> transformedItem = (Map<String, String>) resultBody.get("Item");
+                    assertEquals("New Delhi", transformedItem.get("City"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testQuery() {
+        final String body = "{\n" +
+                "  \"TableName\": \"cities\", \n" +
+                "\t\"KeyConditionExpression\": \"Id=:v1\",\n" +
+                "\t\"ExpressionAttributeValues\": {\n" +
+                "        \":v1\": {\"S\": \"1\"}\n" +
+                "    },\n" +
+                "    \"ReturnConsumedCapacity\": \"TOTAL\"\n" +
+                "}";
+
+        StepVerifier.create(execute("Query", body))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    Map<String, Object> resultBody = (Map<String, Object>) result.getBody();
+                    Map<String, String> transformedItem = ((List<Map<String, String>>) resultBody.get("Items")).get(0);
                     assertEquals("New Delhi", transformedItem.get("City"));
                 })
                 .verifyComplete();

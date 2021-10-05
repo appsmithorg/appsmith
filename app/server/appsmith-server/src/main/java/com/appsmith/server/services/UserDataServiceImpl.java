@@ -1,13 +1,17 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -31,7 +37,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 @Service
 public class UserDataServiceImpl extends BaseService<UserDataRepository, UserData, String> implements UserDataService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     private final SessionUserService sessionUserService;
 
@@ -39,7 +45,11 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final ReleaseNotesService releaseNotesService;
 
-    private static final int MAX_PROFILE_PHOTO_SIZE_KB = 250;
+    private final FeatureFlagService featureFlagService;
+
+    private final UserChangedHandler userChangedHandler;
+
+    private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
     @Autowired
     public UserDataServiceImpl(Scheduler scheduler,
@@ -48,16 +58,19 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                UserDataRepository repository,
                                AnalyticsService analyticsService,
-                               UserService userService,
+                               UserRepository userRepository,
                                SessionUserService sessionUserService,
                                AssetService assetService,
-                               ReleaseNotesService releaseNotesService
-    ) {
+                               ReleaseNotesService releaseNotesService,
+                               FeatureFlagService featureFlagService,
+                               UserChangedHandler userChangedHandler) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.userService = userService;
+        this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
+        this.featureFlagService = featureFlagService;
+        this.userChangedHandler = userChangedHandler;
     }
 
     @Override
@@ -83,14 +96,13 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     @Override
     public Mono<UserData> getForUserEmail(String email) {
-        return userService.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .flatMap(this::getForUser);
     }
 
-    @Override
-    public Mono<UserData> updateForCurrentUser(UserData updates) {
+    private Mono<UserData> updateForCurrentUser(UserData updates) {
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .flatMap(user -> userRepository.findByEmail(user.getEmail()))
                 .flatMap(user -> {
                     // If a UserData document exists for this user, update it. If not, create one.
                     updates.setUserId(user.getId());
@@ -98,6 +110,14 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                     final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
                     return updaterMono.switchIfEmpty(creatorMono);
                 });
+    }
+
+    @Override
+    public Mono<UserData> updateForUser(User user, UserData updates) {
+        updates.setUserId(user.getId());
+        final Mono<UserData> updaterMono = update(user.getId(), updates);
+        final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
+        return updaterMono.switchIfEmpty(creatorMono);
     }
 
     @Override
@@ -142,7 +162,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
         }
 
         return Mono.justOrEmpty(user.getId())
-                .switchIfEmpty(userService
+                .switchIfEmpty(userRepository
                         .findByEmail(user.getEmail())
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
                 )
@@ -166,7 +186,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
         final Mono<String> prevAssetIdMono = getForCurrentUser()
                 .map(userData -> ObjectUtils.defaultIfNull(userData.getProfilePhotoAssetId(), ""));
 
-        final Mono<Asset> uploaderMono = assetService.upload(filePart, MAX_PROFILE_PHOTO_SIZE_KB);
+        final Mono<Asset> uploaderMono = assetService.upload(filePart, MAX_PROFILE_PHOTO_SIZE_KB, true);
 
         return Mono.zip(prevAssetIdMono, uploaderMono)
                 .flatMap(tuple -> {
@@ -174,7 +194,10 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                     final Asset uploadedAsset = tuple.getT2();
                     final UserData updates = new UserData();
                     updates.setProfilePhotoAssetId(uploadedAsset.getId());
-                    final Mono<UserData> updateMono = updateForCurrentUser(updates);
+                    final Mono<UserData> updateMono = updateForCurrentUser(updates).map(userData -> {
+                        userChangedHandler.publish(userData.getUserId(), uploadedAsset.getId());
+                        return userData;
+                    });
                     if (StringUtils.isEmpty(oldAssetId)) {
                         return updateMono;
                     } else {
@@ -186,7 +209,12 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     @Override
     public Mono<Void> deleteProfilePhoto() {
         return getForCurrentUser()
-                .flatMap(userData -> Mono.justOrEmpty(userData.getProfilePhotoAssetId()))
+                .flatMap(userData -> {
+                    String profilePhotoAssetId = userData.getProfilePhotoAssetId();
+                    userData.setProfilePhotoAssetId(null);
+                    userChangedHandler.publish(userData.getUserId(), null);
+                    return repository.save(userData).thenReturn(profilePhotoAssetId);
+                })
                 .flatMap(assetService::remove);
     }
 
@@ -207,4 +235,39 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 .flatMap(assetId -> assetService.makeImageResponse(exchange, assetId));
     }
 
+    /**
+     * The {@code currentOrgId} is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
+     * If {@link UserData#getRecentlyUsedOrgIds} is null or empty, a new list will be created first.
+     * @param currentOrgId currently accessed organization
+     * @return Updated {@link UserData}
+     */
+    @Override
+    public Mono<UserData> updateLastUsedOrgList(String currentOrgId) {
+        return this.getForCurrentUser().flatMap(userData -> {
+            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
+            if(recentlyUsedOrgIds == null) {
+                recentlyUsedOrgIds = new ArrayList<>();
+            }
+            CollectionUtils.removeDuplicates(recentlyUsedOrgIds);
+            CollectionUtils.putAtFirst(recentlyUsedOrgIds, currentOrgId);
+            userData.setRecentlyUsedOrgIds(recentlyUsedOrgIds);
+            return repository.save(userData);
+        });
+    }
+
+    @Override
+    public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
+        return featureFlagService.getAllFeatureFlagsForUser();
+    }
+
+    @Override
+    public Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState) {
+        if(commentOnboardingState != CommentOnboardingState.SKIPPED && commentOnboardingState != CommentOnboardingState.ONBOARDED) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, QUserData.userData.commentOnboardingState));
+        }
+        return this.getForCurrentUser().flatMap(userData -> {
+            userData.setCommentOnboardingState(commentOnboardingState);
+            return repository.save(userData);
+        });
+    }
 }

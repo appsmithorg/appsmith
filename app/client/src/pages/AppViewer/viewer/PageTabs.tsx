@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { getApplicationViewerPageURL } from "constants/routes";
@@ -76,7 +76,7 @@ const CenterTabNameContainer = styled.div`
   align-items: center;
 `;
 
-const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
+function PageTabName({ name }: { name: string }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
@@ -96,29 +96,29 @@ const PageTabName: React.FunctionComponent<{ name: string }> = ({ name }) => {
 
   return ellipsisActive ? (
     <TooltipComponent
-      maxWidth="400px"
-      content={name}
-      position={Position.BOTTOM}
       boundary="viewport"
+      content={name}
+      maxWidth="400px"
+      position={Position.BOTTOM}
     >
       {tabNameText}
     </TooltipComponent>
   ) : (
     tabNameText
   );
-};
+}
 
-const PageTabContainer = ({
+function PageTabContainer({
   children,
   isTabActive,
-  tabsScrollable,
   setShowScrollArrows,
+  tabsScrollable,
 }: {
   children: React.ReactNode;
   isTabActive: boolean;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;
-}) => {
+}) {
   const tabContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -129,25 +129,30 @@ const PageTabContainer = ({
   }, [isTabActive, tabsScrollable]);
 
   return <div ref={tabContainerRef}>{children}</div>;
-};
+}
 
 type Props = {
-  currentApplicationDetails?: ApplicationPayload;
+  currentApplicationDetails?: CurrentApplicationData;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
   setShowScrollArrows: () => void;
 };
 
-export const PageTabs = (props: Props) => {
-  const { currentApplicationDetails, appPages } = props;
+export function PageTabs(props: Props) {
+  const { appPages, currentApplicationDetails } = props;
   const { pathname } = useLocation();
+  const location = useLocation();
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setQuery(window.location.search);
+  }, [location]);
 
   return (
     <TabsContainer ref={props.measuredTabsRef}>
       {appPages.map((page) => (
         <PageTabContainer
-          key={page.pageId}
           isTabActive={
             pathname ===
             getApplicationViewerPageURL(
@@ -155,16 +160,20 @@ export const PageTabs = (props: Props) => {
               page.pageId,
             )
           }
-          tabsScrollable={props.tabsScrollable}
+          key={page.pageId}
           setShowScrollArrows={props.setShowScrollArrows}
+          tabsScrollable={props.tabsScrollable}
         >
           <PageTab
-            to={getApplicationViewerPageURL(
-              currentApplicationDetails?.id,
-              page.pageId,
-            )}
             activeClassName="is-active"
             className="t--page-switch-tab"
+            to={{
+              pathname: getApplicationViewerPageURL(
+                currentApplicationDetails?.id,
+                page.pageId,
+              ),
+              search: query,
+            }}
           >
             <PageTabName name={page.pageName} />
           </PageTab>
@@ -172,6 +181,6 @@ export const PageTabs = (props: Props) => {
       ))}
     </TabsContainer>
   );
-};
+}
 
 export default PageTabs;

@@ -44,6 +44,7 @@ export type AppsmithUIConfigs = {
     apiId: string;
     apiKey: string;
     indexName: string;
+    snippetIndex: string;
   };
 
   google: {
@@ -69,4 +70,14 @@ export type AppsmithUIConfigs = {
   mailEnabled: boolean;
 
   disableTelemetry: boolean;
+  commentsTestModeEnabled: boolean;
+
+  cloudServicesBaseUrl: string;
+
+  googleRecaptchaSiteKey: {
+    enabled: boolean;
+    apiKey: string;
+  };
+  appsmithSupportEmail: string;
+  isAppsmithCloud: boolean;
 };

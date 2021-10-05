@@ -51,7 +51,7 @@ describe("Video Widget Functionality", function() {
     cy.get(".CodeMirror textarea")
       .first()
       .blur();
-    cy.get(widgetsPage.autoPlay).click();
+    cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -62,7 +62,7 @@ describe("Video Widget Functionality", function() {
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Play success");
     */
-    cy.get(widgetsPage.autoPlay).click();
+    cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

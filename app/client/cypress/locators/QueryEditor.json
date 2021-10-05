@@ -1,11 +1,20 @@
 {
+    "addNewQueryBtn": ".dbqueries .t--entity-add-btn",
     "queryEditorIcon": ".t--nav-link-query-editor",
     "templateMenu": ".t--template-menu",
     "runQuery": ".t--run-query",
     "saveQuery": ".t--save-query",
     "deleteQuery": ".t--delete-query",
+    "queryMoreAction": ".t--more-action-menu",
+    "deleteUsingContext": ".t--apiFormDeleteBtn",
     "createQuery": ".t--create-query",
     "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]",
     "addDatasource": ".t--add-datasource",
-    "editDatasourceButton": ".t--edit-datasource"
+    "editDatasourceButton": ".t--edit-datasource",
+    "queryNameField": ".t--action-name-edit-field input",
+    "settings": "li:contains('Settings')",
+    "query": "li:contains('Query')",
+    "switch": ".t--form-control-SWITCH input",
+    "suggestedTableWidget": ".t--suggested-widget-TABLE_WIDGET",
+    "queryResponse": "(//div[@class='table']//div[@class='tr'])[3]//div[@class='td']"
 }

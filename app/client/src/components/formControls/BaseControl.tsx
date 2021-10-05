@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { ControlType } from "constants/PropertyControlConstants";
-import { InputType } from "widgets/InputWidget";
+import { InputType } from "components/constants";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -17,10 +17,17 @@ export type ComparisonOperations =
   | "IN"
   | "NOT_IN";
 
-export type HiddenType =
-  | boolean
-  | { path: string; comparison: ComparisonOperations; value: any };
+export type HiddenType = boolean | Condition | ConditionObject;
 
+export type ConditionObject = { conditionType: string; conditions: Conditions };
+
+export type Condition = {
+  path: string;
+  comparison: ComparisonOperations;
+  value: any;
+};
+
+export type Conditions = Array<Condition> | ConditionObject;
 export interface ControlBuilder<T extends ControlProps> {
   buildPropertyControl(controlProps: T): JSX.Element;
 }
@@ -42,8 +49,10 @@ export interface ControlData {
   validationRegex?: string;
   dataType?: InputType;
   isRequired?: boolean;
+  conditionals: string;
   hidden?: HiddenType;
   placeholderText?: string;
+  schema?: any;
 }
 
 export interface ControlFunctions {

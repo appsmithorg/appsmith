@@ -5,7 +5,6 @@ import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import { PaginationField, BodyFormData, Property } from "api/ActionAPI";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -18,6 +17,7 @@ import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./Form";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -115,20 +115,20 @@ interface APIFormProps {
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
-const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
+function RapidApiEditorForm(props: Props) {
   const {
-    onDeleteClick,
-    onRunClick,
+    actionConfiguration,
+    actionConfigurationBodyFormData,
+    actionConfigurationHeaders,
     handleSubmit,
     isDeleting,
     isRunning,
-    templateId,
-    actionConfiguration,
-    actionConfigurationHeaders,
-    actionConfigurationBodyFormData,
+    onDeleteClick,
+    onRunClick,
+    providerCredentialSteps,
     providerImage,
     providerURL,
-    providerCredentialSteps,
+    templateId,
   } = props;
 
   const postbodyResponsePresent =
@@ -149,13 +149,13 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
           <NameWrapper>
             <ActionNameEditor />
             <a
+              className="t--apiDocumentationLink"
+              href={providerURL && `http://${providerURL}`}
+              rel="noopener noreferrer"
               style={{
                 paddingTop: "7px",
               }}
-              className="t--apiDocumentationLink"
               target="_blank"
-              rel="noopener noreferrer"
-              href={providerURL && `http://${providerURL}`}
             >
               API documentation
             </a>
@@ -163,36 +163,33 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
 
           <ActionButtons>
             <ActionButton
-              text="Delete"
-              accent="error"
-              onClick={onDeleteClick}
+              buttonStyle="DANGER"
               loading={isDeleting}
+              onClick={onDeleteClick}
+              text="Delete"
             />
             <ActionButton
-              text="Run"
-              filled
-              accent="primary"
+              buttonStyle="PRIMARY"
+              loading={isRunning}
               onClick={() => {
                 onRunClick();
               }}
-              loading={isRunning}
+              text="Run"
             />
           </ActionButtons>
         </FormRow>
         <FormRow>
           <DynamicTextField
-            placeholder="Provider name"
-            name="provider.name"
+            disabled
             leftImage={providerImage}
-            disabled={true}
-            showLightningMenu={false}
+            name="provider.name"
+            placeholder="Provider name"
           />
           <DynamicTextField
-            placeholder="v1/method"
-            name="actionConfiguration.path"
+            disabled
             leftIcon={FormIcons.SLASH_ICON}
-            disabled={true}
-            showLightningMenu={false}
+            name="actionConfiguration.path"
+            placeholder="v1/method"
           />
         </FormRow>
         {/* Display How to get Credentials info if it is present */}
@@ -213,19 +210,19 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                   <RequestParamsWrapper>
                     <HeadersSection>
                       <KeyValueFieldArray
-                        name="actionConfiguration.headers"
-                        label="Headers"
                         actionConfig={
                           actionConfiguration &&
                           actionConfigurationHeaders &&
                           actionConfigurationHeaders
                         }
+                        label="Headers"
+                        name="actionConfiguration.headers"
                         pushFields={false}
                       />
                     </HeadersSection>
                     <KeyValueFieldArray
-                      name="actionConfiguration.queryParameters"
                       label="Params"
+                      name="actionConfiguration.queryParameters"
                       pushFields={false}
                     />
                     {postbodyResponsePresent && (
@@ -233,16 +230,14 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
                         <FormLabel>{"Body"}</FormLabel>
                         {typeof actionConfigurationBodyFormData ===
                           "object" && (
-                          <React.Fragment>
-                            <KeyValueFieldArray
-                              name="actionConfiguration.bodyFormData"
-                              label=""
-                              rightIcon={FormIcons.INFO_ICON}
-                              addOrDeleteFields={false}
-                              actionConfig={actionConfigurationBodyFormData}
-                              pushFields={false}
-                            />
-                          </React.Fragment>
+                          <KeyValueFieldArray
+                            actionConfig={actionConfigurationBodyFormData}
+                            addOrDeleteFields={false}
+                            label=""
+                            name="actionConfiguration.bodyFormData"
+                            pushFields={false}
+                            rightIcon={FormIcons.INFO_ICON}
+                          />
                         )}
                       </PostbodyContainer>
                     )}
@@ -263,11 +258,11 @@ const RapidApiEditorForm: React.FC<Props> = (props: Props) => {
           />
         </TabbedViewContainer>
 
-        <ApiResponseView />
+        <ApiResponseView apiName={props.apiName} onRunClick={onRunClick} />
       </SecondaryWrapper>
     </Form>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 

@@ -40,11 +40,14 @@
   "invalidValue": "invalid",
   "Put": "PUT",
   "Get": "GET",
+  "buttonName": "TestNew",
   "next": "?page=2&pageSize=10",
   "prev": "?page=1&pageSize=10",
   "apiFormDataBodyType": "x-www-form-urlencoded",
+  "apiMultipartBodyType": "multi-part",
   "defaultMoustacheData": "{{Input1.text",
   "defaultInputWidget": "{{Table1.selectedRow.id",
+  "sortedColumn": "{{Table1.sortOrder.column",
   "deafultDropDownWidget": [
     {
       "label": "{{Table1.selectedRow.email}}",
@@ -66,6 +69,7 @@
   "input2": "(//div[@class='bp3-input-group']//input)[1]",
   "input3": "(//div[@class='bp3-input-group']//input)[2]",
   "videoUrl": "https://www.youtube.com/watch?v=S5musXykVs0",
+  "audioUrl": "https://cdn.simplecast.com/audio/10488ddf-3ca4-4300-9391-c2967d806334/episodes/8c8341f0-0a3a-4f2c-bfe0-0abb6b3c1c87/audio/03e2e3d8-e703-4953-adc0-e72687f31178/default_tc.mp3",
   "TablePagination": [
     {
       "id": 2381224,
@@ -112,8 +116,17 @@
   "currentRowWithIdOutside": "#{{currentRow.email}}",
   "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
   "defaultdataBinding": "{'Test','This'}",
-  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ label: string, value: string }>\". Transform it using JS inside '{{ }}'",
-  "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\". Transform it using JS inside '{{ }}'",
+  "dropdownErrorMsg": "This value does not evaluate to type Array<{ \"label\": \"string\", \"value\": \"string\" }>",
+  "tableWidgetErrorMsg": "This value does not evaluate to type Array<Object>",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
-  "bindChardData": "{{Chart1.selectedDataPoint"
+  "bindingSeriesTitle": "{{Chart1.selectedDataPoint.seriesTitle",
+  "bindChartData": "{{Chart1.selectedDataPoint",
+  "appUrl": "https://oauth.mocklab.io/userinfo",
+  "clientID": "169444434892406",
+  "clientSecret": "505dac16a21681f277b5fde97445be18",
+  "accessTokenUrl": "https://oauth.mocklab.io/oauth/token",
+  "oauthResponse": "169444434892406",
+  "authorizationURL": "https://oauth.mocklab.io/oauth/authorize",
+  "basicURl": "https://envyenksqii9nf3.m.pipedream.net",
+  "methodWithQueryParam": "users?q=mimeType='application/vnd.google-apps.spreadsheet'"
 }

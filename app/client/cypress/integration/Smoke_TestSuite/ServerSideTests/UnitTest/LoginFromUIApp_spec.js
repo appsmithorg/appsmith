@@ -33,34 +33,4 @@ describe("Login from UI and check the functionality", function() {
     cy.wait(500);
     cy.url().should("include", "user/login");
   });
-
-  it("Theme change test and validation", function() {
-    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.get(homePage.profileMenu).click();
-    cy.get(homePage.themeText).should("have.attr", "value", "true");
-    cy.get("span")
-      .contains("Light")
-      .click({ force: true });
-    cy.get(homePage.profileMenu).click();
-    cy.get(homePage.themeText).should("have.attr", "value", "false");
-    cy.get("span")
-      .contains("Dark")
-      .click({ force: true });
-    cy.get(homePage.profileMenu).click();
-    cy.get(homePage.themeText).should("have.attr", "value", "true");
-  });
-
-  it("Icon of fab button of help modal should change on open and close", function() {
-    cy.get(HelpLocators.HelpButton).click();
-    cy.get(`${HelpLocators.HelpButton} .bp3-icon-cross`).should(
-      "have.length",
-      1,
-    );
-
-    cy.get(HelpLocators.HelpButton).click();
-    cy.get(`${HelpLocators.HelpButton} .bp3-icon-cross`).should(
-      "have.length",
-      0,
-    );
-  });
 });

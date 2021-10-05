@@ -1,13 +1,13 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutActionService;
@@ -57,14 +57,14 @@ public class ActionController {
                                                @RequestHeader(name = "Origin", required = false) String originHeader,
                                                ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return actionCollectionService.createAction(resource)
+        return layoutActionService.createSingleAction(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String id, @Valid @RequestBody ActionDTO resource) {
         log.debug("Going to update resource with id: {}", id);
-        return actionCollectionService.updateAction(id, resource)
+        return layoutActionService.updateSingleAction(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -82,8 +82,8 @@ public class ActionController {
     }
 
     @PutMapping("/refactor")
-    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorNameDTO refactorNameDTO) {
-        return layoutActionService.refactorActionName(refactorNameDTO)
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO) {
+        return layoutActionService.refactorActionName(refactorActionNameDTO)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
@@ -103,7 +103,7 @@ public class ActionController {
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id) {
         log.debug("Going to delete unpublished action with id: {}", id);
-        return newActionService.deleteUnpublishedAction(id)
+        return layoutActionService.deleteUnpublishedAction(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
@@ -120,7 +120,9 @@ public class ActionController {
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all actions with params : {}", params);
-        return newActionService.getUnpublishedActions(params).collectList()
+        // We handle JS actions as part of the collections request, so that all the contextual variables are also picked up
+        return newActionService.getUnpublishedActionsExceptJs(params)
+                .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }

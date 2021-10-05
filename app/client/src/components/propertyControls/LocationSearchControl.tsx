@@ -46,10 +46,10 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   render() {
     return (
       <MapScriptWrapper
-        onSearchBoxMounted={this.onSearchBoxMounted}
-        onPlacesChanged={this.onLocationSelection}
-        propertyValue={this.props.propertyValue}
         clearLocation={this.clearLocation}
+        onPlacesChanged={this.onLocationSelection}
+        onSearchBoxMounted={this.onSearchBoxMounted}
+        propertyValue={this.props.propertyValue}
       />
     );
   }
@@ -66,7 +66,7 @@ interface MapScriptWrapperProps {
   propertyValue: any;
 }
 
-const MapScriptWrapper = (props: MapScriptWrapperProps) => {
+function MapScriptWrapper(props: MapScriptWrapperProps) {
   const status = useScript(
     `https://maps.googleapis.com/maps/api/js?key=${google.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
     AddScriptTo.HEAD,
@@ -77,27 +77,27 @@ const MapScriptWrapper = (props: MapScriptWrapperProps) => {
     <div data-standalone-searchbox="">
       {status === ScriptStatus.READY && (
         <StandaloneSearchBox
-          ref={props.onSearchBoxMounted}
           onPlacesChanged={() => {
             props.onPlacesChanged();
             setTitle("");
           }}
+          ref={props.onSearchBoxMounted}
         >
           <StyledInputGroup
             dataType="text"
-            placeholder="Enter location"
+            defaultValue={title || props.propertyValue?.title}
             onChange={(value: string) => {
               if (value === "") {
                 props.clearLocation();
               }
               setTitle(value);
             }}
-            defaultValue={title || props.propertyValue?.title}
+            placeholder="Enter location"
           />
         </StandaloneSearchBox>
       )}
     </div>
   );
-};
+}
 
 export default LocationSearchControl;

@@ -72,19 +72,10 @@ const Wrapper = styled.div<{ step: number }>`
         right: 4px;
         top: 10px;
         opacity: 0;
+        fill: ${Colors.TUNDORA};
       }
       &:hover {
-        &:before {
-          content: "";
-          background: ${Colors.TUNDORA};
-          opacity: 0.5;
-          position: absolute;
-          left: 0;
-          height: 100%;
-          top: 0;
-          width: 100%;
-          z-index: 1;
-        }
+        background: ${Colors.Gallery};
         & ~ span.${Classes.ICON} {
           opacity: 1;
         }
@@ -123,7 +114,7 @@ const Wrapper = styled.div<{ step: number }>`
 `;
 
 const StyledPopoverContent = styled.div`
-  background: black;
+  background: ${Colors.WHITE};
   max-height: 500px;
   width: 400px;
   padding: 10px;
@@ -143,7 +134,7 @@ const StyledPopoverContent = styled.div`
 `;
 
 const CollapseIcon = ControlIcons.COLLAPSE_CONTROL;
-const collapseIcon = <CollapseIcon width={10} height={8} color={Colors.ALTO} />;
+const collapseIcon = <CollapseIcon color={Colors.ALTO} height={8} width={10} />;
 
 export type EntityPropertyProps = {
   propertyName: string;
@@ -188,23 +179,23 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
   );
   if (showPopup) {
     propertyValue = (
-      <React.Fragment>
-        <StyledValue step={props.step} className="value">
+      <>
+        <StyledValue className="value" step={props.step}>
           {transformedValue(props.value)}
         </StyledValue>
         <Popover
           interactionKind={PopoverInteractionKind.HOVER}
-          position="left"
           modifiers={ContextMenuPopoverModifiers}
+          position="left"
         >
           {collapseIcon}
           {showPopup && (
             <StyledPopoverContent ref={popoverContentRef}>
               {!isString && (
                 <CurrentValueViewer
-                  theme={EditorTheme.DARK}
                   evaluatedValue={props.value}
                   hideLabel
+                  theme={EditorTheme.LIGHT}
                 />
               )}
               {isString && <pre>{props.value}</pre>}
@@ -212,21 +203,21 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
             </StyledPopoverContent>
           )}
         </Popover>
-      </React.Fragment>
+      </>
     );
   }
 
   return (
-    <Wrapper step={props.step} className={`${EntityClassNames.PROPERTY}`}>
+    <Wrapper className={`${EntityClassNames.PROPERTY}`} step={props.step}>
       <HighlightedCode
-        skin={Skin.DARK}
         className="binding"
-        ref={propertyRef}
-        onClick={copyBindingToClipboard}
         codeText={codeText}
         language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
+        onClick={copyBindingToClipboard}
+        ref={propertyRef}
+        skin={Skin.DARK}
       />
-      <Icon icon="duplicate" iconSize={14} color={Colors.ALTO} />
+      <Icon color={Colors.ALTO} icon="duplicate" iconSize={14} />
       {propertyValue}
     </Wrapper>
   );

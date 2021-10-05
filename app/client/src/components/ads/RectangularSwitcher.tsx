@@ -100,14 +100,13 @@ export default function Switch(props: SwitchProps) {
 
   return (
     <StyledSwitch
+      className={props.className}
       data-cy={props.cypressSelector}
+      firstRender={firstRender}
       isLoading={props.isLoading}
       value={value}
-      className={props.className}
-      firstRender={firstRender}
     >
       <input
-        type="checkbox"
         checked={value}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           if (!firstRender) {
@@ -115,8 +114,9 @@ export default function Switch(props: SwitchProps) {
           }
           onChangeHandler(e.target.checked);
         }}
+        type="checkbox"
       />
-      <span className="slider"></span>
+      <span className="slider" />
       <Light value={value}>
         <Text type={TextType.H6}>Light</Text>
       </Light>

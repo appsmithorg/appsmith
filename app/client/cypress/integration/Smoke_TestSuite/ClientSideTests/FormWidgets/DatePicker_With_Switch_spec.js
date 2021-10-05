@@ -4,6 +4,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/datepicker_switchDsl.json");
 const pages = require("../../../../locators/Pages.json");
+const dayjs = require("dayjs");
 
 describe("Switch Widget within Form widget Functionality", function() {
   before(() => {
@@ -26,10 +27,9 @@ describe("Switch Widget within Form widget Functionality", function() {
   it("Date Widget with Reset widget being switch widget", function() {
     cy.SearchEntityandOpen("DatePicker1");
     cy.get(formWidgetsPage.defaultDate).click();
+    cy.SetDateToToday();
     cy.setDate(1, "ddd MMM DD YYYY");
-    const nextDay = Cypress.moment()
-      .add(1, "days")
-      .format("DD/MM/YYYY");
+    const nextDay = dayjs().format("DD/MM/YYYY");
     cy.log(nextDay);
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
@@ -56,7 +56,7 @@ describe("Switch Widget within Form widget Functionality", function() {
 
   it("DatePicker-Date change and validate switch widget status", function() {
     cy.get(widgetsPage.datepickerInput).click({ force: true });
-    cy.get(widgetsPage.selectToday).click({ force: true });
+    cy.SetDateToToday();
     cy.get(widgetsPage.switchWidgetActive).should("be.visible");
     cy.get(".t--toast-action span")
       .last()

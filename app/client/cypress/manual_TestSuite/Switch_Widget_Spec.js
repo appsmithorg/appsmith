@@ -7,11 +7,10 @@ describe("Test to add switch widget in canvas", function() {
     // Naviagte to Action Items
     // Click on "onChange" Dropdown
     // Select "Show a message"
-    // Add a message 
+    // Add a message
     // now switch the button
     // and observe the message is displyed to user
-  }
-  )
+  });
 
   it(" Add a switch widget to a form to reset the widget", function() {
     // Add a Form widget
@@ -24,11 +23,10 @@ describe("Test to add switch widget in canvas", function() {
     // Add a widget as "switch widget"
     // Now "Reset Children to Yes "
     // Ensure the Switch is "Flase"
-    // now Click on Reset 
-    // and observe the the button becomes active 
-  }
-  )
- 
+    // now Click on Reset
+    // and observe the the button becomes active
+  });
+
   it(" Reset switch widget on date change", function() {
     // Add a Date Picker widget
     // Add a switch widget
@@ -39,10 +37,7 @@ describe("Test to add switch widget in canvas", function() {
     // Add a widget as "switch widget"
     // Now "Reset Children to NO "
     // Ensure the Switch is "Flase"
-    // now Change the date  
-    // and observe the the button becomes active 
-  }
-  )
-
-}
-)
+    // now Change the date
+    // and observe the the button becomes active
+  });
+});

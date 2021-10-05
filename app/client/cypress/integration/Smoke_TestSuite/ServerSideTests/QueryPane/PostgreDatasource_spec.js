@@ -1,9 +1,14 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
+const pages = require("../../../../locators/Pages.json");
 
 let datasourceName;
 
 describe("Create a query with a postgres datasource, run, save and then delete the query", function() {
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
@@ -35,6 +40,9 @@ describe("Create a query with a postgres datasource, run, save and then delete t
   });
   it("Create, runs and delete another query", () => {
     cy.NavigateToQueryEditor();
+    cy.get(pages.integrationActiveTab)
+      .should("be.visible")
+      .click({ force: true });
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
@@ -49,9 +57,10 @@ describe("Create a query with a postgres datasource, run, save and then delete t
   });
   it("Deletes a datasource", () => {
     cy.NavigateToQueryEditor();
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(".t--edit-datasource")
-      .click();
+    cy.get(pages.integrationActiveTab)
+      .should("be.visible")
+      .click({ force: true });
+    cy.contains(".t--datasource-name", datasourceName).click();
 
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(

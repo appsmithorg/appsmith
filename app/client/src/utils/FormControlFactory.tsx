@@ -5,9 +5,11 @@ import {
   ControlData,
 } from "components/formControls/BaseControl";
 
-class FormControlFacotory {
+// Static class to generate form controls based on the control type passed from JSON
+class FormControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
 
+  // Register a control builder for a given control type. called at the start of the application
   static registerControlBuilder(
     controlType: ControlType,
     controlBuilder: ControlBuilder<ControlProps>,
@@ -15,6 +17,7 @@ class FormControlFacotory {
     this.controlMap.set(controlType, controlBuilder);
   }
 
+  // Called to create a control based on the control type passed from JSON
   static createControl(
     controlData: ControlData,
     formName: string,
@@ -50,4 +53,4 @@ export interface ControlCreationException {
   message: string;
 }
 
-export default FormControlFacotory;
+export default FormControlFactory;

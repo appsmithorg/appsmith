@@ -1,25 +1,45 @@
 import Api from "api/Api";
 import { AxiosPromise } from "axios";
 import { GenericApiResponse } from "api/ApiResponses";
+import { PluginType } from "entities/Action";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
+export type PluginId = string;
+export type PluginPackageName = string;
+export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;
+
+export enum UIComponentTypes {
+  DbEditorForm = "DbEditorForm",
+  UQIDbEditorForm = "UQIDbEditorForm",
+  ApiEditorForm = "ApiEditorForm",
+  RapidApiEditorForm = "RapidApiEditorForm",
+  JsEditorForm = "JsEditorForm",
+}
+
+export enum DatasourceComponentTypes {
+  RestAPIDatasourceForm = "RestAPIDatasourceForm",
+  AutoForm = "AutoForm",
+}
 export interface Plugin {
   id: string;
   name: string;
-  type: "API" | "DB";
+  type: PluginType;
   packageName: string;
   iconLocation?: string;
-  uiComponent: "ApiEditorForm" | "RapidApiEditorForm" | "DbEditorForm";
-  datasourceComponent: "RestAPIDatasourceForm" | "AutoForm";
+  uiComponent: UIComponentTypes;
+  datasourceComponent: DatasourceComponentTypes;
   allowUserDatasources?: boolean;
   templates: Record<string, string>;
   responseType?: "TABLE" | "JSON";
   documentationLink?: string;
+  generateCRUDPageComponent?: string;
 }
 
 export interface PluginFormPayload {
   form: any[];
   editor: any[];
   setting: any[];
+  dependencies: DependencyMap;
 }
 
 class PluginsApi extends Api {

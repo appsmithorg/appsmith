@@ -9,10 +9,11 @@ import EditableText, {
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { Action } from "entities/Action";
+import { JSCollection } from "entities/JSCollection";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
-import { saveActionName } from "actions/actionActions";
+import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import {
@@ -23,6 +24,7 @@ import {
 import { Classes } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import log from "loglevel";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -58,7 +60,7 @@ type ActionNameEditorProps = {
   page?: string;
 };
 
-export const ActionNameEditor = (props: ActionNameEditorProps) => {
+export function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
@@ -75,6 +77,10 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
+  );
+
+  const jsActions: JSCollection[] = useSelector((state: AppState) =>
+    state.entities.jsActions.map((action: JSCollectionData) => action.config),
   );
 
   const currentActionConfig: Action | undefined = actions.find(
@@ -103,7 +109,7 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
 
   const hasActionNameConflict = useCallback(
     (name: string) => !isNameValid(name, { ...existingPageNames, ...evalTree }),
-    [existingPageNames, actions, existingWidgetNames],
+    [existingPageNames, actions, existingWidgetNames, jsActions],
   );
 
   const isInvalidActionName = useCallback(
@@ -161,19 +167,19 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
         <NewEditableText
           className="t--action-name-edit-field"
           defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-          placeholder="Name of the API in camelCase"
+          editInteractionKind={NewEditInteractionKind.SINGLE}
+          fill
           forceDefault={forceUpdate}
-          onBlur={handleAPINameChange}
-          isInvalid={isInvalidActionName}
-          valueTransform={removeSpecialChars}
+          hideEditIcon
           isEditingDefault={isNew && !hideEditIcon}
+          isInvalid={isInvalidActionName}
+          onBlur={handleAPINameChange}
+          placeholder="Name of the API in camelCase"
           savingState={
             saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
           }
-          editInteractionKind={NewEditInteractionKind.SINGLE}
-          hideEditIcon
           underline
-          fill
+          valueTransform={removeSpecialChars}
         />
       ) : (
         <div
@@ -183,22 +189,22 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
         >
           <EditableText
             className="t--action-name-edit-field"
-            type="text"
             defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-            placeholder="Name of the API in camelCase"
-            forceDefault={forceUpdate}
-            onTextChanged={handleAPINameChange}
-            isInvalid={isInvalidActionName}
-            valueTransform={removeSpecialChars}
-            isEditingDefault={isNew}
-            updating={saveStatus.isSaving}
             editInteractionKind={EditInteractionKind.SINGLE}
+            forceDefault={forceUpdate}
+            isEditingDefault={isNew}
+            isInvalid={isInvalidActionName}
+            onTextChanged={handleAPINameChange}
+            placeholder="Name of the API in camelCase"
+            type="text"
+            updating={saveStatus.isSaving}
+            valueTransform={removeSpecialChars}
           />
           {saveStatus.isSaving && <Spinner size={16} />}
         </div>
       )}
     </ApiNameWrapper>
   );
-};
+}
 
 export default ActionNameEditor;

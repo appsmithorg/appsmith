@@ -1,13 +1,15 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 // const explorer = require("../../../../locators/explorerlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Onboarding", function() {
-  it("Onboarding flow", function() {
+  it("Onboarding flow - manual without using do it for me option", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
 
     cy.get(".t--welcome-tour").click();
     cy.get(".t--onboarding-action").click();
+    cy.get(".t--close--button").should("not.exist");
 
     cy.wait("@createNewApplication").should(
       "have.nested.property",
@@ -39,6 +41,7 @@ describe("Onboarding", function() {
 
         // Create and run query
         // Using the cheat option to create the action with 30 sec timeout
+        cy.get(".t--close--button").should("not.exist");
         cy.get(".t--onboarding-cheat-action")
           .should("be.visible")
           .click();
@@ -49,27 +52,35 @@ describe("Onboarding", function() {
 
         // Add widget
         cy.get(".t--add-widget").click();
-        cy.dragAndDropToCanvas("tablewidget", { x: 30, y: -30 });
+        cy.dragAndDropToCanvas("tablewidget", { x: 360, y: 40 });
 
         // wait for animation duration
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
         // Click on "Show me how" and then click on cheat button
         cy.get(".t--onboarding-action")
           .should("be.visible")
           .click({ force: true });
+        cy.get(".t--close--button").should("not.exist");
         cy.get(".t--onboarding-cheat-action")
           .should("be.visible")
           .click();
 
         // wait for animation duration
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
         cy.contains(".t--onboarding-helper-title", "Capture Hero Updates");
-        cy.get(".t--onboarding-cheat-action").click();
+        cy.dragAndDropToCanvas("inputwidget", { x: 360, y: 40 });
+        cy.get(".t--property-control-onsubmit .t--open-dropdown-Select-Action")
+          .click({ force: true })
+          .selectOnClickOption("Execute a Query")
+          .selectOnClickOption("Create New Query");
 
         cy.contains(
           ".t--onboarding-helper-title",
           "Deploy the Standup Dashboard",
         );
+        cy.get(".t--close--button").should("not.exist");
       });
   });
 
@@ -93,6 +104,15 @@ describe("Onboarding", function() {
 
     cy.url().should("include", "/pages");
     cy.log("pagename: " + localStorage.getItem("PageName"));
+
+    // check close button exist and working
+    cy.get(".t--close--button")
+      .should("be.visible")
+      .click();
+
+    cy.get(".t--side-sticky-bar")
+      .should("be.visible")
+      .click();
 
     cy.get(".t--onboarding-secondary-action").click();
   });

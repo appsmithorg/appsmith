@@ -8,16 +8,20 @@ describe("GlobalSearch", function() {
     cy.addDsl(dsl);
   });
 
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
   it("showsAndHidesUsingKeyboardShortcuts", () => {
+    // wait for the page to load
+    cy.get(commonlocators.canvas);
     const isMac = Cypress.platform === "darwin";
     if (isMac) {
-      cy.wait(2000);
       cy.get("body").type("{cmd}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
       cy.get(commonlocators.globalSearchModal).should("not.exist");
     } else {
-      cy.wait(2000);
       cy.get("body").type("{ctrl}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
@@ -28,6 +32,7 @@ describe("GlobalSearch", function() {
   it("selectsWidget", () => {
     const table = dsl.dsl.children[2];
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get(commonlocators.globalSearchInput).type(table.widgetName);
     cy.get("body").type("{enter}");
@@ -35,8 +40,8 @@ describe("GlobalSearch", function() {
       .its("store")
       .invoke("getState")
       .then((state) => {
-        const { selectedWidget } = state.ui.widgetDragResize;
-        expect(selectedWidget).to.be.equal(table.widgetId);
+        const { lastSelectedWidget } = state.ui.widgetDragResize;
+        expect(lastSelectedWidget).to.be.equal(table.widgetId);
       });
   });
 
@@ -45,14 +50,14 @@ describe("GlobalSearch", function() {
     cy.CreateAPI("SomeApi");
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("Page1");
     cy.get("body").type("{enter}");
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("SomeApi");
     cy.get("body").type("{enter}");
     cy.window()
@@ -79,14 +84,14 @@ describe("GlobalSearch", function() {
         .click();
 
       cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000); // modal open transition should be deterministic
-      cy.get(commonlocators.globalSearchClearInput).click({ force: true });
       cy.get(commonlocators.globalSearchInput).type("Page1");
       cy.get("body").type("{enter}");
 
       cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000); // modal open transition should be deterministic
-      cy.get(commonlocators.globalSearchClearInput).click({ force: true });
       cy.get(commonlocators.globalSearchInput).type(expectedDatasource.name);
       cy.get("body").type("{enter}");
       cy.location().should((loc) => {
@@ -98,8 +103,8 @@ describe("GlobalSearch", function() {
   it("navigatesToPage", () => {
     cy.Createpage("NewPage");
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(commonlocators.globalSearchClearInput).click({ force: true });
     cy.get(commonlocators.globalSearchInput).type("Page1");
     cy.get("body").type("{enter}");
     cy.window()
@@ -112,5 +117,6 @@ describe("GlobalSearch", function() {
           expect(loc.pathname).includes(expectedPage.pageId);
         });
       });
+    cy.NavigateToHome();
   });
 });

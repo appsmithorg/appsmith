@@ -1,5 +1,6 @@
 import { Action, PluginType } from "entities/Action/index";
 import { getBindingPathsOfAction } from "entities/Action/actionProperties";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const DEFAULT_ACTION: Action = {
   actionConfiguration: {},
@@ -24,9 +25,9 @@ describe("getBindingPathsOfAction", () => {
   it("returns default list of no config is sent", () => {
     const response = getBindingPathsOfAction(DEFAULT_ACTION, undefined);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      config: true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      config: EvaluationSubstitutionType.TEMPLATE,
     });
   });
 
@@ -46,6 +47,18 @@ describe("getBindingPathsOfAction", () => {
             configProperty: "actionConfiguration.body2",
             controlType: "QUERY_DYNAMIC_INPUT_TEXT",
           },
+          {
+            label: "",
+            configProperty: "actionConfiguration.field1",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "SMART_SUBSTITUTE",
+          },
+          {
+            label: "",
+            configProperty: "actionConfiguration.field2",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "PARAMETER",
+          },
         ],
       },
     ];
@@ -54,15 +67,19 @@ describe("getBindingPathsOfAction", () => {
       actionConfiguration: {
         body: "basic action",
         body2: "another body",
+        field1: "test",
+        field2: "anotherTest",
       },
     };
 
     const response = getBindingPathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      "config.body": true,
-      "config.body2": true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.body": EvaluationSubstitutionType.TEMPLATE,
+      "config.body2": EvaluationSubstitutionType.TEMPLATE,
+      "config.field1": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      "config.field2": EvaluationSubstitutionType.PARAMETER,
     });
   });
 
@@ -122,12 +139,12 @@ describe("getBindingPathsOfAction", () => {
     // @ts-ignore
     const response = getBindingPathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      "config.params[0].key": true,
-      "config.params[0].value": true,
-      "config.params[1].key": true,
-      "config.params[1].value": true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.params[0].key": EvaluationSubstitutionType.TEMPLATE,
+      "config.params[0].value": EvaluationSubstitutionType.TEMPLATE,
+      "config.params[1].key": EvaluationSubstitutionType.TEMPLATE,
+      "config.params[1].value": EvaluationSubstitutionType.TEMPLATE,
     });
   });
 
@@ -177,10 +194,76 @@ describe("getBindingPathsOfAction", () => {
     // @ts-ignore
     const response = getBindingPathsOfAction(basicAction, config);
     expect(response).toStrictEqual({
-      data: true,
-      isLoading: true,
-      "config.key": true,
-      "config.value": true,
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.key": EvaluationSubstitutionType.TEMPLATE,
+      "config.value": EvaluationSubstitutionType.TEMPLATE,
+    });
+  });
+
+  it("checks for hidden field and returns bindingPaths accordingly", () => {
+    const config = [
+      {
+        sectionName: "",
+        id: 1,
+        children: [
+          {
+            label: "",
+            configProperty: "actionConfiguration.body",
+            controlType: "QUERY_DYNAMIC_TEXT",
+          },
+          {
+            label: "",
+            configProperty: "actionConfiguration.body2",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            hidden: {
+              path: "actionConfiguration.template.setting",
+              comparison: "EQUALS",
+              value: false,
+            },
+          },
+          {
+            label: "",
+            configProperty: "actionConfiguration.field1",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "SMART_SUBSTITUTE",
+            hidden: {
+              path: "actionConfiguration.template.setting",
+              comparison: "EQUALS",
+              value: true,
+            },
+          },
+        ],
+      },
+    ];
+    const basicAction = {
+      ...DEFAULT_ACTION,
+      actionConfiguration: {
+        body: "basic action",
+        body2: "another body",
+        field1: "alternate body",
+        template: {
+          setting: false,
+        },
+      },
+    };
+
+    const response = getBindingPathsOfAction(basicAction, config);
+    expect(response).toStrictEqual({
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.body": EvaluationSubstitutionType.TEMPLATE,
+      "config.field1": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    });
+
+    basicAction.actionConfiguration.template.setting = true;
+
+    const response2 = getBindingPathsOfAction(basicAction, config);
+    expect(response2).toStrictEqual({
+      data: EvaluationSubstitutionType.TEMPLATE,
+      isLoading: EvaluationSubstitutionType.TEMPLATE,
+      "config.body": EvaluationSubstitutionType.TEMPLATE,
+      "config.body2": EvaluationSubstitutionType.TEMPLATE,
     });
   });
 });
