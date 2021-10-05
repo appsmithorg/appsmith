@@ -184,7 +184,8 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
         boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
-            if(redirectUrl.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+            URI redirectUri = URI.create(redirectUrl);
+            if(redirectUri.getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
                 addFirstTimeExperienceParam = true;
                 HttpHeaders headers = exchange.getRequest().getHeaders();
                 redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
@@ -204,13 +205,16 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 .flatMap(redirectHelper::getRedirectUrl)
                 .map(s -> {
                     String url = s;
-                    boolean addFirstTimeExperienceParam = false;
-                    if(s.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
-                        addFirstTimeExperienceParam = true;
-                        HttpHeaders headers = exchange.getRequest().getHeaders();
-                        url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
-                    }
                     if (isFromSignup) {
+                        URI redirectUri = URI.create(url);
+                        boolean addFirstTimeExperienceParam = false;
+
+                        // only redirect to default application if the redirectUrl contains no other url
+                        if(redirectUri.getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+                            addFirstTimeExperienceParam = true;
+                            HttpHeaders headers = exchange.getRequest().getHeaders();
+                            url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
+                        }
                         // This redirectUrl will be used by the client to redirect after showing a welcome page.
                         url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
                     }
