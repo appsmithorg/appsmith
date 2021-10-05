@@ -149,5 +149,7 @@
     "filterApplyBtn":".t--apply-filter-btn",
     "filterCloseBtn":".t--close-filter-btn",
     "header":"#header-root",
-    "mapChartPlot": "g[class$='-manager-plot']"
+    "mapChartPlot": "g[class$='-manager-plot']",
+    "explorerSwitchId": "#switcher--explorer",
+    "widgetSwitchId":"#switcher--widgets"
 }
