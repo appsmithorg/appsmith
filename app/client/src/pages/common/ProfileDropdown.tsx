@@ -15,13 +15,10 @@ import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE } from "constants/routes";
 import UserApi from "api/UserApi";
-<<<<<<< HEAD
 import { Colors } from "constants/Colors";
-=======
 import TooltipComponent from "components/ads/Tooltip";
 import { ACCOUNT_TOOLTIP, createMessage } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
->>>>>>> 77a989cec (feat: Add tooltip for icons on editor)
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;

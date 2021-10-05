@@ -124,6 +124,8 @@ const AppsmithLink = styled((props) => {
   margin-right: ${(props) => props.theme.spaces[4]}px;
   height: 20px;
   width: 20px;
+  transform: translate(0px, 2px);
+  display: inline-block;
   img {
     width: 20px;
     height: 20px;

@@ -99,12 +99,7 @@ import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
-<<<<<<< HEAD
 import { getAppsmithConfigs } from "configs";
-=======
-import TooltipComponent from "components/ads/Tooltip";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
->>>>>>> 77a989cec (feat: Add tooltip for icons on editor)
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -708,41 +703,7 @@ function ApplicationsSection(props: any) {
               ) &&
                 !isFetchingApplications && (
                   <OrgShareUsers>
-<<<<<<< HEAD
                     <SharedUserList userRoles={userRoles} />
-=======
-                    <UserImageContainer>
-                      {userRoles.slice(0, 5).map((el: UserRoles) => (
-                        <TooltipComponent
-                          content={
-                            <span>
-                              {el.username}&nbsp;
-                              {currentUser?.email === el.username ? (
-                                <strong>(You)</strong>
-                              ) : (
-                                ""
-                              )}
-                            </span>
-                          }
-                          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                          key={el.username}
-                          position={Position.BOTTOM}
-                        >
-                          <ProfileImage
-                            className="org-share-user-icons"
-                            source={`/api/${UserApi.photoURL}/${el.username}`}
-                            userName={el.name ? el.name : el.username}
-                          />
-                        </TooltipComponent>
-                      ))}
-                      {userRoles.length > 5 ? (
-                        <ProfileImage
-                          className="org-share-user-icons"
-                          commonName={`+${userRoles.length - 5}`}
-                        />
-                      ) : null}
-                    </UserImageContainer>
->>>>>>> 77a989cec (feat: Add tooltip for icons on editor)
                     <FormDialogComponent
                       Form={OrgInviteUsersForm}
                       canOutsideClickClose

@@ -137,13 +137,13 @@ const CopyBox = styled.div`
     &:before {
       content: "";
       background: ${Colors.Gallery};
-      opacity: 0.5;
+      opacity: 1;
       position: absolute;
       left: 0;
       height: 100%;
       top: 0;
       width: 100%;
-      z-index: 1;
+      z-index: -1;
     }
     .${Classes.POPOVER_WRAPPER} {
       opacity: 1;
