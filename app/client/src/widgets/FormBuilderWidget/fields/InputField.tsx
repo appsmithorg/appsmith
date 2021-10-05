@@ -12,8 +12,6 @@ type InputFieldProps = InputComponentProps & {
 };
 
 function InputField({ name, ...rest }: InputFieldProps) {
-  // eslint-disable-next-line
-  console.log("INPUTFIELD");
   return (
     <Field
       name={name}
@@ -21,10 +19,13 @@ function InputField({ name, ...rest }: InputFieldProps) {
         <InputComponent
           {...rest}
           inputRef={ref}
+          isInvalid={false}
+          multiline={false}
           onBlurHandler={onBlur}
           onCurrencyTypeChange={noop}
           onFocusChange={noop}
           onValueChange={onChange}
+          showError={false}
           value={value}
         />
       )}

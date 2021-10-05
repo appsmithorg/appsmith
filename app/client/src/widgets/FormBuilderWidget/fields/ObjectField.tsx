@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import { FieldType, FIELD_MAP, SchemaObject } from "../constants";
+import fieldRenderer from "./fieldRenderer";
+import { SchemaObject } from "../constants";
 
 type ObjectFieldProps = {
   name?: string;
@@ -13,29 +14,8 @@ const WRAPPER_PADDING_X = 15;
 
 const StyledWrapper = styled.div`
   padding: ${WRAPPER_PADDING_Y}px ${WRAPPER_PADDING_X}px;
+  width: 100%;
 `;
-
-const fieldRenderer = (fieldName: string, schemaObject: SchemaObject) => {
-  const { children, config, fieldType } = schemaObject;
-  const { defaultProps, fieldComponent: FieldComponent } = FIELD_MAP[fieldType];
-
-  const fieldProps = {
-    ...defaultProps,
-    ...config.props,
-    key: fieldName,
-    name: fieldName,
-    schema: children,
-  };
-
-  switch (fieldType) {
-    case FieldType.OBJECT:
-    case FieldType.ARRAY:
-      return <FieldComponent {...fieldProps} schemaObject={schemaObject} />;
-    default:
-      return <FieldComponent {...fieldProps} />;
-      break;
-  }
-};
 
 function ObjectField({ name, schemaObject }: ObjectFieldProps) {
   const entries = Object.entries(schemaObject.children);

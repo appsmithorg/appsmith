@@ -18,6 +18,7 @@ export type FormBuilderComponentProps<TValues> = {
 
 const StyledContainer = styled.div<StyledContainerProps>`
   background: ${({ backgroundColor }) => backgroundColor};
+  overflow-y: auto;
 `;
 
 function FormBuilderComponent<TValues>({

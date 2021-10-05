@@ -7,6 +7,7 @@ import Parser from "../parser";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Schema } from "../constants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export type FormBuilderWidgetProps = WidgetProps & {
   addFormBuilderWidgets: (widgetId: string, children: WidgetProps[]) => void;
@@ -17,6 +18,31 @@ export type FormBuilderWidgetProps = WidgetProps & {
   formData?: Record<string, any>;
 };
 
+const formDataValidationFn = (
+  value: any,
+  props: FormBuilderWidgetProps,
+  _?: any,
+) => {
+  debugger;
+  if (_.isObject(value)) {
+    return {
+      isValid: true,
+      parsed: value,
+    };
+  }
+
+  try {
+    return {
+      isValid: true,
+      parsed: JSON.parse(value as string),
+    };
+  } catch {
+    return {
+      isValid: true,
+      parsed: {},
+    };
+  }
+};
 class FormBuilderWidget extends BaseWidget<
   FormBuilderWidgetProps,
   WidgetState
@@ -39,7 +65,18 @@ class FormBuilderWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             // TODO: Add JSON validation type?
-            validation: { type: ValidationTypes.OBJECT },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: formDataValidationFn,
+                expected: {
+                  type: "JSON",
+                  example: `{ "name": "John Doe", age: 29 }`,
+                  // TODO: CHECK WHAT AutocompleteDataType is
+                  autocompleteDataType: AutocompleteDataType.OBJECT,
+                },
+              },
+            },
           },
           {
             propertyName: "backgroundColor",
