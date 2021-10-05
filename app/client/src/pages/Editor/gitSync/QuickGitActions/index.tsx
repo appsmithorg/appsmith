@@ -28,7 +28,6 @@ import Button, { Category, Size } from "components/ads/Button";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
-import { debug } from "loglevel";
 
 type QuickActionButtonProps = {
   count?: number;
