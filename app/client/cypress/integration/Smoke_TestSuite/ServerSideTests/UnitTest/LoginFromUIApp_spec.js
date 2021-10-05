@@ -1,5 +1,4 @@
 const homePage = require("../../../../locators/HomePage.json");
-const HelpLocators = require("../../../../locators/HelpLocators.json");
 let pageid;
 let appId;
 
