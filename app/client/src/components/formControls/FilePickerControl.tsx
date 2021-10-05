@@ -11,6 +11,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import { Colors } from "constants/Colors";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -19,7 +20,6 @@ const StyledDiv = styled.div`
   padding: 6px 12px;
   font-size: 14px;
   color: #768896;
-  border-radius: 4px 0 0 4px;
 `;
 
 const SelectButton = styled(BaseButton)`
@@ -29,10 +29,19 @@ const SelectButton = styled(BaseButton)`
     min-height: 32px;
     border-radius: 0px 4px 4px 0px;
     font-weight: bold;
-    background-color: #f6f7f8;
+    background-color: #fff;
+    border-color: ${Colors.PRIMARY_ORANGE} !important;
     font-size: 14px;
     &.bp3-button {
       padding: 0px 0px;
+    }
+    span {
+      color: ${Colors.PRIMARY_ORANGE} !important;
+      font-weight: 400;
+    }
+    &:hover:enabled,
+    &:active:enabled {
+      background: rgba(248, 106, 43, 0.1) !important;
     }
   }
 `;

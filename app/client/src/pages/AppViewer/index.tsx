@@ -50,6 +50,7 @@ const ContainerWithComments = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
+  background: ${(props) => props.theme.colors.artboard};
 `;
 
 const AppViewerBodyContainer = styled.div<{ width?: string }>`
