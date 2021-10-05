@@ -101,7 +101,7 @@ export const useDynamicAppLayout = () => {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
-        return calculatedWidth;
+        return calculatedWidth - 2;
       case calculatedWidth < minWidth:
         return minWidth;
       case calculatedWidth > maxWidth:

@@ -28,7 +28,7 @@ export const PropertyPaneSidebar = memo(() => {
   return (
     <div
       className={classNames({
-        "js-property-pane-sidebar bg-white flex h-full t--property-pane-sidebar z-3 transform transition duration-300": true,
+        "js-property-pane-sidebar bg-white flex h-full t--property-pane-sidebar z-3 border-l border-gray-200 transform transition duration-300": true,
         "relative ": !isPreviewMode,
         "fixed translate-x-full right-0": isPreviewMode,
       })}

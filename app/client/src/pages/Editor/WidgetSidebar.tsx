@@ -11,6 +11,8 @@ import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
+import { useLocation } from "react-router";
+
 import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -19,15 +21,15 @@ import {
   getCurrentSubStep,
   inOnboarding,
 } from "sagas/OnboardingSagas";
+import { AppState } from "reducers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { useLocation } from "react-router";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getExplorerPinned } from "selectors/explorerSelector";
+import { setExplorerPinned } from "actions/explorerActions";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
-import { setExplorerPinned } from "actions/explorerActions";
 
 const CardsWrapper = styled.div`
   display: grid;
@@ -56,6 +58,9 @@ function WidgetSidebar(props: IPanelProps) {
     }
     setFilteredCards(filteredCards);
   };
+  const isForceOpenWidgetPanel = useSelector(
+    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
+  );
   const clearSearchInput = () => {
     if (searchInputRef.current) {
       searchInputRef.current.value = "";
@@ -71,14 +76,16 @@ function WidgetSidebar(props: IPanelProps) {
   const pageId = useSelector(getCurrentPageId);
   const onCanvas =
     BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+
   useEffect(() => {
     if (
-      (currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
-      !onCanvas
+      ((currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
+        !onCanvas) ||
+      isForceOpenWidgetPanel === false
     ) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas, isInOnboarding, location]);
+  }, [currentStep, onCanvas, isInOnboarding, location, isForceOpenWidgetPanel]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
@@ -109,30 +116,12 @@ function WidgetSidebar(props: IPanelProps) {
   }, [pinned, dispatch, setExplorerPinned]);
 
   return (
-    <div className="py-3 space-y-2 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400">
-      <div className="flex items-center px-3 space-x-2">
-        <button
-          className="p-1 hover:bg-warmGray-700 t--close-widgets-sidebar"
-          onClick={closeWidgetPanel}
-        >
-          <BackIcon className="w-4 h-4" />
-        </button>
-        <h3 className="flex-grow text-lg font-semibold">Widgets</h3>
-        <div className="flex items-center">
-          <button className="p-1 hover:bg-warmGray-700 group" onClick={onPin}>
-            {pinned ? (
-              <PinIcon className="w-4 h-4 text-gray-500" />
-            ) : (
-              <UnPinIcon className="w-4 h-4 text-gray-500" />
-            )}
-          </button>
-        </div>
-      </div>
-
+    <div className="py-3 space-y-2">
       <Boxed step={OnboardingStep.DEPLOY}>
         <ExplorerSearch
           autoFocus
           clear={clearSearchInput}
+          hideClear
           placeholder="Search widgets..."
           ref={searchInputRef}
         />

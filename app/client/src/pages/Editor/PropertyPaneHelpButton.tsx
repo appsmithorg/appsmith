@@ -7,8 +7,11 @@ import {
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import WidgetFactory from "utils/WidgetFactory";
+import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidget } from "sagas/selectors";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
+
+const QuestionIcon = ControlIcons.QUESTION;
 
 function PropertyPaneHelpButton() {
   const selectedWidget = useSelector(getSelectedWidget);
@@ -30,7 +33,7 @@ function PropertyPaneHelpButton() {
 
   return (
     <button className="p-1 hover:bg-warmGray-100 group" onClick={onClick}>
-      <HelpIcon className="h-4 w-4 text-trueGray-500" />
+      <QuestionIcon className="w-4 h-4 text-trueGray-500" />
     </button>
   );
 }

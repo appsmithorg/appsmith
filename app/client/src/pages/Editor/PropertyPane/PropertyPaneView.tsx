@@ -9,8 +9,8 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
-import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
-import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
+import CopyIcon from "remixicon-react/FileCopyLineIcon";
+import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 

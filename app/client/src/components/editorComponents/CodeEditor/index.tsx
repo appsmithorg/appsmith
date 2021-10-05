@@ -407,6 +407,7 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
+
     if (dataTreePath) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         dataTreePath,
@@ -595,11 +596,11 @@ class CodeEditor extends Component<Props, State> {
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
     return (
       <DynamicAutocompleteInputWrapper
+        className="t--code-editor-wrapper"
         isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
         isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
-        theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
           <Button

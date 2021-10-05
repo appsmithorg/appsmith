@@ -23,6 +23,10 @@ import PerformanceTracker, {
 import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+
+import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
+import { Colors } from "constants/Colors";
+
 import classNames from "classnames";
 import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
@@ -30,6 +34,7 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinned } from "actions/explorerActions";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -45,13 +50,32 @@ const Wrapper = styled.div`
 const NoResult = styled(NonIdealState)`
   &.${Classes.NON_IDEAL_STATE} {
     height: auto;
+    margin: 20px 0;
+
+    .${Classes.NON_IDEAL_STATE_VISUAL} {
+      margin-bottom: 16px;
+      height: 52px;
+
+      svg {
+        height: 52px;
+        width: 144px;
+      }
+    }
+
+    div {
+      color: ${Colors.DOVE_GRAY2};
+    }
+
+    .${Classes.HEADING} {
+      margin-bottom: 4px;
+      color: ${(props) => props.theme.colors.textOnWhiteBG};
+    }
   }
 `;
 
 const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
-
 function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
   const { applicationId } = useParams<ExplorerURLParams>();
@@ -95,6 +119,7 @@ function EntityExplorer(props: IPanelProps) {
     (pageId: string) => {
       history.push(BUILDER_PAGE_URL(applicationId, pageId));
       openPanel({ component: WidgetSidebar });
+      dispatch(forceOpenWidgetPanel(true));
       if (isFirstTimeUserOnboardingEnabled) {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }
@@ -117,8 +142,8 @@ function EntityExplorer(props: IPanelProps) {
       ref={explorerRef}
     >
       {/* ENTITY EXPLORE HEADER */}
-      <div className="sticky top-0 flex items-center justify-between px-3 py-3 z-1 bg-trueGray-800">
-        <h3 className="text-lg font-semibold ">Explorer</h3>
+      <div className="sticky top-0 flex items-center justify-between px-3 py-3 z-1">
+        <h3 className="text-lg font-semibold text-gray-800 ">Explorer</h3>
         <div className="flex items-center">
           <button className="p-1 hover:bg-warmGray-700 group" onClick={onPin}>
             {pinned ? (
@@ -147,7 +172,7 @@ function EntityExplorer(props: IPanelProps) {
         <NoResult
           className={Classes.DARK}
           description="Try modifying the search keyword."
-          icon="search"
+          icon={<NoEntityFoundSvg />}
           title="No entities found"
         />
       )}

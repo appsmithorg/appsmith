@@ -56,6 +56,7 @@ const CanvasContainer = styled.section`
   overflow-x: auto;
   overflow-y: auto;
   padding-top: 1px;
+  color: transparent;
   &:before {
     position: absolute;
     top: 0;
