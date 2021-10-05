@@ -512,7 +512,8 @@ jobs:
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
+    #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release'
 
     steps:
       # Checkout the code

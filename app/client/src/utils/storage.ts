@@ -17,6 +17,7 @@ const STORAGE_KEYS: { [id: string]: string } = {
     "FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+  HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
 };
 
 const store = localforage.createInstance({
@@ -257,6 +258,35 @@ export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
   } catch (error) {
     log.error(
       "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+    );
+    log.error(error);
+  }
+};
+
+export const hideConcurrentEditorWarningToast = async () => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.HIDE_CONCURRENT_EDITOR_WARNING_TOAST,
+      true,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
+    );
+    log.error(error);
+  }
+};
+
+export const getIsConcurrentEditorWarningToastHidden = async () => {
+  try {
+    const flag = await store.getItem(
+      STORAGE_KEYS.HIDE_CONCURRENT_EDITOR_WARNING_TOAST,
+    );
+    return flag;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
     );
     log.error(error);
   }
