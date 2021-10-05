@@ -1875,34 +1875,14 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
     .selectOnClickOption(ApiName);
 });
 
-Cypress.Commands.add("radioInputValue", (index, text) => {
+Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
-    .click({ force: true });
-  cy.wait(200);
-  cy.get(widgetsPage.RadioInput)
-    .eq(index)
-    .clear({ force: true });
-  cy.xpath('//input[@placeholder = "Value"]')
-    .eq(index)
-    .type(text, { force: true, delay: 500 })
+    .click({ force: true })
+    .clear({ force: true })
+    .type(text)
     .wait(200);
 });
-
-Cypress.Commands.add("radioInputName", (index, text) => {
-  cy.get(widgetsPage.RadioInput)
-    .eq(index)
-    .click({ force: true });
-  cy.wait(200);
-  cy.get(widgetsPage.RadioInput)
-    .eq(index)
-    .clear({ force: true });
-  cy.xpath('//input[@placeholder = "Name"]')
-    .eq(index)
-    .type(text, { force: true, delay: 500 })
-    .wait(200);
-});
-
 Cypress.Commands.add("tabVerify", (index, text) => {
   cy.get(".t--property-control-tabs input")
     .eq(index)
