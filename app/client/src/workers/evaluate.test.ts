@@ -1,4 +1,4 @@
-import evaluate from "workers/evaluate";
+import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import {
   DataTree,
   DataTreeWidget,
@@ -30,6 +30,9 @@ describe("evaluate", () => {
   const dataTree: DataTree = {
     Input1: widget,
   };
+  beforeAll(() => {
+    setupEvaluationEnvironment();
+  });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
     const response = evaluate(js, {}, {});
