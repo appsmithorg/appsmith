@@ -43,7 +43,8 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getGitError = (state: AppState) => state.ui.gitSync.gitError;
+export const getGitPushError = (state: AppState) =>
+  state.ui.gitSync.gitPushError;
 
 export const getIsImportAppViaGitModalOpen = (state: AppState) =>
   state.ui.gitSync.isImportAppViaGitModalOpen;
@@ -70,3 +71,12 @@ export const getCurrentGitBranch = (state: AppState) => {
   const { gitApplicationMetadata } = getCurrentApplication(state) || {};
   return gitApplicationMetadata?.branchName;
 };
+export const getGitStatus = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.gitStatus,
+);
+
+export const getIsDisconnectingGit = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isDisconnectingGit,
+);

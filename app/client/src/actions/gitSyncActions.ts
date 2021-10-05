@@ -1,8 +1,9 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
+import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig } from "entities/GitSync";
-import { GitApplicationMetadata } from "../api/ApplicationApi";
+import { GitApplicationMetadata } from "api/ApplicationApi";
+import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 
 // test comment
 
@@ -63,6 +64,16 @@ export const connectToGitInit = ({
 
 export const connectToGitSuccess = (payload: ConnectToGitResponse) => ({
   type: ReduxActionTypes.CONNECT_TO_GIT_SUCCESS,
+  payload,
+});
+
+export const disconnectToGitInit = () => ({
+  type: ReduxActionTypes.DISCONNECT_TO_GIT_INIT,
+  payload: null,
+});
+
+export const disconnectToGitSuccess = (payload: unknown) => ({
+  type: ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS,
   payload,
 });
 
@@ -148,5 +159,15 @@ export const fetchLocalGitConfigInit = () => ({
 
 export const fetchLocalGitConfigSuccess = (payload: GitConfig) => ({
   type: ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+export const fetchGitStatusInit = () => ({
+  type: ReduxActionTypes.FETCH_GIT_STATUS_INIT,
+  payload: null,
+});
+
+export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
+  type: ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS,
   payload,
 });

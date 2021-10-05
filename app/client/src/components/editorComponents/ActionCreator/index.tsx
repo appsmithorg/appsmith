@@ -23,10 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
 import { getWidgetOptionsTree } from "sagas/selectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getActionsForCurrentPage,
   getDBDatasources,
