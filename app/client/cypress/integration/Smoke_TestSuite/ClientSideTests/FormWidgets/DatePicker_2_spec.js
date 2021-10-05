@@ -1,4 +1,3 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/datePicker2dsl.json");
 
