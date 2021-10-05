@@ -78,6 +78,15 @@ describe("Export application as a JSON file", function() {
         .first()
         .click({ force: true });
       cy.get(homePage.exportAppFromMenu).should("be.visible");
+      cy.get("body").click(50, 40);
+      cy.get(homePage.applicationCard)
+        .first()
+        .trigger("mouseover");
+      cy.get(homePage.appEditIcon)
+        .first()
+        .click({ force: true });
+      cy.get(homePage.applicationName).click({ force: true });
+      cy.contains("Export Application").should("be.visible");
     });
     cy.LogOut();
   });
@@ -119,6 +128,15 @@ describe("Export application as a JSON file", function() {
         .first()
         .click({ force: true });
       cy.get(homePage.exportAppFromMenu).should("not.exist");
+      cy.get("body").click(50, 40);
+      cy.get(homePage.applicationCard)
+        .first()
+        .trigger("mouseover");
+      cy.get(homePage.appEditIcon)
+        .first()
+        .click({ force: true });
+      cy.get(homePage.applicationName).click({ force: true });
+      cy.contains("Export Application").should("not.exist");
     });
     cy.LogOut();
   });
