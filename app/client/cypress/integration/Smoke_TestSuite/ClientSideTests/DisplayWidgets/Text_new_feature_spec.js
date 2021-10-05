@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/textDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Text Widget color/font/alignment Functionality", function() {
   before(() => {
