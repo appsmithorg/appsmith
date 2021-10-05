@@ -28,4 +28,4 @@ In the process of shipping features quickly, we may forget to keep our docs up t
 
 #### ⚙️ Close a Bug / Feature issue
 
-We welcome contributions that help make appsmith bug free & improve the experience of our users. You can also find issues tagged [Good First Issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+bug). Check out our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) to begin.
+We welcome contributions that help make Appsmith bug free & improve the experience of our users. You can also find issues tagged [Good First Issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22+bug). Check out our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) to begin.
