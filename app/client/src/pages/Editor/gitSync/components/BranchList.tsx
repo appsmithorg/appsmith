@@ -55,20 +55,31 @@ const BranchListItemContainer = styled.div<{
 const textInputHeight = 38;
 const textHeight = 18;
 
-function BranchListItem({ active, branch, hovered, onClick }: any) {
+function BranchListItem({
+  active,
+  branch,
+  hovered,
+  onClick,
+  shouldScrollIntoView,
+}: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (itemRef.current)
+    if (itemRef.current && shouldScrollIntoView)
       scrollIntoView(itemRef.current, {
         scrollMode: "if-needed",
         block: "nearest",
         inline: "nearest",
       });
-  }, [active]);
+  }, [shouldScrollIntoView]);
 
   return (
-    <BranchListItemContainer hovered={hovered} onClick={onClick} ref={itemRef}>
+    <BranchListItemContainer
+      active={active}
+      hovered={hovered}
+      onClick={onClick}
+      ref={itemRef}
+    >
       {branch}
     </BranchListItemContainer>
   );
@@ -127,7 +138,13 @@ export default function BranchList(props: {
     if (typeof props.setShowCreateNewBranchForm === "function") {
       props.setShowCreateNewBranchForm(flag);
     }
+    setCreateNewBranchValue(searchText);
   };
+
+  useEffect(() => {
+    const hoverIndex = filteredBranches.indexOf(currentBranch || "");
+    setActiveHoverIndexInState(hoverIndex !== -1 ? hoverIndex + 1 : 0);
+  }, [currentBranch, filteredBranches]);
 
   useEffect(() => {
     if (searchText) {
@@ -168,25 +185,26 @@ export default function BranchList(props: {
 
   const setActiveHoverIndex = (index: number) => {
     if (index < 0) setActiveHoverIndexInState(filteredBranches.length);
-    if (index > filteredBranches.length) setActiveHoverIndexInState(0);
+    else if (index > filteredBranches.length) setActiveHoverIndexInState(0);
     else setActiveHoverIndexInState(index);
   };
 
-  // const getIsCreateNewBranchInputIsValid = () => true;
+  const isCreateNewBranchInputValid =
+    branches && branches.indexOf(createNewBranchValue) === -1;
 
   const handleUpKey = () => setActiveHoverIndex(activeHoverIndex - 1);
 
   const handleDownKey = () => setActiveHoverIndex(activeHoverIndex + 1);
 
   const handleSubmitKey = () => {
-    if (showCreateBranchForm) {
+    if (showCreateBranchForm && isCreateNewBranchInputValid) {
       handleCreateNewBranch(createNewBranchValue);
     }
 
     if (activeHoverIndex === 0) {
       handleCreateNew();
     } else {
-      switchBranch(filteredBranches[activeHoverIndex + 1]);
+      switchBranch(filteredBranches[activeHoverIndex - 1]);
     }
   };
 
@@ -208,11 +226,12 @@ export default function BranchList(props: {
     >
       {showCreateBranchForm ? (
         <CreateNewBranchForm
-          defaultBranchValue={filteredBranches.length === 0 ? searchText : ""}
+          defaultBranchValue={createNewBranchValue}
           isCreatingNewBranch={isCreatingNewBranch}
+          isInputValid={isCreateNewBranchInputValid}
           onCancel={handleCancelCreateNewBranch}
           onChange={setCreateNewBranchValue}
-          onSubmit={handleCreateNewBranch}
+          onSubmit={() => handleCreateNewBranch(createNewBranchValue)}
         />
       ) : (
         <>
@@ -233,30 +252,35 @@ export default function BranchList(props: {
           </div>
           {fetchingBranches && <BranchesLoading />}
           {!fetchingBranches && (
-            <>
-              <BranchListItemContainer
+            <ListContainer>
+              <BranchListItem
+                branch={
+                  <span>
+                    Create new{" "}
+                    {filteredBranches.length === 0 ? (
+                      <>:&nbsp;{searchText}</>
+                    ) : (
+                      ""
+                    )}
+                  </span>
+                }
                 hovered={activeHoverIndex === 0}
                 onClick={handleCreateNew}
-              >
-                <span>
-                  Create new
-                  {filteredBranches.length === 0 && (
-                    <span>:&nbsp;{searchText}</span>
-                  )}
-                </span>
-              </BranchListItemContainer>
-              <ListContainer>
-                {filteredBranches.map((branch: string, index: number) => (
-                  <BranchListItem
-                    active={currentBranch === branch}
-                    branch={branch}
-                    hovered={activeHoverIndex - 1 === index}
-                    key={branch}
-                    onClick={() => switchBranch(branch)}
-                  />
-                ))}
-              </ListContainer>
-            </>
+                shouldScrollIntoView={activeHoverIndex === 0}
+              />
+              {filteredBranches.map((branch: string, index: number) => (
+                <BranchListItem
+                  active={currentBranch === branch}
+                  branch={branch}
+                  hovered={activeHoverIndex - 1 === index}
+                  key={branch}
+                  onClick={() => switchBranch(branch)}
+                  shouldScrollIntoView={
+                    activeHoverIndex - 1 === index || currentBranch === branch
+                  }
+                />
+              ))}
+            </ListContainer>
           )}
         </>
       )}

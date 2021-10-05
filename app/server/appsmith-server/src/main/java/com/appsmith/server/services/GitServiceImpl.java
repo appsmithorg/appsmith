@@ -508,12 +508,12 @@ public class GitServiceImpl implements GitService {
         3. Rehydrate the application from source application reference
          */
 
-        final String branch = params.getFirst(FieldName.BRANCH_NAME);
-        if (StringUtils.isEmptyOrNull(branch)) {
+        final String srcBranch = params.getFirst(FieldName.BRANCH_NAME);
+        if (StringUtils.isEmptyOrNull(srcBranch)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(branch, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.getApplicationByBranchNameAndDefaultApplication(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
             .flatMap(srcApplication -> {
                 GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
                 if (srcBranchGitData == null
@@ -594,7 +594,7 @@ public class GitServiceImpl implements GitService {
     @Override
     public Mono<Object> pullApplication(String defaultApplicationId, String branchName) {
         /*
-         * 1.Rehydrate the application from Mongodb to make sure that the file system has latest application data from mongodb
+         * 1.Dehydrate the application from Mongodb to make sure that the file system has latest application data from mongodb
          * 2.Do git pull after the rehydration and merge the remote changes to the current branch
          * 3.Then rehydrate the from the file system to mongodb so that the latest changes from remote are rendered to the application
          * 4.Get the latest application mono from the mongodb and send it back to client
@@ -631,7 +631,7 @@ public class GitServiceImpl implements GitService {
                             defaultApplicationId,
                             gitApplicationMetadata.getRepoName());
 
-                    // 1. Rehydrate application from db
+                    // 1. Dehydrate application from db and save to repo after the branch checkout
                     try {
                         return Mono.zip(
                                 fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName),
@@ -651,7 +651,7 @@ public class GitServiceImpl implements GitService {
                                 application.getGitApplicationMetadata().getRepoName());
 
                         //2. git pull origin branchName
-                        String status = gitExecutor.pullApplication(
+                        gitExecutor.pullApplication(
                                 repoPath,
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getBranchName(),

@@ -96,6 +96,16 @@ public class GitFileUtils {
         applicationReference.setActions(new HashMap<>(resourceMap));
         resourceMap.clear();
 
+        // Send jsActionCollections
+        applicationJson.getActionCollectionList().forEach(actionCollection -> {
+            String prefix = actionCollection.getUnpublishedCollection() != null ?
+                    actionCollection.getUnpublishedCollection().getName() + "_" + actionCollection.getUnpublishedCollection().getPageId()
+                    : actionCollection.getPublishedCollection().getName() + "_" + actionCollection.getPublishedCollection().getPageId();
+            resourceMap.put(prefix, actionCollection);
+        });
+        applicationReference.setActionsCollections(new HashMap<>(resourceMap));
+        resourceMap.clear();
+
         // Send datasources
         applicationJson.getDatasourceList().forEach(
             datasource -> resourceMap.put(datasource.getName(), datasource)
@@ -125,10 +135,10 @@ public class GitFileUtils {
         ApplicationGitReference applicationReference =
             fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName);
 
+        // TODO test this during rehydration
         // Extract application data from the json
         applicationJson.setExportedApplication((Application) applicationReference.getApplication());
 
-        // TODO test this during rehydration
         // Extract application metadata from the json
         BeanCopyUtils.copyNestedNonNullProperties(applicationReference.getMetadata(), applicationJson);
 

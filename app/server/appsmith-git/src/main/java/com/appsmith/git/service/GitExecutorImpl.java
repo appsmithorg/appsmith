@@ -3,18 +3,20 @@ package com.appsmith.git.service;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.constants.Constraint;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.CreateBranchCommand;
-import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NotSupportedException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -111,15 +113,15 @@ public class GitExecutorImpl implements GitExecutor {
         List<GitLogDTO> commitLogs = new ArrayList<>();
         Path repoPath = createRepoPath(repoSuffix);
         Git git = Git.open(repoPath.toFile());
-        Iterable<RevCommit> gitLogs = git.log().call();
+        Iterable<RevCommit> gitLogs = git.log().setMaxCount(Constraint.MAX_COMMIT_LOGS).call();
         gitLogs.forEach(revCommit -> {
             PersonIdent author = revCommit.getAuthorIdent();
             GitLogDTO gitLog = new GitLogDTO(
-                revCommit.getName(),
-                author.getName(),
-                author.getEmailAddress(),
-                revCommit.getFullMessage(),
-                ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
+                    revCommit.getName(),
+                    author.getName(),
+                    author.getEmailAddress(),
+                    revCommit.getFullMessage(),
+                    ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
             );
             commitLogs.add(gitLog);
         });
@@ -243,7 +245,7 @@ public class GitExecutorImpl implements GitExecutor {
         String checkedOutBranch =  git.checkout()
             .setCreateBranch(Boolean.FALSE)
             .setName(branchName)
-            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
             .call()
             .getName();
         return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
@@ -254,36 +256,31 @@ public class GitExecutorImpl implements GitExecutor {
                           String remoteUrl,
                           String branchName,
                           String privateKey,
-                          String publicKey) throws IOException {
-
-        Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+                          String publicKey) throws IOException, GitAPIException {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
-        try {
-            Long count = Arrays.stream(git
+        Git git = Git.open(repoPath.toFile());
+            long count = Arrays.stream(git
                     .pull()
                     .setRemoteBranchName(branchName)
                     .setTransportConfigCallback(transportConfigCallback)
+                    .setFastForward(MergeCommand.FastForwardMode.FF)
                     .call()
                     .getMergeResult()
                     .getMergedCommits())
                     .count();
             git.close();
-            if (count > 0) {
-                return count + "commits merged from origin/" + branchName;
-            }
-            return "Your branch is upto-date with latest commits";
-        } catch (GitAPIException e) {
-            //TODO Check out the branchName, check if file exists for the path without branchName,else update the file to new path
-            log.error("Git merge from remote branch failed, {}", e.getMessage());
-            return e.getMessage();
+        if (count > 0) {
+            return count + "commits merged from origin/" + branchName;
         }
+        return "Your branch is up-to-date with latest commits";
     }
 
     @Override
     public List<String> getBranches(Path repoSuffix) throws GitAPIException, IOException {
         Path baseRepoPath = createRepoPath(repoSuffix);
         Git git = Git.open(baseRepoPath.toFile());
-        List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+        // Only show local branches
+        List<Ref> refList = git.branchList().call();
         List<String> branchList = new ArrayList<>();
 
         if(refList.isEmpty()) {
@@ -291,8 +288,7 @@ public class GitExecutorImpl implements GitExecutor {
         } else {
             for(Ref ref : refList) {
                 branchList.add(ref.getName()
-                        .replace("refs/heads/","")
-                        .replace("refs/remotes/","remotes/"));
+                        .replace("refs/heads/",""));
             }
         }
         git.close();
@@ -321,6 +317,18 @@ public class GitExecutorImpl implements GitExecutor {
         response.put("untracked", status.getUntracked());
         response.put("isClean", status.isClean());
 
+        BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
+        if (trackingStatus != null) {
+            response.put("aheadCount", trackingStatus.getAheadCount());
+            response.put("behindCount", trackingStatus.getBehindCount());
+            response.put("remoteBranch", trackingStatus.getRemoteTrackingBranch());
+        } else {
+            log.debug("Remote tracking details not present for branch: {}, repo: {}", branchName, repoPath);
+            response.put("aheadCount", 0);
+            response.put("behindCount", 0);
+            response.put("remoteBranch", null);
+        }
+        git.close();
         return response;
     }
 

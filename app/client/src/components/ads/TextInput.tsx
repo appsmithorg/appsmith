@@ -66,6 +66,7 @@ export type TextInputProps = CommonComponentProps & {
   noCaret?: boolean;
   onBlur?: EventHandler<FocusEvent<any>>;
   onFocus?: EventHandler<FocusEvent<any>>;
+  errorMsg?: string;
 };
 
 type boxReturnType = {
@@ -121,6 +122,7 @@ const StyledInput = styled((props) => {
     "isLoading",
     "noCaret",
     "fill",
+    "errorMsg",
   ];
 
   return props.asyncControl ? (
@@ -294,7 +296,9 @@ const TextInput = forwardRef(
 
     const ErrorMessage = (
       <MsgWrapper>
-        <Text type={TextType.P3}>{validation.message}</Text>
+        <Text type={TextType.P3}>
+          {props.validator ? validation.message : props.errorMsg || ""}
+        </Text>
       </MsgWrapper>
     );
 
