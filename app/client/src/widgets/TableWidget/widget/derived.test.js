@@ -17,7 +17,7 @@ describe("Validates Derived Properties", () => {
     let result = getTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
 
-    let result = getTableColumns(
+    result = getTableColumns(
       {
         sortOrder: {
           column: "",
