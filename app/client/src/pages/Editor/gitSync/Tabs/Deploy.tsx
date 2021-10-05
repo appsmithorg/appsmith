@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Title } from "../components/StyledComponents";
 import {
   DEPLOY_YOUR_APPLICATION,
@@ -159,14 +159,16 @@ function Deploy({ theme }: { theme: Theme }) {
 
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
   const pushButtonDisabled = !hasCommitsToPush;
-
-  let errorMsgShowMoreEnabled = false;
-  if (errorMsgRef && errorMsgRef.current) {
-    const element = errorMsgRef.current;
-    if (element && element?.offsetHeight && element?.scrollHeight) {
-      errorMsgShowMoreEnabled = element?.offsetHeight < element?.scrollHeight;
+  const errorMsgShowMoreEnabled = useMemo(() => {
+    let showMoreEnabled = false;
+    if (errorMsgRef && errorMsgRef.current) {
+      const element = errorMsgRef.current;
+      if (element && element?.offsetHeight && element?.scrollHeight) {
+        showMoreEnabled = element?.offsetHeight < element?.scrollHeight;
+      }
     }
-  }
+    return showMoreEnabled;
+  }, [errorMsgRef.current, gitPushError]);
 
   return (
     <Container>
@@ -237,9 +239,7 @@ function Deploy({ theme }: { theme: Theme }) {
         </Section>
       ) : null}
 
-      {!hasChangesToCommit && !hasCommitsToPush && !gitPushError && (
-        <DeployPreview />
-      )}
+      {!hasChangesToCommit && !gitPushError && <DeployPreview />}
       {/* Disabled currently */}
       {gitPushError && false && (
         <ErrorContainer>
