@@ -11,6 +11,8 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS:
+    "APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS",
   FETCH_SSH_KEY_PAIR_INIT: "FETCH_SSH_KEY_PAIR_INIT",
   FETCH_SSH_KEY_PAIR_SUCCESS: "FETCH_SSH_KEY_PAIR_SUCCESS",
   SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
@@ -591,6 +593,7 @@ export const ReduxActionTypes = {
   GENERATE_SSH_KEY_PAIR_INIT: "GENERATE_SSH_KEY_PAIR_INIT",
   GENERATE_SSH_KEY_PAIR_SUCCESS: "GENERATE_SSH_KEY_PAIR_SUCCESS",
   REFACTOR_JS_ACTION_NAME: "REFACTOR_JS_ACTION_NAME",
+  SET_HEADER_META: "SET_HEADER_META",
   TOGGLE_ONBOARDING_WIDGET_SELECTION: "TOGGLE_ONBOARDING_WIDGET_SELECTION",
   SET_ENABLE_FIRST_TIME_USER_ONBOARDING:
     "SET_ENABLE_FIRST_TIME_USER_ONBOARDING",
@@ -864,6 +867,8 @@ export interface ApplicationPayload {
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
+  modifiedBy?: string;
+  modifiedAt?: string;
 }
 
 export interface CurrentApplicationData extends ApplicationPayload {

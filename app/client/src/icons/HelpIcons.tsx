@@ -1,12 +1,12 @@
 import React, { JSXElementConstructor } from "react";
 import { IconProps, IconWrapper } from "constants/IconConstants";
-import { ReactComponent as OpenLinkIcon } from "assets/icons/help/openlink.svg";
-import { ReactComponent as DocumentIcon } from "assets/icons/help/document.svg";
-import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
-import { ReactComponent as GithubIcon } from "assets/icons/help/github-icon.svg";
-import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
 import { ReactComponent as UpdatesIcon } from "assets/icons/help/updates.svg";
 import { Icon } from "@blueprintjs/core";
+import GithubIcon from "remixicon-react/GithubFillIcon";
+import DocumentIcon from "remixicon-react/FileTextFillIcon";
+import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import DiscordIcon from "remixicon-react/DiscordFillIcon";
+import OpenLinkIcon from "remixicon-react/ShareBoxLineIcon";
 
 /* eslint-disable react/display-name */
 

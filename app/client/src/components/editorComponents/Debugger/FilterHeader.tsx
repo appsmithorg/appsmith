@@ -1,7 +1,8 @@
 import React, { MutableRefObject, useRef } from "react";
+import { get } from "lodash";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import TextInput from "components/ads/TextInput";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useDispatch } from "react-redux";
 
@@ -26,18 +27,20 @@ const Wrapper = styled.div`
   }
 
   .debugger-filter {
-    background: transparent;
     border: none;
     box-shadow: none;
-    width: 100px;
+    width: 110px;
+    height: 28px;
+    margin-top: ${(props) => props.theme.spaces[1]}px;
   }
 
   .input-container {
     position: relative;
+    display: flex;
+    align-items: center;
     .${Classes.ICON} {
       position: absolute;
       right: 9px;
-      top: 9px;
     }
   }
 `;
@@ -54,7 +57,7 @@ type FilterHeaderProps = {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
-
+  const theme = useTheme();
   return (
     <Wrapper>
       <Icon
@@ -66,31 +69,35 @@ function FilterHeader(props: FilterHeaderProps) {
         <TextInput
           className="debugger-search"
           defaultValue={props.defaultValue}
+          height="28px"
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
+          width="160px"
         />
         {props.searchQuery && (
           <Icon
-            name="close"
+            fillColor={get(theme, "colors.debugger.jsonIcon")}
+            hoverFillColor={get(theme, "colors.debugger.message")}
+            name="close-circle"
             onClick={() => {
               if (searchRef.current) {
                 props.onChange("");
                 searchRef.current.value = "";
               }
             }}
+            size={IconSize.XXL}
           />
         )}
       </div>
       <Dropdown
         className="debugger-filter"
-        height={"28px"}
         onSelect={props.onSelect}
-        optionWidth={"100px"}
+        optionWidth="115px"
         options={props.options}
         selected={props.selected}
         showLabelOnly
-        width={"100px"}
+        width="115px"
       />
     </Wrapper>
   );
