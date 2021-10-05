@@ -74,4 +74,15 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-add").should("exist");
   });
+  it("Table widget test on button icon click, row should not get deselected", () => {
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    //click icon button again
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+  });
 });
