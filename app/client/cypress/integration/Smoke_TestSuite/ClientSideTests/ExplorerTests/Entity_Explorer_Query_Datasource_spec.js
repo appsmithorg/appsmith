@@ -97,6 +97,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.EvaluateCurrentValue("select * from users");
 
     cy.get(`.t--entity.action:contains(Query1)`)
+      .scrollIntoView({ force: true })
       .find(explorer.collapse)
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {

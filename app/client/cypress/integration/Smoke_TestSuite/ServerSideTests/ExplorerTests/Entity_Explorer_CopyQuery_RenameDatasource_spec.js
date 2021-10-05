@@ -51,6 +51,8 @@ describe("Entity explorer tests related to copy query", function() {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.get(`.t--entity.action:contains(Query1)`)
+        .scrollIntoView({ force: true })
+
         .find(explorer.collapse)
         .click();
       cy.get(apiwidget.propertyList).then(function($lis) {

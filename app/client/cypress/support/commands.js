@@ -274,7 +274,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
-    .scrollIntoView()
+    .scrollIntoView({ force: true })
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should(
@@ -416,11 +416,6 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
   initLocalstorage();
 });
 
@@ -1880,14 +1875,34 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
     .selectOnClickOption(ApiName);
 });
 
-Cypress.Commands.add("radioInput", (index, text) => {
+Cypress.Commands.add("radioInputValue", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
-    .click({ force: true })
-    .clear({ force: true })
-    .type(text)
+    .click({ force: true });
+  cy.wait(200);
+  cy.get(widgetsPage.RadioInput)
+    .eq(index)
+    .clear({ force: true });
+  cy.xpath('//input[@placeholder = "Value"]')
+    .eq(index)
+    .type(text, { force: true, delay: 500 })
     .wait(200);
 });
+
+Cypress.Commands.add("radioInputName", (index, text) => {
+  cy.get(widgetsPage.RadioInput)
+    .eq(index)
+    .click({ force: true });
+  cy.wait(200);
+  cy.get(widgetsPage.RadioInput)
+    .eq(index)
+    .clear({ force: true });
+  cy.xpath('//input[@placeholder = "Name"]')
+    .eq(index)
+    .type(text, { force: true, delay: 500 })
+    .wait(200);
+});
+
 Cypress.Commands.add("tabVerify", (index, text) => {
   cy.get(".t--property-control-tabs input")
     .eq(index)
