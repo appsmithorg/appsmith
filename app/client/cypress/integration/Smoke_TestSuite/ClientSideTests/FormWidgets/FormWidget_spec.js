@@ -126,7 +126,6 @@ describe("Form Widget Functionality", function() {
   });
   it("Form-Copy Verification", function() {
     cy.openPropertyPane("formwidget");
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Form and verify all properties
     cy.copyWidget("formwidget", widgetsPage.formWidget);
 
@@ -134,7 +133,6 @@ describe("Form Widget Functionality", function() {
   });
 
   it("Form-Delete Verification", function() {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("formwidget");
     // Delete the Form widget
     cy.get("body").type("{del}", { force: true });
