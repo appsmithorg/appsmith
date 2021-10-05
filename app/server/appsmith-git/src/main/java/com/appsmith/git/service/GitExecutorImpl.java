@@ -245,7 +245,7 @@ public class GitExecutorImpl implements GitExecutor {
         String checkedOutBranch =  git.checkout()
             .setCreateBranch(Boolean.FALSE)
             .setName(branchName)
-            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
             .call()
             .getName();
         return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);

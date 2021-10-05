@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
@@ -122,6 +123,17 @@ public class FileUtilsImpl implements FileInterface {
         // Scan actions directory and delete if any unwanted file if present
         if (!applicationGitReference.getActions().isEmpty()) {
             scanAndDeleteFileForDeletedResources(validFileNames, baseRepo.resolve(ACTION_DIRECTORY));
+            validFileNames.clear();
+        }
+
+        // Save jsActionCollections
+        for (Map.Entry<String, Object> resource : applicationGitReference.getActionsCollections().entrySet()) {
+            saveFile(resource.getValue(), baseRepo.resolve(ACTION_COLLECTION_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
+            validFileNames.add(resource.getKey() + ".json");
+        }
+        // Scan actionCollections directory and delete if any unwanted file if present
+        if (!applicationGitReference.getActionsCollections().isEmpty()) {
+            scanAndDeleteFileForDeletedResources(validFileNames, baseRepo.resolve(ACTION_COLLECTION_DIRECTORY));
             validFileNames.clear();
         }
 
