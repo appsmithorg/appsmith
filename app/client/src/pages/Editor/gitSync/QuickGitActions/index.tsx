@@ -65,6 +65,10 @@ const QuickActionButtonContainer = styled.div`
   }
 `;
 
+const capitalizeFirstLetter = (string = " ") => {
+  return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
+};
+
 function QuickActionButton({
   count = 0,
   icon,
@@ -72,7 +76,7 @@ function QuickActionButton({
   tooltipText,
 }: QuickActionButtonProps) {
   return (
-    <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+    <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
       <QuickActionButtonContainer onClick={onClick}>
         {icon}
         {count > 0 && (

@@ -254,9 +254,16 @@ export default function BranchList(props: {
           {!fetchingBranches && (
             <ListContainer>
               <BranchListItem
-                branch={`Create new ${
-                  filteredBranches.length === 0 ? <>:&nbsp;{searchText}</> : ""
-                }`}
+                branch={
+                  <span>
+                    Create new{" "}
+                    {filteredBranches.length === 0 ? (
+                      <>:&nbsp;{searchText}</>
+                    ) : (
+                      ""
+                    )}
+                  </span>
+                }
                 hovered={activeHoverIndex === 0}
                 onClick={handleCreateNew}
                 shouldScrollIntoView={activeHoverIndex === 0}
