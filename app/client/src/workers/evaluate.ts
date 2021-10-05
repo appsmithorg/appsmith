@@ -77,14 +77,14 @@ export const createGlobalData = (
   isTriggerBased: boolean,
   evalArguments?: Array<any>,
 ) => {
-  const GLOBAL_DATA = Object.create(dataTree);
+  const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
   ///// Mocking Promise class
   GLOBAL_DATA.Promise = AppsmithPromise;
   if (isTriggerBased) {
     //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(GLOBAL_DATA);
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
