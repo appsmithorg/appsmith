@@ -372,11 +372,19 @@ class InputComponent extends React.Component<
       this.props.onKeyDown(e);
     }
   };
-  onKeyUp = () => {
-    // user may have selected / de selected text with arrow keys
-    const selectedText = getSelectionText();
-    if (selectedText && selectedText !== this.props.selectedText) {
-      this.props.onUserTextSelect(selectedText);
+  onKeyUp = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    /* eslint-disable no-console */
+    // prettier-ignore
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "ArrowDown") {
+      // user may have selected / de selected text with arrow keys
+      const selectedText = getSelectionText();
+      if (selectedText && selectedText !== this.props.selectedText) {
+        this.props.onUserTextSelect(selectedText);
+      }
     }
   };
   handleMouseUp = () => {

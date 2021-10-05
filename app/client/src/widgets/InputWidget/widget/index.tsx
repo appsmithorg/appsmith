@@ -369,7 +369,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when user selects texts of the input",
+            helpText: "Triggers an action when user selects text in the input",
             propertyName: "onTextSelection",
             label: "onTextSelection",
             controlType: "ACTION_SELECTOR",
