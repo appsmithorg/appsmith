@@ -490,7 +490,7 @@ public class PageLoadActionsUtil {
 //            return;
 //        }
 
-        actionNames.add(name);
+//        actionNames.add(name);
 
         Map<String, DynamicBinding> dynamicBindingNamesInAction = new HashMap<>();
         Set<String> widgetNamesInDynamicBindings = new HashSet<>();

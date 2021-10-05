@@ -142,7 +142,7 @@ public class LayoutActionServiceTest {
                     new JSONObject(Map.of("key", "testField2"))));
             dsl.put("dynamicBindingPathList", temp);
             dsl.put("testField", "{{ query1.data }}");
-            dsl.put("testField2", "{{jsObject.data.jsFunction}}");
+            dsl.put("testField2", "{{jsObject.jsFunction.run()}}");
 
             JSONObject dsl2 = new JSONObject();
             dsl2.put("widgetName", "Table1");
@@ -277,6 +277,7 @@ public class LayoutActionServiceTest {
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
+                    updates.setUserSetOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
@@ -286,6 +287,7 @@ public class LayoutActionServiceTest {
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
+                    updates.setUserSetOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
@@ -297,6 +299,7 @@ public class LayoutActionServiceTest {
                     Assert.assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
+                    updates.setUserSetOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(d2);
