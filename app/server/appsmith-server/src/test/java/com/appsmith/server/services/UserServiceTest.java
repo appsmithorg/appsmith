@@ -587,4 +587,15 @@ public class UserServiceTest {
                 .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage(FieldName.TOKEN))
                 .verify();
     }
+
+    @Test
+    public void buildUserProfileDTO_WhenAnonymousUser_ReturnsProfile() {
+        User user = new User();
+        user.setIsAnonymous(true);
+        user.setEmail("anonymousUser");
+        StepVerifier.create(userService.buildUserProfileDTO(user)).assertNext(userProfileDTO -> {
+            assertThat(userProfileDTO.getUsername()).isEqualTo("anonymousUser");
+            assertThat(userProfileDTO.isAnonymous()).isTrue();
+        }).verifyComplete();
+    }
 }

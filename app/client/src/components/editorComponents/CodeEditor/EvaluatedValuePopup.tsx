@@ -21,10 +21,7 @@ import { IPopoverSharedProps } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
-import {
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import { EvaluationError } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
@@ -387,9 +384,9 @@ function PopoverContent(props: PopoverContentProps) {
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {error.errorType === PropertyEvaluationErrorType.VALIDATION
-              ? `This value does not evaluate to type "${expected?.type}".`
-              : error.errorMessage}
+            {/* errorMessage could be an empty string */}
+            {error.errorMessage ||
+              `This value does not evaluate to type "${expected?.type}".`}
           </span>
           <EvaluatedValueDebugButton
             entity={props.entity}

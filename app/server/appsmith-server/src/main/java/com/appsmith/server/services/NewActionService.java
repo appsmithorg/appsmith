@@ -71,6 +71,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Mono<NewAction> archive(String id);
 
+    Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
+
     List<String> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
