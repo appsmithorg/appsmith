@@ -89,9 +89,10 @@ public interface GitExecutor {
     String createAndCheckoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
 
     /**
+     * Git checkout to specific branch
      *
-     * @param repoSuffix
-     * @param branchName
+     * @param repoSuffix repo suffix path in local repo
+     * @param branchName name of the branch which needs to be checked out
      */
     boolean checkoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
 
