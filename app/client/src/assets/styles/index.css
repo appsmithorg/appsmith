@@ -19,22 +19,15 @@
   scrollbar-width: thin;
 }
 
-*::-webkit-scrollbar {
+::-webkit-scrollbar {
   height: 6px;
   width: 6px;
 }
 
-/* Track */
-*::-webkit-scrollbar-track {
-  @apply bg-current;
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
 }
 
-/* Handle */
-*::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 bg-opacity-40;
-}
-
-/* Handle on hover */
-*::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300;
 }

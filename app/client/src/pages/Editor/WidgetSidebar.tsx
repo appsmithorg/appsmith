@@ -116,22 +116,20 @@ function WidgetSidebar(props: IPanelProps) {
   }, [pinned, dispatch, setExplorerPinned]);
 
   return (
-    <div className="py-3 space-y-2">
+    <div className="flex flex-col overflow-hidden">
       <Boxed step={OnboardingStep.DEPLOY}>
         <ExplorerSearch
           autoFocus
           clear={clearSearchInput}
-          hideClear
           placeholder="Search widgets..."
           ref={searchInputRef}
         />
       </Boxed>
 
-      <p className="px-3 text-xs leading-relaxed text-trueGray-400">
-        {createMessage(WIDGET_SIDEBAR_CAPTION)}
-      </p>
-
-      <div className="px-3 pt-3">
+      <div className="flex-grow px-3 overflow-y-scroll">
+        <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400">
+          {createMessage(WIDGET_SIDEBAR_CAPTION)}
+        </p>
         <CardsWrapper>
           {filteredCards.map((card) => (
             <Boxed

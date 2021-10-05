@@ -147,7 +147,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     : "100%";
   const boxShadow =
     (isResizing || isDragging) && props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? "0px 0px 0px 1px #DDDDDD"
+      ? "inset 0px 0px 0px 1px #DDDDDD"
       : "0px 0px 0px 1px transparent";
   const dropTargetRef = useRef<HTMLDivElement>(null);
 
@@ -173,7 +173,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && (
-            <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center text-gray-400">
+            <div className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-gray-400">
               Drag and drop a widget here
             </div>
           )}

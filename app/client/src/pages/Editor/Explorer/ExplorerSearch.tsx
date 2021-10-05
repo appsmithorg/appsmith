@@ -1,5 +1,6 @@
 import classNames from "classnames";
-import React, { forwardRef, Ref, useState } from "react";
+import { isFunction } from "lodash";
+import React, { forwardRef, Ref, useState, useCallback } from "react";
 
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
@@ -13,13 +14,20 @@ export const ExplorerSearch = forwardRef(
       placeholder?: string;
       autoFocus?: boolean;
       isHidden?: boolean;
-      hideClear?: boolean;
+      onChange?: (e: any) => void;
     },
     ref: Ref<HTMLInputElement>,
   ) => {
     const [focussed, setFocussed] = useState(false);
+
+    const onChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
+      if (isFunction(props.onChange)) {
+        props.onChange(e);
+      }
+    }, []);
+
     return (
-      <div className="relative">
+      <div className="sticky top-0">
         <div
           className={classNames({
             "flex px-3 items-center space-x-2": true,
@@ -30,19 +38,15 @@ export const ExplorerSearch = forwardRef(
           <input
             autoComplete="off"
             autoFocus
-            className="flex-grow py-2 bg-transparent placeholder-trueGray-500"
+            className="flex-grow py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
             id={ENTITY_EXPLORER_SEARCH_ID}
             onBlur={() => setFocussed(false)}
+            onChange={onChange}
             onFocus={() => setFocussed(true)}
             placeholder="Search Widgets"
             ref={ref}
             type="text"
           />
-          {focussed && (
-            <button className="p-1 hover:bg-warmGray-700" onClick={props.clear}>
-              <CrossIcon className="w-3 h-3 text-red" />
-            </button>
-          )}
         </div>
         <div
           className={classNames({

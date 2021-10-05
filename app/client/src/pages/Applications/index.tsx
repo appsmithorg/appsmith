@@ -419,7 +419,7 @@ function LeftPane() {
   const initiateOnboarding = useIntiateOnboarding();
 
   return (
-    <LeftPaneWrapper>
+    <LeftPaneWrapper className="text-white">
       <LeftPaneSection
         heading={createMessage(ORGANIZATIONS_HEADING)}
         isFetchingApplications={isFetchingApplications}
@@ -936,7 +936,7 @@ function ApplicationsSection(props: any) {
   }
 
   return (
-    <ApplicationContainer className="t--applications-container">
+    <ApplicationContainer className="text-white t--applications-container">
       {organizationsListComponent}
       <WelcomeHelper />
       {getFeatureFlags().GIT && <ImportAppViaGitModal />}

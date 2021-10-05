@@ -17,10 +17,12 @@ import {
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { updateCanvasLayout } from "actions/editorActions";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { scrollbarWidth } from "utils/helpers";
+
+const SCROLLBAR_WIDTH = 6;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();

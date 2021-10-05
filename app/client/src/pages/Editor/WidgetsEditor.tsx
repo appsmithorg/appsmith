@@ -56,7 +56,6 @@ const CanvasContainer = styled.section`
   overflow-x: auto;
   overflow-y: auto;
   padding-top: 1px;
-  color: transparent;
   &:before {
     position: absolute;
     top: 0;
@@ -305,7 +304,7 @@ function WidgetsEditor() {
             />
           </div>
           <CanvasContainer
-            className={getCanvasClassName()}
+            className={`${getCanvasClassName()} text-trueGray-100 scrollbar-thin`}
             key={currentPageId}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}

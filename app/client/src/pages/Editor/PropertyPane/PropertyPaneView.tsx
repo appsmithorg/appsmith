@@ -98,7 +98,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="relative flex flex-col w-full pt-3 space-y-2 overflow-y-auto"
+      className="relative flex flex-col w-full pt-3 overflow-y-auto"
       key={`property-pane-${widgetProperties.widgetId}`}
     >
       <PropertyPaneTitle
@@ -109,7 +109,7 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div className="px-3 overflow-scroll">
+      <div className="p-3 overflow-y-scroll text-white">
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
