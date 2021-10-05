@@ -43,8 +43,6 @@ export const EntityItem = styled.div<{
   alwaysShowRightIcon?: boolean;
 }>`
   position: relative;
-  border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
-  border-bottom: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
   font-size: 14px;
   user-select: none;
   padding-left: ${(props) =>
