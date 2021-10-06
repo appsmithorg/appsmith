@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { debounce } from "lodash";
@@ -20,6 +20,7 @@ import {
   Loader,
   TextLoader,
 } from "./StyledComponents";
+import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -62,6 +63,10 @@ function General() {
   const isFetchingUser = useSelector(
     (state: AppState) => state.ui.users.loadingStates.fetchingUser,
   );
+
+  useEffect(() => {
+    dispatch(refreshCurrentUser());
+  }, []);
 
   return (
     <Wrapper>
