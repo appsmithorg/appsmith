@@ -66,13 +66,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
-import static com.external.helpers.HintMessageUtils.DUPLICATES_IN_ACTION_CONFIG;
-import static com.external.helpers.HintMessageUtils.DUPLICATES_IN_DATASOURCE_AND_ACTION_CONFIG;
-import static com.external.helpers.HintMessageUtils.DUPLICATES_IN_DATASOURCE_CONFIG;
 import static com.external.helpers.HintMessageUtils.getActionHintMessages;
-import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
-import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
 import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
