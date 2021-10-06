@@ -14,11 +14,13 @@ import { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalRe
 import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
-  GEN_CRUD_SUCCESS_DESC,
   createMessage,
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { getInfoImage, getSuccessGIF } from "constants/ImagesURL";
+import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
+import { CheckmarkWrapper } from "./styles";
+import { ReactComponent as CheckmarkSvg } from "assets/svg/checkmark.svg";
+import ProgressiveImage from "components/ads/ProgressiveImage";
 
 type Props = {
   crudInfoModalOpen: boolean;
@@ -29,8 +31,7 @@ const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
   display: flex;
   justify-content: center;
-  font-size: 20px;
-  line-height: 24px;
+  ${(props) => getTypographyByKey(props, "h1")}
 `;
 
 const ActionButtonWrapper = styled.div`
@@ -55,12 +56,6 @@ const Content = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-`;
-
-const Desc = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")}
-  color: ${Colors.DOVE_GRAY2};
-  margin-top: 8px;
 `;
 
 const Wrapper = styled.div`
@@ -97,20 +92,12 @@ const SuccessContentWrapper = styled.div`
   height: 100%;
 `;
 
-const SuccessImage = styled.img``;
-
-const SuccessImgWrapper = styled.div`
-  height: 50px;
-  width: 50px;
-  margin: ${(props) => props.theme.spaces[6]}px;
-`;
-
 const STEP = {
   SHOW_SUCCESS_GIF: "show_success_gif",
   SHOW_INFO: "show_info",
 };
 
-const DELAY_TIME = 6000;
+const DELAY_TIME = 3000;
 
 function InfoContent({
   onClose,
@@ -132,6 +119,10 @@ function InfoContent({
           type={TextType.P1}
         />
         <ImageWrapper>
+          <ProgressiveImage
+            imageSource={successImageUrl}
+            thumbnailSource={getInfoThumbnail()}
+          />
           <InfoImage alt="CRUD Info" src={successImageUrl} />
         </ImageWrapper>
       </Content>
@@ -188,12 +179,10 @@ function GenCRUDSuccessModal(props: Props) {
       <Wrapper>
         {step === STEP.SHOW_SUCCESS_GIF ? (
           <SuccessContentWrapper>
-            <SuccessImgWrapper>
-              <SuccessImage alt="Success" src={getSuccessGIF()} width="50px" />
-            </SuccessImgWrapper>
-
+            <CheckmarkWrapper>
+              <CheckmarkSvg />
+            </CheckmarkWrapper>
             <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
-            <Desc>{createMessage(GEN_CRUD_SUCCESS_DESC)}</Desc>
           </SuccessContentWrapper>
         ) : null}
         {step === STEP.SHOW_INFO ? (
