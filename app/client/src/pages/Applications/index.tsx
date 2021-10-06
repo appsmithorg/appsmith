@@ -215,7 +215,6 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
 `;
 
 const LeftPaneWrapper = styled.div`
-  // height: 50vh;
   overflow: auto;
   width: 256px;
   display: flex;
@@ -311,8 +310,6 @@ function LeftPaneSection(props: {
 const StyledAnchor = styled.a`
   position: relative;
   top: -24px;
-  // width: 0;
-  // height: 0;
 `;
 
 const WorkpsacesNavigator = styled.div`

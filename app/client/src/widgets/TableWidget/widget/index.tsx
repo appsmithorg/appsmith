@@ -10,6 +10,7 @@ import {
   without,
   isBoolean,
   isArray,
+  sortBy,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -564,10 +565,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
   ) => {
-    const { primaryColumns = {} } = this.props;
+    const { primaryColumns = {}, derivedColumns = {} } = this.props;
     const { columnOrder, migrated } = this.props;
     if (tableColumns) {
       const previousColumnIds = Object.keys(primaryColumns);
+      const previousDerivedColumnIds = Object.keys(derivedColumns);
+
       const newColumnIds = Object.keys(tableColumns);
 
       if (xor(previousColumnIds, newColumnIds).length > 0) {
@@ -581,10 +584,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         });
 
         // If new columnOrders have different values from the original columnOrders
-        // Only update when there are new Columns
+        // Only update when there are new Columns(Derived or Primary)
         if (
           xor(newColumnIds, columnOrder).length > 0 &&
-          newColumnIds.length > 0
+          newColumnIds.length > 0 &&
+          !isEqual(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
         ) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
