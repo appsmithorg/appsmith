@@ -1,20 +1,30 @@
----
-name: "\U0001F4D6 Documentation Improvement"
-about: Suggest improvements to our documentation
-title: "[Docs] "
-labels: Documentation
-assignees: Nikhil-Nandagopal
+name: Documentation
+description: File a documentation request/report
+title: "[Docs]: "
+labels: ["📄 aspect: text", "✨ goal: improvement", "🚦 status: awaiting triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this documentation issue!
 
----
+  - type: textarea
+    id: detailed-description
+    attributes:
+      label: Detailed Description
+      description: Add a detailed description of the issue.
+      placeholder: A detailed description of the issue.
+      value: "I found this documentation issue in this project where ..."
+    validations:
+      required: true
 
-## Documentation Link 
-
-Add a link to the page which needs improvement (if relevant)
-
-## Describe the problem
-
-Is the documentation missing? Or is it confusing? Why is it confusing?
-
-## Describe the improvement
-
-A clear and concise description of the improvement.
+  - type: textarea
+    attributes:
+        label: Anything else?
+        description: |
+          Links? References? Anything that will give us more context about the issue you are encountering!
+      
+          Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+    validations:
+        required: false
