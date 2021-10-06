@@ -265,6 +265,7 @@ public class LayoutActionServiceTest {
         action3.setPluginType(PluginType.JS);
         action3.setFullyQualifiedName("jsObject.jsFunction");
         action3.setPageId(testPage.getId());
+        action3.setUserSetOnLoad(true);
         ActionConfiguration actionConfiguration3 = new ActionConfiguration();
         actionConfiguration3.setIsValid(false);
         action3.setActionConfiguration(actionConfiguration3);
@@ -280,7 +281,6 @@ public class LayoutActionServiceTest {
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
-                    updates.setUserSetOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
@@ -290,7 +290,6 @@ public class LayoutActionServiceTest {
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
-                    updates.setUserSetOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
@@ -302,7 +301,6 @@ public class LayoutActionServiceTest {
                     Assert.assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
-                    updates.setUserSetOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(d2);
