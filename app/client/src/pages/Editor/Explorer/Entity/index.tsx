@@ -233,6 +233,7 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           }`}
           highlight={!!props.highlight}
+          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
