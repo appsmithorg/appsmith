@@ -1,4 +1,4 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { RefObject, useEffect, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -71,6 +71,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SearchSnippets from "components/ads/SnippetButton";
+import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -263,6 +264,15 @@ const ActionsWrapper = styled.div`
 const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
+
+  .t--switch-datasource > div {
+    min-height: 30px;
+    height: 30px;
+
+    & > div {
+      height: 100%;
+    }
+  }
 `;
 
 const CreateDatasource = styled.div`
@@ -328,7 +338,7 @@ const TabContainerView = styled.div`
   a {
     font-size: 14px;
     line-height: 20px;
-    margin-top: 15px;
+    margin-top: 12px;
   }
   .react-tabs__tab-panel {
     overflow: auto;
@@ -429,6 +439,17 @@ export function EditorJSONtoForm(props: Props) {
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
+
+  useEffect(() => {
+    if (selectedIndex !== initialIndex) setSelectedIndex(initialIndex);
+  }, [initialIndex]);
+
+  useEffect(() => {
+    // reset on unmount
+    return () => {
+      dispatch(setActionTabsInitialIndex(0));
+    };
+  }, []);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -729,7 +750,7 @@ export function EditorJSONtoForm(props: Props) {
         tabName: responseTabs[index].key,
       });
     }
-
+    dispatch(setActionTabsInitialIndex(index));
     setSelectedIndex(index);
   };
   const { entityDependencies, hasDependencies } = useEntityDependencies(

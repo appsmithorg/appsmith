@@ -72,19 +72,10 @@ const Wrapper = styled.div<{ step: number }>`
         right: 4px;
         top: 10px;
         opacity: 0;
+        fill: ${Colors.TUNDORA};
       }
       &:hover {
-        &:before {
-          content: "";
-          background: ${Colors.TUNDORA};
-          opacity: 0.5;
-          position: absolute;
-          left: 0;
-          height: 100%;
-          top: 0;
-          width: 100%;
-          z-index: 1;
-        }
+        background: ${Colors.Gallery};
         & ~ span.${Classes.ICON} {
           opacity: 1;
         }
@@ -123,7 +114,7 @@ const Wrapper = styled.div<{ step: number }>`
 `;
 
 const StyledPopoverContent = styled.div`
-  background: black;
+  background: ${Colors.WHITE};
   max-height: 500px;
   width: 400px;
   padding: 10px;
@@ -204,7 +195,7 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
                 <CurrentValueViewer
                   evaluatedValue={props.value}
                   hideLabel
-                  theme={EditorTheme.DARK}
+                  theme={EditorTheme.LIGHT}
                 />
               )}
               {isString && <pre>{props.value}</pre>}

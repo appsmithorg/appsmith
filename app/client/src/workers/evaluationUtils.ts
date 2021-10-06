@@ -526,7 +526,10 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
   if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
-  return relativePropertyPath in entity.bindingPaths;
+  return (
+    relativePropertyPath in entity.bindingPaths ||
+    (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
+  );
 };
 
 /*
