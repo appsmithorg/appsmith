@@ -393,6 +393,8 @@ export const DOWNLOAD = () => `Download`;
 export const COPY_TO_CLIPBOARD = () => `Copy to Clipboard`;
 export const RESET_WIDGET = () => `Reset Widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS Function`;
+export const SET_INTERVAL = () => `Set Interval`;
+export const CLEAR_INTERVAL = () => `Clear Interval`;
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} copied to page ${pageName} successfully`;
