@@ -264,26 +264,26 @@ function LogItem(props: LogItemProps) {
           {props.timeTaken && (
             <span className="debugger-timetaken">{props.timeTaken}</span>
           )}
+          {props.severity !== Severity.INFO && (
+            <ContextualMenu entity={props.source} error={errorToSearch}>
+              <TooltipComponent
+                content={
+                  <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                    {createMessage(TROUBLESHOOT_ISSUE)}
+                  </Text>
+                }
+                minimal
+                position={Position.BOTTOM_LEFT}
+              >
+                <StyledSearchIcon
+                  className={`${Classes.ICON} search-menu`}
+                  name={"wand"}
+                  size={IconSize.MEDIUM}
+                />
+              </TooltipComponent>
+            </ContextualMenu>
+          )}
         </RowWrapper>
-        {props.severity !== Severity.INFO && (
-          <ContextualMenu entity={props.source} error={errorToSearch}>
-            <TooltipComponent
-              content={
-                <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                  {createMessage(TROUBLESHOOT_ISSUE)}
-                </Text>
-              }
-              minimal
-              position={Position.BOTTOM_LEFT}
-            >
-              <StyledSearchIcon
-                className={`${Classes.ICON} search-menu`}
-                name={"wand"}
-                size={IconSize.MEDIUM}
-              />
-            </TooltipComponent>
-          </ContextualMenu>
-        )}
 
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
