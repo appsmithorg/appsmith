@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
+import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +40,18 @@ public class PageController {
     private final ApplicationPageService applicationPageService;
     private final NewPageService newPageService;
     private final CreateDBTablePageSolution createDBTablePageSolution;
-    
+    private final SanitiseResponse sanitiseResponse;
+
     @Autowired
     public PageController(ApplicationPageService applicationPageService,
                           NewPageService newPageService,
-                          CreateDBTablePageSolution createDBTablePageSolution
+                          CreateDBTablePageSolution createDBTablePageSolution,
+                          SanitiseResponse sanitiseResponse
     ) {
         this.applicationPageService = applicationPageService;
         this.newPageService = newPageService;
         this.createDBTablePageSolution = createDBTablePageSolution;
+        this.sanitiseResponse = sanitiseResponse;
     }
 
     @PostMapping
@@ -88,7 +92,7 @@ public class PageController {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @GetMapping({"/view/application/{applicationId}", "view/application/{applicationId}/branch/{branchName}"})
+    @GetMapping("/view/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId,
                                                                                         @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, branchName, true)

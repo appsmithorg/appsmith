@@ -33,6 +33,8 @@ public interface LayoutActionService {
 
     Mono<ActionDTO> createAction(ActionDTO action);
 
+    Mono<ActionDTO> createSingleAction(ActionDTO action, String branchName);
+
     Mono<ActionDTO> createSingleAction(ActionDTO action);
 
     Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext);

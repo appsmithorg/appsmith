@@ -424,7 +424,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<NewPage> save(NewPage page) {
         // gitSyncId will be used to sync resource across instances
         if (page.getGitSyncId() == null) {
-            page.setGitSyncId(new ObjectId().toString());
+            page.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
         }
         return repository.save(page);
     }
@@ -443,7 +443,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Flux<NewPage> saveAll(List<NewPage> pages) {
         pages.stream()
             .filter(newPage -> newPage.getGitSyncId() == null)
-            .forEach(newPage -> newPage.setGitSyncId(new ObjectId().toString()));
+            .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + new ObjectId()));
         return repository.saveAll(pages);
     }
 

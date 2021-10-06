@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,10 +56,11 @@ public class ActionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> createAction(@Valid @RequestBody ActionDTO resource,
-                                               @RequestHeader(name = "Origin", required = false) String originHeader,
-                                               ServerWebExchange exchange) {
+                                                     @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                     @RequestHeader(name = "Origin", required = false) String originHeader,
+                                                     ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return layoutActionService.createSingleAction(resource)
+        return layoutActionService.createSingleAction(resource, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

@@ -883,6 +883,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
+    public Mono<ActionDTO> createSingleAction(ActionDTO action, String branchName) {
+        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
+        action.setBranchName(branchName);
+        return createAction(action, eventContext);
+    }
+
+    @Override
     public Mono<ActionDTO> createSingleAction(ActionDTO action) {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
         return createAction(action, eventContext);
@@ -909,6 +916,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         newAction.setDefaultActionId(action.getDefaultActionId());
 
         Mono<NewPage> pageMono = newPageService
+                // We are considering the pageId is not the defaultPageId but the actual
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
