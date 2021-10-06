@@ -349,6 +349,7 @@ function ToggleCommentModeButton({
   const isCommentMode = useSelector(commentModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentUser = useSelector(getCurrentUser);
+  const appMode: APP_MODE | undefined = useSelector(getAppMode);
 
   const [
     showCommentButtonDiscoveryTooltip,
@@ -422,15 +423,17 @@ function ToggleCommentModeButton({
             showSelectedMode={showSelectedMode}
             showUnreadIndicator={showUnreadIndicator}
           />
-          <ModeButton
-            active={isPreviewMode}
-            className="t--switch-comment-mode-off"
-            onClick={onClickPreviewModeButton}
-            showSelectedMode={showSelectedMode}
-            type="fill"
-          >
-            <Eye />
-          </ModeButton>
+          {appMode === APP_MODE.EDIT && (
+            <ModeButton
+              active={isPreviewMode}
+              className="t--switch-comment-mode-off"
+              onClick={onClickPreviewModeButton}
+              showSelectedMode={showSelectedMode}
+              type="fill"
+            >
+              <Eye size={20} />
+            </ModeButton>
+          )}
         </div>
       </TourTooltipWrapper>
     </Container>

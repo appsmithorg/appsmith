@@ -17,15 +17,18 @@ import {
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { APP_MODE } from "entities/App";
+import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
+import { getAppMode } from "selectors/entitiesSelector";
 import { updateCanvasLayout } from "actions/editorActions";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
-import { scrollbarWidth } from "utils/helpers";
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
   const explorerWidth = useSelector(getExplorerWidth);
   const isExplorerPinned = useSelector(getExplorerPinned);
+  const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const domEntityExplorer = document.querySelector(".js-entity-explorer");
   const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
@@ -101,7 +104,7 @@ export const useDynamicAppLayout = () => {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
-        return calculatedWidth - 2;
+        return calculatedWidth - (appMode === APP_MODE.EDIT ? 2 : 0);
       case calculatedWidth < minWidth:
         return minWidth;
       case calculatedWidth > maxWidth:
