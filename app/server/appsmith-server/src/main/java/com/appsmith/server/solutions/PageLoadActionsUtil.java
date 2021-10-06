@@ -471,7 +471,7 @@ public class PageLoadActionsUtil {
         return dslActionDTO;
     }
 
-    private void extractAndSetActionBindingsInGraphEdges(Set<String> actionNames,
+    private void extractAndSetActionBindingsInGraphEdges(Set<String> actionsUsedInDsl,
                                                          Set<String> widgetNames,
                                                          Set<ActionDependencyEdge> edges,
                                                          Map<String, DynamicBinding> dynamicBindings,
@@ -490,7 +490,7 @@ public class PageLoadActionsUtil {
 //            return;
 //        }
 
-//        actionNames.add(name);
+        actionsUsedInDsl.add(name);
 
         Map<String, DynamicBinding> dynamicBindingNamesInAction = new HashMap<>();
         Set<String> widgetNamesInDynamicBindings = new HashSet<>();
