@@ -168,7 +168,7 @@ describe("Input Widget Functionality", function() {
     cy.get(commonlocators.inputCountryCodeChangeType)
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal("🇺🇸+1");
+        expect(text).to.equal("🇨🇦+1");
       });
   });
 
