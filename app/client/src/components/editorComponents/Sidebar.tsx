@@ -25,6 +25,7 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 
 type Props = {
@@ -42,6 +43,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const isPreviewMode = useSelector(previewModeSelector);
   const applicationId = useSelector(getCurrentApplicationId);
   const enableFirstTimeUserOnboarding = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
+  const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
   const resizer = useHorizontalResize(
@@ -63,6 +67,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname
         ) && history.push(BUILDER_PAGE_URL(applicationId, pageId));
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
+        if (isFirstTimeUserOnboardingEnabled) {
+          dispatch(toggleInOnboardingWidgetSelection(true));
+        }
       },
     },
   ];
