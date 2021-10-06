@@ -1,7 +1,7 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import Menu from "components/ads/Menu";
 import MenuDivider from "components/ads/MenuDivider";
@@ -36,17 +36,6 @@ const StyledMenuItem = styled(MenuItem)`
   .cs-text {
     color: ${Colors.CODE_GRAY};
     line-height: unset;
-  }
-`;
-
-const ProfileMenuStyle = createGlobalStyle`
-  .bp3-popover {
-    box-shadow: none;
-  }
-  .profile-menu {
-    .bp3-popover .bp3-popover-content{
-      margin-top: 2px;
-    }
   }
 `;
 
@@ -99,52 +88,49 @@ export default function ProfileDropdown(props: TagProps) {
   );
 
   return (
-    <>
-      <ProfileMenuStyle />
-      <Menu
-        className="profile-menu t--profile-menu"
-        modifiers={props.modifiers}
-        position={Position.BOTTOM}
-        target={Profile}
-      >
-        <UserInformation>
-          <div className="user-image">{Profile}</div>
-          <UserNameWrapper>
-            <div className="user-name t--user-name">
-              <Text highlight type={TextType.P1}>
-                {props.name}
-              </Text>
-            </div>
+    <Menu
+      className="profile-menu t--profile-menu"
+      modifiers={props.modifiers}
+      position={Position.BOTTOM}
+      target={Profile}
+    >
+      <UserInformation>
+        <div className="user-image">{Profile}</div>
+        <UserNameWrapper>
+          <div className="user-name t--user-name">
+            <Text highlight type={TextType.P1}>
+              {props.name}
+            </Text>
+          </div>
 
-            <div className="user-username">
-              <Text highlight type={TextType.P3}>
-                {props.userName}
-              </Text>
-            </div>
-          </UserNameWrapper>
-        </UserInformation>
-        <MenuDivider />
-        <StyledMenuItem
-          className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
-          icon="edit-underline"
-          onSelect={() => {
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: PROFILE,
-            });
-          }}
-          text="Edit Profile"
-        />
-        <StyledMenuItem
-          className="t--logout-icon"
-          icon="logout"
-          onSelect={() =>
-            getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
-              type: ReduxActionTypes.LOGOUT_USER_INIT,
-            })
-          }
-          text="Sign Out"
-        />
-      </Menu>
-    </>
+          <div className="user-username">
+            <Text highlight type={TextType.P3}>
+              {props.userName}
+            </Text>
+          </div>
+        </UserNameWrapper>
+      </UserInformation>
+      <MenuDivider />
+      <StyledMenuItem
+        className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
+        icon="edit-underline"
+        onSelect={() => {
+          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+            path: PROFILE,
+          });
+        }}
+        text="Edit Profile"
+      />
+      <StyledMenuItem
+        className="t--logout-icon"
+        icon="logout"
+        onSelect={() =>
+          getOnSelectAction(DropdownOnSelectActions.DISPATCH, {
+            type: ReduxActionTypes.LOGOUT_USER_INIT,
+          })
+        }
+        text="Sign Out"
+      />
+    </Menu>
   );
 }

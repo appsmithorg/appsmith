@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Tooltip } from "@blueprintjs/core";
+import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
@@ -110,14 +110,14 @@ export function JSDependencies() {
           onClick={toggleDependencies}
         />
         <span>Dependencies</span>
-        <Tooltip boundary="viewport" content={TooltipContent} position="top">
+        <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
           <Icon
             className="t--help-icon"
             name="help"
             onClick={showDocs}
             size={Size.xs}
           />
-        </Tooltip>
+        </TooltipComponent>
       </Title>
       <Collapse isOpen={isOpen} step={0}>
         {dependencyList}
