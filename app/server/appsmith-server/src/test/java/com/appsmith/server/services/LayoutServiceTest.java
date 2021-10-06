@@ -474,8 +474,8 @@ public class LayoutServiceTest {
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
                     ));
                     obj.putAll(Map.of(
-                            "collection1Key", "some dynamic {{Collection.data.anAsyncCollectionActionWithoutCall}}",
-                            "collection2Key", "some dynamic {{Collection.data.aSyncCollectionActionWithoutCall}}",
+                            "collection1Key", "some dynamic {{Collection.anAsyncCollectionActionWithoutCall()}}",
+                            "collection2Key", "some dynamic {{Collection.aSyncCollectionActionWithoutCall())}}",
                             "collection3Key", "some dynamic {{Collection.anAsyncCollectionActionWithCall()}}",
                             "collection4Key", "some dynamic {{Collection.aSyncCollectionActionWithCall()}}"
                     ));

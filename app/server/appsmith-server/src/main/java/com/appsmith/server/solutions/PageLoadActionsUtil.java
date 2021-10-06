@@ -163,8 +163,8 @@ public class PageLoadActionsUtil {
         log.debug("Computing on page load actions due to update layout");
         Map<String, DynamicBinding> dynamicBindings = new HashMap<>();
         Set<String> ignoredActions = new HashSet<>();
-
         Set<String> bindingWordsInDSL = new HashSet<>();
+        Set<String> explicitUserSetOnLoadActions = new HashSet<>();
 
         bindings.keySet().stream().forEach(binding -> bindingWordsInDSL.addAll(extractWords(binding)));
 
@@ -219,7 +219,7 @@ public class PageLoadActionsUtil {
                 .flatMap(tuple -> {
                     Map<String, ActionDTO> onLoadActionsMap = tuple.getT1();
                     Set<String> actionInPageNames = tuple.getT2();
-                    return Mono.zip(findExplicitUserSetOnLoadActionsAndTheirDependents(pageId, actionInPageNames, widgetNames, edges, dynamicBindings, onLoadActionsMap), Mono.just(actionInPageNames));
+                    return Mono.zip(findExplicitUserSetOnLoadActionsAndTheirDependents(pageId, actionInPageNames, widgetNames, edges, dynamicBindings, onLoadActionsMap, explicitUserSetOnLoadActions), Mono.just(actionInPageNames));
                 })
                 // Now recursively walk the bindings to find other actions and their bindings till all the actions are identified and added
                 // to the graph which would be on load actions.
@@ -245,6 +245,21 @@ public class PageLoadActionsUtil {
 
                     DirectedAcyclicGraph<String, DefaultEdge> directedAcyclicGraph = constructDAG(actionInPageNames, widgetNames, edges);
                     List<HashSet<String>> onPageLoadActionsSchedulingOrder = computeOnPageLoadActionsSchedulingOrder(directedAcyclicGraph, actionInPageNames, onPageLoadActionNameSet);
+
+                    // Find all explicitly turned on actions which haven't found their way into the scheduling order
+                    // This scenario would happen if an explicitly turned on for page load action does not have any
+                    // relationships in the page with any widgets/actions.
+                    Set<String> pageLoadActionNames = new HashSet<>();
+                    pageLoadActionNames.addAll(onPageLoadActionNameSet);
+                    pageLoadActionNames.addAll(explicitUserSetOnLoadActions);
+                    pageLoadActionNames.removeAll(onPageLoadActionNameSet);
+
+                    // If any of the explicitly set on page load actions havent been added yet, add them to the 0th set
+                    // of actions set since no relationships were found with any other appsmith entity
+                    if (!pageLoadActionNames.isEmpty()) {
+                        onPageLoadActionNameSet.addAll(explicitUserSetOnLoadActions);
+                        onPageLoadActionsSchedulingOrder.get(0).addAll(explicitUserSetOnLoadActions);
+                    }
 
                     List<HashSet<DslActionDTO>> onPageLoadActions = new ArrayList<>();
 
@@ -380,7 +395,8 @@ public class PageLoadActionsUtil {
                                                                                             Set<String> widgetNames,
                                                                                             Set<ActionDependencyEdge> edges,
                                                                                             Map<String, DynamicBinding> dynamicBindings,
-                                                                                            Map<String, ActionDTO> onLoadActionsInMap) {
+                                                                                            Map<String, ActionDTO> onLoadActionsInMap,
+                                                                                            Set<String> explicitUserSetOnLoadActions) {
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
@@ -388,6 +404,7 @@ public class PageLoadActionsUtil {
                 .map(actionDTO -> {
                     log.debug("Inspecting user set on true action {}", actionDTO.getName());
                     extractAndSetActionBindingsInGraphEdges(actionNames, widgetNames, edges, dynamicBindings, actionDTO);
+                    explicitUserSetOnLoadActions.add(actionDTO.getValidName());
                     return actionDTO;
                 })
                 .collectMap(
@@ -553,19 +570,26 @@ public class PageLoadActionsUtil {
         return edges;
     }
 
-    private String getTopMostParent(String path) {
-        while (true) {
-            try {
-                Matcher matcher = parentPattern.matcher(path);
-                matcher.find();
-                path = matcher.group(1);
-            } catch (IllegalStateException | IndexOutOfBoundsException e) {
-                // No matches being found. Break out of infinite loop
-                break;
-            }
+    private Set<String> getPossibleParents(String propertyPath) {
+        Set<String> possibleParents = new HashSet<>();
+
+        String path = String.valueOf(propertyPath);
+
+        final String[] pathWords = path.split("\\.");
+
+        if (pathWords.length < 2) {
+            possibleParents.add(propertyPath);
+            return possibleParents;
         }
 
-        return path;
+        // First add the first word since thats the entity name for widgets and non js actions
+        possibleParents.add(pathWords[0]);
+
+        // For JS actions, the first two words are the action name since action name comprises of the collection name
+        // and the individula action name
+        possibleParents.add(pathWords[0] + "." + pathWords[1]);
+
+        return possibleParents;
     }
 
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
@@ -587,7 +611,7 @@ public class PageLoadActionsUtil {
 
         edges.addAll(implicitParentChildEdges);
 
-        // Remove any edge between which contains an uknown entity - aka neither a known action nor a known widget
+        // Remove any edge between which contains an unknown entity - aka neither a known action nor a known widget
         edges = edges.stream().filter(edge -> {
 
                     AtomicReference<Boolean> isValid = new AtomicReference<>(true);
@@ -656,13 +680,13 @@ public class PageLoadActionsUtil {
             }
 
             // Since we are not interested in widgets, check for action names before adding to the on page load actions
-            // Also if an action name exists on level 0, then clearly it is not being used by a widget. Don't count it
-            // as a page load action.
-            String entity = getTopMostParent(vertex);
-            if (actionNames.contains(entity) && !onPageLoadActionSet.contains(entity)) {
-                onPageLoadActions.get(level).add(entity);
-                onPageLoadActionSet.add(entity);
-            }
+            Set<String> possibleParents = getPossibleParents(vertex);
+            possibleParents.stream().forEach(entity -> {
+                if (actionNames.contains(entity) && !onPageLoadActionSet.contains(entity)) {
+                    onPageLoadActions.get(level).add(entity);
+                    onPageLoadActionSet.add(entity);
+                }
+            });
         }
 
         return onPageLoadActions.stream().filter(setOfActions -> !setOfActions.isEmpty()).collect(Collectors.toList());
