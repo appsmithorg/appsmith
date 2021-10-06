@@ -25,6 +25,8 @@ const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 
+const jsActions = require("../locators/jsActionLocators.json");
+
 let pageidcopy = " ";
 
 export const initLocalstorage = () => {
@@ -274,7 +276,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
-    .scrollIntoView({ force: true })
+    .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should(
@@ -416,6 +418,11 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
   initLocalstorage();
 });
 
@@ -595,6 +602,21 @@ Cypress.Commands.add("CreateAPI", (apiname) => {
     .clear()
     .type(apiname, { force: true })
     .should("have.value", apiname)
+    .blur();
+  cy.WaitAutoSave();
+  // Added because api name edit takes some time to
+  // reflect in api sidebar after the call passes.
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("CreateJsAction", (jsActionName) => {
+  cy.get(jsActions.addJsActionButton).click({ force: true });
+  cy.wait("@createJsAction");
+  cy.get(jsActions.name)
+    .clear()
+    .type(jsActionName, { force: true })
+    .should("have.value", jsActionName)
     .blur();
   cy.WaitAutoSave();
   // Added because api name edit takes some time to
@@ -2680,6 +2702,21 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
+
+  cy.route("POST", "/api/v1/collections/actions").as("createJsAction");
+
+  cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
+  cy.route("POST", "api/v1/git/commit/*").as("commit");
+
+  cy.intercept(
+    {
+      url: "*",
+      hostname: window.location.host,
+    },
+    (req) => {
+      req.headers["origin"] = "Cypress";
+    },
+  );
 });
 
 Cypress.Commands.add("alertValidate", (text) => {

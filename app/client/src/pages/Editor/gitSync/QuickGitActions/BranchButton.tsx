@@ -108,7 +108,7 @@ function BranchButton() {
       }}
       placement="top-start"
     >
-      <ButtonContainer>
+      <ButtonContainer className="t--branch-button">
         <div className="icon">
           <GitMerge />
         </div>

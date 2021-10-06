@@ -94,6 +94,7 @@ function UserGitProfileSettings({
 
           <InputContainer>
             <TextInput
+              className="t--git-config-name-input"
               dataType="text"
               defaultValue={authorInfo.authorName}
               disabled={disabled}
@@ -111,6 +112,7 @@ function UserGitProfileSettings({
           </LabelContainer>
           <InputContainer>
             <TextInput
+              className="t--git-config-email-input"
               dataType="email"
               defaultValue={authorInfo.authorEmail}
               disabled={disabled}

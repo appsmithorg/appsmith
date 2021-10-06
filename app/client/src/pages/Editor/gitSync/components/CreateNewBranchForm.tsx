@@ -44,6 +44,7 @@ export default function CreateNewBranchForm({
         <Space horizontal size={3} />
         <Button
           category={Category.primary}
+          className="t--create-new-branch-submit-button"
           disabled={!isInputValid}
           isLoading={isCreatingNewBranch}
           onClick={onSubmit}

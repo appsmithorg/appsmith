@@ -131,6 +131,7 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
         />
         <Space size={11} />
         <Button
+          className="t--commit-button"
           disabled={isCommitSuccessful}
           isLoading={isCommittingInProgress}
           onClick={handleCommit}

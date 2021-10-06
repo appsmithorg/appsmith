@@ -58,6 +58,7 @@ const textHeight = 18;
 function BranchListItem({
   active,
   branch,
+  className,
   hovered,
   onClick,
   shouldScrollIntoView,
@@ -76,6 +77,7 @@ function BranchListItem({
   return (
     <BranchListItemContainer
       active={active}
+      className={className}
       hovered={hovered}
       onClick={onClick}
       ref={itemRef}
@@ -244,7 +246,7 @@ export default function BranchList(props: {
             {!fetchingBranches && (
               <TextInput
                 autoFocus
-                className="debugger-search"
+                className="branch-search t--branch-search-input"
                 fill
                 onChange={changeSearchText}
               />
@@ -264,6 +266,7 @@ export default function BranchList(props: {
                     )}
                   </span>
                 }
+                className="t--create-new-branch-button"
                 hovered={activeHoverIndex === 0}
                 onClick={handleCreateNew}
                 shouldScrollIntoView={activeHoverIndex === 0}
@@ -272,6 +275,7 @@ export default function BranchList(props: {
                 <BranchListItem
                   active={currentBranch === branch}
                   branch={branch}
+                  className="t--branch-item"
                   hovered={activeHoverIndex - 1 === index}
                   key={branch}
                   onClick={() => switchBranch(branch)}
