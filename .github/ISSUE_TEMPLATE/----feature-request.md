@@ -1,22 +1,29 @@
----
-name: "\U0001F6E0️ Feature request"
-about: Suggest an idea to improve appsmith
-title: "[Feature]"
-labels: Enhancement
-assignees: Nikhil-Nandagopal
+name: Feature Request
+description: File a feature request
+title: "[Feat]: "
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request!
+  - type: textarea
+    id: detailed-description
+    attributes:
+      label: Detailed Description
+      description: Add a detailed description of the feature request.
+      placeholder: A detailed description of the feature request.
+      value: "I found this error in this project where ..."
+    validations:
+      required: true
 
----
-
-## Summary
-
-One paragraph description of the feature.
-
-## Motivation
-
-Why should this be worked on? What problems or use cases does it solve or
-improve?
-
-## Additional Context
-
-Any other context or screenshots or API request payload/responses that you
-pertain to the feature.
+  - type: textarea
+    attributes:
+        label: Anything else?
+        description: |
+          Links? References? Anything that will give us more context about the issue you are encountering!
+      
+          Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+    validations:
+        required: false
