@@ -1,6 +1,6 @@
 # Running Server Codebase
 
-This document explains how you can setup a development environment for Appsmith server. As the server codebase is written in Java and is powered by Spring + WebFlux we need Java and Maven installed to build the code. In addition we also need one instance of MongoDB and Redis each to run Appsmith server. Lastly, we will set up IntelliJ IDEA to let you edit the code. Let's get those prerequisites installed on your machine.
+This document explains how you can setup a development environment for Appsmith server. As the server codebase is written in Java and is powered by Spring + WebFlux we need Java and Maven installed to build the code. In addition we also need one instance of MondoDB and Redis each to run Appsmith server. Lastly, we will set up IntelliJ IDEA to let you edit the code. Let's get those prerequisites installed on your machine.
 
 
 [![How to Setup Appsmith for Server Side Development](../static/images/server-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=W2qbuUYGrQs)
