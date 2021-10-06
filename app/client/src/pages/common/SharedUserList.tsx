@@ -6,6 +6,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const UserImageContainer = styled.div`
   display: flex;
@@ -35,6 +36,14 @@ const ProfileImageListPopover = styled.ul`
   font-size: 14px;
   margin: 0;
   padding: 5px;
+  max-height: 40vh;
+  overflow-y: auto;
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
 `;
 
 const ProfileImageListItem = styled.li`
@@ -53,6 +62,7 @@ type SharedUserListProps = {
 
 export default function SharedUserList({ userRoles }: SharedUserListProps) {
   const currentUser = useSelector(getCurrentUser);
+  const scrollWrapperRef = React.createRef<HTMLUListElement>();
 
   return (
     <UserImageContainer>
@@ -78,7 +88,7 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
       {userRoles.length > 5 ? (
         <Popover
           hoverCloseDelay={0}
-          interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+          interactionKind={PopoverInteractionKind.CLICK}
           position={Position.BOTTOM}
           usePortal={false}
         >
@@ -86,7 +96,7 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
             className="org-share-user-icons"
             commonName={`+${userRoles.length - 5}`}
           />
-          <ProfileImageListPopover>
+          <ProfileImageListPopover ref={scrollWrapperRef}>
             {userRoles.slice(5).map((el) => (
               <ProfileImageListItem key={el.username}>
                 <ProfileImage
@@ -97,6 +107,7 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
                 <ProfileImageListName>{el.username}</ProfileImageListName>
               </ProfileImageListItem>
             ))}
+            <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" />
           </ProfileImageListPopover>
         </Popover>
       ) : null}
