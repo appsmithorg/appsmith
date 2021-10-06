@@ -3,7 +3,7 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { SetCrudInfoModalOpenPayload } from "actions/crudInfoModalActions";
 
 const initialState: CrudInfoModalReduxState = {
-  crudInfoModalOpen: true,
+  crudInfoModalOpen: false,
   generateCRUDSuccessInfo: null,
 };
 
