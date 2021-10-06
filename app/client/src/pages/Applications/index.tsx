@@ -206,7 +206,7 @@ const ApplicationContainer = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
   overflow: auto;
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
-  margin-top: 16px;
+  padding-top: 16px;
   margin-left: ${(props) =>
     props.theme.homePage.leftPane.width +
     props.theme.homePage.leftPane.rightMargin +

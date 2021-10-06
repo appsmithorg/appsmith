@@ -11,6 +11,7 @@ import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "../../selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { bootIntercom } from "utils/helpers";
+import { Colors } from "constants/Colors";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -29,6 +30,10 @@ const StyledTrigger = styled.div`
   margin: 0 ${(props) => props.theme.spaces[4]}px;
   background: ${(props) =>
     props.theme.colors.globalSearch.helpButtonBackground};
+
+  &:hover {
+    border: 1.5px solid ${Colors.GREY_10};
+  }
 `;
 
 const Trigger = withTheme(({ theme }: { theme: Theme }) => (

@@ -44,9 +44,9 @@ const TriggerContainer = styled.div<{
 
   .debugger-count {
     color: ${Colors.WHITE};
-    ${(props) => getTypographyByKey(props, "p3")}
-    height: 16px;
-    width: 16px;
+    ${(props) => getTypographyByKey(props, "btnSmall")}
+    height: 20px;
+    width: 20px;
     background-color: ${(props) =>
       props.errorCount + props.warningCount > 0
         ? props.errorCount === 0
