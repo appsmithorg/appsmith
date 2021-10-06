@@ -312,7 +312,8 @@ export const getQueryActionsForCurrentPage = createSelector(
     return actions.filter((action) => {
       return (
         action.config.pluginType === PluginType.DB ||
-        action.config.pluginType === PluginType.SAAS
+        action.config.pluginType === PluginType.SAAS ||
+        action.config.pluginType === PluginType.API
       );
     });
   },

@@ -432,8 +432,8 @@ Cypress.Commands.add("Signup", (uname, pword) => {
 
   cy.visit("/user/signup");
   cy.get(signupPage.username).should("be.visible");
-  cy.get(signupPage.username).type(uname);
-  cy.get(signupPage.password).type(pword);
+  cy.get(signupPage.username).type("rashmi.alias@outlook.in");
+  cy.get(signupPage.password).type("Appsmith@2021");
   cy.get(signupPage.submitBtn).click();
   cy.wait("@getUser");
   cy.wait("@applications").should(
@@ -2021,6 +2021,10 @@ Cypress.Commands.add("testSaveDatasource", () => {
   cy.testDatasource();
 });
 
+Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
+  cy.get(datasourceEditor["scope"]).click();
+});
+
 Cypress.Commands.add(
   "fillMongoDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
@@ -2032,7 +2036,7 @@ Cypress.Commands.add(
       : datasourceFormData["mongo-defaultDatabaseName"];
 
     cy.get(datasourceEditor["host"]).type(hostAddress);
-    //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
+    cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
     cy.get(datasourceEditor["selConnectionType"]).click();
     cy.contains(datasourceFormData["connection-type"]).click();
     cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);
