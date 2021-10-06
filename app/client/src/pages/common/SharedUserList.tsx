@@ -107,7 +107,11 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
                 <ProfileImageListName>{el.username}</ProfileImageListName>
               </ProfileImageListItem>
             ))}
-            <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" />
+            <ScrollIndicator
+              alwaysShowScrollbar
+              containerRef={scrollWrapperRef}
+              mode="DARK"
+            />
           </ProfileImageListPopover>
         </Popover>
       ) : null}
