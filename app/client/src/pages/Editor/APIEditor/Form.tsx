@@ -54,6 +54,7 @@ import { getActionResponses } from "../../../selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import ApiAuthentication from "./ApiAuthentication";
 
 const Form = styled.form`
   display: flex;
@@ -591,6 +592,11 @@ function ApiEditorForm(props: Props) {
                         theme={theme}
                       />
                     ),
+                  },
+                  {
+                    key: "authentication",
+                    title: "Authentication",
+                    panelComponent: <ApiAuthentication />,
                   },
                   {
                     key: "settings",

@@ -42,6 +42,7 @@ import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { getQueryParams } from "../../../../utils/AppsmithUtils";
+import { AuthType } from "entities/Datasource/RestAPIForm";
 
 type ReduxStateProps = {
   orgId: string;
@@ -199,6 +200,22 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
   handleDatasourceHighlight = () => {
     const { datasource } = this.props;
+    const authType = get(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationType",
+      "",
+    );
+
+    const hasError = !!get(datasource, "structure.error");
+
+    let className = "datasource-highlight";
+
+    if (authType === AuthType.OAuth2) {
+      className = `${className} ${
+        hasError ? "datasource-highlight-error" : "datasource-highlight-success"
+      }`;
+    }
+
     return (editorInstance: CodeMirror.Doc) => {
       if (
         editorInstance.lineCount() === 1 &&
@@ -211,7 +228,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
           {
-            className: "datasource-highlight",
+            className,
             atomic: true,
             inclusiveRight: false,
           },
