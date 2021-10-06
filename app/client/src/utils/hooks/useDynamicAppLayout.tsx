@@ -22,8 +22,6 @@ import { updateCanvasLayout } from "actions/editorActions";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { scrollbarWidth } from "utils/helpers";
 
-const SCROLLBAR_WIDTH = 6;
-
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
   const explorerWidth = useSelector(getExplorerWidth);

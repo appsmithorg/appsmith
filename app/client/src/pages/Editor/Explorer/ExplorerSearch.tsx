@@ -4,7 +4,6 @@ import React, { forwardRef, Ref, useState, useCallback } from "react";
 
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
-import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(

@@ -9,7 +9,6 @@ import {
   APPLICATIONS_URL,
   getApplicationViewerPageURL,
 } from "constants/routes";
-import classNames from "classnames";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
@@ -57,8 +56,7 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
-import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
-import { getExplorerPinned } from "selectors/explorerSelector";
+``;
 import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
@@ -230,7 +228,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   } = props;
   const location = useLocation();
   const dispatch = useDispatch();
-  const pinned = useSelector(getExplorerPinned);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);

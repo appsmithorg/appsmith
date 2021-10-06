@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useRef, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
 import {
@@ -24,12 +24,6 @@ import {
 import { AppState } from "reducers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { getExplorerPinned } from "selectors/explorerSelector";
-import { setExplorerPinned } from "actions/explorerActions";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
-import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
-import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 
 const CardsWrapper = styled.div`
   display: grid;
@@ -39,10 +33,8 @@ const CardsWrapper = styled.div`
   align-items: stretch;
 `;
 function WidgetSidebar(props: IPanelProps) {
-  const dispatch = useDispatch();
   const location = useLocation();
   const cards = useSelector(getWidgetCards);
-  const pinned = useSelector(getExplorerPinned);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {
@@ -93,13 +85,6 @@ function WidgetSidebar(props: IPanelProps) {
 
   const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
   const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
-
-  /**
-   * toggles the pinned state of sidebar
-   */
-  const onPin = useCallback(() => {
-    dispatch(setExplorerPinned(!pinned));
-  }, [pinned, dispatch, setExplorerPinned]);
 
   return (
     <div className="flex flex-col overflow-hidden">

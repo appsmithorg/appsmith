@@ -9,7 +9,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import WidgetFactory from "utils/WidgetFactory";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidget } from "sagas/selectors";
-import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 
 const QuestionIcon = ControlIcons.QUESTION;
 
