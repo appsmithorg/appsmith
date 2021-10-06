@@ -184,8 +184,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
         boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
-            URI redirectUri = URI.create(redirectUrl);
-            if(redirectUri.getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+            if(isDefaultRedirectUrl(redirectUrl) && defaultApplication != null) {
                 addFirstTimeExperienceParam = true;
                 HttpHeaders headers = exchange.getRequest().getHeaders();
                 redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
@@ -194,6 +193,19 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         }
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
+    }
+
+    /**
+     * Checks if the provided url is default redirect url
+     * @param url which needs to be checked
+     * @return true if default url. false otherwise
+     */
+    private boolean isDefaultRedirectUrl(String url) {
+        try {
+            return URI.create(url).getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
@@ -206,11 +218,10 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 .map(s -> {
                     String url = s;
                     if (isFromSignup) {
-                        URI redirectUri = URI.create(url);
                         boolean addFirstTimeExperienceParam = false;
 
                         // only redirect to default application if the redirectUrl contains no other url
-                        if(redirectUri.getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+                        if(isDefaultRedirectUrl(url) && defaultApplication != null) {
                             addFirstTimeExperienceParam = true;
                             HttpHeaders headers = exchange.getRequest().getHeaders();
                             url = redirectHelper.buildApplicationUrl(defaultApplication, headers);

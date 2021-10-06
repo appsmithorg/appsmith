@@ -23,6 +23,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
 import javax.validation.Validator;
+import java.net.URI;
 import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
@@ -88,5 +89,11 @@ public class OrganizationServiceUnitTest {
                 .create(organizationMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.ORGANIZATION, sampleOrgId))
                 .verify();
+    }
+
+    @Test
+    public void temp() {
+        URI uri = URI.create("1 23 rg");
+        System.out.println(uri.getPath());
     }
 }
