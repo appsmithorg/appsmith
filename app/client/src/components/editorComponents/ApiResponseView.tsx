@@ -114,7 +114,7 @@ const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
 `;
 
 const SectionDivider = styled.div`
-  height: 1px;
+  height: 2px;
   width: 100%;
   background: ${(props) => props.theme.colors.apiPane.dividerBg};
 `;
