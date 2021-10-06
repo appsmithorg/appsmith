@@ -31,12 +31,12 @@ Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-
 
 ## Quick Start
 
-The fastest way to start with Appsmith is the cloud-hosted version. When you're ready, you can also host it yourself.
+The fastest way to start with Appsmith is the cloud-hosted version. When you are ready, you can also host it yourself.
 
 - Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website)
 - Install locally or on a private instance with [Docker](https://docs.appsmith.com/setup/docker?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) _(Recommended)_
-- Deploy on a [Kubernetes](https://docs.appsmith.com/setup/kubernetes?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) cluster
-- Deploy to [AWS with an AMI](https://docs.appsmith.com/setup/aws-ami?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) on the marketplace
+- Deploy on a [Kubernetes](https://docs.appsmith.com/setup/kubernetes?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) cluster.
+- Deploy to [AWS with an AMI](https://docs.appsmith.com/setup/aws-ami?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) on the marketplace.
 - One-click deploy to [Heroku](https://docs.appsmith.com/setup/heroku?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs)
 
 <br><a href="https://www.youtube.com/watch?v=mzqK0QIZRLs" target="_blank"><img src="static/images/build-tool.png" alt="Build an Internal Tool with Appsmith" width="410px" /></a>
@@ -47,9 +47,9 @@ The fastest way to start with Appsmith is the cloud-hosted version. When you're 
   <img src="static/animations/widgets.gif" width="100%">
 </p>
 
-Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms and more right into your app.
+Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms and more, right into your app.
 
-_Includes text, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, datepickers, dropdowns, filepickers, containers, maps, modals, rich text editors, tabs & video._ <br>
+_Includes texts, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, datepickers, dropdowns, filepickers, containers, maps, modals, rich text editors, tabs & videos._ <br>
 
 <p>
   <img src="static/animations/running-api.gif" width="100%">
@@ -63,7 +63,7 @@ _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elast
   <img src="static/animations/javascript.gif" width="100%">
 </p>
 
-We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
+We will run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
 
 <p>
   <img src="static/animations/invite.gif" width="100%">
@@ -73,7 +73,7 @@ We'll run JS anywhere! Code interactions between elements, update datasources or
 
 #### 🔑 Solid 256-bit Encryption
 
-Appsmith apps are [secure by default](https://docs.appsmith.com/security). All connections are TLS-encrypted, and credentials are encrypted with AES-256—so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup).<br><br>
+Appsmith apps are [secure by default](https://docs.appsmith.com/security). All connections are TLS-encrypted, and credentials are encrypted with AES-256—so your data is not accessible to us. For added security, try our [self-hosted options](https://docs.appsmith.com/setup).<br><br>
 
 #### 🎙 Transparent Support
 
@@ -98,7 +98,7 @@ Check out the instructions for the deploying Appsmith on different services:
 
 ## Demos
 
-Check out some real applications that can be built with Appsmith:
+Check out some real-world applications that can be built with Appsmith:
 
 - 👩‍💻 [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 🗓️ [Calendly in Appsmith](https://app.appsmith.com/applications/600186605b452f525458d6d2/pages/600186605b452f525458d6d4/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
@@ -127,7 +127,7 @@ Visit our [blog](https://blog.appsmith.com/) to explore more.
 
 ## Contribute
 
-We love our contributors! We're committed to fostering an open and welcoming environment in the community. If you'd like to contribute anything from a bug-fix to a feature update, start here—
+We love our contributors! We are committed to fostering an open and welcoming environment in the community. If you'd like to contribute anything from a bug-fix to a feature update, start here—
 
 - 📖 Read our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md)
 - 🧩 [Set up your local environment](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
