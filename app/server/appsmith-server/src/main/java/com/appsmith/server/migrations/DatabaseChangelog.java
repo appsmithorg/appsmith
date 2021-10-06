@@ -3284,4 +3284,32 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "091", id = "migrate-old-app-color-to-new-colors", author = "")
+    public void migrateOldAppColorsToNewColors(MongockTemplate mongoTemplate) {
+        String[] oldColors = {
+                "#FF6786", "#FFAD5E", "#FCD43E", "#B0E968", "#5CE7EF", "#69B5FF", "#9177FF", "#FF76FE",
+                "#61DF48", "#FF597B", "#6698FF", "#F8C356", "#6C4CF1", "#C5CD90", "#6272C8", "#4F70FD",
+                "#6CD0CF", "#A8D76C", "#5EDA82", "#6C9DD0", "#F56AF4", "#5ED3DA", "#B94CF1", "#BC6DB2",
+                "#EA6179", "#FE9F44", "#E9C951", "#ED86A1", "#54A9FB", "#F36380", "#C03C3C"
+        };
+        String[] newColors = {
+                "#FFDEDE", "#FFEFDB", "#F3F1C7", "#F4FFDE", "#C7F3F0", "#D9E7FF", "#E3DEFF", "#F1DEFF",
+                "#C7F3E3", "#F5D1D1", "#ECECEC", "#FBF4ED", "#D6D1F2", "#FFEBFB", "#EAEDFB", "#D6D1F2",
+                "#C7F3F0", "#F4FFDE", "#C7F3E3", "#D9E7FF", "#F1DEFF", "#C7F3F0", "#D6D1F2", "#F1DEFF",
+                "#F5D1D1", "#FFEFDB", "#F3F1C7", "#FFEBFB", "#D9E7FF", "#FFDEDE", "#F5D1D1"
+        };
+
+        for(int i = 0; i < oldColors.length; i++) {
+            String oldColor = oldColors[i], newColor = newColors[i];
+
+            // Migrate old color to new color
+            String colorFieldName = fieldName(QApplication.application.color);
+            mongoTemplate.updateMulti(
+                    query(where(colorFieldName).is(oldColor).and(fieldName(QApplication.application.deleted)).is(false)),
+                    new Update().set(colorFieldName, newColor),
+                    Application.class
+            );
+        }
+    }
+
 }

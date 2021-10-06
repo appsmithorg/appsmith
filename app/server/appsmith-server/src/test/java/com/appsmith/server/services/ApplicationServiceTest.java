@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -15,7 +16,9 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -116,10 +119,16 @@ public class ApplicationServiceTest {
     LayoutActionService layoutActionService;
 
     @Autowired
-    private PolicyUtils policyUtils;
+    LayoutCollectionService layoutCollectionService;
 
     @Autowired
-    private PluginRepository pluginRepository;
+    ActionCollectionService actionCollectionService;
+
+    @Autowired
+    PluginRepository pluginRepository;
+
+    @Autowired
+    PolicyUtils policyUtils;
 
     @MockBean
     ReleaseNotesService releaseNotesService;
@@ -603,6 +612,19 @@ public class ApplicationServiceTest {
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
 
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        assert installedJsPlugin != null;
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setPageId(pageId);
+        actionCollectionDTO.setPluginId(installedJsPlugin.getId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionCollectionDTO savedActionCollection = layoutCollectionService.createCollection(actionCollectionDTO).block();
+
         Mono<Application> publicAppMono = applicationService
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
                 .cache();
@@ -613,17 +635,24 @@ public class ApplicationServiceTest {
         Mono<NewAction> actionMono = publicAppMono
                 .then(newActionService.findById(savedAction.getId()));
 
+        final Mono<ActionCollection> actionCollectionMono = publicAppMono
+                .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
+
         StepVerifier
-                .create(Mono.zip(datasourceMono, actionMono))
+                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono))
                 .assertNext(tuple -> {
                     Datasource datasource1 = tuple.getT1();
                     NewAction action1 = tuple.getT2();
+                    final ActionCollection actionCollection1 = tuple.getT3();
 
                     // Check that the datasource used in the app contains public execute permission
                     assertThat(datasource1.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
 
                     // Check that the action used in the app contains public execute permission
                     assertThat(action1.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
+
+                    // Check that the action collection used in the app contains public execute permission
+                    assertThat(actionCollection1.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
 
                 })
                 .verifyComplete();

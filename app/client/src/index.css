@@ -7,6 +7,7 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #FFF !important;
 }
 
 body.dragging *{
@@ -105,4 +106,12 @@ div.bp3-popover-arrow {
 /* Portals on the Modal widget */
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
+}
+
+/* Change the white to any color */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
 }
