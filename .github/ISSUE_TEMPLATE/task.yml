@@ -1,0 +1,24 @@
+name: Task
+description: File a task
+title: "[Task]: "
+labels: []
+body:
+  - type: textarea
+    id: detailed-description
+    attributes:
+      label: Detailed Description
+      description: Add a detailed description and list of subtasks of the task.
+      placeholder: A detailed description of the task.
+      value: "We can ....\n### Subtasks:\n-\n-"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+        label: Anything else?
+        description: |
+          Links? References? Anything that will give us more context about the issue you are encountering!
+      
+          Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+    validations:
+        required: false
