@@ -1,4 +1,4 @@
-import React, { useState, useRef, RefObject } from "react";
+import React, { useState, useRef, RefObject, useCallback } from "react";
 import { connect, useSelector, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
@@ -10,6 +10,7 @@ import {
   DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
   EMPTY_JS_OBJECT,
+  PARSING_ERROR,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -28,6 +29,13 @@ import { sortBy } from "lodash";
 import { ReactComponent as JSFunction } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as RunFunction } from "assets/icons/menu/run.svg";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
+import { EvaluationError } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
+import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { DebugButton } from "./Debugger/DebugCTA";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -47,6 +55,10 @@ const ResponseTabWrapper = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
+  &.disable * {
+    opacity: 0.8;
+    pointer-events: none;
+  }
 `;
 
 const ResponseTabActionsList = styled.ul`
@@ -54,6 +66,10 @@ const ResponseTabActionsList = styled.ul`
   width: 20%;
   list-style: none;
   padding-left: 0;
+  ${thinScrollbar};
+  scrollbar-width: thin;
+  overflow: auto;
+  padding-bottom: 40px;
 `;
 
 const ResponseTabAction = styled.li`
@@ -78,7 +94,7 @@ const ResponseTabAction = styled.li`
 `;
 
 const TabbedViewWrapper = styled.div`
-  height: calc(100% - 30px);
+  height: 100%;
 
   &&& {
     ul.react-tabs__tab-list {
@@ -114,6 +130,22 @@ const NoResponseContainer = styled.div`
     color: #090707;
   }
 `;
+const HelpSection = styled.div`
+  padding-bottom: 5px;
+  padding-top: 10px;
+`;
+
+const FailedMessage = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+`;
+
+const StyledCallout = styled(Callout)`
+  .${Classes.TEXT} {
+    line-height: normal;
+  }
+`;
 
 interface ReduxStateProps {
   responses: Record<string, any>;
@@ -124,10 +156,11 @@ type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     theme?: EditorTheme;
     jsObject: JSCollection;
+    errors: Array<EvaluationError>;
   };
 
 function JSResponseView(props: Props) {
-  const { isExecuting, jsObject, responses } = props;
+  const { errors, isExecuting, jsObject, responses } = props;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const [selectActionId, setSelectActionId] = useState("");
@@ -140,61 +173,92 @@ function JSResponseView(props: Props) {
       ? responses[selectActionId]
       : "";
   const isRunning = selectActionId && !!isExecuting[selectActionId];
+  const errorsList = errors.filter((er) => {
+    return er.severity === Severity.ERROR;
+  });
+
+  const onDebugClick = useCallback(() => {
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "JS_OBJECT",
+    });
+    setSelectedIndex(1);
+  }, []);
+
   const tabs = [
     {
       key: "body",
       title: "Response",
       panelComponent: (
-        <ResponseTabWrapper>
-          {sortedActionList && !sortedActionList?.length ? (
-            <NoResponseContainer>
-              {createMessage(EMPTY_JS_OBJECT)}
-            </NoResponseContainer>
-          ) : (
-            <>
-              <ResponseTabActionsList>
-                {sortedActionList &&
-                  sortedActionList?.length > 0 &&
-                  sortedActionList.map((action) => {
-                    return (
-                      <ResponseTabAction
-                        className={action.id === selectActionId ? "active" : ""}
-                        key={action.id}
-                        onClick={() => {
-                          runAction(action);
-                        }}
-                      >
-                        <JSFunction />{" "}
-                        <div className="function-name">{action.name}</div>
-                        <RunFunction className="run-button" />
-                      </ResponseTabAction>
-                    );
-                  })}
-              </ResponseTabActionsList>
-              <ResponseViewer>
-                {isRunning ? (
-                  <LoadingOverlayScreen theme={props.theme}>
-                    {createMessage(EXECUTING_FUNCTION)}
-                  </LoadingOverlayScreen>
-                ) : !responses.hasOwnProperty(selectActionId) ? (
-                  <NoResponseContainer className="empty">
-                    <Text type={TextType.P1}>
-                      Click <RunFunction /> to get response
-                    </Text>
-                  </NoResponseContainer>
-                ) : (
-                  <ReadOnlyEditor
-                    folding
-                    height={"100%"}
-                    input={{
-                      value: response,
-                    }}
-                  />
-                )}
-              </ResponseViewer>
-            </>
-          )}
-        </ResponseTabWrapper>
+        <>
+          <HelpSection>
+            {errorsList.length > 0 ? (
+              <StyledCallout
+                fill
+                label={
+                  <FailedMessage>
+                    <DebugButton onClick={onDebugClick} />
+                  </FailedMessage>
+                }
+                text={createMessage(PARSING_ERROR)}
+                variant={Variant.danger}
+              />
+            ) : (
+              ""
+            )}
+          </HelpSection>
+          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+            {sortedActionList && !sortedActionList?.length ? (
+              <NoResponseContainer>
+                {createMessage(EMPTY_JS_OBJECT)}
+              </NoResponseContainer>
+            ) : (
+              <>
+                <ResponseTabActionsList>
+                  {sortedActionList &&
+                    sortedActionList?.length > 0 &&
+                    sortedActionList.map((action) => {
+                      return (
+                        <ResponseTabAction
+                          className={
+                            action.id === selectActionId ? "active" : ""
+                          }
+                          key={action.id}
+                          onClick={() => {
+                            runAction(action);
+                          }}
+                        >
+                          <JSFunction />{" "}
+                          <div className="function-name">{action.name}</div>
+                          <RunFunction className="run-button" />
+                        </ResponseTabAction>
+                      );
+                    })}
+                </ResponseTabActionsList>
+                <ResponseViewer>
+                  {isRunning ? (
+                    <LoadingOverlayScreen theme={props.theme}>
+                      {createMessage(EXECUTING_FUNCTION)}
+                    </LoadingOverlayScreen>
+                  ) : !responses.hasOwnProperty(selectActionId) ? (
+                    <NoResponseContainer className="empty">
+                      <Text type={TextType.P1}>
+                        Click <RunFunction /> to get response
+                      </Text>
+                    </NoResponseContainer>
+                  ) : (
+                    <ReadOnlyEditor
+                      folding
+                      height={"100%"}
+                      input={{
+                        value: response,
+                      }}
+                    />
+                  )}
+                </ResponseViewer>
+              </>
+            )}
+          </ResponseTabWrapper>
+        </>
       ),
     },
     {
@@ -224,10 +288,12 @@ function JSResponseView(props: Props) {
 
   const runAction = (action: JSAction) => {
     setSelectActionId(action.id);
+    const collectionId = getJSCollectionIdFromURL();
     dispatch(
       executeJSFunction({
         collectionName: jsObject?.name || "",
         action: action,
+        collectionId: collectionId || "",
       }),
     );
   };

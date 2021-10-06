@@ -5,7 +5,7 @@ import Button from "components/ads/Button";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { Toaster } from "components/ads/Toast";
 import { ERROR_ADD_API_INVALID_URL } from "constants/messages";
-import { Variant } from "components/ads/common";
+import { Classes, Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,8 +20,11 @@ const ActionButton = styled(Button)`
     height: 36px;
     width: 136px;
   }
-  span > svg > path {
-    stroke: white;
+  .${Classes.ICON} {
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 `;
 

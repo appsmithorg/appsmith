@@ -1,13 +1,13 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
@@ -29,6 +29,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
@@ -116,6 +117,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     private PolicyUtils policyUtils;
+
+    @Autowired
+    private PluginRepository pluginRepository;
 
     @MockBean
     ReleaseNotesService releaseNotesService;
@@ -1348,4 +1352,61 @@ public class ApplicationServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplicationWithPagesAndActions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Application testApplication = new Application();
+        String appName = "deleteApplicationWithPagesAndActions";
+        testApplication.setName(appName);
+
+        Mono<NewAction> resultMono = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application -> {
+                    PageDTO page = new PageDTO();
+                    page.setName("New Page");
+                    page.setApplicationId(application.getId());
+                    Layout defaultLayout = newPageService.createDefaultLayout();
+                    List<Layout> layouts = new ArrayList<>();
+                    layouts.add(defaultLayout);
+                    page.setLayouts(layouts);
+                    return Mono.zip(
+                            applicationPageService.createPage(page),
+                            pluginRepository.findByPackageName("installed-plugin")
+                    );
+                })
+                .flatMap(tuple -> {
+                    final PageDTO page = tuple.getT1();
+                    final Plugin installedPlugin = tuple.getT2();
+
+                    final Datasource datasource = new Datasource();
+                    datasource.setName("Default Database");
+                    datasource.setOrganizationId(orgId);
+                    datasource.setPluginId(installedPlugin.getId());
+                    datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("validAction");
+                    action.setPageId(page.getId());
+                    action.setExecuteOnLoad(true);
+                    ActionConfiguration actionConfiguration = new ActionConfiguration();
+                    actionConfiguration.setHttpMethod(HttpMethod.GET);
+                    action.setActionConfiguration(actionConfiguration);
+                    action.setDatasource(datasource);
+
+                    return layoutActionService.createSingleAction(action)
+                            .flatMap(action1 -> {
+                                return applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS)
+                                        .flatMap(application -> applicationPageService.deleteApplication(application.getId()))
+                                        .flatMap(ignored -> newActionService.findById(action1.getId()));
+                            });
+                });
+
+        StepVerifier
+                .create(resultMono)
+                // Since the action should be deleted, we exmpty the Mono to complete empty.
+                .verifyComplete();
+    }
+
 }

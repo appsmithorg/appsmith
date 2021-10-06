@@ -1,4 +1,4 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { RefObject, useEffect, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -69,6 +69,9 @@ import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
 import * as Sentry from "@sentry/react";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SearchSnippets from "components/ads/SnippetButton";
+import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -149,11 +152,13 @@ const DocumentationLink = styled.a`
   right: 23px;
   top: -6px;
   color: black;
+  display: flex;
   font-weight: 500;
   font-size: 12px;
   line-height: 14px;
   span {
     display: flex;
+    margin-left: 5px;
   }
   &:hover {
     color: black;
@@ -259,6 +264,15 @@ const ActionsWrapper = styled.div`
 const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
+
+  .t--switch-datasource > div {
+    min-height: 30px;
+    height: 30px;
+
+    & > div {
+      height: 100%;
+    }
+  }
 `;
 
 const CreateDatasource = styled.div`
@@ -324,7 +338,7 @@ const TabContainerView = styled.div`
   a {
     font-size: 14px;
     line-height: 20px;
-    margin-top: 15px;
+    margin-top: 12px;
   }
   .react-tabs__tab-panel {
     overflow: auto;
@@ -425,6 +439,17 @@ export function EditorJSONtoForm(props: Props) {
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
+
+  useEffect(() => {
+    if (selectedIndex !== initialIndex) setSelectedIndex(initialIndex);
+  }, [initialIndex]);
+
+  useEffect(() => {
+    // reset on unmount
+    return () => {
+      dispatch(setActionTabsInitialIndex(0));
+    };
+  }, []);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -725,7 +750,7 @@ export function EditorJSONtoForm(props: Props) {
         tabName: responseTabs[index].key,
       });
     }
-
+    dispatch(setActionTabsInitialIndex(index));
     setSelectedIndex(index);
   };
   const { entityDependencies, hasDependencies } = useEntityDependencies(
@@ -758,6 +783,11 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <OnboardingIndicator
               step={OnboardingStep.EXAMPLE_DATABASE}
               width={75}
@@ -778,16 +808,18 @@ export function EditorJSONtoForm(props: Props) {
           <SecondaryWrapper>
             <TabContainerView>
               {documentationLink && (
-                <DocumentationLink
-                  className="t--datasource-documentation-link"
-                  onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-                >
+                <DocumentationLink>
                   <TooltipComponent
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
                     hoverOpenDelay={50}
                     position="top"
                   >
-                    <span>
+                    <span
+                      className="t--datasource-documentation-link"
+                      onClick={(e: React.MouseEvent) =>
+                        handleDocumentationClick(e)
+                      }
+                    >
                       <AdsIcon
                         keepColors
                         name="book-line"

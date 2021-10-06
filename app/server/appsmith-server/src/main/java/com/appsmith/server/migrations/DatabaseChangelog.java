@@ -5,9 +5,11 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
@@ -18,7 +20,6 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -33,7 +34,6 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QDatasource;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
@@ -97,6 +97,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -183,7 +184,7 @@ public class DatabaseChangelog {
     private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
         for (Organization organization : mongockTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
+                organization.setPlugins(new HashSet<>());
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
@@ -452,7 +453,7 @@ public class DatabaseChangelog {
 
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new ArrayList<>());
+                organization.setPlugins(new HashSet<>());
             }
 
             final Set<String> installedPlugins = organization.getPlugins()
@@ -3186,4 +3187,129 @@ public class DatabaseChangelog {
             mongoTemplate.save(mongoAction);
         }
     }
+
+    @ChangeSet(order = "088", id = "migrate-mongo-uqi-dynamicBindingPathList", author = "")
+    public void migrateMongoPluginDynamicBindingListUqi(MongoTemplate mongoTemplate) {
+
+        Plugin mongoPlugin = mongoTemplate.findOne(
+                query(where("packageName").is("mongo-plugin")),
+                Plugin.class
+        );
+
+        // Now migrate all the existing actions dynamicBindingList to the new UQI structure.
+        List<NewAction> mongoActions = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId())
+                        )),
+                NewAction.class
+        );
+
+        for (NewAction mongoAction : mongoActions) {
+            if (mongoAction.getUnpublishedAction() == null ||
+                    mongoAction.getUnpublishedAction().getDynamicBindingPathList() == null ||
+                    mongoAction.getUnpublishedAction().getDynamicBindingPathList().isEmpty()) {
+                // No migrations required
+                continue;
+            }
+
+            List<Property> dynamicBindingPathList = mongoAction.getUnpublishedAction().getDynamicBindingPathList();
+            List<Property> newDynamicBindingPathList = new ArrayList<>();
+
+            for (Property path : dynamicBindingPathList) {
+                String pathKey = path.getKey();
+                if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                    // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                    Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                    Matcher matcher = pattern.matcher(pathKey);
+
+                    while (matcher.find()) {
+                        int index = Integer.parseInt(matcher.group());
+                        String partialPath = mongoMigrationMap.get(index);
+                        Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                        newDynamicBindingPathList.add(dynamicBindingPath);
+                    }
+                } else {
+                    // this dynamic binding is for body. Add as is
+                    newDynamicBindingPathList.add(path);
+                }
+            }
+
+            mongoAction.getUnpublishedAction().setDynamicBindingPathList(newDynamicBindingPathList);
+
+            mongoTemplate.save(mongoAction);
+        }
+    }
+
+    @ChangeSet(order = "089", id = "update-plugin-package-name-index", author = "")
+    public void updatePluginPackageNameIndexToPluginNamePackageNameAndVersion(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Plugin.class, "packageName");
+
+        ensureIndexes(mongoTemplate, Plugin.class,
+                makeIndex("pluginName", "packageName", "version")
+                        .unique().named("plugin_name_package_name_version_index")
+        );
+    }
+
+    @ChangeSet(order = "090", id = "delete-orphan-actions", author = "")
+    public void deleteOrphanActions(MongockTemplate mongockTemplate) {
+        final Update deletionUpdates = new Update();
+        deletionUpdates.set(fieldName(QNewAction.newAction.deleted), true);
+        deletionUpdates.set(fieldName(QNewAction.newAction.deletedAt), Instant.now());
+
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true));
+        actionQuery.fields().include(fieldName(QNewAction.newAction.applicationId));
+
+        final List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
+
+        for (final NewAction action : actions) {
+            final String applicationId = action.getApplicationId();
+
+            final boolean shouldDelete = StringUtils.isEmpty(applicationId) || mongockTemplate.exists(
+                    query(
+                            where(fieldName(QApplication.application.id)).is(applicationId)
+                                    .and(fieldName(QApplication.application.deleted)).is(true)
+                    ),
+                    Application.class
+            );
+
+            if (shouldDelete) {
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
+                        deletionUpdates,
+                        NewAction.class
+                );
+            }
+        }
+    }
+
+    @ChangeSet(order = "091", id = "migrate-old-app-color-to-new-colors", author = "")
+    public void migrateOldAppColorsToNewColors(MongockTemplate mongoTemplate) {
+        String[] oldColors = {
+                "#FF6786", "#FFAD5E", "#FCD43E", "#B0E968", "#5CE7EF", "#69B5FF", "#9177FF", "#FF76FE",
+                "#61DF48", "#FF597B", "#6698FF", "#F8C356", "#6C4CF1", "#C5CD90", "#6272C8", "#4F70FD",
+                "#6CD0CF", "#A8D76C", "#5EDA82", "#6C9DD0", "#F56AF4", "#5ED3DA", "#B94CF1", "#BC6DB2",
+                "#EA6179", "#FE9F44", "#E9C951", "#ED86A1", "#54A9FB", "#F36380", "#C03C3C"
+        };
+        String[] newColors = {
+                "#FFDEDE", "#FFEFDB", "#F3F1C7", "#F4FFDE", "#C7F3F0", "#D9E7FF", "#E3DEFF", "#F1DEFF",
+                "#C7F3E3", "#F5D1D1", "#ECECEC", "#FBF4ED", "#D6D1F2", "#FFEBFB", "#EAEDFB", "#D6D1F2",
+                "#C7F3F0", "#F4FFDE", "#C7F3E3", "#D9E7FF", "#F1DEFF", "#C7F3F0", "#D6D1F2", "#F1DEFF",
+                "#F5D1D1", "#FFEFDB", "#F3F1C7", "#FFEBFB", "#D9E7FF", "#FFDEDE", "#F5D1D1"
+        };
+
+        for(int i = 0; i < oldColors.length; i++) {
+            String oldColor = oldColors[i], newColor = newColors[i];
+
+            // Migrate old color to new color
+            String colorFieldName = fieldName(QApplication.application.color);
+            mongoTemplate.updateMulti(
+                    query(where(colorFieldName).is(oldColor).and(fieldName(QApplication.application.deleted)).is(false)),
+                    new Update().set(colorFieldName, newColor),
+                    Application.class
+            );
+        }
+    }
+
 }
