@@ -70,7 +70,7 @@ type EditorProps = {
   currentPageId?: string;
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
-  collabStopSharingPointerEvent: () => void;
+  collabStopSharingPointerEvent: (pageId?: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -169,9 +169,10 @@ class Editor extends Component<Props> {
   }
 
   componentWillUnmount() {
+    const { pageId } = this.props.match.params || {};
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
-    this.props.collabStopSharingPointerEvent();
+    this.props.collabStopSharingPointerEvent(pageId);
   }
 
   handleHistoryChange = (location: any) => {
@@ -250,8 +251,8 @@ const mapDispatchToProps = (dispatch: any) => {
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     collabStartSharingPointerEvent: (pageId: string) =>
       dispatch(collabStartSharingPointerEvent(pageId)),
-    collabStopSharingPointerEvent: () =>
-      dispatch(collabStopSharingPointerEvent()),
+    collabStopSharingPointerEvent: (pageId?: string) =>
+      dispatch(collabStopSharingPointerEvent(pageId)),
   };
 };
 

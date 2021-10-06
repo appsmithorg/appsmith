@@ -23,6 +23,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
 import { trimQueryString } from "utils/helpers";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
   background-color: ${Colors.WHITE};
@@ -53,6 +54,9 @@ export const Sidebar = memo(() => {
   const dispatch = useDispatch();
   const defaultApplicationId = useSelector(getDefaultApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
   const switches = [
     {
       id: "explorer",
@@ -78,6 +82,9 @@ export const Sidebar = memo(() => {
             }),
           );
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
+        if (isFirstTimeUserOnboardingEnabled) {
+          dispatch(toggleInOnboardingWidgetSelection(true));
+        }
       },
     },
   ];
