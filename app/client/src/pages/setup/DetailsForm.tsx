@@ -14,7 +14,17 @@ import {
 } from "./common";
 import Dropdown from "components/ads/Dropdown";
 import StyledFormGroup from "components/ads/formFields/FormGroup";
-import { createMessage } from "constants/messages";
+import {
+  createMessage,
+  WELCOME_FORM_EMAIL_ID,
+  WELCOME_FORM_FULL_NAME,
+  WELCOME_FORM_CREATE_PASSWORD,
+  WELCOME_FORM_VERIFY_PASSWORD,
+  WELCOME_FORM_ROLE_DROPDOWN,
+  WELCOME_FORM_ROLE,
+  WELCOME_FORM_USE_CASE,
+  WELCOME_FORM_HEADER,
+} from "constants/messages";
 import FormTextField, {
   FormTextFieldProps,
 } from "components/ads/formFields/TextField";
@@ -90,10 +100,10 @@ export default function DetailsForm(
     <DetailsFormWrapper ref={ref}>
       <FormHeaderWrapper>
         <FormHeaderIndex>1.</FormHeaderIndex>
-        <FormHeaderLabel>Let us get to know you better!</FormHeaderLabel>
+        <FormHeaderLabel>{createMessage(WELCOME_FORM_HEADER)}</FormHeaderLabel>
       </FormHeaderWrapper>
       <StyledFormBodyWrapper>
-        <StyledFormGroup label={createMessage(() => "Full Name")}>
+        <StyledFormGroup label={createMessage(WELCOME_FORM_FULL_NAME)}>
           <FormTextField
             autoFocus
             name="name"
@@ -101,28 +111,28 @@ export default function DetailsForm(
             type="text"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(() => "Email Id")}>
+        <StyledFormGroup label={createMessage(WELCOME_FORM_EMAIL_ID)}>
           <FormTextField
             name="email"
             placeholder="How can we reach you?"
             type="email"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(() => "Create Password")}>
+        <StyledFormGroup label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}>
           <FormTextField
             name="password"
             placeholder="Make it strong!"
             type="password"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(() => "Verify Password")}>
+        <StyledFormGroup label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}>
           <FormTextField
             name="verifyPassword"
             placeholder="Type correctly"
             type="password"
           />
         </StyledFormGroup>
-        <DropdownWrapper label={createMessage(() => "What Role Do You Play?")}>
+        <DropdownWrapper label={createMessage(WELCOME_FORM_ROLE_DROPDOWN)}>
           <Field
             asyncControl
             component={withDropdown(roleOptions)}
@@ -132,13 +142,11 @@ export default function DetailsForm(
           />
         </DropdownWrapper>
         {props.role == "other" && (
-          <StyledFormGroup label={createMessage(() => "Role")}>
+          <StyledFormGroup label={createMessage(WELCOME_FORM_ROLE)}>
             <FormTextField name="role_name" placeholder="" type="text" />
           </StyledFormGroup>
         )}
-        <DropdownWrapper
-          label={createMessage(() => "Tell Us About Your Use Case")}
-        >
+        <DropdownWrapper label={createMessage(WELCOME_FORM_USE_CASE)}>
           <Field
             asyncControl
             component={withDropdown(useCaseOptions)}
