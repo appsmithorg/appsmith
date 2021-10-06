@@ -84,8 +84,12 @@ export function DebuggerTrigger() {
         });
 
       return;
-    } else {
+    }
+
+    if (totalMessageCount > 0) {
       dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    } else {
+      dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
     }
     stopEventPropagation(e);
   };

@@ -34,7 +34,7 @@ function EntityBottomTabs(props: EntityBottomTabsProps) {
     if (index >= 0) {
       onTabSelect(index);
     } else {
-      onTabSelect(0);
+      onTabSelect(props.defaultIndex);
     }
   }, [currentTab]);
 
