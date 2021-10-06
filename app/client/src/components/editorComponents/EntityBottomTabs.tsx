@@ -16,11 +16,13 @@ function EntityBottomTabs(props: EntityBottomTabsProps) {
   const currentTab = useSelector(getCurrentDebuggerTab);
   const dispatch = useDispatch();
   const onTabSelect = (index: number) => {
+    dispatch(setCurrentTab(props.tabs[index].key));
+    setIndex(index);
+  };
+
+  const setIndex = (index: number) => {
     const tabKey = props.tabs[index].key;
     setSelectedIndex(index);
-    dispatch(setCurrentTab(tabKey));
-
-    // If it is a debugger tab logging for analytics
     if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tabKey)) {
       AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
         tabName: tabKey,
@@ -30,11 +32,10 @@ function EntityBottomTabs(props: EntityBottomTabsProps) {
 
   useEffect(() => {
     const index = props.tabs.findIndex((tab) => tab.key === currentTab);
-
     if (index >= 0) {
-      onTabSelect(index);
+      setIndex(index);
     } else {
-      onTabSelect(props.defaultIndex);
+      setIndex(props.defaultIndex);
     }
   }, [currentTab]);
 
