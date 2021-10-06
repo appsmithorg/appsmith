@@ -128,7 +128,7 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -149,7 +149,7 @@ export const TabbedViewContainer = styled.div`
       }
     }
     .react-tabs__tab-panel {
-      height: calc(100% - 36px);
+      height: calc(100% - 32px);
       background-color: ${(props) => props.theme.colors.apiPane.tabBg};
       .eye-on-off {
         svg {

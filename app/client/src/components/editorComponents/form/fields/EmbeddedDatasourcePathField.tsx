@@ -311,7 +311,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       <DatasourceContainer>
         <CodeEditor
           {...props}
-          border={CodeEditorBorder.NONE}
+          border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
           height="35px"
         />

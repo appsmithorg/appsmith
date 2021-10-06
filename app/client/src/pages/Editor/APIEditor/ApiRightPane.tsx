@@ -19,7 +19,7 @@ const EmptyDatasourceContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 50px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
   flex-direction: column;
   .${Classes.TEXT} {
@@ -31,7 +31,7 @@ const DatasourceContainer = styled.div`
   .react-tabs__tab-list {
     padding: 0 16px !important;
     border-bottom: none;
-    border-left: 2px solid #e8e8e8;
+    border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
     .cs-icon {
       margin-right: 0;
     }
@@ -45,7 +45,7 @@ const DataSourceListWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   padding: 10px;
-  border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-left: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
 `;
 
