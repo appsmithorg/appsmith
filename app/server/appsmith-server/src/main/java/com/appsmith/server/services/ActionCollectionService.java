@@ -39,4 +39,6 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
 
+    Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
+
 }

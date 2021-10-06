@@ -5,13 +5,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import {
-  PanelStack,
-  IPanel,
-  Classes,
-  IPanelProps,
-  Icon,
-} from "@blueprintjs/core";
+import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
@@ -72,6 +66,7 @@ const StyledPanelStack = styled(PanelStack)`
 `;
 
 const CopyIcon = ControlIcons.COPY_CONTROL;
+const CloseIcon = ControlIcons.CLOSE_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
@@ -147,9 +142,9 @@ function PropertyPaneView(
         icon: (
           <CopyIcon
             className="t--copy-widget"
-            height={14}
+            height={16}
             onClick={handleCopy}
-            width={14}
+            width={16}
           />
         ),
       },
@@ -167,10 +162,9 @@ function PropertyPaneView(
       {
         tooltipContent: "Close",
         icon: (
-          <Icon
+          <CloseIcon
             className={"t--property-pane-close-btn"}
-            icon="cross"
-            iconSize={16}
+            height={16}
             onClick={(e: any) => {
               AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
                 widgetType: widgetProperties.widgetType,
@@ -180,6 +174,7 @@ function PropertyPaneView(
               e.preventDefault();
               e.stopPropagation();
             }}
+            width={16}
           />
         ),
       },

@@ -6,9 +6,12 @@ import Button, { Category, Size } from "components/ads/Button";
 
 const Wrapper = styled.div`
   display: flex;
+  height: 38px;
+  background: none;
 
   div {
-    flex-basis: calc(100% - 110px);
+    flex-basis: calc(100% - 120px);
+    height: 100%;
   }
   a {
     flex-basis: 110px;
@@ -37,7 +40,6 @@ function CopyToClipboard(props: any) {
     <Wrapper>
       <TextInput
         defaultValue={copyText}
-        fill
         onChange={() => {
           selectText();
         }}

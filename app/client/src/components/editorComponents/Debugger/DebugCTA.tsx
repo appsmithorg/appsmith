@@ -91,6 +91,7 @@ const StyledButton = styled(Button)`
   width: fit-content;
   margin-top: 4px;
   text-transform: none;
+  height: 26px;
   ${(props) => getTypographyByKey(props, "p2")}
   .${Classes.ICON} {
     margin-right: 5px;
@@ -99,6 +100,10 @@ const StyledButton = styled(Button)`
     .${Classes.ICON} {
       margin-right: 5px;
     }
+  }
+
+  svg, svg path{
+    fill: ${Colors.WHITE};
   }
  }
 `;
