@@ -29,6 +29,7 @@ export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
   `Please provide a valid email address`;
 export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
+export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
@@ -39,8 +40,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
 export const LOGIN_PAGE_TITLE = () => `Sign In to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
-export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
+export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
+  `Enter your email address`;
+export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
+  `Enter your password`;
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
@@ -206,7 +209,7 @@ export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
 
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
-  `To add a widget, please drag and drop a widget on the canvas to the right`;
+  `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
   `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
@@ -255,10 +258,6 @@ export const ERROR_EVAL_ERROR_GENERIC = () =>
 export const ERROR_EVAL_TRIGGER = (message: string) =>
   `Error occurred while evaluating trigger: ${message}`;
 
-export const WIDGET_DELETE = (widgetName: string) =>
-  `${widgetName} widget deleted`;
-export const WIDGET_BULK_DELETE = (widgetName: string) =>
-  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
@@ -291,7 +290,7 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
 export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
-  "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
+  "Localstorage storage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   `Search Widgets, Queries, Documentation`;
@@ -371,7 +370,7 @@ export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
-  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
+  `Hi, \nI'm facing the following error on Appsmith, can you please help? \n\n${text}`;
 export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
   `Error occurred while evaluating trigger ${propertyName}`;
 
@@ -415,14 +414,42 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
 export const EXECUTING_FUNCTION = () => `Executing function`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
+export const EXPORT_DEFAULT_BEGINNING = () =>
+  `Start object with export default`;
+export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
+export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
+export const JS_EXECUTION_FAILURE_TOASTER = () =>
+  "There was an error while executing function";
+
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+export const PARSING_ERROR = () =>
+  "Syntax Error: Unable to parse code, please check error logs to debug";
+export const PARSING_WARNING = () =>
+  "Linting Errors: Please resolve linting errors before using these functions";
+export const JS_FUNCTION_CREATE_SUCCESS = () =>
+  "New JS function added successfully";
+export const JS_FUNCTION_UPDATE_SUCCESS = () =>
+  "JS Function updated successfully";
+export const JS_FUNCTION_DELETE_SUCCESS = () =>
+  "JS function deleted successfully";
+export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+
+//undo redo
+export const WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} is removed`;
+export const WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} is added back`;
+export const BULK_WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} widgets are removed`;
+export const BULK_WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} widgets are added back`;
 
 // Generate page from DB Messages
 
@@ -481,14 +508,15 @@ export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
 export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
-export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
+export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
+export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
+
 // Git sync
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
-export const SHARE_APPLICATION = () => "Share Application";
-export const SETTINGS = () => "Settings";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
@@ -504,10 +532,11 @@ export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
-export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
-export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
 export const CONNECT = () => "Connect";
+export const LATEST_DP_TITLE = () => "Latest Deployed Preview";
+export const LATEST_DP_SUBTITLE = () =>
+  "See your application in action after successful push";
+export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
@@ -517,23 +546,34 @@ export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PUSH_TO = () => "Push to";
 export const PUSH_CHANGES = () => "PUSH CHANGES";
+export const PUSHED_SUCCESSFULLY = () => "PUSHED SUCCESSFULLY";
 export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
+  "Committed and pushed Successfully";
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
+export const DEPLOY_KEY_TITLE = () => "Deployed Key";
+export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
+  "Copy this deploy key to your Git Repository setting.";
+
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
+export const SUBMIT = () => "SUBMIT";
+export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
+  "Git user updated successfully";
 
+// Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
-  `Search and Insert code snippets to perform complex actions quickly.`;
+  `Search and insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
-  `Find answers through appsmith documentation.`;
+  `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
-export const MERGE_CHANGES = () => "Merge Changes";
-export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 
 export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 
@@ -554,7 +594,7 @@ export const SNIPING_NOT_SUPPORTED = () =>
 //First Time User Onboarding
 //Checklist page
 export enum ONBOARDING_CHECKLIST_ACTIONS {
-  CONNECT_A_DATASOURCE = "CONNECT DATA SOURCE",
+  CONNECT_A_DATASOURCE = "CONNECT DATASOURCE",
   CREATE_A_QUERY = "CREATE A QUERY",
   ADD_WIDGETS = "ADD WIDGETS",
   CONNECT_DATA_TO_WIDGET = "CONNECT DATA TO WIDGET",
@@ -573,13 +613,13 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
-  bold: () => "Connect your data source",
+  bold: () => "Connect your datasource",
   normal: () => "to start building an application.",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
   bold: () => "Create a query",
-  normal: () => "of your data source.",
+  normal: () => "of your datasource.",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
@@ -594,7 +634,7 @@ export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
   bold: () => "Deploy your application",
-  normal: () => ", and see your creation live.",
+  normal: () => ",and see your creation live.",
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
@@ -614,11 +654,11 @@ export const ONBOARDING_INTRO_FOOTER = () =>
 export const BUILD_APP_TOGETHER = () => "build an app together.";
 
 //Statusbar
-export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Create a Datasource";
-export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () =>
-  "Next: Create a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a Datasource";
 export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a Query";
 export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a Widget";
+export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a Widget";
 export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
   "Next: Connect data to Widget";
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
@@ -629,24 +669,33 @@ export const ONBOARDING_STATUS_GET_STARTED = () => "GET STARTED";
 //Tasks
 //1. datasource
 export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
-  "Start by adding your first Data source";
+  "Start by adding your first Datasource";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
-  "Adding a data source makes creating applications more powerful. Don’t worry if you don’t have any data to hand, we have sample data you can use.";
-export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a data source";
+  "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample data you can use.";
+export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a datasource";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
 //2. query
 export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
 export const ONBOARDING_TASK_QUERY_BODY = () =>
-  "Great job adding a data source! The next thing you can do is create a query on your data.";
+  "Great job adding a datasource! The next thing you can do is create a query on your data.";
 export const ONBOARDING_TASK_QUERY_BUTTON = () => "+ create a query";
 export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "add a widget";
 //2. widget
 export const ONBOARDING_TASK_WIDGET_HEADER = () =>
   "Next, add a widget to start displaying data";
 export const ONBOARDING_TASK_WIDGET_BODY = () =>
-  "Great job adding a data source! The next thing you can do is add widget to start start making your data visual.";
+  "Great job adding a datasource! The next thing you can do is add widget to start start making your data visual.";
 export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
-export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";
+export const ONBOARDING_TASK_FOOTER = () => "Alternatively, you can also";
+
+export const USE_SNIPPET = () => "Snippet";
+export const SNIPPET_TOOLTIP = () => "Search Snippets";
+
+//Welcome page
+export const WELCOME_HEADER = () => "Welcome!";
+export const WELCOME_BODY = () =>
+  "Let us setup your account so you can make awesome applications!";
+export const WELCOME_ACTION = () => "Get Started";

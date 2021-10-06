@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import org.springframework.http.codec.multipart.Part;
@@ -16,8 +17,6 @@ public interface UserDataService {
     Mono<UserData> getForCurrentUser();
 
     Mono<UserData> getForUserEmail(String email);
-
-    Mono<UserData> updateForCurrentUser(UserData updates);
 
     Mono<UserData> updateForUser(User user, UserData updates);
 
@@ -38,4 +37,6 @@ public interface UserDataService {
     Mono<UserData> updateLastUsedOrgList(String currentOrgId);
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
+
+    Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState);
 }

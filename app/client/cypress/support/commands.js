@@ -6,6 +6,7 @@ require("cypress-file-upload");
 const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
+const signupPage = require("../locators/SignupPage.json");
 const homePage = require("../locators/HomePage.json");
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
@@ -40,7 +41,11 @@ Cypress.Commands.add("createOrg", () => {
 });
 
 Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
-  cy.contains(orgName).click({ force: true });
+  cy.contains(orgName)
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
+    .click({ force: true });
   cy.get(homePage.renameOrgInput)
     .should("be.visible")
     .type(newOrgName)
@@ -69,9 +74,10 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name span")
-    .contains(orgName)
-    .first()
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
@@ -87,9 +93,10 @@ Cypress.Commands.add("openOrgOptionsPopup", (orgName) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name span")
-    .contains(orgName)
-    .first()
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
     .click({ force: true });
 });
 
@@ -106,6 +113,7 @@ Cypress.Commands.add("inviteUserForOrg", (orgName, email, role) => {
     .click({ force: true })
     .type(email);
   cy.xpath(homePage.selectRole).click({ force: true });
+  cy.wait(500);
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
   cy.wait("@mockPostInvite")
@@ -173,9 +181,10 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name span")
-    .contains(orgName)
-    .first()
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getOrganisation");
@@ -205,9 +214,10 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
-  cy.get(".t--org-name span")
-    .contains(orgName)
-    .first()
+  cy.get(homePage.orgList.concat(orgName).concat(")"))
+    .closest(homePage.orgCompleteSection)
+    .find(homePage.orgNamePopover)
+    .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
   cy.wait("@getRoles").should(
@@ -264,7 +274,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
-    .scrollIntoView()
+    .scrollIntoView({ force: true })
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should(
@@ -405,6 +415,21 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
+  cy.wait("@getUser");
+  initLocalstorage();
+});
+
+Cypress.Commands.add("Signup", (uname, pword) => {
+  cy.window()
+    .its("store")
+    .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  cy.wait("@postLogout");
+
+  cy.visit("/user/signup");
+  cy.get(signupPage.username).should("be.visible");
+  cy.get(signupPage.username).type(uname);
+  cy.get(signupPage.password).type(pword);
+  cy.get(signupPage.submitBtn).click();
   cy.wait("@getUser");
   cy.wait("@applications").should(
     "have.nested.property",
@@ -1096,7 +1121,7 @@ Cypress.Commands.add("AddActionWithModal", () => {
   cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
-Cypress.Commands.add("createModal", (modalType, ModalName) => {
+Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(widgetsPage.actionSelect)
     .first()
     .click({ force: true });
@@ -1104,13 +1129,6 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
-  cy.get(modalWidgetPage.controlModalType)
-    .last()
-    .click({ force: true });
-  cy.get(commonlocators.dropdownmenu)
-    .children()
-    .contains(modalType)
-    .click();
   cy.assertPageSave();
 
   // changing the model name verify
@@ -1142,42 +1160,6 @@ Cypress.Commands.add("selectOnClickOption", (option) => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("updateModal", (modalType, ModalName) => {
-  cy.get(widgetsPage.actionSelect)
-    .first()
-    .click({ force: true });
-  cy.selectOnClickOption("Open Modal");
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
-
-  cy.get(modalWidgetPage.controlModalType)
-    .last()
-    .click({ force: true });
-  cy.get(commonlocators.dropdownmenu)
-    .children()
-    .contains(modalType)
-    .click();
-  cy.assertPageSave();
-
-  // changing the model name verify
-  cy.widgetText(
-    ModalName,
-    modalWidgetPage.modalName,
-    modalWidgetPage.modalName,
-  );
-  cy.get(commonlocators.editPropCrossButton).click({ force: true });
-
-  //changing the Model label
-  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
-    .first()
-    .trigger("mouseover");
-
-  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
-  cy.testCodeMirror(ModalName);
-  cy.get(widgetsPage.textCenterAlign).click({ force: true });
-  cy.assertPageSave();
-  cy.get(".bp3-overlay-backdrop").click({ force: true });
-});
 Cypress.Commands.add("CheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).check({
     force: true,
@@ -1896,9 +1878,10 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
-    .click()
-    .clear()
-    .type(text);
+    .click({ force: true })
+    .clear({ force: true })
+    .type(text)
+    .wait(200);
 });
 Cypress.Commands.add("tabVerify", (index, text) => {
   cy.get(".t--property-control-tabs input")
@@ -2315,6 +2298,7 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
   const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.wait(500);
   cy.get(selector)
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
@@ -2328,6 +2312,7 @@ Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
     const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.wait(500);
     cy.get(selector)
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
@@ -2373,6 +2358,7 @@ Cypress.Commands.add("CreateMockQuery", (queryName) => {
 
 Cypress.Commands.add("openPropertyPane", (widgetType) => {
   const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
   cy.get(selector)
     .first()
     .trigger("mouseover", { force: true })
@@ -2405,22 +2391,17 @@ Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   }
 });
 
-Cypress.Commands.add("changeButtonStyle", (index, buttonColor, hoverColor) => {
-  cy.get(widgetsPage.buttonStyleDropdown).click({ force: true });
-  cy.get(
-    ".bp3-popover-content .t--dropdown-option:nth-child(" + index + ")",
-  ).click({ force: true });
+Cypress.Commands.add("changeButtonColor", (buttonColor) => {
+  cy.get(widgetsPage.buttonColor)
+    .click({ force: true })
+    .clear()
+    .type(buttonColor);
   cy.PublishtheApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
     "background-color",
     buttonColor,
   );
-  // cy.get(buttonBackground)
-  //   .first()
-  //   .trigger('mouseover', { force: true });
-  // cy.get(buttonBackground)
-  //   .should('have.css', 'background-color', hoverColor);
   cy.wait(1000);
 });
 
@@ -2501,7 +2482,6 @@ Cypress.Commands.add("deleteWidget", (widget) => {
   cy.get(widgetsPage.removeWidget).click({ force: true });
   cy.wait(5000);
   cy.wait("@updateLayout");
-  cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 
 Cypress.Commands.add("UpdateChartType", (typeOfChart) => {

@@ -39,4 +39,6 @@ public interface OrganizationService extends CrudService<Organization, String> {
     Mono<Organization> uploadLogo(String organizationId, Part filePart);
 
     Mono<Organization> deleteLogo(String organizationId);
+
+    Flux<Organization> getAll();
 }

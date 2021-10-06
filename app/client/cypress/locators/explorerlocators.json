@@ -1,7 +1,7 @@
 {
     "NoApiMsg": "p:contains('No APIs yet.')",
     "NoQueryMsg": "p:contains('No DB Queries yet.')",
-    "NoWidgetsMsg": "p:contains('No widgets yet.')",
+    "NoWidgetsMsg": "p:contains('icon above to add widgets')",
     "AddPage": ".pages .t--entity-add-btn",
     "addEntityAPI": ".datasources .t--entity-add-btn",
     "entityWidget": ".t--entity-name:contains('Widgets')",
@@ -26,5 +26,7 @@
     "dropHere":"#canvas-dragging-0",
     "closeWidgets":".t--close-widgets-sidebar",
     "addDBQueryEntity": ".datasources .t--entity-add-btn",
-    "editEntity": ".t--entity-name input"
+    "editEntity": ".t--entity-name input",
+    "explorerSwitchId": "#switcher--explorer",
+    "widgetSwitchId": "#switcher--widgets"
 }

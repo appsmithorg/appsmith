@@ -1,6 +1,8 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,8 +11,8 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    rows: 13 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7 * GRID_DENSITY_MIGRATION_V1,
+    rows: 10 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Form",
     backgroundColor: "white",
     children: [],
@@ -47,12 +49,13 @@ export const CONFIG = {
                     cols: 4 * GRID_DENSITY_MIGRATION_V1,
                   },
                   position: {
-                    top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                    top: 8.25 * GRID_DENSITY_MIGRATION_V1,
                     left: 11.6 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
                     text: "Submit",
-                    buttonStyle: "PRIMARY_BUTTON",
+                    buttonVariant: ButtonVariantTypes.SOLID,
+                    buttonColor: Colors.GREEN,
                     disabledWhenInvalid: true,
                     resetFormOnClick: true,
                     recaptchaV2: false,
@@ -66,12 +69,13 @@ export const CONFIG = {
                     cols: 4 * GRID_DENSITY_MIGRATION_V1,
                   },
                   position: {
-                    top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                    top: 8.25 * GRID_DENSITY_MIGRATION_V1,
                     left: 7.5 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
                     text: "Reset",
-                    buttonStyle: "SECONDARY_BUTTON",
+                    buttonVariant: ButtonVariantTypes.OUTLINE,
+                    buttonColor: Colors.GREEN,
                     disabledWhenInvalid: false,
                     resetFormOnClick: true,
                     recaptchaV2: false,

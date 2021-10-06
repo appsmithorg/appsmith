@@ -37,24 +37,24 @@ describe("#defaultValueValidation", () => {
     "abcd",
   ];
   const expectedOutputs = [
-    { isValid: true, parsed: undefined, message: "" },
-    { isValid: true, parsed: undefined, message: "" },
-    { isValid: true, parsed: 0, message: "" },
-    { isValid: true, parsed: 123, message: "" },
-    { isValid: true, parsed: -23, message: "" },
-    { isValid: true, parsed: 0.000001, message: "" },
-    { isValid: true, parsed: -23, message: "" },
-    { isValid: true, parsed: 0, message: "" },
-    { isValid: true, parsed: 100, message: "" },
+    { isValid: true, parsed: undefined, messages: [""] },
+    { isValid: true, parsed: undefined, messages: [""] },
+    { isValid: true, parsed: 0, messages: [""] },
+    { isValid: true, parsed: 123, messages: [""] },
+    { isValid: true, parsed: -23, messages: [""] },
+    { isValid: true, parsed: 0.000001, messages: [""] },
+    { isValid: true, parsed: -23, messages: [""] },
+    { isValid: true, parsed: 0, messages: [""] },
+    { isValid: true, parsed: 100, messages: [""] },
     {
       isValid: false,
       parsed: undefined,
-      message: "This value must be a number",
+      messages: ["This value must be a number"],
     },
     {
       isValid: false,
       parsed: undefined,
-      message: "This value must be a number",
+      messages: ["This value must be a number"],
     },
   ];
 

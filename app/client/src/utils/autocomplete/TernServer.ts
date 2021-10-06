@@ -210,7 +210,7 @@ class TernServer {
       });
     }
 
-    completions = this.sortCompletions(
+    completions = this.sortAndFilterCompletions(
       completions,
       onlySingleBinding,
       searchText,
@@ -279,7 +279,7 @@ class TernServer {
     });
   }
 
-  sortCompletions(
+  sortAndFilterCompletions(
     completions: Completion[],
     findBestMatch: boolean,
     bestMatchSearch: string,
@@ -315,13 +315,16 @@ class TernServer {
             if (completion.type === expectedType) {
               completionType.MATCHING_TYPE.push(completion);
             }
-          } else if (
-            completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
-            completion.type === expectedType
-          ) {
+          } else if (completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS") {
             // Global functions should be in best match as well as DataTree
-            completionType.MATCHING_TYPE.push(completion);
-            completionType.DATA_TREE.push(completion);
+            if (
+              !entityType ||
+              ENTITY_TYPE.ACTION === entityType ||
+              ENTITY_TYPE.JSACTION === entityType
+            ) {
+              completionType.MATCHING_TYPE.push(completion);
+              completionType.DATA_TREE.push(completion);
+            }
           } else {
             // All top level entities are set in data tree
             completionType.DATA_TREE.push(completion);

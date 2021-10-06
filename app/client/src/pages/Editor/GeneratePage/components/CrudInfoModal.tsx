@@ -8,7 +8,7 @@ import Text, { TextType } from "components/ads/Text";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
-import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 import Dialog from "components/ads/DialogComponent";
 import { GenerateCRUDSuccessInfoData } from "../../../../reducers/uiReducers/crudInfoModalReducer";
@@ -25,7 +25,7 @@ type Props = {
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
 
-const getSuccessGIF = () => `${S3_BUCKET_URL}/crud/check_mark_verified.gif`;
+const getSuccessGIF = () => `${ASSETS_CDN_URL}/crud/check_mark_verified.gif`;
 
 const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
@@ -108,12 +108,19 @@ const STEP = {
   SHOW_INFO: "show_info",
 };
 
+const getInfoImage = (): string =>
+  `${ASSETS_CDN_URL}/crud/working-flow-chart.png`;
+
+const DELAY_TIME = 6000;
+
 function InfoContent({
   onClose,
+  successImageUrl,
   successMessage,
 }: {
   onClose: () => void;
   successMessage: string;
+  successImageUrl: string;
 }) {
   return (
     <>
@@ -126,7 +133,7 @@ function InfoContent({
           type={TextType.P1}
         />
         <ImageWrapper>
-          <InfoImage alt="CRUD Info" src={getInfoImage()} />
+          <InfoImage alt="CRUD Info" src={successImageUrl} />
         </ImageWrapper>
       </Content>
 
@@ -143,8 +150,6 @@ function InfoContent({
     </>
   );
 }
-const getInfoImage = (): string =>
-  `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
 
 function GenCRUDSuccessModal(props: Props) {
   const { crudInfoModalOpen, generateCRUDSuccessInfo } = props;
@@ -161,10 +166,14 @@ function GenCRUDSuccessModal(props: Props) {
     (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successMessage) ||
     createMessage(GEN_CRUD_INFO_DIALOG_SUBTITLE);
 
+  const successImageUrl =
+    (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successImageUrl) ||
+    getInfoImage();
+
   useEffect(() => {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
-    }, 2000);
+    }, DELAY_TIME);
     return () => {
       if (timerId) clearTimeout(timerId);
     };
@@ -186,7 +195,11 @@ function GenCRUDSuccessModal(props: Props) {
           </SuccessContentWrapper>
         ) : null}
         {step === STEP.SHOW_INFO ? (
-          <InfoContent onClose={onClose} successMessage={successMessage} />
+          <InfoContent
+            onClose={onClose}
+            successImageUrl={successImageUrl}
+            successMessage={successMessage}
+          />
         ) : null}
       </Wrapper>
     </Dialog>

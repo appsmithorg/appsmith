@@ -5,7 +5,7 @@ import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { PopperModifiers } from "@blueprintjs/core";
 
-type MenuProps = CommonComponentProps & {
+export type MenuProps = CommonComponentProps & {
   children?: ReactNode[];
   target: JSX.Element;
   position?: Position;
