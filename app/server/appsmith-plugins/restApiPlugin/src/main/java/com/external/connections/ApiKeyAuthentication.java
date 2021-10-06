@@ -44,7 +44,7 @@ public class ApiKeyAuthentication extends APIConnection {
     public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
         ClientRequest.Builder requestBuilder = ClientRequest.from(request);
         switch (addTo) {
-            case QUERY_PARAM:
+            case QUERY_PARAMS:
                 requestBuilder.url(appendApiKeyParamToUrl(request.url()));
                 break;
             case HEADER:

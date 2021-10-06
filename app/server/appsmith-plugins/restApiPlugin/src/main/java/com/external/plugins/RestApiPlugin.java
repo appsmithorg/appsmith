@@ -67,8 +67,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
+import static com.external.helpers.HintMessageUtils.DUPLICATES_IN_ACTION_CONFIG;
+import static com.external.helpers.HintMessageUtils.DUPLICATES_IN_DATASOURCE_AND_ACTION_CONFIG;
+import static com.external.helpers.HintMessageUtils.DUPLICATES_IN_DATASOURCE_CONFIG;
+import static com.external.helpers.HintMessageUtils.getActionHintMessages;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
 import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
+import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -686,69 +691,8 @@ public class RestApiPlugin extends BasePlugin {
         @Override
         public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
                                            DatasourceConfiguration datasourceConfiguration) {
-
-            Set<String> datasourceHintMessages = new HashSet<>();
-
-            /* Get hint message for localhost URL. */
-            datasourceHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
-
-            /**
-             * Get datasource specific hint message for duplicate headers. ActionConfiguration parameter is passed as
-             * `null` so that the hint message that gets generated is only relevant for the datasource.
-             */
-            Set<String> duplicateHeadersInDatasource = getAllDuplicateHeaders(null, datasourceConfiguration);
-            if (!duplicateHeadersInDatasource.isEmpty()) {
-                datasourceHintMessages.add("API queries linked to this datasource may not run as expected because " +
-                        "this datasource has duplicate definition(s) for header(s): " + duplicateHeadersInDatasource +
-                        ". Please remove the duplicate definition(s) to resolve this warning.");
-            }
-
-            /**
-             * Get datasource specific hint message for duplicate query params. ActionConfiguration parameter is passed
-             * as `null` so that the hint message that gets generated is only relevant for the datasource.
-             */
-            Set<String> duplicateParamsInDatasource = getAllDuplicateParams(null, datasourceConfiguration);
-            if (!duplicateParamsInDatasource.isEmpty()) {
-                datasourceHintMessages.add("API queries linked to this datasource may not run as expected because " +
-                        "this datasource has duplicate definition(s) for param(s): " + duplicateParamsInDatasource +
-                        ". Please remove the duplicate definition(s) to resolve this warning.");
-            }
-
-            Set<String> actionHintMessages = new HashSet<>();
-
-            /**
-             * Get hint message for localhost URL. For the case of REST API action, the URL is also displayed on the
-             * query editor page, hence, this hint message is also added to the action related hint messages - so that
-             * it can be displayed on the query editor page too. Same won't apply to other datasources - i.e. datasource
-             * attributes generally remain confined to the datasource.
-             */
-            actionHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
-
-            /**
-             * Get API query page specific hint messages for duplicate headers. It also considers datasource
-             * configuration apart from the action configuration since an API inherits all the headers defined in its
-             * datasource.
-             */
-            Set<String> allDuplicateHeaders = getAllDuplicateHeaders(actionConfiguration, datasourceConfiguration);
-            if (!allDuplicateHeaders.isEmpty()) {
-                actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
-                        "(s) for header(s): " + allDuplicateHeaders + ". Please check out the API's saved datasource " +
-                        "in case you cannot find the duplicate header(s) in the API query pane.");
-            }
-
-            /**
-             * Get API query page specific hint messages for duplicate query params. It also considers datasource
-             * configuration apart from the action configuration since an API inherits all the params defined in its
-             * datasource.
-             */
-            Set<String> allDuplicateParams = getAllDuplicateParams(actionConfiguration, datasourceConfiguration);
-            if (!allDuplicateParams.isEmpty()) {
-                actionHintMessages.add("Your API query may not run as expected because it has duplicate definition" +
-                        "(s) for param(s): " + allDuplicateParams + ". Please check out the API's saved datasource in" +
-                        " case you cannot find the duplicate param(s) in the API query pane.");
-            }
-
-            return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
+            return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+                    Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
         }
     }
 }

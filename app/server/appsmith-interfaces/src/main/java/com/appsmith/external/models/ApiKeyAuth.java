@@ -22,7 +22,7 @@ public class ApiKeyAuth extends AuthenticationDTO {
 
     public enum Type {
         @JsonProperty(Authentication.API_KEY_AUTH_TYPE_QUERY_PARAMS)
-        QUERY_PARAM,
+        QUERY_PARAMS,
         @JsonProperty(Authentication.API_KEY_AUTH_TYPE_HEADER)
         HEADER,
     }
