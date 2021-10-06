@@ -63,7 +63,7 @@ _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elast
   <img src="static/animations/javascript.gif" width="100%">
 </p>
 
-We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
+We'll run JS anywhere! Code interactions between elements, update data sources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
 
 <p>
   <img src="static/animations/invite.gif" width="100%">
@@ -83,7 +83,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 - 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
 - ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
 - 👾 Ask for help on our [Forum](https://community.appsmith.com)
-- Join our Beta users program and give us feedback <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith.
+- Join our Beta users program and give us feedback on the <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith.
 
 ## Deployment Options
 
