@@ -20,7 +20,9 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import { CheckmarkWrapper } from "./styles";
 import { ReactComponent as CheckmarkSvg } from "assets/svg/checkmark.svg";
-import ProgressiveImage from "components/ads/ProgressiveImage";
+import ProgressiveImage, {
+  Container as ProgressiveImageContainer,
+} from "components/ads/ProgressiveImage";
 
 type Props = {
   crudInfoModalOpen: boolean;
@@ -71,16 +73,25 @@ const Wrapper = styled.div`
   }
 `;
 
-const InfoImage = styled.img`
-  flex: 1;
-  width: 340px;
-`;
-
 const ImageWrapper = styled.div`
   padding: 50px 10px 10px;
   display: flex;
   flex: 1;
   justify-content: center;
+  & ${ProgressiveImageContainer} {
+    width: 100%;
+    height: 284px;
+  }
+  .progressive-image--thumb,
+  progressive-image--full {
+    object-fit: contain;
+  }
+
+  .progressive-image--thumb {
+    filter: blur(20px);
+    opacity: 0.3;
+    transition: visibility 0ms ease 100ms;
+  }
 `;
 
 const SuccessContentWrapper = styled.div`
@@ -120,10 +131,10 @@ function InfoContent({
         />
         <ImageWrapper>
           <ProgressiveImage
+            alt="template information"
             imageSource={successImageUrl}
             thumbnailSource={getInfoThumbnail()}
           />
-          <InfoImage alt="CRUD Info" src={successImageUrl} />
         </ImageWrapper>
       </Content>
 
