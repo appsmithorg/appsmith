@@ -20,7 +20,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-} from "widgets/ButtonWidget/component";
+} from "widgets/WidgetUtils";
 const IconButtonContainer = styled.div`
   display: flex;
   align-items: center;
