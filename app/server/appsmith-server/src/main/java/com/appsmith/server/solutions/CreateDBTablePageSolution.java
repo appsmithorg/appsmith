@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
@@ -9,11 +10,10 @@ import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.Assets;
 import com.appsmith.server.domains.ApplicationJson;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -26,6 +26,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
@@ -67,6 +68,7 @@ public class CreateDBTablePageSolution {
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
     private final ApplicationPageService applicationPageService;
+    private final ApplicationService applicationService;
     private final PluginService pluginService;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
@@ -121,7 +123,9 @@ public class CreateDBTablePageSolution {
      * @param pageResourceDTO
      * @return generated pageDTO from the template resource
      */
-    public Mono<CRUDPageResponseDTO> createPageFromDBTable(String pageId, CRUDPageResourceDTO pageResourceDTO) {
+    public Mono<CRUDPageResponseDTO> createPageFromDBTable(String pageId,
+                                                           CRUDPageResourceDTO pageResourceDTO,
+                                                           String branchName) {
 
         /*
             1. Fetch page from the application
@@ -149,7 +153,7 @@ public class CreateDBTablePageSolution {
 
         final String tableName =  pageResourceDTO.getTableName();
         final String datasourceId =  pageResourceDTO.getDatasourceId();
-        final String applicationId = pageResourceDTO.getApplicationId();
+        final String defaultApplicationId = pageResourceDTO.getApplicationId();
         final String searchColumn = pageResourceDTO.getSearchColumn();
         final Set<String> columns = pageResourceDTO.getColumns();
         final Map<String, String> pluginSpecificParams = pageResourceDTO.getPluginSpecificParams();
@@ -157,14 +161,19 @@ public class CreateDBTablePageSolution {
         //Mapped columns along with table name between template and concerned DB table
         Map<String, String> mappedColumnsAndTableName = new HashMap<>();
 
-        Mono<NewPage> pageMono = getOrCreatePage(applicationId, pageId, tableName);
+        // Fetch branched applicationId if connected to git
+        Mono<String> branchedApplicationIdMono = applicationService
+                .getChildApplicationId(branchName, defaultApplicationId, AclPermission.MANAGE_APPLICATIONS);
+
+        Mono<NewPage> pageMono = branchedApplicationIdMono
+                .flatMap(applicationId -> getOrCreatePage(applicationId, pageId, tableName, branchName));
 
         Mono<Datasource> datasourceMono = datasourceService
             .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
             )
-            .filter(datasource -> datasource.getIsValid())
+            .filter(Datasource::getIsValid)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.INVALID_DATASOURCE, FieldName.DATASOURCE, datasourceId))
             );
@@ -242,7 +251,7 @@ public class CreateDBTablePageSolution {
                 }
 
                 DatasourceStructure templateStructure = templateDatasource.getStructure();
-                // We are supporting datasources for both with and without datasource sturcture. So if datasource
+                // We are supporting datasources for both with and without datasource structure. So if datasource
                 // structure is present then we can assign the mapping dynamically as per the template datasource tables.
                 // Those datasources for which we don't have structure like Google sheet etc we are following a
                 // protocol in template application that all the column headers should be named as col1, col2,.... colx
@@ -305,6 +314,7 @@ public class CreateDBTablePageSolution {
                         newAction.getUnpublishedAction().getPageId(),
                         plugin.getGenerateCRUDPageComponent())
                     )
+                    .peek(newAction -> newAction.setBranchName(branchName))
                     .collect(Collectors.toList());
 
                 // Extract S3 bucket name from template application and map to users bucket. Bucket name is stored at
@@ -368,7 +378,7 @@ public class CreateDBTablePageSolution {
      * @param tableName if page is not present then name of the page name should include tableName
      * @return NewPage if not present already with the incremental suffix number to avoid duplicate application names
      */
-    private Mono<NewPage> getOrCreatePage(String applicationId, String pageId, String tableName) {
+    private Mono<NewPage> getOrCreatePage(String applicationId, String pageId, String tableName, String branchName) {
 
         /*
             1. Check if the page is already available
@@ -376,16 +386,16 @@ public class CreateDBTablePageSolution {
             3. If page is not present create new page and return
         */
 
-        log.debug("Fetching page from application {}", applicationId);
+        log.debug("Fetching page from application {}, defaultPageId {}", applicationId, pageId);
         if(pageId != null) {
-            return newPageService.findById(pageId, AclPermission.MANAGE_PAGES)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId))
+            return newPageService.findPageByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId))
                 )
                 .map(newPage -> {
                     Layout layout = newPage.getUnpublishedPage().getLayouts().get(0);
                     if (!CollectionUtils.isEmpty(layout.getWidgetNames()) && layout.getWidgetNames().size() > 1) {
-                        throw new AppsmithException(AppsmithError.INVALID_CRUD_PAGE_REQUEST, "please try on empty layout");
+                        throw new AppsmithException(AppsmithError.INVALID_CRUD_PAGE_REQUEST, "please use empty layout");
                     }
                     return newPage;
                 });
@@ -412,6 +422,7 @@ public class CreateDBTablePageSolution {
                 PageDTO page = new PageDTO();
                 page.setApplicationId(applicationId);
                 page.setName(pageName);
+                page.setBranchName(branchName);
                 return applicationPageService.createPage(page);
             })
             .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), AclPermission.MANAGE_PAGES));
@@ -498,6 +509,7 @@ public class CreateDBTablePageSolution {
                 actionDTO.setDatasource(datasource);
                 actionDTO.setPageId(pageId);
                 actionDTO.setName(templateAction.getUnpublishedAction().getName());
+                actionDTO.setBranchName(templateAction.getBranchName());
 
                 String actionBody = templateActionConfiguration.getBody();
                 actionDTO.setActionConfiguration(templateActionConfiguration);
@@ -552,6 +564,7 @@ public class CreateDBTablePageSolution {
                     updateFormData(formData, mappedColumns, pluginSpecificTemplateParams);
                 }
                 actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
+
                 return layoutActionService.createSingleAction(actionDTO);
             });
     }

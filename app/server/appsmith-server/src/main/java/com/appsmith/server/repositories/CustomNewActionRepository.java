@@ -39,4 +39,6 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
     Flux<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
 
     Mono<Long> countByDatasourceId(String datasourceId);
+
+    Mono<NewAction> findActionByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 }

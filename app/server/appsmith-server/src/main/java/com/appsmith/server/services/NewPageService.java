@@ -32,7 +32,9 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<Void> deleteAll();
 
-    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, String branchName, Boolean view);
+    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId,
+                                                                             String branchName,
+                                                                             Boolean view);
 
     Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, Boolean view);
 
@@ -46,7 +48,9 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission permission, Boolean view);
 
-    Mono<PageDTO> updatePage(String id, PageDTO page);
+    Mono<PageDTO> updatePage(String pageId, PageDTO page);
+
+    Mono<PageDTO> updatePage(String pageId, PageDTO page, String branchName);
 
     Mono<NewPage> save(NewPage page);
 
@@ -57,4 +61,6 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Flux<NewPage> saveAll(List<NewPage> pages);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
+
+    Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
 }

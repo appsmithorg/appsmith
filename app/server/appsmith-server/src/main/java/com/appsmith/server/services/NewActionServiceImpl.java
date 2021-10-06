@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -207,7 +208,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
 
         if (newAction.getGitSyncId() == null) {
-            newAction.setGitSyncId(newAction.getApplicationId() + "_" + Instant.now().toString());
+            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
         }
 
         ActionDTO action = newAction.getUnpublishedAction();
@@ -318,6 +319,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         datasource.setPluginId(updatedAction.getPluginId());
                         unpublishedAction.setDatasource(datasource);
                         updatedAction.setUnpublishedAction(unpublishedAction);
+                    }
+                    // If the default action is not set then current action will be the default one
+                    if (StringUtils.isEmpty(updatedAction.getDefaultActionId())) {
+                        updatedAction.setDefaultActionId(updatedAction.getId());
                     }
                     return updatedAction;
                 })

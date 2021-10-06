@@ -19,4 +19,6 @@ public interface CustomNewPageRepository extends AppsmithRepository<NewPage> {
     Flux<NewPage> findAllByIds(List<String> ids, AclPermission aclPermission);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
+
+    Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
 }

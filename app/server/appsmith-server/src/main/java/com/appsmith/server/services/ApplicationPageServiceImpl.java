@@ -68,7 +68,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
 
-    public Mono<PageDTO> createPage(PageDTO page) {
+    public Mono<PageDTO> createPage(PageDTO page, String branchName) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         } else if (page.getName() == null) {
@@ -93,8 +93,15 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             }
         }
 
-        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, page.getApplicationId())))
+        // Fetch the branched application if connected to git and update the applicationId with branched application in
+        // page resource
+        Mono<Application> applicationMono = applicationService
+                .getApplicationByBranchNameAndDefaultApplication(branchName, page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
+                .map(application -> {
+                    page.setApplicationId(application.getId());
+                    page.setBranchName(branchName);
+                    return application;
+                })
                 .cache();
 
         Mono<PageDTO> pageMono = applicationMono
@@ -114,6 +121,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .then(applicationService.saveLastEditInformation(application.getId()))
                             .thenReturn(savedPage);
                 });
+    }
+
+    public Mono<PageDTO> createPage(PageDTO page) {
+        return createPage(page, page.getBranchName());
     }
 
     /**
@@ -171,6 +182,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return newPage;
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
+    }
+
+    @Override
+    public Mono<PageDTO> getPage(String pageId, String branchName, boolean viewMode) {
+
+        AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, pageId, permission)
+                .flatMap(newPage -> getPage(newPage.getId(), viewMode));
     }
 
     @Override
@@ -336,6 +355,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         applicationService.saveLastEditInformation(page.getApplicationId())
                         .then(clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"))
                 );
+    }
+
+    @Override
+    public Mono<PageDTO> clonePage(String pageId, String branchName) {
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
+                .flatMap(newPage -> clonePage(newPage.getId()));
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId,
@@ -592,6 +617,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
+    public Mono<PageDTO> deleteUnpublishedPage(String id, String branchName) {
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, id, MANAGE_PAGES)
+                .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()));
+    }
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into

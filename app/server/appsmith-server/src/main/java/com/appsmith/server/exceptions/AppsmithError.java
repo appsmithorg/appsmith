@@ -18,6 +18,7 @@ public enum AppsmithError {
     PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} " +
             "organization", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.BAD_REQUEST),
     UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
+    DEPRECATED_API(400, 4008, "This API has been deprecated, please contact the Appsmith support for more details.", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     USER_DOESNT_BELONG_ANY_ORGANIZATION(400, 4009, "User {0} does not belong to any organization",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     USER_DOESNT_BELONG_TO_ORGANIZATION(400, 4010, "User {0} does not belong to an organization with id {1}",

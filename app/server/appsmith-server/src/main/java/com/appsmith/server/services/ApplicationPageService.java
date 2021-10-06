@@ -8,11 +8,16 @@ import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationPageService {
+
     Mono<PageDTO> createPage(PageDTO page);
+
+    Mono<PageDTO> createPage(PageDTO page, String branchName);
 
     Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault);
 
     Mono<PageDTO> getPage(String pageId, boolean viewMode);
+
+    Mono<PageDTO> getPage(String pageId, String branchName, boolean viewMode);
 
     Mono<Application> createApplication(Application application);
 
@@ -30,7 +35,11 @@ public interface ApplicationPageService {
 
     Mono<PageDTO> clonePage(String pageId);
 
+    Mono<PageDTO> clonePage(String pageId, String branchName);
+
     Mono<Application> cloneApplication(String applicationId);
+
+    Mono<PageDTO> deleteUnpublishedPage(String id, String branchName);
 
     Mono<PageDTO> deleteUnpublishedPage(String id);
 

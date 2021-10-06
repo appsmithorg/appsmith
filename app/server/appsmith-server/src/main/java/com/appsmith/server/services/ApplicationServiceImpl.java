@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
@@ -444,11 +443,18 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
                                                                              String defaultApplicationId,
                                                                              AclPermission aclPermission){
+        if (StringUtils.isEmpty(branchName)) {
+            return repository.findById(defaultApplicationId, aclPermission)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                    );
+        }
         return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, aclPermission)
             .switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
             );
     }
+
     /**
      * Sets the updatedAt and modifiedBy fields of the Application
      * @param applicationId Application ID
@@ -472,7 +478,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
             )
-            .map(BaseDomain::getId);
+            .map(Application::getId);
     }
 
     /**

@@ -41,4 +41,10 @@ public class NewAction extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String gitSyncId;
 
+    // This field will be used to store the default/root actionId for actions generated for git connected applications
+    // and will be used to connect actions across the branches
+    String defaultActionId;
+
+    String branchName;
+
 }

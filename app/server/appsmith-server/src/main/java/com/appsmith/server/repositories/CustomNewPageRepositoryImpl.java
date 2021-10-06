@@ -131,4 +131,11 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
                     return p.getUnpublishedPage().getName();
                 });
     }
+
+    @Override
+    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
+        Criteria defaultPageIdCriteria = where(fieldName(QNewPage.newPage.defaultPageId)).is(defaultPageId);
+        Criteria branchCriteria = where(fieldName(QNewPage.newPage.branchName)).is(branchName);
+        return queryOne(List.of(defaultPageIdCriteria, branchCriteria), permission);
+    }
 }
