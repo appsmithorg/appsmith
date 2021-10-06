@@ -480,9 +480,7 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    let annotations: Annotation[] = [];
-
-    annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(editor.getValue(), errors);
 
     this.updateLintingCallback(editor, annotations);
   }
@@ -593,7 +591,8 @@ class CodeEditor extends Component<Props, State> {
       this.state.isFocused &&
       !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
-        ("dataTreePath" in this.props && !!this.props.dataTreePath));
+        ("dataTreePath" in this.props && !!dataTreePath));
+
     return (
       <DynamicAutocompleteInputWrapper
         className="t--code-editor-wrapper"
