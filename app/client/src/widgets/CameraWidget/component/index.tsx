@@ -27,12 +27,20 @@ import { ReactComponent as CameraOfflineIcon } from "assets/icons/widget/camera/
 import { ReactComponent as CameraIcon } from "assets/icons/widget/camera/camera.svg";
 import { ReactComponent as MicrophoneIcon } from "assets/icons/widget/camera/microphone.svg";
 
-const CameraContainer = styled.div`
+export interface CameraContainerProps {
+  scaleAxis: "x" | "y";
+}
+
+const CameraContainer = styled.div<CameraContainerProps>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: auto;
+
+  video {
+    ${({ scaleAxis }) => (scaleAxis === "x" ? `width: 100%` : `height: 100%`)};
+  }
 `;
 
 export interface VideoPlayerProps {
@@ -81,8 +89,10 @@ export interface StyledButtonProps {
 }
 
 const StyledButton = styled(Button)<ThemeProp & StyledButtonProps>`
+  z-index: 1;
   height: 32px;
   width: 32px;
+  margin: 0 1%;
   box-shadow: none !important;
   ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.CIRCLE &&
@@ -565,14 +575,15 @@ function CameraComponent(props: CameraComponentProps) {
   const mediaRecorderRef = useRef<MediaRecorder>();
   const videoElementRef = useRef<HTMLVideoElement>(null);
 
+  const [scaleAxis, setScaleAxis] = useState<"x" | "y">("x");
   const [audioInputs, setAudioInputs] = useState<MediaDeviceInfo[]>([]);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
   const [audioConstraints, setAudioConstraints] = useState<{
     deviceId?: string;
   }>({});
-  const [videoConstraints, setVideoConstraints] = useState<{
-    deviceId?: string;
-  }>({});
+  const [videoConstraints, setVideoConstraints] = useState<
+    MediaTrackConstraints
+  >({});
 
   const [image, setImage] = useState<string | null>();
   const [video, setVideo] = useState<Blob | null>();
@@ -598,6 +609,15 @@ function CameraComponent(props: CameraComponentProps) {
         setError(err.message);
       });
   }, []);
+
+  useEffect(() => {
+    setVideoConstraints({ ...videoConstraints, height, width });
+    if (width > height) {
+      setScaleAxis("x");
+      return;
+    }
+    setScaleAxis("y");
+  }, [height, width]);
 
   useEffect(() => {
     setIsReadyPlayerTimer(false);
@@ -807,13 +827,11 @@ function CameraComponent(props: CameraComponentProps) {
         <Webcam
           audio
           audioConstraints={audioConstraints}
-          height={height}
           mirrored={mirrored}
           onUserMedia={handleUserMedia}
           onUserMediaError={handleUserMediaErrors}
           ref={webcamRef}
           videoConstraints={videoConstraints}
-          width={width}
         />
 
         <VideoPlayer
@@ -843,7 +861,9 @@ function CameraComponent(props: CameraComponentProps) {
     );
   };
 
-  return <CameraContainer>{renderComponent()}</CameraContainer>;
+  return (
+    <CameraContainer scaleAxis={scaleAxis}>{renderComponent()}</CameraContainer>
+  );
 }
 
 export interface CameraComponentProps {
