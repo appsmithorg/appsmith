@@ -17,6 +17,7 @@ interface DropdownFieldProps {
   width?: number | string;
   isSearchable?: boolean;
   isDisabled?: boolean;
+  customStyles?: any;
 }
 
 function DropdownField(props: DropdownFieldProps & Partial<DropdownProps>) {

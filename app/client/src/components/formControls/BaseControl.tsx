@@ -53,6 +53,7 @@ export interface ControlData {
   hidden?: HiddenType;
   placeholderText?: string;
   schema?: any;
+  customStyles?: any;
 }
 
 export interface ControlFunctions {
