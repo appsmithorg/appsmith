@@ -353,7 +353,7 @@ public class MustacheHelper {
         }
     }
 
-    public static Set<String> extractWords(String mustacheKey) {
+    public static Set<String> getPossibleParents(String mustacheKey) {
         Set<String> bindingNames = new HashSet<>();
         String key = mustacheKey.trim();
 
@@ -364,10 +364,19 @@ public class MustacheHelper {
             String word = matcher.group();
 
             String[] subStrings = word.split(Pattern.quote("."));
-            if (subStrings.length > 0) {
-                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                bindingNames.add(subStrings[0]);
+
+            if (subStrings.length < 1) {
+                continue;
             }
+            // First add the first word since that's the entity name for widgets and non js actions
+            bindingNames.add(subStrings[0]);
+
+            if (subStrings.length >= 2) {
+                // For JS actions, the first two words are the action name since action name consists of the collection name
+                // and the individual action name
+                bindingNames.add(subStrings[0] + "." + subStrings[1]);
+            }
+
         }
         return bindingNames;
     }

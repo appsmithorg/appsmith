@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.MustacheHelper.extractActionNamesAndAddValidActionBindingsToSet;
-import static com.appsmith.external.helpers.MustacheHelper.extractWords;
+import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 
 @Slf4j
@@ -166,7 +166,7 @@ public class PageLoadActionsUtil {
         Set<String> bindingWordsInDSL = new HashSet<>();
         Set<String> explicitUserSetOnLoadActions = new HashSet<>();
 
-        bindings.keySet().stream().forEach(binding -> bindingWordsInDSL.addAll(extractWords(binding)));
+        bindings.keySet().stream().forEach(binding -> bindingWordsInDSL.addAll(getPossibleParents(binding)));
 
         Flux<NewAction> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
                 .cache();
@@ -510,12 +510,12 @@ public class PageLoadActionsUtil {
         actionsUsedInDsl.add(name);
 
         Map<String, DynamicBinding> dynamicBindingNamesInAction = new HashMap<>();
-        Set<String> widgetNamesInDynamicBindings = new HashSet<>();
+//        Set<String> widgetNamesInDynamicBindings = new HashSet<>();
         Set<String> jsonPathKeys = action.getJsonPathKeys();
         if (!CollectionUtils.isEmpty(jsonPathKeys)) {
             for (String mustacheKey : jsonPathKeys) {
                 extractActionNamesAndAddValidActionBindingsToSet(dynamicBindingNamesInAction, mustacheKey);
-                widgetNamesInDynamicBindings.addAll(extractWords(mustacheKey));
+//                widgetNamesInDynamicBindings.addAll(extractWords(mustacheKey));
             }
 
             Set<String> entityNames = dynamicBindingNamesInAction.keySet();
@@ -570,28 +570,6 @@ public class PageLoadActionsUtil {
         return edges;
     }
 
-    private Set<String> getPossibleParents(String propertyPath) {
-        Set<String> possibleParents = new HashSet<>();
-
-        String path = String.valueOf(propertyPath);
-
-        final String[] pathWords = path.split("\\.");
-
-        if (pathWords.length < 2) {
-            possibleParents.add(propertyPath);
-            return possibleParents;
-        }
-
-        // First add the first word since thats the entity name for widgets and non js actions
-        possibleParents.add(pathWords[0]);
-
-        // For JS actions, the first two words are the action name since action name comprises of the collection name
-        // and the individula action name
-        possibleParents.add(pathWords[0] + "." + pathWords[1]);
-
-        return possibleParents;
-    }
-
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
                                                                    Set<String> widgetNames,
                                                                    Set<ActionDependencyEdge> edges) {
@@ -612,28 +590,28 @@ public class PageLoadActionsUtil {
         edges.addAll(implicitParentChildEdges);
 
         // Remove any edge between which contains an unknown entity - aka neither a known action nor a known widget
-        edges = edges.stream().filter(edge -> {
-
-                    AtomicReference<Boolean> isValid = new AtomicReference<>(true);
-
-                    String source = edge.getSource();
-                    String target = edge.getTarget();
-
-                    extractWords(source).stream().forEach(parent -> {
-                        if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
-                            isValid.set(false);
-                        }
-                    });
-
-                    extractWords(target).stream().forEach(parent -> {
-                        if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
-                            isValid.set(false);
-                        }
-                    });
-
-                    return isValid.get();
-                })
-                .collect(Collectors.toSet());
+//        edges = edges.stream().filter(edge -> {
+//
+//                    AtomicReference<Boolean> isValid = new AtomicReference<>(true);
+//
+//                    String source = edge.getSource();
+//                    String target = edge.getTarget();
+//
+//                    getPossibleParents(source).stream().forEach(parent -> {
+//                        if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
+//                            isValid.set(false);
+//                        }
+//                    });
+//
+//                    getPossibleParents(target).stream().forEach(parent -> {
+//                        if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
+//                            isValid.set(false);
+//                        }
+//                    });
+//
+//                    return isValid.get();
+//                })
+//                .collect(Collectors.toSet());
 
         for (ActionDependencyEdge edge : edges) {
 
