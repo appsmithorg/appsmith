@@ -73,5 +73,5 @@ public interface FileInterface {
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success if the clone repo doesnt contain any files
      */
-    boolean checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException;
+    Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException;
 }

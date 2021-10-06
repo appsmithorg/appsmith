@@ -3,6 +3,7 @@ package com.appsmith.external.git;
 import com.appsmith.external.dtos.GitLogDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,7 +25,7 @@ public interface GitExecutor {
      * @throws IOException Exceptions due to file operations
      * @throws GitAPIException exceptions due to git commands
      */
-    String commitApplication(Path repoPath, String commitMessage, String authorName, String authorEmail) throws IOException, GitAPIException;
+    Mono<String> commitApplication(Path repoPath, String commitMessage, String authorName, String authorEmail) throws IOException, GitAPIException;
 
     /**
      * Method to get the commit history
@@ -33,7 +34,7 @@ public interface GitExecutor {
      * @throws IOException
      * @throws GitAPIException
      */
-    List<GitLogDTO> getCommitHistory(Path suffix) throws IOException, GitAPIException;
+    Mono<List<GitLogDTO>> getCommitHistory(Path suffix) throws IOException, GitAPIException;
 
     /**
      * Method to create a new repository to provided path
@@ -53,7 +54,7 @@ public interface GitExecutor {
      * @throws GitAPIException git exceptions
      * @throws URISyntaxException exception thrown while constructing the remote url
      */
-    String pushApplication(Path branchSuffix, String remoteUrl, String publicKey, String privateKey) throws IOException, GitAPIException, URISyntaxException;
+    Mono<String> pushApplication(Path branchSuffix, String remoteUrl, String publicKey, String privateKey) throws IOException, GitAPIException, URISyntaxException;
 
     /** Clone the repo to the file path
      *  Children branches - containerVolume/orgId/defaultAppId/repo/branchName/applicationData
@@ -66,7 +67,7 @@ public interface GitExecutor {
      *  @throws GitAPIException InvalidRemote, AuthenticationFailure, NotSupportedOperation
      *  @throws IOException
      * */
-    String cloneApplication(Path repoSuffix,  String remoteUrl, String privateKey, String publicKey) throws GitAPIException, IOException;
+    Mono<String> cloneApplication(Path repoSuffix, String remoteUrl, String privateKey, String publicKey) throws GitAPIException, IOException;
 
     /**
      * connect to the remote repository
@@ -86,15 +87,15 @@ public interface GitExecutor {
      * @param branchName branch which needs to be generated
      * @return generated branch name
      */
-    String createAndCheckoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
+    Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
 
     /**
      * Git checkout to specific branch
-     *
-     * @param repoSuffix repo suffix path in local repo
+     *  @param repoSuffix repo suffix path in local repo
      * @param branchName name of the branch which needs to be checked out
+     * @return
      */
-    boolean checkoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
+    Mono<Boolean> checkoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
 
     /**
      * Pull changes from remote branch and merge the changes
@@ -107,7 +108,7 @@ public interface GitExecutor {
      * @throws GitAPIException
      * @throws IOException
      */
-    String pullApplication(Path repoPath, String remoteUrl, String branchName, String privateKey, String publicKey) throws GitAPIException, IOException;
+    Mono<String> pullApplication(Path repoPath, String remoteUrl, String branchName, String privateKey, String publicKey) throws GitAPIException, IOException;
 
     /**
      *
@@ -116,7 +117,7 @@ public interface GitExecutor {
      * @throws GitAPIException
      * @throws IOException
      */
-    List<String> getBranches(Path repoSuffix) throws GitAPIException, IOException;
+    Mono<List<String>> getBranches(Path repoSuffix) throws GitAPIException, IOException;
 
     /**
      * This method will handle the git-status functionality
@@ -127,7 +128,7 @@ public interface GitExecutor {
      * @throws GitAPIException exceptions due to git commands
      * @throws IOException Exceptions due to file operations
      */
-    Map<String, Object> getStatus(Path repoPath, String branchName) throws GitAPIException, IOException;
+    Mono<Map<String, Object>> getStatus(Path repoPath, String branchName) throws GitAPIException, IOException;
 
     /**
      *
@@ -137,5 +138,5 @@ public interface GitExecutor {
      * @return Merge status
      * @throws IOException
      */
-    String mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) throws IOException;
+    Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) throws IOException;
 }
