@@ -24,6 +24,7 @@ import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -201,6 +202,9 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
      * @return true if default url. false otherwise
      */
     private boolean isDefaultRedirectUrl(String url) {
+        if(StringUtils.isEmpty(url)) {
+            return true;
+        }
         try {
             return URI.create(url).getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL);
         } catch (IllegalArgumentException e) {
