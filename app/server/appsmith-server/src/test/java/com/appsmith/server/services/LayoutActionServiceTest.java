@@ -235,7 +235,6 @@ public class LayoutActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateActionUpdatesLayout() {
-        //Mockito.when(pluginService.findById(Mockito.any())).thenReturn(Mono.empty());
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
@@ -897,6 +896,8 @@ public class LayoutActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testRefactorCollection_withModifiedName_ignoresName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
         ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
         originalActionCollectionDTO.setName("originalName");
         originalActionCollectionDTO.setApplicationId(testApp.getId());
