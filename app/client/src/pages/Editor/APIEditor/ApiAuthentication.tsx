@@ -4,7 +4,10 @@ import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
 import Button, { Category, Size } from "components/ads/Button";
-import { storeAsDatasource } from "actions/datasourceActions";
+import {
+  setDatsourceEditorMode,
+  storeAsDatasource,
+} from "actions/datasourceActions";
 import history from "utils/history";
 import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { getQueryParams } from "utils/AppsmithUtils";
@@ -25,10 +28,14 @@ import {
   createMessage,
 } from "constants/messages";
 
-interface ApiAuthenticationProps {
+interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
   applicationId?: string;
   currentPageId?: string;
+}
+
+interface ReduxDispatchProps {
+  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
 }
 
 const AuthContainer = styled.div`
@@ -73,7 +80,9 @@ function OAuthLabel(props: ErrorProps) {
   );
 }
 
-function ApiAuthentication(props: ApiAuthenticationProps): JSX.Element {
+type Props = ReduxStateProps & ReduxDispatchProps;
+
+function ApiAuthentication(props: Props): JSX.Element {
   const dispatch = useDispatch();
   const { applicationId, currentPageId, datasource } = props;
   const authType = get(
@@ -90,11 +99,13 @@ function ApiAuthentication(props: ApiAuthenticationProps): JSX.Element {
     if (shouldSave) {
       dispatch(storeAsDatasource());
     } else {
+      const id = get(datasource, "id");
+      props.setDatasourceEditorMode(id, false);
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
           applicationId,
           currentPageId,
-          get(datasource, "id"),
+          id,
           getQueryParams(),
         ),
       );
@@ -124,7 +135,7 @@ function ApiAuthentication(props: ApiAuthenticationProps): JSX.Element {
   );
 }
 
-const mapStateToProps = (state: AppState): ApiAuthenticationProps => {
+const mapStateToProps = (state: AppState): ReduxStateProps => {
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   let datasourceMerged = datasourceFromAction;
   if (datasourceFromAction && "id" in datasourceFromAction) {
@@ -147,8 +158,14 @@ const mapStateToProps = (state: AppState): ApiAuthenticationProps => {
   };
 };
 
-const ApiAuthenticationConnectedComponent = connect(mapStateToProps)(
-  ApiAuthentication,
-);
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
+    dispatch(setDatsourceEditorMode({ id, viewMode })),
+});
+
+const ApiAuthenticationConnectedComponent = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ApiAuthentication);
 
 export default ApiAuthenticationConnectedComponent;
