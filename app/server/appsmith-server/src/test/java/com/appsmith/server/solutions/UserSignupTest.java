@@ -45,6 +45,9 @@ public class UserSignupTest {
     @MockBean
     private ApplicationPageService applicationPageService;
 
+    @MockBean
+    private EnvManager envManager;
+
     private UserSignup userSignup;
 
     @Before
@@ -57,7 +60,7 @@ public class UserSignupTest {
                 configService,
                 analyticsService,
                 policyUtils,
-                applicationPageService
+                envManager
         );
     }
 

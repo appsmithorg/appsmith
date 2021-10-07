@@ -12,6 +12,7 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
+import { Classes } from "components/ads/common";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -20,6 +21,10 @@ const EmptyDatasourceContainer = styled.div`
   padding: 50px;
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
+  flex-direction: column;
+  .${Classes.TEXT} {
+    color: ${(props) => props.theme.colors.apiPane.text};
+  }
 `;
 
 const DatasourceContainer = styled.div`
@@ -32,6 +37,7 @@ const DatasourceContainer = styled.div`
     }
   }
   width: ${(props) => props.theme.actionSidePane.width}px;
+  color: ${(props) => props.theme.colors.apiPane.text};
 `;
 
 const DataSourceListWrapper = styled.div`
@@ -66,12 +72,12 @@ const DatasourceCard = styled.div`
 `;
 
 const DatasourceURL = styled.span`
-  margin: 8px 0;
-  font-size: 12px;
+  margin: 5px 0px 0px;
+  font-size: 14px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #457ae6;
+  color: #6a86ce;
   width: fit-content;
   max-width: 100%;
   font-weight: 500;
@@ -90,6 +96,10 @@ const DataSourceNameContainer = styled.div`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    color: ${(props) => props.theme.colors.apiPane.text};
+  }
+  .cs-text {
+    color: ${(props) => props.theme.colors.apiPane.text};
   }
   .cs-icon {
     flex-shrink: 0;
@@ -107,6 +117,27 @@ const DataSourceNameContainer = styled.div`
 const SomeWrapper = styled.div`
   border-left: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   height: 100%;
+`;
+
+const NoEntityFoundWrapper = styled.div`
+  width: 144px;
+  height: 36px;
+  margin-bottom: 20px;
+  box-shadow: 0px 4px 15px 0px rgb(0 0 0 / 10%);
+  padding: 10px 9px;
+  .lines {
+    height: 4px;
+    border-radius: 2px;
+    background: #bbbbbb;
+    &.first-line {
+      width: 33%;
+      margin-bottom: 8px;
+    }
+    &.second-line {
+      width: 66%;
+      background: #eeeeee;
+    }
+  }
 `;
 
 export const getDatasourceInfo = (datasource: any): string => {
@@ -195,9 +226,13 @@ export default function ApiRightPane(props: any) {
                   </DataSourceListWrapper>
                 ) : (
                   <EmptyDatasourceContainer>
+                    <NoEntityFoundWrapper>
+                      <div className="lines first-line" />
+                      <div className="lines second-line" />
+                    </NoEntityFoundWrapper>
                     <Text
                       textAlign="center"
-                      type={TextType.P3}
+                      type={TextType.H5}
                       weight={FontWeight.NORMAL}
                     >
                       When you save a datasource, it will show up here.
