@@ -206,7 +206,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       "",
     );
 
-    const hasError = !!get(datasource, "structure.error");
+    const hasError = !get(datasource, "isValid", true);
 
     let className = "datasource-highlight";
 

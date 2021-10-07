@@ -22,6 +22,7 @@ import {
   OAUTH_ERROR,
   SAVE_DATASOURCE,
   SAVE_DATASOURCE_MESSAGE,
+  createMessage,
 } from "constants/messages";
 
 interface ApiAuthenticationProps {
@@ -52,6 +53,7 @@ interface ErrorProps {
 
 const OAuthText = styled.span<ErrorProps>`
   color: ${(props) => (props.hasError ? "#F22B2B" : "#03B365")};
+  margin-left: 5px;
 `;
 
 const DescriptionText = styled(Text)`
@@ -80,7 +82,7 @@ function ApiAuthentication(props: ApiAuthenticationProps): JSX.Element {
     "",
   );
 
-  const hasError = !!get(datasource, "structure.error");
+  const hasError = !get(datasource, "isValid", true);
 
   const shouldSave = datasource && !("id" in datasource);
 
@@ -103,14 +105,20 @@ function ApiAuthentication(props: ApiAuthenticationProps): JSX.Element {
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
       <DescriptionText type={TextType.P1}>
-        {shouldSave ? SAVE_DATASOURCE_MESSAGE() : EDIT_DATASOURCE_MESSAGE()}
+        {shouldSave
+          ? createMessage(SAVE_DATASOURCE_MESSAGE)
+          : createMessage(EDIT_DATASOURCE_MESSAGE)}
       </DescriptionText>
       <Button
         category={Category.tertiary}
         onClick={onClick}
         size={Size.medium}
         tag="button"
-        text={shouldSave ? SAVE_DATASOURCE() : EDIT_DATASOURCE()}
+        text={
+          shouldSave
+            ? createMessage(SAVE_DATASOURCE)
+            : createMessage(EDIT_DATASOURCE)
+        }
       />
     </AuthContainer>
   );

@@ -529,7 +529,7 @@ function ApiEditorForm(props: Props) {
                 tabs={[
                   {
                     key: "headers",
-                    title: API_EDITOR_TAB_TITLES.HEADERS(),
+                    title: createMessage(API_EDITOR_TAB_TITLES.HEADERS),
                     count: headersCount,
                     panelComponent: (
                       <TabSection>
@@ -556,7 +556,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "params",
-                    title: API_EDITOR_TAB_TITLES.PARAMS(),
+                    title: createMessage(API_EDITOR_TAB_TITLES.PARAMS),
                     count: paramsCount,
                     panelComponent: (
                       <TabSection>
@@ -572,7 +572,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "body",
-                    title: API_EDITOR_TAB_TITLES.BODY(),
+                    title: createMessage(API_EDITOR_TAB_TITLES.BODY),
                     panelComponent: allowPostBody ? (
                       <PostBodyData
                         dataTreePath={`${actionName}.config`}
@@ -588,7 +588,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "pagination",
-                    title: API_EDITOR_TAB_TITLES.PAGINATION(),
+                    title: createMessage(API_EDITOR_TAB_TITLES.PAGINATION),
                     panelComponent: (
                       <Pagination
                         onTestClick={props.onRunClick}
@@ -599,12 +599,12 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "authentication",
-                    title: API_EDITOR_TAB_TITLES.AUTHENTICATION(),
+                    title: createMessage(API_EDITOR_TAB_TITLES.AUTHENTICATION),
                     panelComponent: <ApiAuthentication />,
                   },
                   {
                     key: "settings",
-                    title: API_EDITOR_TAB_TITLES.SETTINGS(),
+                    title: createMessage(API_EDITOR_TAB_TITLES.SETTINGS),
                     panelComponent: (
                       <SettingsWrapper>
                         <ActionSettings
