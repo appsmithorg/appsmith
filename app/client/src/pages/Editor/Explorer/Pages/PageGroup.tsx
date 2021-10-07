@@ -17,6 +17,8 @@ import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
   step: number;
@@ -46,6 +48,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
   const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
@@ -59,8 +62,8 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
     const defaultPageLayouts = [
       { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
     ];
-    dispatch(createPage(defaultApplicationId, name, defaultPageLayouts));
-  }, [dispatch, pages, defaultApplicationId]);
+    dispatch(createPage(applicationId, name, defaultPageLayouts));
+  }, [dispatch, pages, applicationId]);
 
   const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];

@@ -1,5 +1,7 @@
 const gitSyncLoctors = require("../../../../locators/gitSyncLocators.json");
 const homePage = require("../../../../locators/HomePage.json");
+const pages = require("../../../../locators/Pages.json");
+const jsActions = require("../../../../locators/jsActionLocators.json");
 
 const GITHUB_API_BASE = "https://api.github.com";
 
@@ -74,29 +76,76 @@ describe("Git sync connect to repo", function() {
     cy.get(gitSyncLoctors.branchSearchInput).type("ParentBranch");
     cy.get(gitSyncLoctors.createNewBranchButton).click();
     cy.get(gitSyncLoctors.createNewBranchSubmitbutton).click();
+    cy.wait(2000);
+    cy.get("#loading").should("not.exist");
+    cy.wait(5000);
   });
 
   it("creates branch specific resources", function() {
     cy.Createpage("ParentPage1");
+
+    cy.get(pages.addEntityAPI)
+      .last()
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(pages.integrationCreateNew)
+      .should("be.visible")
+      .click({ force: true });
+
     cy.CreateAPI("ParentApi1");
-    cy.CreateJsAction("ParentJsAction1");
+
+    cy.get(jsActions.addJsActionButton)
+      .last()
+      .click({ force: true });
+    cy.wait("@createJsAction");
+    cy.get(jsActions.name).click({ force: true });
+    cy.get(jsActions.nameInput)
+      .clear()
+      .type("ParentJsAction1", { force: true })
+      .should("have.value", "ParentJsAction1")
+      .blur();
+    cy.wait("@renameJsAction");
+    // Added because api name edit takes some time to
+    // reflect in api sidebar after the call passes.
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
 
     cy.get(gitSyncLoctors.branchButton).click();
     cy.get(gitSyncLoctors.branchSearchInput).type("ChildBranch");
     cy.get(gitSyncLoctors.createNewBranchButton).click();
     cy.get(gitSyncLoctors.createNewBranchSubmitbutton).click();
 
+    cy.wait(2000);
+    cy.get("#loading").should("not.exist");
+    cy.wait(5000);
+
     cy.Createpage("ChildPage1");
-    // cy.CreateAPI("ChildApi1");
-    // cy.CreateJsAction("ChildJsAction1");
+    cy.CreateAPI("ChildApi1");
+    cy.get(jsActions.addJsActionButton)
+      .last()
+      .click({ force: true });
+    cy.wait("@createJsAction");
+    cy.get(jsActions.name).click({ force: true });
+    cy.get(jsActions.nameInput)
+      .clear()
+      .type("ChildJsAction1", { force: true })
+      .should("have.value", "ChildJsAction1")
+      .blur();
+    cy.wait("renameJsAction");
+    // Added because api name edit takes some time to
+    // reflect in api sidebar after the call passes.
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
 
-    // cy.get(gitSyncLoctors.branchButton).click();
-    // cy.get(gitSyncLoctors.branchSearchInput).type("ParentBranch");
-    // cy.get(gitSyncLoctors.branchListItem).contains("ParentBranch").click();
+    cy.get(gitSyncLoctors.branchButton).click();
+    cy.get(gitSyncLoctors.branchSearchInput).type("ParentBranch");
+    cy.get(gitSyncLoctors.branchListItem)
+      .contains("ParentBranch")
+      .click();
 
-    // cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
-    // cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
-    // cy.get(`.t--entity-name:contains("ChildJsAction1")`).should("not.exist");
+    cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
+    cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
+    cy.get(`.t--entity-name:contains("ChildJsAction1")`).should("not.exist");
   });
 
   // rename entities
