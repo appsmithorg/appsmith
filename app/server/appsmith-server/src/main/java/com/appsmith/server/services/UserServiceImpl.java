@@ -226,7 +226,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.defer(() -> {
                     PasswordResetToken passwordResetToken = new PasswordResetToken();
                     passwordResetToken.setEmail(email);
-                    passwordResetToken.setRequestCount(1);
+                    passwordResetToken.setRequestCount(0);
                     passwordResetToken.setFirstRequestTime(Instant.now());
                     return Mono.just(passwordResetToken);
                 }))
@@ -460,8 +460,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return Mono.just(user)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .then(repository.findByEmail(user.getUsername()))
-                .flatMap(analyticsService::trackNewUser);
+                .then(Mono.zip(
+                        repository.findByEmail(user.getUsername()),
+                        userDataService.getForUserEmail(user.getUsername())
+                ))
+                .flatMap(tuple -> analyticsService.trackNewUser(tuple.getT1(), tuple.getT2()));
     }
 
     /**
