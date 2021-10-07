@@ -11,7 +11,6 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const LinkIcon = MenuIcons.LINK_ICON;
 
@@ -58,7 +57,7 @@ function EditName(props: Props) {
   const dispatch = useDispatch();
   const history = useHistory();
   const [isEditing, setIsEditing] = useState(false);
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const updateNameCallback = useCallback(
     (name: string) => {
@@ -74,12 +73,12 @@ function EditName(props: Props) {
   const enterEditMode = useCallback(() => setIsEditing(true), []);
 
   const switchPage = useCallback(() => {
-    if (!!defaultApplicationId && !isEditing) {
+    if (!!applicationId && !isEditing) {
       history.push(
-        BUILDER_PAGE_URL({ defaultApplicationId, pageId: props.page.pageId }),
+        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
       );
     }
-  }, [props.page.pageId, defaultApplicationId]);
+  }, [props.page.pageId, applicationId]);
 
   const handleClick = () => {
     if (!isEditing) enterEditMode();

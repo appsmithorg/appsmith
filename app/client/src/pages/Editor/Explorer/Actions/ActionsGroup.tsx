@@ -5,7 +5,6 @@ import { getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type ExplorerActionsGroupProps = {
   actions: any[];
@@ -16,12 +15,12 @@ type ExplorerActionsGroupProps = {
   plugins: Record<string, Plugin>;
 };
 export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const childNode: ReactElement<ExplorerActionsGroupProps> = (
     <>
       {props.actions.map((action: any) => {
         const url = props.config?.getURL(
-          defaultApplicationId,
+          applicationId,
           props.page.pageId,
           action.config.id,
           action.config.pluginType,

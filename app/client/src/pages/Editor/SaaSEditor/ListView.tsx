@@ -22,7 +22,6 @@ import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -61,7 +60,7 @@ interface StateProps {
   datasources: Datasource[];
   isCreating: boolean;
   isEditorInitialized: boolean;
-  defaultApplicationId: string;
+  applicationId: string;
 }
 
 interface DispatchFunctions {
@@ -160,7 +159,7 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
-      defaultApplicationId,
+      applicationId,
       history,
       match: {
         params: { pageId },
@@ -173,7 +172,7 @@ class ListView extends React.Component<Props> {
           onBackButton={() =>
             history.push(
               INTEGRATION_EDITOR_URL(
-                defaultApplicationId,
+                applicationId,
                 pageId,
                 INTEGRATION_TABS.ACTIVE,
               ),
@@ -201,7 +200,7 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     datasources: datasources,
-    defaultApplicationId: getDefaultApplicationId(state),
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

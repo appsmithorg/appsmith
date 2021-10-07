@@ -48,7 +48,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import PagesEditor from "./PagesEditor";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { AppState } from "reducers";
 
 import { trimQueryString } from "utils/helpers";
@@ -81,7 +81,7 @@ interface RouterState {
 }
 
 type Props = RouteComponentProps<BuilderRouteParams> & {
-  defaultApplicationId: string;
+  applicationId: string;
 };
 
 class EditorsRouter extends React.Component<Props, RouterState> {
@@ -124,13 +124,11 @@ class EditorsRouter extends React.Component<Props, RouterState> {
       { path: this.props.location.pathname },
     );
     e.stopPropagation();
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { applicationId, pageId } = this.props.match.params;
     this.setState({
       isVisible: false,
     });
-    this.props.history.replace(
-      BUILDER_PAGE_URL({ defaultApplicationId, pageId }),
-    );
+    this.props.history.replace(BUILDER_PAGE_URL({ applicationId, pageId }));
   };
 
   preventClose = (e: React.MouseEvent) => {
@@ -240,7 +238,7 @@ function PaneDrawer(props: PaneDrawerProps) {
 PaneDrawer.displayName = "PaneDrawer";
 
 const mapStateToProps = (state: AppState) => ({
-  defaultApplicationId: getDefaultApplicationId(state),
+  applicationId: getCurrentApplicationId(state),
 });
 
 export default connect(mapStateToProps)(withRouter(EditorsRouter));

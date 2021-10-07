@@ -555,21 +555,6 @@ export const trimQueryString = (value = "") => {
   return value.slice(0, index);
 };
 
-/*
- * fetch default vs branch specific id based on flag
- */
-export const getApplicationIdFromPayload = (
-  application: ApplicationPayload,
-  useBranchSpecificId = false,
-) => {
-  if (useBranchSpecificId) {
-    return application.id;
-  }
-  return (
-    application?.gitApplicationMetadata?.defaultApplicationId || application?.id
-  );
-};
-
 /**
  * returns the value in the query string for a key
  */

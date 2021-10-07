@@ -19,7 +19,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "../../selectors/editorSelectors";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const IconContainer = styled.div`
   //width: 100%;
@@ -35,7 +34,6 @@ const IconContainer = styled.div`
 function CloseEditor() {
   const history = useHistory();
   const applicationId = useSelector(getCurrentApplicationId);
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const params: string = location.search;
 
@@ -55,9 +53,9 @@ function CloseEditor() {
   // then route user back to `/generate-page/form`
   // else go back to BUILDER_PAGE
   const redirectURL = isGeneratePageInitiator
-    ? getGenerateTemplateFormURL(defaultApplicationId, pageId)
+    ? getGenerateTemplateFormURL(applicationId, pageId)
     : BUILDER_PAGE_URL({
-        defaultApplicationId,
+        applicationId,
         pageId,
       });
 

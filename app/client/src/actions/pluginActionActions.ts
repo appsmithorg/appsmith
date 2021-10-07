@@ -25,34 +25,31 @@ export const createActionSuccess = (payload: Action) => {
 };
 
 export type FetchActionsPayload = {
-  defaultApplicationId: string;
+  applicationId: string;
   branchName?: string;
 };
 
 export const fetchActions = (
-  {
-    branchName,
-    defaultApplicationId,
-  }: { defaultApplicationId: string; branchName?: string },
+  { applicationId, branchName }: { applicationId: string; branchName?: string },
   postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload: { defaultApplicationId, branchName },
+    payload: { applicationId, branchName },
     postEvalActions,
   };
 };
 
 export const fetchActionsForView = ({
+  applicationId,
   branchName,
-  defaultApplicationId,
 }: {
-  defaultApplicationId: string;
+  applicationId: string;
   branchName?: string;
 }): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
-    payload: { defaultApplicationId, branchName },
+    payload: { applicationId, branchName },
   };
 };
 

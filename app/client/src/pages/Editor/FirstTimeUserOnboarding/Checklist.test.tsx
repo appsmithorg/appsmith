@@ -111,7 +111,7 @@ describe("Checklist", () => {
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
       BUILDER_PAGE_URL({
-        defaultApplicationId: initialState.entities.pageList.applicationId,
+        applicationId: initialState.entities.pageList.applicationId,
         pageId: initialState.entities.pageList.currentPageId,
       }),
     );

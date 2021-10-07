@@ -19,7 +19,6 @@ import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
 import getFeatureFlags from "utils/featureFlags";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -40,15 +39,15 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
   const isCurrentPage = currentPageId === props.page.pageId;
 
   const currenApplicationId = useSelector(getCurrentApplicationId);
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const switchPage = useCallback(() => {
-    if (!!defaultApplicationId) {
+    if (!!applicationId) {
       history.push(
-        BUILDER_PAGE_URL({ defaultApplicationId, pageId: props.page.pageId }),
+        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
       );
     }
-  }, [props.page.pageId, defaultApplicationId]);
+  }, [props.page.pageId, applicationId]);
 
   const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 

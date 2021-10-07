@@ -1012,7 +1012,7 @@ class Applications extends Component<
             this.props.enableFirstTimeUserOnboarding(applicationId);
             history.replace(
               BUILDER_PAGE_URL({
-                defaultApplicationId: applicationId,
+                applicationId: applicationId,
                 pageId,
               }),
             );

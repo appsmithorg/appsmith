@@ -43,7 +43,7 @@ import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { getQueryParams } from "../../../../utils/AppsmithUtils";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ReduxStateProps = {
@@ -52,7 +52,6 @@ type ReduxStateProps = {
   datasourceList: Datasource[];
   currentPageId?: string;
   applicationId?: string;
-  defaultApplicationId?: string;
 };
 
 type ReduxDispatchProps = {
@@ -326,7 +325,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
             onClick={() =>
               history.push(
                 DATA_SOURCES_EDITOR_ID_URL(
-                  this.props.defaultApplicationId,
+                  this.props.applicationId,
                   this.props.currentPageId,
                   datasource.id,
                   getQueryParams(),
@@ -371,7 +370,6 @@ const mapStateToProps = (
     ),
     currentPageId: state.entities.pageList.currentPageId,
     applicationId: getCurrentApplicationId(state),
-    defaultApplicationId: getDefaultApplicationId(state),
   };
 };
 

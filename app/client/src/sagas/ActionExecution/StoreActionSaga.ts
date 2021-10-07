@@ -9,15 +9,14 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
 ) {
   if (action.persist) {
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
     const branch = yield select(getCurrentGitBranch);
-    const appStoreName = getAppStoreName(defaultApplicationId, branch);
+    const appStoreName = getAppStoreName(applicationId, branch);
     const existingStore = localStorage.getItem(appStoreName) || "{}";
     const parsedStore = JSON.parse(existingStore);
     parsedStore[action.key] = action.value;

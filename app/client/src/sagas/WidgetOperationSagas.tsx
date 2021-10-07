@@ -98,8 +98,6 @@ import { getCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
-
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     Toaster.clear();
@@ -1088,13 +1086,13 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     });
 
     const pageId = yield select(getCurrentPageId);
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
 
     navigateToCanvas(
       window.location.pathname,
       pageId,
       newWidget.newWidgetId,
-      defaultApplicationId,
+      applicationId,
     );
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {

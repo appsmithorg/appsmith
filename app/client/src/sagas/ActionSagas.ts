@@ -120,7 +120,6 @@ import {
 import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -191,15 +190,14 @@ export function* createActionSaga(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { branchName, defaultApplicationId } = action.payload;
-  const applicationId = yield select(getCurrentApplicationId);
+  const { applicationId, branchName } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
   );
   try {
     const response: GenericApiResponse<Action[]> = yield ActionAPI.fetchActions(
-      defaultApplicationId,
+      applicationId,
       branchName,
     );
     const isValidResponse = yield validateResponse(response);
@@ -228,15 +226,14 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { branchName, defaultApplicationId } = action.payload;
-  const applicationId = yield select(getCurrentApplicationId);
+  const { applicationId, branchName } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
   );
   try {
     const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
-      defaultApplicationId,
+      applicationId,
       branchName,
     );
     const correctFormatResponse = response.data.map((action) => {
@@ -415,14 +412,10 @@ export function* deleteActionSaga(
       actionPayload.payload.onSuccess();
     } else {
       const pageId = yield select(getCurrentPageId);
-      const defaultApplicationId = yield select(getDefaultApplicationId);
+      const applicationId = yield select(getCurrentApplicationId);
 
       history.push(
-        INTEGRATION_EDITOR_URL(
-          defaultApplicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
     }
 
@@ -612,10 +605,10 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   history.push(
     BUILDER_PAGE_URL({
-      defaultApplicationId,
+      applicationId,
       pageId,
       params: {
         isSnipingMode: "true",
@@ -767,23 +760,21 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
-    history.push(
-      API_EDITOR_ID_URL(defaultApplicationId, action.pageId, action.id),
-    );
+    history.push(API_EDITOR_ID_URL(applicationId, action.pageId, action.id));
   }
   if (isQuery) {
     history.push(
-      QUERIES_EDITOR_ID_URL(defaultApplicationId, action.pageId, action.id),
+      QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
     );
   }
   if (isSaas) {
     const plugin = yield select(getPlugin, action.pluginId);
     history.push(
       SAAS_EDITOR_API_ID_URL(
-        defaultApplicationId,
+        applicationId,
         action.pageId,
         plugin.packageName,
         action.id,
@@ -867,7 +858,7 @@ function* getCurrentEntity(pageId: string, params: Record<string, string>) {
 
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   const callback = get(actionPayload, "payload.callback");
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
@@ -923,11 +914,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.NEW_INTEGRATION:
       history.push(
-        INTEGRATION_EDITOR_URL(
-          defaultApplicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
       break;
     case SlashCommand.NEW_QUERY:

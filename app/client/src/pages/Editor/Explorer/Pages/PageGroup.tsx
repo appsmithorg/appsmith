@@ -15,7 +15,6 @@ import { Plugin } from "api/PluginApi";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -47,7 +46,6 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const applicationId = useSelector(getCurrentApplicationId);
 
   const pages = useSelector((state: AppState) => {
@@ -93,7 +91,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   return (
     <Entity
       action={() =>
-        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId))
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId))
       }
       alwaysShowRightIcon
       className="group pages"
@@ -103,7 +101,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       isDefaultExpanded
       name="Pages"
       onClickRightIcon={() => {
-        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId));
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
       }}
       onCreate={createPageCallback}
       rightIcon={settingsIcon}

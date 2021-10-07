@@ -3,10 +3,7 @@ import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
 import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  getAppMode,
-  getDefaultApplicationId,
-} from "selectors/applicationSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
   BUILDER_PAGE_URL,
@@ -17,6 +14,7 @@ import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { NavigateActionDescription } from "entities/DataTree/actionTriggers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -40,7 +38,7 @@ export default function* navigateActionSaga(
   action: NavigateActionDescription["payload"],
 ) {
   const pageList = yield select(getPageList);
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   const {
     pageNameOrUrl,
     params,
@@ -61,12 +59,12 @@ export default function* navigateActionSaga(
     const path =
       appMode === APP_MODE.EDIT
         ? BUILDER_PAGE_URL({
-            defaultApplicationId,
+            applicationId,
             pageId: page.pageId,
             params,
           })
         : getApplicationViewerPageURL({
-            defaultApplicationId,
+            applicationId,
             pageId: page.pageId,
             params,
           });

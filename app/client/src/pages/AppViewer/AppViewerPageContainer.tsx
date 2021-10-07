@@ -11,14 +11,12 @@ import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 import {
   getCanvasWidgetDsl,
+  getCurrentApplicationId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
-import {
-  getCurrentApplication,
-  getDefaultApplicationId,
-} from "selectors/applicationSelectors";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -42,7 +40,7 @@ type AppViewerPageContainerProps = {
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
-  defaultApplicationId: string;
+  applicationId: string;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -69,7 +67,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
           Please add widgets to this page in the&nbsp;
           <Link
             to={BUILDER_PAGE_URL({
-              defaultApplicationId: this.props.defaultApplicationId,
+              applicationId: this.props.applicationId,
               pageId: this.props.match.params.pageId,
             })}
           >
@@ -129,7 +127,7 @@ const mapStateToProps = (state: AppState) => {
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
-    defaultApplicationId: getDefaultApplicationId(state),
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

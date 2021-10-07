@@ -56,7 +56,6 @@ import { Datasource } from "entities/Datasource";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;
@@ -230,14 +229,13 @@ export default function OnboardingChecklist() {
   );
   const theme = useSelector(getCurrentThemeDetails);
   const applicationId = useSelector(getCurrentApplicationId);
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isCompleted = useSelector(getFirstTimeUserOnboardingComplete);
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getEnableFirstTimeUserOnboarding,
   );
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
-    return <Redirect to={BUILDER_PAGE_URL({ defaultApplicationId, pageId })} />;
+    return <Redirect to={BUILDER_PAGE_URL({ applicationId, pageId })} />;
   }
   const {
     completedTasks,
@@ -260,7 +258,7 @@ export default function OnboardingChecklist() {
         }),
       );
     } else {
-      history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }));
+      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
     }
     AnalyticsUtil.logEvent("SIGNPOSTING_CONNECT_WIDGET_CLICK");
   };
@@ -268,7 +266,7 @@ export default function OnboardingChecklist() {
     <Wrapper data-testid="checklist-wrapper">
       <Backbutton
         onClick={() =>
-          history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }))
+          history.push(BUILDER_PAGE_URL({ applicationId, pageId }))
         }
       >
         <Icon color={Colors.DIESEL} icon="chevron-left" iconSize={16} />
@@ -346,7 +344,7 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   INTEGRATION_EDITOR_URL(
-                    defaultApplicationId,
+                    applicationId,
                     pageId,
                     INTEGRATION_TABS.NEW,
                   ),
@@ -396,7 +394,7 @@ export default function OnboardingChecklist() {
                 });
                 history.push(
                   INTEGRATION_EDITOR_URL(
-                    defaultApplicationId,
+                    applicationId,
                     pageId,
                     INTEGRATION_TABS.ACTIVE,
                   ),
@@ -446,9 +444,7 @@ export default function OnboardingChecklist() {
                 });
                 dispatch(toggleInOnboardingWidgetSelection(true));
                 dispatch(forceOpenWidgetPanel(true));
-                history.push(
-                  BUILDER_PAGE_URL({ defaultApplicationId, pageId }),
-                );
+                history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
               }}
               text={createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,

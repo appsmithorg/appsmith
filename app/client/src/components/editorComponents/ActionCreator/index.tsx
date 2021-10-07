@@ -23,7 +23,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
 import { getWidgetOptionsTree } from "sagas/selectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import {
   getActionsForCurrentPage,
   getDBDatasources,
@@ -64,7 +67,7 @@ import {
   EXECUTE_A_QUERY,
   NO_ACTION,
 } from "constants/messages";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
@@ -367,7 +370,7 @@ function useModalDropdownList() {
 
 function getIntegrationOptionsWithChildren(
   pageId: string,
-  defaultApplicationId: string,
+  applicationId: string,
   plugins: any,
   options: TreeDropdownOption[],
   actions: any[],
@@ -483,7 +486,7 @@ function getIntegrationOptionsWithChildren(
           //   className: "t--create-js-function-btn",
           //   onSelect: () => {
           //     history.push(
-          //       JS_COLLECTION_ID_URL(defaultApplicationId, pageId, jsAction.config.id),
+          //       JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
           //     );
           //   },
           // };
@@ -517,7 +520,7 @@ function getIntegrationOptionsWithChildren(
 
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
-  const defaultApplicationId = useSelector(getDefaultApplicationId) || "";
+  const applicationId = useSelector(getCurrentApplicationId) as string;
   const datasources: Datasource[] = useSelector(getDBDatasources);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
@@ -532,7 +535,7 @@ function useIntegrationsOptionTree() {
 
   const integrationOptionTree = getIntegrationOptionsWithChildren(
     pageId,
-    defaultApplicationId,
+    applicationId,
     pluginGroups,
     getBaseOptions(),
     actions,
@@ -555,7 +558,7 @@ function useIntegrationsOptionTree() {
         } else {
           history.push(
             INTEGRATION_EDITOR_URL(
-              defaultApplicationId,
+              applicationId,
               pageId,
               INTEGRATION_TABS.NEW,
               INTEGRATION_EDITOR_MODES.AUTO,

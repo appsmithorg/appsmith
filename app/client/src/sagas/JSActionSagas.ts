@@ -56,15 +56,14 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { branchName, defaultApplicationId } = action.payload;
+  const { applicationId, branchName } = action.payload;
   try {
     const response = yield JSActionAPI.fetchJSCollections(
-      defaultApplicationId,
+      applicationId,
       branchName,
     );
     yield put({
@@ -170,9 +169,9 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   history.push(
-    JS_COLLECTION_ID_URL(defaultApplicationId, jsAction.pageId, jsAction.id),
+    JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
   );
 }
 
@@ -249,7 +248,7 @@ export function* deleteJSCollectionSaga(
 
     const response = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse = yield validateResponse(response);
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     if (isValidResponse) {
       Toaster.show({
@@ -264,16 +263,12 @@ export function* deleteJSCollectionSaga(
         if (getIndex) {
           const jsAction = jsActions[getIndex];
           history.push(
-            JS_COLLECTION_ID_URL(
-              defaultApplicationId,
-              pageId,
-              jsAction.config.id,
-            ),
+            JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
           );
         } else {
           history.push(
             BUILDER_PAGE_URL({
-              defaultApplicationId,
+              applicationId,
               pageId,
             }),
           );
@@ -393,10 +388,10 @@ export function* fetchJSCollectionsForPageSaga(
 export function* fetchJSCollectionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { branchName, defaultApplicationId } = action.payload;
+  const { applicationId, branchName } = action.payload;
   try {
     const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
-      defaultApplicationId,
+      applicationId,
       branchName,
     );
     const resultJSCollections = response.data;

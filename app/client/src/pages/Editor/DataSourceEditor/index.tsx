@@ -28,7 +28,7 @@ import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface ReduxStateProps {
@@ -44,8 +44,7 @@ interface ReduxStateProps {
   pluginType: string;
   pluginDatasourceForm: string;
   pluginPackageName: string;
-  defaultApplicationId: string;
-  applicationId?: string;
+  applicationId: string;
 }
 
 type Props = ReduxStateProps &
@@ -79,7 +78,7 @@ class DataSourceEditor extends React.Component<Props> {
     this.props.updateDatasource(
       formData,
       this.props.redirectToNewIntegrations(
-        this.props.defaultApplicationId,
+        this.props.applicationId,
         pageId,
         getQueryParams(),
       ),
@@ -155,7 +154,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
-    defaultApplicationId: getDefaultApplicationId(state),
     applicationId: getCurrentApplicationId(state),
   };
 };
@@ -166,11 +164,11 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
     dispatch(updateDatasource(formData, onSuccess));
   },
   redirectToNewIntegrations: (
-    defaultApplicationId: string,
+    applicationId: string,
     pageId: string,
     params: any,
   ) => {
-    dispatch(redirectToNewIntegrations(defaultApplicationId, pageId, params));
+    dispatch(redirectToNewIntegrations(applicationId, pageId, params));
   },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
@@ -237,7 +235,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          this.props.defaultApplicationId,
+          this.props.applicationId,
           pageId,
           pluginPackageName,
           datasourceId,

@@ -16,7 +16,6 @@ import {
   LATEST_DP_SUBTITLE,
   createMessage,
 } from "constants/messages";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Container = styled.div`
   display: flex;
@@ -38,10 +37,10 @@ const Separator = styled.div`
 `;
 
 export default function DeployPreview() {
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const showDeployPreview = () => {
-    const path = getApplicationViewerPageURL({ defaultApplicationId, pageId });
+    const path = getApplicationViewerPageURL({ applicationId, pageId });
     window.open(path, "_blank");
   };
 

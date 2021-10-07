@@ -8,7 +8,7 @@ import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { getJSCollectionIdFromURL } from "../helpers";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { useSelector } from "react-redux";
 
 type ExplorerJSCollectionEntityProps = {
@@ -25,11 +25,11 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const defaultApplicationId = useSelector(getDefaultApplicationId);
+    const applicationId = useSelector(getCurrentApplicationId);
     const navigateToJSCollection = useCallback(() => {
       history.push(
         JS_COLLECTION_ID_URL(
-          defaultApplicationId,
+          applicationId,
           props.pageId,
           props.action.config.id,
           {},

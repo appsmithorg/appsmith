@@ -17,7 +17,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetType } from "constants/WidgetConstants";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -57,7 +56,7 @@ type ConnectDataCTAProps = {
 };
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
 
@@ -73,7 +72,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
       INTEGRATION_EDITOR_URL(
-        defaultApplicationId,
+        applicationId,
         pageId,
         INTEGRATION_TABS.NEW,
         INTEGRATION_EDITOR_MODES.AUTO,

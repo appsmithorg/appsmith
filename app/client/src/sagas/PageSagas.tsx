@@ -97,10 +97,7 @@ import {
   generateTemplateError,
   generateTemplateSuccess,
 } from "../actions/pageActions";
-import {
-  getAppMode,
-  getDefaultApplicationId,
-} from "selectors/applicationSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import {
@@ -122,18 +119,14 @@ export function* fetchPageListSaga(
     PerformanceTransactionName.FETCH_PAGE_LIST_API,
   );
   try {
-    const {
-      branchName,
-      defaultApplicationId,
-      mode,
-    } = fetchPageListAction.payload;
+    const { applicationId, branchName, mode } = fetchPageListAction.payload;
     const apiCall =
       mode === APP_MODE.EDIT
         ? PageApi.fetchPageList
         : PageApi.fetchPageListViewMode;
     const response: FetchPageListResponse = yield call(
       apiCall,
-      defaultApplicationId,
+      applicationId,
       branchName,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -155,7 +148,7 @@ export function* fetchPageListSaga(
         type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
         payload: {
           pages,
-          applicationId: defaultApplicationId,
+          applicationId: applicationId,
         },
       });
       PerformanceTracker.stopAsyncTracking(
@@ -538,7 +531,7 @@ export function* createPageSaga(
         ) {
           history.push(
             BUILDER_PAGE_URL({
-              defaultApplicationId: createPageAction.payload.applicationId,
+              applicationId: createPageAction.payload.applicationId,
               pageId: response.data.id,
             }),
           );
@@ -614,7 +607,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       if (currentPageId === action.payload.id)
         history.push(
           BUILDER_PAGE_URL({
-            defaultApplicationId: applicationId,
+            applicationId: applicationId,
             pageId: defaultPageId,
           }),
         );
@@ -658,10 +651,10 @@ export function* clonePageSaga(
       yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {
-        const defaultApplicationId = yield select(getDefaultApplicationId);
+        const applicationId = yield select(getCurrentApplicationId);
         history.push(
           BUILDER_PAGE_URL({
-            defaultApplicationId,
+            applicationId,
             pageId: response.data.id,
           }),
         );
@@ -968,10 +961,10 @@ export function* generateTemplatePageSaga(
       // TODO : Add this to onSuccess (Redux Action)
       yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
       // TODO : Add it to onSuccessCallback
-      const defaultApplicationId = yield select(getDefaultApplicationId);
+      const applicationId = yield select(getCurrentApplicationId);
       history.replace(
         BUILDER_PAGE_URL({
-          defaultApplicationId,
+          applicationId,
           pageId,
         }),
       );

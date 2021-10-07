@@ -42,7 +42,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
 import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 interface StateProps extends JSONtoFormProps {
@@ -55,7 +55,6 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
-  defaultApplicationId: string;
 }
 
 interface DispatchFunctions {
@@ -63,10 +62,7 @@ interface DispatchFunctions {
   deleteDatasource: (id: string, onSuccess?: ReduxAction<unknown>) => void;
   getOAuthAccessToken: (id: string) => void;
   createAction: (data: Partial<Action>) => void;
-  redirectToNewIntegrations: (
-    defaultApplicationId: string,
-    pageId: string,
-  ) => void;
+  redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -154,7 +150,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     const {
       applicationId,
       datasource,
-      defaultApplicationId,
       deleteDatasource,
       isDeleting,
       isSaving,
@@ -188,7 +183,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               onClick={() => {
                 this.props.history.replace(
                   SAAS_EDITOR_DATASOURCE_ID_URL(
-                    defaultApplicationId,
+                    applicationId,
                     pageId,
                     pluginPackageName,
                     datasourceId,
@@ -221,7 +216,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                   deleteDatasource(
                     datasourceId,
                     this.props.redirectToNewIntegrations(
-                      defaultApplicationId,
+                      applicationId,
                       pageId,
                     ) as any,
                   )
@@ -293,7 +288,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
-    defaultApplicationId: getDefaultApplicationId(state),
     applicationId: getCurrentApplicationId(state),
   };
 };
@@ -309,11 +303,8 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
     createAction: (data: Partial<Action>) => {
       dispatch(createActionRequest(data));
     },
-    redirectToNewIntegrations: (
-      defaultApplicationId: string,
-      pageId: string,
-    ) => {
-      dispatch(redirectToNewIntegrations(defaultApplicationId, pageId));
+    redirectToNewIntegrations: (applicationId: string, pageId: string) => {
+      dispatch(redirectToNewIntegrations(applicationId, pageId));
     },
   };
 };

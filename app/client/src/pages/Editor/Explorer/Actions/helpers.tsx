@@ -35,14 +35,14 @@ export type ActionGroupConfig = {
   icon: JSX.Element;
   key: string;
   getURL: (
-    defaultApplicationId: string,
+    applicationId: string,
     pageId: string,
     id: string,
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
   generateCreatePageURL: (
-    defaultApplicationId: string,
+    applicationId: string,
     pageId: string,
     selectedTab: string,
     mode?: string,
@@ -51,12 +51,12 @@ export type ActionGroupConfig = {
   isGroupActive: (
     params: ExplorerURLParams,
     pageId: string,
-    defaultApplicationId: string,
+    applicationId: string,
   ) => boolean;
   isGroupExpanded: (
     params: ExplorerURLParams,
     pageId: string,
-    defaultApplicationId: string,
+    applicationId: string,
   ) => boolean;
 };
 
@@ -70,7 +70,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      defaultApplicationId: string,
+      applicationId: string,
       pageId: string,
       id: string,
       pluginType: PluginType,
@@ -78,7 +78,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     ) => {
       if (!!plugin && pluginType === PluginType.SAAS) {
         return SAAS_EDITOR_API_ID_URL(
-          defaultApplicationId,
+          applicationId,
           pageId,
           plugin.packageName,
           id,
@@ -87,9 +87,9 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         pluginType === PluginType.DB ||
         pluginType === PluginType.REMOTE
       ) {
-        return QUERIES_EDITOR_ID_URL(defaultApplicationId, pageId, id);
+        return QUERIES_EDITOR_ID_URL(applicationId, pageId, id);
       } else {
-        return API_EDITOR_ID_URL(defaultApplicationId, pageId, id);
+        return API_EDITOR_ID_URL(applicationId, pageId, id);
       }
     },
     getIcon: (action: any, plugin: Plugin) => {
@@ -105,58 +105,50 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     isGroupActive: (
       params: ExplorerURLParams,
       pageId: string,
-      defaultApplicationId: string,
+      applicationId: string,
     ) =>
       [
         trimQueryString(
-          INTEGRATION_EDITOR_URL(
-            defaultApplicationId,
-            pageId,
-            INTEGRATION_TABS.NEW,
-          ),
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
         ),
         trimQueryString(
           INTEGRATION_EDITOR_URL(
-            defaultApplicationId,
+            applicationId,
             pageId,
             INTEGRATION_TABS.ACTIVE,
           ),
         ),
-        trimQueryString(API_EDITOR_URL(defaultApplicationId, pageId)),
-        trimQueryString(SAAS_BASE_URL(defaultApplicationId, pageId)),
-        trimQueryString(QUERIES_EDITOR_URL(defaultApplicationId, pageId)),
+        trimQueryString(API_EDITOR_URL(applicationId, pageId)),
+        trimQueryString(SAAS_BASE_URL(applicationId, pageId)),
+        trimQueryString(QUERIES_EDITOR_URL(applicationId, pageId)),
       ].includes(window.location.pathname),
     isGroupExpanded: (
       params: ExplorerURLParams,
       pageId: string,
-      defaultApplicationId: string,
+      applicationId: string,
     ) =>
       window.location.pathname.indexOf(
         trimQueryString(
-          INTEGRATION_EDITOR_URL(
-            defaultApplicationId,
-            pageId,
-            INTEGRATION_TABS.NEW,
-          ),
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
         trimQueryString(
           INTEGRATION_EDITOR_URL(
-            defaultApplicationId,
+            applicationId,
             pageId,
             INTEGRATION_TABS.ACTIVE,
           ),
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
-        trimQueryString(API_EDITOR_URL(defaultApplicationId, pageId)),
+        trimQueryString(API_EDITOR_URL(applicationId, pageId)),
       ) > -1 ||
       window.location.pathname.indexOf(
-        trimQueryString(SAAS_BASE_URL(defaultApplicationId, pageId)),
+        trimQueryString(SAAS_BASE_URL(applicationId, pageId)),
       ) > -1 ||
       window.location.pathname.indexOf(
-        trimQueryString(QUERIES_EDITOR_URL(defaultApplicationId, pageId)),
+        trimQueryString(QUERIES_EDITOR_URL(applicationId, pageId)),
       ) > -1,
   },
 ];

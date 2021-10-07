@@ -35,7 +35,7 @@ import {
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div<{ active: boolean }>`
@@ -193,7 +193,7 @@ const useStatus = (): { percentage: number; content: string } => {
 
 export function OnboardingStatusbar(props: RouteComponentProps) {
   const dispatch = useDispatch();
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const { content, percentage } = useStatus();
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
@@ -233,7 +233,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       active={isChecklistPage}
       data-testid="statusbar-container"
       onClick={() => {
-        history.push(getOnboardingCheckListUrl(defaultApplicationId, pageId));
+        history.push(getOnboardingCheckListUrl(applicationId, pageId));
       }}
     >
       {!isFirstTimeUserOnboardingComplete && (

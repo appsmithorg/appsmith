@@ -25,7 +25,6 @@ import { getAction } from "selectors/entitiesSelector";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -37,14 +36,14 @@ type ExplorerDatasourceEntityProps = {
 
 export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
   const params = useParams<ExplorerURLParams>();
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
   const icon = getPluginIcon(props.plugin);
   const switchDatasource = useCallback(() => {
     if (props.plugin && props.plugin.type === PluginType.SAAS) {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          defaultApplicationId,
+          applicationId,
           params.pageId,
           props.plugin.packageName,
           props.datasource.id,
@@ -59,14 +58,14 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
       );
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          defaultApplicationId,
+          applicationId,
           params.pageId,
           props.datasource.id,
           getQueryParams(),
         ),
       );
     }
-  }, [defaultApplicationId, params.pageId, props.datasource.id]);
+  }, [applicationId, params.pageId, props.datasource.id]);
 
   const queryId = getQueryIdFromURL();
   const queryAction = useSelector((state: AppState) =>

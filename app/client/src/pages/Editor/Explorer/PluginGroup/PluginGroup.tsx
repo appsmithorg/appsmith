@@ -13,7 +13,6 @@ import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 type ExplorerPluginGroupProps = {
   step: number;
@@ -26,10 +25,10 @@ type ExplorerPluginGroupProps = {
 
 const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
   const params = useParams<ExplorerURLParams>();
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const switchToCreateActionPage = useCallback(() => {
     const path = props.actionConfig?.generateCreatePageURL(
-      defaultApplicationId,
+      applicationId,
       props.page.pageId,
       INTEGRATION_TABS.NEW,
       INTEGRATION_EDITOR_MODES.AUTO,
@@ -59,7 +58,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
       active={props.actionConfig?.isGroupActive(
         params,
         props.page.pageId,
-        defaultApplicationId,
+        applicationId,
       )}
       className={`group ${props.actionConfig?.groupName
         .toLowerCase()
@@ -71,7 +70,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
         props.actionConfig?.isGroupExpanded(
           params,
           props.page.pageId,
-          defaultApplicationId,
+          applicationId,
         ) ||
         !!props.searchKeyword ||
         !!props.datasources.length

@@ -126,19 +126,19 @@ class ActionAPI extends API {
   }
 
   static fetchActions(
-    defaultApplicationId: string,
+    applicationId: string,
     branchName?: string,
   ): AxiosPromise<GenericApiResponse<Action[]>> {
-    const queryParams = { applicationId: defaultApplicationId } as any;
+    const queryParams = { applicationId: applicationId } as any;
     if (branchName) queryParams.branchName = branchName;
     return API.get(ActionAPI.url, queryParams);
   }
 
   static fetchActionsForViewMode(
-    defaultApplicationId: string,
+    applicationId: string,
     branchName?: string,
   ): AxiosPromise<GenericApiResponse<ActionViewMode[]>> {
-    const queryParams = { applicationId: defaultApplicationId } as any;
+    const queryParams = { applicationId: applicationId } as any;
     if (branchName) queryParams.branchName = branchName;
     return API.get(`${ActionAPI.url}/view`, queryParams);
   }

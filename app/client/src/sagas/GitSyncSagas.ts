@@ -35,7 +35,7 @@ import {
 } from "constants/messages";
 import history from "utils/history";
 import { getDefaultPathForBranch } from "constants/routes";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* commitToGitRepoSaga(
@@ -147,9 +147,9 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
 function* switchBranch(action: ReduxAction<string>) {
   try {
     const branchName = action.payload;
-    const defaultApplicationId: string = yield select(getDefaultApplicationId);
+    const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield GitSyncAPI.checkoutBranch(
-      defaultApplicationId,
+      applicationId,
       branchName,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -157,7 +157,7 @@ function* switchBranch(action: ReduxAction<string>) {
     if (isValidResponse) {
       const updatedPath = getDefaultPathForBranch({
         branchName,
-        applicationId: defaultApplicationId,
+        applicationId: applicationId,
       });
       history.push(updatedPath);
     }
@@ -210,10 +210,10 @@ function* createNewBranch(
 ) {
   const { onErrorCallback, onSuccessCallback, payload } = action;
   try {
-    const defaultApplicationId: string = yield select(getDefaultApplicationId);
+    const applicationId: string = yield select(getCurrentApplicationId);
     const parentBranch = yield select(getCurrentGitBranch);
     const response: ApiResponse = yield GitSyncAPI.createNewBranch(
-      defaultApplicationId,
+      applicationId,
       payload,
       parentBranch,
     );

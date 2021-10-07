@@ -20,8 +20,6 @@ import {
 
 import WidgetFactory from "utils/WidgetFactory";
 
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
-
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* bindDataToWidgetSaga(
@@ -146,10 +144,10 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
     history.replace(
       BUILDER_PAGE_URL({
-        defaultApplicationId,
+        applicationId,
         pageId,
       }),
     );

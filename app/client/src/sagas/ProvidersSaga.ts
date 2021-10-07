@@ -36,7 +36,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 export function* fetchProviderTemplatesSaga(
@@ -102,9 +102,9 @@ export function* addApiToPageSaga(
         data: response.data,
       });
 
-      const defaultApplicationId = yield select(getDefaultApplicationId);
+      const applicationId = yield select(getCurrentApplicationId);
       const branchName = yield select(getCurrentGitBranch);
-      yield put(fetchActions({ defaultApplicationId, branchName }, []));
+      yield put(fetchActions({ applicationId, branchName }, []));
     }
   } catch (error) {
     yield put({
