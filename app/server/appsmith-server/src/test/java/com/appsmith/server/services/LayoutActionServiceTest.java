@@ -88,10 +88,7 @@ public class LayoutActionServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    //@MockBean
-    //PluginService pluginService;
-
+    
     @Autowired
     LayoutActionService layoutActionService;
 
