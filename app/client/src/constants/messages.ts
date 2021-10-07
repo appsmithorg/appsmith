@@ -249,6 +249,14 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
+export const EDIT_DATASOURCE = () => "Edit Datasource";
+export const SAVE_DATASOURCE = () => "Save Datasource";
+export const SAVE_DATASOURCE_MESSAGE = () =>
+  "Save API as datasource to setup authentication";
+export const EDIT_DATASOURCE_MESSAGE = () =>
+  "Edit Datasource to access authentication settings";
+export const OAUTH_ERROR = () => "OAuth Error";
+export const OAUTH_2_0 = () => "OAuth 2.0";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;

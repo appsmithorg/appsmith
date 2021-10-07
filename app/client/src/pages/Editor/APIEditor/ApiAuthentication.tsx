@@ -15,6 +15,14 @@ import { formValueSelector } from "redux-form";
 import { AppState } from "reducers";
 import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
 import { ReactComponent as SheildError } from "assets/icons/ads/shield-error.svg";
+import {
+  EDIT_DATASOURCE,
+  EDIT_DATASOURCE_MESSAGE,
+  OAUTH_2_0,
+  OAUTH_ERROR,
+  SAVE_DATASOURCE,
+  SAVE_DATASOURCE_MESSAGE,
+} from "constants/messages";
 
 interface ApiAuthenticationProps {
   datasource: EmbeddedRestDatasource | Datasource;
@@ -57,7 +65,7 @@ function OAuthLabel(props: ErrorProps) {
     <OAuthContainer>
       {props.hasError ? <SheildError /> : <SheildSuccess />}
       <OAuthText hasError={props.hasError}>
-        {props.hasError ? "OAuth Error" : "OAuth 2.0"}
+        {props.hasError ? OAUTH_ERROR() : OAUTH_2_0()}
       </OAuthText>
     </OAuthContainer>
   );
@@ -95,16 +103,14 @@ function ApiAuthentication(props: ApiAuthenticationProps): JSX.Element {
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
       <DescriptionText type={TextType.P1}>
-        {shouldSave
-          ? "Save API as datasource to setup authentication"
-          : "Edit Datasource to access authentication settings"}
+        {shouldSave ? SAVE_DATASOURCE_MESSAGE() : EDIT_DATASOURCE_MESSAGE()}
       </DescriptionText>
       <Button
         category={Category.tertiary}
         onClick={onClick}
         size={Size.medium}
         tag="button"
-        text={shouldSave ? "Save Datasource" : "Edit Datasource"}
+        text={shouldSave ? SAVE_DATASOURCE() : EDIT_DATASOURCE()}
       />
     </AuthContainer>
   );
