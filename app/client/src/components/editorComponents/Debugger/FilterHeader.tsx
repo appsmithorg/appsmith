@@ -80,12 +80,13 @@ function FilterHeader(props: FilterHeaderProps) {
             fillColor={get(theme, "colors.debugger.jsonIcon")}
             hoverFillColor={get(theme, "colors.debugger.message")}
             name="close-circle"
-            onClick={() => {
+            onClick={function(){
               if (searchRef.current) {
                 props.onChange("");
                 searchRef.current.value = "";
               }
-            }}
+            }
+          }
             size={IconSize.XXL}
           />
         )}

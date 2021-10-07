@@ -349,7 +349,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         headerLabel="Incoming connections"
         height={`${CONNECTION_HEIGHT}px`}
         options={dependencies.dependencyOptions}
-        renderOption={(optionProps) => {
+        renderOption={function(optionProps){
           return <OptionNode option={optionProps.option} />;
         }}
         selected={{ label: "", value: "" }}
@@ -359,8 +359,8 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
-        SelectedValueNode={(selectedValueProps) => (
-          <TriggerNode
+        SelectedValueNode={function(selectedValueProps) {
+          return (<TriggerNode
             iconAlignment={"RIGHT"}
             {...selectedValueProps}
             connectionType="OUTGOING"
@@ -368,6 +368,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
             hasError={errorOutgoingConnections}
           />
         )}
+      }
         className={`connection-dropdown ${
           errorOutgoingConnections ? "error" : ""
         }`}

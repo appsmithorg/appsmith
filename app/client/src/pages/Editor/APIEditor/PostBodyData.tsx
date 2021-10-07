@@ -129,9 +129,10 @@ function PostBodyData(props: Props) {
   return (
     <PostBodyContainer>
       <MultiSwitch
-        onSelect={(title: ApiContentTypes) =>
+        onSelect={function(title: ApiContentTypes) {
           updateBodyContentType(title, apiId)
         }
+          }
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES.map((el) => {
           return {
