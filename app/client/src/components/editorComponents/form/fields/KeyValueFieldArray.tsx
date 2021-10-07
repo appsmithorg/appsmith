@@ -16,6 +16,7 @@ import { Classes } from "components/ads/common";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
+  DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants";
@@ -187,6 +188,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           height="36px"
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
+                          placeholder={DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER}
                           width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
                         />
                       </DynamicDropdownFieldWrapper>

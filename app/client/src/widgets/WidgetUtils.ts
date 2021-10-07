@@ -8,6 +8,13 @@ import {
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
 import { WidgetPositionProps } from "./BaseWidget";
+import { Theme } from "constants/DefaultTheme";
+import {
+  ButtonStyleTypes,
+  ButtonVariant,
+  ButtonVariantTypes,
+} from "components/constants";
+import tinycolor from "tinycolor2";
 
 export function getDisplayName(WrappedComponent: {
   displayName: any;
@@ -68,4 +75,66 @@ export const generateReactKey = ({
   prefix = "",
 }: { prefix?: string } = {}): string => {
   return prefix + generate(ALPHANUMERIC, 10);
+};
+
+export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
+  if (!backgroundColor)
+    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].solid
+      .textColor;
+  const isDark = tinycolor(backgroundColor).isDark();
+  if (isDark) {
+    return theme.colors.button.custom.solid.light.textColor;
+  }
+  return theme.colors.button.custom.solid.dark.textColor;
+};
+
+export const getCustomHoverColor = (
+  theme: Theme,
+  buttonVariant?: ButtonVariant,
+  backgroundColor?: string,
+) => {
+  if (!backgroundColor) {
+    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()][
+      (buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()
+    ].hoverColor;
+  }
+
+  switch (buttonVariant) {
+    case ButtonVariantTypes.OUTLINE:
+      return backgroundColor
+        ? tinycolor(backgroundColor)
+            .lighten(40)
+            .toString()
+        : theme.colors.button.primary.outline.hoverColor;
+
+    case ButtonVariantTypes.GHOST:
+      return backgroundColor
+        ? tinycolor(backgroundColor)
+            .lighten(40)
+            .toString()
+        : theme.colors.button.primary.ghost.hoverColor;
+
+    default:
+      return backgroundColor
+        ? tinycolor(backgroundColor)
+            .darken(10)
+            .toString()
+        : theme.colors.button.primary.solid.hoverColor;
+  }
+};
+
+export const getCustomBackgroundColor = (
+  buttonVariant?: ButtonVariant,
+  backgroundColor?: string,
+) => {
+  return buttonVariant === ButtonVariantTypes.SOLID ? backgroundColor : "none";
+};
+
+export const getCustomBorderColor = (
+  buttonVariant?: ButtonVariant,
+  backgroundColor?: string,
+) => {
+  return buttonVariant === ButtonVariantTypes.OUTLINE
+    ? backgroundColor
+    : "none";
 };
