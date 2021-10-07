@@ -20,7 +20,7 @@ const EDITORS_EVENT_NAME : string = "collab:online_editors"
 const START_EDIT_EVENT_NAME : string = "collab:start_edit"
 const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
 const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
-const RELEASE_VERSION_EVENT_NAME : string = "collab:mouse_pointer"
+const RELEASE_VERSION_EVENT_NAME : string = "info:release_version"
 
 // release version of the api
 let apiReleaseVersion = ""
@@ -63,6 +63,7 @@ function main() {
 	})
 
 	io.on("connection", (socket: Socket) => {
+		socket.emit(RELEASE_VERSION_EVENT_NAME, apiReleaseVersion)
 		subscribeToEditEvents(socket, APP_ROOM_PREFIX)
 		onAppSocketConnected(socket)
 			.catch((error) => log.error("Error in socket connected handler", error))
