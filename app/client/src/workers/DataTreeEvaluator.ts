@@ -2,6 +2,7 @@ import {
   DependencyMap,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEvalErrorPath,
@@ -731,7 +732,7 @@ export default class DataTreeEvaluator {
     }
     const validation = widget.validationPaths[propertyPath];
 
-    const { isValid, message, parsed, transformed } = validateWidgetProperty(
+    const { isValid, messages, parsed, transformed } = validateWidgetProperty(
       validation,
       valueToValidate,
       widget,
@@ -749,18 +750,16 @@ export default class DataTreeEvaluator {
       safeEvaluatedValue,
     );
     if (!isValid) {
-      addErrorToEntityProperty(
-        [
-          {
+      const evalErrors: EvaluationError[] =
+        messages?.map((message) => {
+          return {
             raw: unEvalPropertyValue,
             errorMessage: message || "",
             errorType: PropertyEvaluationErrorType.VALIDATION,
             severity: Severity.ERROR,
-          },
-        ],
-        currentTree,
-        fullPropertyPath,
-      );
+          };
+        }) ?? [];
+      addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
     }
 
     if (isPathADynamicTrigger(widget, propertyPath)) {
