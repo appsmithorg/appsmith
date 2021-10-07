@@ -100,7 +100,7 @@ export function Login(props: LoginFormProps) {
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
   const redirectUrl = queryParams.get("redirectUrl");
-  if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
+  if (redirectUrl !== null && getIsSafeRedirectURL(redirectUrl)) {
     const encodedRedirectUrl = encodeURIComponent(redirectUrl);
     loginURL += `?redirectUrl=${encodedRedirectUrl}`;
     signupURL += `?redirectUrl=${encodedRedirectUrl}`;
