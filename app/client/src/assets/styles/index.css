@@ -31,3 +31,15 @@
 ::-webkit-scrollbar-thumb {
   @apply bg-gray-300;
 }
+
+.scrollbar-sm::-webkit-scrollbar-track {
+  @apply bg-current;
+}
+
+.scrollbar-sm::-webkit-scrollbar-thumb {
+  @apply bg-transparent;
+}
+
+.scrollbar-sm:hover::-webkit-scrollbar-thumb {
+  @apply bg-gray-300;
+}

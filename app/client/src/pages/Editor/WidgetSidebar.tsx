@@ -105,7 +105,7 @@ function WidgetSidebar(props: IPanelProps) {
         />
       </Boxed>
 
-      <div className="flex-grow px-3 overflow-y-scroll">
+      <div className="flex-grow px-3 overflow-y-scroll scrollbar-sm text-white">
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>

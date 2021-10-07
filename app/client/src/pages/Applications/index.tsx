@@ -423,15 +423,6 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <OrgMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={org.organization.slug}
-                org={org}
-                selected={urlHash === org.organization.slug}
-              />
-            ))}
           {!isFetchingApplications && fetchedUserOrgs && (
             <MenuItem
               cypressSelector="t--org-new-organization-auto-create"
@@ -450,6 +441,15 @@ function LeftPane() {
               text={CREATE_ORGANIZATION_FORM_NAME}
             />
           )}
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <OrgMenuItem
+                isFetchingApplications={isFetchingApplications}
+                key={org.organization.slug}
+                org={org}
+                selected={urlHash === org.organization.slug}
+              />
+            ))}
         </WorkpsacesNavigator>
         <LeftPaneBottomSection>
           <MenuItem
