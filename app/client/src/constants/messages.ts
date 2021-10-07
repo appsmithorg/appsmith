@@ -197,7 +197,8 @@ export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
 export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain Text`;
 export const LIGHTNING_MENU_OPTION_JS = () => `Write JS`;
 export const LIGHTNING_MENU_OPTION_HTML = () => `Write HTML`;
-export const CHECK_REQUEST_BODY = () => `Check Request body to debug?`;
+export const CHECK_REQUEST_BODY = () =>
+  `Please check your request configuration to debug`;
 export const DONT_SHOW_THIS_AGAIN = () => `Don't show this again`;
 export const SHOW_REQUEST = () => `Show Request`;
 
