@@ -63,7 +63,7 @@ public enum AppsmithError {
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR),
     UNAUTHORIZED_ACCESS(403, 4025, "Unauthorized access", AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR),
-    DUPLICATE_KEY(409, 4024, "Unexpected state : Duplicate key error. Message : {0}. Please reach out to Appsmith customer support to report this",
+    DUPLICATE_KEY(409, 4024, "Unexpected state : Duplicate key error. Message : {0}. Another app already exists with the same name, please refresh the page``",
             AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     USER_ALREADY_EXISTS_SIGNUP(409, 4025, "There is already an account registered with this email {0}. Please sign in instead.",
             AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
