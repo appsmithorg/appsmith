@@ -243,6 +243,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
+  const defaultApplicationId = useSelector(getDefaultApplicationId);
 
   useEffect(() => {
     if (window.location.href) {
@@ -309,7 +310,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           </AppsmithLink>
           <Boxed step={OnboardingStep.FINISH}>
             <EditorAppName
-              applicationId={applicationId}
+              applicationId={defaultApplicationId}
               className="t--application-name editable-application-name"
               currentDeployLink={getApplicationViewerPageURL({
                 defaultApplicationId: props.defaultApplicationId,
@@ -329,7 +330,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               }
               isPopoverOpen={isPopoverOpen}
               onBlur={(value: string) =>
-                updateApplicationDispatch(applicationId || "", {
+                updateApplicationDispatch(defaultApplicationId || "", {
                   name: value,
                   currentApp: true,
                 })

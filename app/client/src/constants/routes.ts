@@ -150,6 +150,11 @@ export const BUILDER_PAGE_URL = (props: {
     modifiedParams = { branch: derivedBranch, ...params };
   }
 
+  if ((window as any).Cypress) {
+    // test param to make sure a query param is present in the URL
+    modifiedParams = { a: "b", ...modifiedParams };
+  }
+
   const queryString = convertToQueryParams(modifiedParams);
   const suffixPath = suffix ? `/${suffix}` : "";
   const hashPath = hash ? `#${hash}` : "";
