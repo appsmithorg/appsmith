@@ -12,13 +12,14 @@ import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -38,8 +39,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Component
@@ -161,6 +164,7 @@ public class GitExecutorImpl implements GitExecutor {
                                         String privateKey,
                                         String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
             // open the repo
@@ -213,8 +217,9 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo "+repoSuffix);
+            System.out.println(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
             Git git = Git.open(baseRepoPath.toFile());
@@ -224,6 +229,13 @@ public class GitExecutorImpl implements GitExecutor {
                     .setName(branchName)
                     .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                     .call();
+
+            StoredConfig config = git.getRepository().getConfig();
+            config.setString("branch", branchName, "remote", "origin");
+            config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
+            config.save();
+
+            // TODO immediately commit and push the created branch
 
             return git.getRepository().getBranch();
         }).subscribeOn(scheduler);
@@ -317,13 +329,18 @@ public class GitExecutorImpl implements GitExecutor {
             Git git = Git.open(repoPath.toFile());
             Status status = git.status().call();
             Map<String, Object> response = new HashMap<>();
-            response.put("added", status.getAdded());
-            response.put("modified", status.getModified());
+            Set<String> modifiedAssets = new HashSet<>();
+            modifiedAssets.addAll(status.getModified());
+            modifiedAssets.addAll(status.getAdded());
+            modifiedAssets.addAll(status.getRemoved());
+            modifiedAssets.addAll(status.getUncommittedChanges());
+            modifiedAssets.addAll(status.getUntracked());
+            response.put("modified", modifiedAssets);
             response.put("conflicting", status.getConflicting());
-            response.put("removed", status.getRemoved());
-            response.put("uncommitted", status.getUncommittedChanges());
-            response.put("untracked", status.getUntracked());
             response.put("isClean", status.isClean());
+
+            // TODO fetch the branch to track remote changes correctly
+            // git.fetch().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).call();
 
             BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
             if (trackingStatus != null) {
@@ -334,7 +351,12 @@ public class GitExecutorImpl implements GitExecutor {
                 log.debug("Remote tracking details not present for branch: {}, repo: {}", branchName, repoPath);
                 response.put("aheadCount", 0);
                 response.put("behindCount", 0);
-                response.put("remoteBranch", null);
+                response.put("remoteBranch", "untracked");
+            }
+
+            // Remove modified changes from current branch so that checkout to other branches will be possible
+            if (!status.isClean()) {
+                resetToLastCommit(git);
             }
             git.close();
             return response;
@@ -358,4 +380,9 @@ public class GitExecutorImpl implements GitExecutor {
             }
         }).subscribeOn(scheduler);
     }
+
+    private void resetToLastCommit(Git git) throws GitAPIException {
+        git.reset().setMode(ResetCommand.ResetType.HARD).call();
+    }
+
 }
