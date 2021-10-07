@@ -53,6 +53,11 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       201,
     );
     cy.wait("@getActions");
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
