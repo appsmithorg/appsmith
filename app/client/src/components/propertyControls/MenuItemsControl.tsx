@@ -37,7 +37,7 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   margin-bottom: 2px;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 10px;
   padding-right: 60px;
   text-overflow: ellipsis;
   &&& {
@@ -89,9 +89,10 @@ function MenuItemComponent(props: RenderComponentProps) {
     },
     [updateOption],
   );
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
+  const handleChange = useCallback(
+    () => props.onEdit && props.onEdit(index),
+    [index],
+  );
 
   const onFocus = () => setEditing(true);
   const onBlur = () => setEditing(false);
@@ -157,9 +158,11 @@ class MenuItemsControl extends BaseControl<ControlProps> {
     const menuItems: Array<{
       id: string;
       label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
+    }> =
+      _.isString(this.props.propertyValue) ||
+      _.isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
     return (
       <MenuItemsWrapper>
         <DroppableComponent
@@ -175,6 +178,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
         <StyledPropertyPaneButtonWrapper>
           <AddMenuItemButton
             category={Category.tertiary}
+            className="t--add-menu-item-btn"
             icon="plus"
             onClick={this.addOption}
             size={Size.medium}
@@ -239,7 +243,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   };
 
   addOption = () => {
-    let menuItems = this.props.propertyValue;
+    let menuItems = this.props.propertyValue || [];
     const menuItemsArray = Object.values(menuItems);
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
     const newMenuItemLabel = getNextEntityName(

@@ -66,7 +66,10 @@ import {
 import { showCompletionDialog } from "./OnboardingSagas";
 
 import { deleteRecentAppEntities } from "utils/storage";
-import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
+import {
+  reconnectAppLevelWebsocket,
+  reconnectPageLevelWebsocket,
+} from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 
@@ -150,20 +153,21 @@ export function* getAllApplicationSaga() {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
-        (userOrgs: OrganizationApplicationObject) => ({
-          organization: userOrgs.organization,
-          userRoles: userOrgs.userRoles,
-          applications: !userOrgs.applications
-            ? []
-            : userOrgs.applications.map((application: ApplicationObject) => {
-                return {
-                  ...application,
-                  defaultPageId: getDefaultPageId(application.pages),
-                };
-              }),
-        }),
-      );
+      const organizationApplication: OrganizationApplicationObject[] =
+        response.data.organizationApplications.map(
+          (userOrgs: OrganizationApplicationObject) => ({
+            organization: userOrgs.organization,
+            userRoles: userOrgs.userRoles,
+            applications: !userOrgs.applications
+              ? []
+              : userOrgs.applications.map((application: ApplicationObject) => {
+                  return {
+                    ...application,
+                    defaultPageId: getDefaultPageId(application.pages),
+                  };
+                }),
+          }),
+        );
 
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
@@ -492,8 +496,7 @@ export function* createApplicationSaga(
           FirstTimeUserOnboardingApplicationId === ""
         ) {
           yield put({
-            type:
-              ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+            type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
           pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);
@@ -508,7 +511,8 @@ export function* createApplicationSaga(
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting
         // ensures user receives the updates in the app just created
-        yield put(reconnectWebsocketAction());
+        yield put(reconnectAppLevelWebsocket());
+        yield put(reconnectPageLevelWebsocket());
       }
     }
   } catch (error) {

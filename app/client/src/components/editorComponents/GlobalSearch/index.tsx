@@ -176,7 +176,7 @@ function GlobalSearch() {
   const setCategory = useCallback(
     (category: SearchCategory) => {
       if (isSnippet(category)) {
-        AnalyticsUtil.logEvent("SNIPPET_CATEGORY_CLICK");
+        AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
       }
       dispatch(setGlobalSearchFilterContext({ category: category }));
     },
@@ -203,10 +203,8 @@ function GlobalSearch() {
   }, []);
   const scrollPositionRef = useRef(0);
 
-  const [
-    documentationSearchResults,
-    setDocumentationSearchResultsInState,
-  ] = useState<Array<DocSearchItem>>([]);
+  const [documentationSearchResults, setDocumentationSearchResultsInState] =
+    useState<Array<DocSearchItem>>([]);
 
   const [activeItemIndex, setActiveItemIndexInState] = useState(0);
   const setActiveItemIndex = useCallback((index) => {

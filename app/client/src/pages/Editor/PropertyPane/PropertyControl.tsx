@@ -241,9 +241,8 @@ const PropertyControl = memo((props: Props) => {
         widgetProperties,
       );
       if (Array.isArray(relatedWidgetUpdates) && relatedWidgetUpdates.length) {
-        otherWidgetPropertiesToUpdates = otherWidgetPropertiesToUpdates.concat(
-          relatedWidgetUpdates,
-        );
+        otherWidgetPropertiesToUpdates =
+          otherWidgetPropertiesToUpdates.concat(relatedWidgetUpdates);
       }
     }
     return otherWidgetPropertiesToUpdates;
@@ -263,16 +262,10 @@ const PropertyControl = memo((props: Props) => {
         updatedValue: propertyValue,
       });
 
-      const selfUpdates:
-        | UpdateWidgetPropertyPayload
-        | undefined = getWidgetsOwnUpdatesOnPropertyChange(
-        propertyName,
-        propertyValue,
-      );
-      const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] = getOtherWidgetPropertyChanges(
-        propertyName,
-        propertyValue,
-      );
+      const selfUpdates: UpdateWidgetPropertyPayload | undefined =
+        getWidgetsOwnUpdatesOnPropertyChange(propertyName, propertyValue);
+      const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] =
+        getOtherWidgetPropertyChanges(propertyName, propertyValue);
       let allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
       if (selfUpdates) {
         allPropertiesToUpdates.push(selfUpdates);
@@ -352,7 +345,6 @@ const PropertyControl = memo((props: Props) => {
         type: "Function",
         autocompleteDataType: AutocompleteDataType.FUNCTION,
       };
-      delete config.dataTreePath;
       delete config.evaluatedValue;
     }
 
@@ -361,10 +353,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName,
     );
     const isConvertible = !!props.isJSConvertible;
-    const className = props.label
-      .split(" ")
-      .join("")
-      .toLowerCase();
+    const className = props.label.split(" ").join("").toLowerCase();
 
     let additionAutocomplete:
       | Record<string, Record<string, unknown>>

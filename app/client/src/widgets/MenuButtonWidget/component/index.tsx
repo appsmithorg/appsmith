@@ -20,8 +20,8 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-} from "widgets/ButtonWidget/component";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
+  WidgetContainerDiff,
+} from "widgets/WidgetUtils";
 
 export const MenuButtonContainer = styled.div`
   width: 100%;
@@ -129,20 +129,25 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 
   box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
     boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
+      ? `0px 0px 4px 3px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant1
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
+      ? `3px 3px 4px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant2
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
+      ? `0px 1px 3px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant3
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
+      ? `2px 2px 0px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant4
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
+      ? `-2px -2px 0px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant5
+        }`
       : "none"} !important;
 `;
 
@@ -218,6 +223,7 @@ export interface PopoverContentProps {
 function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
+  if (!itemsObj) return <StyledMenu />;
   const items = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);

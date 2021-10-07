@@ -40,7 +40,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   margin-bottom: 2px;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 10px;
+  background: inherit;
   &&& {
     input {
       border: none;
@@ -110,9 +111,10 @@ function TabControlComponent(props: RenderComponentProps) {
   }, [item?.label, isEditing]);
 
   const debouncedUpdate = debounce(updateOption, 1000);
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
+  const handleChange = useCallback(
+    () => props.onEdit && props.onEdit(index),
+    [index],
+  );
 
   const onChange = useCallback(
     (index: number, value: string) => {

@@ -4,6 +4,7 @@
     "NoWidgetsMsg": "p:contains('icon above to add widgets')",
     "AddPage": ".pages .t--entity-add-btn",
     "addEntityAPI": ".datasources .t--entity-add-btn",
+    "addEntityJSEditor": ".js_actions .t--entity-add-btn",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
     "entityText": ".t--entity-name:contains('Text1')",
@@ -26,5 +27,7 @@
     "dropHere":"#canvas-dragging-0",
     "closeWidgets":".t--close-widgets-sidebar",
     "addDBQueryEntity": ".datasources .t--entity-add-btn",
-    "editEntity": ".t--entity-name input"
+    "editEntity": ".t--entity-name input",
+    "explorerSwitchId": "#switcher--explorer",
+    "widgetSwitchId": "#switcher--widgets"
 }

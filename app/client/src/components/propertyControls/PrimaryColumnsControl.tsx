@@ -38,19 +38,18 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   margin-bottom: 2px;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 10px;
   padding-right: 60px;
   text-overflow: ellipsis;
+  background: inherit;
   &&& {
     input {
       padding-left: 24px;
       border: none;
       color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -100,14 +99,8 @@ function ColumnControlComponent(props: RenderComponentProps) {
       setValue(props.item.label);
   }, [props.item?.label, isEditing]);
 
-  const {
-    deleteOption,
-    index,
-    item,
-    onEdit,
-    toggleVisibility,
-    updateOption,
-  } = props;
+  const { deleteOption, index, item, onEdit, toggleVisibility, updateOption } =
+    props;
   const [visibility, setVisibility] = useState(item.isVisible);
   const debouncedUpdate = debounce(updateOption, 1000);
   const onChange = useCallback(

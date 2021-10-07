@@ -80,9 +80,7 @@ export function InputText(props: {
   );
 }
 
-class ComputeTablePropertyControl extends BaseControl<
-  ComputeTablePropertyControlProps
-> {
+class ComputeTablePropertyControl extends BaseControl<ComputeTablePropertyControlProps> {
   render() {
     const {
       dataTreePath,
@@ -107,7 +105,10 @@ class ComputeTablePropertyControl extends BaseControl<
     Object.keys(columns).forEach((id: string) => {
       currentRow[id] = undefined;
     });
-
+    // Load default value in evaluated value
+    if (value && !propertyValue) {
+      this.onTextChange(value);
+    }
     return (
       <InputText
         additionalDynamicData={{

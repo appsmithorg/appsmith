@@ -372,6 +372,7 @@ class InputComponent extends React.Component<
     return (
       <StyledNumericInput
         allowNumericCharactersOnly
+        autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         intent={this.props.intent}
@@ -444,9 +445,7 @@ class InputComponent extends React.Component<
             />
           ) : this.props.iconName && this.props.iconAlign === "right" ? (
             <Tag icon={this.props.iconName} />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }
         type={this.getType(this.props.inputType)}
         value={this.props.value}
@@ -458,13 +457,8 @@ class InputComponent extends React.Component<
       : this.textInputComponent(isTextArea);
 
   render() {
-    const {
-      label,
-      labelStyle,
-      labelTextColor,
-      labelTextSize,
-      tooltip,
-    } = this.props;
+    const { label, labelStyle, labelTextColor, labelTextSize, tooltip } =
+      this.props;
     const showLabelHeader = label || tooltip;
 
     return (

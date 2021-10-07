@@ -69,10 +69,10 @@ export function PageContextMenu(props: {
    *
    * @return void
    */
-  const clonePage = useCallback(() => dispatch(clonePageInit(props.pageId)), [
-    dispatch,
-    props.pageId,
-  ]);
+  const clonePage = useCallback(
+    () => dispatch(clonePageInit(props.pageId)),
+    [dispatch, props.pageId],
+  );
 
   /**
    * sets the page hidden
@@ -99,12 +99,12 @@ export function PageContextMenu(props: {
       value: "visibility",
       onSelect: setHiddenField,
       // Possibly support ReactNode in TreeOption
-      label: ((
+      label: (
         <CustomLabel>
           {props.isHidden ? "Show" : "Hide"}
           <Icon icon={props.isHidden ? "eye-open" : "eye-off"} iconSize={14} />
         </CustomLabel>
-      ) as ReactNode) as string,
+      ) as ReactNode as string,
     },
   ];
   if (!props.isDefaultPage) {
@@ -131,7 +131,7 @@ export function PageContextMenu(props: {
       onSelect={noop}
       optionTree={optionTree}
       selectedValue=""
-      toggle={<ContextMenuTrigger />}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
 }

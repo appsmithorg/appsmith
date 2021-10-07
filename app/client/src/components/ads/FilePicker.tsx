@@ -20,7 +20,7 @@ import Icon, { IconSize } from "./Icon";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
 
-const FileEndings = {
+export const FileEndings = {
   IMAGE: ".jpeg,.png,.svg",
   JSON: ".json",
   TEXT: ".txt",
@@ -34,7 +34,7 @@ export enum FileType {
   ANY = "ANY",
 }
 
-type FilePickerProps = {
+export type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
   onFileRemoved?: () => void;
   fileUploader?: FileUploader;
@@ -44,7 +44,7 @@ type FilePickerProps = {
   delayedUpload?: boolean;
 };
 
-const ContainerDiv = styled.div<{
+export const ContainerDiv = styled.div<{
   isUploaded: boolean;
   isActive: boolean;
   canDrop: boolean;
@@ -192,7 +192,7 @@ export function CloudinaryUploader(
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        onUploadProgress: function(progressEvent: ProgressEvent) {
+        onUploadProgress: function (progressEvent: ProgressEvent) {
           const uploadPercentage = Math.round(
             (progressEvent.loaded / progressEvent.total) * 100,
           );

@@ -19,7 +19,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -38,7 +40,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -48,9 +52,8 @@ describe("Entity Explorer tests", () => {
       fireEvent.click(tabsWidget);
       jest.runAllTimers();
     });
-    const highlighted = component.container.getElementsByClassName(
-      "highlighted active",
-    );
+    const highlighted =
+      component.container.getElementsByClassName("highlighted active");
     expect(highlighted.length).toBe(1);
   });
 
@@ -67,7 +70,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -107,7 +112,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -161,7 +168,9 @@ describe("Entity Explorer tests", () => {
         <Sidebar />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets");
+    const widgetsTree: any = component.queryByText("Widgets", {
+      selector: "div.t--entity-name",
+    });
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
@@ -181,7 +190,7 @@ describe("Entity Explorer tests", () => {
     expect(highlighted.length).toBe(1);
     expect(active.length).toBe(1);
     const collapsible: any = active[0].parentElement?.querySelector(
-      ".bp3-icon.bp3-icon-caret-right",
+      ".t--entity-collapse-toggle",
     );
     fireEvent.click(collapsible);
     const buttonWidget: any = component.queryByText(children[2].widgetName);

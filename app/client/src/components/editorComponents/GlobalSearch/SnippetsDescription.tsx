@@ -157,7 +157,7 @@ const SnippetContainer = styled.div`
 
 const removeDynamicBinding = (value: string) => {
   const regex = /{{([\s\S]*?)}}/g;
-  return value.replace(regex, function(match, capture) {
+  return value.replace(regex, function (match, capture) {
     return capture;
   });
 };
@@ -168,7 +168,7 @@ export const getSnippet = (
   replaceWithDynamicBinding = false,
 ) => {
   const templateSubstitutionRegex = /%%(.*?)%%/g;
-  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
+  return snippet.replace(templateSubstitutionRegex, function (match, capture) {
     const substitution = removeDynamicBinding(args[capture] || "");
     return replaceWithDynamicBinding
       ? `{{${capture}}}`
@@ -302,7 +302,8 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       ),
     },
   ];
-  if (template && args && args.length > 0) {
+  const replaceableArgs = (args || []).filter((arg) => !arg.placeholder);
+  if (template && replaceableArgs && replaceableArgs.length > 0) {
     tabs.push({
       key: "Customize",
       title: "Customize",
@@ -319,7 +320,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
             </div>
           </div>
           <div className="snippet-group">
-            {args.map((arg: SnippetArgument) => (
+            {replaceableArgs.map((arg: SnippetArgument) => (
               <div
                 className="argument"
                 key={arg.name}

@@ -7,6 +7,8 @@ import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
   JAVASCRIPT_KEYWORDS,
+  WINDOW_OBJECT_METHODS,
+  WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 import { set } from "lodash";
@@ -18,6 +20,7 @@ import {
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
+import moment from "moment";
 
 const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
 
@@ -60,7 +63,7 @@ export const Directions: { [id: string]: string } = {
 export type Direction = typeof Directions[keyof typeof Directions];
 const SCROLL_THRESHOLD = 20;
 
-export const getScrollByPixels = function(
+export const getScrollByPixels = function (
   elem: {
     top: number;
     height: number;
@@ -199,7 +202,8 @@ export const flashElementsById = (
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed
   // while allowing all utf-8 characters
-  const removeSpecialCharsRegex = /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
+  const removeSpecialCharsRegex =
+    /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
   const duplicateSpaceRegex = /\s+/;
   return value
     .split(removeSpecialCharsRegex)
@@ -280,6 +284,8 @@ export const isNameValid = (
     name in JAVASCRIPT_KEYWORDS ||
     name in DATA_TREE_KEYWORDS ||
     name in GLOBAL_FUNCTIONS ||
+    name in WINDOW_OBJECT_PROPERTIES ||
+    name in WINDOW_OBJECT_METHODS ||
     name in invalidNames
   );
 };
@@ -484,6 +490,53 @@ export const stopClickEventPropagation = (
   e: React.MouseEvent<HTMLDivElement, MouseEvent>,
 ) => {
   e.stopPropagation();
+};
+
+/**
+ *
+ * Get text for how much time before an action happened
+ * Eg: 1 Month, 12 Seconds
+ *
+ * @param date 2021-09-08T14:14:12Z
+ *
+ */
+export const howMuchTimeBeforeText = (date: string) => {
+  if (!date || !moment.isMoment(moment(date))) {
+    return "";
+  }
+
+  const now = moment();
+  const checkDate = moment(date);
+  const years = now.diff(checkDate, "years");
+  const months = now.diff(checkDate, "months");
+  const days = now.diff(checkDate, "days");
+  const hours = now.diff(checkDate, "hours");
+  const minutes = now.diff(checkDate, "minutes");
+  const seconds = now.diff(checkDate, "seconds");
+  if (years > 0) return `${years} yr${years > 1 ? "s" : ""}`;
+  else if (months > 0) return `${months} mth${months > 1 ? "s" : ""}`;
+  else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
+  else if (hours > 0) return `${hours} hr${hours > 1 ? "s" : ""}`;
+  else if (minutes > 0) return `${minutes} min${minutes > 1 ? "s" : ""}`;
+  else return `${seconds} sec${seconds > 1 ? "s" : ""}`;
+};
+
+/**
+ *
+ * Truncate string and append given string in the end
+ * eg: Flint Lockwood Diatonic Super Mutating Dynamic Food Replicator
+ * -> Flint...
+ *
+ */
+export const truncateString = (
+  str: string,
+  limit: number,
+  appendStr = "...",
+) => {
+  if (str.length <= limit) return str;
+  let _subString = str.substring(0, limit);
+  _subString = _subString.trim() + appendStr;
+  return _subString;
 };
 
 /**
