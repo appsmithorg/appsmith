@@ -10,10 +10,12 @@ import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;
-}) => ({
-  type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
-  payload,
-});
+}) => {
+  return {
+    type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
+    payload,
+  };
+};
 
 export const commitToRepoInit = (payload: {
   commitMessage: string;
