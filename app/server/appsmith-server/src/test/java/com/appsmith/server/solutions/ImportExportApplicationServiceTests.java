@@ -735,7 +735,8 @@ public class ImportExportApplicationServiceTests {
                                 datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(application).collectList(),
                                 newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false
+                                        , MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();

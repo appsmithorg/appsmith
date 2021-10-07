@@ -146,6 +146,14 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
             return Mono.just(new Datasource());
         }
 
+        if(datasource.getPluginId() == null) {
+            /*
+             * - Not throwing an exception here because we do not throw an error in case of missing datasource.
+             *   We try not to fail as much as possible during create and update actions.
+             */
+            return Mono.just(datasource);
+        }
+
         final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN,

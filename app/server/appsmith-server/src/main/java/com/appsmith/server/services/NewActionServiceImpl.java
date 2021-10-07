@@ -1012,6 +1012,17 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          * - No need for this null check: action == null. By the time the code flow reaches here, action is
          *   guaranteed to be non-null.
          */
+
+        /**
+         * ImportExportApplicationServiceTests.java seem to have TCs that introduce actionDTOs with datasource or
+         * pluginId being null. Hence, need adding a check here. I am not sure at this point if that is a scenario
+         * that can be expected in production.
+         * TBD: need to confirm if this check is actually required or if an error should be returned from here.
+         */
+        if (action.getDatasource() == null || action.getDatasource().getPluginId() == null) {
+            return Mono.just(action);
+        }
+
         Mono<Plugin> pluginMono = pluginService.findById(action.getDatasource().getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
@@ -1021,7 +1032,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
         else if (action.getDatasource().getId() != null) {
             dsConfigMono = datasourceService.findById(action.getDatasource().getId())
-                    .flatMap(datasource -> Mono.just(datasource.getDatasourceConfiguration()))
+                    .flatMap(datasource -> {
+                        if (datasource.getDatasourceConfiguration() == null) {
+                            return Mono.just(new DatasourceConfiguration());
+                        }
+
+                        return Mono.just(datasource.getDatasourceConfiguration());
+                    })
                     .switchIfEmpty(
                             Mono.error(
                                     new AppsmithException(
