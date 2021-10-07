@@ -7,6 +7,8 @@ import type mongodb from "mongodb"
 import axios from "axios"
 import { LogLevelDesc } from "loglevel";
 import log from "loglevel";
+import redis from "redis";
+
 import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread, MousePointerEvent } from "./models"
 
 const RTS_BASE_PATH = "/rts"
@@ -21,6 +23,8 @@ const START_EDIT_EVENT_NAME : string = "collab:start_edit"
 const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
 const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
 const RELEASE_VERSION_EVENT_NAME : string = "info:release_version"
+
+const API_VERSION_INFO_CHANNEL = "API_BUILD_VERSION"
 
 // release version of the api
 let apiReleaseVersion = ""
@@ -44,6 +48,8 @@ if (API_BASE_URL == null || API_BASE_URL === "") {
 main()
 
 function main() {
+	const REDIS_URI = process.env.APPSMITH_REDIS_URI
+	const subscriber = redis.createClient(REDIS_URI);
 	const app = express()
 	//Disable x-powered-by header to prevent information disclosure
 	app.disable("x-powered-by");
@@ -57,6 +63,14 @@ function main() {
 	})
 
 	const port = 8091
+
+	subscriber.on("message", function (channel, message) {
+		if(channel == API_VERSION_INFO_CHANNEL) {
+			log.debug(`API version updated. current version: ${apiReleaseVersion}, new version: ${message}`)
+			apiReleaseVersion = message;
+			io.emit(RELEASE_VERSION_EVENT_NAME, apiReleaseVersion);
+		}
+	});
 
 	app.get("/", (req, res) => {
 		res.redirect("/index.html")
@@ -115,6 +129,8 @@ function main() {
 		watchMongoDB(io)
 			.catch((error) => log.error("Error watching MongoDB", error))
 
+		subscriber.subscribe(API_VERSION_INFO_CHANNEL);
+
 		// run the server
 		server.listen(port, () => {
 			log.info(`RTS will communicate with API: ${API_BASE_URL}, release version: ${apiReleaseVersion}`)
@@ -124,6 +140,7 @@ function main() {
 	.catch(function (error) {
 		log.error(`Failed to connect to ${API_BASE_URL}/release`, error);
 		log.error('Aborting... Please make sure API is running and then try again')
+		process.exit(1)
 	});
 }
 
