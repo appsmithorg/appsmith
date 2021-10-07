@@ -300,6 +300,10 @@ public class FileUtilsImpl implements FileInterface {
             File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
             for(File file : files) {
                 if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
+                    //Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
+                    while (file.exists()) {
+                        FileSystemUtils.deleteRecursively(file);
+                    }
                     return false;
                 }
             }
