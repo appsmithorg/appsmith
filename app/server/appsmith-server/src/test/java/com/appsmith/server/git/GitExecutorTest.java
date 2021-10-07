@@ -50,17 +50,4 @@ public class GitExecutorTest {
     public void connectApplication_validEmptyRepo_Success() throws GitAPIException, IOException {
 
     }
-
-    @Test
-    public void connectApplication_validNonEmptyRepo_Success() throws GitAPIException, IOException {
-        try {
-            gitExecutor.connectApplication(
-                    Paths.get(gitServiceConfig.getGitRootPath()+"orgId"+"appId"+"repoName"),
-                    gitRemoteUrl,
-                    "PVT_KEY",
-                    "PUBLIC_KEY");
-        } catch (Exception e) {
-            assert e.getMessage().contains("The remote repo is not empty.");
-        }
-    }
 }

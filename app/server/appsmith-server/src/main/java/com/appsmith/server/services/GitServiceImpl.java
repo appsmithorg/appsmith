@@ -34,7 +34,6 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -64,6 +63,7 @@ public class GitServiceImpl implements GitService {
     private final GitExecutor gitExecutor;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "Appsmith default generated commit";
+    private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
 
     @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, Boolean isDefault, String defaultApplicationId) {
@@ -164,8 +164,8 @@ public class GitServiceImpl implements GitService {
             .flatMap(childApplication -> {
                 GitApplicationMetadata gitApplicationMetadata = childApplication.getGitApplicationMetadata();
                 if (gitApplicationMetadata == null) {
-                    throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find the git " +
-                            "configuration, please configure the your application to use version control service");
+                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find the git " +
+                            "configuration, please configure the your application to use version control service"));
                 }
                 String errorEntity = "";
                 if (StringUtils.isEmptyOrNull(gitApplicationMetadata.getBranchName())) {
@@ -177,7 +177,7 @@ public class GitServiceImpl implements GitService {
                 }
 
                 if (!errorEntity.isEmpty()) {
-                    throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity);
+                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity));
                 }
                 return Mono.zip(
                         importExportApplicationService
@@ -202,7 +202,7 @@ public class GitServiceImpl implements GitService {
                     return Mono.error(new AppsmithException(AppsmithError.IO_ERROR, e.getMessage()));
                 }
             })
-            .map(tuple -> {
+            .flatMap(tuple -> {
                 Path baseRepoPath = tuple.getT1();
                 Application childApplication = tuple.getT3();
                 GitApplicationMetadata gitApplicationData = childApplication.getGitApplicationMetadata();
@@ -210,31 +210,28 @@ public class GitServiceImpl implements GitService {
                         tuple.getT2().getDefaultOrAppSpecificGitProfiles(gitApplicationData.getDefaultApplicationId());
 
                 if (authorProfile == null) {
-                    throw new AppsmithException(
+                    return Mono.error(new AppsmithException(
                             AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
                             " You can set up a git profile from the user profile section."
-                    );
+                    ));
                 }
-                    result.append("Commit Result : ");
-                try {
-                    result.append(gitExecutor.commitApplication(
-                        baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail())
-                    );
-                    return childApplication;
-                } catch (IOException | GitAPIException e) {
-                    log.error("git commit exception : ", e);
-                    if (e instanceof EmptyCommitException) {
-                        final String emptyCommitError = "On current branch nothing to commit, working tree clean";
-                        if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
-                            result.append(emptyCommitError);
-                            return childApplication;
-                        }
-                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", emptyCommitError);
-                    }
-                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e.getMessage());
-                }
+                result.append("Commit Result : ");
+                return Mono.zip(gitExecutor.commitApplication(
+                        baseRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail()),Mono.just(childApplication))
+                        .onErrorResume(error -> {
+                            if (error instanceof EmptyCommitException) {
+                                if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
+                                    return Mono.zip(Mono.just(EMPTY_COMMIT_ERROR_MESSAGE), Mono.just(childApplication));
+                                }
+                                throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", EMPTY_COMMIT_ERROR_MESSAGE);
+                            }
+                            throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage());
+                        });
             })
-            .flatMap(childApplication -> {
+            .flatMap(tuple -> {
+                Application childApplication = tuple.getT2();
+                String commitStatus = tuple.getT1();
+                result.append(commitStatus);
 
                 if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
                     //push flow
@@ -257,24 +254,23 @@ public class GitServiceImpl implements GitService {
         String branchName = params.getFirst(FieldName.BRANCH_NAME);
 
         return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, READ_APPLICATIONS)
-            .flatMap(application -> {
-                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                if ( gitData == null || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_GIT_CONFIGURATION,
-                            "branch name is not available. Please reconfigure the application to connect to git repo"
-                    ));
-                }
-                try {
+                .flatMap(application -> {
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    if (gitData == null || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "branch name is not available. Please reconfigure the application to connect to git repo"
+                        ));
+                    }
                     Path baseRepoSuffix = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
                     // Checkout to branch
-                    return gitExecutor.checkoutToBranch(baseRepoSuffix, gitData.getBranchName())
-                            .then(gitExecutor.getCommitHistory(baseRepoSuffix));
-
-                } catch (IOException | GitAPIException e) {
-                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage()));
-                }
-            });
+                    return Mono.zip(gitExecutor.checkoutToBranch(baseRepoSuffix, gitData.getBranchName()), Mono.just(baseRepoSuffix))
+                            .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage())));
+                }).flatMap(tuple -> {
+                    Path baseRepoSuffix = tuple.getT2();
+                    return gitExecutor.getCommitHistory(baseRepoSuffix)
+                            .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage())));
+                });
     }
 
     /**
@@ -309,28 +305,25 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
-                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     } else {
-                        Mono<String> defaultBranch;
                         String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
-                        try {
-                            defaultBranch = gitExecutor.cloneApplication(
-                                    repoPath,
-                                    gitConnectDTO.getRemoteUrl(),
-                                    gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                    gitApplicationMetadata.getGitAuth().getPublicKey()
-                            );
-                        } catch (GitAPIException | IOException e) {
-                            if (e instanceof TransportException) {
+                        Mono<String> defaultBranch = gitExecutor.cloneApplication(
+                                repoPath,
+                                gitConnectDTO.getRemoteUrl(),
+                                gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                gitApplicationMetadata.getGitAuth().getPublicKey()
+                        ).onErrorResume(error -> {
+                            if (error instanceof TransportException) {
                                 return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE, "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"));
                             }
-                            if (e instanceof InvalidRemoteException) {
+                            if (error instanceof InvalidRemoteException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
                             }
-                            log.error("Error while cloning the remote repo, {}", e.getMessage());
+                            log.error("Error while cloning the remote repo, {}", error.getMessage());
                             return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                        }
+                        });
                         return Mono.zip(
                                 Mono.just(application),
                                 defaultBranch,
@@ -453,22 +446,17 @@ public class GitServiceImpl implements GitService {
                             || StringUtils.isEmptyOrNull(gitData.getDefaultApplicationId())
                             || StringUtils.isEmptyOrNull(gitData.getGitAuth().getPrivateKey())) {
 
-                        throw new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION,
-                                "Please reconfigure the application to connect to git repo"
-                        );
-                    }
-                    try {
-                        Path baseRepoSuffix =
-                                Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
-
-                        GitAuth gitAuth = gitData.getGitAuth();
-                        return gitExecutor.checkoutToBranch(baseRepoSuffix, application.getGitApplicationMetadata().getBranchName())
-                                .then(gitExecutor.pushApplication(baseRepoSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), gitAuth.getPrivateKey()
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION, "Please reconfigure the application to connect to git repo"
                         ));
-                    } catch (IOException | GitAPIException | URISyntaxException e) {
-                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", e.getMessage());
                     }
+                    Path baseRepoSuffix =
+                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+
+                    GitAuth gitAuth = gitData.getGitAuth();
+                    return gitExecutor.checkoutToBranch(baseRepoSuffix, application.getGitApplicationMetadata().getBranchName())
+                            .then(gitExecutor.pushApplication(baseRepoSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), gitAuth.getPrivateKey()))
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage())));
                 });
     }
 
@@ -527,19 +515,17 @@ public class GitServiceImpl implements GitService {
         }
 
         return applicationService.getApplicationByBranchNameAndDefaultApplication(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
-            .flatMap(srcApplication -> {
-                GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
-                if (srcBranchGitData == null
-                        || srcBranchGitData.getDefaultApplicationId() == null
-                        || srcBranchGitData.getRepoName() == null) {
-                    throw new AppsmithException(
-                            AppsmithError.INVALID_GIT_CONFIGURATION,
-                            "Unable to find the parent branch. Please create a branch from other available branches"
-                    );
-                }
-                Path repoSuffix = Paths.get(srcApplication.getOrganizationId(), srcBranchGitData.getDefaultApplicationId(), srcBranchGitData.getRepoName());
-                try {
-
+                .flatMap(srcApplication -> {
+                    GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
+                    if (srcBranchGitData == null
+                            || srcBranchGitData.getDefaultApplicationId() == null
+                            || srcBranchGitData.getRepoName() == null) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "Unable to find the parent branch. Please create a branch from other available branches"
+                        ));
+                    }
+                    Path repoSuffix = Paths.get(srcApplication.getOrganizationId(), srcBranchGitData.getDefaultApplicationId(), srcBranchGitData.getRepoName());
                     // Create a new branch from the parent checked out branch
                     return gitExecutor.createAndCheckoutToBranch(repoSuffix, branchDTO.getBranchName())
                             .flatMap(branchName -> {
@@ -555,20 +541,17 @@ public class GitServiceImpl implements GitService {
                                         applicationService.save(srcApplication),
                                         importExportApplicationService.exportApplicationById(srcApplicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                                 );
-                            });
+                            }).onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "branch", error.getMessage())));
 
-                } catch (IOException | GitAPIException e) {
-                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "branch", e.getMessage());
-                }
-            })
-            .flatMap(tuple -> {
-                Application savedApplication = tuple.getT1();
-                return importExportApplicationService.importApplicationInOrganization(
-                    savedApplication.getOrganizationId(),
-                    tuple.getT2(),
-                    savedApplication.getId()
-                );
-            });
+                })
+                .flatMap(tuple -> {
+                    Application savedApplication = tuple.getT1();
+                    return importExportApplicationService.importApplicationInOrganization(
+                            savedApplication.getOrganizationId(),
+                            tuple.getT2(),
+                            savedApplication.getId()
+                    );
+                });
     }
 
     public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
@@ -654,7 +637,7 @@ public class GitServiceImpl implements GitService {
                                 Mono.just(application),
                                 Mono.just(gitApplicationMetadata.getGitAuth()));
                     } catch (IOException | GitAPIException e) {
-                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
                     }
                 })
                 .flatMap( applicationTuple-> {
@@ -664,41 +647,41 @@ public class GitServiceImpl implements GitService {
                     Path repoPath = Paths.get(application.getOrganizationId(),
                             defaultApplicationId,
                             application.getGitApplicationMetadata().getRepoName());
-                    try {
-                        //2. git pull origin branchName
-                        Mono<String> pullStatus = gitExecutor.pullApplication(
-                                repoPath,
-                                gitApplicationMetadata.getRemoteUrl(),
-                                gitApplicationMetadata.getBranchName(),
-                                gitAuth.getPrivateKey(),
-                                gitAuth.getPublicKey());
-                        return pullStatus.flatMap(status -> {
-                            //3. Hydrate from file system to db
-                            ApplicationJson applicationJson = null;
-                            try {
-                                applicationJson = fileUtils.reconstructApplicationFromGitRepo(
-                                        application.getOrganizationId(),
-                                        defaultApplicationId,
-                                        application.getGitApplicationMetadata().getRepoName(),
-                                        branchName);
-                            } catch (IOException | GitAPIException e) {
-                                if (e.getMessage().contains("Nothing to fetch.")) {
+                    //2. git pull origin branchName
+                    Mono<String> pullStatus = gitExecutor.pullApplication(
+                            repoPath,
+                            gitApplicationMetadata.getRemoteUrl(),
+                            gitApplicationMetadata.getBranchName(),
+                            gitAuth.getPrivateKey(),
+                            gitAuth.getPublicKey())
+                            .onErrorResume(error -> {
+                                if (error.getMessage().contains("Nothing to fetch.")) {
                                     return Mono.just("Nothing to fetch from remote. All changes are upto date.");
                                 } else {
-                                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
+                                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage());
                                 }
+                            });
+
+                    return pullStatus.flatMap(status -> {
+                        //3. Hydrate from file system to db
+                        ApplicationJson applicationJson = null;
+                        try {
+                            applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                                    application.getOrganizationId(),
+                                    defaultApplicationId,
+                                    application.getGitApplicationMetadata().getRepoName(),
+                                    branchName);
+                        } catch (IOException | GitAPIException e) {
+                            if (e.getMessage().contains("Nothing to fetch.")) {
+                                return Mono.just("Nothing to fetch from remote. All changes are upto date.");
+                            } else {
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
                             }
-                            //4. Get the latest application mono with all the changes
-                            return importExportApplicationService
-                                    .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId());
-                        });
-                    } catch (IOException | GitAPIException e) {
-                        if (e.getMessage().contains("Nothing to fetch.")) {
-                            return Mono.just("Nothing to fetch from remote. All changes are upto date.");
-                        } else {
-                            throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
                         }
-                    }
+                        //4. Get the latest application mono with all the changes
+                        return importExportApplicationService
+                                .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId());
+                    });
                 });
     }
 
@@ -714,14 +697,12 @@ public class GitServiceImpl implements GitService {
                 Path repoPath = Paths.get(application.getOrganizationId(),
                         gitApplicationMetadata.getDefaultApplicationId(),
                         gitApplicationMetadata.getRepoName());
-                try {
-                    return gitExecutor.getBranches(repoPath);
-                } catch (IOException | GitAPIException e) {
-                    return Mono.error(new AppsmithException(
-                        AppsmithError.GIT_ACTION_FAILED,
-                        "branch --list",
-                        "Error while accessing the file system. Details :" + e.getMessage()));
-                }
+                return gitExecutor.getBranches(repoPath)
+                        .onErrorResume(error -> Mono.error(new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED,
+                                "branch --list",
+                                "Error while accessing the file system. Details :" + error.getMessage()))
+                        );
             });
     }
 
@@ -735,9 +716,9 @@ public class GitServiceImpl implements GitService {
                 }
 
                 if (!defaultApplicationId.equals(gitData.getDefaultApplicationId())) {
-                    throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "defaultApplicationId");
+                    return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "defaultApplicationId"));
                 } else if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
-                    throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                 }
 
                 return userDataService.getForCurrentUser()
@@ -786,16 +767,11 @@ public class GitServiceImpl implements GitService {
                     try {
                         return fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName);
                     } catch (IOException | GitAPIException e) {
-                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage());
-                    }
-                })
-                .flatMap(repoPath -> {
-                    try {
-                        return gitExecutor.getStatus(repoPath, branchName);
-                    } catch (GitAPIException | IOException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
-                });
+                })
+                .flatMap(repoPath -> gitExecutor.getStatus(repoPath, branchName)
+                        .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()))));
     }
 
     @Override
@@ -804,16 +780,14 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
-                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     }
                     Path repoPath = Paths.get(application.getOrganizationId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
-                    try {
-                        return gitExecutor.mergeBranch(repoPath, sourceBranch, destinationBranch);
-                    } catch (IOException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                    }
+
+                    return gitExecutor.mergeBranch(repoPath, sourceBranch, destinationBranch)
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)));
                 });
     }
 

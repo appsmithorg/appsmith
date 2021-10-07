@@ -15,7 +15,6 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -28,7 +27,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneId;
@@ -62,14 +60,14 @@ public class GitExecutorImpl implements GitExecutor {
      * @param authorName author details
      * @param authorEmail author details
      * @return if the commit was successful
-     * @throws IOException Exceptions due to file operations
-     * @throws GitAPIException exceptions due to git commands
+     *   Exceptions due to file operations
+     *  GitAPIException exceptions due to git commands
      */
     @Override
     public Mono<String> commitApplication(Path repoPath,
                                           String commitMessage,
                                           String authorName,
-                                          String authorEmail) throws IOException, GitAPIException {
+                                          String authorEmail) {
         return Mono.fromCallable(() -> {
             log.debug("Trying to commit to local repo path, {}", repoPath);
             // Check if the repo has been already initialised
@@ -113,11 +111,11 @@ public class GitExecutorImpl implements GitExecutor {
      * Method to get the commit history
      * @param repoSuffix Path used to generate the repo url specific to the application for which the commit history is requested
      * @return list of git commits
-     * @throws IOException
-     * @throws GitAPIException
+     *
+     *  GitAPIException
      */
     @Override
-    public Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix) throws IOException, GitAPIException {
+    public Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix) {
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": get commit history for  " + repoSuffix);
             List<GitLogDTO> commitLogs = new ArrayList<>();
@@ -151,14 +149,14 @@ public class GitExecutorImpl implements GitExecutor {
      * @param publicKey
      * @param privateKey
      * @return Success message
-     * @throws IOException exception thrown if git open repo failed
-     * @throws GitAPIException git exceptions
+     *   exception thrown if git open repo failed
+     *  GitAPIException git exceptions
      */
     @Override
     public Mono<String> pushApplication(Path branchSuffix,
                                         String remoteUrl,
                                         String publicKey,
-                                        String privateKey) throws IOException, GitAPIException {
+                                        String privateKey) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
@@ -185,33 +183,10 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public String connectApplication(Path repoSuffix,
-                                        String remoteUrl,
-                                        String privateSshKey,
-                                        String publicSshKey) throws GitAPIException, IOException {
-        final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
-        /*
-         * Check if the remote repo is empty/bare and if empty
-         * clone the repo and Initialize the repo with Readme.md file
-         * Readme.md file contains the the link to deployed app in Appsmith and basic information
-         * Commit and push these changes to the remote repo - Initial commit from Appsmith
-         * */
-        if (Git.lsRemoteRepository()
-                .setRemote(remoteUrl)
-                .setTransportConfigCallback(transportConfigCallback)
-                .call()
-                .isEmpty()) {
-            return "cloneApplication(repoSuffix, remoteUrl, privateSshKey, publicSshKey)";
-        }
-        throw new NotSupportedException("The remote repo is not empty. Please create a new empty repo and configure the SSH keys. " +
-                "If you want to clone from remote repo and build application, please go to the Clone Application option.");
-    }
-
-    @Override
     public Mono<String> cloneApplication(Path repoSuffix,
                            String remoteUrl,
                            String privateSshKey,
-                           String publicSshKey) throws GitAPIException, IOException {
+                           String publicSshKey) {
 
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
@@ -233,7 +208,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException {
+    public Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo "+repoSuffix);
@@ -252,7 +227,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<Boolean> checkoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException {
+    public Mono<Boolean> checkoutToBranch(Path repoSuffix, String branchName) {
 
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": Switching to the branch " + branchName);
@@ -279,7 +254,7 @@ public class GitExecutorImpl implements GitExecutor {
                                         String remoteUrl,
                                         String branchName,
                                         String privateKey,
-                                        String publicKey) throws IOException, GitAPIException {
+                                        String publicKey) {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
         return Mono.fromCallable(() -> {
             Git git = Git.open(repoPath.toFile());
@@ -301,7 +276,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<String>> getBranches(Path repoSuffix) throws GitAPIException, IOException {
+    public Mono<List<String>> getBranches(Path repoSuffix) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
@@ -329,11 +304,11 @@ public class GitExecutorImpl implements GitExecutor {
      * @param repoPath Path to actual repo
      * @param branchName branch name for which the status is required
      * @return Map of file names those are added, removed, modified
-     * @throws GitAPIException exceptions due to git commands
-     * @throws IOException Exceptions due to file operations
+     *  GitAPIException exceptions due to git commands
+     *   Exceptions due to file operations
      */
     @Override
-    public Mono<Map<String, Object>> getStatus(Path repoPath, String branchName) throws IOException, GitAPIException {
+    public Mono<Map<String, Object>> getStatus(Path repoPath, String branchName) {
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + " and branch name " + branchName);
             Git git = Git.open(repoPath.toFile());
@@ -364,7 +339,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) throws IOException {
+    public Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch)  {
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
             Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
