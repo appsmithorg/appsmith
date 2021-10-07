@@ -96,10 +96,7 @@ function Hit(props: { hit: { path: string } }) {
   );
 }
 
-function DefaultHelpMenuItem(props: {
-  item: { label: string; link?: string; id?: string; icon: React.ReactNode };
-  onSelect: () => void;
-}) {
+function DefaultHelpMenuItem(props: { item: HelpItem; onSelect: () => void }) {
   return (
     <li className="ais-Hits-item">
       <div
@@ -118,12 +115,14 @@ function DefaultHelpMenuItem(props: {
         <div className="hit-name t--docHitTitle">
           {props.item.icon}
           <span className="ais-Highlight">{props.item.label}</span>
-          <StyledOpenLinkIcon
-            className="t--docOpenLink open-link"
-            color={"#4b4848"}
-            height={12}
-            width={12}
-          />
+          {props.item.showLinkIcon && (
+            <StyledOpenLinkIcon
+              className="t--docOpenLink open-link"
+              color={"#4b4848"}
+              height={12}
+              width={12}
+            />
+          )}
         </div>
       </div>
     </li>
@@ -312,6 +311,7 @@ type HelpItem = {
   link?: string;
   id?: string;
   icon: React.ReactNode;
+  showLinkIcon: boolean;
 };
 
 const HELP_MENU_ITEMS: HelpItem[] = [
@@ -319,16 +319,19 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     icon: <StyledDocumentIcon color="#4b4848" height={14} width={14} />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
+    showLinkIcon: true,
   },
   {
     icon: <StyledGithubIcon color="#4b4848" height={14} width={14} />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
+    showLinkIcon: true,
   },
   {
     icon: <StyledDiscordIcon color="#4b4848" height={14} width={14} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
+    showLinkIcon: true,
   },
 ];
 
@@ -337,6 +340,7 @@ if (intercomAppID && window.Intercom) {
     icon: <StyledChatIcon color="#4b4848" height={14} width={14} />,
     label: "Chat with us",
     id: "intercom-trigger",
+    showLinkIcon: false,
   });
 }
 
