@@ -101,6 +101,9 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                   background-color: #000;
                   color: #fff;
                 }
+                & .t--application-view-link:hover {
+                  background-color: #666;
+                }
 
                 & .t--application-edit-link, & .t--application-view-link {
                   span {
