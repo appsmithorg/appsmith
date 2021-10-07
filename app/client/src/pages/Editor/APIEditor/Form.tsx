@@ -42,7 +42,11 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import {
+  API_EDITOR_TAB_TITLES,
+  createMessage,
+  WIDGET_BIND_HELP,
+} from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
@@ -525,7 +529,7 @@ function ApiEditorForm(props: Props) {
                 tabs={[
                   {
                     key: "headers",
-                    title: "Headers",
+                    title: API_EDITOR_TAB_TITLES.HEADERS(),
                     count: headersCount,
                     panelComponent: (
                       <TabSection>
@@ -552,7 +556,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "params",
-                    title: "Params",
+                    title: API_EDITOR_TAB_TITLES.PARAMS(),
                     count: paramsCount,
                     panelComponent: (
                       <TabSection>
@@ -568,7 +572,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "body",
-                    title: "Body",
+                    title: API_EDITOR_TAB_TITLES.BODY(),
                     panelComponent: allowPostBody ? (
                       <PostBodyData
                         dataTreePath={`${actionName}.config`}
@@ -584,7 +588,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "pagination",
-                    title: "Pagination",
+                    title: API_EDITOR_TAB_TITLES.PAGINATION(),
                     panelComponent: (
                       <Pagination
                         onTestClick={props.onRunClick}
@@ -595,12 +599,12 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "authentication",
-                    title: "Authentication",
+                    title: API_EDITOR_TAB_TITLES.AUTHENTICATION(),
                     panelComponent: <ApiAuthentication />,
                   },
                   {
                     key: "settings",
-                    title: "Settings",
+                    title: API_EDITOR_TAB_TITLES.SETTINGS(),
                     panelComponent: (
                       <SettingsWrapper>
                         <ActionSettings

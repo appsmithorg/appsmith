@@ -704,3 +704,13 @@ export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
 export const WELCOME_ACTION = () => "Get Started";
+
+// API Editor
+export const API_EDITOR_TAB_TITLES = {
+  HEADERS: () => "Headers",
+  PARAMS: () => "Params",
+  BODY: () => "Body",
+  PAGINATION: () => "Pagination",
+  AUTHENTICATION: () => "Authentication",
+  SETTINGS: () => "Settings",
+};
