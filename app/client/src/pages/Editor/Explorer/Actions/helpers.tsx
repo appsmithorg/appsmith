@@ -65,11 +65,11 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
-      if (pluginType === PluginType.SAAS) {
+      if (!!plugin && pluginType === PluginType.SAAS) {
         return `${SAAS_EDITOR_API_ID_URL(
           applicationId,
           pageId,
-          !!plugin ? plugin.packageName : "",
+          plugin.packageName,
           id,
         )}`;
       } else if (
@@ -83,7 +83,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     },
     getIcon: (action: any, plugin: Plugin) => {
       if (plugin && plugin.type !== PluginType.API && plugin.iconLocation)
-        return <QueryIcon plugin={plugin} />;
+        return <QueryIcon />;
       else if (plugin && plugin.type === PluginType.DB) return dbQueryIcon;
 
       const method = action.actionConfiguration.httpMethod;
