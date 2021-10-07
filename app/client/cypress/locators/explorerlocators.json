@@ -4,6 +4,7 @@
     "NoWidgetsMsg": "p:contains('icon above to add widgets')",
     "AddPage": ".pages .t--entity-add-btn",
     "addEntityAPI": ".datasources .t--entity-add-btn",
+    "addEntityJSEditor": ".js_actions .t--entity-add-btn",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
     "entityText": ".t--entity-name:contains('Text1')",

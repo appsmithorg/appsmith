@@ -1,11 +1,5 @@
-import React, {
-  useState,
-  useRef,
-  RefObject,
-  useCallback,
-  useEffect,
-} from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
+import React, { useRef, RefObject, useCallback } from "react";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -26,7 +20,6 @@ import {
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
 } from "constants/messages";
-import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import Icon from "components/ads/Icon";
@@ -40,8 +33,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import Button, { Size } from "components/ads/Button";
-import { getActionTabsInitialIndex } from "selectors/editorSelectors";
-import { setActionTabsInitialIndex } from "actions/pluginActionActions";
+import EntityBottomTabs from "./EntityBottomTabs";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { setCurrentTab } from "actions/debuggerActions";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -84,7 +78,7 @@ const ResponseTabWrapper = styled.div`
   width: 100%;
 `;
 
-const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
+const TabbedViewWrapper = styled.div`
   height: 100%;
 
   &&& {
@@ -92,19 +86,6 @@ const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
       padding: 0px ${(props) => props.theme.spaces[12]}px;
     }
   }
-
-  ${(props) =>
-    props.isCentered
-      ? `
-    &&& {
-      .react-tabs__tab-panel {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    }
-  `
-      : null}
 
   & {
     .react-tabs__tab-panel {
@@ -238,7 +219,7 @@ function ApiResponseView(props: Props) {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "API",
     });
-    setSelectedIndex(1);
+    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
   const onRunClick = () => {
@@ -248,8 +229,6 @@ function ApiResponseView(props: Props) {
     });
   };
 
-  const initialIndex = useSelector(getActionTabsInitialIndex);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const messages = response?.messages;
 
   const tabs = [
@@ -313,46 +292,21 @@ function ApiResponseView(props: Props) {
       ),
     },
     {
-      key: "ERROR",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={props.apiName} />,
     },
     {
-      key: "ENTITY_DEPENDENCIES",
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
       title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
     },
   ];
-
-  useEffect(() => {
-    if (selectedIndex !== initialIndex) setSelectedIndex(initialIndex);
-  }, [initialIndex]);
-
-  useEffect(() => {
-    // reset on unmount
-    return () => {
-      dispatch(setActionTabsInitialIndex(0));
-    };
-  }, []);
-
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(tabs[index].key) &&
-      debuggerTabKeys.includes(tabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: tabs[index].key,
-      });
-    }
-    dispatch(setActionTabsInitialIndex(index));
-    setSelectedIndex(index);
-  };
 
   return (
     <ResponseContainer ref={panelRef}>
@@ -363,9 +317,7 @@ function ApiResponseView(props: Props) {
           Sending Request
         </LoadingOverlayScreen>
       )}
-      <TabbedViewWrapper
-        isCentered={_.isEmpty(response.body) && selectedIndex === 0}
-      >
+      <TabbedViewWrapper>
         {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
@@ -407,11 +359,7 @@ function ApiResponseView(props: Props) {
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
-        <TabComponent
-          onSelect={onTabSelect}
-          selectedIndex={selectedIndex}
-          tabs={tabs}
-        />
+        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
       </TabbedViewWrapper>
     </ResponseContainer>
   );
