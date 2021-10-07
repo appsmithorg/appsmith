@@ -23,6 +23,8 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.appsmith.server.constants.Appsmith.API_BUILD_VERSION;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -38,8 +40,6 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        System.out.println("\n\nNAYAN on applicationReadyEvent\n\n");
-
         configService.getByName(Appsmith.APPSMITH_REGISTERED)
                 .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(registerInstance())
@@ -54,7 +54,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private Mono<Long> publishReleaseVersionToRedis() {
         String releaseVersion = releaseNotesService.getReleasedVersion();
-        return reactiveTemplate.convertAndSend("currentApiVersion", releaseVersion);
+        return reactiveTemplate.convertAndSend(API_BUILD_VERSION, releaseVersion);
     }
 
     private Mono<? extends Config> registerInstance() {
