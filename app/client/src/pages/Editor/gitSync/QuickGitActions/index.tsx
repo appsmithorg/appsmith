@@ -185,7 +185,7 @@ export default function QuickGitActions() {
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,
-          tab: GitSyncModalTab.GIT_CONNECTION,
+          tab: GitSyncModalTab.DEPLOY,
         }),
       );
     },

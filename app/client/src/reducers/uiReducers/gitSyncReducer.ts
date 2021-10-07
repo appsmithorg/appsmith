@@ -227,7 +227,7 @@ export type GitStatusData = {
 };
 
 export type GitSyncReducerState = {
-  isGitSyncModalOpen?: boolean;
+  isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
   isCommitSuccessful: boolean;
   isPushSuccessful: boolean;

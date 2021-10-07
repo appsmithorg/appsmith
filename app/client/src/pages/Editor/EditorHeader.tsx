@@ -61,6 +61,7 @@ import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
+import { GitSyncModalTab } from "entities/GitSync";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -277,7 +278,9 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+    dispatch(
+      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    );
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const handleClickDeploy = useCallback(() => {
