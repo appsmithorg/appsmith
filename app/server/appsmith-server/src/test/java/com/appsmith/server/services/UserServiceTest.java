@@ -509,7 +509,7 @@ public class UserServiceTest {
                     assertNotNull(userData);
                     assertThat(user.getName()).isEqualTo("New name of user here");
                     assertThat(userData.getRole()).isEqualTo("New role of user");
-                    assertThat(userData.getUserId()).isEqualTo("New use case");
+                    assertThat(userData.getUseCase()).isEqualTo("New use case");
                 })
                 .verifyComplete();
     }
