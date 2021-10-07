@@ -2740,10 +2740,13 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
   cy.togglebarDisable(togglecss);
 });
 
-Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
-  // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
   const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
-  cy.get(selector).should("be.visible");
+  return selector;
+});
+
+Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
