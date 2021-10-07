@@ -20,16 +20,19 @@ export type DropdownProps = CommonComponentProps & {
   onSelect: (selectedValue: DropdownOption) => void;
   selectedIndex: number;
   position?: Position;
+  selectedTextWidth?: string;
 };
 
-const SelectedItem = styled.div`
+const SelectedItem = styled.div<{
+  width?: string;
+}>`
   display: flex;
   align-items: center;
   cursor: pointer;
   user-select: none;
-
   .${Classes.TEXT} {
     margin-right: ${(props) => props.theme.spaces[1] + 1}px;
+    width: ${(props) => props.width || "auto"};
   }
 `;
 
@@ -105,7 +108,7 @@ function TableDropdown(props: DropdownProps) {
       usePortal={false}
     >
       <Content isLoading={props.isLoading}>
-        <SelectedItem className="selected-item">
+        <SelectedItem className="selected-item" width={props.selectedTextWidth}>
           <Text type={TextType.P1}>{selectedOption.name}</Text>
           <Icon
             fillColor="#A9A7A7"

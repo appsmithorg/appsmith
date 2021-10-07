@@ -77,6 +77,7 @@ export type DropdownProps = CommonComponentProps &
      */
     fillOptions?: boolean;
     dontUsePortal?: boolean;
+    hideSubText?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -87,6 +88,7 @@ export interface DefaultDropDownValueNodeProps {
   placeholder?: string;
   showDropIcon?: boolean;
   optionWidth: string;
+  hideSubText?: boolean;
 }
 
 export interface RenderDropdownOptionType {
@@ -393,6 +395,7 @@ const ErrorLabel = styled.span`
 
 function DefaultDropDownValueNode({
   errorMsg,
+  hideSubText,
   optionWidth,
   placeholder,
   renderNode,
@@ -437,7 +440,7 @@ function DefaultDropDownValueNode({
             />
           ) : null}
           <Label />
-          {selected?.subText ? (
+          {selected?.subText && !hideSubText ? (
             <StyledSubText
               className="sub-text"
               showDropIcon={showDropIcon}
@@ -634,6 +637,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         <SelectedValueNode
           errorMsg={errorMsg}
+          hideSubText={props.hideSubText}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
           renderNode={renderOption}
@@ -673,7 +677,7 @@ export default function Dropdown(props: DropdownProps) {
       width={dropdownWidth}
     >
       <Popover
-        boundary="scrollParent"
+        boundary="viewport"
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}
