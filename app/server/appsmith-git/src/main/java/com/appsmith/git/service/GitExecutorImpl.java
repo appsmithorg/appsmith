@@ -282,7 +282,7 @@ public class GitExecutorImpl implements GitExecutor {
                     .count();
             git.close();
             if (count > 0) {
-                return count + "commits merged from origin/" + branchName;
+                return count + " commits merged from origin/" + branchName;
             }
             return "Your branch is up-to-date with latest commits";
         }).subscribeOn(scheduler);
@@ -323,7 +323,7 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<Map<String, Object>> getStatus(Path repoPath, String branchName) throws IOException, GitAPIException {
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + " and branch name " + branchName);
+            System.out.println(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
             Git git = Git.open(repoPath.toFile());
             Status status = git.status().call();
             Map<String, Object> response = new HashMap<>();

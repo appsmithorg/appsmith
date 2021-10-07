@@ -669,37 +669,35 @@ public class GitServiceImpl implements GitService {
                     Application application = tuple.getT1();
                     ApplicationJson applicationJson = tuple.getT2();
 
-                    GitApplicationMetadata gitApplicationMetadata = tuple.getT3();
+                    GitApplicationMetadata gitData = tuple.getT3();
 
-                    Path repoPath = Paths.get(application.getOrganizationId(),
-                            defaultApplicationId,
-                            gitApplicationMetadata.getRepoName());
+                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitData.getRepoName());
 
                     // 1. Dehydrate application from db and save to repo after the branch checkout
                     try {
                         return Mono.zip(
                                 fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName),
                                 Mono.just(application),
-                                Mono.just(gitApplicationMetadata.getGitAuth()));
+                                Mono.just(gitData.getGitAuth()));
                     } catch (IOException | GitAPIException e) {
                         throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
                     }
                 })
-                .flatMap( applicationTuple-> {
-                    Application application = applicationTuple.getT2();
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    GitAuth gitAuth = applicationTuple.getT3();
-                    Path repoPath = Paths.get(application.getOrganizationId(),
-                            defaultApplicationId,
-                            application.getGitApplicationMetadata().getRepoName());
+                .flatMap(tuple -> {
+                    Path repoPath = tuple.getT1();
+                    Application application = tuple.getT2();
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitAuth gitAuth = tuple.getT3();
+
                     try {
                         //2. git pull origin branchName
                         Mono<String> pullStatus = gitExecutor.pullApplication(
                                 repoPath,
-                                gitApplicationMetadata.getRemoteUrl(),
-                                gitApplicationMetadata.getBranchName(),
+                                gitData.getRemoteUrl(),
+                                gitData.getBranchName(),
                                 gitAuth.getPrivateKey(),
                                 gitAuth.getPublicKey());
+
                         return pullStatus.flatMap(status -> {
                             //3. Hydrate from file system to db
                             ApplicationJson applicationJson = null;
