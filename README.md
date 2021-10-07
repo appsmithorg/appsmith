@@ -87,7 +87,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 
 ## Deployment Options
 
-Check out the instructions for the deploying Appsmith on different services:
+Check out the instructions for deploying Appsmith on different services:
 
 | **Cloud Provider** |                                                                                                                 **Link**                                                                                                                 |                                      **Documentation**                                      |
 | :----------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: |
