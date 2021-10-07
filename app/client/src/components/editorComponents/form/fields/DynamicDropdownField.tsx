@@ -7,6 +7,7 @@ interface DynamicDropdownFieldOptions {
   options: DropdownOption[];
   height?: string;
   width?: string;
+  placeholder: string;
 }
 
 type DynamicDropdownFieldProps = BaseFieldProps & DynamicDropdownFieldOptions;
