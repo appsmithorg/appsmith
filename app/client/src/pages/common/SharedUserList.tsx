@@ -56,6 +56,12 @@ const ProfileImageListName = styled.span`
   margin-left: 12px;
 `;
 
+const ProfileImageMore = styled(ProfileImage)`
+  &.org-share-user-icons {
+    cursor: pointer;
+  }
+`;
+
 type SharedUserListProps = {
   userRoles: UserRoles[];
 };
@@ -92,7 +98,7 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
           position={Position.BOTTOM}
           usePortal={false}
         >
-          <ProfileImage
+          <ProfileImageMore
             className="org-share-user-icons"
             commonName={`+${userRoles.length - 5}`}
           />
