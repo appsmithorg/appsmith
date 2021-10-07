@@ -33,6 +33,13 @@ export const entityDefinitions: Record<string, unknown> = {
       clear: "fn() -> void",
     };
   },
+  AUDIO_WIDGET: {
+    "!doc":
+      "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",
+    "!url": "https://docs.appsmith.com/widget-reference/audio",
+    playState: "number",
+    autoPlay: "bool",
+  },
   CONTAINER_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
@@ -70,6 +77,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/table",
     selectedRow: generateTypeDef(widget.selectedRow),
     selectedRows: generateTypeDef(widget.selectedRows),
+    triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
     pageNo: "number",
@@ -280,6 +288,8 @@ export const entityDefinitions: Record<string, unknown> = {
     selectedItem: generateTypeDef(widget.selectedItem),
     items: generateTypeDef(widget.items),
     listData: generateTypeDef(widget.listData),
+    pageNo: generateTypeDef(widget.pageNo),
+    pageSize: generateTypeDef(widget.pageSize),
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",
@@ -313,6 +323,45 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/menu-button",
     isVisible: isVisible,
     label: "string",
+  },
+  //TODO: fix this after development
+  SINGLE_SELECT_TREE_WIDGET: {
+    "!doc":
+      "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValue: {
+      "!type": "string",
+      "!doc": "The value selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+  },
+  MULTI_SELECT_TREE_WIDGET: {
+    "!doc":
+      "Multi TreeSelect is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A TreeSelect can capture a single choice as well as multiple choices",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
   },
   ICON_BUTTON_WIDGET: {
     "!doc":

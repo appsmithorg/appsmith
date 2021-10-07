@@ -25,11 +25,14 @@ const PageWrapper = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
+  height: 100vh;
+  overflow: auto;
+  position: relative;
+  z-index: 100;
 `;
 
 const SetupFormContainer = styled.div`
-  width: 566px;
-  padding-top: 120px;
+  padding: 120px 42px 0px 0px;
 `;
 
 const SetupStep = styled.div<{ active: boolean }>`

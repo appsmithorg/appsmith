@@ -23,7 +23,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText: "Sets the text of the widget",
             label: "Text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter text",
+            placeholderText: "Name:",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -46,6 +46,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "disableLink",
+            helpText: "Controls parsing text as Link",
+            label: "Disable Link",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
@@ -55,6 +65,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "backgroundColor",
             label: "Cell Background",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -129,6 +140,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 icon: "PARAGRAPH_TWO",
               },
             ],
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -192,6 +204,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       >
         <TextComponent
           backgroundColor={this.props.backgroundColor}
+          disableLink={this.props.disableLink || false}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
@@ -232,6 +245,7 @@ export interface TextWidgetProps
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;
+  disableLink: boolean;
 }
 
 export default TextWidget;

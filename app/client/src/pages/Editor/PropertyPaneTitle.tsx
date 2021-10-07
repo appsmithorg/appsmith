@@ -24,6 +24,7 @@ import { AnyStyledComponent } from "styled-components";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEqual } from "lodash";
+import { Colors } from "constants/Colors";
 
 const FixedTitle = styled.div`
   position: fixed;
@@ -38,7 +39,7 @@ const Wrapper = styled.div<{ iconCount: number }>`
   justify-items: center;
   align-items: center;
   height: ${(props) => props.theme.propertyPane.titleHeight}px;
-  background-color: ${(props) => props.theme.colors.propertyPane.bg};
+  background-color: ${Colors.GREY_1};
   & span.${BlueprintClasses.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;

@@ -1,14 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  Field,
-  BaseFieldProps,
-  WrappedFieldMetaProps,
-  WrappedFieldInputProps,
-} from "redux-form";
 import { Colors } from "constants/Colors";
 import { ControlProps } from "components/formControls/BaseControl";
-
+import { BaseFieldProps } from "redux-form";
 //Styled help text, intended to be used with Form Fields
 export const StyledFormInfo = styled.span`
   font-weight: normal;
@@ -113,21 +107,6 @@ export interface FormInputProps extends BaseFieldProps {
   value?: string;
   className?: string;
   showError?: boolean;
-}
-
-//wrapper on styled <input />
-function FormInput(props: FormInputProps) {
-  return (
-    <StyledInput
-      autoFocus={props.autoFocus}
-      disabled={props.disabled}
-      onChange={props.onChange}
-      placeholder={props.placeholder}
-      {...props}
-      type={props.type}
-      value={props.value}
-    />
-  );
 }
 
 interface FormLabelProps {

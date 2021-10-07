@@ -24,6 +24,13 @@ export interface ApplicationPagePayload {
   isDefault: boolean;
 }
 
+export type GitApplicationMetadata = {
+  branchName?: string;
+  remoteUrl?: string;
+  repoName?: string;
+  defaultApplicationId: string;
+};
+
 export interface ApplicationResponsePayload {
   id: string;
   name: string;
@@ -32,11 +39,7 @@ export interface ApplicationResponsePayload {
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
-  gitApplicationMetadata?: {
-    gitAuth?: {
-      publicKey?: string;
-    };
-  };
+  gitApplicationMetadata?: GitApplicationMetadata;
 }
 
 export interface FetchApplicationResponse extends ApiResponse {
@@ -129,10 +132,6 @@ export interface ImportApplicationRequest {
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
-}
-
-export interface generateSSHKeyPairRequest {
-  applicationId: string;
 }
 
 class ApplicationApi extends Api {
@@ -244,12 +243,12 @@ class ApplicationApi extends Api {
     });
   }
 
-  static generateSSHKeyPair(
-    request: generateSSHKeyPairRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.post(
-      ApplicationApi.baseURL + "ssh-keypair/" + request.applicationId,
-    );
+  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+  }
+
+  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
   }
 }
 

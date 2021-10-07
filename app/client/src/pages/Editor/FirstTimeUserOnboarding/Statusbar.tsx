@@ -16,7 +16,10 @@ import {
   getDatasources,
   getPageActions,
 } from "selectors/entitiesSelector";
-import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getInOnboardingWidgetSelection,
+} from "selectors/onboardingSelectors";
 import styled from "styled-components";
 import history from "utils/history";
 import {
@@ -29,9 +32,11 @@ import {
   ONBOARDING_STATUS_STEPS_SIXTH,
   ONBOARDING_STATUS_GET_STARTED,
   createMessage,
+  ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div<{ active: boolean }>`
   position: relative;
@@ -39,9 +44,20 @@ const Wrapper = styled.div<{ active: boolean }>`
   background-color: ${(props) =>
     props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
   cursor: ${(props) => (props.active ? "default" : "pointer")};
-  height: 83px;
+  height: ${(props) => props.theme.onboarding.statusBarHeight}px;
   padding: 10px 16px;
   transition: background-color 0.3s ease;
+
+  ${(props) =>
+    props.active &&
+    `
+      p {
+        color: ${Colors.WHITE};
+      }
+      svg {
+        fill: ${Colors.WHITE};
+      }
+  `}
 
   &:hover .hover-icons {
     opacity: 1;
@@ -49,12 +65,12 @@ const Wrapper = styled.div<{ active: boolean }>`
 `;
 
 const TitleWrapper = styled.p`
-  color: #fff;
+  color: ${Colors.GREY_10};
   ${(props) => getTypographyByKey(props, "p4")}
 `;
 
 const StatusText = styled.p`
-  color: #fff;
+  color: ${Colors.GREY_10};
   font-size: 13px;
   & .hover-icons {
     transform: translate(3px, 0px);
@@ -63,7 +79,7 @@ const StatusText = styled.p`
 `;
 
 const ProgressContainer = styled.div`
-  background-color: rgb(255, 255, 255, 0.35);
+  background-color: rgb(0, 0, 0, 0.2);
   border-radius: ${(props) => props.theme.radii[3]}px;
   overflow: hidden;
   margin-top: 12px;
@@ -74,7 +90,7 @@ const Progressbar = styled.div<StatusProgressbarType>`
   height: 6px;
   background: ${(props) =>
     props.active
-      ? "#fff"
+      ? Colors.WHITE
       : props.theme.colors.welcomeTourStickySidebarBackground};
   transition: width 0.3s ease, background 0.3s ease;
   border-radius: ${(props) => props.theme.radii[3]}px;
@@ -85,6 +101,7 @@ const StyledClose = styled(Icon)`
   top: 15px;
   right: 13px;
   opacity: 0;
+  cursor: pointer;
 `;
 
 type StatusProgressbarType = {
@@ -115,6 +132,9 @@ const useStatus = (): { percentage: number; content: string } => {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
+  const inOnboardingWidgetSelection =
+    useSelector(getInOnboardingWidgetSelection) &&
+    Object.keys(widgets).length === 1;
 
   if (isFirstTimeUserOnboardingComplete) {
     return {
@@ -125,15 +145,18 @@ const useStatus = (): { percentage: number; content: string } => {
 
   let content = "";
   let percentage = 0;
-  if (!datasources.length && !actions.length) {
+  if (!datasources.length && !actions.length && !inOnboardingWidgetSelection) {
     content =
       Object.keys(widgets).length === 1
         ? createMessage(ONBOARDING_STATUS_STEPS_FIRST)
         : createMessage(ONBOARDING_STATUS_STEPS_FIRST_ALT);
-  } else if (!actions.length) {
+  } else if (!actions.length && !inOnboardingWidgetSelection) {
     content = createMessage(ONBOARDING_STATUS_STEPS_SECOND);
   } else if (Object.keys(widgets).length === 1) {
-    content = createMessage(ONBOARDING_STATUS_STEPS_THIRD);
+    content =
+      !datasources.length && !actions.length
+        ? createMessage(ONBOARDING_STATUS_STEPS_THIRD_ALT)
+        : createMessage(ONBOARDING_STATUS_STEPS_THIRD);
   } else if (!isConnectionPresent) {
     content = createMessage(ONBOARDING_STATUS_STEPS_FOURTH);
   } else if (!isDeployed) {
@@ -213,14 +236,16 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         history.push(getOnboardingCheckListUrl(applicationId, pageId));
       }}
     >
-      <StyledClose
-        className="hover-icons"
-        color="#fff"
-        data-cy="statusbar-skip"
-        icon="cross"
-        iconSize={14}
-        onClick={endFirstTimeUserOnboarding}
-      />
+      {!isFirstTimeUserOnboardingComplete && (
+        <StyledClose
+          className="hover-icons"
+          color={Colors.GREY_10}
+          data-cy="statusbar-skip"
+          icon="cross"
+          iconSize={14}
+          onClick={endFirstTimeUserOnboarding}
+        />
+      )}
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>
@@ -229,7 +254,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         {!isChecklistPage && (
           <Icon
             className="hover-icons"
-            color="#fff"
+            color={Colors.GREY_10}
             icon="chevron-right"
             iconSize={14}
           />

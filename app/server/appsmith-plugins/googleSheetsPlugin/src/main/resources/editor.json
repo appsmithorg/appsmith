@@ -79,7 +79,8 @@
               "LIST"
             ]
           },
-          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
+          "initialValue": ""
         },
         {
           "label": "Spreadsheet Name Key",
@@ -371,6 +372,74 @@
           "placeholderText": "10"
         },
         {
+          "label": "Where Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "where"
+        },
+        {
+          "label": "Where Conditions",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
+          "controlType": "ARRAY_FIELD",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET"
+          },
+          "initialValue": [],
+          "schema": [
+            {
+              "label": "Column Name",
+              "key": "path",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "name"
+            },
+            {
+              "label": "Operator",
+              "key": "operator",
+              "controlType": "DROP_DOWN",
+              "initialValue": "EQ",
+              "options": [
+                {
+                  "label": "<",
+                  "value": "LT"
+                },
+                {
+                  "label": "<=",
+                  "value": "LTE"
+                },
+                {
+                  "label": "==",
+                  "value": "EQ"
+                },
+                {
+                  "label": ">=",
+                  "value": "GTE"
+                },
+                {
+                  "label": ">",
+                  "value": "GT"
+                },
+                {
+                  "label": "in",
+                  "value": "IN"
+                },
+                {
+                  "label": "not in",
+                  "value": "NOT_IN"
+                }
+              ]
+            },
+            {
+              "label": "Value",
+              "key": "value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "Tobias"
+            }
+          ]
+        },
+        {
           "label": "Row Object Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
           "controlType": "INPUT_TEXT",
@@ -384,7 +453,7 @@
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
             "conditionType": "OR",
-            "conditions" : [
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
@@ -409,7 +478,7 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
             "conditionType": "OR",
-            "conditions":[
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
@@ -441,7 +510,7 @@
           "evaluationSubstitutionType": "PARAMETER",
           "hidden": {
             "conditionType": "OR",
-            "conditions" : [
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
@@ -467,7 +536,7 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
             "conditionType": "OR",
-            "conditions" : [
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
@@ -485,6 +554,13 @@
             ]
           },
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Smart JSON Substitution Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].key",
+          "hidden": true,
+          "controlType": "INPUT_TEXT",
+          "initialValue": "smartSubstitution"
         }
       ]
     }

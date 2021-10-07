@@ -166,11 +166,13 @@ export type EventName =
   | "COMMENTS_ONBOARDING_SUBMIT_BUTTON_CLICK"
   | "COMMENTS_ONBOARDING_MODAL_DISMISSED"
   | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
+  | "REPLAY_UNDO"
+  | "REPLAY_REDO"
   | "SNIPPET_CUSTOMIZE"
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"
   | "SNIPPET_COPIED"
-  | "SNIPPET_CATEGORY_CLICK"
+  | "SNIPPET_LOOKUP"
   | "SIGNPOSTING_SKIP"
   | "SIGNPOSTING_CREATE_DATASOURCE_CLICK"
   | "SIGNPOSTING_CREATE_QUERY_CLICK"
@@ -322,7 +324,7 @@ class AnalyticsUtil {
           AnalyticsUtil.cachedUserId = userId;
         }
         const userProperties = {
-          userId: AnalyticsUtil.cachedUserId,
+          userId: AnalyticsUtil.cachedAnonymoustId,
           source: "ce",
         };
         log.debug(
