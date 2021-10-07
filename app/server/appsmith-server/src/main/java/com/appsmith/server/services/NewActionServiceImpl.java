@@ -1014,10 +1014,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
          */
         Mono<Plugin> pluginMono = pluginService.findById(action.getDatasource().getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
         Mono<DatasourceConfiguration> dsConfigMono;
-        if (action.getDatasource().getId() != null) {
+        if (action.getDatasource().getDatasourceConfiguration() != null) {
+            dsConfigMono = Mono.just(action.getDatasource().getDatasourceConfiguration());
+        }
+        else if (action.getDatasource().getId() != null) {
             dsConfigMono = datasourceService.findById(action.getDatasource().getId())
-                    .flatMap(datasource -> Mono.just(datasource.getDatasourceConfiguration()));
+                    .flatMap(datasource -> Mono.just(datasource.getDatasourceConfiguration()))
+                    .switchIfEmpty(
+                            Mono.error(
+                                    new AppsmithException(
+                                            AppsmithError.NO_RESOURCE_FOUND,
+                                            FieldName.DATASOURCE,
+                                            action.getDatasource().getId()
+                                    )
+                            )
+                    );
         }
         else {
             dsConfigMono = Mono.just(new DatasourceConfiguration());

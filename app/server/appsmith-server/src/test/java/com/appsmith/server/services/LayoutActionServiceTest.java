@@ -89,6 +89,9 @@ public class LayoutActionServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    //@MockBean
+    //PluginService pluginService;
+
     @Autowired
     LayoutActionService layoutActionService;
 
@@ -232,6 +235,7 @@ public class LayoutActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateActionUpdatesLayout() {
+        //Mockito.when(pluginService.findById(Mockito.any())).thenReturn(Mono.empty());
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
@@ -284,6 +288,7 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
@@ -294,6 +299,7 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 // fetch the unpublished page
@@ -568,15 +574,6 @@ public class LayoutActionServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
-
-        ActionDTO unreferencedAction = new ActionDTO();
-        unreferencedAction.setName("query2");
-        unreferencedAction.setPageId(testPage.getId());
-        unreferencedAction.setUserSetOnLoad(true);
-        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
-        actionConfiguration2.setHttpMethod(HttpMethod.GET);
-        unreferencedAction.setActionConfiguration(actionConfiguration2);
-        unreferencedAction.setDatasource(datasource);
 
         Mono<ActionDTO> resultMono = layoutActionService
                 .createSingleAction(action)
