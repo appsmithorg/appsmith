@@ -22,6 +22,9 @@ export enum INPUT_TEXT_INPUT_TYPES {
 }
 
 const StyledDynamicTextField = styled(DynamicTextField)`
+  .CodeMirror.CodeMirror-wrap {
+    background-color: #fff !important;
+  }
   &&& .t--code-editor-wrapper {
     border: none;
   }
