@@ -1,6 +1,7 @@
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
+import { getCurrentAppGitMetaData } from "./applicationSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -64,4 +65,9 @@ export const getGitStatus = createSelector(
 export const getIsDisconnectingGit = createSelector(
   getGitSyncState,
   (gitSync) => gitSync.isDisconnectingGit,
+);
+
+export const getIsGitConnected = createSelector(
+  getCurrentAppGitMetaData,
+  (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),
 );
