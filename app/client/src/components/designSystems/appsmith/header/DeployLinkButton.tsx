@@ -23,14 +23,15 @@ const DeployLinkDialog = styled.div`
 const DeployLink = styled.a`
   display: flex;
   height: 36px;
+
   width: 100%;
   justify-content: center;
   align-items: center;
-
   cursor: pointer;
   text-decoration: none;
   color: ${Colors.GREY_10};
   background-color: ${Colors.GREY_1};
+  margin: 0 5px;
   :hover {
     text-decoration: none;
     color: ${(props) => props.theme.colors.header.deployToolTipText};
@@ -40,20 +41,24 @@ const DeployLink = styled.a`
 
 const DeployUrl = styled.div`
   flex: 1;
-  flex-direction: row;
   font-size: 14px;
   color: ${Colors.GREY_10};
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* margin: 0 5px; */
 `;
 
 const GitBranchIcon = styled(GitBranch)`
   & path {
     fill: ${Colors.GREY_10};
   }
+`;
+
+const IconWrapper = styled.div`
+  display: flex;
+  width: 30px;
+  justify-content: center;
 `;
 
 type Props = {
@@ -88,21 +93,21 @@ export const DeployLinkButton = withTheme((props: Props) => {
         <DeployLinkDialog>
           {getFeatureFlags().GIT && !isGitConnected && (
             <DeployLink onClick={goToGitConnectionPopup}>
-              <DeployUrl>
+              <IconWrapper>
                 <GitBranchIcon />
-                Connect to Git Repository
-              </DeployUrl>
+              </IconWrapper>
+              <DeployUrl>Connect to Git Repository</DeployUrl>
             </DeployLink>
           )}
 
           <DeployLink href={props.link} target="_blank">
-            <DeployUrl>
+            <IconWrapper>
               <Icon
                 color={props.theme.colors.header.deployToolTipText}
                 icon="share"
               />
-              Current deployed version
-            </DeployUrl>
+            </IconWrapper>
+            <DeployUrl>Current deployed version</DeployUrl>
           </DeployLink>
         </DeployLinkDialog>
       }
