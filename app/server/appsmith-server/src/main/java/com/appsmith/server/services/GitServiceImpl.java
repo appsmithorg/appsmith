@@ -27,6 +27,7 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,48 @@ public class GitServiceImpl implements GitService {
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
 
     @Override
+    public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata){
+
+        if(Optional.ofNullable(gitApplicationMetadata).isEmpty() || gitApplicationMetadata == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Git metadata values cannot be null"));
+        }
+
+        // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
+        // @Encrypted annotation used for private SSH keys
+        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+                .flatMap(application -> {
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.save(application);
+                })
+                .flatMap(applicationService::setTransientFields);
+    }
+
+    @Override
+    public Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId) {
+        return Mono.zip(getApplicationById(defaultApplicationId), userDataService.getForCurrentUser())
+                .map(tuple -> {
+                    Application application = tuple.getT1();
+                    UserData userData = tuple.getT2();
+                    Map<String, GitProfile> gitProfiles = new HashMap<>();
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    if (!CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                        gitProfiles.put(FieldName.DEFAULT_GIT_PROFILE, userData.getDefaultOrAppSpecificGitProfiles(null));
+                        gitProfiles.put(defaultApplicationId, userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId));
+                    }
+                    if (gitData == null) {
+                        GitApplicationMetadata res = new GitApplicationMetadata();
+                        res.setGitProfiles(gitProfiles);
+                        return res;
+                    }
+                    gitData.setGitProfiles(gitProfiles);
+                    if (gitData.getGitAuth() != null) {
+                        gitData.setPublicKey(gitData.getGitAuth().getPublicKey());
+                    }
+                    return gitData;
+                });
+    }
+
+    @Override
     public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, Boolean isDefault, String defaultApplicationId) {
         if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name"));
@@ -79,14 +122,15 @@ public class GitServiceImpl implements GitService {
                         .getForUser(user.getId())
                         .flatMap(userData -> {
                             GitProfile userGitProfile = userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
+                            GitProfile defaultProfile = userData.getDefaultOrAppSpecificGitProfiles(null);
                             /*
-                             *  The gitProfiles will be null if the user has not created any git profile.
-                             *  If null or if the request is to save the profile as default then we need to create this
-                             *  field for the currentUser and save the profile data
+                             *  GitProfiles will be null if the user has not created any git profile.
+                             *  If null or if the request is to save the profile as default then we need to create update
+                             *  this field for the currentUser and save the profile data
                              *  Otherwise create a new entry or update existing entry
                              * */
 
-                            if (gitProfile.equals(userGitProfile)) {
+                            if (gitProfile.equals(userGitProfile) || gitProfile.equals(defaultProfile)) {
                                 return Mono.just(userData);
                             } else if (userGitProfile == null || Boolean.TRUE.equals(isDefault) || StringUtils.isEmptyOrNull(defaultApplicationId)) {
                                 // Assign the default config
@@ -138,7 +182,7 @@ public class GitServiceImpl implements GitService {
         /*
         1. Check if application exists and user have sufficient permissions
         2. Check if branch name exists in git metadata
-        3. Save application to the existing worktree (Directory for the specific branch)
+        3. Save application to the existing local repo
         4. Commit application : git add, git commit (Also check if git init required)
          */
         String branchName = params.getFirst(FieldName.BRANCH_NAME);
@@ -198,6 +242,10 @@ public class GitServiceImpl implements GitService {
                             Mono.just(childApplication)
                     );
                 } catch (IOException | GitAPIException e) {
+                    if (e instanceof RepositoryNotFoundException) {
+                        // TODO clone the repo and then start the commit flow once again try this for 1 more time only
+                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e);
+                    }
                     log.error("Unable to open git directory, with error : ", e);
                     return Mono.error(new AppsmithException(AppsmithError.IO_ERROR, e.getMessage()));
                 }
@@ -223,10 +271,10 @@ public class GitServiceImpl implements GitService {
                                 if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
                                     return Mono.zip(Mono.just(EMPTY_COMMIT_ERROR_MESSAGE), Mono.just(childApplication));
                                 }
-                                throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", EMPTY_COMMIT_ERROR_MESSAGE);
-                            }
-                            throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage());
-                        });
+                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", emptyCommitError);
+                    }
+                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e.getMessage());
+                });
             })
             .flatMap(tuple -> {
                 Application childApplication = tuple.getT2();
@@ -235,7 +283,7 @@ public class GitServiceImpl implements GitService {
 
                 if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
                     //push flow
-                    result.append(". Push Result : ");
+                    result.append(". Push Result: ");
                     return pushApplication(childApplication.getId(), false)
                             .map(pushResult -> result.append(pushResult).toString());
                 }
@@ -307,6 +355,7 @@ public class GitServiceImpl implements GitService {
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     } else {
+                        Mono<String> defaultBranch;
                         String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
                         Mono<String> defaultBranch = gitExecutor.cloneApplication(
@@ -482,23 +531,6 @@ public class GitServiceImpl implements GitService {
                     //Remove the git metadata from the db
                     return updateGitMetadata(applicationId, null);
                 });
-    }
-
-    @Override
-    public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata){
-
-        if(Optional.ofNullable(gitApplicationMetadata).isEmpty() || gitApplicationMetadata == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Git metadata values cannot be null"));
-        }
-
-        // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
-        // @Encrypted annotation used for private SSH keys
-        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
-                .flatMap(application -> {
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
-                    return applicationService.save(application);
-                })
-                .flatMap(applicationService::setTransientFields);
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params) {
@@ -692,7 +724,8 @@ public class GitServiceImpl implements GitService {
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                 if (gitApplicationMetadata == null || gitApplicationMetadata.getDefaultApplicationId() == null) {
                     return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_GIT_CONFIGURATION, "Can't find root application. Please configure the application with git"));
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Unable to find default application. Please configure the application with git"));
                 }
                 Path repoPath = Paths.get(application.getOrganizationId(),
                         gitApplicationMetadata.getDefaultApplicationId(),

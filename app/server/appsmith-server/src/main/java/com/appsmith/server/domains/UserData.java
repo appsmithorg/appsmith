@@ -53,7 +53,7 @@ public class UserData extends BaseDomain {
     Map<String, GitProfile> gitProfiles;
 
     public GitProfile getDefaultOrAppSpecificGitProfiles(String defaultApplicationId) {
-
+        // Always use DEFAULT_GIT_PROFILE as fallback
         if (CollectionUtils.isNullOrEmpty(this.gitProfiles)) {
             return null;
         } else if (!StringUtils.isEmpty(defaultApplicationId) && this.gitProfiles.containsKey(defaultApplicationId)) {
