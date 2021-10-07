@@ -67,6 +67,12 @@ const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
   align-items: center;
+  .t--datasource-editor {
+    background-color: transparent;
+    .cm-s-duotone-light.CodeMirror {
+      background: transparent;
+    }
+  }
 `;
 
 const hintContainerStyles: React.CSSProperties = {
@@ -311,7 +317,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       <DatasourceContainer>
         <CodeEditor
           {...props}
-          border={CodeEditorBorder.NONE}
+          border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
           height="35px"
         />
