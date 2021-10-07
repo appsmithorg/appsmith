@@ -16,13 +16,13 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "./constants";
 
 import GitErrorPopup from "./components/GitErrorPopup";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";
-import { GitSyncModalTab } from "../../../entities/GitSync";
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 
 const Container = styled.div`
-  height: 656px;
+  height: 600px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -56,25 +56,30 @@ const ComponentsByTab = {
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
 
 function GitSyncModal() {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
-
-  const theme = useTheme();
+  const isGitConnected = useSelector(getIsGitConnected);
+  const activeTabIndex = useSelector(getActiveGitSyncModalTab);
 
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const activeTabIndex = useSelector(getActiveGitSyncModalTab);
-  const setActiveTabIndex = (index: number) =>
-    dispatch(setIsGitSyncModalOpen({ isOpen: !!isModalOpen, tab: index }));
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const remoteUrlInStore = gitMetaData?.remoteUrl;
+  const setActiveTabIndex = useCallback(
+    (index: number) =>
+      dispatch(setIsGitSyncModalOpen({ isOpen: !!isModalOpen, tab: index })),
+    [dispatch, setIsGitSyncModalOpen, isModalOpen],
+  );
+
+  const showDeployTab = useCallback(() => {
+    setActiveTabIndex(GitSyncModalTab.DEPLOY);
+  }, [isModalOpen]);
 
   const gitInitialMenuState = useCallback(() => {
     let initialTabIndex = GitSyncModalTab.GIT_CONNECTION;
     let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
-    if (!remoteUrlInStore) {
+    if (!isGitConnected) {
       menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
     } else {
       menuOptions = allMenuOptions;
@@ -83,18 +88,19 @@ function GitSyncModal() {
         (menuItem) => menuItem.key === MENU_ITEMS_MAP.DEPLOY.key,
       );
     }
+
     return {
       initialTabIndex,
       menuOptions,
     };
-  }, [remoteUrlInStore]);
+  }, [isGitConnected]);
 
   const [stateMenuOptions, setStateMenuOptions] = useState(
     gitInitialMenuState().menuOptions,
   );
 
   useEffect(() => {
-    // OnMount
+    // OnMount set initial state according to git connected to app or not
     const { initialTabIndex, menuOptions } = gitInitialMenuState();
 
     if (initialTabIndex !== activeTabIndex) {
@@ -106,21 +112,20 @@ function GitSyncModal() {
   }, []);
 
   useEffect(() => {
-    const { initialTabIndex } = gitInitialMenuState();
-
+    const { initialTabIndex, menuOptions } = gitInitialMenuState();
+    if (menuOptions.length !== stateMenuOptions.length) {
+      setStateMenuOptions(menuOptions);
+    }
     if (initialTabIndex !== activeTabIndex) {
       setActiveTabIndex(initialTabIndex);
     }
-  }, [isModalOpen]);
+  }, [isGitConnected]);
 
   const activeMenuItemKey = stateMenuOptions[activeTabIndex]
     ? stateMenuOptions[activeTabIndex].key
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
   const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
-  const showDeployTab = () => {
-    setActiveTabIndex(1);
-  };
   return (
     <>
       <Dialog

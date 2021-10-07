@@ -424,7 +424,6 @@ function GitConnection({ isImport, onSuccess }: Props) {
           )
         ) : (
           <>
-            <Space size={3} />
             <FlexRow>
               <DeployedKeyContainer>
                 <FlexRow>
