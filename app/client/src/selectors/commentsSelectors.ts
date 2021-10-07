@@ -18,6 +18,14 @@ export const commentThreadsSelector = (commentThreadId: string) => (
   state: AppState,
 ) => state.ui.comments.commentThreadsMap[commentThreadId];
 
+export const unreadCommentThreadSelector = (applicationId: string) => (
+  state: AppState,
+) => {
+  return getAppCommentThreads(
+    applicationCommentsSelector(applicationId)(state),
+  ).find((tId: string) => !commentThreadsSelector(tId)(state).isViewed);
+};
+
 export const unpublishedCommentThreadSelector = (refId: string) => (
   state: AppState,
 ) => state.ui.comments.unpublishedCommentThreads[refId];

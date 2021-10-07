@@ -1,6 +1,6 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { ReduxAction } from "constants/ReduxActionConstants";
-import { get, uniqBy } from "lodash";
+import { cloneDeep, get, uniqBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
 // TODO verify cases where commentThread can be undefined for update event
@@ -9,7 +9,8 @@ const handleUpdateCommentThreadEvent = (
   action: ReduxAction<Partial<CommentThread & { _id: string }>>,
 ) => {
   const id = action.payload._id as string;
-  const commentThreadInStore = state.commentThreadsMap[id];
+  const copiedState = cloneDeep(state);
+  const commentThreadInStore = copiedState.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
   const newComments = get(action.payload, "comments", []);
 
@@ -23,25 +24,29 @@ const handleUpdateCommentThreadEvent = (
 
   const shouldRefreshList = resolvedStateUpdated || pinnedStateChanged;
 
-  state.commentThreadsMap[id] = {
+  copiedState.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
     ...action.payload,
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 
   if (shouldRefreshList) {
-    state.applicationCommentThreadsByRef[
+    copiedState.applicationCommentThreadsByRef[
       action.payload.applicationId as string
     ] = {
-      ...state.applicationCommentThreadsByRef[
+      ...copiedState.applicationCommentThreadsByRef[
         action.payload.applicationId as string
       ],
     };
   }
 
-  const showUnreadIndicator = !state.isCommentMode;
+  const showUnreadIndicator = !copiedState.isCommentMode;
 
-  return { ...state, showUnreadIndicator, lastUpdatedCommentThreadId: id };
+  return {
+    ...copiedState,
+    showUnreadIndicator,
+    lastUpdatedCommentThreadId: id,
+  };
 };
 
 export default handleUpdateCommentThreadEvent;
