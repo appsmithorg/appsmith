@@ -26,11 +26,15 @@ export const ExplorerSearch = forwardRef(
     }, []);
 
     return (
-      <div className="sticky top-0 bg-gray-50">
+      <div
+        className={classNames({
+          "sticky top-0 bg-gray-50": true,
+          hidden: props.isHidden,
+        })}
+      >
         <div
           className={classNames({
             "flex px-3 items-center space-x-2": true,
-            hidden: props.isHidden,
           })}
         >
           <SearchIcon className="box-content w-3 h-3 p-1" />

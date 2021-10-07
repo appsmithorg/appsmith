@@ -1,8 +1,13 @@
-import React, { useRef, MutableRefObject, useCallback, useEffect } from "react";
+import React, {
+  useRef,
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import {
-  useFilteredEntities,
   useWidgets,
   useActions,
   useFilteredDatasources,
@@ -78,6 +83,7 @@ const StyledDivider = styled(Divider)`
 `;
 function EntityExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
+  const [searchKeyword, setSearchhKeyword] = useState("");
   const { applicationId } = useParams<ExplorerURLParams>();
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -87,7 +93,7 @@ function EntityExplorer(props: IPanelProps) {
     PerformanceTracker.stopTracking();
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
-  const { clearSearch, searchKeyword } = useFilteredEntities(searchInputRef);
+
   const plugins = useSelector(getPlugins);
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
@@ -134,6 +140,21 @@ function EntityExplorer(props: IPanelProps) {
     dispatch(setExplorerPinned(!pinned));
   }, [pinned, dispatch, setExplorerPinned]);
 
+  /**
+   * filter entitites
+   */
+  const search = (e: any) => {
+    setSearchhKeyword(e.target.value);
+  };
+
+  const clearSearchInput = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.value = "";
+    }
+
+    setSearchhKeyword("");
+  };
+
   return (
     <Wrapper
       className={classNames({
@@ -156,7 +177,12 @@ function EntityExplorer(props: IPanelProps) {
       </div>
 
       {/* SEARCH */}
-      <Search clear={clearSearch} isHidden ref={searchInputRef} />
+      <Search
+        clear={clearSearchInput}
+        isHidden
+        onChange={search}
+        ref={searchInputRef}
+      />
 
       <ExplorerPageGroup
         actions={actions}

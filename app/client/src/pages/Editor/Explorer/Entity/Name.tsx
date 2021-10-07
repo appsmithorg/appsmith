@@ -2,6 +2,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Colors } from "constants/Colors";
+import { get } from "lodash";
 
 import React, {
   forwardRef,
@@ -101,7 +102,9 @@ export const EntityName = forwardRef(
     });
 
     const nameUpdateError = useSelector((state: AppState) => {
-      return state.ui.explorer.entity.updateEntityError === props.entityId;
+      return (
+        get(state, "ui.explorer.entity.updateEntityError") === props.entityId
+      );
     });
 
     const [updatedName, setUpdatedName] = useState(name);

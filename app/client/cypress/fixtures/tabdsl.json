@@ -25,18 +25,18 @@
         "widgetName": "Tabs1",
         "tabs": [
           {
-            "label": "Tab 1",
+            "label": "Tab1",
             "id": "tab1",
             "widgetId": "uxle0mrg8t"
           },
           {
-            "label": "Tab 2",
+            "label": "Tab2",
             "id": "tab2",
             "widgetId": "9hy1rmqb2f"
           }
         ],
         "shouldShowTabs": true,
-        "defaultTab": "Tab 1",
+        "defaultTab": "Tab1",
         "type": "TABS_WIDGET",
         "isLoading": false,
         "parentColumnSpace": 74,
@@ -51,7 +51,7 @@
           {
             "type": "CANVAS_WIDGET",
             "tabId": "tab1",
-            "tabName": "Tab 1",
+            "tabName": "Tab1",
             "widgetId": "uxle0mrg8t",
             "parentId": "y6rla3dsd6",
             "detachFromLayout": true,
@@ -69,7 +69,7 @@
           {
             "type": "CANVAS_WIDGET",
             "tabId": "tab2",
-            "tabName": "Tab 2",
+            "tabName": "Tab2",
             "widgetId": "9hy1rmqb2f",
             "parentId": "y6rla3dsd6",
             "detachFromLayout": true,
