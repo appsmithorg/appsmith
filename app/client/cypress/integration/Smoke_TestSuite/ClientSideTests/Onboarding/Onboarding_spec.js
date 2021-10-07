@@ -66,6 +66,10 @@ describe("Onboarding", function() {
           .should("be.visible")
           .click();
 
+        // Check if table is showing any data
+        cy.isSelectRow(1);
+        cy.readTabledataPublish("1", "0");
+
         // wait for animation duration
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
