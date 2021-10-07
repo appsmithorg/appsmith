@@ -190,5 +190,5 @@ public class GitFileUtils {
         return fileUtils.detachRemote(baseRepoSuffix);
     }
 
-    public boolean checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); };
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException { return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix); };
 }

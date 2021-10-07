@@ -31,6 +31,7 @@ const ActionElement = styled.span`
   display: inline-block;
   width: 100%;
   text-align: right;
+  margin-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
 // move existing toast below to make space for the warning toast

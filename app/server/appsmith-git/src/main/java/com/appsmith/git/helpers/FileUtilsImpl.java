@@ -295,14 +295,16 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Override
-    public boolean checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
-        File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
-        for(File file : files) {
-            if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
-                return false;
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+        return Mono.fromCallable(() -> {
+            File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
+            for(File file : files) {
+                if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
+                    return false;
+                }
             }
-        }
-        return true;
+            return true;
+        });
     }
 
     /**

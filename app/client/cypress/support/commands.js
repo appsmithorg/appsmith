@@ -274,7 +274,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
-    .scrollIntoView()
+    .scrollIntoView({ force: true })
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should(
@@ -416,11 +416,6 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
   initLocalstorage();
 });
 
@@ -1489,6 +1484,15 @@ Cypress.Commands.add("showColumn", (colId) => {
   cy.get(".draggable-header ")
     .contains(colId)
     .should("be.visible");
+});
+Cypress.Commands.add("deleteColumn", (colId) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn").click(
+    {
+      force: true,
+    },
+  );
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("makeColumnVisible", (colId) => {

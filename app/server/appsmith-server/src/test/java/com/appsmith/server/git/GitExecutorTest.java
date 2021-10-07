@@ -1,4 +1,4 @@
-package com.appsmith.git;
+package com.appsmith.server.git;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -8,21 +8,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 
 @Slf4j
+@Import({GitExecutorImpl.class, GitServiceConfig.class})
 @RunWith(SpringRunner.class)
+@ContextConfiguration
+@RequiredArgsConstructor
 public class GitExecutorTest {
 
-    @Autowired
     GitExecutor gitExecutor;
 
-    @Autowired
     GitServiceConfig gitServiceConfig;
 
     private final String gitRemoteUrl = "git@github.com:appsmithorg/appsmith-docs.git";
@@ -43,23 +44,5 @@ public class GitExecutorTest {
     @Test
     public void cloneApplication_validEmptyRepo_Success() throws GitAPIException, IOException {
 
-    }
-
-    @Test
-    public void connectApplication_validEmptyRepo_Success() throws GitAPIException, IOException {
-
-    }
-
-    @Test
-    public void connectApplication_validNonEmptyRepo_Success() throws GitAPIException, IOException {
-        try {
-            gitExecutor.connectApplication(
-                    Paths.get(gitServiceConfig.getGitRootPath()+"orgId"+"appId"+"repoName"),
-                    gitRemoteUrl,
-                    "PVT_KEY",
-                    "PUBLIC_KEY");
-        } catch (Exception e) {
-            assert e.getMessage().contains("The remote repo is not empty.");
-        }
     }
 }

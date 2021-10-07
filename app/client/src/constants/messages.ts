@@ -290,7 +290,7 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
 export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
-  "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
+  "Localstorage storage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   `Search Widgets, Queries, Documentation`;
@@ -370,7 +370,7 @@ export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
-  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
+  `Hi, \nI'm facing the following error on Appsmith, can you please help? \n\n${text}`;
 export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
   `Error occurred while evaluating trigger ${propertyName}`;
 
@@ -579,9 +579,9 @@ export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your Git SSH URL";
 
 // Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
-  `Search and Insert code snippets to perform complex actions quickly.`;
+  `Search and insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
-  `Find answers through appsmith documentation.`;
+  `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
@@ -709,3 +709,24 @@ export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
 export const WELCOME_ACTION = () => "Get Started";
+export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
+export const WELCOME_FORM_FULL_NAME = () => "Full Name";
+export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
+export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
+export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
+export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
+export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
+  "Usage data preference";
+export const WELCOME_FORM_DATA_COLLECTION_BODY = () =>
+  "Share anonymous usage data to help improve the product.";
+export const WELCOME_FORM_DATA_COLLECTION_LINK = () => "See what is shared";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE = () =>
+  "Share data & make Appsmith better!";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
+  "Don't share any data";
+export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
+export const WELCOME_FORM_NEWLETTER_LABEL = () =>
+  "Get updates about what we are cooking. We do not spam you.";
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
