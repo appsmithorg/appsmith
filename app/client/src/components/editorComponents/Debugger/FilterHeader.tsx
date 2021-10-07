@@ -68,6 +68,7 @@ function FilterHeader(props: FilterHeaderProps) {
       <div className="input-container">
         <TextInput
           className="debugger-search"
+          cypressSelector="t--debugger-search"
           defaultValue={props.defaultValue}
           height="28px"
           onChange={props.onChange}

@@ -5,19 +5,21 @@ import { useSelector } from "store";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "reducers";
-import { showDebugger as showDebuggerAction } from "actions/debuggerActions";
+import {
+  setCurrentTab,
+  showDebugger as showDebuggerAction,
+} from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { getMessageCount } from "selectors/debuggerSelectors";
-import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 import {
-  matchApiPath,
-  matchBuilderPath,
-  matchQueryPath,
-} from "constants/routes";
+  getMessageCount,
+  hideDebuggerIconSelector,
+} from "selectors/debuggerSelectors";
+import { matchBuilderPath } from "constants/routes";
 import TooltipComponent from "components/ads/Tooltip";
+import { DEBUGGER_TAB_KEYS } from "./helpers";
 
 function Debugger() {
   const messageCounters = useSelector(getMessageCount);
@@ -68,10 +70,9 @@ export function DebuggerTrigger() {
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
-
   const messageCounters = useSelector(getMessageCount);
-
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
+  const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
 
   const onClick = (e: any) => {
     const isOnCanvas = matchBuilderPath(window.location.pathname);
@@ -81,12 +82,14 @@ export function DebuggerTrigger() {
         AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
           source: "CANVAS",
         });
-    }
 
-    const onApiEditor = matchApiPath(window.location.pathname);
-    const onQueryEditor = matchQueryPath(window.location.pathname);
-    if (onApiEditor || onQueryEditor) {
-      dispatch(setActionTabsInitialIndex(1));
+      return;
+    } else {
+      if (totalMessageCount > 0) {
+        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+      } else {
+        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
+      }
     }
     stopEventPropagation(e);
   };
@@ -97,6 +100,8 @@ export function DebuggerTrigger() {
           totalMessageCount > 1 ? "errors" : "error"
         }`
       : "View logs";
+
+  if (hideDebuggerIcon) return null;
 
   return (
     <TriggerContainer
