@@ -54,7 +54,7 @@ export function CanvasDraggingArena({
     stickyCanvasRef,
     slidingArenaRef,
   });
-  return (
+  return showCanvas ? (
     <StickyCanvasArena
       canExtend={canExtend}
       canvasId={`canvas-dragging-${widgetId}`}
@@ -63,8 +63,9 @@ export function CanvasDraggingArena({
       id={`div-dragarena-${widgetId}`}
       ref={canvasRef}
       showCanvas={showCanvas}
+      snapRowSpace={snapRowSpace}
       snapRows={snapRows}
     />
-  );
+  ) : null;
 }
 CanvasDraggingArena.displayName = "CanvasDraggingArena";

@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 import styled from "constants/DefaultTheme";
-import React, { forwardRef, RefObject, useEffect } from "react";
+import React, { forwardRef, RefObject, useCallback, useEffect } from "react";
 import { getCanvasTopOffset } from "./utils";
 
 interface StickyCanvasArenaProps {
@@ -8,6 +9,7 @@ interface StickyCanvasArenaProps {
   id: string;
   canvasPadding: number;
   snapRows: number;
+  snapRowSpace: number;
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
   ref: StickyCanvasArenaRef;
@@ -40,20 +42,18 @@ export const StickyCanvasArena = forwardRef(
       getRelativeScrollingParent,
       id,
       showCanvas,
+      snapRows,
+      snapRowSpace,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
 
-    const updateCanvasStyles = () => {
+    const updateCanvasStyles = useCallback(() => {
       if (slidingArenaRef.current) {
         const parentCanvas: Element | null = getRelativeScrollingParent(
           slidingArenaRef.current,
         );
 
-        if (
-          parentCanvas &&
-          stickyCanvasRef.current &&
-          slidingArenaRef.current
-        ) {
+        if (parentCanvas && stickyCanvasRef.current) {
           const {
             height: scrollParentTopHeight,
           } = parentCanvas.getBoundingClientRect();
@@ -61,6 +61,7 @@ export const StickyCanvasArena = forwardRef(
             height,
             width,
           } = slidingArenaRef.current.getBoundingClientRect();
+
           const calculatedTopPosition = getCanvasTopOffset(
             slidingArenaRef,
             stickyCanvasRef,
@@ -74,26 +75,44 @@ export const StickyCanvasArena = forwardRef(
           stickyCanvasRef.current.style.top =
             Math.min(calculatedTopPosition, height - scrollParentTopHeight) +
             "px";
-          stickyCanvasRef.current.style.height = scrollParentTopHeight + "px";
+          stickyCanvasRef.current.style.height =
+            Math.min(scrollParentTopHeight, height) + "px";
+        }
+      }
+    }, [snapRows, canExtend]);
+    const updateSliderHeight = () => {
+      if (slidingArenaRef.current) {
+        const {
+          height: canvasHeight,
+        } = slidingArenaRef.current.getBoundingClientRect();
+        const height = snapRows * snapRowSpace + canvasPadding;
+        if (canvasHeight !== height) {
+          // setting styles to recalculate height when widget is deleted or copy pasted.
+          // this is done coz we do a ref style update in DropTargetComponent which is not updating slider in time.
+          // ToDo(Ashok): Might need a better understanding of refs and forwardRefs to handle this without creating exceptions.
+          slidingArenaRef.current.style.height = "100%";
         }
       }
     };
+    useEffect(() => {
+      if (showCanvas) {
+        updateSliderHeight();
+        updateCanvasStyles();
+      }
+    }, [snapRows, canExtend]);
 
     useEffect(() => {
+      let parentCanvas: Element | null;
       if (slidingArenaRef.current) {
-        const parentCanvas: Element | null = getRelativeScrollingParent(
-          slidingArenaRef.current,
-        );
-        updateCanvasStyles();
+        parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
         parentCanvas?.addEventListener("scroll", updateCanvasStyles, false);
       }
-    });
+      return () => {
+        parentCanvas?.removeEventListener("scroll", updateCanvasStyles);
+      };
+    }, []);
 
-    useEffect(() => {
-      updateCanvasStyles();
-    }, [props.snapRows]);
-
-    return showCanvas ? (
+    return (
       <>
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
@@ -106,7 +125,7 @@ export const StickyCanvasArena = forwardRef(
           ref={slidingArenaRef}
         />
       </>
-    ) : null;
+    );
   },
 );
 StickyCanvasArena.displayName = "StickyCanvasArena";

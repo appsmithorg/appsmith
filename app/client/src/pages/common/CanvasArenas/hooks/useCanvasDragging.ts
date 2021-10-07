@@ -701,11 +701,18 @@ export const useCanvasDragging = (
             stickyCanvasRef.current &&
             scrollParent
           ) {
-            const { height } = scrollParent.getBoundingClientRect();
-            const { width } = slidingArenaRef.current.getBoundingClientRect();
+            const {
+              height: scrollParentTopHeight,
+            } = scrollParent.getBoundingClientRect();
+            const {
+              height,
+              width,
+            } = slidingArenaRef.current.getBoundingClientRect();
+
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
             stickyCanvasRef.current.width = width * scale;
-            stickyCanvasRef.current.height = height * scale;
+            stickyCanvasRef.current.height =
+              Math.min(scrollParentTopHeight, height) * scale;
             canvasCtx.scale(scale, scale);
             initializeListeners();
             if (

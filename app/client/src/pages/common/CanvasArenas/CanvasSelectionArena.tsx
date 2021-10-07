@@ -50,6 +50,8 @@ export function CanvasSelectionArena({
 }) {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const canvasPadding =
+    widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
@@ -433,6 +435,7 @@ export function CanvasSelectionArena({
           onMouseEnter,
         );
         slidingArenaRef.current?.removeEventListener("click", onClick);
+        scrollParent?.removeEventListener("scroll", onScroll);
       };
       const init = () => {
         if (
@@ -440,13 +443,17 @@ export function CanvasSelectionArena({
           stickyCanvasRef.current &&
           slidingArenaRef.current
         ) {
-          const { height } = scrollParent.getBoundingClientRect();
+          const {
+            height: scrollParentTopHeight,
+          } = scrollParent.getBoundingClientRect();
+          const height = snapRows * snapRowSpace + canvasPadding;
           const { width } = slidingArenaRef.current.getBoundingClientRect();
           canvasCtx = stickyCanvasRef.current.getContext("2d");
 
           if (height && width) {
             stickyCanvasRef.current.width = width * scale;
-            stickyCanvasRef.current.height = height * scale;
+            stickyCanvasRef.current.height =
+              Math.min(scrollParentTopHeight, height) * scale;
           }
           canvasCtx.scale(scale, scale);
           removeEventListeners();
@@ -483,19 +490,18 @@ export function CanvasSelectionArena({
     slidingArenaRef,
     stickyCanvasRef,
   });
-  return (
+  return shouldShow ? (
     <StickyCanvasArena
       canExtend={canExtend}
       canvasId={`canvas-selection-${widgetId}`}
-      canvasPadding={
-        widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0
-      }
+      canvasPadding={canvasPadding}
       getRelativeScrollingParent={getNearestParentCanvas}
       id={`div-selection-${widgetId}`}
       ref={canvasRef}
       showCanvas={shouldShow}
+      snapRowSpace={snapRowSpace}
       snapRows={snapRows}
     />
-  );
+  ) : null;
 }
 CanvasSelectionArena.displayName = "CanvasSelectionArena";
