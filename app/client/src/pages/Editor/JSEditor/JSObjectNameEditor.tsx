@@ -3,9 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import EditableText, {
-  EditInteractionKind,
-} from "components/editorComponents/EditableText";
+import {
+  EditableText as NewEditableText,
+  EditInteractionKind as NewEditInteractionKind,
+  SavingState,
+} from "components/ads/EditableText";
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
 import { JSCollection } from "entities/JSCollection";
@@ -148,25 +150,23 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
 
   return (
     <JSObjectNameWrapper page={props.page}>
-      <div
-        style={{
-          display: "flex",
-        }}
-      >
-        <EditableText
-          className="t--action-name-edit-field"
-          defaultValue={currentJSObjectConfig ? currentJSObjectConfig.name : ""}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          forceDefault={forceUpdate}
-          isEditingDefault={isNew}
-          isInvalid={isInvalidJSObjectName}
-          onTextChanged={handleJSObjectNameChange}
-          placeholder="Name of the function in camelCase"
-          type="text"
-          updating={saveStatus.isSaving}
-          valueTransform={removeSpecialChars}
-        />
-      </div>
+      <NewEditableText
+        className="t--js-action-name-edit-field"
+        defaultValue={currentJSObjectConfig ? currentJSObjectConfig.name : ""}
+        editInteractionKind={NewEditInteractionKind.SINGLE}
+        fill
+        forceDefault={forceUpdate}
+        hideEditIcon
+        isEditingDefault={isNew}
+        isInvalid={isInvalidJSObjectName}
+        onBlur={handleJSObjectNameChange}
+        placeholder="Name of the object in camelCase"
+        savingState={
+          saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
+        }
+        underline
+        valueTransform={removeSpecialChars}
+      />
     </JSObjectNameWrapper>
   );
 }

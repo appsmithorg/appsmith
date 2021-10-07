@@ -11,7 +11,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.Resources;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
@@ -354,9 +354,7 @@ public class CreateDBTablePageSolution {
                         .flatMap(pageDTO -> {
                             CRUDPageResponseDTO crudPage = new CRUDPageResponseDTO();
                             crudPage.setPage(pageDTO);
-                            crudPage.setSuccessMessage(createSuccessMessage(plugin));
-                            // Update the S3 image once received
-                            crudPage.setSuccessImageUrl(Resources.GENERATE_CRUD_PAGE_SUCCESS_URL_TABULAR);
+                            createSuccessMessageAndSetAsset(plugin, crudPage);
                             return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName());
                         })
                     );
@@ -957,17 +955,22 @@ public class CreateDBTablePageSolution {
         }
     }
 
-    private String createSuccessMessage(Plugin plugin) {
+    private void createSuccessMessageAndSetAsset(Plugin plugin, CRUDPageResponseDTO crudPage) {
 
         String displayWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "LIST" : "TABLE";
         String updateWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "FILEPICKER" : "FORM";
+
+        String successUrl = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ?
+            Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_S3 : Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_TABULAR;
+        crudPage.setSuccessImageUrl(successUrl);
+
 
         // Field used to send success message after the successful page creation
         String successMessage = "We have generated the <b>" + displayWidget + "</b> from the <b>" + plugin.getName()
             + " Datasource</b>. You can use the <b>" + updateWidget + "</b> to modify it. Since all your " +
             "data is already connected you can add more queries and modify the bindings";
 
-        return successMessage;
+        crudPage.setSuccessMessage(successMessage);
     }
 
     private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, Datasource datasource, String pluginName) {

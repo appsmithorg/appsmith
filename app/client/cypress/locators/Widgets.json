@@ -56,11 +56,13 @@
     "SearchTextChangeAction": ".t--property-control-onsearchtextchanged button",
     "tableSearchTextChangeSelected": ".t--property-control-onsearchtextchanged",
     "videoWidget": ".t--draggable-videowidget",
+    "audioWidget": ".t--draggable-audiowidget",
     "autoPlay": ".t--property-control-autoplay > .bp3-control > .bp3-control-indicator",
     "defaultOption": ".t--property-control-defaultoption .CodeMirror-code",
     "dropdownSingleSelect": ".bp3-popover-target > div > .bp3-button",
     "defaultSingleSelectValue": ".bp3-popover-target > div > .bp3-button > .bp3-button-text",
     "widgetBtn": ".t--widget-buttonwidget button",
+    "iconWidgetBtn": ".t--widget-iconwidget svg",
     "actionSelect": ".t--open-dropdown-Select-Action",
     "inputOnTextChange": ".t--property-control-ontextchanged .t--open-dropdown-Select-Action",
     "tableActionSelect": ".t--property-control-onsearchtextchanged .t--open-dropdown-Select-Action",
@@ -146,5 +148,7 @@
     "tbIndex0": "[class=td][data-colindex='0'][data-rowindex='0']",
     "filterApplyBtn":".t--apply-filter-btn",
     "filterCloseBtn":".t--close-filter-btn",
-    "header":"#header-root"
+    "header":"#header-root",
+    "explorerSwitchId": "#switcher--explorer",
+    "widgetSwitchId":"#switcher--widgets"
 }

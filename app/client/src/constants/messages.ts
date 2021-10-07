@@ -29,6 +29,7 @@ export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
   `Please provide a valid email address`;
 export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
+export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
@@ -39,8 +40,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
 export const LOGIN_PAGE_TITLE = () => `Sign In to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
-export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
+export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
+  `Enter your email address`;
+export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
+  `Enter your password`;
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
@@ -287,7 +290,7 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
 export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
-  "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
+  "Localstorage storage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   `Search Widgets, Queries, Documentation`;
@@ -367,7 +370,7 @@ export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
-  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
+  `Hi, \nI'm facing the following error on Appsmith, can you please help? \n\n${text}`;
 export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
   `Error occurred while evaluating trigger ${propertyName}`;
 
@@ -413,6 +416,10 @@ export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
+export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
+export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
+export const JS_EXECUTION_FAILURE_TOASTER = () =>
+  "There was an error while executing function";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
@@ -423,6 +430,13 @@ export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
   "Linting Errors: Please resolve linting errors before using these functions";
+export const JS_FUNCTION_CREATE_SUCCESS = () =>
+  "New JS function added successfully";
+export const JS_FUNCTION_UPDATE_SUCCESS = () =>
+  "JS Function updated successfully";
+export const JS_FUNCTION_DELETE_SUCCESS = () =>
+  "JS function deleted successfully";
+export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
@@ -496,6 +510,7 @@ export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
 export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
 export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
+export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
@@ -554,9 +569,9 @@ export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
 
 // Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
-  `Search and Insert code snippets to perform complex actions quickly.`;
+  `Search and insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
-  `Find answers through appsmith documentation.`;
+  `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
@@ -684,3 +699,24 @@ export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
 export const WELCOME_ACTION = () => "Get Started";
+export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
+export const WELCOME_FORM_FULL_NAME = () => "Full Name";
+export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
+export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
+export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
+export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
+export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
+  "Usage data preference";
+export const WELCOME_FORM_DATA_COLLECTION_BODY = () =>
+  "Share anonymous usage data to help improve the product.";
+export const WELCOME_FORM_DATA_COLLECTION_LINK = () => "See what is shared";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE = () =>
+  "Share data & make Appsmith better!";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
+  "Don't share any data";
+export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
+export const WELCOME_FORM_NEWLETTER_LABEL = () =>
+  "Get updates about what we are cooking. We do not spam you.";
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
