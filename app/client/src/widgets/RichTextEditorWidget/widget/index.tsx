@@ -52,7 +52,7 @@ class RichTextEditorWidget extends BaseWidget<
               "Sets the default text of the widget. The text is updated if the default text changes",
             label: "Default text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter HTML",
+            placeholderText: "<b>Hello World</b>",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

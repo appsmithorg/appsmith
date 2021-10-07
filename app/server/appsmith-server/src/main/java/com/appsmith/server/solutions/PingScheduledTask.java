@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SegmentConfig;
+import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.net.URI;
 import java.util.Map;
 
 /**
@@ -35,8 +35,6 @@ public class PingScheduledTask {
 
     private final CommonConfig commonConfig;
 
-    public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
-
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
      * We use an initial delay of two minutes to roughly wait for the application along with the migrations are finished
@@ -49,24 +47,10 @@ public class PingScheduledTask {
             return;
         }
 
-        Mono.zip(configService.getInstanceId(), getAddress())
+        Mono.zip(configService.getInstanceId(), NetworkUtils.getExternalAddress())
                 .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
                 .subscribeOn(Schedulers.single())
                 .subscribe();
-    }
-
-    /**
-     * This method hits an API endpoint that returns the external IP address of this server instance.
-     *
-     * @return A publisher that yields the IP address.
-     */
-    private Mono<String> getAddress() {
-        return WebClient
-                .create()
-                .get()
-                .uri(GET_IP_URI)
-                .retrieve()
-                .bodyToMono(String.class);
     }
 
     /**

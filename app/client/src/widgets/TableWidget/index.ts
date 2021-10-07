@@ -14,7 +14,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 7 * GRID_DENSITY_MIGRATION_V1,
-    columns: 9 * GRID_DENSITY_MIGRATION_V1,
+    columns: 7.5 * GRID_DENSITY_MIGRATION_V1,
     defaultSelectedRow: "0",
     label: "Data",
     widgetName: "Table",
@@ -106,7 +106,7 @@ export const CONFIG = {
         isDerived: false,
         label: "action",
         onClick:
-          "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+          "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
         computedValue:
           "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
       },

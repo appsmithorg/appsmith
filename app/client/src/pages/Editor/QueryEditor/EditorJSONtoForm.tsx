@@ -64,11 +64,15 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
-import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
 import * as Sentry from "@sentry/react";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SearchSnippets from "components/ads/SnippetButton";
+import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
+import { setCurrentTab } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -149,11 +153,13 @@ const DocumentationLink = styled.a`
   right: 23px;
   top: -6px;
   color: black;
+  display: flex;
   font-weight: 500;
   font-size: 12px;
   line-height: 14px;
   span {
     display: flex;
+    margin-left: 5px;
   }
   &:hover {
     color: black;
@@ -259,6 +265,15 @@ const ActionsWrapper = styled.div`
 const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
+
+  .t--switch-datasource > div {
+    min-height: 30px;
+    height: 30px;
+
+    & > div {
+      height: 100%;
+    }
+  }
 `;
 
 const CreateDatasource = styled.div`
@@ -324,7 +339,7 @@ const TabContainerView = styled.div`
   a {
     font-size: 14px;
     line-height: 20px;
-    margin-top: 15px;
+    margin-top: 12px;
   }
   .react-tabs__tab-panel {
     overflow: auto;
@@ -420,8 +435,6 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const initialIndex = useSelector(getActionTabsInitialIndex);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
@@ -652,7 +665,7 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  setSelectedIndex(1);
+                  dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
                 }}
                 secondHalfText={createMessage(
                   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
@@ -699,35 +712,22 @@ export function EditorJSONtoForm(props: Props) {
       ),
     },
     {
-      key: "ERROR",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={actionName} />,
     },
     {
-      key: "ENTITY_DEPENDENCIES",
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
       title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
     },
   ];
 
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(responseTabs[index].key) &&
-      debuggerTabKeys.includes(responseTabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: responseTabs[index].key,
-      });
-    }
-
-    setSelectedIndex(index);
-  };
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
@@ -758,6 +758,11 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <OnboardingIndicator
               step={OnboardingStep.EXAMPLE_DATABASE}
               width={75}
@@ -778,16 +783,18 @@ export function EditorJSONtoForm(props: Props) {
           <SecondaryWrapper>
             <TabContainerView>
               {documentationLink && (
-                <DocumentationLink
-                  className="t--datasource-documentation-link"
-                  onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-                >
+                <DocumentationLink>
                   <TooltipComponent
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
                     hoverOpenDelay={50}
                     position="top"
                   >
-                    <span>
+                    <span
+                      className="t--datasource-documentation-link"
+                      onClick={(e: React.MouseEvent) =>
+                        handleDocumentationClick(e)
+                      }
+                    >
                       <AdsIcon
                         keepColors
                         name="book-line"
@@ -879,11 +886,7 @@ export function EditorJSONtoForm(props: Props) {
                 </Boxed>
               )}
 
-              <TabComponent
-                onSelect={onTabSelect}
-                selectedIndex={selectedIndex}
-                tabs={responseTabs}
-              />
+              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper show={hasDependencies || !!output}>

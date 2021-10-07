@@ -48,13 +48,13 @@ function MultiSelectComponent({
   const [isSelectAll, setIsSelectAll] = useState(false);
   const _menu = useRef<HTMLElement | null>(null);
 
-  const getDropdownPosition = useCallback((node: HTMLElement | null) => {
+  const getDropdownPosition = useCallback(() => {
+    const node = _menu.current;
     if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
       return document.querySelector(
         `.${MODAL_PORTAL_CLASSNAME}`,
       ) as HTMLElement;
     }
-    // TODO: Use generateClassName func.
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
 
@@ -99,10 +99,16 @@ function MultiSelectComponent({
     [isSelectAll, options, loading],
   );
 
+  // Convert the values to string before searching.
+  // input is always a string.
   const filterOption = useCallback(
     (input, option) =>
-      option?.props.label.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
-      option?.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0,
+      String(option?.props.label)
+        .toLowerCase()
+        .indexOf(input.toLowerCase()) >= 0 ||
+      String(option?.props.value)
+        .toLowerCase()
+        .indexOf(input.toLowerCase()) >= 0,
     [],
   );
 
@@ -116,7 +122,10 @@ function MultiSelectComponent({
   }, []);
 
   return (
-    <MultiSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
+    <MultiSelectContainer
+      className={loading ? Classes.SKELETON : ""}
+      ref={_menu as React.RefObject<HTMLDivElement>}
+    >
       <DropdownStyles />
       <Select
         animation="slide-up"
@@ -129,7 +138,7 @@ function MultiSelectComponent({
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
-        getPopupContainer={() => getDropdownPosition(_menu.current)}
+        getPopupContainer={getDropdownPosition}
         inputIcon={inputIcon}
         loading={loading}
         maxTagCount={"responsive"}

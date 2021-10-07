@@ -83,7 +83,7 @@ const InputComponentWrapper = styled((props) => (
   &&&& {
     .currency-type-filter,
     .country-type-filter {
-      width: 40px;
+      width: fit-content;
       height: 32px;
       position: absolute;
       display: inline-block;
@@ -171,6 +171,29 @@ const InputComponentWrapper = styled((props) => (
   }
 `;
 
+const StyledNumericInput = styled(NumericInput)`
+  &&&& .bp3-input-group {
+    display: flex;
+    > {
+      &:first-child:not(input) {
+        position: static;
+        background: ${(props) =>
+          props.disabled ? Colors.INPUT_DISABLED : "#fff"};
+        color: ${(props) =>
+          props.disabled ? Colors.INPUT_TEXT_DISABLED : "#000"};
+        border: 1px solid #e7e7e7;
+        border-right: 0;
+      }
+      input:not(:first-child) {
+        padding-left: 5px;
+        border-left: 0;
+        z-index: 16;
+        line-height: 16px;
+      }
+    }
+  }
+`;
+
 const ToolTipIcon = styled(IconWrapper)`
   cursor: help;
   margin-top: 1.5px;
@@ -238,14 +261,22 @@ class InputComponent extends React.Component<
       ) {
         let value = valueAsString.split(",").join("");
         if (value) {
-          if (currentIndexOfDecimal !== indexOfDecimal) {
-            value = value.substr(0, currentIndexOfDecimal + fractionDigits + 1);
-          }
           const locale = navigator.languages?.[0] || "en-US";
           const formatter = new Intl.NumberFormat(locale, {
             style: "decimal",
             minimumFractionDigits: fractionDigits,
           });
+          const decimalValueArray = value.split(".");
+          //remove extra digits after decimal point
+          if (
+            this.props.decimalsInCurrency &&
+            decimalValueArray[1].length > this.props.decimalsInCurrency
+          ) {
+            value =
+              decimalValueArray[0] +
+              "." +
+              decimalValueArray[1].substr(0, this.props.decimalsInCurrency);
+          }
           const formattedValue = formatter.format(parseFloat(value));
           this.props.onValueChange(formattedValue);
         } else {
@@ -339,8 +370,9 @@ class InputComponent extends React.Component<
         ? this.props.decimalsInCurrency || 0
         : 0;
     return (
-      <NumericInput
+      <StyledNumericInput
         allowNumericCharactersOnly
+        autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         intent={this.props.intent}

@@ -2,6 +2,11 @@ export const ANONYMOUS_USERNAME = "anonymousUser";
 
 type Gender = "MALE" | "FEMALE";
 
+export enum CommentsOnboardingState {
+  ONBOARDED = "ONBOARDED",
+  SKIPPED = "SKIPPED",
+}
+
 export type User = {
   email: string;
   organizationIds: string[];
@@ -9,6 +14,7 @@ export type User = {
   name: string;
   gender: Gender;
   emptyInstance?: boolean;
+  commentOnboardingState?: CommentsOnboardingState | null;
 };
 
 export interface UserApplication {
@@ -30,3 +36,4 @@ export const DefaultCurrentUserDetails: User = {
 
 // TODO keeping it here instead of the USER_API since it leads to cyclic deps errors during tests
 export const USER_PHOTO_URL = "v1/users/photo";
+export const USER_PHOTO_ASSET_URL = "v1/assets";

@@ -32,7 +32,7 @@ import history from "utils/history";
 import { getAppMode } from "selectors/applicationSelectors";
 import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
-import { USER_PHOTO_URL } from "constants/userConstants";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 import { getCommentThreadURL } from "../utils";
 
@@ -71,6 +71,7 @@ const StyledContainer = styled.div`
 
 const CommentBodyContainer = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[4]}px;
+  color: ${(props) => props.theme.colors.comments.profileUserName};
 `;
 
 const CommentHeader = styled.div`
@@ -278,7 +279,7 @@ function CommentCard({
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
-  const { authorName, authorUsername, body, id: commentId } = comment;
+  const { authorName, authorPhotoId, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -409,11 +410,13 @@ function CommentCard({
   };
 
   const showOptions = visible || isHovered;
-
   const showResolveBtn =
     (showOptions || !!resolved) && isParentComment && toggleResolved;
 
   const hasReactions = !!reactions && Object.keys(reactions).length > 0;
+  const profilePhotoUrl = authorPhotoId
+    ? `/api/${USER_PHOTO_ASSET_URL}/${authorPhotoId}`
+    : "";
 
   return (
     <StyledContainer
@@ -431,7 +434,7 @@ function CommentCard({
           <Section className="pinned-by" onClick={pin}>
             {isPinned && (
               <>
-                <Icon className="pin" name="pin-3" />
+                <Icon className="pin" name="pin-3" size={IconSize.XXL} />
                 <span>Pinned By</span>
                 <strong>{` ${pinnedBy}`}</strong>
               </>
@@ -439,11 +442,11 @@ function CommentCard({
           </Section>
         </CommentSubheader>
       )}
-      <CommentHeader>
+      <CommentHeader data-cy="comments-card-header">
         <HeaderSection>
           <ProfileImage
             side={25}
-            source={`/api/${USER_PHOTO_URL}/${authorUsername}`}
+            source={profilePhotoUrl}
             userName={authorName || ""}
           />
           <UserName>{authorName}</UserName>

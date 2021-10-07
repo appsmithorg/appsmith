@@ -1,5 +1,10 @@
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
+import { getUserApplicationsOrgs } from "./applicationSelectors";
 
 export const getIsOnboardingHelperVisible = (state: AppState) => {
   const urlSearchParams = new URL(window.location.href).searchParams;
@@ -35,3 +40,20 @@ export const getIsFirstTimeUserOnboardingEnabled = createSelector(
 
 export const getIsInOnboarding = (state: AppState) =>
   state.ui.onBoarding.inOnboarding;
+
+export const getInOnboardingWidgetSelection = (state: AppState) =>
+  state.ui.onBoarding.inOnboardingWidgetSelection;
+
+// To find an organisation where the user as permission to create an
+// application
+export const getOnboardingOrganisations = createSelector(
+  getUserApplicationsOrgs,
+  (userOrgs) => {
+    return userOrgs.filter((userOrg) =>
+      isPermitted(
+        userOrg.organization.userPermissions || [],
+        PERMISSION_TYPE.CREATE_APPLICATION,
+      ),
+    );
+  },
+);

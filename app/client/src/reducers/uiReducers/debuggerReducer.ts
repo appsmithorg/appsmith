@@ -9,6 +9,7 @@ const initialState: DebuggerReduxState = {
   errors: {},
   expandId: "",
   hideErrors: true,
+  currentTab: "",
 };
 
 const debuggerReducer = createReducer(initialState, {
@@ -70,7 +71,17 @@ const debuggerReducer = createReducer(initialState, {
       hideErrors: action.payload,
     };
   },
-  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
+  [ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentTab: action.payload,
+    };
+  },
+  // Resetting debugger state after page switch
+  [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: () => {
     return {
       ...initialState,
     };
@@ -83,6 +94,7 @@ export interface DebuggerReduxState {
   errors: Record<string, Log>;
   expandId: string;
   hideErrors: boolean;
+  currentTab: string;
 }
 
 export default debuggerReducer;

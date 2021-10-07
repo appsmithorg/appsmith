@@ -315,7 +315,7 @@ function* logDebuggerErrorAnalyticsSaga(
       // Sending plugin name for actions
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
-        propertyPath: "",
+        propertyPath: payload.propertyPath,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
       });

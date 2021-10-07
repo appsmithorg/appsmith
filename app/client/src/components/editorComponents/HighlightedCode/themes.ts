@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { css } from "styled-components";
 
 export const LIGHT = css`
@@ -142,7 +143,7 @@ export const LIGHT = css`
 export const DARK = css`
   code[class*="language-"],
   pre[class*="language-"] {
-    color: white;
+    color: ${Colors.CHARCOAL};
     background: none;
     font-family: ${(props) => props.theme.fonts.code};
     font-size: 1em;

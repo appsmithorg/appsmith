@@ -36,7 +36,7 @@ import {
   setOnboardingWelcomeState,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { getSelectedWidget, getWidgets } from "./selectors";
+import { getSelectedWidget, getWidgetByName, getWidgets } from "./selectors";
 import {
   endOnboarding,
   setCurrentStep,
@@ -62,7 +62,6 @@ import {
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
-import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,
@@ -108,9 +107,11 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   getFirstTimeUserOnboardingApplicationId,
   getIsFirstTimeUserOnboardingEnabled,
+  getOnboardingOrganisations,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { Organization } from "constants/orgConstants";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -231,7 +232,6 @@ function* listenForAddInputWidget() {
             inputWidget.widgetId,
             "widgetName",
             "Standup_Input",
-            RenderModes.CANVAS,
           ),
         );
         yield put(
@@ -284,7 +284,6 @@ function* listenForAddInputWidget() {
               inputWidget.widgetId,
               "onSubmit",
               "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-              RenderModes.CANVAS,
             ),
           );
           AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -568,7 +567,8 @@ function* createApplication() {
     AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
 
   const currentUser = yield select(getCurrentUser);
-  const userOrgs = yield select(getUserApplicationsOrgs);
+  const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
   const isFirstTimeUserOnboardingdEnabled = yield select(
@@ -688,6 +688,10 @@ function* executeQuery() {
 
 function* addWidget(widgetConfig: any) {
   try {
+    const widget = yield select(getWidgetByName, widgetConfig.widgetName ?? "");
+    // If widget already exists return
+    if (widget) return;
+
     const newWidget = {
       newWidgetId: generateReactKey(),
       widgetId: "0",
@@ -843,7 +847,6 @@ function* addOnSubmitHandler() {
           inputWidget.widgetId,
           "onSubmit",
           "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-          RenderModes.CANVAS,
         ),
       );
       AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -877,7 +880,6 @@ function* addBinding() {
         standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
-        RenderModes.CANVAS,
       ),
     );
 

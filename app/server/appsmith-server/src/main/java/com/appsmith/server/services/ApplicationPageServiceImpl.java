@@ -16,6 +16,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -240,7 +241,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
         return applicationWithPoliciesMono
-                .flatMap(applicationService::createDefault)
+                .zipWith(userMono)
+                .flatMap(tuple -> {
+                    Application application1 = tuple.getT1();
+                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                    return applicationService.createDefault(application1);
+                })
                 .flatMap(savedApplication -> {
 
                     PageDTO page = new PageDTO();
@@ -298,8 +304,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
                     log.debug("Archiving pages for applicationId: {}", id);
-                    return newPageService.archivePagesByApplicationId(id, MANAGE_PAGES)
-                            .thenReturn(application);
+                    return Mono.when(
+                            newPageService.archivePagesByApplicationId(id, MANAGE_PAGES),
+                            newActionService.archiveActionsByApplicationId(id, MANAGE_ACTIONS)
+                    ).thenReturn(application);
                 })
                 .flatMap(applicationService::archive);
 
@@ -456,7 +464,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
 
-                    // Create a new clone application object without the pages using the parametrized Application constructor
+                    // Create a new clone application object without the pages using the parameterized Application constructor
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
 
@@ -464,7 +472,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
                             // Create the cloned application with the new name and policies before proceeding further.
-                            .flatMap(applicationService::createDefault)
+                            .zipWith(userMono)
+                            .flatMap(applicationUserTuple2 -> {
+                                Application application1 = applicationUserTuple2.getT1();
+                                application1.setModifiedBy(applicationUserTuple2.getT2().getUsername()); // setting modified by to current user
+                                return applicationService.createDefault(application1);
+                            })
                             // Now fetch the pages of the source application, clone and add them to this new application
                             .flatMap(savedApplication -> Flux.fromIterable(sourceApplication.getPages())
                                     .flatMap(applicationPage -> {
@@ -546,12 +559,22 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
-                    return Mono.zip(archivedPageMono, archivedActionsMono, applicationMono)
+                    /**
+                     *  Only delete unpublished action collection and not the entire action collection.
+                     */
+                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                            .flatMap(actionCollection -> {
+                                log.debug("Going to archive actionCollectionId: {} for applicationId: {}", actionCollection.getId(), id);
+                                return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
+                            }).collectList();
+
+                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono)
                             .map(tuple -> {
                                 PageDTO page1 = tuple.getT1();
                                 List<ActionDTO> actions = tuple.getT2();
-                                Application application = tuple.getT3();
-                                log.debug("Archived pageId: {} and {} actions for applicationId: {}", page1.getId(), actions.size(), application.getId());
+                                final List<ActionCollectionDTO> actionCollections = tuple.getT3();
+                                Application application = tuple.getT4();
+                                log.debug("Archived pageId: {} , {} actions and {} action collections for applicationId: {}", page1.getId(), actions.size(), actionCollections.size(), application.getId());
                                 return page1;
                             });
                 });

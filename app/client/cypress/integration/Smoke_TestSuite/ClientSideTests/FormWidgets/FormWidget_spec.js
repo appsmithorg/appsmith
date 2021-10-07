@@ -124,17 +124,6 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(publish.formWidget).should("be.visible");
   });
-  it("Explore Widget related documents Verification", function() {
-    // Open property pane
-    cy.openPropertyPane("formwidget");
-    // Click on "Explore widget related docs" button
-    cy.get(widgetsPage.exploreWidget).click();
-    // Verify the widget related document
-    cy.get(widgetsPage.widgetRelatedDocument).should("contain", "Form");
-    cy.wait(500);
-    cy.get(widgetsPage.header).click();
-    cy.PublishtheApp();
-  });
   it("Form-Copy Verification", function() {
     cy.openPropertyPane("formwidget");
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

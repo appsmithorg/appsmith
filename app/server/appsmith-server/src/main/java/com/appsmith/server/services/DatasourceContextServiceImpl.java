@@ -1,11 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -58,7 +57,7 @@ public class DatasourceContextServiceImpl implements DatasourceContextService {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this scenario");
 
         } else if (datasourceContextMap.get(datasourceId) != null
-                // The following condition happens when there's a timout in the middle of destroying a connection and
+                // The following condition happens when there's a timeout in the middle of destroying a connection and
                 // the reactive flow interrupts, resulting in the destroy operation not completing.
                 && datasourceContextMap.get(datasourceId).getConnection() != null
                 && !isStale) {

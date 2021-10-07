@@ -54,7 +54,7 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter option value",
+            placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             isJSConvertible: false,
@@ -96,7 +96,7 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "defaultOptionValue",
             label: "Default Value",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter option value",
+            placeholderText: "[GREEN]",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -104,19 +104,19 @@ class MultiSelectWidget extends BaseWidget<
               params: {
                 fn: defaultOptionValueValidation,
                 expected: {
-                  type: "value or Array of values",
-                  example: `value1 | ['value1', 'value2']`,
+                  type: "Array of values",
+                  example: `['option1', 'option2']`,
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
             },
           },
           {
-            helpText: "Input Place Holder",
+            helpText: "Sets a Placeholder text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter placeholder text",
+            placeholderText: "Search",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -253,13 +253,15 @@ class MultiSelectWidget extends BaseWidget<
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
 
-    super.executeAction({
-      triggerPropertyName: "onFilterUpdate",
-      dynamicString: this.props.onFilterUpdate,
-      event: {
-        type: EventType.ON_FILTER_UPDATE,
-      },
-    });
+    if (this.props.onFilterUpdate) {
+      super.executeAction({
+        triggerPropertyName: "onFilterUpdate",
+        dynamicString: this.props.onFilterUpdate,
+        event: {
+          type: EventType.ON_FILTER_UPDATE,
+        },
+      });
+    }
   };
 
   static getWidgetType(): WidgetType {
