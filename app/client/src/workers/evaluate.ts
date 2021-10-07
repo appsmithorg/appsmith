@@ -5,7 +5,6 @@ import {
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
-import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
@@ -115,7 +114,7 @@ export default function evaluate(
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
-  const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
+  const unescapedJS = js.replace(beginsWithLineBreakRegex, "");
   const scriptType = getScriptType(evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
