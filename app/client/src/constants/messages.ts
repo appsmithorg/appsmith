@@ -528,8 +528,9 @@ export const MERGE = () => "Merge";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
-export const REMOTE_URL_VIA = () => "Remote URL via";
-
+export const REMOTE_URL = () => "Remote URL";
+export const REMOTE_URL_INFO = () =>
+  `Create an empty git repository and paste the remote URL`;
 export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
 
 export const AUTHOR_NAME = () => "Author Name";
@@ -563,7 +564,7 @@ export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
-  "Copy this deploy key to your Git Repository setting.";
+  "Paste this key in your repository settings and give it write access.";
 
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
@@ -574,8 +575,7 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
-export const GIT_DISCONNECT = () => "Disconnect";
-export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your Git SSH URL";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
 
 // Js Snippets
 export const SNIPPET_DESCRIPTION = () =>

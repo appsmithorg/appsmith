@@ -7,49 +7,41 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import styled from "styled-components";
 import Menu from "./Menu";
 import { MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
-import Icon from "components/ads/Icon";
-import { Colors } from "constants/Colors";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "./constants";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import styled, { useTheme } from "styled-components";
+import { get } from "lodash";
 
 const Container = styled.div`
-  height: 600px;
+  height: 656px;
   width: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow-y: hidden;
+  padding: 0px 10px 0px 10px;
 `;
 
 const BodyContainer = styled.div`
   flex: 3;
   height: 100%;
-  padding: 0px 16px 0px 0px;
-  /* &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  } */
 `;
 
 const MenuContainer = styled.div``;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: ${(props) => props.theme.spaces[6]}px;
-  top: ${(props) => props.theme.spaces[8]}px;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.modal.hoverState};
-  }
+  right: ${(props) => props.theme.spaces[1]}px;
+  top: ${(props) => props.theme.spaces[5]}px;
+
   padding: ${(props) => props.theme.spaces[1]}px;
   border-radius: ${(props) => props.theme.radii[1]}px;
 `;
@@ -65,6 +57,9 @@ const allMenuOptions = Object.values(MENU_ITEMS_MAP);
 function GitSyncModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
+
+  const theme = useTheme();
+
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
   }, [dispatch, setIsGitSyncModalOpen]);
@@ -128,7 +123,11 @@ function GitSyncModal() {
             <BodyComponent onSuccess={showDeployTab} />
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
-            <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
+            <Icon
+              fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+              name="close-modal"
+              size={IconSize.XXXXL}
+            />
           </CloseBtnContainer>
         </Container>
       </Dialog>
