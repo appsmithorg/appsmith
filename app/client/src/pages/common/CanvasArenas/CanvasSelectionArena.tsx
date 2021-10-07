@@ -232,10 +232,8 @@ export function CanvasSelectionArena({
       };
 
       const onMouseLeave = () => {
-        if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-          document.body.addEventListener("mouseup", onMouseUp, false);
-          document.body.addEventListener("click", onClick, false);
-        }
+        document.body.addEventListener("mouseup", onMouseUp, false);
+        document.body.addEventListener("click", onClick, false);
       };
 
       const onMouseEnter = (e: any) => {
@@ -246,7 +244,7 @@ export function CanvasSelectionArena({
         ) {
           firstRender(e, true);
           drawOnEnterObj.current = defaultDrawOnObj;
-        } else if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+        } else {
           document.body.removeEventListener("mouseup", onMouseUp);
           document.body.removeEventListener("click", onClick);
         }
@@ -328,7 +326,9 @@ export function CanvasSelectionArena({
       };
 
       const onMouseDown = (e: any) => {
+        const isNotRightClick = !(e.which === 3 || e.button === 2);
         if (
+          isNotRightClick &&
           slidingArenaRef.current &&
           (!isDraggableParent || e.ctrlKey || e.metaKey)
         ) {
