@@ -33,8 +33,11 @@ const defaultDSL = defaultTemplate;
 export const extractCurrentDSL = (
   fetchPageResponse?: FetchPageResponse,
 ): DSLWidget => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
-  return transformDSL(currentDSL);
+  const newPage = !fetchPageResponse;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || {
+    ...defaultDSL,
+  };
+  return transformDSL(currentDSL, newPage);
 };
 
 export const getDropZoneOffsets = (
