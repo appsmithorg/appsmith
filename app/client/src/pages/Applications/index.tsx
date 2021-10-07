@@ -689,7 +689,7 @@ function ApplicationsSection(props: any) {
               {hasManageOrgPermissions && (
                 <Dialog
                   canEscapeKeyClose={false}
-                  canOutsideClickClose={false}
+                  canOutsideClickClose
                   isOpen={selectedOrgId === organization.id}
                   onClose={() => setSelectedOrgId("")}
                   title={`Invite Users to ${organization.name}`}
