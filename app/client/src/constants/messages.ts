@@ -699,3 +699,24 @@ export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
 export const WELCOME_ACTION = () => "Get Started";
+export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
+export const WELCOME_FORM_FULL_NAME = () => "Full Name";
+export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
+export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
+export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
+export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
+export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
+  "Usage data preference";
+export const WELCOME_FORM_DATA_COLLECTION_BODY = () =>
+  "Share anonymous usage data to help improve the product.";
+export const WELCOME_FORM_DATA_COLLECTION_LINK = () => "See what is shared";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE = () =>
+  "Share data & make Appsmith better!";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
+  "Don't share any data";
+export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
+export const WELCOME_FORM_NEWLETTER_LABEL = () =>
+  "Get updates about what we are cooking. We do not spam you.";
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
