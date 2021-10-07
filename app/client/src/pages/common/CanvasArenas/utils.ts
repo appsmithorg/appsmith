@@ -10,7 +10,7 @@ const getCanvasToDrawTopOffset = (
   return scrollParentTop > canvasTop
     ? Math.min(
         scrollParentTop - canvasTop,
-        canvasHeight - scrollParentTopHeight,
+        Math.max(canvasHeight - scrollParentTopHeight, 0),
       )
     : 0;
 };
