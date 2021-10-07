@@ -937,10 +937,7 @@ const getIsFromSignup = () => {
   return window.location?.pathname === SIGNUP_SUCCESS_URL;
 };
 
-class Applications extends Component<
-  ApplicationProps,
-  { selectedOrgId: string; showOnboardingForm: boolean }
-> {
+class Applications extends Component<ApplicationProps> {
   constructor(props: ApplicationProps) {
     super(props);
   }

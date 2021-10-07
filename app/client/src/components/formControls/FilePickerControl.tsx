@@ -37,13 +37,9 @@ const SelectButton = styled(BaseButton)`
   }
 `;
 
-interface FieldFileInputState {
-  text: string;
-}
-
 type Props = WrappedFieldProps;
 
-class FieldFileInput extends React.Component<Props, FieldFileInputState> {
+class FieldFileInput extends React.Component<Props> {
   uppy: any;
 
   constructor(props: Props) {
