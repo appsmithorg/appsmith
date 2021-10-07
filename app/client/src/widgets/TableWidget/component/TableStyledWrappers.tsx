@@ -398,7 +398,7 @@ export const CellWrapper = styled.div<{
     `
     cursor: pointer;
     &:hover {
-      color: ${Colors.ROYAL_BLUE};      
+      color: ${Colors.ROYAL_BLUE};
       text-decoration: underline;
     }`};
   &.video-cell {
@@ -544,12 +544,6 @@ export const TableIconWrapper = styled.div<{
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
-`;
-
-export const SortIconWrapper = styled.div`
-  display: inline-block;
-  height: 32px;
-  line-height: 32px;
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`

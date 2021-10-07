@@ -5,7 +5,6 @@ import {
   CellCheckboxWrapper,
   CellCheckbox,
   ActionWrapper,
-  SortIconWrapper,
   DraggableHeaderWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -535,13 +534,13 @@ export function TableHeaderCell(props: {
         {props.columnName}
       </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper>
+        <div>
           {props.isAscOrder ? (
             <AscendingIcon height={16} width={16} />
           ) : (
             <DescendingIcon height={16} width={16} />
           )}
-        </SortIconWrapper>
+        </div>
       ) : null}
       <div
         {...column.getResizerProps()}
