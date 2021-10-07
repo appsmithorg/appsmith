@@ -43,22 +43,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   }
 `;
 
-export interface VideoPlayerProps {
-  status: MediaCaptureStatus;
-}
-
-const VideoPlayer = styled.video<VideoPlayerProps>`
-  position: absolute;
-  visibility: ${({ status }) =>
-    status === MediaCaptureStatusTypes.VIDEO_CAPTURED ||
-    status === MediaCaptureStatusTypes.VIDEO_PLAYING ||
-    status === MediaCaptureStatusTypes.VIDEO_PAUSED ||
-    status === MediaCaptureStatusTypes.VIDEO_SAVED ||
-    status === MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE ||
-    status === MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE
-      ? `visible`
-      : `hidden`};
-`;
+const VideoPlayer = styled.video``;
 
 const ControlPanelContainer = styled.div`
   display: flex;
@@ -67,12 +52,13 @@ const ControlPanelContainer = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
-  padding: 2%;
+  padding: 1%;
 `;
 
 const MediaInputsContainer = styled.div`
   position: absolute;
   width: 100%;
+  padding: 0 1%;
 `;
 
 const TimerContainer = styled.div`
@@ -554,7 +540,7 @@ function DevicePopover(props: DevicePopoverProps) {
       <Button
         icon={renderLeftIcon(deviceType)}
         minimal
-        rightIcon="caret-down"
+        rightIcon={<Icon color="white" icon="caret-down" />}
       />
     </Popover2>
   );
@@ -590,7 +576,7 @@ function CameraComponent(props: CameraComponentProps) {
   const [mediaCaptureStatus, setMediaCaptureStatus] = useState<
     MediaCaptureStatus
   >(MediaCaptureStatusTypes.IMAGE_DEFAULT);
-
+  const [isVideoPlayerReady, setIsVideoPlayerReady] = useState(false);
   const [playerDays, setPlayerDays] = useState(0);
   const [playerHours, setPlayerHours] = useState(0);
   const [playerMinutes, setPlayerMinutes] = useState(0);
@@ -666,6 +652,19 @@ function CameraComponent(props: CameraComponentProps) {
       );
     };
   }, [video]);
+
+  useEffect(() => {
+    const possibleStates: MediaCaptureStatus[] = [
+      MediaCaptureStatusTypes.VIDEO_CAPTURED,
+      MediaCaptureStatusTypes.VIDEO_PLAYING,
+      MediaCaptureStatusTypes.VIDEO_PAUSED,
+      MediaCaptureStatusTypes.VIDEO_SAVED,
+      MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE,
+      MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE,
+    ];
+
+    setIsVideoPlayerReady(possibleStates.includes(mediaCaptureStatus));
+  }, [mediaCaptureStatus]);
 
   const handleDeviceInputs = useCallback(
     (mediaInputs: MediaDeviceInfo[]) => {
@@ -822,24 +821,22 @@ function CameraComponent(props: CameraComponentProps) {
         </>
       );
     }
+
     return (
       <>
-        <Webcam
-          audio
-          audioConstraints={audioConstraints}
-          mirrored={mirrored}
-          onUserMedia={handleUserMedia}
-          onUserMediaError={handleUserMediaErrors}
-          ref={webcamRef}
-          videoConstraints={videoConstraints}
-        />
+        {!isVideoPlayerReady && (
+          <Webcam
+            audio
+            audioConstraints={audioConstraints}
+            mirrored={mirrored}
+            onUserMedia={handleUserMedia}
+            onUserMediaError={handleUserMediaErrors}
+            ref={webcamRef}
+            videoConstraints={videoConstraints}
+          />
+        )}
 
-        <VideoPlayer
-          height={height}
-          ref={videoElementRef}
-          status={mediaCaptureStatus}
-          width={width}
-        />
+        {isVideoPlayerReady && <VideoPlayer ref={videoElementRef} />}
 
         <ControlPanel
           audioInputs={audioInputs}
