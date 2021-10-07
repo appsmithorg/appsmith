@@ -34,13 +34,11 @@ import jsPaneReducer from "./jsPaneReducer";
 import notificationsReducer from "./notificationsReducer";
 import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
-import actionTabsReducer from "./actionTabsReducer";
 import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
 
 const uiReducer = combineReducers({
-  actionTabs: actionTabsReducer,
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,
