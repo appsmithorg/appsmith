@@ -24,6 +24,7 @@ const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
+const jsEditorLocators = require("../locators/JSEditor.json");
 
 let pageidcopy = " ";
 
@@ -1109,6 +1110,21 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
   );
 });
 
+Cypress.Commands.add("copyJSObjectToPage", (pageName) => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.copyTo).click({ force: true });
+  cy.get(apiwidget.page)
+    .contains(pageName)
+    .click();
+  cy.wait("@createNewJSCollection").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
 Cypress.Commands.add("AddActionWithModal", () => {
   cy.get(commonlocators.dropdownSelectButton)
     .last()
@@ -1931,6 +1947,10 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
   cy.get(explorer.entityQuery).click({ force: true });
 });
 
+Cypress.Commands.add("NavigateToJSEditor", () => {
+  cy.get(explorer.addEntityJSEditor).click({ force: true });
+});
+
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
   cy.wait("@createNewApi").should(
@@ -2272,6 +2292,16 @@ Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@deleteAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("deleteJSObject", () => {
+  cy.hoverAndClick();
+  cy.get(jsEditorLocators.delete).click({ force: true });
+  cy.wait("@deleteJSCollection").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -2689,6 +2719,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
+  cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
+  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
@@ -2868,4 +2900,16 @@ Cypress.Commands.add("createAmazonS3Datasource", () => {
   cy.fillAmazonS3DatasourceForm();
 
   cy.testSaveDatasource();
+});
+
+Cypress.Commands.add("createJSObject", (JSCode) => {
+  cy.NavigateToJSEditor();
+  cy.wait(1000);
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus()
+    .type("{downarrow}{downarrow}{downarrow}  ")
+    .type(JSCode);
+  cy.wait(1000);
+  cy.get(jsEditorLocators.runButton).click();
 });
