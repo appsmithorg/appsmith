@@ -23,42 +23,15 @@ export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   };
 };
 
-export const addJSObjectAction = (payload: {
-  jsAction: JSCollection;
-  subActions: Array<Partial<JSAction>>;
-}) => {
-  return {
-    type: ReduxActionTypes.ADD_JS_ACTION_TO_COLLECTION,
-    payload,
-  };
-};
-
-export const updateJSObjectAction = (payload: {
-  jsAction: JSCollection;
-  subActions: Array<JSAction>;
-}) => {
-  return {
-    type: ReduxActionTypes.UPDATE_JS_ACTION_TO_COLLECTION,
-    payload,
-  };
-};
-
-export const deleteJSObjectAction = (payload: {
-  jsAction: JSCollection;
-  subActions: Array<JSAction>;
-}) => {
-  return {
-    type: ReduxActionTypes.DELETE_JS_ACTION_FROM_COLLECTION,
-    payload,
-  };
-};
-
 export const refactorJSCollectionAction = (payload: {
-  actionId: string;
-  collectionName: string;
-  pageId: string;
-  oldName: string;
-  newName: string;
+  refactorAction: {
+    actionId: string;
+    collectionName: string;
+    pageId: string;
+    oldName: string;
+    newName: string;
+  };
+  actionCollection: JSCollection;
 }) => {
   return {
     type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
