@@ -317,11 +317,11 @@ export function CanvasSelectionArena({
           }
           selectionRectangle.width = 0;
           selectionRectangle.height = 0;
-
           isDragging = true;
           // bring the canvas to the top layer
           stickyCanvasRef.current.style.zIndex = "2";
           slidingArenaRef.current.style.zIndex = "2";
+          slidingArenaRef.current.style.cursor = "default";
         }
       };
 
@@ -347,6 +347,7 @@ export function CanvasSelectionArena({
           );
           stickyCanvasRef.current.style.zIndex = "";
           slidingArenaRef.current.style.zIndex = "";
+          slidingArenaRef.current.style.cursor = "";
           dispatch(setCanvasSelectionStateAction(false, widgetId));
         }
       };
