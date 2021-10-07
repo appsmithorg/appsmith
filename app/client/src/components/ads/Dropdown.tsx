@@ -593,8 +593,9 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
-  const [dropdownWrapperWidth, setDropdownWrapperWidth] =
-    useState<string>("100%");
+  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
+    "100%",
+  );
 
   const dropdownWrapperRef = useCallback(
     (ref: HTMLDivElement) => {

@@ -63,7 +63,7 @@ export const Directions: { [id: string]: string } = {
 export type Direction = typeof Directions[keyof typeof Directions];
 const SCROLL_THRESHOLD = 20;
 
-export const getScrollByPixels = function (
+export const getScrollByPixels = function(
   elem: {
     top: number;
     height: number;
@@ -202,8 +202,7 @@ export const flashElementsById = (
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed
   // while allowing all utf-8 characters
-  const removeSpecialCharsRegex =
-    /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
+  const removeSpecialCharsRegex = /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
   const duplicateSpaceRegex = /\s+/;
   return value
     .split(removeSpecialCharsRegex)

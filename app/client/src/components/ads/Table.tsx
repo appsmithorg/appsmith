@@ -95,8 +95,13 @@ export interface TableProps {
 function Table(props: TableProps) {
   const { columns, data } = props;
 
-  const { getTableBodyProps, getTableProps, headerGroups, prepareRow, rows } =
-    useTable({ columns, data }, useSortBy);
+  const {
+    getTableBodyProps,
+    getTableProps,
+    headerGroups,
+    prepareRow,
+    rows,
+  } = useTable({ columns, data }, useSortBy);
 
   return (
     <Styles>

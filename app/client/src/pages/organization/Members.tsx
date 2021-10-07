@@ -134,8 +134,10 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchOrg(orgId));
   }, [orgId]);
 
-  const [showMemberDeletionConfirmation, setShowMemberDeletionConfirmation] =
-    useState(false);
+  const [
+    showMemberDeletionConfirmation,
+    setShowMemberDeletionConfirmation,
+  ] = useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const onOpenConfirmationModal = () => setShowMemberDeletionConfirmation(true);
   const onCloseConfirmationModal = () =>

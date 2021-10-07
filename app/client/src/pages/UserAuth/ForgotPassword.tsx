@@ -56,8 +56,13 @@ type ForgotPasswordProps = InjectedFormProps<
 
 export const ForgotPassword = withTheme(
   (props: ForgotPasswordProps & { theme: Theme }) => {
-    const { error, handleSubmit, submitFailed, submitSucceeded, submitting } =
-      props;
+    const {
+      error,
+      handleSubmit,
+      submitFailed,
+      submitSucceeded,
+      submitting,
+    } = props;
 
     return (
       <>

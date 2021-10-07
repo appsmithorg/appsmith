@@ -72,8 +72,9 @@ const StyledDivider = styled(Divider)`
 function EntityExplorer(props: IPanelProps) {
   const { applicationId } = useParams<ExplorerURLParams>();
 
-  const searchInputRef: MutableRefObject<HTMLInputElement | null> =
-    useRef(null);
+  const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
+    null,
+  );
   PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
   useEffect(() => {
     PerformanceTracker.stopTracking();

@@ -442,8 +442,10 @@ function ImportedHeaders(props: { headers: any }) {
 
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [apiBindHelpSectionVisible, setApiBindHelpSectionVisible] =
-    useLocalStorage("apiBindHelpSectionVisible", "true");
+  const [
+    apiBindHelpSectionVisible,
+    setApiBindHelpSectionVisible,
+  ] = useLocalStorage("apiBindHelpSectionVisible", "true");
 
   const {
     actionConfigurationHeaders,

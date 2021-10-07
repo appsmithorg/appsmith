@@ -229,8 +229,9 @@ function getFieldFromValue(
         });
       } else if (matches.length) {
         const entityPropertyPath = matches[0][1];
-        const { propertyPath } =
-          getEntityNameAndPropertyPath(entityPropertyPath);
+        const { propertyPath } = getEntityNameAndPropertyPath(
+          entityPropertyPath,
+        );
         const path = propertyPath && propertyPath.replace("()", "");
         const argsProps =
           path &&

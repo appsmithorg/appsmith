@@ -119,8 +119,14 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
     }
   };
   render() {
-    const { className, input, meta, refHandler, showError, ...rest } =
-      this.props;
+    const {
+      className,
+      input,
+      meta,
+      refHandler,
+      showError,
+      ...rest
+    } = this.props;
     const hasError = !!(
       showError &&
       meta &&

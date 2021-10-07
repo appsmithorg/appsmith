@@ -94,7 +94,8 @@ function NewActionButton(props: NewActionButtonProps) {
             payload = Object.assign({}, payload, {
               name: "fetch_standup_updates",
               actionConfiguration: {
-                body: "Select avatar, name, notes from standup_updates order by id desc",
+                body:
+                  "Select avatar, name, notes from standup_updates order by id desc",
               },
             });
           }

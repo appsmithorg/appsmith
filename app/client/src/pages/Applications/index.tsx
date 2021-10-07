@@ -1005,8 +1005,9 @@ class Applications extends Component<
           window.location.pathname == SIGNUP_SUCCESS_URL &&
           shouldEnableFirstTimeUserOnboarding === "true"
         ) {
-          const { applicationId, pageId } =
-            extractAppIdAndPageIdFromUrl(redirectUrl);
+          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
+            redirectUrl,
+          );
           if (applicationId && pageId) {
             this.props.enableFirstTimeUserOnboarding(applicationId);
             history.replace(BUILDER_PAGE_URL(applicationId, pageId));

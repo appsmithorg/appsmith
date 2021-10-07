@@ -361,8 +361,14 @@ function PopoverContent(props: PopoverContentProps) {
   const [openExpectedExample, setOpenExpectedExample] = useState(false);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
-    props;
+  const {
+    errors,
+    expected,
+    hasError,
+    onMouseEnter,
+    onMouseLeave,
+    theme,
+  } = props;
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];

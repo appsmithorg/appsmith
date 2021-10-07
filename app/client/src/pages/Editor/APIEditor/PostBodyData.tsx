@@ -56,8 +56,13 @@ const expectedPostBody: CodeEditorExpected = {
 };
 
 function PostBodyData(props: Props) {
-  const { apiId, dataTreePath, displayFormat, theme, updateBodyContentType } =
-    props;
+  const {
+    apiId,
+    dataTreePath,
+    displayFormat,
+    theme,
+    updateBodyContentType,
+  } = props;
 
   const tabComponentsMap = (
     key: string,

@@ -203,8 +203,10 @@ function GlobalSearch() {
   }, []);
   const scrollPositionRef = useRef(0);
 
-  const [documentationSearchResults, setDocumentationSearchResultsInState] =
-    useState<Array<DocSearchItem>>([]);
+  const [
+    documentationSearchResults,
+    setDocumentationSearchResultsInState,
+  ] = useState<Array<DocSearchItem>>([]);
 
   const [activeItemIndex, setActiveItemIndexInState] = useState(0);
   const setActiveItemIndex = useCallback((index) => {

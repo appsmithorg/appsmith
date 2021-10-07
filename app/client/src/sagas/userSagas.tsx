@@ -434,8 +434,7 @@ function* updateFirstTimeUserOnboardingSage() {
 
   if (enable) {
     const applicationId = yield getFirstTimeUserOnboardingApplicationId() || "";
-    const introModalVisibility =
-      yield getFirstTimeUserOnboardingIntroModalVisibility();
+    const introModalVisibility = yield getFirstTimeUserOnboardingIntroModalVisibility();
     yield put({
       type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       payload: true,

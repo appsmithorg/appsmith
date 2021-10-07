@@ -103,7 +103,7 @@ export default (props: PopperProps) => {
       // remaines to be discovered.
       const _popper = new PopperJS(
         props.targetNode,
-        contentRef.current as unknown as Element,
+        (contentRef.current as unknown) as Element,
         {
           ...(isDraggable && disablePopperEvents
             ? {}

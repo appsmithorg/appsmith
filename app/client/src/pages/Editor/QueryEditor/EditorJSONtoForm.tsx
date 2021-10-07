@@ -619,33 +619,31 @@ export function EditorJSONtoForm(props: Props) {
   };
 
   // Recursive call to render forms pre UQI
-  const renderEachConfig =
-    (formName: string) =>
-    (section: any): any => {
-      return section.children.map(
-        (formControlOrSection: ControlProps, idx: number) => {
-          if (isHidden(props.formData, section.hidden)) return null;
-          if (formControlOrSection.hasOwnProperty("children")) {
-            return renderEachConfig(formName)(formControlOrSection);
-          } else {
-            try {
-              const { configProperty } = formControlOrSection;
-              return (
-                <FieldWrapper key={`${configProperty}_${idx}`}>
-                  <FormControl
-                    config={formControlOrSection}
-                    formName={formName}
-                  />
-                </FieldWrapper>
-              );
-            } catch (e) {
-              log.error(e);
-            }
+  const renderEachConfig = (formName: string) => (section: any): any => {
+    return section.children.map(
+      (formControlOrSection: ControlProps, idx: number) => {
+        if (isHidden(props.formData, section.hidden)) return null;
+        if (formControlOrSection.hasOwnProperty("children")) {
+          return renderEachConfig(formName)(formControlOrSection);
+        } else {
+          try {
+            const { configProperty } = formControlOrSection;
+            return (
+              <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
+                />
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
           }
-          return null;
-        },
-      );
-    };
+        }
+        return null;
+      },
+    );
+  };
 
   const responeTabOnRunClick = () => {
     props.onRunClick();

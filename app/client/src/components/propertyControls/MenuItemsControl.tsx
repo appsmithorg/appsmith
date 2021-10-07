@@ -89,10 +89,9 @@ function MenuItemComponent(props: RenderComponentProps) {
     },
     [updateOption],
   );
-  const handleChange = useCallback(
-    () => props.onEdit && props.onEdit(index),
-    [index],
-  );
+  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
+    index,
+  ]);
 
   const onFocus = () => setEditing(true);
   const onBlur = () => setEditing(false);

@@ -111,10 +111,9 @@ function TabControlComponent(props: RenderComponentProps) {
   }, [item?.label, isEditing]);
 
   const debouncedUpdate = debounce(updateOption, 1000);
-  const handleChange = useCallback(
-    () => props.onEdit && props.onEdit(index),
-    [index],
-  );
+  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
+    index,
+  ]);
 
   const onChange = useCallback(
     (index: number, value: string) => {

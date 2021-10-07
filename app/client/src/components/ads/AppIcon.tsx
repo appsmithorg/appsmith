@@ -237,10 +237,9 @@ export type AppIconProps = CommonComponentProps & {
 };
 
 function AppIcon(props: AppIconProps) {
-  const styledProps = useMemo(
-    () => appSizeHandler(props.size || Size.medium),
-    [props],
-  );
+  const styledProps = useMemo(() => appSizeHandler(props.size || Size.medium), [
+    props,
+  ]);
 
   let returnIcon;
   switch (props.name) {

@@ -153,21 +153,20 @@ export function* getAllApplicationSaga() {
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const organizationApplication: OrganizationApplicationObject[] =
-        response.data.organizationApplications.map(
-          (userOrgs: OrganizationApplicationObject) => ({
-            organization: userOrgs.organization,
-            userRoles: userOrgs.userRoles,
-            applications: !userOrgs.applications
-              ? []
-              : userOrgs.applications.map((application: ApplicationObject) => {
-                  return {
-                    ...application,
-                    defaultPageId: getDefaultPageId(application.pages),
-                  };
-                }),
-          }),
-        );
+      const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
+        (userOrgs: OrganizationApplicationObject) => ({
+          organization: userOrgs.organization,
+          userRoles: userOrgs.userRoles,
+          applications: !userOrgs.applications
+            ? []
+            : userOrgs.applications.map((application: ApplicationObject) => {
+                return {
+                  ...application,
+                  defaultPageId: getDefaultPageId(application.pages),
+                };
+              }),
+        }),
+      );
 
       yield put({
         type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
@@ -496,7 +495,8 @@ export function* createApplicationSaga(
           FirstTimeUserOnboardingApplicationId === ""
         ) {
           yield put({
-            type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+            type:
+              ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
           pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);

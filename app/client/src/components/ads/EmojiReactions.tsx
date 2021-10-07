@@ -32,9 +32,9 @@ const Bubble = styled.div<{ active?: boolean }>`
 
   border: 1px solid
     ${(props) =>
-    props.active
-      ? props.theme.colors.reactionsComponent.borderActive
-      : "transparent"};
+      props.active
+        ? props.theme.colors.reactionsComponent.borderActive
+        : "transparent"};
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
   margin-right: ${(props) => `${props.theme.radii[1]}px`};

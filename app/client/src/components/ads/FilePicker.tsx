@@ -192,7 +192,7 @@ export function CloudinaryUploader(
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        onUploadProgress: function (progressEvent: ProgressEvent) {
+        onUploadProgress: function(progressEvent: ProgressEvent) {
           const uploadPercentage = Math.round(
             (progressEvent.loaded / progressEvent.total) * 100,
           );

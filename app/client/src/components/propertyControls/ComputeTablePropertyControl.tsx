@@ -80,7 +80,9 @@ export function InputText(props: {
   );
 }
 
-class ComputeTablePropertyControl extends BaseControl<ComputeTablePropertyControlProps> {
+class ComputeTablePropertyControl extends BaseControl<
+  ComputeTablePropertyControlProps
+> {
   render() {
     const {
       dataTreePath,

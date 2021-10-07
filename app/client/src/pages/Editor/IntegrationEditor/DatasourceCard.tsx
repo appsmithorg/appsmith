@@ -159,8 +159,9 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const params = useParams<{ applicationId: string; pageId: string }>();
   const { datasource, plugin } = props;
-  const supportTemplateGeneration =
-    !!generateCRUDSupportedPlugin[datasource.pluginId];
+  const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
+    datasource.pluginId
+  ];
 
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,

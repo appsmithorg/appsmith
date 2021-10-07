@@ -52,8 +52,9 @@ describe("Entity Explorer tests", () => {
       fireEvent.click(tabsWidget);
       jest.runAllTimers();
     });
-    const highlighted =
-      component.container.getElementsByClassName("highlighted active");
+    const highlighted = component.container.getElementsByClassName(
+      "highlighted active",
+    );
     expect(highlighted.length).toBe(1);
   });
 

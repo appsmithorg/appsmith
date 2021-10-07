@@ -20,7 +20,9 @@ import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
 
-export type Validator = (value: string) => {
+export type Validator = (
+  value: string,
+) => {
   isValid: boolean;
   message: string;
 };
