@@ -118,7 +118,11 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
                       color={Colors["CADET_BLUE"]}
                       icon="plus"
                       iconSize={20}
-                      onClick={() => props.fields.push({ key: "", value: "" })}
+                      onClick={() => {
+                        props.fields.push({ key: "", value: "" });
+                        /* eslint-disable no-console */
+                        // console.log("rai", props.fields.getAll());
+                      }}
                       style={{ alignSelf: "center" }}
                     />
                   ) : (

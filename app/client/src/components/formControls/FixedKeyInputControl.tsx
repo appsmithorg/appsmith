@@ -23,9 +23,6 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
 
     return (
       <Wrapper>
-        <FormLabel>
-          {label} {isRequired && "*"}
-        </FormLabel>
         <TextField
           format={(value) => {
             // Get the value property

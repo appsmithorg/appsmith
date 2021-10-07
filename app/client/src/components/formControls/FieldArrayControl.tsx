@@ -93,15 +93,12 @@ function NestedComponents(props: any) {
 export default function FieldArrayControl(props: FieldArrayControlProps) {
   const { configProperty, formName, label, schema } = props;
   return (
-    <>
-      <FormLabel>{label}</FormLabel>
-      <FieldArray
-        component={NestedComponents}
-        name={configProperty}
-        props={{ formName, schema }}
-        rerenderOnEveryChange={false}
-      />
-    </>
+    <FieldArray
+      component={NestedComponents}
+      name={configProperty}
+      props={{ formName, schema }}
+      rerenderOnEveryChange={false}
+    />
   );
 }
 

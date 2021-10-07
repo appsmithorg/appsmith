@@ -133,14 +133,7 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   render() {
     const { configProperty, isRequired, label } = this.props;
 
-    return (
-      <>
-        <FormLabel>
-          {label} {isRequired && "*"}
-        </FormLabel>
-        <Field component={FieldFileInput} name={configProperty} />
-      </>
-    );
+    return <Field component={FieldFileInput} name={configProperty} />;
   }
 
   getControlType(): ControlType {

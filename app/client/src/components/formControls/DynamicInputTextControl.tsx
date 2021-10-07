@@ -50,9 +50,6 @@ export function InputText(props: {
 
   return (
     <div style={{ width: "50vh", minHeight: "34px" }}>
-      <FormLabel>
-        {label} {isRequired && "*"}
-      </FormLabel>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         name={name}

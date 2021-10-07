@@ -49,18 +49,20 @@ const FormInputAnchor = styled.a`
 //Styled form label tag, intended to be used with Form Fields
 const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   display: inline-block;
-  font-weight: 500;
   // TODO: replace condition with props.config?.dataType === "TOGGLE" 
   min-width: ${(props) =>
     props.config?.controlType === "SWITCH" ||
     props.config?.controlType === "CHECKBOX"
       ? "auto;"
       : "50vh;"} 
-  font-size: 14px;
-  line-height: 19px;
-  letter-spacing: 0.02em;
-  color: #4b4848;
   margin: 0px 0px 8px 16px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  color: ${Colors.CHARCOAL};
+  margin-bottom: 8px;
+
   &:first-child {
     margin-left: 0px;
   }

@@ -81,7 +81,6 @@ class DynamicTextControl extends BaseControl<
 
     return (
       <Wrapper>
-        <FormLabel>{label}</FormLabel>
         {showTemplate ? (
           <TemplateMenu
             createTemplate={(templateString) => {
