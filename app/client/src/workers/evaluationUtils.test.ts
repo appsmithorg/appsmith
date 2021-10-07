@@ -1,4 +1,5 @@
 import { getAllPaths } from "./evaluationUtils";
+import { extractReferencesFromBinding } from "workers/DataTreeEvaluator";
 
 describe("getAllPaths", () => {
   it("getsAllPaths", () => {
@@ -37,5 +38,26 @@ describe("getAllPaths", () => {
 
     const actual = getAllPaths(myTree);
     expect(actual).toStrictEqual(result);
+  });
+});
+
+describe("extractReferencesFromBinding", () => {
+  it("works properly", () => {
+    const allPaths: Record<string, true> = {
+      Table1: true,
+      "Table1.data": true,
+    };
+
+    const cases = [
+      {
+        script: "Table1.data.map(c => ({ name: c.name }))",
+        expectedResults: ["Table1.data"],
+      },
+    ];
+
+    cases.forEach((perCase) => {
+      const references = extractReferencesFromBinding(perCase.script, allPaths);
+      expect(references).toStrictEqual(perCase.expectedResults);
+    });
   });
 });

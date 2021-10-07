@@ -62,6 +62,7 @@ import evaluate, {
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
+import { getAST } from "workers/ast";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -1361,10 +1362,12 @@ export default class DataTreeEvaluator {
   }
 }
 
-const extractReferencesFromBinding = (
+export const extractReferencesFromBinding = (
   dependentPath: string,
   all: Record<string, true>,
 ): Array<string> => {
+  const ast = getAST(dependentPath);
+  debugger;
   const subDeps: Array<string> = [];
   const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
     dependentPath,
