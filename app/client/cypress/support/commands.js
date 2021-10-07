@@ -2746,6 +2746,7 @@ Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
+  // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
   const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
