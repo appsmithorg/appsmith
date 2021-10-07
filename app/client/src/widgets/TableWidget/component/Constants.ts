@@ -2,9 +2,11 @@ import { isString } from "lodash";
 import moment from "moment";
 import { TextSize } from "constants/WidgetConstants";
 import { IconName } from "@blueprintjs/icons";
+import { Alignment } from "@blueprintjs/core";
 import {
   ButtonBorderRadius,
   ButtonBoxShadow,
+  ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
 
@@ -105,16 +107,41 @@ export interface CellLayoutProperties {
   buttonColor?: string;
   buttonLabelColor?: string;
   buttonLabel?: string;
+  menuButtonLabel?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
   displayText?: string;
-  iconName?: IconName;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
   isCellVisible: boolean;
+  isCompact?: boolean;
+  menuItems: MenuItems;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
 }
+
+export type MenuItems = Record<
+  string,
+  {
+    widgetId: string;
+    id: string;
+    index: number;
+    isVisible?: boolean;
+    isDisabled?: boolean;
+    label?: string;
+    backgroundColor?: string;
+    textColor?: string;
+    iconName?: IconName;
+    iconColor?: string;
+    iconAlign?: Alignment;
+    onClick?: string;
+  }
+>;
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
@@ -158,6 +185,7 @@ export interface ColumnProperties {
   isDerived: boolean;
   computedValue: string;
   buttonLabel?: string;
+  menuButtonLabel?: string;
   buttonColor?: string;
   buttonLabelColor?: string;
   onClick?: string;
@@ -166,11 +194,18 @@ export interface ColumnProperties {
   dropdownOptions?: string;
   onOptionChange?: string;
   displayText?: string;
-  iconName?: IconName;
   buttonVariant?: ButtonVariant;
+  isCompact?: boolean;
+  menuItems?: MenuItems;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
+  iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
 }
 

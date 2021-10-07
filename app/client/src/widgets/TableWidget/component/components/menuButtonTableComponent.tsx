@@ -3,26 +3,26 @@ import styled, { createGlobalStyle } from "styled-components";
 import { Alignment, Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
-import tinycolor from "tinycolor2";
-
-import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import {
-  ButtonBoxShadow,
-  ButtonBoxShadowTypes,
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonVariant,
-  ButtonVariantTypes,
-} from "components/constants";
-import { ThemeProp } from "components/ads/common";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
+import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import { ThemeProp } from "components/ads/common";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadow,
+  ButtonBoxShadowTypes,
+  ButtonVariant,
+  ButtonVariantTypes,
+} from "components/constants";
+import { MenuItems } from "../Constants";
+import tinycolor from "tinycolor2";
 
-export const MenuButtonContainer = styled.div`
+const MenuButtonContainer = styled.div`
   width: 100%;
   height: 100%;
   text-align: center;
@@ -38,7 +38,7 @@ const PopoverStyles = createGlobalStyle`
   }
 `;
 
-export interface BaseStyleProps {
+interface BaseStyleProps {
   backgroundColor?: string;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
@@ -95,24 +95,24 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
         : "none"
     } !important;
+
     & > span {
+      max-height: 100%;
+      max-width: 99%;
       text-overflow: ellipsis;
+      overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
 
-      max-height: 100%;
-      overflow: hidden;
       color: ${
         buttonVariant === ButtonVariantTypes.SOLID
           ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor) !==
-            "none"
-          ? getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
-          : `${theme.colors.button.primary.outline.textColor}`
+          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
       } !important;
     }
   `}
+
 
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
@@ -181,26 +181,11 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
 
 const StyledMenu = styled(Menu)`
   padding: 0;
+  background: none;
 `;
 
-export interface PopoverContentProps {
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+interface PopoverContentProps {
+  menuItems: MenuItems;
   onItemClicked: (onClick: string | undefined) => void;
   isCompact?: boolean;
 }
@@ -225,27 +210,27 @@ function PopoverContent(props: PopoverContentProps) {
       onClick,
       textColor,
     } = menuItem;
-    if (iconAlign === Alignment.RIGHT) {
-      return (
-        <BaseMenuItem
-          backgroundColor={backgroundColor}
-          disabled={isDisabled}
-          isCompact={isCompact}
-          key={id}
-          labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick)}
-          text={label}
-          textColor={textColor}
-        />
-      );
-    }
+
     return (
       <BaseMenuItem
-        backgroundColor={backgroundColor}
+        backgroundColor={backgroundColor || "#FFFFFF"}
         disabled={isDisabled}
-        icon={<Icon color={iconColor} icon={iconName} />}
+        icon={
+          iconAlign !== Alignment.RIGHT ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : (
+            undefined
+          )
+        }
         isCompact={isCompact}
         key={id}
+        labelElement={
+          iconAlign === Alignment.RIGHT ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : (
+            undefined
+          )
+        }
         onClick={() => onItemClicked(onClick)}
         text={label}
         textColor={textColor}
@@ -256,7 +241,7 @@ function PopoverContent(props: PopoverContentProps) {
   return <StyledMenu>{listItems}</StyledMenu>;
 }
 
-export interface PopoverTargetButtonProps {
+interface PopoverTargetButtonProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
@@ -274,6 +259,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     boxShadow,
     boxShadowColor,
     buttonColor,
+
     buttonVariant,
     iconAlign,
     iconName,
@@ -281,26 +267,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     label,
   } = props;
 
-  if (iconAlign === Alignment.RIGHT) {
-    return (
-      <BaseButton
-        alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        disabled={isDisabled}
-        fill
-        rightIcon={iconName}
-        text={label}
-      />
-    );
-  }
-
   return (
     <BaseButton
-      alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
+      alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
@@ -308,7 +277,8 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       fill
-      icon={iconName}
+      icon={iconAlign !== Alignment.RIGHT ? iconName : undefined}
+      rightIcon={iconAlign === Alignment.RIGHT ? iconName : undefined}
       text={label}
     />
   );
@@ -319,23 +289,7 @@ export interface MenuButtonComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: MenuItems;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
@@ -344,10 +298,9 @@ export interface MenuButtonComponentProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
-  backgroundColor?: string;
 }
 
-function MenuButtonComponent(props: MenuButtonComponentProps) {
+function MenuButtonTableComponent(props: MenuButtonComponentProps) {
   const {
     borderRadius,
     boxShadow,
@@ -396,4 +349,4 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
   );
 }
 
-export default MenuButtonComponent;
+export default MenuButtonTableComponent;

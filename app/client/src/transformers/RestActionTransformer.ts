@@ -56,9 +56,12 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
   return action;
 };
 
+// Filters empty key-value pairs or key-value-type(Multipart) from form data, headers and query params
 function removeEmptyPairs(keyValueArray: any) {
   if (!keyValueArray || !keyValueArray.length) return keyValueArray;
   return keyValueArray.filter(
-    (data: any) => data && (!isEmpty(data.key) || !isEmpty(data.value)),
+    (data: any) =>
+      data &&
+      (!isEmpty(data.key) || !isEmpty(data.value) || !isEmpty(data.type)),
   );
 }

@@ -1,7 +1,5 @@
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
-import tinycolor from "tinycolor2";
-
 import {
   IButtonProps,
   MaybeElement,
@@ -12,7 +10,6 @@ import {
 import { IconName } from "@blueprintjs/icons";
 
 import Tooltip from "components/ads/Tooltip";
-import { Theme } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
 
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
@@ -28,7 +25,6 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "../../../constants/Colors";
 import _ from "lodash";
 import {
-  ButtonStyleTypes,
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
   ButtonBorderRadius,
@@ -36,68 +32,12 @@ import {
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-
-export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
-  if (!backgroundColor)
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].solid
-      .textColor;
-  const isDark = tinycolor(backgroundColor).isDark();
-  if (isDark) {
-    return theme.colors.button.custom.solid.light.textColor;
-  }
-  return theme.colors.button.custom.solid.dark.textColor;
-};
-
-export const getCustomHoverColor = (
-  theme: Theme,
-  buttonVariant?: ButtonVariant,
-  backgroundColor?: string,
-) => {
-  if (!backgroundColor) {
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()][
-      (buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()
-    ].hoverColor;
-  }
-
-  switch (buttonVariant) {
-    case ButtonVariantTypes.OUTLINE:
-      return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
-        : theme.colors.button.primary.outline.hoverColor;
-
-    case ButtonVariantTypes.GHOST:
-      return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
-        : theme.colors.button.primary.ghost.hoverColor;
-
-    default:
-      return backgroundColor
-        ? tinycolor(backgroundColor)
-            .darken(10)
-            .toString()
-        : theme.colors.button.primary.solid.hoverColor;
-  }
-};
-
-export const getCustomBackgroundColor = (
-  buttonVariant?: ButtonVariant,
-  backgroundColor?: string,
-) => {
-  return buttonVariant === ButtonVariantTypes.SOLID ? backgroundColor : "none";
-};
-
-export const getCustomBorderColor = (
-  buttonVariant?: ButtonVariant,
-  backgroundColor?: string,
-) => {
-  return buttonVariant === ButtonVariantTypes.OUTLINE
-    ? backgroundColor
-    : "none";
-};
+import {
+  getCustomBackgroundColor,
+  getCustomBorderColor,
+  getCustomHoverColor,
+  getCustomTextColor,
+} from "widgets/WidgetUtils";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
