@@ -48,12 +48,13 @@ public interface GitExecutor {
      * @param remoteUrl remote repo url
      * @param publicKey
      * @param privateKey
+     * @param branchName branch which needs to be pushed to remote
      * @return Success message
      * @throws IOException exception thrown if git open repo failed
      * @throws GitAPIException git exceptions
      * @throws URISyntaxException exception thrown while constructing the remote url
      */
-    String pushApplication(Path branchSuffix, String remoteUrl, String publicKey, String privateKey) throws IOException, GitAPIException, URISyntaxException;
+    String pushApplication(Path branchSuffix, String remoteUrl, String publicKey, String privateKey, String branchName) throws IOException, GitAPIException, URISyntaxException;
 
     /** Clone the repo to the file path
      *  Children branches - containerVolume/orgId/defaultAppId/repo/branchName/applicationData
