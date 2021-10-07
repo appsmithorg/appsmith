@@ -76,25 +76,31 @@ function main() {
 	});
 
 	io.of(ROOT_NAMESPACE).adapter.on("leave-room", (room, id) => {
-		log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} left the room ${room}`)
+		if(room.startsWith(APP_ROOM_PREFIX)) {
+			log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} left the room ${room}`)
+		}
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 	
 	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
-		log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		if(room.startsWith(APP_ROOM_PREFIX)) {
+			log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		}
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 
 	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
-		log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} left the room ${room}`)
 		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
+			log.debug(`ns:${PAGE_EDIT_NAMESPACE} # socket ${id} left the room ${room}`)
 			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
 		}
 		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
 	});
 
 	io.of(PAGE_EDIT_NAMESPACE).adapter.on("join-room", (room, id) => {
-		log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		if(room.startsWith(PAGE_ROOM_PREFIX)) {
+			log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		}
 		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
 	});
 
@@ -122,7 +128,7 @@ function main() {
 }
 
 function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
-	// remove this socket from any other app rooms
+	// remove this socket from any other rooms with roomPrefix
 	if(socket.rooms) {
 		socket.rooms.forEach(roomName => {
 			if(roomName.startsWith(roomPrefix)) {
