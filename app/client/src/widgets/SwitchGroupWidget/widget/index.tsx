@@ -71,6 +71,7 @@ class SwitchGroupWidget extends BaseWidget<
                 children: {
                   type: ValidationTypes.TEXT,
                 },
+                strict: true,
               },
             },
           },
