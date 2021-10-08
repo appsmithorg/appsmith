@@ -14,4 +14,11 @@ describe("Name uniqueness test", function() {
   it("Validate download apiname check", () => {
     cy.CreationOfUniqueAPIcheck("download");
   });
+
+  it("Validate window object property apiname check", () => {
+    cy.CreationOfUniqueAPIcheck("localStorage");
+  });
+  it("Validate window object method apiname check", () => {
+    cy.CreationOfUniqueAPIcheck("resizeTo");
+  });
 });

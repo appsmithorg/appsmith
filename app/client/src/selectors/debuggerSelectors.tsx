@@ -1,3 +1,4 @@
+import { matchDatasourcePath } from "constants/routes";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 export const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
@@ -22,3 +23,6 @@ export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
   const errorsCount = errorKeys.length - warningsCount;
   return { errors: errorsCount, warnings: warningsCount };
 });
+
+export const hideDebuggerIconSelector = () =>
+  matchDatasourcePath(window.location.pathname);
