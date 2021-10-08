@@ -28,7 +28,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <StyledDropDown
           dropdownHeight={this.props.dropdownHeight}
           enableSearch={this.props.enableSearch}
-          hideSubText={this.props.hideSubText ? this.props.hideSubText : false}
+          hideSubText={this.props.hideSubText}
           onSelect={this.onItemSelect}
           optionWidth={
             this.props.optionWidth ? this.props.optionWidth : "231px"
