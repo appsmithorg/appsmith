@@ -1,9 +1,9 @@
 import styled from "styled-components";
 
 export const CheckmarkWrapper = styled.div`
-  height: 50px;
-  width: 50px;
-  margin: ${(props) => props.theme.spaces[10]}px;
+  height: 80px;
+  width: 80px;
+  margin-bottom: ${(props) => props.theme.spaces[15]}px;
   .checkmark .checkmark__circle {
     stroke-dasharray: 166;
     stroke-dashoffset: 166;
@@ -11,12 +11,12 @@ export const CheckmarkWrapper = styled.div`
     stroke-miterlimit: 10;
     stroke: green;
     fill: none;
-    animation: stroke 1.2s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
   }
 
   .checkmark {
-    width: 56px;
-    height: 56px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     display: block;
     stroke-width: 2;
@@ -24,15 +24,15 @@ export const CheckmarkWrapper = styled.div`
     stroke-miterlimit: 10;
     margin: 10% auto;
     box-shadow: inset 0px 0px 0px #7ac142;
-    animation: fill 0.8s ease-in-out 0.8s forwards,
-      scale 0.6s ease-in-out 1.8s both;
+    animation: fill 0.4s ease-in-out 0.4s forwards,
+      scale 0.3s ease-in-out 0.9s both;
   }
 
   .checkmark__check {
     transform-origin: 50% 50%;
     stroke-dasharray: 48;
     stroke-dashoffset: 48;
-    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) 1.6s forwards;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
   }
 
   @keyframes stroke {
