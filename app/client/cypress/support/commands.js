@@ -2674,7 +2674,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
 
-  cy.route("POST", "/api/v1/actions/execute").as("executeAction");
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
