@@ -76,7 +76,7 @@ class DynamicTextControl extends BaseControl<
     const placeholder =
       placeholderText || (isNewQuery ? createMessage(EMPTY_QUERY_STATE) : "");
     // Preloaded query templates will be hidden till we can generate smart templates using the user's datasource
-    const showTemplate = false; //&& isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
+    const showTemplate = false;
     const mode =
       responseType === "TABLE"
         ? EditorModes.SQL_WITH_BINDING
