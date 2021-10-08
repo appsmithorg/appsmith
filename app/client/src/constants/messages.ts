@@ -720,3 +720,27 @@ export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
 export const WELCOME_FORM_NEWLETTER_LABEL = () =>
   "Get updates about what we are cooking. We do not spam you.";
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
+
+//help tooltips
+export const ACCOUNT_TOOLTIP = () => "Your account";
+export const RENAME_APPLICATION_TOOLTIP = () => "Rename application";
+export const LOGO_TOOLTIP = () => "Back to homepage";
+export const ADD_PAGE_TOOLTIP = () => "Add a new page";
+export const ADD_DATASOURCE_TOOLTIP = () =>
+  "Add datasource or create new query";
+export const ADD_WIDGET_TOOLTIP = () => "Find and add a widget";
+export const HELP_RESOURCE_TOOLTIP = () => "Help and resources";
+export const COPY_ELEMENT = () => "Copy element";
+export const LAYOUT_DROPDOWN_TOOLTIP = () =>
+  "Choose how your application looks on desktop, tablet and mobile devices";
+export const DEPLOY_BUTTON_TOOLTIP = () =>
+  "Deploy the current version of the application";
+export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
+export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
+  `Shared with ${length} other`;
+export const DEBUGGER_TOOLTIP = () => "Open Debugger";
+export const PAGE_PROPERTIES_TOOLTIP = () => "Page properties";
+export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
+export const ADD_JS_ACTION = () => "Add a new JS Object";
+export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
+export const NOTIFICATIONS_TOOLTIP = () => "Notifications";

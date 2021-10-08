@@ -6,8 +6,42 @@ import {
 } from "utils/DynamicBindingUtils";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { last } from "lodash";
-import { EvaluationScripts, EvaluationScriptType } from "workers/evaluate";
+import { last, keys, isEmpty } from "lodash";
+import {
+  EvaluationScripts,
+  EvaluationScriptType,
+  ScriptTemplate,
+} from "workers/evaluate";
+
+export const getPositionInEvaluationScript = (
+  type: EvaluationScriptType,
+): Position => {
+  const script = EvaluationScripts[type];
+
+  const index = script.indexOf(ScriptTemplate);
+  const substr = script.substr(0, index);
+  const lines = substr.split("\n");
+  const lastLine = last(lines) || "";
+
+  return { line: lines.length, ch: lastLine.length };
+};
+
+const EvalutionScriptPositions: Record<string, Position> = {};
+
+function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
+  if (isEmpty(EvalutionScriptPositions)) {
+    // We are computing position of <<script>> in our templates.
+    // This will be used to get the exact location of error in linting
+    keys(EvaluationScripts).forEach((type) => {
+      const location = getPositionInEvaluationScript(
+        type as EvaluationScriptType,
+      );
+      EvalutionScriptPositions[type] = location;
+    });
+  }
+
+  return EvalutionScriptPositions[scriptType];
+}
 
 export const getLintingErrors = (
   script: string,
@@ -15,7 +49,7 @@ export const getLintingErrors = (
   originalBinding: string,
   scriptType: EvaluationScriptType,
 ): EvaluationError[] => {
-  const scriptPos = getPositionInEvaluationScript(scriptType);
+  const scriptPos = getEvaluationScriptPosition(scriptType);
   const globalData: Record<string, boolean> = {};
   for (const dataKey in data) {
     globalData[dataKey] = true;
@@ -68,17 +102,4 @@ export const getLintingErrors = (
       ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
     };
   });
-};
-
-export const getPositionInEvaluationScript = (
-  type: EvaluationScriptType,
-): Position => {
-  const script = EvaluationScripts[type];
-
-  const index = script.indexOf("<<script>>");
-  const substr = script.substr(0, index);
-  const lines = substr.split("\n");
-  const lastLine = last(lines) || "";
-
-  return { line: lines.length, ch: lastLine.length };
 };

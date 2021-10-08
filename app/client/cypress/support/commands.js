@@ -677,10 +677,13 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
 
 Cypress.Commands.add(
   "validateRequest",
-  (baseurl, path, verb, error = false) => {
+  (apiName, baseurl, path, verb, error = false) => {
     cy.get(".react-tabs__tab")
       .contains("Logs")
       .click();
+    cy.get("[data-cy=t--debugger-search]")
+      .clear()
+      .type(apiName);
 
     if (!error) {
       cy.get(".object-key")
@@ -2671,7 +2674,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
 
-  cy.route("POST", "/api/v1/actions/execute").as("executeAction");
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
