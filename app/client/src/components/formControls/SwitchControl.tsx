@@ -23,12 +23,14 @@ const SwitchWrapped = styled.div`
   .bp3-control {
     margin-bottom: 0px;
   }
+  max-width: 60vw;
 `;
 
 const Info = styled.div`
   font-size: 12px;
   opacity: 0.7;
   margin-top: 8px;
+  max-width: 60vw;
 `;
 
 export class SwitchField extends React.Component<Props, any> {

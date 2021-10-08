@@ -146,12 +146,15 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
       <Wrapper>
         <CenteredContainer>
           <StyledClose
+            className="t--how-appsmith-works-modal-close"
             color="#919397"
             icon="cross"
             iconSize={16}
             onClick={onBuildApp}
           />
-          <ModalHeader>{createMessage(HOW_APPSMITH_WORKS)}</ModalHeader>
+          <ModalHeader className="t--how-appsmith-works-modal-header">
+            {createMessage(HOW_APPSMITH_WORKS)}
+          </ModalHeader>
           <ModalBody>
             <ModalImgWrapper>
               <StyledImgWrapper>
