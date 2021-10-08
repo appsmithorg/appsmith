@@ -112,6 +112,7 @@
     "toggleChartType": ".t--property-control-charttype .t--js-toggle",
     "inputToggleOnClick": ".t--property-control-onclick div.CodeMirror-lines",
     "tableBtn": ".t--draggable-tablewidget .bp3-button",
+    "tableIconBtn": ".t--draggable-tablewidget .bp3-icon",
     "toastAction": ".Toastify__toast-container--top-right .t--toast-action",
     "toastActionText": ".Toastify__toast-container--top-right .t--toast-action span",
     "defaultColName": "[data-rbd-draggable-id='customColumn1'] input",
