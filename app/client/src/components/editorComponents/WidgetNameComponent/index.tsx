@@ -175,7 +175,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         <SettingsControl
           activity={currentActivity}
           errorCount={shouldHideErrors ? 0 : props.errorCount}
-          name={props.widgetName}
+          name={props.widgetId}
           toggleSettings={togglePropertyEditor}
         />
       </ControlGroup>

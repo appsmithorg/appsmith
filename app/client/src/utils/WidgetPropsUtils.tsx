@@ -21,7 +21,7 @@ export type WidgetOperationParams = {
   payload: any;
 };
 
-type Rect = {
+export type Rect = {
   top: number;
   left: number;
   right: number;

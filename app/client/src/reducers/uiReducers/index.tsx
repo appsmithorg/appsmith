@@ -37,6 +37,7 @@ import canvasSelectionReducer from "./canvasSelectionReducer";
 import actionTabsReducer from "./actionTabsReducer";
 import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
+import { widgetReflowReducer } from "./reflowReducer";
 
 const uiReducer = combineReducers({
   actionTabs: actionTabsReducer,
@@ -77,6 +78,7 @@ const uiReducer = combineReducers({
   gitSync: gitSyncReducer,
   appCollab: appCollabReducer,
   crudInfoModal: crudInfoModalReducer,
+  widgetReflow: widgetReflowReducer,
 });
 
 export default uiReducer;

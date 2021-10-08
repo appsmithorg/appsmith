@@ -753,6 +753,12 @@ export enum ReplayReduxActionTypes {
   REDO = "redo",
 }
 
+export const ReflowReduxActionTypes = {
+  START_REFLOW: "START_REFLOW",
+  STOP_REFLOW: "STOP_REFLOW",
+  REFLOW_MOVE: "REFLOW_MOVE",
+};
+
 export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
   WIDGET_CHILD_ADDED: "WIDGET_CHILD_ADDED",

@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { memoize } from "lodash";
+import { getReflowSelector } from "selectors/widgetReflowSelectors";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -54,8 +55,21 @@ export function PositionedContainer(props: PositionedContainerProps) {
     isDropTarget,
   );
 
+  const reflowSelector = getReflowSelector(props.widgetId);
+
+  const equal = (reflowA: any, reflowB: any) => {
+    if (reflowA || reflowB) return false;
+
+    return true;
+  };
+
+  const reflowedPosition = useSelector(reflowSelector, equal);
+
+  const reflowX = reflowedPosition?.X || 0;
+  const reflowY = reflowedPosition?.Y || 0;
+
   const containerStyle: CSSProperties = useMemo(() => {
-    return {
+    const styles: CSSProperties = {
       position: "absolute",
       left: x,
       top: y,
@@ -64,8 +78,14 @@ export function PositionedContainer(props: PositionedContainerProps) {
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",
+      transform: `translate(${reflowX}px,${reflowY}px)`,
     };
-  }, [props.style, onHoverZIndex, zIndex]);
+    if (reflowedPosition) {
+      styles.padding = "0px";
+      styles.border = "4px solid cadetblue";
+    }
+    return styles;
+  }, [props.style, onHoverZIndex, zIndex, reflowX, reflowY, reflowedPosition]);
 
   const onClickFn = useCallback(
     (e) => {

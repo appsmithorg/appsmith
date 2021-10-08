@@ -20,7 +20,7 @@ import {
   BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
 import { Layers } from "constants/Layers";
-import Resizable from "resizable";
+import Resizable from "resizable/resize";
 import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";

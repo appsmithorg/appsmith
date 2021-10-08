@@ -1,0 +1,645 @@
+import { reflowMove, startReflow, stopReflow } from "actions/reflowActions";
+import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
+import { GridDefaults } from "constants/WidgetConstants";
+import {
+  UIElementSize,
+  WidgetExtendedPosition,
+  WidgetPosition,
+} from "components/editorComponents/ResizableUtils";
+import { OccupiedSpace } from "constants/editorConstants";
+import { ceil } from "lodash";
+import { RefObject, useCallback, useContext, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
+import {
+  Reflow,
+  reflowWidgets,
+  widgetReflowState,
+} from "reducers/uiReducers/reflowReducer";
+import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { generateClassName, getNearestParentCanvas } from "utils/generators";
+import { scrollElementIntoParentCanvasView } from "utils/helpers";
+import { XYCord } from "utils/hooks/useCanvasDragging";
+import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
+import { WidgetRowCols } from "widgets/BaseWidget";
+
+type WidgetCollisionGraph = OccupiedSpace & {
+  children?: {
+    [key: string]: WidgetCollisionGraph;
+  };
+};
+
+const computeRowCols = (
+  delta: UIElementSize,
+  position: XYCord,
+  widgetPosition: OccupiedSpace,
+  widgetParentSpaces: WidgetParentSpaces,
+) => {
+  return {
+    leftColumn: Math.round(
+      widgetPosition.left + position.x / widgetParentSpaces.parentColumnSpace,
+    ),
+    topRow: Math.round(
+      widgetPosition.top + position.y / widgetParentSpaces.parentRowSpace,
+    ),
+    rightColumn: Math.round(
+      widgetPosition.right +
+        (delta.width + position.x) / widgetParentSpaces.parentColumnSpace,
+    ),
+    bottomRow: Math.round(
+      widgetPosition.bottom +
+        (delta.height + position.y) / widgetParentSpaces.parentRowSpace,
+    ),
+  };
+};
+
+export type WidgetParentSpaces = {
+  parentColumnSpace: number;
+  parentRowSpace: number;
+  paddingOffset: number;
+};
+
+enum widgetDimensions {
+  top = "top",
+  bottom = "bottom",
+  left = "left",
+  right = "right",
+}
+
+enum MathComparators {
+  min = "min",
+  max = "max",
+}
+
+type CollisionAccessors = {
+  direction: widgetDimensions;
+  oppositeDirection: widgetDimensions;
+  perpendicularMax: widgetDimensions;
+  perpendicularMin: widgetDimensions;
+  parallelMax: widgetDimensions;
+  parallelMin: widgetDimensions;
+  mathComparator: MathComparators;
+  directionIndicator: number;
+  isHorizontal: boolean;
+};
+
+export const useReflow = (
+  widgetId: string,
+  parentId: string,
+  widgetPosition: OccupiedSpace,
+  resizableRef: RefObject<HTMLDivElement>,
+  ignoreCollision: boolean,
+  widgetParentSpaces: WidgetParentSpaces,
+) => {
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
+  const reflowState = useSelector(
+    (state: AppState): widgetReflowState => {
+      return state.ui.widgetReflow;
+    },
+  );
+
+  const occupiedSpacesBySiblingWidgets = useMemo(() => {
+    return occupiedSpaces && parentId && occupiedSpaces[parentId]
+      ? occupiedSpaces[parentId]
+      : undefined;
+  }, [occupiedSpaces, parentId]);
+
+  const { updateDropTargetRows } = useContext(DropTargetContext);
+
+  const dispatch = useDispatch();
+
+  // Resize bound's className - defaults to body
+  // ResizableContainer accepts the className of the element,
+  // whose clientRect will act as the bounds for resizing.
+  // Note, if there are many containers with the same className
+  // the bounding container becomes the nearest parent with the className
+  const boundingElementClassName = generateClassName(parentId);
+  const possibleBoundingElements = document.getElementsByClassName(
+    boundingElementClassName,
+  );
+  const boundingElement =
+    possibleBoundingElements.length > 0
+      ? possibleBoundingElements[0]
+      : undefined;
+
+  // Calculate the dimensions of the widget,
+  // The ResizableContainer's size prop is controlled
+  const dimensions: UIElementSize = {
+    width:
+      (widgetPosition.right - widgetPosition.left) *
+        widgetParentSpaces.parentColumnSpace -
+      2 * widgetParentSpaces.paddingOffset,
+    height:
+      (widgetPosition.bottom - widgetPosition.top) *
+        widgetParentSpaces.parentRowSpace -
+      2 * widgetParentSpaces.paddingOffset,
+  };
+
+  const isColliding = (newDimensions: UIElementSize, position: XYCord) => {
+    // Moving the bounding element calculations inside
+    // to make this expensive operation only whne
+    const boundingElementClientRect = boundingElement
+      ? boundingElement.getBoundingClientRect()
+      : undefined;
+
+    const bottom =
+      widgetPosition.top +
+      position.y / widgetParentSpaces.parentRowSpace +
+      newDimensions.height / widgetParentSpaces.parentRowSpace;
+    // Make sure to calculate collision IF we don't update the main container's rows
+    let updated = false;
+    if (updateDropTargetRows) {
+      updated = !!updateDropTargetRows(widgetId, bottom);
+      const el = resizableRef.current;
+      if (el) {
+        const { height } = el?.getBoundingClientRect();
+        const scrollParent = getNearestParentCanvas(resizableRef.current);
+        scrollElementIntoParentCanvasView(
+          {
+            top: 40,
+            height,
+          },
+          scrollParent,
+          el,
+        );
+      }
+    }
+
+    const delta: UIElementSize = {
+      height: newDimensions.height - dimensions.height,
+      width: newDimensions.width - dimensions.width,
+    };
+    const newRowCols: WidgetRowCols | false = computeRowCols(
+      delta,
+      position,
+      widgetPosition,
+      widgetParentSpaces,
+    );
+
+    if (newRowCols.rightColumn > getSnapColumns()) {
+      return true;
+    }
+
+    // Minimum row and columns to be set to a widget.
+    if (
+      newRowCols.rightColumn - newRowCols.leftColumn < 2 ||
+      newRowCols.bottomRow - newRowCols.topRow < 4
+    ) {
+      return true;
+    }
+
+    if (
+      boundingElementClientRect &&
+      newRowCols.rightColumn * widgetParentSpaces.parentColumnSpace >
+        ceil(boundingElementClientRect.width)
+    ) {
+      return true;
+    }
+
+    if (newRowCols && newRowCols.leftColumn < 0) {
+      return true;
+    }
+
+    if (!updated) {
+      if (
+        boundingElementClientRect &&
+        newRowCols.bottomRow * widgetParentSpaces.parentRowSpace >
+          ceil(boundingElementClientRect.height)
+      ) {
+        return true;
+      }
+
+      if (newRowCols && newRowCols.topRow < 0) {
+        return true;
+      }
+    }
+
+    // this is required for list widget so that template have no collision
+    if (ignoreCollision) return false;
+
+    // Check if new row cols are occupied by sibling widgets
+    return isDropZoneOccupied(
+      {
+        left: newRowCols.leftColumn,
+        top: newRowCols.topRow,
+        bottom: newRowCols.bottomRow,
+        right: newRowCols.rightColumn,
+      },
+      widgetId,
+      occupiedSpacesBySiblingWidgets,
+    );
+  };
+
+  const reflow = (dimensions: DimensionProps) => {
+    const { direction, height, width, x, X = 0, y, Y = 0 } = dimensions;
+
+    const isWidgetsColliding = isColliding({ width, height }, { x, y });
+
+    if (!isWidgetsColliding && reflowState.isReflowing) {
+      dispatch(stopReflow());
+      return;
+    }
+
+    if (
+      direction === ResizeDirection.UNSET ||
+      !isWidgetsColliding ||
+      !occupiedSpacesBySiblingWidgets
+    )
+      return;
+
+    if (!reflowState.isReflowing) {
+      let widgetReflow: Reflow = {
+        staticWidgetId: widgetPosition.id,
+        resizeDirections: direction,
+      };
+      if (direction.indexOf("|") > -1) {
+        const {
+          horizontalIndicator,
+          verticalIndicator,
+          widgetMovementMap,
+        } = getCompositeMovementMap(
+          occupiedSpacesBySiblingWidgets,
+          widgetPosition,
+          direction,
+          widgetParentSpaces,
+          { X, Y },
+        );
+        widgetReflow = {
+          ...widgetReflow,
+          reflowingWidgets: widgetMovementMap,
+          dimensionXBeforeCollision:
+            X - horizontalIndicator * widgetParentSpaces.parentColumnSpace,
+          dimensionYBeforeCollision:
+            Y - verticalIndicator * widgetParentSpaces.parentRowSpace,
+        };
+      } else {
+        const {
+          directionIndicator,
+          widgetMovementMap,
+        } = getMovementMapInDirection(
+          occupiedSpacesBySiblingWidgets,
+          widgetPosition,
+          direction,
+          widgetParentSpaces,
+          { X, Y },
+        );
+        widgetReflow = {
+          ...widgetReflow,
+          reflowingWidgets: widgetMovementMap,
+          dimensionXBeforeCollision:
+            X - directionIndicator * widgetParentSpaces.parentColumnSpace,
+          dimensionYBeforeCollision:
+            Y - directionIndicator * widgetParentSpaces.parentRowSpace,
+        };
+      }
+      dispatch(startReflow(widgetReflow));
+    } else if (reflowState.reflow && reflowState.reflow.reflowingWidgets) {
+      const reflowing = { ...reflowState.reflow };
+      if (direction.indexOf("|") > -1) {
+        const {
+          widgetMovementMap,
+        } = getCompositeMovementMap(
+          occupiedSpacesBySiblingWidgets,
+          widgetPosition,
+          direction,
+          widgetParentSpaces,
+          { X, Y },
+        );
+        const affectedwidgetIds = Object.keys(widgetMovementMap);
+        for (const affectedwidgetId of affectedwidgetIds) {
+          if (widgetMovementMap && widgetMovementMap[affectedwidgetId]) {
+            widgetMovementMap[affectedwidgetId].x = X
+              ? X - (reflowing.dimensionXBeforeCollision || 0)
+              : 0;
+            widgetMovementMap[affectedwidgetId].y = Y
+              ? Y - (reflowing.dimensionYBeforeCollision || 0)
+              : 0;
+          }
+        }
+        reflowing.reflowingWidgets = { ...widgetMovementMap };
+      } else {
+        const affectedwidgetIds = Object.keys(reflowing.reflowingWidgets!);
+        for (const affectedwidgetId of affectedwidgetIds) {
+          if (
+            reflowing.reflowingWidgets &&
+            reflowing.reflowingWidgets[affectedwidgetId]
+          ) {
+            reflowing.reflowingWidgets[affectedwidgetId].x = X
+              ? X - (reflowing.dimensionXBeforeCollision || 0)
+              : 0;
+            reflowing.reflowingWidgets[affectedwidgetId].y = Y
+              ? Y - (reflowing.dimensionYBeforeCollision || 0)
+              : 0;
+          }
+        }
+      }
+      dispatch(reflowMove(reflowing));
+    }
+  };
+
+  return reflow;
+};
+
+function getWidgetCollisionGraph(
+  occupiedSpacesBySiblingWidgets: OccupiedSpace[],
+  widgetCollisionGraph: WidgetCollisionGraph,
+  processedNodes: { [key: string]: WidgetCollisionGraph } = {},
+  accessors: CollisionAccessors,
+) {
+  if (!widgetCollisionGraph) return;
+
+  const possiblyAffectedWidgets = occupiedSpacesBySiblingWidgets.filter(
+    (widgetDetails) => {
+      const directionalComparator =
+        accessors.directionIndicator < 0
+          ? widgetDetails[accessors.oppositeDirection] <=
+            widgetCollisionGraph[accessors.direction]
+          : widgetDetails[accessors.oppositeDirection] >=
+            widgetCollisionGraph[accessors.direction];
+      return (
+        widgetDetails.id !== widgetCollisionGraph.id && directionalComparator
+      );
+    },
+  );
+
+  const affectedWidgets = possiblyAffectedWidgets.filter((widgetDetails) => {
+    return (
+      (widgetDetails[accessors.perpendicularMax] >
+        widgetCollisionGraph[accessors.perpendicularMin] &&
+        widgetDetails[accessors.perpendicularMin] <
+          widgetCollisionGraph[accessors.perpendicularMax]) ||
+      (widgetDetails[accessors.perpendicularMin] <
+        widgetCollisionGraph[accessors.perpendicularMax] &&
+        widgetDetails[accessors.perpendicularMax] >
+          widgetCollisionGraph[accessors.perpendicularMin])
+    );
+  });
+
+  affectedWidgets.sort((widgetA, widgetB) => {
+    return (
+      accessors.directionIndicator * -1 * widgetB[accessors.oppositeDirection] +
+      accessors.directionIndicator * widgetA[accessors.oppositeDirection]
+    );
+  });
+
+  while (affectedWidgets.length > 0) {
+    const currentWidgetCollisionGraph = affectedWidgets.shift();
+
+    if (!currentWidgetCollisionGraph) continue;
+
+    if (widgetCollisionGraph.children)
+      widgetCollisionGraph.children[
+        currentWidgetCollisionGraph.id
+      ] = currentWidgetCollisionGraph;
+    else
+      widgetCollisionGraph.children = {
+        [currentWidgetCollisionGraph.id]: currentWidgetCollisionGraph,
+      };
+
+    if (!processedNodes[currentWidgetCollisionGraph.id]) {
+      getWidgetCollisionGraph(
+        possiblyAffectedWidgets,
+        currentWidgetCollisionGraph,
+        processedNodes,
+        accessors,
+      );
+      processedNodes[
+        currentWidgetCollisionGraph.id
+      ] = currentWidgetCollisionGraph;
+    }
+  }
+}
+
+function getWidgetMovementMap(
+  widgetPosition: WidgetCollisionGraph,
+  widgetMovementMap: reflowWidgets,
+  dimensions = { X: 0, Y: 0 },
+  widgetParentSpaces: WidgetParentSpaces,
+  accessors: CollisionAccessors,
+  direction: ResizeDirection,
+) {
+  if (widgetPosition.id === "wt54igo4qf") {
+    widgetPosition;
+  }
+
+  if (widgetMovementMap[widgetPosition.id])
+    return widgetMovementMap[widgetPosition.id].maxOccupiedSpace;
+  let maxOccupiedSpace = 0;
+  if (widgetPosition.children) {
+    const childNodes = Object.values(widgetPosition.children);
+    for (const childNode of childNodes) {
+      const space = getWidgetMovementMap(
+        childNode,
+        widgetMovementMap,
+        dimensions,
+        widgetParentSpaces,
+        accessors,
+        direction,
+      );
+      maxOccupiedSpace = Math.max(maxOccupiedSpace, space || 0);
+    }
+  }
+
+  if (accessors.isHorizontal) {
+    const x = accessors.isHorizontal
+      ? accessors.directionIndicator * widgetParentSpaces.parentColumnSpace
+      : 0;
+    const maxX = accessors.isHorizontal
+      ? direction === ResizeDirection.RIGHT
+        ? (GridDefaults.DEFAULT_GRID_COLUMNS -
+            widgetPosition[accessors.direction] -
+            maxOccupiedSpace) *
+          widgetParentSpaces.parentColumnSpace
+        : (widgetPosition[accessors.direction] - maxOccupiedSpace) *
+          widgetParentSpaces.parentColumnSpace
+      : 0;
+    widgetMovementMap[widgetPosition.id] = {
+      x,
+      maxX,
+      maxOccupiedSpace,
+      get X() {
+        return Math[accessors.mathComparator](
+          this.x || 0,
+          accessors.directionIndicator * (this.maxX || 0),
+        );
+      },
+    };
+  } else {
+    const y = accessors.isHorizontal
+      ? 0
+      : accessors.directionIndicator * widgetParentSpaces.parentRowSpace;
+    const maxY = accessors.isHorizontal
+      ? 0
+      : direction === ResizeDirection.BOTTOM
+      ? 0
+      : (widgetPosition[accessors.direction] - maxOccupiedSpace) *
+        widgetParentSpaces.parentRowSpace;
+    widgetMovementMap[widgetPosition.id] = {
+      y,
+      maxY,
+      maxOccupiedSpace,
+      get Y() {
+        return Math[accessors.mathComparator](
+          this.y || 0,
+          accessors.directionIndicator * (this.maxY || 0),
+        );
+      },
+    };
+  }
+
+  return (
+    maxOccupiedSpace +
+    widgetPosition[accessors.parallelMax] -
+    widgetPosition[accessors.parallelMin]
+  );
+}
+
+function getCompositeMovementMap(
+  occupiedSpacesBySiblingWidgets: OccupiedSpace[],
+  widgetPosition: WidgetCollisionGraph,
+  direction: ResizeDirection,
+  widgetParentSpaces: WidgetParentSpaces,
+  dimensions = { X: 0, Y: 0 },
+) {
+  const directions = direction.split("|");
+  const {
+    directionIndicator: verticalIndicator,
+    widgetMovementMap: widgetCollisionGraph,
+  } = getMovementMapInDirection(
+    occupiedSpacesBySiblingWidgets,
+    widgetPosition,
+    directions[0] as ResizeDirection,
+    widgetParentSpaces,
+    dimensions,
+  );
+
+  const {
+    directionIndicator: horizontalIndicator,
+    widgetMovementMap: SecondaryCollisionGraph,
+  } = getMovementMapInDirection(
+    occupiedSpacesBySiblingWidgets,
+    widgetPosition,
+    directions[1] as ResizeDirection,
+    widgetParentSpaces,
+    dimensions,
+  );
+  const secondaryCollisionGraphKeys = Object.keys(SecondaryCollisionGraph);
+
+  for (const key of secondaryCollisionGraphKeys) {
+    if (widgetCollisionGraph[key]) {
+      widgetCollisionGraph[key] = {
+        ...widgetCollisionGraph[key],
+        ...SecondaryCollisionGraph[key],
+      };
+    } else {
+      widgetCollisionGraph[key] = {
+        ...SecondaryCollisionGraph[key],
+      };
+    }
+  }
+
+  return {
+    widgetMovementMap: widgetCollisionGraph,
+    horizontalIndicator,
+    verticalIndicator,
+  };
+}
+function getMovementMapInDirection(
+  occupiedSpacesBySiblingWidgets: OccupiedSpace[],
+  widgetPosition: WidgetCollisionGraph,
+  direction: ResizeDirection,
+  widgetParentSpaces: WidgetParentSpaces,
+  dimensions = { X: 0, Y: 0 },
+) {
+  let accessors;
+  switch (direction) {
+    case ResizeDirection.LEFT:
+      accessors = {
+        direction: widgetDimensions.left,
+        oppositeDirection: widgetDimensions.right,
+        perpendicularMax: widgetDimensions.bottom,
+        perpendicularMin: widgetDimensions.top,
+        parallelMax: widgetDimensions.right,
+        parallelMin: widgetDimensions.left,
+        mathComparator: MathComparators.max,
+        directionIndicator: -1,
+        isHorizontal: true,
+      };
+      break;
+    case ResizeDirection.RIGHT:
+      accessors = {
+        direction: widgetDimensions.right,
+        oppositeDirection: widgetDimensions.left,
+        perpendicularMax: widgetDimensions.bottom,
+        perpendicularMin: widgetDimensions.top,
+        parallelMax: widgetDimensions.right,
+        parallelMin: widgetDimensions.left,
+        mathComparator: MathComparators.min,
+        directionIndicator: 1,
+        isHorizontal: true,
+      };
+      break;
+    case ResizeDirection.TOP:
+      accessors = {
+        direction: widgetDimensions.top,
+        oppositeDirection: widgetDimensions.bottom,
+        perpendicularMax: widgetDimensions.right,
+        perpendicularMin: widgetDimensions.left,
+        parallelMax: widgetDimensions.bottom,
+        parallelMin: widgetDimensions.top,
+        mathComparator: MathComparators.max,
+        directionIndicator: -1,
+        isHorizontal: false,
+      };
+      break;
+    case ResizeDirection.BOTTOM:
+      accessors = {
+        direction: widgetDimensions.bottom,
+        oppositeDirection: widgetDimensions.top,
+        perpendicularMax: widgetDimensions.right,
+        perpendicularMin: widgetDimensions.left,
+        parallelMax: widgetDimensions.bottom,
+        parallelMin: widgetDimensions.top,
+        mathComparator: MathComparators.max,
+        directionIndicator: 1,
+        isHorizontal: false,
+      };
+      break;
+    default:
+      accessors = {
+        direction: widgetDimensions.left,
+        oppositeDirection: widgetDimensions.right,
+        perpendicularMax: widgetDimensions.bottom,
+        perpendicularMin: widgetDimensions.top,
+        parallelMax: widgetDimensions.right,
+        parallelMin: widgetDimensions.left,
+        mathComparator: MathComparators.max,
+        directionIndicator: -1,
+        isHorizontal: true,
+      };
+      break;
+  }
+  getWidgetCollisionGraph(
+    occupiedSpacesBySiblingWidgets,
+    widgetPosition,
+    {},
+    accessors,
+  );
+  const widgetMovementMap: reflowWidgets = {};
+  getWidgetMovementMap(
+    widgetPosition,
+    widgetMovementMap,
+    dimensions,
+    widgetParentSpaces,
+    accessors,
+    direction,
+  );
+
+  delete widgetMovementMap[widgetPosition.id];
+
+  return {
+    widgetMovementMap,
+    directionIndicator: accessors.directionIndicator,
+  };
+}
