@@ -535,9 +535,10 @@ public class GitServiceImpl implements GitService {
                     String repoName = gitApplicationMetadata.getRepoName();
                     Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
                     fileUtils.detachRemote(repoPath);
+                    application.setGitApplicationMetadata(null);
 
                     //Remove the git metadata from the db
-                    return updateGitMetadata(applicationId, null);
+                    return applicationService.save(application);
                 });
     }
 
