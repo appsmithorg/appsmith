@@ -122,6 +122,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                         name: "title",
                         type: ValidationTypes.TEXT,
                       },
+                      {
+                        name: "color",
+                        type: ValidationTypes.TEXT,
+                      },
                     ],
                   },
                 },
@@ -364,6 +368,7 @@ export interface MapWidgetProps extends WidgetProps {
     lat: number;
     long: number;
     title?: string;
+    color?: string;
   };
   onMarkerClick?: string;
   onCreateMarker?: string;
