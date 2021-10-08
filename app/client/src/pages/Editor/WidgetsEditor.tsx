@@ -293,16 +293,23 @@ function WidgetsEditor() {
         >
           <div
             className={classNames({
-              "transform  bg-gray-50": true,
-              "translate-y-0 ease-in transition": isPreviewMode,
-              "-translate-y-full duration-0": !isPreviewMode,
+              "h-9 relative": true,
             })}
           >
-            <PageTabsContainer
-              currentApplicationDetails={currentApplicationDetails}
-              pages={pages}
-            />
+            <div
+              className={classNames({
+                "absolute top-0 z-1 w-full transform bg-gray-50": true,
+                "translate-y-0 ease-in transition": isPreviewMode,
+                "-translate-y-full duration-0": !isPreviewMode,
+              })}
+            >
+              <PageTabsContainer
+                currentApplicationDetails={currentApplicationDetails}
+                pages={pages}
+              />
+            </div>
           </div>
+
           <CanvasContainer
             className={`${getCanvasClassName()} text-trueGray-100 scrollbar-thin`}
             key={currentPageId}

@@ -173,9 +173,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && (
-            <div className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-gray-400">
+            <h2 className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-2xl font-bold text-gray-300">
               Drag and drop a widget here
-            </div>
+            </h2>
           )}
         {((isDragging && draggedOn === props.widgetId) || isResizing) && (
           <DragLayerComponent

@@ -24,6 +24,9 @@ import { getAppMode } from "selectors/entitiesSelector";
 import { updateCanvasLayout } from "actions/editorActions";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 
+const BORDERS_WIDTH = 2;
+const GUTTER_WIDTH = 72;
+
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
   const explorerWidth = useSelector(getExplorerWidth);
@@ -104,7 +107,12 @@ export const useDynamicAppLayout = () => {
       case maxWidth < 0:
       case appLayout?.type === "FLUID":
       case calculatedWidth < maxWidth && calculatedWidth > minWidth:
-        return calculatedWidth - (appMode === APP_MODE.EDIT ? 2 : 0);
+        return (
+          calculatedWidth -
+          (appMode === APP_MODE.EDIT && !isPreviewMode
+            ? BORDERS_WIDTH + GUTTER_WIDTH
+            : 0)
+        );
       case calculatedWidth < minWidth:
         return minWidth;
       case calculatedWidth > maxWidth:
