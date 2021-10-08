@@ -121,7 +121,7 @@ type ResizableProps = {
   zWidgetId?: string;
 };
 
-export const Resizable = function Resizable(props: ResizableProps) {
+export function Resizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   // Performance tracking start
   const sentryPerfTags = props.zWidgetType
@@ -383,6 +383,6 @@ export const Resizable = function Resizable(props: ResizableProps) {
       )}
     </Spring>
   );
-};
+}
 
 export default Resizable;

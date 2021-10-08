@@ -1,13 +1,9 @@
 import { reflowMove, startReflow, stopReflow } from "actions/reflowActions";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { GridDefaults } from "constants/WidgetConstants";
-import {
-  UIElementSize,
-  WidgetExtendedPosition,
-  WidgetPosition,
-} from "components/editorComponents/ResizableUtils";
+import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { OccupiedSpace } from "constants/editorConstants";
-import { ceil, isEqual } from "lodash";
+import { ceil } from "lodash";
 import { RefObject, useRef, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -352,6 +348,7 @@ export const useReflow = (
         reflowing.reflowingWidgets = { ...reflowingWidgets };
         reflowing.staticWidget = newStaticWidget;
       } else {
+        //eslint-disable-next-line
         const affectedwidgetIds = Object.keys(reflowing.reflowingWidgets!);
         for (const affectedwidgetId of affectedwidgetIds) {
           if (
@@ -572,7 +569,7 @@ function getCompositeMovementMap(
     secondaryOccupiedSpaces = horizontalOccupiedSpaces;
   }
   const primaryWidgetMovementMap: reflowWidgets = {};
-  const primaryStaticWidget = getMovementMapInDirection(
+  getMovementMapInDirection(
     primaryWidgetMovementMap,
     primaryOccupiedSpaces,
     widgetPosition,
