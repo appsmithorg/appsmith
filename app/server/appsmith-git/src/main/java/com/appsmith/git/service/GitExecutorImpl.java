@@ -377,6 +377,11 @@ public class GitExecutorImpl implements GitExecutor {
                 git.close();
                 return mergeResult.getMergeStatus().name();
             } catch (GitAPIException e) {
+                //On merge conflicts abort the merge => git merge --abort
+                git.getRepository().writeMergeCommitMsg(null);
+                git.getRepository().writeMergeHeads(null);
+                Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
+                git.close();
                 return e.getMessage();
             }
         }).subscribeOn(scheduler);
