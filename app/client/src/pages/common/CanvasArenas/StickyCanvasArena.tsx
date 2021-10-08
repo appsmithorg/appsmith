@@ -24,7 +24,6 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   position: absolute;
   top: 0px;
   left: 0px;
-  height: calc(100% + ${(props) => props.paddingBottom}px);
   width: 100%;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
@@ -90,7 +89,8 @@ export const StickyCanvasArena = forwardRef(
           // setting styles to recalculate height when widget is deleted or copy pasted.
           // this is done coz we do a ref style update in DropTargetComponent which is not updating slider in time.
           // ToDo(Ashok): Might need a better understanding of refs and forwardRefs to handle this without creating exceptions.
-          slidingArenaRef.current.style.height = "100%";
+          slidingArenaRef.current.style.height = `${snapRows * snapRowSpace +
+            canvasPadding}px`;
         }
       }
     };
