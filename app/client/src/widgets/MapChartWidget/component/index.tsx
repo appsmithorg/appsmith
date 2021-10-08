@@ -8,13 +8,6 @@ import FusionCharts, { ChartObject } from "fusioncharts";
 // Import FusionMaps
 import FusionMaps from "fusioncharts/fusioncharts.maps";
 import World from "fusioncharts/maps/fusioncharts.world";
-// import WorldWithAntarctica from "fusionmaps/maps/fusioncharts.worldwithantarctica";
-// import Europe from "fusionmaps/maps/fusioncharts.europe";
-// import NorthAmerica from "fusionmaps/maps/fusioncharts.northamerica";
-// import SouthAmerica from "fusionmaps/maps/fusioncharts.southamerica";
-// import Asia from "fusionmaps/maps/fusioncharts.asia";
-// import Oceania from "fusionmaps/maps/fusioncharts.oceania";
-// import Africa from "fusionmaps/maps/fusioncharts.africa";
 
 // Include the theme as fusion
 import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
@@ -26,13 +19,6 @@ import { colorRange, dataSetForWorld, MapTypes } from "../constants";
 
 // Adding the chart and theme as dependency to the core fusioncharts
 ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
-// ReactFC.fcRoot(FusionCharts, FusionMaps, WorldWithAntarctica, FusionTheme);
-// ReactFC.fcRoot(FusionCharts, FusionMaps, Europe, FusionTheme);
-// ReactFC.fcRoot(FusionCharts, FusionMaps, NorthAmerica, FusionTheme);
-// ReactFC.fcRoot(FusionCharts, FusionMaps, SouthAmerica, FusionTheme);
-// ReactFC.fcRoot(FusionCharts, FusionMaps, Asia, FusionTheme);
-// ReactFC.fcRoot(FusionCharts, FusionMaps, Oceania, FusionTheme);
-// ReactFC.fcRoot(FusionCharts, FusionMaps, Africa, FusionTheme);
 
 // Creating the JSON object to store the chart configurations
 const defaultChartConfigs: ChartObject = {
