@@ -40,8 +40,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
 export const LOGIN_PAGE_TITLE = () => `Sign In to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
-export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
+export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
+  `Enter your email address`;
+export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
+  `Enter your password`;
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
@@ -195,7 +197,8 @@ export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
 export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain Text`;
 export const LIGHTNING_MENU_OPTION_JS = () => `Write JS`;
 export const LIGHTNING_MENU_OPTION_HTML = () => `Write HTML`;
-export const CHECK_REQUEST_BODY = () => `Check Request body to debug?`;
+export const CHECK_REQUEST_BODY = () =>
+  `Please check your request configuration to debug`;
 export const DONT_SHOW_THIS_AGAIN = () => `Don't show this again`;
 export const SHOW_REQUEST = () => `Show Request`;
 
@@ -249,6 +252,14 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
+export const EDIT_DATASOURCE = () => "Edit Datasource";
+export const SAVE_DATASOURCE = () => "Save Datasource";
+export const SAVE_DATASOURCE_MESSAGE = () =>
+  "Save API as datasource to setup authentication";
+export const EDIT_DATASOURCE_MESSAGE = () =>
+  "Edit Datasource to access authentication settings";
+export const OAUTH_ERROR = () => "OAuth Error";
+export const OAUTH_2_0 = () => "OAuth 2.0";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -288,7 +299,7 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
 export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
-  "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
+  "Localstorage storage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   `Search Widgets, Queries, Documentation`;
@@ -368,7 +379,7 @@ export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
-  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
+  `Hi, \nI'm facing the following error on Appsmith, can you please help? \n\n${text}`;
 export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
   `Error occurred while evaluating trigger ${propertyName}`;
 
@@ -434,6 +445,7 @@ export const JS_FUNCTION_UPDATE_SUCCESS = () =>
   "JS Function updated successfully";
 export const JS_FUNCTION_DELETE_SUCCESS = () =>
   "JS function deleted successfully";
+export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
@@ -566,9 +578,9 @@ export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
 
 // Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
-  `Search and Insert code snippets to perform complex actions quickly.`;
+  `Search and insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
-  `Find answers through appsmith documentation.`;
+  `Find answers through Appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 
@@ -696,3 +708,59 @@ export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
 export const WELCOME_ACTION = () => "Get Started";
+
+// API Editor
+export const API_EDITOR_TAB_TITLES = {
+  HEADERS: () => "Headers",
+  PARAMS: () => "Params",
+  BODY: () => "Body",
+  PAGINATION: () => "Pagination",
+  AUTHENTICATION: () => "Authentication",
+  SETTINGS: () => "Settings",
+};
+
+export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
+export const WELCOME_FORM_FULL_NAME = () => "Full Name";
+export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
+export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
+export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
+export const WELCOME_FORM_ROLE_DROPDOWN = () => "What Role Do You Play?";
+export const WELCOME_FORM_ROLE = () => "Role";
+export const WELCOME_FORM_USE_CASE = () => "Tell Us About Your Use Case";
+export const WELCOME_FORM_DATA_COLLECTION_HEADER = () =>
+  "Usage data preference";
+export const WELCOME_FORM_DATA_COLLECTION_BODY = () =>
+  "Share anonymous usage data to help improve the product.";
+export const WELCOME_FORM_DATA_COLLECTION_LINK = () => "See what is shared";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE = () =>
+  "Share data & make Appsmith better!";
+export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
+  "Don't share any data";
+export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
+export const WELCOME_FORM_NEWLETTER_LABEL = () =>
+  "Get updates about what we are cooking. We do not spam you.";
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
+
+//help tooltips
+export const ACCOUNT_TOOLTIP = () => "Your account";
+export const RENAME_APPLICATION_TOOLTIP = () => "Rename application";
+export const LOGO_TOOLTIP = () => "Back to homepage";
+export const ADD_PAGE_TOOLTIP = () => "Add a new page";
+export const ADD_DATASOURCE_TOOLTIP = () =>
+  "Add datasource or create new query";
+export const ADD_WIDGET_TOOLTIP = () => "Find and add a widget";
+export const HELP_RESOURCE_TOOLTIP = () => "Help and resources";
+export const COPY_ELEMENT = () => "Copy element";
+export const LAYOUT_DROPDOWN_TOOLTIP = () =>
+  "Choose how your application looks on desktop, tablet and mobile devices";
+export const DEPLOY_BUTTON_TOOLTIP = () =>
+  "Deploy the current version of the application";
+export const SHARE_BUTTON_TOOLTIP = () => "Invite your team to Appsmith";
+export const SHARE_BUTTON_TOOLTIP_WITH_USER = (length: number) => () =>
+  `Shared with ${length} other`;
+export const DEBUGGER_TOOLTIP = () => "Open Debugger";
+export const PAGE_PROPERTIES_TOOLTIP = () => "Page properties";
+export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
+export const ADD_JS_ACTION = () => "Add a new JS Object";
+export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
+export const NOTIFICATIONS_TOOLTIP = () => "Notifications";

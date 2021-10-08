@@ -33,7 +33,7 @@ export default {
       let currentItem = JSON.parse(JSON.stringify(item));
       const widgetKeys = Object.keys(currentItem);
 
-      for (var i = 0; i < widgetKeys.length; i++) {
+      for (let i = 0; i < widgetKeys.length; i++) {
         const currentWidgetName = widgetKeys[i];
         let currentWidget = currentItem[currentWidgetName];
         const filteredWidget = {};
