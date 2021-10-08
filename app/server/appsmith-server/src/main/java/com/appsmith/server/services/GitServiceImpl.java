@@ -528,19 +528,19 @@ public class GitServiceImpl implements GitService {
     public Mono<Application> detachRemote(String applicationId) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
-                    if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
+                    if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                            || isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         return Mono.just(application);
                     }
                     //Remove the git contents from file system
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     String repoName = gitApplicationMetadata.getRepoName();
                     Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
-                    fileUtils.detachRemote(repoPath);
                     application.setGitApplicationMetadata(null);
-
-                    //Remove the git metadata from the db
-                    return applicationService.save(application);
-                });
+                    return fileUtils.detachRemote(repoPath)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> applicationService.save(application));
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params) {
