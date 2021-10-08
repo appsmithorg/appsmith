@@ -139,7 +139,7 @@
     "selectedRow":".selected-row",
     "removeTableWidget": ".t--delete-widget",
     "nextPageButton": ".t--table-widget-next-page",
-    "addWidget": ".t--entity.group.widgets > div:nth-child(1) >div:nth-child(5)",
+    "addWidget": ".t--entity.group.widgets .t--entity-add-btn",
     "closeWidgetBar": ".t--close-widgets-sidebar",
     "tabedataField": ".t--property-control-tabledata",
     "exploreWidget": "[class$=bp3-panel-stack-view] > div:nth-child(1) > div:nth-child(1) > span:nth-child(4)",
