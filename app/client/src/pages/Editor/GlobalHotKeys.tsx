@@ -312,6 +312,14 @@ class GlobalHotKeys extends React.Component<Props> {
           stopPropagation
         />
         <Hotkey
+          combo="mod + y"
+          global
+          label="Redo change in canvas"
+          onKeyDown={this.props.redo}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
           combo="mod + g"
           global
           group="Canvas"

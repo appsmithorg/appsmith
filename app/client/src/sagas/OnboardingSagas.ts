@@ -174,8 +174,14 @@ function* listenForWidgetAdditions() {
               widgetName: "Standup_Table",
               tableData: [],
               columnSizeMap: {
-                avatar: 20,
-                name: 30,
+                avatar: 80,
+                name: 120,
+              },
+              columnTypeMap: {
+                avatar: {
+                  type: "image",
+                  format: "",
+                },
               },
               migrated: false,
               ...getStandupTableDimensions(),
@@ -333,18 +339,6 @@ function* listenForSuccessfulBinding() {
           errors.length === 0;
 
         if (bindSuccessful) {
-          yield put(
-            batchUpdateWidgetProperty(selectedWidget.widgetId, {
-              modify: {
-                columnTypeMap: {
-                  avatar: {
-                    type: "image",
-                    format: "",
-                  },
-                },
-              },
-            }),
-          );
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.ADD_INPUT_WIDGET));
 

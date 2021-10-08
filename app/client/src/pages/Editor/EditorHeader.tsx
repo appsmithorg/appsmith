@@ -38,7 +38,7 @@ import { OnboardingStep } from "constants/OnboardingConstants";
 import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
@@ -61,6 +61,17 @@ import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core/lib/esnext/common";
+import {
+  createMessage,
+  DEPLOY_BUTTON_TOOLTIP,
+  LOGO_TOOLTIP,
+  RENAME_APPLICATION_TOOLTIP,
+  SHARE_BUTTON_TOOLTIP,
+  SHARE_BUTTON_TOOLTIP_WITH_USER,
+} from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -114,6 +125,8 @@ const AppsmithLink = styled((props) => {
 })`
   height: 20px;
   width: 20px;
+  transform: translate(0px, 2px);
+  display: inline-block;
   img {
     width: 20px;
     height: 20px;
@@ -202,6 +215,7 @@ type EditorHeaderProps = {
   lastUpdatedTime?: number;
   inOnboarding: boolean;
   sharedUserList: OrgUser[];
+  currentUser?: User;
 };
 
 const GlobalSearch = lazy(() => {
@@ -280,52 +294,71 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
 
+  //Fetch all users for the application to show the share button tooltip
   useEffect(() => {
     if (orgId) {
       dispatch(fetchUsersForOrg(orgId));
     }
   }, [orgId]);
+  const filteredSharedUserList = props.sharedUserList.filter(
+    (user) => user.username !== props.currentUser?.username,
+  );
 
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper>
         <HeaderSection className="space-x-2">
-          <AppsmithLink to={APPLICATIONS_URL}>
-            <img
-              alt="Appsmith logo"
-              className="t--appsmith-logo"
-              src={AppsmithLogo}
-            />
-          </AppsmithLink>
+          <TooltipComponent
+            content={createMessage(LOGO_TOOLTIP)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM_LEFT}
+          >
+            <AppsmithLink to={APPLICATIONS_URL}>
+              <img
+                alt="Appsmith logo"
+                className="t--appsmith-logo"
+                src={AppsmithLogo}
+              />
+            </AppsmithLink>
+          </TooltipComponent>
           <Boxed step={OnboardingStep.FINISH}>
-            <EditorAppName
-              applicationId={applicationId}
-              className="t--application-name editable-application-name"
-              currentDeployLink={getApplicationViewerPageURL(
-                applicationId,
-                pageId,
-              )}
-              defaultSavingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              defaultValue={currentApplication?.name || ""}
-              deploy={handleClickDeploy}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              fill
-              isError={isErroredSavingName}
-              isNewApp={
-                applicationList.filter((el) => el.id === applicationId).length >
-                0
-              }
-              isPopoverOpen={isPopoverOpen}
-              onBlur={(value: string) =>
-                updateApplicationDispatch(applicationId || "", {
-                  name: value,
-                  currentApp: true,
-                })
-              }
-              setIsPopoverOpen={setIsPopoverOpen}
-            />
+            <TooltipComponent
+              autoFocus={false}
+              content={createMessage(RENAME_APPLICATION_TOOLTIP)}
+              disabled={isPopoverOpen}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              openOnTargetFocus={false}
+              position={Position.BOTTOM}
+            >
+              <EditorAppName
+                applicationId={applicationId}
+                className="t--application-name editable-application-name"
+                currentDeployLink={getApplicationViewerPageURL(
+                  applicationId,
+                  pageId,
+                )}
+                defaultSavingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                defaultValue={currentApplication?.name || ""}
+                deploy={handleClickDeploy}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                fill
+                isError={isErroredSavingName}
+                isNewApp={
+                  applicationList.filter((el) => el.id === applicationId)
+                    .length > 0
+                }
+                isPopoverOpen={isPopoverOpen}
+                onBlur={(value: string) =>
+                  updateApplicationDispatch(applicationId || "", {
+                    name: value,
+                    currentApp: true,
+                  })
+                }
+                setIsPopoverOpen={setIsPopoverOpen}
+              />
+            </TooltipComponent>
             <ToggleModeButton showSelectedMode={!isPopoverOpen} />
           </Boxed>
         </HeaderSection>
@@ -348,7 +381,23 @@ export function EditorHeader(props: EditorHeaderProps) {
                   ? currentApplication.name
                   : "Share Application"
               }
-              trigger={<ShareButtonComponent />}
+              trigger={
+                <TooltipComponent
+                  content={
+                    filteredSharedUserList.length
+                      ? createMessage(
+                          SHARE_BUTTON_TOOLTIP_WITH_USER(
+                            filteredSharedUserList.length,
+                          ),
+                        )
+                      : createMessage(SHARE_BUTTON_TOOLTIP)
+                  }
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM}
+                >
+                  <ShareButtonComponent />
+                </TooltipComponent>
+              }
             />
           </Boxed>
           <Boxed
@@ -361,13 +410,19 @@ export function EditorHeader(props: EditorHeaderProps) {
                 step={OnboardingStep.DEPLOY}
                 width={75}
               >
-                <StyledDeployButton
-                  className="t--application-publish-btn"
-                  isLoading={isPublishing}
-                  onClick={handleClickDeploy}
-                  size={Size.small}
-                  text={"Deploy"}
-                />
+                <TooltipComponent
+                  content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM_RIGHT}
+                >
+                  <StyledDeployButton
+                    className="t--application-publish-btn"
+                    isLoading={isPublishing}
+                    onClick={handleClickDeploy}
+                    size={Size.small}
+                    text={"Deploy"}
+                  />
+                </TooltipComponent>
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
@@ -416,6 +471,7 @@ const mapStateToProps = (state: AppState) => ({
   pageId: getCurrentPageId(state),
   inOnboarding: getIsInOnboarding(state),
   sharedUserList: getAllUsers(state),
+  currentUser: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
