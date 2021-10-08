@@ -26,26 +26,26 @@ describe("Entity explorer JSEditor structure", function() {
     });
   });
 
-  it("Rename JSObject", function() {
-    cy.get(jsEditorLocators.jsObjectName).click();
-    cy.get(jsEditorLocators.editNameField)
-      .clear()
-      .type("NewNameJSObj");
-    cy.get(jsEditorLocators.jsPage).click();
-    cy.get(jsEditorLocators.jsObjectName).contains("NewNameJSObj");
-  });
+  // it("Rename JSObject", function() {
+  //   cy.get(jsEditorLocators.jsObjectName).click();
+  //   cy.get(jsEditorLocators.editNameField)
+  //     .clear()
+  //     .type("NewNameJSObj");
+  //   cy.get(jsEditorLocators.jsPage).click();
+  //   cy.get(jsEditorLocators.jsObjectName).contains("NewNameJSObj");
+  // });
 
-  it("Copy JSObject", function() {
-    cy.xpath(jsEditorLocators.popover)
-      .last()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
+  // it("Copy JSObject", function() {
+  //   cy.xpath(jsEditorLocators.popover)
+  //     .last()
+  //     .should("be.hidden")
+  //     .invoke("show")
+  //     .click({ force: true });
 
-    cy.copyJSObjectToPage(pageid);
-  });
+  //   cy.copyJSObjectToPage(pageid);
+  // });
 
-  it("Delete JSObject", function() {
-    cy.deleteJSObject("NewNameJSObj");
-  });
+  // it("Delete JSObject", function() {
+  //   cy.deleteJSObject("NewNameJSObj");
+  // });
 });
