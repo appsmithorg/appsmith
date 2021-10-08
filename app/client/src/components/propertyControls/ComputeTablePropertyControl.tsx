@@ -107,7 +107,10 @@ class ComputeTablePropertyControl extends BaseControl<
     Object.keys(columns).forEach((id: string) => {
       currentRow[id] = undefined;
     });
-
+    // Load default value in evaluated value
+    if (value && !propertyValue) {
+      this.onTextChange(value);
+    }
     return (
       <InputText
         additionalDynamicData={{

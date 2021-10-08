@@ -24,6 +24,7 @@ const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
+const jsEditorLocators = require("../locators/JSEditor.json");
 
 let pageidcopy = " ";
 
@@ -274,7 +275,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
-    .scrollIntoView()
+    .scrollIntoView({ force: true })
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should(
@@ -416,11 +417,6 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
   initLocalstorage();
 });
 
@@ -681,10 +677,13 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
 
 Cypress.Commands.add(
   "validateRequest",
-  (baseurl, path, verb, error = false) => {
+  (apiName, baseurl, path, verb, error = false) => {
     cy.get(".react-tabs__tab")
       .contains("Logs")
       .click();
+    cy.get("[data-cy=t--debugger-search]")
+      .clear()
+      .type(apiName);
 
     if (!error) {
       cy.get(".object-key")
@@ -1114,6 +1113,21 @@ Cypress.Commands.add("DeleteAPI", (apiname) => {
   );
 });
 
+Cypress.Commands.add("copyJSObjectToPage", (pageName) => {
+  cy.xpath(apiwidget.popover)
+    .last()
+    .click({ force: true });
+  cy.get(apiwidget.copyTo).click({ force: true });
+  cy.get(apiwidget.page)
+    .contains(pageName)
+    .click();
+  cy.wait("@createNewJSCollection").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+});
+
 Cypress.Commands.add("AddActionWithModal", () => {
   cy.get(commonlocators.dropdownSelectButton)
     .last()
@@ -1489,6 +1503,15 @@ Cypress.Commands.add("showColumn", (colId) => {
   cy.get(".draggable-header ")
     .contains(colId)
     .should("be.visible");
+});
+Cypress.Commands.add("deleteColumn", (colId) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--delete-column-btn").click(
+    {
+      force: true,
+    },
+  );
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("makeColumnVisible", (colId) => {
@@ -1927,6 +1950,10 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
   cy.get(explorer.entityQuery).click({ force: true });
 });
 
+Cypress.Commands.add("NavigateToJSEditor", () => {
+  cy.get(explorer.addEntityJSEditor).click({ force: true });
+});
+
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
   cy.wait("@createNewApi").should(
@@ -2268,6 +2295,16 @@ Cypress.Commands.add("deleteQuery", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
   cy.wait("@deleteAction").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("deleteJSObject", () => {
+  cy.hoverAndClick();
+  cy.get(jsEditorLocators.delete).click({ force: true });
+  cy.wait("@deleteJSCollection").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -2637,7 +2674,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
 
-  cy.route("POST", "/api/v1/actions/execute").as("executeAction");
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
@@ -2685,6 +2721,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
+  cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
+  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
@@ -2699,6 +2737,11 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
     .invoke("attr", "aria-label")
     .should("contain", name);
   cy.togglebarDisable(togglecss);
+});
+
+Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  return selector;
 });
 
 Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {
@@ -2880,4 +2923,16 @@ Cypress.Commands.add("updateMapType", (mapType) => {
     "have.text",
     mapType,
   );
+});
+
+Cypress.Commands.add("createJSObject", (JSCode) => {
+  cy.NavigateToJSEditor();
+  cy.wait(1000);
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus()
+    .type("{downarrow}{downarrow}{downarrow}  ")
+    .type(JSCode);
+  cy.wait(1000);
+  cy.get(jsEditorLocators.runButton).click();
 });
