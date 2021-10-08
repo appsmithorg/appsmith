@@ -544,45 +544,55 @@ export const parseJSCollection = (
   const correctFormat = regex.test(body);
   if (correctFormat) {
     const toBeParsedBody = body.replace(/export default/g, "");
-    const { errors, result } = evaluate(
-      toBeParsedBody,
-      evalTree,
-      {},
-      undefined,
-      true,
-    );
-    const errorsList = errors && errors.length ? errors : [];
-    _.set(evalTree, `${jsCollection.name}.${EVAL_ERROR_PATH}.body`, errorsList);
-    const parsedLength = Object.keys(result).length;
-    const actions = [];
-    const variables = [];
-    if (parsedLength > 0) {
-      for (const key in result) {
-        if (result.hasOwnProperty(key)) {
-          if (typeof result[key] === "function") {
-            const value = result[key];
-            const params = getParams(value);
-            actions.push({
-              name: key,
-              body: result[key].toString(),
-              arguments: params,
-            });
-          } else {
-            variables.push({
-              name: key,
-              value: result[key],
-            });
+    try {
+      const { errors, result } = evaluate(
+        toBeParsedBody,
+        evalTree,
+        {},
+        undefined,
+        true,
+      );
+      const errorsList = errors && errors.length ? errors : [];
+      _.set(
+        evalTree,
+        `${jsCollection.name}.${EVAL_ERROR_PATH}.body`,
+        errorsList,
+      );
+      const parsedLength = Object.keys(result).length;
+      const actions = [];
+      const variables = [];
+      if (parsedLength > 0) {
+        for (const key in result) {
+          if (result.hasOwnProperty(key)) {
+            if (typeof result[key] === "function") {
+              const value = result[key];
+              const params = getParams(value);
+              actions.push({
+                name: key,
+                body: result[key].toString(),
+                arguments: params,
+              });
+            } else {
+              variables.push({
+                name: key,
+                value: result[key],
+              });
+            }
           }
         }
       }
+      return {
+        evalTree,
+        result: {
+          actions: actions,
+          variables: variables,
+        },
+      };
+    } catch (e) {
+      return {
+        evalTree,
+      };
     }
-    return {
-      evalTree,
-      result: {
-        actions: actions,
-        variables: variables,
-      },
-    };
   } else {
     const errors = [
       {

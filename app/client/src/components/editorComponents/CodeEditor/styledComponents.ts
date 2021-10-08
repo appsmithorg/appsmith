@@ -175,6 +175,14 @@ export const EditorWrapper = styled.div<{
       border-radius: 2px;
       margin-right: 2px;
     }
+    .datasource-highlight-error {
+      background: #FFF0F0;
+      border: 1px solid #F22B2B;
+    }
+    .datasource-highlight-success {
+      background: #E3FFF3;
+      border: 1px solid #03B365;
+    }
     .CodeMirror {
       flex: 1;
       line-height: 21px;

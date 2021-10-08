@@ -2,7 +2,6 @@ import { createReducer } from "utils/AppsmithUtils";
 import { Log } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { omit, isUndefined } from "lodash";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 const initialState: DebuggerReduxState = {
   logs: [],
@@ -10,7 +9,7 @@ const initialState: DebuggerReduxState = {
   errors: {},
   expandId: "",
   hideErrors: true,
-  currentTab: DEBUGGER_TAB_KEYS.LOGS_TAB,
+  currentTab: "",
 };
 
 const debuggerReducer = createReducer(initialState, {
@@ -74,7 +73,7 @@ const debuggerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB]: (
     state: DebuggerReduxState,
-    action: ReduxAction<DEBUGGER_TAB_KEYS>,
+    action: ReduxAction<string>,
   ) => {
     return {
       ...state,
@@ -95,7 +94,7 @@ export interface DebuggerReduxState {
   errors: Record<string, Log>;
   expandId: string;
   hideErrors: boolean;
-  currentTab: DEBUGGER_TAB_KEYS;
+  currentTab: string;
 }
 
 export default debuggerReducer;

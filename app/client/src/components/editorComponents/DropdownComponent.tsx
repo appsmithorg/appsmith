@@ -39,6 +39,7 @@ const StyledButtonWrapper = styled.div<ButtonWrapperProps>`
     & > span {
       color: ${(props) => props.theme.colors.dropdown.header.text} !important;
     }
+    font-weight: ${(props) => props.theme.fontWeights[1]};
   }
 `;
 const StyledMenu = styled(Menu)<MenuComponentProps>`
@@ -58,14 +59,16 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
-class DropdownComponent extends Component<DropdownComponentProps> {
-  componentDidMount() {
-    const { input, options } = this.props;
-    // set selected option to first option by default
-    if (input && !input.value) {
-      input.onChange(options[0].value);
-    }
-  }
+// function checks if dropdown is connected to a redux form (of interface 'FormDropdownComponentProps')
+const isFormDropdown = (
+  props: DropdownComponentProps | FormDropdownComponentProps,
+): props is FormDropdownComponentProps => {
+  return "input" in props && props.input !== undefined;
+};
+
+class DropdownComponent extends Component<
+  DropdownComponentProps | FormDropdownComponentProps
+> {
   private newItemTextInput: HTMLInputElement | null = null;
   private setNewItemTextInput = (element: HTMLInputElement | null) => {
     this.newItemTextInput = element;
@@ -127,10 +130,13 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         option.label.toLowerCase().indexOf(query.toLowerCase()) > -1)
     );
   };
+  // function is called after user selects an option
   onItemSelect = (item: DropdownOption): void => {
-    const { input, selectHandler } = this.props;
-    input && input.onChange(item.value);
-    selectHandler && selectHandler(item.value);
+    if (isFormDropdown(this.props)) {
+      this.props.input.onChange(item.value);
+    } else {
+      this.props.selectHandler(item.value);
+    }
   };
 
   renderItem: ItemRenderer<DropdownOption> = (
@@ -152,37 +158,37 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     );
   };
 
-  getDropdownOption = (value: string): DropdownOption | undefined => {
+  // helper function that returns a dropdown option given its value
+  // returns undefined if option isn't found
+  getDropdownOption = (
+    value: string | undefined,
+  ): DropdownOption | undefined => {
     return this.props.options.find((option) => option.value === value);
   };
 
+  // this function returns the selected item's label
+  // returns the "placeholder" in the event that no option is selected.
   getSelectedDisplayText = () => {
-    const { input, selected } = this.props;
+    const value = isFormDropdown(this.props)
+      ? this.props.input.value
+      : this.props.selected?.value;
 
-    if (input) {
-      const item = this.getDropdownOption(input.value);
-      return item && item.label;
-    }
-    if (selected) {
-      const item = this.getDropdownOption(selected.value);
-      return item && item.label;
-    }
-    return "";
+    const item = this.getDropdownOption(value);
+    return item ? item.label : this.props.placeholder;
   };
 
-  getActiveOption = (): DropdownOption => {
-    const { input, options, selected } = this.props;
-    const defaultActiveOption = options[0];
-
-    if (input) {
-      return this.getDropdownOption(input.value) || defaultActiveOption;
+  // this function returns the active option
+  // returns undefined if no option is selected
+  getActiveOption = (): DropdownOption | undefined => {
+    if (isFormDropdown(this.props)) {
+      return this.getDropdownOption(this.props.input.value);
     } else {
-      return selected || defaultActiveOption;
+      return this.props.selected;
     }
   };
 
   render() {
-    const { autocomplete, height, input, options, width } = this.props;
+    const { autocomplete, height, options, width } = this.props;
 
     return (
       <StyledDropdown
@@ -196,7 +202,8 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         noResults={<MenuItem disabled text="No results." />}
         onItemSelect={this.onItemSelect}
         popoverProps={{ minimal: true }}
-        {...input}
+        // Destructure the "input" prop if dropdown is form-connected
+        {...(isFormDropdown(this.props) ? this.props.input : {})}
       >
         {this.props.toggle || (
           <StyledButtonWrapper height={height} width={width}>
@@ -212,23 +219,36 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   }
 }
 
-export interface DropdownComponentProps {
-  hasLabel?: boolean;
-  options: DropdownOption[];
-  selectHandler?: (selectedValue: string) => void;
-  selected?: DropdownOption;
-  multiselectDisplayType?: "TAGS" | "CHECKBOXES";
-  checked?: boolean;
-  multi?: boolean;
-  autocomplete?: boolean;
+// Dropdown can either be connected to a redux-form
+// or be a stand-alone component
+
+// Props common to both classes of dropdowns
+export interface BaseDropdownComponentProps {
   addItem?: {
     displayText: string;
     addItemHandler: (name: string) => void;
   };
-  toggle?: ReactNode;
-  input?: WrappedFieldInputProps;
+  autocomplete?: boolean;
+  checked?: boolean;
+  hasLabel?: boolean;
   height?: string;
+  multi?: boolean;
+  multiselectDisplayType?: "TAGS" | "CHECKBOXES";
+  options: DropdownOption[];
+  placeholder: string;
+  toggle?: ReactNode;
   width?: string;
+}
+
+// stand-alone dropdown interface
+export interface DropdownComponentProps extends BaseDropdownComponentProps {
+  selectHandler: (selectedValue: string) => void;
+  selected: DropdownOption | undefined;
+}
+
+// Form-connected dropdown interface
+export interface FormDropdownComponentProps extends BaseDropdownComponentProps {
+  input: WrappedFieldInputProps;
 }
 
 export default DropdownComponent;
