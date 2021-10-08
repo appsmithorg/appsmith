@@ -435,7 +435,7 @@ export default {
           filterOperator === "AND"
             ? filter && filterValue
             : filter || filterValue;
-        }
+      }
       return filter;
     });
     return finalTableData;
