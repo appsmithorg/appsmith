@@ -706,6 +706,91 @@ public class ImportExportApplicationServiceTests {
             .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_withoutActionCollection_succeedsWithoutError() {
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .users(Set.of("api_user"))
+                .build();
+
+        final Mono<Application> resultMono = organizationService
+                .create(newOrganization)
+                .flatMap(organization -> importExportApplicationService
+                        .extractFileAndSaveApplication(organization.getId(), filePart)
+                );
+
+        StepVerifier
+                .create(resultMono
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
+                                getActionsInApplication(application).collectList(),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<ActionDTO> actionDTOS = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
+
+                    assertThat(application.getName()).isEqualTo("valid_application");
+                    assertThat(application.getOrganizationId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+
+                    assertThat(datasourceList).isNotEmpty();
+                    datasourceList.forEach(datasource -> {
+                        assertThat(datasource.getOrganizationId()).isEqualTo(application.getOrganizationId());
+                        if (datasource.getName().contains("wo-auth")) {
+                            assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
+                        } else if (datasource.getName().contains("db")) {
+                            DBAuth auth = (DBAuth) datasource.getDatasourceConfiguration().getAuthentication();
+                            assertThat(auth).isNotNull();
+                            assertThat(auth.getPassword()).isNotNull();
+                            assertThat(auth.getUsername()).isNotNull();
+                        }
+                    });
+
+                    assertThat(actionDTOS).isNotEmpty();
+                    actionDTOS.forEach(actionDTO -> {
+                        assertThat(actionDTO.getPageId()).isNotEqualTo(pageList.get(0).getName());
+
+                    });
+
+                    assertThat(actionCollectionList).isEmpty();
+
+                    assertThat(pageList).hasSize(2);
+
+                    ApplicationPage defaultAppPage = application.getPages()
+                            .stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                    assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
     private FilePart createFilePart(String filePath) {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
