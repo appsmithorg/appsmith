@@ -155,4 +155,15 @@ describe("Table Widget property pane feature validation", function() {
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
   });
+  it("Table widget test on button icon click, row should not get deselected", () => {
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    //click icon button again
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+  });
 });
