@@ -16,7 +16,7 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
-  unreadCommentThreadSelector,
+  hasUnreadCommentThreadSelector,
 } from "../../selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
@@ -42,6 +42,7 @@ import {
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "../../selectors/editorSelectors";
+import { getAppMode } from "../../selectors/applicationSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -310,16 +311,19 @@ function ToggleCommentModeButton({
   const isCommentMode = useSelector(commentModeSelector);
   const currentUser = useSelector(getCurrentUser);
   const appId = useSelector(getCurrentApplicationId) || "";
-
-  const latestUnreadCommentThreadId = useSelector(
-    unreadCommentThreadSelector(appId),
+  const appMode = useSelector(getAppMode);
+  const hasUnreadCommentThread = useSelector(
+    hasUnreadCommentThreadSelector(appId),
   );
 
   // show comments indicator only if -
-  // 1. user hasn't completed their comments onboarding or
+  // 1. user hasn't completed their comments onboarding and they are in published mode or
   // 2. There is at least one unread comment thread
   const showUnreadIndicator =
-    !!latestUnreadCommentThreadId || !currentUser?.commentOnboardingState;
+    hasUnreadCommentThread ||
+    (!currentUser?.commentOnboardingState &&
+      appMode === APP_MODE.PUBLISHED &&
+      currentUser?.username !== ANONYMOUS_USERNAME);
 
   useUpdateCommentMode(currentUser);
 
