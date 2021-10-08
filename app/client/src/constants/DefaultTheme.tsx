@@ -3016,9 +3016,9 @@ export const theme: Theme = {
   dropdown: {
     [Skin.LIGHT]: {
       hoverBG: lightShades[2],
-      hoverText: lightShades[0],
-      inActiveBG: lightShades[3],
-      inActiveText: lightShades[8],
+      hoverText: lightShades[10],
+      inActiveBG: lightShades[2],
+      inActiveText: lightShades[10],
       border: Colors.WHITE,
       background: Colors.WHITE,
     },

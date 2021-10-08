@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
-import { Popover, Position } from "@blueprintjs/core";
+import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
@@ -78,6 +78,7 @@ export type DropdownProps = CommonComponentProps &
     fillOptions?: boolean;
     dontUsePortal?: boolean;
     hideSubText?: boolean;
+    boundary?: PopperBoundary;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -677,7 +678,7 @@ export default function Dropdown(props: DropdownProps) {
       width={dropdownWidth}
     >
       <Popover
-        boundary="viewport"
+        boundary={props.boundary ? props.boundary : "viewport"}
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}

@@ -74,6 +74,7 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
     <UserImageContainer>
       {userRoles.slice(0, 5).map((el: UserRoles) => (
         <Popover
+          boundary="viewport"
           hoverCloseDelay={100}
           interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
           key={el.username}
