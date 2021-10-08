@@ -1,9 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
-    const selectedRowIndices = Array.isArray(props.selectedRowIndices)
-      ? props.selectedRowIndices
-      : [props.selectedRowIndices];
+    let selectedRowIndices = [];
+    if (
+      Array.isArray(props.selectedRowIndices) &&
+      props.selectedRowIndices.every((el) => typeof el === "number")
+    ) {
+      selectedRowIndices = props.selectedRowIndices;
+    } else if (typeof props.selectedRowIndices === "number") {
+      selectedRowIndices = [props.selectedRowIndices];
+    }
     let selectedRowIndex;
     if (props.multiRowSelection) {
       selectedRowIndex = selectedRowIndices.length
