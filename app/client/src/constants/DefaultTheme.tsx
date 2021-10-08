@@ -20,7 +20,7 @@ export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
   success: Colors.PURPLE,
   secondary: Colors.BLACK_PEARL,
-  danger: Colors.RED,
+  danger: Colors.ERROR_RED,
   none: Colors.GEYSER_LIGHT,
   warning: Colors.JAFFA,
   successLight: Colors.GREEN,
