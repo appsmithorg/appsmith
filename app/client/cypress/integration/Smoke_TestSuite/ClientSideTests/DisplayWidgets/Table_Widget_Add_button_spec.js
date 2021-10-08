@@ -84,7 +84,7 @@ describe("Table Widget property pane feature validation", function() {
     });
     cy.deleteColumn("customColumn1");
     // Close Property pane
-    cy.get(commonlocators.editPropCrossButton).click({
+    cy.get(commonlocators.editPropBackButton).click({
       force: true,
     });
   });
