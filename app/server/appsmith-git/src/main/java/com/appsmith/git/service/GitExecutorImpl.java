@@ -242,6 +242,25 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
+    public Mono<Boolean> deleteBranch(Path repoSuffix, String branchName) {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+        return Mono.fromCallable(() -> {
+            log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName + "for the repo " + repoSuffix);
+            // open the repo
+            Path baseRepoPath = createRepoPath(repoSuffix);
+            Git git = Git.open(baseRepoPath.toFile());
+            // Create and checkout to new branch
+            git.branchDelete()
+                    .setBranchNames(branchName)
+                    .setForce(Boolean.TRUE)
+                    .call();
+
+            return Boolean.TRUE;
+        }).subscribeOn(scheduler);
+    }
+
+    @Override
     public Mono<Boolean> checkoutToBranch(Path repoSuffix, String branchName) {
 
         return Mono.fromCallable(() -> {

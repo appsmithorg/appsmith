@@ -31,6 +31,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
@@ -291,6 +292,14 @@ public class GitServiceImpl implements GitService {
             });
     }
 
+    private Mono<String> commitApplication(boolean doPush, String defaultApplicationId, String branchName) {
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
+        commitDTO.setDoPush(doPush);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add(FieldName.BRANCH_NAME, branchName);
+        return commitApplication(commitDTO, defaultApplicationId, params);
+    }
     /**
      * Method to get commit history for application branch
      * @param defaultApplicationId application for which the commit history is needed
@@ -567,10 +576,21 @@ public class GitServiceImpl implements GitService {
                     }
                     Path repoSuffix = Paths.get(srcApplication.getOrganizationId(), srcBranchGitData.getDefaultApplicationId(), srcBranchGitData.getRepoName());
                     // Create a new branch from the parent checked out branch
-                    return gitExecutor.createAndCheckoutToBranch(repoSuffix, branchDTO.getBranchName())
-                            .flatMap(branchName -> {
-                                String srcApplicationId = srcApplication.getId();
-                                srcBranchGitData.setBranchName(branchName);
+                    return gitExecutor.checkoutToBranch(repoSuffix, srcBranch)
+                            .onErrorResume(error -> Mono.error(
+                                    new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch))
+                            )
+                            .flatMap(ignore -> gitExecutor.createAndCheckoutToBranch(repoSuffix, branchDTO.getBranchName()))
+                            .zipWhen(branchName -> commitApplication(Boolean.TRUE, srcBranchGitData.getDefaultApplicationId(), branchName)
+                                    .onErrorResume(e -> {
+                                        // Delete the newly created branch as push have been failed
+                                        return gitExecutor.deleteBranch(repoSuffix, branchName)
+                                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "(system) commit & push", e.getMessage())));
+                                    })
+                            )
+                            .flatMap(tuple -> {
+                                final String srcApplicationId = srcApplication.getId();
+                                srcBranchGitData.setBranchName(tuple.getT1());
                                 // Save a new application in DB and update from the parent branch application
                                 srcBranchGitData.setGitAuth(null);
                                 srcApplication.setId(null);

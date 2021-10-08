@@ -72,10 +72,18 @@ public interface GitExecutor {
     /**
      * Create a new worktree in the local repo
      * @param repoSuffix repo suffix path in local repo
-     * @param branchName branch which needs to be generated
-     * @return generated branch name
+     * @param branchName branch which needs to be created
+     * @return created branch name
      */
     Mono<String> createAndCheckoutToBranch(Path repoSuffix, String branchName);
+
+    /**
+     * Create a new worktree in the local repo
+     * @param repoSuffix repo suffix path in local repo
+     * @param branchName branch which needs to be deleted
+     * @return deleted branch name
+     */
+    Mono<Boolean> deleteBranch(Path repoSuffix, String branchName);
 
     /**
      * Git checkout to specific branch
