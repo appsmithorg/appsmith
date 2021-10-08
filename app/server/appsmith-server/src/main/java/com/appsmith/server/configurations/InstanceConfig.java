@@ -54,7 +54,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private Mono<Long> publishReleaseVersionToRedis() {
         String releaseVersion = releaseNotesService.getReleasedVersion();
-        return reactiveTemplate.convertAndSend(API_BUILD_VERSION, releaseVersion);
+        if(!StringUtils.isEmpty(releaseVersion)) {
+            return reactiveTemplate.convertAndSend(API_BUILD_VERSION, releaseVersion);
+        }
+        return Mono.just(0L);
     }
 
     private Mono<? extends Config> registerInstance() {
