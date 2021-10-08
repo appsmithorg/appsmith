@@ -25,7 +25,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        if: steps.verify-changed-files.outputs.files_changed == 'false'
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
         run: |
           message: |
             Unable to find testcases in the PR
