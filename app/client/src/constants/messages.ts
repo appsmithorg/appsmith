@@ -251,6 +251,14 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
+export const EDIT_DATASOURCE = () => "Edit Datasource";
+export const SAVE_DATASOURCE = () => "Save Datasource";
+export const SAVE_DATASOURCE_MESSAGE = () =>
+  "Save API as datasource to setup authentication";
+export const EDIT_DATASOURCE_MESSAGE = () =>
+  "Edit Datasource to access authentication settings";
+export const OAUTH_ERROR = () => "OAuth Error";
+export const OAUTH_2_0 = () => "OAuth 2.0";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -699,6 +707,17 @@ export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
 export const WELCOME_ACTION = () => "Get Started";
+
+// API Editor
+export const API_EDITOR_TAB_TITLES = {
+  HEADERS: () => "Headers",
+  PARAMS: () => "Params",
+  BODY: () => "Body",
+  PAGINATION: () => "Pagination",
+  AUTHENTICATION: () => "Authentication",
+  SETTINGS: () => "Settings",
+};
+
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
 export const WELCOME_FORM_FULL_NAME = () => "Full Name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
