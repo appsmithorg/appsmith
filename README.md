@@ -19,7 +19,7 @@
   </h3>
 
 <p align="center">
-Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
+Turn any data source into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database, or GraphQL source.
 <br />
 <br />
 <img src="static/images/integrations.png" width="320px">
@@ -47,15 +47,15 @@ The fastest way to start with Appsmith is the cloud-hosted version. When you're 
   <img src="static/animations/widgets.gif" width="100%">
 </p>
 
-Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms and more right into your app.
+Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms, and more right into your app.
 
-_Includes text, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, datepickers, dropdowns, filepickers, containers, maps, modals, rich text editors, tabs & video._ <br>
+_Includes text, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, date pickers, dropdowns, file pickers, containers, maps, modals, rich text editors, tabs & video._ <br>
 
 <p>
   <img src="static/animations/running-api.gif" width="100%">
 </p>
 
-Appsmith automagically works using any DB, Rest API or GraphQL as a datasource, with support for OAuth 2.0 and CURL. Here's a list of all our [pre-built integrations](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases).
+Appsmith automagically works using any DB, Rest API or GraphQL as a data source, with support for OAuth 2.0 and CURL. Here's a list of all our [pre-built integrations](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases).
 
 _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server._ <br>
 
@@ -63,7 +63,7 @@ _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elast
   <img src="static/animations/javascript.gif" width="100%">
 </p>
 
-We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
+We'll run JS anywhere! Code interactions between elements, update data sources, or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
 
 <p>
   <img src="static/animations/invite.gif" width="100%">
@@ -127,7 +127,7 @@ Visit our [blog](https://blog.appsmith.com/) to explore more.
 
 ## Contribute
 
-We love our contributors! We're committed to fostering an open and welcoming environment in the community. If you'd like to contribute anything from a bug-fix to a feature update, start here—
+We love our contributors! We're committed to fostering an open and welcoming environment in the community. If you'd like to contribute anything from a bug fix to a feature update, start here—
 
 - 📖 Read our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md)
 - 🧩 [Set up your local environment](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
