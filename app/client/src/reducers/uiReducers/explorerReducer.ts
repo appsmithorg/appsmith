@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { get } from "lodash";
 
 export interface ExplorerReduxState {
   entity: {
@@ -52,7 +53,7 @@ const setUpdatingDatasourceEntity = (
   const pathParts = window.location.pathname.split("/");
   const pageId = pathParts[pathParts.indexOf("pages") + 1];
 
-  if (!state.entity.updatingEntity?.includes(action.payload.id)) {
+  if (!get(state, "entity.updatingEntity", "")?.includes(action.payload.id)) {
     return {
       ...state,
       entity: {
@@ -124,8 +125,10 @@ const explorerReducer = createReducer(initialState, {
   ) => {
     return { ...state, entity: { editingEntityName: action.payload.id } };
   },
-  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: () => {
-    return {};
+  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: (
+    state: ExplorerReduxState,
+  ) => {
+    return { ...state, entity: {} };
   },
   [ReduxActionTypes.SET_EXPLORER_PINNED]: (
     state: ExplorerReduxState,

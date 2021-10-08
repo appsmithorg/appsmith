@@ -163,10 +163,14 @@ function EntityExplorer(props: IPanelProps) {
       ref={explorerRef}
     >
       {/* ENTITY EXPLORE HEADER */}
-      <div className="sticky top-0 flex items-center justify-between px-3 py-3 z-1 hidden">
+      <div className="sticky top-0 flex items-center justify-between hidden px-3 py-3 z-1">
         <h3 className="text-lg font-semibold text-gray-800 ">Explorer</h3>
         <div className="flex items-center">
-          <button className="p-1 hover:bg-warmGray-700 group" onClick={onPin}>
+          <button
+            className="p-1 hover:bg-warmGray-700 group"
+            onClick={onPin}
+            type="button"
+          >
             {pinned ? (
               <PinIcon className="w-4 h-4 text-trueGray-400" />
             ) : (
