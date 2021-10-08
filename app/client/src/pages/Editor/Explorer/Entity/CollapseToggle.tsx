@@ -1,7 +1,6 @@
 import React from "react";
-import { Icon, IconName } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
-import { Colors } from "constants/Colors";
+import Icon, { AppIconName } from "components/ads/AppIcon";
+import { Size } from "components/ads/Button";
 
 export function CollapseToggle(props: {
   isOpen: boolean;
@@ -14,17 +13,15 @@ export function CollapseToggle(props: {
     props.onClick(e);
     e.stopPropagation();
   };
-  const icon: IconName = props.isOpen
-    ? IconNames.CARET_DOWN
-    : IconNames.CARET_RIGHT;
+  const icon: AppIconName = props.isOpen ? "arrow-down" : "arrow-right";
 
   if (!props.isVisible) return <span />;
   return (
     <Icon
       className={props.className}
-      color={props.disabled ? Colors.SLATE_GRAY : Colors.WHITE}
-      icon={icon}
+      name={icon}
       onClick={handleClick}
+      size={Size.small}
     />
   );
 }

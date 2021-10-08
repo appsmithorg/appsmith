@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
@@ -99,20 +100,16 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 .flatMap(this::getForUser);
     }
 
-    private Mono<UserData> updateForCurrentUser(UserData updates) {
+    @Override
+    public Mono<UserData> updateForCurrentUser(UserData updates) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userRepository.findByEmail(user.getEmail()))
-                .flatMap(user -> {
-                    // If a UserData document exists for this user, update it. If not, create one.
-                    updates.setUserId(user.getId());
-                    final Mono<UserData> updaterMono = update(user.getId(), updates);
-                    final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
-                    return updaterMono.switchIfEmpty(creatorMono);
-                });
+                .flatMap(user -> updateForUser(user, updates));
     }
 
     @Override
     public Mono<UserData> updateForUser(User user, UserData updates) {
+        // If a UserData document exists for this user, update it. If not, create one.
         updates.setUserId(user.getId());
         final Mono<UserData> updaterMono = update(user.getId(), updates);
         final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
@@ -257,5 +254,16 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     @Override
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
         return featureFlagService.getAllFeatureFlagsForUser();
+    }
+
+    @Override
+    public Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState) {
+        if(commentOnboardingState != CommentOnboardingState.SKIPPED && commentOnboardingState != CommentOnboardingState.ONBOARDED) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, QUserData.userData.commentOnboardingState));
+        }
+        return this.getForCurrentUser().flatMap(userData -> {
+            userData.setCommentOnboardingState(commentOnboardingState);
+            return repository.save(userData);
+        });
     }
 }

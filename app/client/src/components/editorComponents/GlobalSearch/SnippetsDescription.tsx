@@ -302,7 +302,8 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       ),
     },
   ];
-  if (template && args && args.length > 0) {
+  const replaceableArgs = (args || []).filter((arg) => !arg.placeholder);
+  if (template && replaceableArgs && replaceableArgs.length > 0) {
     tabs.push({
       key: "Customize",
       title: "Customize",
@@ -319,7 +320,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
             </div>
           </div>
           <div className="snippet-group">
-            {args.map((arg: SnippetArgument) => (
+            {replaceableArgs.map((arg: SnippetArgument) => (
               <div
                 className="argument"
                 key={arg.name}

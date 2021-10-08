@@ -57,17 +57,12 @@ On your development machine, please ensure that:
    ```
 
 1. Run cmd: `cp .env.example .env`
-1. Start your local server using docker.
 
-    ```bash
-    cd app/server
-    docker-compose up -d
-    ```
 1. Run the script `start-https.sh` to start the Nginx container that will proxy the frontend code on your local system.
 
    ```bash
    cd app/client
-   ./start-https.sh
+   ./start-https.sh https://release.app.appsmith.com
    ```
 
 ### Steps to build & run the code:
@@ -91,7 +86,7 @@ On your development machine, please ensure that:
 #### Note:
 
 - By default, your client app points to the local API server - `http://host.docker.internal:8080` for MacOS or `http://localhost:8080` for Linux. If you don't have the API server running on your local system, your page will load with errors. To set up the API server on your local system, please follow the instructions [here](https://github.com/appsmithorg/appsmith/blob/release/contributions/ServerSetup.md)
-- If you cannot set up the the API server on your local system, you can also [use Appsmith's staging API server](#if-you-would-like-to-hit-a-different-appsmith-server).
+- If you cannot set up the API server on your local system, you can also [use Appsmith's staging API server](#if-you-would-like-to-hit-a-different-appsmith-server).
 
 #### If yarn start throws mismatch node version error
 
