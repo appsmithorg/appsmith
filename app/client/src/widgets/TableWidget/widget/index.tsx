@@ -10,6 +10,7 @@ import {
   without,
   isBoolean,
   isArray,
+  sortBy,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -141,15 +142,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties,
             originalIndex,
           );
+          let isSelected = false;
+          if (this.props.multiRowSelection) {
+            isSelected =
+              Array.isArray(this.props.selectedRowIndices) &&
+              this.props.selectedRowIndices.includes(rowIndex);
+          } else {
+            isSelected = this.props.selectedRowIndex === rowIndex;
+          }
           if (columnProperties.columnType === "button") {
-            let isSelected = false;
-            if (this.props.multiRowSelection) {
-              isSelected =
-                Array.isArray(this.props.selectedRowIndices) &&
-                this.props.selectedRowIndices.includes(rowIndex);
-            } else {
-              isSelected = this.props.selectedRowIndex === rowIndex;
-            }
             const buttonProps = {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
@@ -182,7 +183,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 : undefined,
             });
           } else if (columnProperties.columnType === "image") {
-            const isSelected = !!props.row.isSelected;
             const isCellVisible = cellProperties.isCellVisible ?? true;
             const onClick = columnProperties.onClick
               ? () =>
@@ -219,7 +219,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "iconButton") {
             const iconButtonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               columnActions: [
@@ -484,10 +484,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
   ) => {
-    const { primaryColumns = {} } = this.props;
+    const { primaryColumns = {}, derivedColumns = {} } = this.props;
     const { columnOrder, migrated } = this.props;
     if (tableColumns) {
       const previousColumnIds = Object.keys(primaryColumns);
+      const previousDerivedColumnIds = Object.keys(derivedColumns);
+
       const newColumnIds = Object.keys(tableColumns);
 
       if (xor(previousColumnIds, newColumnIds).length > 0) {
@@ -501,7 +503,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         });
 
         // If new columnOrders have different values from the original columnOrders
-        if (xor(newColumnIds, columnOrder).length > 0) {
+        // Only update when there are new Columns(Derived or Primary)
+        if (
+          xor(newColumnIds, columnOrder).length > 0 &&
+          newColumnIds.length > 0 &&
+          !isEqual(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
+        ) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
 
