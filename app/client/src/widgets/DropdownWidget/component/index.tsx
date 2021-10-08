@@ -168,7 +168,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     return (
       <DropdownContainer>
-        <DropdownStyles />
+        {!_.isEmpty(this.props.options) ? <DropdownStyles /> : null}
         <StyledControlGroup
           fill
           haslabel={!!this.props.label ? "true" : "false"}
