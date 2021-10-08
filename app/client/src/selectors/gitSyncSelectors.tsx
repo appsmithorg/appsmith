@@ -80,3 +80,8 @@ export const getIsDisconnectingGit = createSelector(
   getGitSyncState,
   (gitSync) => gitSync.isDisconnectingGit,
 );
+
+export const getIsGitConnected = createSelector(
+  getCurrentAppGitMetaData,
+  (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),
+);
