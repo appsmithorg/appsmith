@@ -37,7 +37,7 @@ export const FORM_VALIDATION_PASSWORD_RULE = () =>
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
-export const LOGIN_PAGE_TITLE = () => `Sign In to your account`;
+export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
@@ -62,7 +62,7 @@ export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = () => `Name`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
-export const SIGNUP_PAGE_LOGIN_LINK_TEXT = () => `Sign In`;
+export const SIGNUP_PAGE_LOGIN_LINK_TEXT = () => `Sign in`;
 export const SIGNUP_PAGE_NAME_INPUT_SUBTEXT = () => `How should we call you?`;
 export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign Up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
@@ -71,11 +71,11 @@ export const SIGNUP_PAGE_SUCCESS = () =>
   `Awesome! You have successfully registered.`;
 export const SIGNUP_PAGE_SUCCESS_LOGIN_BUTTON_TEXT = () => `Login`;
 
-export const RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL = () => `New Password`;
+export const RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL = () => `New password`;
 export const RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
   `New Password`;
-export const RESET_PASSWORD_LOGIN_LINK_TEXT = () => `Back to Sign In`;
-export const RESET_PASSWORD_PAGE_TITLE = () => `Reset Password`;
+export const RESET_PASSWORD_LOGIN_LINK_TEXT = () => `Back to sign in`;
+export const RESET_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const RESET_PASSWORD_SUBMIT_BUTTON_TEXT = () => `Reset`;
 export const RESET_PASSWORD_PAGE_SUBTITLE = () =>
   `Create a new password for your account `;
@@ -88,22 +88,22 @@ export const RESET_PASSWORD_EXPIRED_TOKEN = () =>
   `The password reset link has expired. Please try generating a new link`;
 export const RESET_PASSWORD_INVALID_TOKEN = () =>
   `The password reset link is invalid. Please try generating a new link`;
-export const RESET_PASSWORD_FORGOT_PASSWORD_LINK = () => `Forgot Password`;
+export const RESET_PASSWORD_FORGOT_PASSWORD_LINK = () => `Forgot password`;
 
 export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
-export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset Password`;
+export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
 export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
 export const FORGOT_PASSWORD_SUCCESS_TEXT = () =>
   `A password reset link has been sent to`;
 
-export const PRIVACY_POLICY_LINK = () => `Privacy Policy`;
-export const TERMS_AND_CONDITIONS_LINK = () => `Terms and Conditions`;
+export const PRIVACY_POLICY_LINK = () => `Privacy policy`;
+export const TERMS_AND_CONDITIONS_LINK = () => `Terms and conditions`;
 
 export const ERROR_500 = () =>
-  `We apologize, Something went wrong. We're working to fix things.`;
+  `We apologize, something went wrong. We're trying to fix things.`;
 export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
@@ -123,11 +123,11 @@ export const INVITE_USERS_VALIDATION_ROLE_EMPTY = () => `Please select a role`;
 
 export const INVITE_USERS_EMAIL_LIST_PLACEHOLDER = () =>
   `Comma separated emails`;
-export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select Role`;
+export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select role`;
 export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
-export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite Users`;
+export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
 export const INVITE_USERS_SUBMIT_ERROR = () =>
   `We were unable to invite the users, please try again later`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
@@ -137,12 +137,12 @@ export const INVITE_USER_SUBMIT_SUCCESS = () =>
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
 
-export const CREATE_PASSWORD_PAGE_PASSWORD_INPUT_LABEL = () => `New Password`;
+export const CREATE_PASSWORD_PAGE_PASSWORD_INPUT_LABEL = () => `New password`;
 export const CREATE_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
   `New Password`;
 export const CREATE_PASSWORD_LOGIN_LINK_TEXT = () =>
   `Already know the password? Login`;
-export const CREATE_PASSWORD_PAGE_TITLE = () => `Set Password`;
+export const CREATE_PASSWORD_PAGE_TITLE = () => `Set password`;
 export const CREATE_PASSWORD_SUBMIT_BUTTON_TEXT = () => `Create`;
 export const CREATE_PASSWORD_PAGE_SUBTITLE = () =>
   `Set a new password for your account `;
@@ -159,7 +159,7 @@ export const DELETING_APPLICATION = () => `Deleting application...`;
 export const DUPLICATING_APPLICATION = () => `Duplicating application...`;
 
 export const CURL_IMPORT_SUCCESS = () => `Curl command imported successfully`;
-export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to Sign In`;
+export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
   `${actionName} API added to page`;
 export const INPUT_WIDGET_DEFAULT_VALIDATION_ERROR = () => `Invalid input`;
@@ -175,10 +175,10 @@ export const ENABLE_TIME = () => `Enable Time`;
 
 export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
-export const SIGN_IN = () => `Sign In`;
+export const SIGN_IN = () => `Sign in`;
 
 // Homepage
-export const CREATE_NEW_APPLICATION = () => `Create New`;
+export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `GETTING STARTED`;
 export const ORGANIZATIONS_HEADING = () => `ORGANIZATIONS`;
@@ -188,9 +188,9 @@ export const NO_APPS_FOUND = () =>
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
-export const LIGHTNING_MENU_DATA_QUERY = () => `Use data from a Query`;
+export const LIGHTNING_MENU_DATA_QUERY = () => `Use data from a query`;
 export const LIGHTNING_MENU_DATA_TOOLTIP = () => `Quick start data binding`;
-export const LIGHTNING_MENU_DATA_WIDGET = () => `Use data from a Widget`;
+export const LIGHTNING_MENU_DATA_WIDGET = () => `Use data from a widget`;
 export const LIGHTNING_MENU_QUERY_CREATE_NEW = () => `Create new Query`;
 export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
 
@@ -212,9 +212,9 @@ export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
   `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
-  `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
+  `Google Re-Captcha token generation failed! Please check the Re-captcha site key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
-  `Google Re-Captcha Token Generation failed! Please check the allowed domains.`;
+  `Google Re-Captcha token generation failed! Please check the allowed domains.`;
 
 export const SERVER_API_TIMEOUT_ERROR = () =>
   `Appsmith server is taking too long to respond. Please try again after some time`;
@@ -303,9 +303,9 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
 
 export const OMNIBAR_PLACEHOLDER = () =>
   `Search Widgets, Queries, Documentation`;
-export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search Snippets";
-export const OMNIBAR_PLACEHOLDER_NAV = () => "Search Widgets and Queries";
-export const OMNIBAR_PLACEHOLDER_DOC = () => "Search Documentation";
+export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
+export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
+export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -321,15 +321,15 @@ export const UNRESOLVE = () => "Unresolve";
 
 // comments
 export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
-export const PIN_COMMENT = () => "Pin Comment";
-export const UNPIN_COMMENT = () => "Unpin Comment";
-export const COPY_LINK = () => "Copy Link";
-export const DELETE_COMMENT = () => "Delete Comment";
+export const PIN_COMMENT = () => "Pin comment";
+export const UNPIN_COMMENT = () => "Unpin comment";
+export const COPY_LINK = () => "Copy link";
+export const DELETE_COMMENT = () => "Delete comment";
 export const COMMENT_HAS_BEEN_DELETED = () => "Comment not found";
-export const DELETE_THREAD = () => "Delete Thread";
-export const EDIT_COMMENT = () => "Edit Comment";
+export const DELETE_THREAD = () => "Delete thread";
+export const EDIT_COMMENT = () => "Edit comment";
 export const COMMENTS = () => "Comments";
-export const VIEW_LATEST = () => "View Latest";
+export const VIEW_LATEST = () => "View latest";
 export const POST = () => "Post";
 export const CANCEL = () => "Cancel";
 export const NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD = () =>
@@ -369,7 +369,7 @@ export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
-export const INSPECT_ENTITY = () => "Inspect Entity";
+export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
 export const VALUE_IS_INVALID = (propertyPath: string) =>
   `The value at ${propertyPath} is invalid`;
@@ -386,22 +386,22 @@ export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
 export const DEBUGGER_COPY_MESSAGE = () => "Copy";
-export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open Documentation";
-export const DEBUGGER_SEARCH_SNIPPET = () => "Browse Code Snippets";
-export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith Support";
+export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open documentation";
+export const DEBUGGER_SEARCH_SNIPPET = () => "Browse code snippets";
+export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 
 //action creator menu
-export const NO_ACTION = () => `No Action`;
-export const EXECUTE_A_QUERY = () => `Execute a Query`;
-export const NAVIGATE_TO = () => `Navigate To`;
-export const SHOW_MESSAGE = () => `Show Message`;
-export const OPEN_MODAL = () => `Open Modal`;
-export const CLOSE_MODAL = () => `Close Modal`;
-export const STORE_VALUE = () => `Store Value`;
+export const NO_ACTION = () => `No action`;
+export const EXECUTE_A_QUERY = () => `Execute a query`;
+export const NAVIGATE_TO = () => `Navigate to`;
+export const SHOW_MESSAGE = () => `Show message`;
+export const OPEN_MODAL = () => `Open modal`;
+export const CLOSE_MODAL = () => `Close modal`;
+export const STORE_VALUE = () => `Store value`;
 export const DOWNLOAD = () => `Download`;
-export const COPY_TO_CLIPBOARD = () => `Copy to Clipboard`;
-export const RESET_WIDGET = () => `Reset Widget`;
-export const EXECUTE_JS_FUNCTION = () => `Execute a JS Function`;
+export const COPY_TO_CLIPBOARD = () => `Copy to clipboard`;
+export const RESET_WIDGET = () => `Reset widget`;
+export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} copied to page ${pageName} successfully`;
@@ -431,7 +431,7 @@ export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 
 // Import/Export Application features
-export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
+export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
@@ -466,21 +466,21 @@ export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
   `Couldn't auto generate a page from this datasource.`;
 
 export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
-  `You can continue building your app with it using our Drag & Drop
-  Builder`;
-export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads Up`;
+  `You can continue building your app with it using our drag & Drop
+  builder`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads up`;
 
 export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
   "Start from scratch and create your custom UI";
 
-export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with Drag & Drop";
+export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a Data Table";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate from a data table";
 
 export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
   "Start with a simple CRUD UI and customize it";
 
-export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready to use.";
@@ -489,10 +489,10 @@ export const GEN_CRUD_SUCCESS_DESC = () =>
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
   "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
-export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column Headers Fetched";
+export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column headers fetched";
 export const GEN_CRUD_NO_COLUMNS = () => "No columns found";
-export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select Datasource";
-export const GEN_CRUD_TABLE_HEADER_LABEL = () => "Table Header Index";
+export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select datasource";
+export const GEN_CRUD_TABLE_HEADER_LABEL = () => "Table header index";
 export const GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC = () =>
   "Row index of the column headers in the sheet table";
 // Actions Right pane
@@ -505,10 +505,10 @@ export const NO_CONNECTIONS = () => "No connections to show here";
 export const BACK_TO_CANVAS = () => "Back to canvas";
 export const SUGGESTED_WIDGET_DESCRIPTION = () =>
   "This will add a new widget to the canvas.";
-export const ADD_NEW_WIDGET = () => "Add New Widget";
+export const ADD_NEW_WIDGET = () => "Add new widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
-export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
+export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
@@ -523,18 +523,18 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
-export const GIT_CONNECTION = () => "Git Connection";
+export const GIT_CONNECTION = () => "Git connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
-export const CONNECT_TO_GIT = () => "Connect to Git Repository";
+export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, Make commits, add deploy your application";
+  "Checkout branches, make commits, add deploy your application";
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 
-export const AUTHOR_NAME = () => "Author Name";
-export const AUTHOR_EMAIL = () => "Author Email";
+export const AUTHOR_NAME = () => "Author name";
+export const AUTHOR_EMAIL = () => "Author email";
 
 export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
@@ -542,7 +542,7 @@ export const SWITCH_BRANCHES = () => "Switch branches";
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT = () => "Connect";
-export const LATEST_DP_TITLE = () => "Latest Deployed Preview";
+export const LATEST_DP_TITLE = () => "Latest deployed preview";
 export const LATEST_DP_SUBTITLE = () =>
   "See your application in action after successful push";
 export const CHECK_DP = () => "CHECK";
@@ -561,7 +561,7 @@ export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
 export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
   "Committed and pushed Successfully";
-export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
+export const COMMITTED_SUCCESSFULLY = () => "Committed successfully";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Copy this deploy key to your Git Repository setting.";
@@ -576,7 +576,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 
-// Js Snippets
+// JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
@@ -663,13 +663,13 @@ export const ONBOARDING_INTRO_FOOTER = () =>
 export const BUILD_APP_TOGETHER = () => "build an app together.";
 
 //Statusbar
-export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a Datasource";
-export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a Datasource";
-export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a Query";
-export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a Widget";
-export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a Widget";
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a datasource";
+export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a query";
+export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a widget";
+export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a widget";
 export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
-  "Next: Connect data to Widget";
+  "Next: Connect data to widget";
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
   "Next: Deploy your application";
 export const ONBOARDING_STATUS_STEPS_SIXTH = () => "Completed 🎉";
@@ -680,34 +680,34 @@ export const ONBOARDING_STATUS_GET_STARTED = () => "GET STARTED";
 export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
   "Start by adding your first Datasource";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
-  "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample data you can use.";
+  "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample dataset that you can use.";
 export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a datasource";
-export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
-export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "Add a widget";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "First.";
 //2. query
 export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
 export const ONBOARDING_TASK_QUERY_BODY = () =>
   "Great job adding a datasource! The next thing you can do is create a query on your data.";
-export const ONBOARDING_TASK_QUERY_BUTTON = () => "+ create a query";
-export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "add a widget";
+export const ONBOARDING_TASK_QUERY_BUTTON = () => "+ Create a query";
+export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "Add a widget";
 //2. widget
 export const ONBOARDING_TASK_WIDGET_HEADER = () =>
   "Next, add a widget to start displaying data";
 export const ONBOARDING_TASK_WIDGET_BODY = () =>
-  "Great job adding a datasource! The next thing you can do is add widget to start start making your data visual.";
-export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
+  "Great job adding a datasource! The next thing you can do is add widget to start visualizing your data.";
+export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
 export const ONBOARDING_TASK_FOOTER = () => "Alternatively, you can also";
 
 export const USE_SNIPPET = () => "Snippet";
-export const SNIPPET_TOOLTIP = () => "Search Snippets";
+export const SNIPPET_TOOLTIP = () => "Search code snippets";
 
 //Welcome page
 export const WELCOME_HEADER = () => "Welcome!";
 export const WELCOME_BODY = () =>
   "Let us setup your account so you can make awesome applications!";
-export const WELCOME_ACTION = () => "Get Started";
+export const WELCOME_ACTION = () => "Get started";
 
 // API Editor
 export const API_EDITOR_TAB_TITLES = {
