@@ -99,7 +99,7 @@ describe("Onboarding", function() {
         window.location.target = "_self";
       });
     });
-    cy.get(homePage.publishButton).click();
+    cy.get(homePage.publishButton).click({ force: true });
     cy.wait("@publishApp");
 
     cy.url().should("include", "/pages");
