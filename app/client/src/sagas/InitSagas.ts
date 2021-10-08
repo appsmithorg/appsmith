@@ -58,7 +58,6 @@ import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { AppState } from "reducers";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -97,6 +96,7 @@ function* failFastApiCalls(
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
+  yield put(resetEditorSuccess());
   const { applicationId, branchName, pageId } = initializeEditorAction.payload;
   try {
     PerformanceTracker.startAsyncTracking(
@@ -118,17 +118,24 @@ function* initializeEditorSaga(
           mode: APP_MODE.EDIT,
         },
       }),
+      fetchPageList({ applicationId }, APP_MODE.EDIT),
     ];
 
-    const successEffects = [ReduxActionTypes.FETCH_APPLICATION_SUCCESS];
+    const successEffects = [
+      ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+    ];
 
-    const failureEffects = [ReduxActionErrorTypes.FETCH_APPLICATION_ERROR];
+    const failureEffects = [
+      ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+    ];
 
-    // if (pageId) {
-    //   initCalls.push(fetchPage(pageId, true) as any);
-    //   successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
-    //   failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
-    // }
+    if (pageId) {
+      initCalls.push(fetchPage(pageId, true) as any);
+      successEffects.push(ReduxActionTypes.FETCH_PAGE_SUCCESS);
+      failureEffects.push(ReduxActionErrorTypes.FETCH_PAGE_ERROR);
+    }
 
     const applicationAndLayoutCalls = yield failFastApiCalls(
       initCalls,
@@ -138,21 +145,10 @@ function* initializeEditorSaga(
 
     if (!applicationAndLayoutCalls) return;
 
-    const applicationId = yield select(
-      (state: AppState) => state.ui.applications?.currentApplication?.id,
-    );
-
-    const fetchPageListCall = yield failFastApiCalls(
-      [fetchPageList({ applicationId: applicationId }, APP_MODE.EDIT)],
-      [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS],
-      [ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR],
-    );
-    if (!fetchPageListCall) return;
-
     let fetchPageCallResult;
     const defaultPageId = yield select(getDefaultPageId);
     const toLoadPageId = pageId || defaultPageId;
-    if (true || !pageId) {
+    if (!pageId) {
       if (!toLoadPageId) return;
 
       fetchPageCallResult = yield failFastApiCalls(

@@ -13,6 +13,7 @@ import history from "utils/history";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;

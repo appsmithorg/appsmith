@@ -13,6 +13,7 @@ import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerPluginGroupProps = {
   step: number;

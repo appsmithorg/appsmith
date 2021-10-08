@@ -9,7 +9,10 @@ import Button, { Category, Size } from "components/ads/Button";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import {
   CHECK_DP,
   LATEST_DP_TITLE,

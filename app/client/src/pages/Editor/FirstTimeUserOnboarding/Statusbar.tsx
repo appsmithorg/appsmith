@@ -8,6 +8,7 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
+  getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {

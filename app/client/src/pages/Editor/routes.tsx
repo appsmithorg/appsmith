@@ -52,6 +52,7 @@ import PagesEditor from "./PagesEditor";
 import { AppState } from "reducers";
 
 import { trimQueryString } from "utils/helpers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;

@@ -13,76 +13,70 @@ const testUsername = "testusername";
 
 describe("Git sync connect to repo", function() {
   // create a new repo
-  before(() => {
-    cy.request({
-      method: "POST",
-      url: `${GITHUB_API_BASE}/user/repos`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
-      },
-      body: {
-        name: Cypress.env("GITSYNC_TEST_REPO_NAME"),
-      },
-    });
-  });
+  // before(() => {
+  //   cy.request({
+  //     method: "POST",
+  //     url: `${GITHUB_API_BASE}/user/repos`,
+  //     headers: {
+  //       Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+  //     },
+  //     body: {
+  //       name: Cypress.env("GITSYNC_TEST_REPO_NAME"),
+  //     },
+  //   });
+  // });
 
   it("connects successfully", function() {
-    cy.get(homePage.publishButton).click();
-
-    // todo: check for the initial state: init git connection button, regular deploy button
-
-    // add the test repo and click on submit btn
-    cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-      "generateKey",
-    );
-    cy.get(gitSyncLoctors.gitRepoInput).type(
-      Cypress.env("GITSYNC_TEST_REPO_URL"),
-    );
-    cy.get(gitSyncLoctors.submitRepoUrlButton).click();
-    cy.wait("@generateKey").then((result) => {
-      generatedKey = result.response.body.data.publicKey;
-      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-
-      // fetch the generated key and post to the github repo
-      cy.request({
-        method: "POST",
-        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-          "TEST_GITHUB_USER_NAME",
-        )}/${Cypress.env("GITSYNC_TEST_REPO_NAME")}/keys`,
-        headers: {
-          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
-        },
-        body: {
-          title: "key0",
-          key: generatedKey,
-        },
-      });
-
-      // click on the connect button and verify
-      cy.get(gitSyncLoctors.gitConfigNameInput).type(testUsername);
-      cy.get(gitSyncLoctors.gitConfigEmailInput).type(testEmail);
-
-      cy.get(gitSyncLoctors.connectSubmitBtn).click();
-      cy.wait("@connectGitRepo");
-
-      cy.wait(10000);
-
-      cy.get(gitSyncLoctors.commitButton).click();
-      cy.wait("@commit");
-
-      cy.get("body").type("{esc}");
-    });
+    // cy.get(homePage.publishButton).click();
+    // // todo: check for the initial state: init git connection button, regular deploy button
+    // // add the test repo and click on submit btn
+    // cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+    //   "generateKey",
+    // );
+    // cy.get(gitSyncLoctors.gitRepoInput).type(
+    //   Cypress.env("GITSYNC_TEST_REPO_URL"),
+    // );
+    // cy.get(gitSyncLoctors.submitRepoUrlButton).click();
+    // cy.wait("@generateKey").then((result) => {
+    //   generatedKey = result.response.body.data.publicKey;
+    //   generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+    //   // fetch the generated key and post to the github repo
+    //   cy.request({
+    //     method: "POST",
+    //     url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+    //       "TEST_GITHUB_USER_NAME",
+    //     )}/${Cypress.env("GITSYNC_TEST_REPO_NAME")}/keys`,
+    //     headers: {
+    //       Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+    //     },
+    //     body: {
+    //       title: "key0",
+    //       key: generatedKey,
+    //     },
+    //   });
+    //   // click on the connect button and verify
+    //   cy.get(gitSyncLoctors.gitConfigNameInput).type(
+    //     `{selectall}${testUsername}`,
+    //   );
+    //   cy.get(gitSyncLoctors.gitConfigEmailInput).type(
+    //     `{selectall}${testEmail}`,
+    //   );
+    //   cy.get(gitSyncLoctors.connectSubmitBtn).click();
+    //   cy.wait("@connectGitRepo");
+    //   cy.get(gitSyncLoctors.commitButton).click();
+    //   cy.wait("@commit");
+    //   cy.get("body").type("{esc}");
+    // });
   });
 
   it("creates a new branch", function() {
-    // // cy.get(commonlocators.canvas).click();
+    // cy.get(commonlocators.canvas).click();
     // cy.get(gitSyncLoctors.branchButton).click();
     // cy.get(gitSyncLoctors.branchSearchInput).type("ParentBranch");
     // cy.get(gitSyncLoctors.createNewBranchButton).click();
     // cy.get(gitSyncLoctors.createNewBranchSubmitbutton).click();
-    // cy.wait(2000);
-    // cy.get("#loading").should("not.exist");
-    // cy.wait(5000);
+    // cy.get(".bp3-spinner").should("exist");
+    // cy.get(".bp3-spinner").should("not.exist");
   });
 
   it("creates branch specific resources", function() {
@@ -98,7 +92,7 @@ describe("Git sync connect to repo", function() {
     // cy.get(jsActions.addJsActionButton)
     //   .last()
     //   .click({ force: true });
-    // cy.wait("@createJsAction");
+    // cy.wait("@createNewJSCollection");
     // cy.get(jsActions.name).click({ force: true });
     // cy.get(jsActions.nameInput)
     //   .type("{selectall}ParentJsAction1", { force: true })
@@ -114,9 +108,8 @@ describe("Git sync connect to repo", function() {
     // cy.get(gitSyncLoctors.branchSearchInput).type("ChildBranch");
     // cy.get(gitSyncLoctors.createNewBranchButton).click();
     // cy.get(gitSyncLoctors.createNewBranchSubmitbutton).click();
-    // cy.wait(2000);
-    // cy.get("#loading").should("not.exist");
-    // cy.wait(5000);
+    // cy.get(".bp3-spinner").should("exist");
+    // cy.get(".bp3-spinner").should("not.exist");
     // cy.Createpage("ChildPage1");
     // cy.get(pages.addEntityAPI)
     //   .last()
@@ -129,7 +122,7 @@ describe("Git sync connect to repo", function() {
     // cy.get(jsActions.addJsActionButton)
     //   .last()
     //   .click({ force: true });
-    // cy.wait("@createJsAction");
+    // cy.wait("@createNewJSCollection");
     // cy.get(jsActions.name).click({ force: true });
     // cy.get(jsActions.nameInput)
     //   .type("{selectall}ChildJsAction1", { force: true })
@@ -140,15 +133,13 @@ describe("Git sync connect to repo", function() {
     // // reflect in api sidebar after the call passes.
     // // eslint-disable-next-line cypress/no-unnecessary-waiting
     // cy.wait(2000);
-    // // cy.get(commonlocators.canvas).click();
     // cy.get(gitSyncLoctors.branchButton).click();
     // cy.get(gitSyncLoctors.branchSearchInput).type("ParentBranch");
     // cy.get(gitSyncLoctors.branchListItem)
     //   .contains("ParentBranch")
     //   .click();
-    // cy.wait(2000);
-    // cy.get("#loading").should("not.exist");
-    // cy.wait(5000);
+    // cy.get(".bp3-spinner").should("exist");
+    // cy.get(".bp3-spinner").should("not.exist");
     // cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
     // cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
     // cy.get(`.t--entity-name:contains("ChildJsAction1")`).should("not.exist");
@@ -157,13 +148,13 @@ describe("Git sync connect to repo", function() {
   // rename entities
   it("makes branch specific resource updates", function() {
     // WIP
+    // cy.get(gitSyncLoctors.branchButton).click();
     // cy.get(gitSyncLoctors.branchSearchInput).type("{selectall}ChildBranch");
     // cy.get(gitSyncLoctors.branchListItem)
     //   .contains("ChildBranch")
     //   .click();
-    // cy.wait(2000);
-    // cy.get("#loading").should("not.exist");
-    // cy.wait(5000);
+    // cy.get(".bp3-spinner").should("exist");
+    // cy.get(".bp3-spinner").should("not.exist");
     // cy.GlobalSearchEntity("ParentPage1");
     // cy.RenameEntity("ParentPageRenamed");
     // cy.GlobalSearchEntity("ParentApi1");
@@ -175,9 +166,8 @@ describe("Git sync connect to repo", function() {
     // cy.get(gitSyncLoctors.branchListItem)
     //   .contains("ParentBranch")
     //   .click();
-    // cy.wait(2000);
-    // cy.get("#loading").should("not.exist");
-    // cy.wait(5000);
+    // cy.get(".bp3-spinner").should("exist");
+    // cy.get(".bp3-spinner").should("not.exist");
     // cy.get(`.t--entity-name:contains("ParentPageRenamed")`).should("not.exist");
     // cy.get(`.t--entity-name:contains("ParentApiRenamed")`).should("not.exist");
     // cy.get(`.t--entity-name:contains("ParentJsActionRenamed")`).should(
@@ -186,15 +176,15 @@ describe("Git sync connect to repo", function() {
   });
 
   // delete the created repo
-  after(() => {
-    cy.request({
-      method: "DELETE",
-      url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-        "TEST_GITHUB_USER_NAME",
-      )}/${Cypress.env("GITSYNC_TEST_REPO_NAME")}`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
-      },
-    });
-  });
+  // after(() => {
+  //   cy.request({
+  //     method: "DELETE",
+  //     url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+  //       "TEST_GITHUB_USER_NAME",
+  //     )}/${Cypress.env("GITSYNC_TEST_REPO_NAME")}`,
+  //     headers: {
+  //       Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+  //     },
+  //   });
+  // });
 });

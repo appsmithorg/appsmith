@@ -16,6 +16,7 @@ import {
 } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type routeId = {
   applicationId: string;

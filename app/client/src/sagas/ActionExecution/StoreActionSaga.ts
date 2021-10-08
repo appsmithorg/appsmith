@@ -9,6 +9,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],

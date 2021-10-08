@@ -30,6 +30,7 @@ import { Datasource } from "entities/Datasource";
 
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;

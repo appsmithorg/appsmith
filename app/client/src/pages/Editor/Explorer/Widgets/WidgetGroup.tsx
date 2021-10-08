@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidgets } from "selectors/ui";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;

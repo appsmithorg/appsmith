@@ -422,7 +422,6 @@ const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
-  applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),

@@ -10,6 +10,7 @@ import { saveJSObjectName } from "actions/jsActionActions";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerJSCollectionEntityProps = {
   action: JSCollectionData;

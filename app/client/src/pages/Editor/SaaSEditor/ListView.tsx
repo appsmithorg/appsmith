@@ -20,7 +20,10 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import styled from "styled-components";
 import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 const IntegrationHomePage = styled.div`

@@ -20,7 +20,6 @@ import {
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
 import moment from "moment";
 
 const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();

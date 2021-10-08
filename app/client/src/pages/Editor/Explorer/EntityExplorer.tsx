@@ -27,6 +27,7 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -123,7 +124,7 @@ function EntityExplorer(props: IPanelProps) {
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search clear={clearSearch} isHidden ref={searchInputRef} />
+      <Search clear={clearSearch} ref={searchInputRef} />
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}

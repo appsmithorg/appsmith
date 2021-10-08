@@ -11,6 +11,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const LinkIcon = MenuIcons.LINK_ICON;
 

@@ -13,7 +13,10 @@ import {
   SAAS_EDITOR_API_ID_URL,
 } from "pages/Editor/SaaSEditor/constants";
 
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { Action, PluginType } from "entities/Action";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { getFormData } from "selectors/formSelectors";

@@ -45,6 +45,7 @@ import {
   collabStartSharingPointerEvent,
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
+import { debug } from "loglevel";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -183,6 +184,8 @@ class Editor extends Component<Props> {
     if (this.props.creatingOnboardingDatabase) {
       return <Welcome />;
     }
+
+    debug(this.props.isEditorInitialized, "this.props.isEditorInitialized");
 
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (

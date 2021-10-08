@@ -27,7 +27,10 @@ import ProvidersApi, {
 import { Providers } from "constants/providerConstants";
 import { FetchProviderWithCategoryRequest } from "api/ProvidersApi";
 import { fetchActions } from "actions/pluginActionActions";
-import { getPageList } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPageList,
+} from "selectors/editorSelectors";
 import {
   ADD_API_TO_PAGE_SUCCESS_MESSAGE,
   createMessage,

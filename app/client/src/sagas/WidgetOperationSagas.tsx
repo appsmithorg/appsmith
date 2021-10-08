@@ -52,7 +52,10 @@ import { flashElementsById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { forceOpenPropertyPane } from "actions/widgetActions";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 

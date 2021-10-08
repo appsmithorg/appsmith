@@ -25,6 +25,7 @@ import { getAction } from "selectors/entitiesSelector";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { getQueryParams } from "utils/AppsmithUtils";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;

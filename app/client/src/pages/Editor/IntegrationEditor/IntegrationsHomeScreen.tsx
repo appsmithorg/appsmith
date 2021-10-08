@@ -26,6 +26,7 @@ import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const HeaderFlex = styled.div`
   display: flex;

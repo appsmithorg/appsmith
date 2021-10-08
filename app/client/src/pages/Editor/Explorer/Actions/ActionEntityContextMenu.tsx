@@ -15,6 +15,7 @@ import history from "utils/history";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { useNewActionName } from "./helpers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type EntityContextMenuProps = {
   id: string;

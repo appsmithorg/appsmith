@@ -13,6 +13,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import WidgetFactory from "utils/WidgetFactory";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

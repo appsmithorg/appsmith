@@ -5,6 +5,7 @@ import { getActionIdFromURL } from "../helpers";
 import { ActionGroupConfig } from "./helpers";
 import { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerActionsGroupProps = {
   actions: any[];
