@@ -678,7 +678,7 @@ export default function Dropdown(props: DropdownProps) {
       width={dropdownWidth}
     >
       <Popover
-        boundary={props.boundary ? props.boundary : "viewport"}
+        boundary={props.boundary || "scrollParent"}
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}
