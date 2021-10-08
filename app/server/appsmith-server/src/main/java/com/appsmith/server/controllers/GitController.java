@@ -9,6 +9,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
@@ -127,8 +128,8 @@ public class GitController {
     }
 
     @GetMapping("/pull/{defaultApplicationId}")
-    public Mono<ResponseDTO<Object>> pull(@PathVariable String defaultApplicationId,
-                                          @RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<GitPullDTO>> pull(@PathVariable String defaultApplicationId,
+                                              @RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to pull the latest for application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
         return service.pullApplication(defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));

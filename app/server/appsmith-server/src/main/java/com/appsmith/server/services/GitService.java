@@ -7,6 +7,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitPullDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
@@ -39,7 +40,7 @@ public interface GitService {
 
     Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
 
-    Mono<Object> pullApplication(String defaultApplicationId, String branchName);
+    Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
     Mono<List<String>> listBranchForApplication(String defaultApplicationId);
 
