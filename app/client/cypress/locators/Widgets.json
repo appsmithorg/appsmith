@@ -112,6 +112,7 @@
     "toggleChartType": ".t--property-control-charttype .t--js-toggle",
     "inputToggleOnClick": ".t--property-control-onclick div.CodeMirror-lines",
     "tableBtn": ".t--draggable-tablewidget .bp3-button",
+    "tableIconBtn": ".t--draggable-tablewidget .bp3-icon",
     "toastAction": ".Toastify__toast-container--top-right .t--toast-action",
     "toastActionText": ".Toastify__toast-container--top-right .t--toast-action span",
     "defaultColName": "[data-rbd-draggable-id='customColumn1'] input",
@@ -139,7 +140,7 @@
     "selectedRow":".selected-row",
     "removeTableWidget": ".t--delete-widget",
     "nextPageButton": ".t--table-widget-next-page",
-    "addWidget": ".t--entity.group.widgets > div:nth-child(1) >div:nth-child(5)",
+    "addWidget": ".t--entity.group.widgets .t--entity-add-btn",
     "closeWidgetBar": ".t--close-widgets-sidebar",
     "tabedataField": ".t--property-control-tabledata",
     "exploreWidget": "[class$=bp3-panel-stack-view] > div:nth-child(1) > div:nth-child(1) > span:nth-child(4)",
@@ -148,5 +149,7 @@
     "tbIndex0": "[class=td][data-colindex='0'][data-rowindex='0']",
     "filterApplyBtn":".t--apply-filter-btn",
     "filterCloseBtn":".t--close-filter-btn",
-    "header":"#header-root"
+    "header":"#header-root",
+    "explorerSwitchId": "#switcher--explorer",
+    "widgetSwitchId":"#switcher--widgets"
 }
