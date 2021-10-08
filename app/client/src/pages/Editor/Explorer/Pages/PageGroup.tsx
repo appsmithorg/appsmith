@@ -15,6 +15,14 @@ import { Plugin } from "api/PluginApi";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import {
+  ADD_PAGE_TOOLTIP,
+  createMessage,
+  PAGE_PROPERTIES_TOOLTIP,
+} from "constants/messages";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -41,6 +49,17 @@ const pageGroupEqualityCheck = (
     prev.searchKeyword === next.searchKeyword
   );
 };
+
+const settingsIconWithTooltip = (
+  <TooltipComponent
+    boundary="viewport"
+    content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
+    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+    position={Position.BOTTOM}
+  >
+    {settingsIcon}
+  </TooltipComponent>
+);
 
 export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   const history = useHistory();
@@ -93,6 +112,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       action={() =>
         history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId))
       }
+      addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
       alwaysShowRightIcon
       className="group pages"
       disabled
@@ -104,7 +124,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
         history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
       }}
       onCreate={createPageCallback}
-      rightIcon={settingsIcon}
+      rightIcon={settingsIconWithTooltip}
       searchKeyword={props.searchKeyword}
       step={props.step}
     >

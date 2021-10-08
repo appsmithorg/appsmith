@@ -14,11 +14,13 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
-import { Classes } from "@blueprintjs/core";
+import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import TooltipComponent from "components/ads/Tooltip";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -150,6 +152,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
+  addButtonHelptext?: string;
 };
 
 export const Entity = forwardRef(
@@ -263,10 +266,24 @@ export const Entity = forwardRef(
           >
             {props.rightIcon}
           </IconWrapper>
-          <AddButton
-            className={`${EntityClassNames.ADD_BUTTON}`}
-            onClick={props.onCreate}
-          />
+          {props.addButtonHelptext ? (
+            <TooltipComponent
+              boundary="viewport"
+              content={props.addButtonHelptext}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.RIGHT}
+            >
+              <AddButton
+                className={`${EntityClassNames.ADD_BUTTON}`}
+                onClick={props.onCreate}
+              />
+            </TooltipComponent>
+          ) : (
+            <AddButton
+              className={`${EntityClassNames.ADD_BUTTON}`}
+              onClick={props.onCreate}
+            />
+          )}
           {props.contextMenu}
           <Loader isVisible={isUpdating} />
         </EntityItem>

@@ -2679,7 +2679,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/organizations").as("organizations");
   cy.route("GET", "/api/v1/organizations/*").as("getOrganisation");
 
-  cy.route("POST", "/api/v1/actions/execute").as("executeAction");
   cy.route("POST", "/api/v1/applications/publish/*").as("publishApp");
   cy.route("PUT", "/api/v1/layouts/*/pages/*").as("updateLayout");
 
@@ -2759,6 +2758,11 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
     .invoke("attr", "aria-label")
     .should("contain", name);
   cy.togglebarDisable(togglecss);
+});
+
+Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+  return selector;
 });
 
 Cypress.Commands.add("readTabledataPublish", (rowNum, colNum) => {

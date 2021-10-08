@@ -190,7 +190,6 @@ const PaddingWrapper = styled.div`
 `;
 
 const LeftPaneWrapper = styled.div`
-  // height: 50vh;
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
