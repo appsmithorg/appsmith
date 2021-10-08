@@ -417,4 +417,19 @@ public class MustacheHelper {
     public static Boolean laxIsBindingPresentInString(String input) {
         return laxMustacheBindingPattern.matcher(input).find();
     }
+
+    public static Set<String> getWordsFromMustache(String mustache) {
+        Set<String> words = new HashSet<>();
+        String key = mustache.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            words.add(matcher.group());
+        }
+
+        return words;
+
+    }
 }

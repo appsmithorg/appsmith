@@ -762,7 +762,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         List<String> messages = new ArrayList<>();
 
         Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(dynamicBindingNames, actionNames, widgetNames, pageId, edges, actionsUsedInDSL,
+                .findAllOnLoadActions(actionNames, pageId, edges,
                         flatmapPageLoadActions, widgetDynamicBindingsMap);
 
         // First update the actions and set execute on load to true

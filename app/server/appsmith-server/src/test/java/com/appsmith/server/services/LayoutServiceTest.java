@@ -251,6 +251,7 @@ public class LayoutServiceTest {
     }
 
     /**
+     * TODO: Comment no longer valid
      * This test adds some actions in the page and attaches a few of those in the dynamic bindings in the widgets
      * in the layout. An action attached in the widget also has two dependencies on other actions. One of those
      * has been explicitly marked to NOT run on page load. This test asserts the following :
@@ -275,6 +276,7 @@ public class LayoutServiceTest {
                 .flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 
+                    // Create a GET API Action
                     ActionDTO action = new ActionDTO();
                     action.setName("aGetAction");
                     action.setActionConfiguration(new ActionConfiguration());
@@ -283,6 +285,7 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(layoutActionService.createSingleAction(action));
 
+                    // Create a POST API Action
                     action = new ActionDTO();
                     action.setName("aPostAction");
                     action.setActionConfiguration(new ActionConfiguration());
@@ -291,6 +294,7 @@ public class LayoutServiceTest {
                     action.setDatasource(datasource);
                     monos.add(layoutActionService.createSingleAction(action));
 
+                    // Action aPostActionWithAutoExec depends on [aPostSecondaryAction, aPostTertiaryAction]
                     action = new ActionDTO();
                     action.setName("aPostActionWithAutoExec");
                     action.setActionConfiguration(new ActionConfiguration());
@@ -299,16 +303,19 @@ public class LayoutServiceTest {
                             "this won't be auto-executed: {{aPostSecondaryAction.data}}, but this one will be: {{aPostTertiaryAction.data}}.");
                     action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(true);
+//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     monos.add(layoutActionService.createSingleAction(action));
 
+                    // User has set this action to NOT run on page load
+                    // This is an independent action with no dependencies
                     action = new ActionDTO();
                     action.setName("aPostSecondaryAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
+                    action.setExecuteOnLoad(false);
                     action.setUserSetOnLoad(true);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -317,7 +324,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(true);
+//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -333,7 +340,7 @@ public class LayoutServiceTest {
                     action.setName("aDBAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(true);
+//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
                     monos.add(layoutActionService.createSingleAction(action));
@@ -342,7 +349,7 @@ public class LayoutServiceTest {
                     action.setName("anotherDBAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(true);
+//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
                     monos.add(layoutActionService.createSingleAction(action));
@@ -351,7 +358,7 @@ public class LayoutServiceTest {
                     action.setName("aTableAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(true);
+//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
                     monos.add(layoutActionService.createSingleAction(action));
@@ -379,7 +386,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(ac1);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(false);
+//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -400,7 +407,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(ac2);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(false);
+//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -421,7 +428,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(ac3);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(false);
+//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -442,7 +449,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(ac4);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-                    action.setExecuteOnLoad(false);
+//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -474,9 +481,10 @@ public class LayoutServiceTest {
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
                     ));
                     obj.putAll(Map.of(
-                            "collection1Key", "some dynamic {{Collection.anAsyncCollectionActionWithoutCall()}}",
-                            "collection2Key", "some dynamic {{Collection.aSyncCollectionActionWithoutCall())}}",
+                            "collection1Key", "some dynamic {{Collection.data.anAsyncCollectionActionWithoutCall}}",
+                            "collection2Key", "some dynamic {{Collection.data.aSyncCollectionActionWithoutCall}}",
                             "collection3Key", "some dynamic {{Collection.anAsyncCollectionActionWithCall()}}",
+                            // only add sync function call dependencies in the dependency tree. sync call would be done during eval.
                             "collection4Key", "some dynamic {{Collection.aSyncCollectionActionWithCall()}}"
                     ));
                     obj.put("dynamicDB", new JSONObject(Map.of("test", "child path {{aDBAction.data.irrelevant}}")));
