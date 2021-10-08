@@ -9,9 +9,6 @@ describe("Entity explorer tests related to widgets and validation", function() {
 
   it("Widget edit/delete/copy to clipboard validation", function() {
     cy.SearchEntityandOpen("Text1");
-    cy.get(explorer.property)
-      .last()
-      .click({ force: true });
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
