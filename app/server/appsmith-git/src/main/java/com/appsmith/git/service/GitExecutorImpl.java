@@ -122,7 +122,7 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix) {
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": get commit history for  " + repoSuffix);
+            log.debug(Thread.currentThread().getName() + ": get commit history for  " + repoSuffix);
             List<GitLogDTO> commitLogs = new ArrayList<>();
             Path repoPath = createRepoPath(repoSuffix);
             Git git = Git.open(repoPath.toFile());
@@ -166,7 +166,7 @@ public class GitExecutorImpl implements GitExecutor {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
+            log.debug(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
             // open the repo
             Path baseRepoPath = createRepoPath(branchSuffix);
             Git git = Git.open(baseRepoPath.toFile());
@@ -196,7 +196,7 @@ public class GitExecutorImpl implements GitExecutor {
                            String publicSshKey) {
 
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
+            log.debug(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
             final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
             File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix).toFile();
             while (file.exists()) {
@@ -219,7 +219,7 @@ public class GitExecutorImpl implements GitExecutor {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo " + repoSuffix);
+            log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
             Git git = Git.open(baseRepoPath.toFile());
@@ -245,7 +245,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<Boolean> checkoutToBranch(Path repoSuffix, String branchName) {
 
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Switching to the branch " + branchName);
+            log.debug(Thread.currentThread().getName() + ": Switching to the branch " + branchName);
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
@@ -272,6 +272,7 @@ public class GitExecutorImpl implements GitExecutor {
                                         String publicKey) {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
         return Mono.fromCallable(() -> {
+            log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
             Git git = Git.open(repoPath.toFile());
             long count = Arrays.stream(git
                     .pull()
@@ -294,7 +295,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<List<String>> getBranches(Path repoSuffix) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
+            log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             Git git = Git.open(baseRepoPath.toFile());
             // Only show local branches
             List<Ref> refList = git.branchList().call();
@@ -325,7 +326,7 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<Map<String, Object>> getStatus(Path repoPath, String branchName) {
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
+            log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
             Git git = Git.open(repoPath.toFile());
             Status status = git.status().call();
             Map<String, Object> response = new HashMap<>();
@@ -366,7 +367,7 @@ public class GitExecutorImpl implements GitExecutor {
     @Override
     public Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
-            System.out.println(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
+            log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
             Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
             try {
                 //checkout the branch on which the merge command is run
