@@ -22,7 +22,6 @@ type Props = {
 };
 
 const HeaderContents = styled.div`
-  padding: ${(props) => props.theme.spaces[9]}px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -120,7 +119,7 @@ const Header = withTheme(
           </CloseIconContainer>
         </HeaderRight>
       </HeaderContents>
-      <div style={{ padding: `0 ${theme.spaces[9]}px` }}>
+      <div>
         <StyledSeparator />
       </div>
     </>
