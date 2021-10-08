@@ -23,6 +23,10 @@ import {
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
+import getFeatureFlags from "../../../utils/featureFlags";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsGitConnected } from "../../../selectors/gitSyncSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -36,6 +40,7 @@ export const GetNavigationMenuData = ({
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
+
   const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
@@ -45,6 +50,15 @@ export const GetNavigationMenuData = ({
   const isApplicationIdPresent = !!(
     defaultApplicationId && defaultApplicationId.length > 0
   );
+  const isGitConnected = useSelector(getIsGitConnected);
+
+  const openGitConnectionPopup = () =>
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
 
   const currentApplication = useSelector(getCurrentApplication);
 
@@ -74,6 +88,33 @@ export const GetNavigationMenuData = ({
       });
     }
   };
+
+  const deployOptions = [
+    {
+      text: "Deploy",
+      onClick: deploy,
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+    },
+    {
+      text: "Current Deployed Version",
+      onClick: () => openExternalLink(currentDeployLink),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+    },
+  ];
+
+  if (getFeatureFlags().GIT && !isGitConnected) {
+    deployOptions.push({
+      text: "Connect to Git Repository",
+      onClick: () => openGitConnectionPopup(),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: false,
+    });
+  }
 
   return [
     {
@@ -115,22 +156,7 @@ export const GetNavigationMenuData = ({
       text: "Deploy",
       type: MenuTypes.PARENT,
       isVisible: true,
-      children: [
-        {
-          text: "Deploy",
-          onClick: deploy,
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-        {
-          text: "Current Deployed Version",
-          onClick: () => openExternalLink(currentDeployLink),
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-      ],
+      children: deployOptions,
     },
     {
       text: "Help",

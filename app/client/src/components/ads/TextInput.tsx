@@ -297,7 +297,7 @@ const TextInput = forwardRef(
     const ErrorMessage = (
       <MsgWrapper>
         <Text type={TextType.P3}>
-          {props.validator ? validation.message : props.errorMsg || ""}
+          {props.errorMsg ? props.errorMsg : validation.message}
         </Text>
       </MsgWrapper>
     );
