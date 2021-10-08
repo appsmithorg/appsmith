@@ -11,6 +11,7 @@ const pageid = "MyPage";
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
     cy.log("Login Successful");
+    cy.reload(); // To remove the rename tooltip
     cy.get(explorer.addWidget).click();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.get(commonlocators.entityExplorersearch)
@@ -46,7 +47,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
       .scrollTo("bottom")
       .should("be.visible");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.get(explorer.closeWidgets).click();
+    cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();
     cy.get(publish.backToEditor)
       .first()
