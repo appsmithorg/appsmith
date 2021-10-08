@@ -297,6 +297,7 @@ export const getEntityId = (entity: any) => {
     case "widget":
       return entity.widgetId;
     case "action":
+    case "jsAction":
       return entity.config?.id;
   }
 };
