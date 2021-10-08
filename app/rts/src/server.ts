@@ -154,6 +154,7 @@ async function tryAuth(socket:Socket) {
 	// This needs to be debugged.
 	/* ********************************************************* */
 
+	// const host = socket.handshake.headers.host;
 	const connectionCookie = socket.handshake.headers.cookie;
 	if (connectionCookie != null && connectionCookie !== "") {
 		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
