@@ -23,13 +23,25 @@ class ConfirmRunModal extends React.Component<Props> {
       dispatch(cancelRunActionConfirmModal());
     };
 
+    const handleKeyDownToConfirm = (
+      e: React.KeyboardEvent<HTMLInputElement>,
+    ) => {
+      if (e.key === "Enter") {
+        dispatch(acceptRunActionConfirmModal());
+        handleClose();
+      }
+    };
+
     return (
       <Dialog isOpen={isModalOpen} onClose={handleClose} title="Confirm Action">
         <div className={Classes.DIALOG_BODY}>
           Are you sure you want to perform this action?
         </div>
         <div className={Classes.DIALOG_FOOTER}>
-          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+          <div
+            className={Classes.DIALOG_FOOTER_ACTIONS}
+            onKeyDown={handleKeyDownToConfirm}
+          >
             <Button
               filled
               onClick={() => {
