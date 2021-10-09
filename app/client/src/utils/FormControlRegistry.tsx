@@ -38,8 +38,56 @@ import FieldArrayControl, {
 class FormControlRegistry {
   static registerFormControlBuilders() {
     FormControlFactory.registerControlBuilder("INPUT_TEXT", {
-      buildPropertyControl(controlProps: InputControlProps): JSX.Element {
-        return <InputTextControl {...controlProps} />;
+      buildPropertyControl({
+        conditionals,
+        configProperty,
+        controlType,
+        dataType,
+        disabled,
+        encrypted,
+        extraData,
+        formName,
+        hidden,
+        id,
+        inputType,
+        isRequired,
+        isValid,
+        key,
+        label,
+        onPropertyChange,
+        placeholderText,
+        propertyValue,
+        schema,
+        subtitle,
+        validationMessage,
+        validationRegex,
+      }: InputControlProps): JSX.Element {
+        return (
+          <InputTextControl
+            conditionals={conditionals}
+            configProperty={configProperty}
+            controlType={controlType}
+            dataType={dataType}
+            disabled={disabled}
+            encrypted={encrypted}
+            extraData={extraData}
+            formName={formName}
+            hidden={hidden}
+            id={id}
+            inputType={inputType}
+            isRequired={isRequired}
+            isValid={isValid}
+            key={key}
+            label={label}
+            onPropertyChange={onPropertyChange}
+            placeholderText={placeholderText}
+            propertyValue={propertyValue}
+            schema={schema}
+            subtitle={subtitle}
+            validationMessage={validationMessage}
+            validationRegex={validationRegex}
+          />
+        );
       },
     });
     FormControlFactory.registerControlBuilder("FIXED_KEY_INPUT", {
