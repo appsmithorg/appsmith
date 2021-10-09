@@ -1,11 +1,31 @@
-import { generate } from "astring";
-import { parse } from "acorn";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { parse, Node } from "acorn";
+import { fullAncestor } from "acorn-walk";
 
 export const getAST = (code: string) => parse(code, { ecmaVersion: 2020 });
-export const getFnContents = (code: string) => {
+
+export const getAllIdentifiers = (code: string): string[] => {
+  const identifiers = new Set<string>();
   const ast = getAST(code);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore: ast has body, please believe me!
-  const fnBlock = generate(ast.body[0].body);
-  return fnBlock.substring(1, fnBlock.length - 1);
+  fullAncestor(ast, (node: Node, _: any, ancestors: Node[]) => {
+    const lastAncestor = ancestors[ancestors.length - 2];
+
+    if (
+      node.type === "Identifier" &&
+      lastAncestor.type === "MemberExpression"
+    ) {
+      let identifier = ``;
+
+      debugger;
+      identifier =
+        identifier +
+        // @ts-ignore
+        lastAncestor.object.name +
+        "." +
+        // @ts-ignore
+        lastAncestor.property.name;
+      identifiers.add(identifier);
+    }
+  });
+  return Array.from(identifiers);
 };

@@ -62,7 +62,7 @@ import evaluate, {
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
-import { getAST } from "workers/ast";
+import { getAllIdentifiers } from "workers/ast";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -1362,39 +1362,51 @@ export default class DataTreeEvaluator {
   }
 }
 
+// export const extractReferencesFromBinding = (
+//   dependentPath: string,
+//   all: Record<string, true>,
+// ): Array<string> => {
+//   const subDeps: Array<string> = [];
+//   const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
+//     dependentPath,
+//   ];
+//   identifiers.forEach((identifier: string) => {
+//     // If the identifier exists directly, add it and return
+//     if (all.hasOwnProperty(identifier)) {
+//       subDeps.push(identifier);
+//       return;
+//     }
+//     const subpaths = _.toPath(identifier);
+//     let current = "";
+//     // We want to keep going till we reach top level, but not add top level
+//     // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
+//     // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
+//     // we can remove the length requirement and it will still work
+//     while (subpaths.length > 1) {
+//       current = convertPathToString(subpaths);
+//       // We've found the dep, add it and return
+//       if (all.hasOwnProperty(current)) {
+//         subDeps.push(current);
+//         return;
+//       }
+//       subpaths.pop();
+//     }
+//   });
+//   return _.uniq(subDeps);
+// };
+
 export const extractReferencesFromBinding = (
-  dependentPath: string,
+  script: string,
   all: Record<string, true>,
-): Array<string> => {
-  const ast = getAST(dependentPath);
-  debugger;
-  const subDeps: Array<string> = [];
-  const identifiers = dependentPath.match(/[a-zA-Z_$][a-zA-Z_$0-9.\[\]]*/g) || [
-    dependentPath,
-  ];
-  identifiers.forEach((identifier: string) => {
-    // If the identifier exists directly, add it and return
-    if (all.hasOwnProperty(identifier)) {
-      subDeps.push(identifier);
-      return;
-    }
-    const subpaths = _.toPath(identifier);
-    let current = "";
-    // We want to keep going till we reach top level, but not add top level
-    // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-    // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
-    // we can remove the length requirement and it will still work
-    while (subpaths.length > 1) {
-      current = convertPathToString(subpaths);
-      // We've found the dep, add it and return
-      if (all.hasOwnProperty(current)) {
-        subDeps.push(current);
-        return;
-      }
-      subpaths.pop();
+): string[] => {
+  const references: string[] = [];
+  const identifiers = getAllIdentifiers(script);
+  identifiers.forEach((identifier) => {
+    if (identifier in all) {
+      references.push(identifier);
     }
   });
-  return _.uniq(subDeps);
+  return references;
 };
 
 // TODO cryptic comment below. Dont know if we still need this. Duplicate function

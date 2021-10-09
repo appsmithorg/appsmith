@@ -46,12 +46,20 @@ describe("extractReferencesFromBinding", () => {
     const allPaths: Record<string, true> = {
       Table1: true,
       "Table1.data": true,
+      "Table1.data.details": true,
+      "Table1.isVisible": true,
+      Api1: true,
+      "Api1.data": true,
     };
 
-    const cases = [
+    const cases: { script: string; expectedResults: string[] }[] = [
       {
-        script: "Table1.data.map(c => ({ name: c.name }))",
-        expectedResults: ["Table1.data"],
+        script: "Table1.data.details.map(c => ({ name: c.name }))",
+        expectedResults: ["Table1.data.details"],
+      },
+      {
+        script: "(function(){ if(Table1.isVisible) { return Api1.data } })()",
+        expectedResults: ["Table1.isVisible", "Api1.data"],
       },
     ];
 
