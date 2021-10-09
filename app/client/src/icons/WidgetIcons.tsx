@@ -49,173 +49,854 @@ const StyledIconWrapper = styled(IconWrapper)`
 export const WidgetIcons: {
   [id: string]: JSXElementConstructor<IconProps>;
 } = {
-  SPINNER_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  SPINNER_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <SpinnerIcon />
     </StyledIconWrapper>
   ),
-  BUTTON_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  BUTTON_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ButtonIcon />
     </StyledIconWrapper>
   ),
-  CHECKBOX_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  CHECKBOX_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CheckboxIcon />
     </StyledIconWrapper>
   ),
-  COLLAPSE_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  COLLAPSE_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CollapseIcon />
     </StyledIconWrapper>
   ),
-  CONTAINER_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  CONTAINER_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ContainerIcon />
     </StyledIconWrapper>
   ),
-  DATE_PICKER_WIDGET2: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  DATE_PICKER_WIDGET2: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DatePickerIcon />
     </StyledIconWrapper>
   ),
-  TABLE_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  TABLE_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <TableIcon />
     </StyledIconWrapper>
   ),
-  VIDEO_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  VIDEO_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <VideoIcon />
     </StyledIconWrapper>
   ),
-  DROP_DOWN_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  DROP_DOWN_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DropDownIcon />
     </StyledIconWrapper>
   ),
-  MULTI_SELECT_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  MULTI_SELECT_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <MultiSelectIcon />
     </StyledIconWrapper>
   ),
-  RADIO_GROUP_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  RADIO_GROUP_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <RadioGroupIcon />
     </StyledIconWrapper>
   ),
-  INPUT_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  INPUT_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <InputIcon />
     </StyledIconWrapper>
   ),
-  RICH_TEXT_EDITOR_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  RICH_TEXT_EDITOR_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <RichTextEditorIcon />
     </StyledIconWrapper>
   ),
-  SWITCH_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  SWITCH_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <SwitchIcon />
     </StyledIconWrapper>
   ),
-  TEXT_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  TEXT_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <TextIcon />
     </StyledIconWrapper>
   ),
-  IMAGE_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  IMAGE_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ImageIcon />
     </StyledIconWrapper>
   ),
-  FILE_PICKER_WIDGET_V2: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  FILE_PICKER_WIDGET_V2: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <FilePickerIcon />
     </StyledIconWrapper>
   ),
-  TABS_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  TABS_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <TabsIcon />
     </StyledIconWrapper>
   ),
-  CHART_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  CHART_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ChartIcon />
     </StyledIconWrapper>
   ),
-  FORM_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  FORM_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <FormIcon />
     </StyledIconWrapper>
   ),
-  MAP_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  MAP_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <MapIcon />
     </StyledIconWrapper>
   ),
-  MODAL_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  MODAL_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ModalIcon />
     </StyledIconWrapper>
   ),
-  FORM_BUTTON_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  FORM_BUTTON_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ButtonIcon />
     </StyledIconWrapper>
   ),
-  LIST_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props} data-testid="list-widget-icon">
+  LIST_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      data-testid="list-widget-icon"
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ListIcon />
     </StyledIconWrapper>
   ),
-  RATE_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  RATE_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <RatingIcon />
     </StyledIconWrapper>
   ),
-  IFRAME_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  IFRAME_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <EmbedIcon />
     </StyledIconWrapper>
   ),
-  DIVIDER_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  DIVIDER_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DividerIcon />
     </StyledIconWrapper>
   ),
-  MENU_BUTTON_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  MENU_BUTTON_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <MenuButtonIcon />
     </StyledIconWrapper>
   ),
-  TREE_SINGLE_SELECT_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  TREE_SINGLE_SELECT_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <SingleTreeSelectIcon />
     </StyledIconWrapper>
   ),
-  TREE_MULTI_SELECT_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  TREE_MULTI_SELECT_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <MultiTreeSelectIcon />
     </StyledIconWrapper>
   ),
-  ICON_BUTTON_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  ICON_BUTTON_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <IconButtonIcon />
     </StyledIconWrapper>
   ),
-  STATBOX_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  STATBOX_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <StatboxIcon />
     </StyledIconWrapper>
   ),
-  CHECKBOX_GROUP_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  CHECKBOX_GROUP_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CheckboxGroupIcon />
     </StyledIconWrapper>
   ),
-  AUDIO_RECORDER_WIDGET: (props: IconProps) => (
-    <StyledIconWrapper {...props}>
+  AUDIO_RECORDER_WIDGET: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <StyledIconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <AudioRecorderIcon />
     </StyledIconWrapper>
   ),
