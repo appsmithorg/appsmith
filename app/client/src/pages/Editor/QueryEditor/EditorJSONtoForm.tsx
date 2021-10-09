@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef, useState } from "react";
+import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -438,17 +438,6 @@ export function EditorJSONtoForm(props: Props) {
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
-
-  useEffect(() => {
-    if (selectedIndex !== initialIndex) setSelectedIndex(initialIndex);
-  }, [initialIndex]);
-
-  useEffect(() => {
-    // reset on unmount
-    return () => {
-      dispatch(setActionTabsInitialIndex(0));
-    };
-  }, []);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
