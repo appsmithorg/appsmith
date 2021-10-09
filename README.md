@@ -73,7 +73,7 @@ We'll run JS anywhere! Code interactions between elements, update datasources or
 
 #### 🔑 Solid 256-bit Encryption
 
-Appsmith apps are [secure by default](https://docs.appsmith.com/security). All connections are TLS-encrypted, and credentials are encrypted with AES-256—so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup).<br><br>
+Appsmith apps are [secure by default](https://docs.appsmith.com/security). All connections are TLS-encrypted, and credentials are encrypted with AES-256 —so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup).<br><br>
 
 #### 🎙 Transparent Support
 
