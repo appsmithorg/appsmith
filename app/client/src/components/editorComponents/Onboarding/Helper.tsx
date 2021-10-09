@@ -26,6 +26,7 @@ const StyledContainer = styled.div`
   padding: 12px;
   background-color: white;
   border: 2px solid #df613c;
+  box-shadow: 0px 12px 28px #df613c;
   width: 310px;
 
   & > .t--close--button {
