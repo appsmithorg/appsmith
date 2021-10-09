@@ -10,23 +10,103 @@ import { ReactComponent as WarningIcon } from "assets/icons/alert/warning.svg";
 export const AlertIcons: {
   [id: string]: JSXElementConstructor<IconProps>;
 } = {
-  INFO: (props: IconProps) => (
-    <IconWrapper {...props}>
+  INFO: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <InfoIcon />
     </IconWrapper>
   ),
-  SUCCESS: (props: IconProps) => (
-    <IconWrapper {...props}>
+  SUCCESS: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <SuccessIcon />
     </IconWrapper>
   ),
-  ERROR: (props: IconProps) => (
-    <IconWrapper {...props}>
+  ERROR: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ErrorIcon />
     </IconWrapper>
   ),
-  WARNING: (props: IconProps) => (
-    <IconWrapper {...props}>
+  WARNING: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <WarningIcon />
     </IconWrapper>
   ),
