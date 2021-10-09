@@ -52,133 +52,653 @@ export const MenuIcons: {
   // eslint-disable-next-line @typescript-eslint/ban-types
   [id: string]: Function;
 } = {
-  WIDGETS_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  WIDGETS_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <WidgetsIcon />
     </IconWrapper>
   ),
-  JS_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  JS_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <JSIcon />
     </IconWrapper>
   ),
-  JS_FILE_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  JS_FILE_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <JSFileIcon />
     </IconWrapper>
   ),
-  JS_FUNCTION_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  JS_FUNCTION_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <JSFunctionIcon />
     </IconWrapper>
   ),
-  APIS_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  APIS_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ApisIcon />
     </IconWrapper>
   ),
-  ORG_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  ORG_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <OrgIcon />
     </IconWrapper>
   ),
-  PAGES_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  PAGES_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <PageIcon />
     </IconWrapper>
   ),
-  PAGE_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  PAGE_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <PageIcon />
     </IconWrapper>
   ),
-  DATASOURCES_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DATASOURCES_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DataSourcesIcon />
     </IconWrapper>
   ),
-  QUERIES_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  QUERIES_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <QueriesIcon />
     </IconWrapper>
   ),
-  HOMEPAGE_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  HOMEPAGE_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <HomepageIcon />
     </IconWrapper>
   ),
-  EXPLORER_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  EXPLORER_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ExplorerIcon />
     </IconWrapper>
   ),
-  DOCS_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DOCS_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <Icon icon="help" />
     </IconWrapper>
   ),
-  WIDGETS_COLORED_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  WIDGETS_COLORED_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <WidgetsColoredIcon />
     </IconWrapper>
   ),
-  APIS_COLORED_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  APIS_COLORED_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ApisColoredIcon />
     </IconWrapper>
   ),
-  DATASOURCES_COLORED_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DATASOURCES_COLORED_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DataSourcesColoredIcon />
     </IconWrapper>
   ),
-  DATASOURCES_TABLE_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DATASOURCES_TABLE_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DatasourceTableIcon />
     </IconWrapper>
   ),
-  PRIMARY_KEY_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  PRIMARY_KEY_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <PrimaryKeyIcon />
     </IconWrapper>
   ),
-  FOREIGN_KEY_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  FOREIGN_KEY_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ForeignKeyIcon />
     </IconWrapper>
   ),
-  DATASOURCE_COLUMN_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DATASOURCE_COLUMN_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DatasourceColumnIcon />
     </IconWrapper>
   ),
-  LINK_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  LINK_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <LinkIcon />
     </IconWrapper>
   ),
-  DATASOURCE_ICON_v2: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DATASOURCE_ICON_v2: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <StyledDataSourcesIconV2 />
     </IconWrapper>
   ),
-  JS_ICON_V2: (props: IconProps) => (
-    <IconWrapper {...props}>
+  JS_ICON_V2: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <StyledJSIconV2 />
     </IconWrapper>
   ),
-  DEFAULT_HOMEPAGE_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DEFAULT_HOMEPAGE_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DefaultHomeIcon />
     </IconWrapper>
   ),
-  EYES_OFF_ICON: (props: IconProps) => (
-    <IconWrapper {...props}>
+  EYES_OFF_ICON: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <EyeOff />
     </IconWrapper>
   ),
-  QUERY_MAIN: (props: IconProps) => (
-    <IconWrapper {...props}>
+  QUERY_MAIN: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <StyledQueryMain />
     </IconWrapper>
   ),
