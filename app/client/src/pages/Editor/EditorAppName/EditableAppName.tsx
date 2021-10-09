@@ -46,7 +46,29 @@ export const EditableAppNameWrapper = styled.div<{
 `;
 
 export function EditableAppName(props: EditableAppNameProps) {
-  const { isEditing, onClick, savingState, setSavingState, ...others } = props;
+  const {
+    className,
+    cypressSelector,
+    defaultSavingState,
+    defaultValue,
+    disabled,
+    editInteractionKind,
+    fill,
+    hideEditIcon,
+    inputValidation,
+    isEditing,
+    isEditingDefault,
+    isError,
+    isInvalid,
+    isLoading,
+    onBlur,
+    onClick,
+    placeholder,
+    savingState,
+    setIsEditing,
+    setIsInvalid,
+    setSavingState,
+  } = props;
 
   const nonEditMode = () => {
     if (!isEditing && savingState === SavingState.SUCCESS) {
@@ -61,11 +83,27 @@ export function EditableAppName(props: EditableAppNameProps) {
       onMouseEnter={nonEditMode}
     >
       <EditableTextSubComponent
+        className={className}
+        cypressSelector={cypressSelector}
+        defaultSavingState={defaultSavingState}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        editInteractionKind={editInteractionKind}
+        fill={fill}
+        hideEditIcon={hideEditIcon}
+        inputValidation={inputValidation}
         isEditing={isEditing}
+        isEditingDefault={isEditingDefault}
+        isError={isError}
+        isInvalid={isInvalid}
+        isLoading={isLoading}
+        onBlur={onBlur}
+        placeholder={placeholder}
         savingState={savingState}
+        setIsEditing={setIsEditing}
+        setIsInvalid={setIsInvalid}
         setSavingState={setSavingState}
         underline={false}
-        {...others}
       />
     </EditableAppNameWrapper>
   );
