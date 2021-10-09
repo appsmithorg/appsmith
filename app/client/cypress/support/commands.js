@@ -134,7 +134,7 @@ Cypress.Commands.add("CheckShareIcon", (orgName, count) => {
 
 Cypress.Commands.add("stubPostHeaderReq", () => {
   cy.intercept("POST", "/api/v1/users/invite", (req) => {
-    req.headers["origin"] = "Cypress";
+    req.headers.origin = "Cypress";
   }).as("mockPostInvite");
 });
 
@@ -365,17 +365,17 @@ Cypress.Commands.add("firestoreDatasourceForm", () => {
   cy.get(datasourceEditor.datasourceConfigUrl).type(
     datasourceFormData["database-url"],
   );
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["projectID"]);
+  cy.get(datasourceEditor.projectID).type(datasourceFormData.projectID);
   cy.get(datasourceEditor.serviceAccCredential)
     .clear()
-    .type(datasourceFormData["serviceAccCredentials"]);
+    .type(datasourceFormData.serviceAccCredentials);
 });
 
 Cypress.Commands.add("amazonDatasourceForm", () => {
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["access_key"]);
+  cy.get(datasourceEditor.projectID).type(datasourceFormData.access_key);
   cy.get(datasourceEditor.serviceAccCredential)
     .clear()
-    .type(datasourceFormData["secret_key"]);
+    .type(datasourceFormData.secret_key);
 });
 
 Cypress.Commands.add("DeleteApp", (appName) => {
@@ -2058,23 +2058,23 @@ Cypress.Commands.add(
       ? datasourceFormData["mongo-defaultDatabaseName"] + "  "
       : datasourceFormData["mongo-defaultDatabaseName"];
 
-    cy.get(datasourceEditor["host"]).type(hostAddress);
-    //cy.get(datasourceEditor["port"]).type(datasourceFormData["mongo-port"]);
-    cy.get(datasourceEditor["selConnectionType"]).click();
+    cy.get(datasourceEditor.host).type(hostAddress);
+    //cy.get(datasourceEditor.port).type(datasourceFormData["mongo-port"]);
+    cy.get(datasourceEditor.selConnectionType).click();
     cy.contains(datasourceFormData["connection-type"]).click();
-    cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);
+    cy.get(datasourceEditor.defaultDatabaseName).type(databaseName);
 
     cy.get(datasourceEditor.sectionAuthentication).click();
-    cy.get(datasourceEditor["databaseName"])
+    cy.get(datasourceEditor.databaseName)
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
-    cy.get(datasourceEditor["username"]).type(
+    cy.get(datasourceEditor.username).type(
       datasourceFormData["mongo-username"],
     );
-    cy.get(datasourceEditor["password"]).type(
+    cy.get(datasourceEditor.password).type(
       datasourceFormData["mongo-password"],
     );
-    cy.get(datasourceEditor["authenticationAuthtype"]).click();
+    cy.get(datasourceEditor.authenticationAuthtype).click();
     cy.contains(datasourceFormData["mongo-authenticationAuthtype"]).click({
       force: true,
     });
@@ -2215,32 +2215,32 @@ Cypress.Commands.add(
   "fillUsersMockDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
     const userMockDatabaseName = shouldAddTrailingSpaces
-      ? `${datasourceFormData["mockDatabaseName"] + "    "}`
-      : datasourceFormData["mockDatabaseName"];
+      ? `${datasourceFormData.mockDatabaseName + "    "}`
+      : datasourceFormData.mockDatabaseName;
 
     const userMockHostAddress = shouldAddTrailingSpaces
-      ? `${datasourceFormData["mockHostAddress"] + "    "}`
-      : datasourceFormData["mockHostAddress"];
+      ? `${datasourceFormData.mockHostAddress + "    "}`
+      : datasourceFormData.mockHostAddress;
 
     const userMockDatabaseUsername = shouldAddTrailingSpaces
-      ? `${datasourceFormData["mockDatabaseUsername"] + "    "}`
-      : datasourceFormData["mockDatabaseUsername"];
+      ? `${datasourceFormData.mockDatabaseUsername + "    "}`
+      : datasourceFormData.mockDatabaseUsername;
 
-    cy.get(datasourceEditor["host"])
+    cy.get(datasourceEditor.host)
       .clear()
       .type(userMockHostAddress);
 
-    cy.get(datasourceEditor["databaseName"])
+    cy.get(datasourceEditor.databaseName)
       .clear()
       .type(userMockDatabaseName);
 
-    cy.get(datasourceEditor["sectionAuthentication"]).click();
+    cy.get(datasourceEditor.sectionAuthentication).click();
 
-    cy.get(datasourceEditor["password"])
+    cy.get(datasourceEditor.password)
       .clear()
-      .type(datasourceFormData["mockDatabasePassword"]);
+      .type(datasourceFormData.mockDatabasePassword);
 
-    cy.get(datasourceEditor["username"])
+    cy.get(datasourceEditor.username)
       .clear()
       .type(userMockDatabaseUsername);
   },
