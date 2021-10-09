@@ -138,5 +138,3 @@ export const WIDGET_STATIC_PROPS = {
 };
 
 export type TextSize = keyof typeof TextSizes;
-
-export const Minimum_Popup_Rows = 12;

@@ -12,7 +12,7 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
-import { Minimum_Popup_Rows } from "constants/WidgetConstants";
+import { MinimumPopupRows } from "widgets/constants";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -366,7 +366,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   getPageView() {
     const { componentWidth } = this.getComponentDimensions();
-    const menuDropDownWidth = Minimum_Popup_Rows * this.props.parentColumnSpace;
+    const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
 
     return (
       <MenuButtonComponent
