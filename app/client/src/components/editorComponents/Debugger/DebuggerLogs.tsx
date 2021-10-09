@@ -99,7 +99,7 @@ function DebbuggerLogs(props: Props) {
 
             return (
               <LogItem
-                key={`debugger-${index}`}
+                key={e.timestamp}
                 {...logItemProps}
                 expand={index === paginatedData.length - 1}
               />
