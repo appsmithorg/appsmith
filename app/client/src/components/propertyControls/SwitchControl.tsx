@@ -4,11 +4,16 @@ import Switch from "components/ads/Switch";
 
 class SwitchControl extends BaseControl<ControlProps> {
   render() {
+    const { evaluatedValue, propertyValue } = this.props;
+    // Updating propertyValue to defaultValue
+    if (propertyValue === undefined) {
+      this.updateProperty(this.props.propertyName, evaluatedValue);
+    }
     return (
       <Switch
-        checked={this.props.propertyValue}
-        className={this.props.propertyValue ? "checked" : "unchecked"}
-        defaultChecked={this.props.propertyValue}
+        checked={propertyValue}
+        className={propertyValue ? "checked" : "unchecked"}
+        defaultChecked={propertyValue}
         large
         onChange={this.onToggle}
       />
