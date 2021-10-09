@@ -69,88 +69,428 @@ import CloseIcon from "remixicon-react/CloseLineIcon";
 export const ControlIcons: {
   [id: string]: JSXElementConstructor<IconProps>;
 } = {
-  DELETE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DELETE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DeleteIcon />
     </IconWrapper>
   ),
-  MOVE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  MOVE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <MoveIcon />
     </IconWrapper>
   ),
-  EDIT_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  EDIT_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <EditIcon />
     </IconWrapper>
   ),
-  VIEW_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  VIEW_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ViewIcon />
     </IconWrapper>
   ),
-  MORE_VERTICAL_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  MORE_VERTICAL_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <MoreVerticalIcon />
     </IconWrapper>
   ),
-  MORE_HORIZONTAL_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  MORE_HORIZONTAL_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <OverflowMenuIcon />
     </IconWrapper>
   ),
-  JS_TOGGLE: (props: IconProps) => (
-    <IconWrapper {...props}>
+  JS_TOGGLE: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <JsToggleIcon />
     </IconWrapper>
   ),
-  INCREASE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  INCREASE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <IncreaseIcon />
     </IconWrapper>
   ),
-  DECREASE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DECREASE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DecreaseIcon />
     </IconWrapper>
   ),
-  DRAGGABLE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DRAGGABLE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DraggableIcon />
     </IconWrapper>
   ),
-  CLOSE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  CLOSE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CloseIcon />
     </IconWrapper>
   ),
-  CLOSE_CIRCLE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  CLOSE_CIRCLE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CloseCircleIcon />
     </IconWrapper>
   ),
-  ADD_CIRCLE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  ADD_CIRCLE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <AddCircleIcon />
     </IconWrapper>
   ),
-  PICK_MY_LOCATION_SELECTED_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  PICK_MY_LOCATION_SELECTED_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <PickMyLocationSelectedIcon />
     </IconWrapper>
   ),
-  SETTINGS_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  SETTINGS_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <SettingsIcon />
     </IconWrapper>
   ),
-  HELP_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  HELP_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <HelpIcon />
     </IconWrapper>
   ),
-  PLAY_VIDEO: (props: IconProps) => (
-    <IconWrapper {...props}>
+  PLAY_VIDEO: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <img
         alt="Datasource"
         src={PlayIcon}
@@ -158,233 +498,1153 @@ export const ControlIcons: {
       />
     </IconWrapper>
   ),
-  REMOVE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  REMOVE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <RemoveIcon />
     </IconWrapper>
   ),
-  DRAG_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DRAG_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DragIcon />
     </IconWrapper>
   ),
-  COLLAPSE_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  COLLAPSE_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CollapseIcon />
     </IconWrapper>
   ),
-  SORT_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  SORT_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <SortIcon />
     </IconWrapper>
   ),
-  EDIT_WHITE: (props: IconProps) => (
-    <IconWrapper {...props}>
+  EDIT_WHITE: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <EditWhiteIcon />
     </IconWrapper>
   ),
-  LAUNCH_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  LAUNCH_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <LaunchIcon />
     </IconWrapper>
   ),
-  BACK_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BACK_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BackIcon />
     </IconWrapper>
   ),
-  SHOW_COLUMN: (props: IconProps) => (
-    <IconWrapper {...props}>
+  SHOW_COLUMN: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <EyeIcon />
     </IconWrapper>
   ),
-  HIDE_COLUMN: (props: IconProps) => (
-    <IconWrapper {...props}>
+  HIDE_COLUMN: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <EyeOffIcon />
     </IconWrapper>
   ),
-  DELETE_COLUMN: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DELETE_COLUMN: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DeleteColumnIcon />
     </IconWrapper>
   ),
-  BOLD_FONT: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BOLD_FONT: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BoldFontIcon />
     </IconWrapper>
   ),
-  UNDERLINE: (props: IconProps) => (
-    <IconWrapper {...props}>
+  UNDERLINE: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <UnderlineIcon />
     </IconWrapper>
   ),
-  ITALICS_FONT: (props: IconProps) => (
-    <IconWrapper {...props}>
+  ITALICS_FONT: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ItalicsFontIcon />
     </IconWrapper>
   ),
-  LEFT_ALIGN: (props: IconProps) => (
-    <IconWrapper {...props}>
+  LEFT_ALIGN: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <LeftAlignIcon />
     </IconWrapper>
   ),
-  CENTER_ALIGN: (props: IconProps) => (
-    <IconWrapper {...props}>
+  CENTER_ALIGN: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CenterAlignIcon />
     </IconWrapper>
   ),
-  RIGHT_ALIGN: (props: IconProps) => (
-    <IconWrapper {...props}>
+  RIGHT_ALIGN: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <RightAlignIcon />
     </IconWrapper>
   ),
-  VERTICAL_TOP: (props: IconProps) => (
-    <IconWrapper {...props}>
+  VERTICAL_TOP: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <VerticalAlignTop />
     </IconWrapper>
   ),
-  VERTICAL_CENTER: (props: IconProps) => (
-    <IconWrapper {...props}>
+  VERTICAL_CENTER: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <VerticalAlignCenter />
     </IconWrapper>
   ),
-  VERTICAL_BOTTOM: (props: IconProps) => (
-    <IconWrapper {...props}>
+  VERTICAL_BOTTOM: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <VerticalAlignBottom />
     </IconWrapper>
   ),
-  COPY_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  COPY_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CopyIcon />
     </IconWrapper>
   ),
-  COPY2_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  COPY2_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <Copy2Icon />
     </IconWrapper>
   ),
-  CUT_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  CUT_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <CutIcon />
     </IconWrapper>
   ),
-  GROUP_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  GROUP_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <GroupIcon />
     </IconWrapper>
   ),
-  HEADING_ONE: (props: IconProps) => (
-    <IconWrapper {...props}>
+  HEADING_ONE: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <HeadingOneIcon />
     </IconWrapper>
   ),
-  HEADING_TWO: (props: IconProps) => (
-    <IconWrapper {...props}>
+  HEADING_TWO: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <HeadingTwoIcon />
     </IconWrapper>
   ),
-  HEADING_THREE: (props: IconProps) => (
-    <IconWrapper {...props}>
+  HEADING_THREE: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <HeadingThreeIcon />
     </IconWrapper>
   ),
-  PARAGRAPH: (props: IconProps) => (
-    <IconWrapper {...props}>
+  PARAGRAPH: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ParagraphIcon />
     </IconWrapper>
   ),
-  PARAGRAPH_TWO: (props: IconProps) => (
-    <IconWrapper {...props}>
+  PARAGRAPH_TWO: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <ParagraphTwoIcon />
     </IconWrapper>
   ),
-  BULLETS: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BULLETS: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BulletsIcon />
     </IconWrapper>
   ),
-  DIVIDER_CAP_RIGHT: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DIVIDER_CAP_RIGHT: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DividerCapRightIcon />
     </IconWrapper>
   ),
-  DIVIDER_CAP_LEFT: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DIVIDER_CAP_LEFT: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DividerCapLeftIcon />
     </IconWrapper>
   ),
-  DIVIDER_CAP_ALL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  DIVIDER_CAP_ALL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <DividerCapAllIcon />
     </IconWrapper>
   ),
-  BIND_DATA_CONTROL: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BIND_DATA_CONTROL: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <TrendingFlat />
     </IconWrapper>
   ),
-  ICON_ALIGN_LEFT: (props: IconProps) => (
-    <IconWrapper {...props}>
+  ICON_ALIGN_LEFT: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <AlignLeftIcon />
     </IconWrapper>
   ),
-  ICON_ALIGN_RIGHT: (props: IconProps) => (
-    <IconWrapper {...props}>
+  ICON_ALIGN_RIGHT: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <AlignRightIcon />
     </IconWrapper>
   ),
-  BORDER_RADIUS_SHARP: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BORDER_RADIUS_SHARP: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BorderRadiusSharpIcon />
     </IconWrapper>
   ),
-  BORDER_RADIUS_ROUNDED: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BORDER_RADIUS_ROUNDED: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BorderRadiusRoundedIcon />
     </IconWrapper>
   ),
-  BORDER_RADIUS_CIRCLE: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BORDER_RADIUS_CIRCLE: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BorderRadiusCircleIcon />
     </IconWrapper>
   ),
-  BOX_SHADOW_NONE: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BOX_SHADOW_NONE: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BoxShadowNoneIcon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT1: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BOX_SHADOW_VARIANT1: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BoxShadowVariant1Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT2: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BOX_SHADOW_VARIANT2: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BoxShadowVariant2Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT3: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BOX_SHADOW_VARIANT3: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BoxShadowVariant3Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT4: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BOX_SHADOW_VARIANT4: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BoxShadowVariant4Icon />
     </IconWrapper>
   ),
-  BOX_SHADOW_VARIANT5: (props: IconProps) => (
-    <IconWrapper {...props}>
+  BOX_SHADOW_VARIANT5: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <BoxShadowVariant5Icon />
     </IconWrapper>
   ),
-  INCREASE_CONTROL_V2: (props: IconProps) => (
-    <IconWrapper {...props}>
+  INCREASE_CONTROL_V2: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <IncreaseV2Icon />
     </IconWrapper>
   ),
-  QUESTION: (props: IconProps) => (
-    <IconWrapper {...props}>
+  QUESTION: ({
+    background,
+    className,
+    color,
+    cursor,
+    disabled,
+    height,
+    keepColors,
+    onClick,
+    width,
+  }: IconProps) => (
+    <IconWrapper
+      background={background}
+      className={className}
+      color={color}
+      cursor={cursor}
+      disabled={disabled}
+      height={height}
+      keepColors={keepColors}
+      onClick={onClick}
+      width={width}
+    >
       <QuestionIcon />
     </IconWrapper>
   ),
