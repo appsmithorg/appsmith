@@ -33,7 +33,7 @@ export default {
       let currentItem = JSON.parse(JSON.stringify(item));
       const widgetKeys = Object.keys(currentItem);
 
-      for (var i = 0; i < widgetKeys.length; i++) {
+      for (let i = 0; i < widgetKeys.length; i++) {
         const currentWidgetName = widgetKeys[i];
         let currentWidget = currentItem[currentWidgetName];
         const filteredWidget = {};
@@ -130,11 +130,7 @@ export default {
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
-    if (_.isNaN(perPage)) {
-      return 0;
-    } else {
-      return _.floor(perPage);
-    }
+    return _.isNaN(perPage) ? 0 : _.floor(perPage);
   },
   //
   // this is just a patch for #7520

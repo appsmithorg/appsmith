@@ -42,7 +42,11 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import {
+  API_EDITOR_TAB_TITLES,
+  createMessage,
+  WIDGET_BIND_HELP,
+} from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
@@ -54,6 +58,7 @@ import { isEmpty } from "lodash";
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import ApiAuthentication from "./ApiAuthentication";
 
 const Form = styled.form`
   display: flex;
@@ -554,7 +559,7 @@ function ApiEditorForm(props: Props) {
                 tabs={[
                   {
                     key: "headers",
-                    title: "Headers",
+                    title: createMessage(API_EDITOR_TAB_TITLES.HEADERS),
                     count: headersCount,
                     panelComponent: (
                       <TabSection>
@@ -581,7 +586,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "params",
-                    title: "Params",
+                    title: createMessage(API_EDITOR_TAB_TITLES.PARAMS),
                     count: paramsCount,
                     panelComponent: (
                       <TabSection>
@@ -597,7 +602,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "body",
-                    title: "Body",
+                    title: createMessage(API_EDITOR_TAB_TITLES.BODY),
                     panelComponent: allowPostBody ? (
                       <PostBodyData
                         dataTreePath={`${actionName}.config`}
@@ -613,7 +618,7 @@ function ApiEditorForm(props: Props) {
                   },
                   {
                     key: "pagination",
-                    title: "Pagination",
+                    title: createMessage(API_EDITOR_TAB_TITLES.PAGINATION),
                     panelComponent: (
                       <Pagination
                         onTestClick={props.onRunClick}
@@ -623,8 +628,13 @@ function ApiEditorForm(props: Props) {
                     ),
                   },
                   {
+                    key: "authentication",
+                    title: createMessage(API_EDITOR_TAB_TITLES.AUTHENTICATION),
+                    panelComponent: <ApiAuthentication />,
+                  },
+                  {
                     key: "settings",
-                    title: "Settings",
+                    title: createMessage(API_EDITOR_TAB_TITLES.SETTINGS),
                     panelComponent: (
                       <SettingsWrapper>
                         <ActionSettings

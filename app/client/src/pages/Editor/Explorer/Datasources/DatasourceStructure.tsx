@@ -76,6 +76,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
           setActive(false);
         }
       }}
+      popoverClassName="t--structure-template-menu-popover"
       position={Position.RIGHT_TOP}
     >
       <StyledEntity

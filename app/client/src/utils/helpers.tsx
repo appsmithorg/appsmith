@@ -7,6 +7,8 @@ import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
   JAVASCRIPT_KEYWORDS,
+  WINDOW_OBJECT_METHODS,
+  WINDOW_OBJECT_PROPERTIES,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 import { set } from "lodash";
@@ -281,6 +283,8 @@ export const isNameValid = (
     name in JAVASCRIPT_KEYWORDS ||
     name in DATA_TREE_KEYWORDS ||
     name in GLOBAL_FUNCTIONS ||
+    name in WINDOW_OBJECT_PROPERTIES ||
+    name in WINDOW_OBJECT_METHODS ||
     name in invalidNames
   );
 };

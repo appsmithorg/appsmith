@@ -26,7 +26,6 @@ import { TourType } from "entities/Tour";
 import useProceedToNextTourStep, {
   useIsTourStepActive,
 } from "utils/hooks/useProceedToNextTourStep";
-import { getCommentsIntroSeen } from "utils/storage";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { AppState } from "reducers";
 import { APP_MODE } from "entities/App";
@@ -119,7 +118,6 @@ const useUpdateCommentMode = async (currentUser?: User) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
-
   const setCommentModeInStore = useCallback(
     (updatedIsCommentMode) =>
       dispatch(setCommentModeAction(updatedIsCommentMode)),
@@ -131,7 +129,6 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
     const searchParams = new URL(window.location.href).searchParams;
     const isCommentMode = searchParams.get("isCommentMode");
-    const isCommentsIntroSeen = await getCommentsIntroSeen();
     const updatedIsCommentMode = isCommentMode === "true";
 
     const notLoggedId = currentUser?.username === ANONYMOUS_USERNAME;
@@ -146,7 +143,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
       return;
     }
 
-    if (updatedIsCommentMode && !isCommentsIntroSeen) {
+    if (updatedIsCommentMode && !currentUser?.commentOnboardingState) {
       AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
       dispatch(showCommentsIntroCarousel());
       setCommentModeInUrl(false);
