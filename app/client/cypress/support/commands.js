@@ -2456,7 +2456,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
     .children()
-    .contains("No Action")
+    .contains("No action")
     .first()
     .click({ force: true })
     .selectOnClickOption("Show message")
@@ -2472,7 +2472,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // For Failure
   cy.get(".code-highlight")
     .children()
-    .contains("No Action")
+    .contains("No action")
     .last()
     .click({ force: true })
     .selectOnClickOption("Show message")
