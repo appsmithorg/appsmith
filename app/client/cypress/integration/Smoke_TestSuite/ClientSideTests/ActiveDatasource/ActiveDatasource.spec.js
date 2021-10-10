@@ -1,37 +1,36 @@
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 
+let datasourceName, actionName;
 describe("Google Sheet datasource test cases", function() {
-  let datasourceName;
-
-  it("Create a Google Sheet datasource", function() {
+  before(() => {
     cy.NavigateToDatasourceEditor();
     cy.get(datasourceEditor.googleSheets).click();
     cy.getPluginFormsAndCreateDatasource();
     cy.fillGoogleSheetsDatasourceForm();
-    cy.testSaveDatasource();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
-  });
-
-  it("Create a new query from the datasource editor", function() {
-    cy.NavigateToQueriesInExplorer();
+    cy.NavigateToApiEditor();
     cy.get(
       `${datasourceEditor.datasourceCard} ${datasourceEditor.createQuerty}`,
     )
       .last()
       .click();
-    cy.wait("@createNewApi").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-
-    cy.get(".t--queries-for-SAAS").each((el) => {
-      el.invoke("text").should("match", "/on this page/");
+    cy.wait("@createNewApi").then((httpResponse) => {
+      actionName = httpResponse.response.body.data.name;
     });
+    cy.NavigateToApiEditor();
+  });
 
+  it("Create a new query from the datasource editor", function() {
+    cy.get(
+      `.t--datasource-name:contains('${datasourceName}') .t--queries-for-SAAS`,
+    ).should("have.text", "1 query on this page");
+  });
+
+  after(() => {
+    cy.get(`.t--entity-name:contains('${actionName}')`).click();
     cy.get(queryEditor.queryMoreAction).click();
     cy.get(queryEditor.deleteUsingContext).click();
     cy.wait("@deleteAction").should(
