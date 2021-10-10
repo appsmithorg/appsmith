@@ -198,7 +198,6 @@ configure_supervisord
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs
 mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis}
 
 # Handle CMD command
