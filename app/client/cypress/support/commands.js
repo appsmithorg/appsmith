@@ -1573,7 +1573,7 @@ Cypress.Commands.add("addAction", (value) => {
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show Message")
+    .contains("Show message")
     .click();
   cy.enterActionValue(value);
 });
@@ -1584,7 +1584,7 @@ Cypress.Commands.add("onTableAction", (value, value1, value2) => {
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show Message")
+    .contains("Show message")
     .click();
   cy.testJsontext(value1, value2);
 });
@@ -1592,7 +1592,7 @@ Cypress.Commands.add("onTableAction", (value, value1, value2) => {
 Cypress.Commands.add("selectShowMsg", () => {
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show Message")
+    .contains("Show message")
     .click();
 });
 
@@ -1874,7 +1874,7 @@ Cypress.Commands.add(
       .first()
       .click({ force: true });
     cy.get(widgetsPage.menubar)
-      .contains("Show Message")
+      .contains("Show message")
       .click({ force: true });
 
     cy.get(alertcss)
@@ -2459,7 +2459,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .contains("No Action")
     .first()
     .click({ force: true })
-    .selectOnClickOption("Show Message")
+    .selectOnClickOption("Show message")
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .click()
     .type(forSuccess)
@@ -2475,7 +2475,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .contains("No Action")
     .last()
     .click({ force: true })
-    .selectOnClickOption("Show Message")
+    .selectOnClickOption("Show message")
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
