@@ -26,13 +26,13 @@ const logLevel : LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL || "debug") as L
 log.setLevel(logLevel);
 
 const MONGODB_URI = process.env.APPSMITH_MONGODB_URI
-if (MONGODB_URI == null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongodb")) {
+if (MONGODB_URI === null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongodb")) {
 	log.error("Please provide a valid value for `APPSMITH_MONGODB_URI`.")
 	process.exit(1)
 }
 
 const API_BASE_URL = process.env.APPSMITH_API_BASE_URL
-if (API_BASE_URL == null || API_BASE_URL === "") {
+if (API_BASE_URL === null || API_BASE_URL === "") {
 	log.error("Please provide a valid value for `APPSMITH_API_BASE_URL`.")
 	process.exit(1)
 }
@@ -349,7 +349,7 @@ async function watchMongoDB(io) {
 	});
 
 	process.on("exit", () => {
-		(commentChangeStream != null ? commentChangeStream.close() : Promise.bind(client).resolve())
+		(commentChangeStream !== null ? commentChangeStream.close() : Promise.bind(client).resolve())
 			.then(client.close.bind(client))
 			.finally("Fin")
 	})
