@@ -1133,7 +1133,7 @@ Cypress.Commands.add("AddActionWithModal", () => {
     .last()
     .click();
   cy.get(".single-select")
-    .contains("Open Modal")
+    .contains("Open modal")
     .click({ force: true });
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -1144,7 +1144,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(widgetsPage.actionSelect)
     .first()
     .click({ force: true });
-  cy.selectOnClickOption("Open Modal");
+  cy.selectOnClickOption("Open modal");
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
@@ -1891,7 +1891,7 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a Query")
+    .selectOnClickOption("Execute a query")
     .selectOnClickOption(QueryName);
 });
 
@@ -1899,7 +1899,7 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a Query")
+    .selectOnClickOption("Execute a query")
     .selectOnClickOption(ApiName);
 });
 
@@ -2372,7 +2372,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Execute a Query")
+    .contains("Execute a query")
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
@@ -2851,7 +2851,7 @@ Cypress.Commands.add("callApi", (apiname) => {
     .first()
     .click({ force: true });
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute a Query")
+    .contains("Execute a query")
     .click({ force: true });
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
