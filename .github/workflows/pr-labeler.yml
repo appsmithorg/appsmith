@@ -30,8 +30,7 @@ jobs:
           for changed_file in ${{ steps.files.outputs.all }}; do
             echo "Do something with this ${changed_file}."
           done
-          if: contains(${{ steps.files.outputs.all }}, 'cypress')
-            echo  "cypressfound"
+
       
 
 
