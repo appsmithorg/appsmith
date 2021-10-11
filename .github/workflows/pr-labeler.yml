@@ -20,13 +20,13 @@ jobs:
         with:
           files: |
              "app/client/**"
-      
-      - uses: mshick/add-pr-comment@v1
+             
+      - name: Verify Changed files
+        uses: mshick/add-pr-comment@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
-        run: |
-          message: |
-            Unable to find testcases in the PR
-          allow-repeats: true
+          if: steps.verify-changed-files.outputs.files_changed == 'true'
+            message:|
+              Unable to find testcases in the PR
+              allow-repeats:true
