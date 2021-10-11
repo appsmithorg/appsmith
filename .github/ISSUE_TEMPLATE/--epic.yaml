@@ -6,6 +6,7 @@ assignees:
 - Nikhil-Nandagopal
 body:
 - type: textarea
+  id: objective
   attributes:
     label: Objective
     description: Here you fill in the objective of the product/feature that you are writing about.
