@@ -416,11 +416,9 @@ class FilePickerWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
-    if (
-      prevProps.selectedFiles &&
-      prevProps.selectedFiles.length > 0 &&
-      this.props.selectedFiles === undefined
-    ) {
+    const { selectedFiles: previousSelectedFiles = [] } = prevProps;
+    const { selectedFiles = [] } = this.props;
+    if (previousSelectedFiles.length && selectedFiles.length === 0) {
       this.state.uppy.reset();
     } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
