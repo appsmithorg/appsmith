@@ -25,16 +25,6 @@ describe("Button Widget Functionality", function() {
   it("Button default variant validation", function() {
     // Checks whether the default variant is PRIMARY or not
     cy.get(widgetsPage.widgetBtn).should(
-      "have.css",
-      "background-color",
-      "rgb(3, 179, 101)",
-    );
-    cy.get(widgetsPage.widgetBtnText).should(
-      "have.css",
-      "color",
-      "rgb(255, 255, 255)",
-    );
-    cy.get(widgetsPage.widgetBtn).should(
       "have.attr",
       "data-test-variant",
       "PRIMARY",
