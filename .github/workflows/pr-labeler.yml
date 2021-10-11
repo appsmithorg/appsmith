@@ -29,6 +29,7 @@ jobs:
           for changed_file in ${{ steps.files.outputs.all }}; do
             echo "Do something with this ${changed_file}."
           done
+          echo FILE_LIST='${{ steps.files.outputs.all }}''>> $GITHUB_ENV
       
              
       - name: Verify Changed files and add comments
@@ -36,7 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          if: contains(steps.files.outputs.all ,'cypress') == true
+          if: contains(env.FILE_LIST,'cypress') == true
             message:|
               Unable to find testcases in the PR
               allow-repeats:true
