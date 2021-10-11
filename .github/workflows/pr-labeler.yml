@@ -37,7 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          if: contains(env.FILE_LIST,'cypress') == true
+          if:   contains(env.FILE_LIST, 'SomeString')
             message:|
               Unable to find testcases in the PR
               allow-repeats:true
