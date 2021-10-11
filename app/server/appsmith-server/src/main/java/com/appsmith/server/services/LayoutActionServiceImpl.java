@@ -761,9 +761,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         List<LayoutActionUpdateDTO> actionUpdates = new ArrayList<>();
         List<String> messages = new ArrayList<>();
 
-        Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(actionNames, pageId, edges,
-                        flatmapPageLoadActions, widgetDynamicBindingsMap);
+        Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
+                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions);
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
@@ -779,7 +778,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                 FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
                 // Now update the page layout with the page load actions and the graph.
                 .flatMap(tuple -> {
-                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT1();
+                    List<Set<DslActionDTO>> onLoadActions = tuple.getT1();
                     PageDTO page = tuple.getT2();
 
                     List<Layout> layoutList = page.getLayouts();

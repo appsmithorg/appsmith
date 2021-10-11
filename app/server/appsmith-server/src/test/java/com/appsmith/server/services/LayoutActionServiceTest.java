@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -1024,6 +1025,7 @@ public class LayoutActionServiceTest {
         actionConfiguration2.setHttpMethod(HttpMethod.GET);
         actionConfiguration2.setBody("{{ firstWidget.data }}");
         action2.setActionConfiguration(actionConfiguration2);
+        action2.setDynamicBindingPathList(List.of(new Property("body", null)));
         action2.setDatasource(datasource);
 
         JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {

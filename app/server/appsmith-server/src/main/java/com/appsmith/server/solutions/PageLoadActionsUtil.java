@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.NewActionService;
@@ -56,10 +57,11 @@ public class PageLoadActionsUtil {
     private final Pattern parentPattern = Pattern.compile(IMMEDIATE_PARENT_REGEX);
 
 
-    public Mono<List<Set<String>>> findAllOnLoadActions(String pageId,
-                                                        Set<String> widgetNames,
-                                                        Set<ActionDependencyEdge> edges,
-                                                        Map<String, Set<String>> widgetDynamicBindingsMap) {
+    public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId,
+                                                              Set<String> widgetNames,
+                                                              Set<ActionDependencyEdge> edges,
+                                                              Map<String, Set<String>> widgetDynamicBindingsMap,
+                                                              List<ActionDTO> flatmapPageLoadActions) {
 
         Set<String> possibleEntityNamesInDsl = new HashSet<>();
         Set<String> onPageLoadActionSet = new HashSet<>();
@@ -106,7 +108,7 @@ public class PageLoadActionsUtil {
                 .cache();
 
         // Generate on page load actions
-        Mono<List<Set<String>>> onPageLoadActionScheduleMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
+        Mono<List<Set<DslActionDTO>>> onPageLoadActionScheduleMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
                 .map(tuple -> {
                     Set<String> actionNames = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
@@ -137,17 +139,20 @@ public class PageLoadActionsUtil {
                     List<HashSet<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
                     Map<String, ActionDTO> actionMap = tuple.getT2();
 
-                    List<Set<String>> onPageLoadActions = new ArrayList<>();
+                    List<Set<DslActionDTO>> onPageLoadActions = new ArrayList<>();
 
                     for (Set<String> names : onPageLoadActionsSchedulingOrder) {
-                        Set<String> actionsInLevel = new HashSet<>();
+                        Set<DslActionDTO> actionsInLevel = new HashSet<>();
 
                         for (String name : names) {
                             ActionDTO action = actionMap.get(name);
+                            // TODO : Remove this check once JS actions on page load functionality has been
+                            //  implemented on the client side
                             if (PluginType.JS.equals(action.getPluginType())) {
                                 // trim out the JS actions in the on page load schedule
+                                onPageLoadActionSet.remove(name);
                             } else {
-                                actionsInLevel.add(name);
+                                actionsInLevel.add(getDslAction(action));
                             }
                         }
 
@@ -155,6 +160,15 @@ public class PageLoadActionsUtil {
                     }
 
                     return onPageLoadActions;
+                })
+                .zipWith(actionNameToActionMapMono)
+                // Now that we have the final on page load, also set the page load actions which need to be updated.
+                .map(tuple -> {
+                    Map<String, ActionDTO> actionMap = tuple.getT2();
+                    onPageLoadActionSet
+                            .stream()
+                            .forEach(actionName -> flatmapPageLoadActions.add(actionMap.get(actionName)));
+                    return tuple.getT1();
                 });
 
 
@@ -538,5 +552,21 @@ public class PageLoadActionsUtil {
         }
 
         return false;
+    }
+
+    private DslActionDTO getDslAction(ActionDTO actionDTO) {
+
+        DslActionDTO dslActionDTO = new DslActionDTO();
+
+        dslActionDTO.setId(actionDTO.getId());
+        dslActionDTO.setPluginType(actionDTO.getPluginType());
+        dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
+        dslActionDTO.setName(actionDTO.getValidName());
+
+        if (actionDTO.getActionConfiguration() != null) {
+            dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
+        }
+
+        return dslActionDTO;
     }
 }

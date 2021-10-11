@@ -940,14 +940,14 @@ public class DatabaseChangelog {
 
         for (Page page : pagesToFix) {
             for (Layout layout : page.getLayouts()) {
-                final ArrayList<HashSet<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
+                final ArrayList<Set<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
                 if (layout.getLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getLayoutOnLoadActions());
                 }
                 if (layout.getPublishedLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getPublishedLayoutOnLoadActions());
                 }
-                for (HashSet<DslActionDTO> actionSet : layoutOnLoadActions) {
+                for (Set<DslActionDTO> actionSet : layoutOnLoadActions) {
                     for (DslActionDTO actionDTO : actionSet) {
                         final String actionName = actionDTO.getName();
                         final Action action = mongoTemplate.findOne(
