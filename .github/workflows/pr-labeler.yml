@@ -34,6 +34,6 @@ jobs:
           if: contains('${{ steps.files.outputs.all }}', 'cypress')
             echo  "cypressfound"
             message:|
-              Unable to find testcases in the PR
+              Unable to find testcases in the PRasdas
       
 
