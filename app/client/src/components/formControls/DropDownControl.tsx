@@ -14,14 +14,6 @@ const DropdownSelect = styled.div`
   width: 50vh;
 `;
 
-const StyledInfo = styled.span`
-  font-weight: normal;
-  line-height: normal;
-  color: ${Colors.DOVE_GRAY};
-  font-size: 12px;
-  margin-left: 1px;
-`;
-
 const customSelectStyles = {
   option: (
     styles: { [x: string]: any },
@@ -49,7 +41,7 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, isRequired, label, options, subtitle } = this.props;
+    const { configProperty, options } = this.props;
 
     return (
       <div>

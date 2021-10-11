@@ -11,8 +11,8 @@ import {
   FormInputAnchor,
   FormInputErrorText,
   FormInfoText,
+  FormInputSwitchToJsonButton,
 } from "components/editorComponents/form/fields/FormInputField";
-// import FormLabel from "components/editorComponents/FormLabel";
 import { FormIcons } from "icons/FormIcons";
 
 interface FormControlProps {
@@ -97,6 +97,7 @@ export default FormControl;
 
 function renderFormConfigTop(props: { config: ControlProps }) {
   const {
+    displayType,
     encrypted,
     isRequired,
     label,
@@ -129,6 +130,11 @@ function renderFormConfigTop(props: { config: ControlProps }) {
         <FormInputAnchor href={url} target="_blank">
           {urlText}
         </FormInputAnchor>
+      )}
+      {displayType && (
+        <FormInputSwitchToJsonButton type="button">
+          {displayType === "JSON" ? "SWITCH TO GUI" : "SWITCH TO JSON EDITOR"}
+        </FormInputSwitchToJsonButton>
       )}
     </React.Fragment>
   );

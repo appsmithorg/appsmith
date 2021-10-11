@@ -92,7 +92,10 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
           );
         }
         return (
-          <FormRowWithLabel key={index}>
+          <FormRowWithLabel
+            key={index}
+            style={{ marginTop: index > 0 ? "16px" : "0px" }}
+          >
             <div style={{ width: "50vh" }}>
               <TextField
                 name={`${field}.${keyName[1]}`}
@@ -120,8 +123,6 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
                       iconSize={20}
                       onClick={() => {
                         props.fields.push({ key: "", value: "" });
-                        /* eslint-disable no-console */
-                        // console.log("rai", props.fields.getAll());
                       }}
                       style={{ alignSelf: "center" }}
                     />

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { ControlProps } from "components/formControls/BaseControl";
-import { BaseFieldProps } from "redux-form";
+
 //Styled help text, intended to be used with Form Fields
 export const StyledFormInfo = styled.span`
   font-weight: normal;
@@ -40,10 +40,23 @@ const FormInputAnchor = styled.a`
   font-size: 12px;
   line-height: 14px;
   letter-spacing: 0.8px;
-  text-transform: uppercase;
   color: #6a86ce;
   margin: 0 0 8px 0;
   text-transform: uppercase;
+`;
+const FormInputSwitchToJsonButton = styled.button`
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 14px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #6a86ce;
+  margin: 0 0 8px 0;
+  border: none;
+  padding-left: 0px;
+  display: block;
+  cursor: pointer;
+  background-color: #fff;
 `;
 
 //Styled form label tag, intended to be used with Form Fields
@@ -81,36 +94,6 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   }
 `;
 
-//Styled input tag
-const StyledInput = styled.input`
-  padding: 8px 12px 9px;
-  background-color: #fff;
-  width: 100%;
-  border: 1.2px solid #e0dede;
-  height: 36px;
-  margin: 0px;
-  &.error {
-    background-color: #ffe9e9;
-    color: #f22b2b;
-    border-color: #f22b2b;
-  }
-  &:disabled {
-    background-color: #f0f0f0;
-    color: #716e6e;
-    border-color: #f0f0f0;
-  }
-`;
-
-export interface FormInputProps extends BaseFieldProps {
-  autoFocus?: boolean;
-  disabled?: boolean;
-  placeholder: string | undefined;
-  type?: string | undefined;
-  value?: string;
-  className?: string;
-  showError?: boolean;
-}
-
 interface FormLabelProps {
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
@@ -129,6 +112,7 @@ function FormInfoText(props: FormLabelProps) {
 }
 
 export {
+  FormInputSwitchToJsonButton,
   FormLabel,
   FormInputAnchor,
   FormInputErrorText,
