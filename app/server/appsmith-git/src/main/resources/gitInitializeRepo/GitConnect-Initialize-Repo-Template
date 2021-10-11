@@ -1,0 +1,33 @@
+<p align="center">
+<img width="100%" alt="MVC-Github-Readme" src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/static/appsmith_logo_primary.png" width="320px">
+</p>
+<p align="center">
+This app is built using Appsmith. Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
+</p>
+<br />
+<br />
+<p align="center">
+<img  src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/static/images/integrations.png" width="320px">
+</p>
+<br/>
+<h3 align="center">
+  <b><a href="https://github.com/appsmithorg/appsmith">Github </a></b>
+  •
+  <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Docs</a>
+  •
+  <a href="https://community.appsmith.com/">Community</a>
+  •
+  <a href="https://github.com/appsmithorg/appsmith/tree/update/readme#tutorials">Tutorials</a>
+  •
+  <a href="https://www.youtube.com/appsmith">Youtube</a>
+  •
+  <a href="https://discord.gg/rBTTVJp">Discord</a>
+  </h3>
+
+
+  <h5 >You can visit the application using the below link</h5>
+  <h6 >
+  
+  View - {{viewModeUrl}} </br></br>
+  Edit - {{editModeUrl}}
+  </h6>

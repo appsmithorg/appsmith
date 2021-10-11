@@ -2,7 +2,9 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import io.sentry.protocol.App;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,7 +34,21 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> getApplicationInViewMode(String applicationId);
 
+    Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName);
+
     Mono<Application> saveLastEditInformation(String applicationId);
 
-    Mono<String> generateSshKeyPair(String applicationId);
+    Mono<Application> setTransientFields(Application application);
+
+    Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId);
+
+    Mono<GitAuth> getSshKey(String applicationId);
+
+    Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
+                                                                      String defaultApplicationId,
+                                                                      AclPermission aclPermission);
+
+    Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
+
+    Flux<Application> findAllApplicationsByGitDefaultApplicationId(String defaultApplicationId);
 }

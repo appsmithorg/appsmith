@@ -1,7 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.GitConfig;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;

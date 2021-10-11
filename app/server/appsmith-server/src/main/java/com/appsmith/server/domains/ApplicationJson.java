@@ -24,9 +24,9 @@ public class ApplicationJson {
     List<NewPage> pageList;
 
     String publishedDefaultPageName;
-
+    
     String unpublishedDefaultPageName;
-
+    
     List<NewAction> actionList;
 
     List<ActionCollection> actionCollectionList;

@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -37,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 
 @Service
@@ -293,6 +295,16 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     applicationPagesDTO.setPages(nameIdDTOList);
                     return applicationPagesDTO;
                 });
+    }
+
+    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String defaultApplicationId,
+                                                                                    String branchName,
+                                                                                    Boolean view) {
+        if (StringUtils.isEmpty(branchName)) {
+            return findApplicationPagesByApplicationIdAndViewMode(defaultApplicationId, view);
+        }
+        return applicationService.getChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+            .flatMap(childApplicationId -> findApplicationPagesByApplicationIdAndViewMode(childApplicationId, view));
     }
 
     @Override
