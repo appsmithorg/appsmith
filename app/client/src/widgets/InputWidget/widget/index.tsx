@@ -671,7 +671,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   getPageView() {
     const value = this.props.text ?? "";
     let isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+      "isValid" in this.props &&
+      !this.props.isValid &&
+      (!!this.props.defaultText || !!this.props.isDirty);
     const currencyCountryCode = this.props.selectedCurrencyCountryCode
       ? this.props.selectedCurrencyCountryCode
       : this.props.currencyCountryCode;
