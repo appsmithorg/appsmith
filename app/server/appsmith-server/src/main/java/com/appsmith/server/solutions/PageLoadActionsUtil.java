@@ -58,6 +58,10 @@ public class PageLoadActionsUtil {
     private final String IMMEDIATE_PARENT_REGEX = "^(.*)(\\..*|\\[.*\\])$";
     private final Pattern parentPattern = Pattern.compile(IMMEDIATE_PARENT_REGEX);
 
+    // TODO : This should contain all the static global variables present on the page like `appsmith`, etc.
+    // TODO : Add all the global variables exposed on the client side.
+    private final Set<String> APPSMITH_GLOBAL_VARIABLES = Set.of();
+
 
     /**
      * This function computes the sequenced on page load actions.
@@ -105,7 +109,8 @@ public class PageLoadActionsUtil {
                 .collectMap(
                         ActionDTO::getValidName,
                         action -> action
-                );
+                )
+                .cache();
 
         Mono<Set<String>> actionsInPageMono = allActionsByPageIdMono
                 .map(action -> action.getValidName())
@@ -137,8 +142,8 @@ public class PageLoadActionsUtil {
                 .map(allActions -> constructDAG(allActions, widgetNames, edges))
                 .cache();
 
-        // Generate on page load actions
-        Mono<List<Set<DslActionDTO>>> computePageLoadActionScheduleMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
+        // Generate on page load schedule
+        Mono<List<HashSet<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
                 .map(tuple -> {
                     Set<String> actionNames = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
@@ -169,8 +174,12 @@ public class PageLoadActionsUtil {
                     }
 
                     return onPageLoadActionsSchedulingOrder;
-                })
-                .zipWith(actionNameToActionMapMono)
+                });
+
+
+        // Transform the schedule order into client feasible DTO
+        Mono<List<Set<DslActionDTO>>> computeCompletePageLoadActionScheduleMono =
+                Mono.zip(computeOnPageLoadScheduleNamesMono, actionNameToActionMapMono)
                 .map(tuple -> {
                     List<HashSet<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
                     Map<String, ActionDTO> actionMap = tuple.getT2();
@@ -197,19 +206,24 @@ public class PageLoadActionsUtil {
 
                     return onPageLoadActions;
                 })
-                .zipWith(actionNameToActionMapMono)
-                // Now that we have the final on page load, also set the page load actions which need to be updated.
-                .map(tuple -> {
-                    Map<String, ActionDTO> actionMap = tuple.getT2();
+                .cache();
+
+
+        // With the final on page load scheduling order, also set the on page load actions which would be updated
+        // by the caller function
+        Mono<List<ActionDTO>> flatPageLoadActionsMono = computeCompletePageLoadActionScheduleMono
+                .then(actionNameToActionMapMono)
+                .map(actionMap -> {
                     onPageLoadActionSet
                             .stream()
                             .forEach(actionName -> flatPageLoadActions.add(actionMap.get(actionName)));
-                    return tuple.getT1();
+                    return flatPageLoadActions;
                 });
 
         return createAllEdgesForPageMono
                 .then(createGraphMono)
-                .then(computePageLoadActionScheduleMono);
+                .then(flatPageLoadActionsMono)
+                .then(computeCompletePageLoadActionScheduleMono);
 
     }
 
@@ -235,15 +249,14 @@ public class PageLoadActionsUtil {
                     AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
 
                     // Assert that the vertices which are entire property paths have a possible parent which is either
-                    // an action or a widget.
-                    // TODO : Add a static set of global variables exposed on the client side and check for the same below.
+                    // an action or a widget or a static variable provided by appsmith at page/application level.
                     vertices
                             .stream()
                             .forEach(vertex -> {
                                 Optional<String> validEntity = getPossibleParents(vertex)
                                         .stream()
                                         .filter(parent -> {
-                                            if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
+                                            if (!actionNames.contains(parent) && !widgetNames.contains(parent) && !APPSMITH_GLOBAL_VARIABLES.contains(parent)) {
                                                 return false;
                                             }
                                             return true;
@@ -299,6 +312,18 @@ public class PageLoadActionsUtil {
         return actionSchedulingGraph;
     }
 
+    /**
+     * This function takes a Directed Acyclic Graph and computes on page load actions. The final results is a list of set
+     * of actions. The set contains all the independent actions which can be executed in parallel. The List represents
+     * dependencies. The 0th index set contains actions which are executable immediately. The next index contains all
+     * actions which depend on one or more of the actions which were executed from the 0th index set and so on.
+     * Breadth First level by level traversal is used to compute each set of such independent actions.
+     * @param dag : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     * @param onPageLoadActionSet
+     * @param actionNames : All the action names for the page
+     * @param actionNameToActionMap : Map indexed by the action name for all the actions in the page.
+     * @return
+     */
     private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
                                                                           Set<String> onPageLoadActionSet,
                                                                           Set<String> actionNames,
@@ -415,10 +440,12 @@ public class PageLoadActionsUtil {
         actionBindingMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
         if (!allBindings.containsAll(action.getJsonPathKeys())) {
+            Set<String> invalidBindings = new HashSet<>(action.getJsonPathKeys());
+            invalidBindings.removeAll(allBindings);
             log.error("Invalid dynamic binding pathlist for action id {}. Not taking the following bindings in " +
                             "consideration for computing on page load actions : {}",
                     action.getId(),
-                    action.getJsonPathKeys().removeAll(allBindings));
+                    invalidBindings);
         }
 
         Set<String> bindingPaths = actionBindingMap.keySet();
@@ -518,10 +545,18 @@ public class PageLoadActionsUtil {
                 // Only extract mustache keys from leaf nodes
                 if (isLeafNode) {
 
+                    Boolean isBindingPresentInString = MustacheHelper.laxIsBindingPresentInString((String) parent);
                     // We found the path. But if the path has mustache bindings, record the same in the map
-                    if (MustacheHelper.laxIsBindingPresentInString((String) parent)) {
+                    // In case
+                    if (isBindingPresentInString || PluginType.JS.equals(action.getPluginType())) {
+                        Set<String> mustacheKeysFromFields;
                         // Stricter extraction of dynamic bindings
-                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                        if (isBindingPresentInString) {
+                            mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                        } else {
+                            // this must be a JS function. No need to extract mustache. The entire string is JS body
+                            mustacheKeysFromFields = Set.of((String) parent);
+                        }
 
                         String completePath = action.getValidName() + ".actionConfiguration." + fieldPath;
                         if (completePathToDynamicBindingMap.containsKey(completePath)) {

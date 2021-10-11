@@ -1,10 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
@@ -301,10 +302,9 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.getActionConfiguration().setBody(
                             "this won't be auto-executed: {{aPostSecondaryAction.data}}, but this one will be: {{aPostTertiaryAction.data}}.");
-                    action.setJsonPathKeys(Set.of("aPostSecondaryAction.data", "aPostTertiaryAction.data"));
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     monos.add(layoutActionService.createSingleAction(action));
 
                     // User has set this action to NOT run on page load
@@ -315,8 +315,6 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    action.setExecuteOnLoad(false);
-                    action.setUserSetOnLoad(true);
                     monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
@@ -324,7 +322,6 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -340,7 +337,6 @@ public class LayoutServiceTest {
                     action.setName("aDBAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
                     monos.add(layoutActionService.createSingleAction(action));
@@ -349,7 +345,6 @@ public class LayoutServiceTest {
                     action.setName("anotherDBAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
                     monos.add(layoutActionService.createSingleAction(action));
@@ -358,7 +353,6 @@ public class LayoutServiceTest {
                     action.setName("aTableAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
                     monos.add(layoutActionService.createSingleAction(action));
@@ -380,14 +374,13 @@ public class LayoutServiceTest {
                     action.setName("asyncCollectionAction1");
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithoutCall");
                     final ActionConfiguration ac1 = new ActionConfiguration();
-                    ac1.setBody("{{hiddenAction1.data}}");
-                    action.setJsonPathKeys(Set.of("hiddenAction1.data"));
+                    ac1.setBody("hiddenAction1.data");
                     ac1.setIsAsync(true);
                     action.setActionConfiguration(ac1);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
@@ -401,14 +394,13 @@ public class LayoutServiceTest {
                     action.setName("syncCollectionAction1");
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithoutCall");
                     final ActionConfiguration ac2 = new ActionConfiguration();
-                    ac2.setBody("{{hiddenAction2.data}}");
-                    action.setJsonPathKeys(Set.of("hiddenAction2.data"));
+                    ac2.setBody("hiddenAction2.data");
                     ac2.setIsAsync(false);
                     action.setActionConfiguration(ac2);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
@@ -421,14 +413,13 @@ public class LayoutServiceTest {
                     action = new ActionDTO();
                     action.setName("asyncCollectionAction2");
                     action.setFullyQualifiedName("Collection.anAsyncCollectionActionWithCall");
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     final ActionConfiguration ac3 = new ActionConfiguration();
-                    ac3.setBody("{{hiddenAction3.data}}");
-                    action.setJsonPathKeys(Set.of("hiddenAction3.data"));
+                    ac3.setBody("hiddenAction3.data");
                     ac3.setIsAsync(true);
                     action.setActionConfiguration(ac3);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
                     monos.add(layoutActionService.createSingleAction(action));
 
@@ -443,14 +434,13 @@ public class LayoutServiceTest {
                     action.setName("syncCollectionAction2");
                     action.setFullyQualifiedName("Collection.aSyncCollectionActionWithCall");
                     final ActionConfiguration ac4 = new ActionConfiguration();
-                    ac4.setBody("{{hiddenAction4.data}}");
-                    action.setJsonPathKeys(Set.of("hiddenAction4.data"));
+                    ac4.setBody("hiddenAction4.data");
                     ac4.setIsAsync(false);
                     action.setActionConfiguration(ac4);
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
-//                    action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
+                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     monos.add(layoutActionService.createSingleAction(action));
 
                     return Mono.zip(monos, objects -> page1);
