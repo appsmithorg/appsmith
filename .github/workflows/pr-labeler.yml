@@ -23,14 +23,11 @@ jobs:
             **Hello**
             allow-repeats:true
       
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v10
-
-      - name: List all modified files
-        run: |
-          for file in "${{ steps.changed-files.outputs.all_modified_files }}"; do
-            echo "$file was modified"
+      - id: files
+        uses: jitterbit/get-changed-files@v1
+      - run: |
+          for changed_file in ${{ steps.files.outputs.all }}; do
+            echo "Do something with this ${changed_file}."
           done
       
              
