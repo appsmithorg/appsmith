@@ -285,7 +285,11 @@ class DatePickerComponent extends React.Component<
         return;
       }
       // close on select
-      this.setState({ showPicker: !closeOnSelection });
+      const showPicker =
+        this.pickerRef && this.pickerRef.contains(e.target)
+          ? !closeOnSelection
+          : false;
+      this.setState({ showPicker });
     } catch (error) {
       this.setState({ showPicker: false });
     }
