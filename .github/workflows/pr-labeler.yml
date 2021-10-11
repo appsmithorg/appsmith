@@ -20,6 +20,14 @@ jobs:
         with:
           files: |
              "app/client/**"
+
+      - name: Addcomment
+        uses: mshick/add-pr-comment@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          message: |
+            **Hello**
              
       - name: Verify Changed files
         uses: mshick/add-pr-comment@v1
