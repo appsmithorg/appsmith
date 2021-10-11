@@ -12,7 +12,7 @@ import {
   FormInputErrorText,
   FormInfoText,
   FormInputSwitchToJsonButton,
-} from "components/editorComponents/form/fields/FormInputField";
+} from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 
 interface FormControlProps {
