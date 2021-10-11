@@ -22,7 +22,7 @@ describe("Button Widget Functionality", function() {
     cy.changeButtonColor("rgb(255, 0, 0)");
   });
 
-  it.only("Button default variant validation", function() {
+  it("Button default variant validation", function() {
     // Checks whether the default variant is PRIMARY or not
     cy.get(widgetsPage.widgetBtn).should(
       "have.css",
