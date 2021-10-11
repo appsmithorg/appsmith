@@ -26,6 +26,10 @@ enum KEYS {
   Escape = "Escape",
 }
 
+enum Events {
+  Keydown,
+}
+
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
@@ -183,6 +187,7 @@ class DatePickerComponent extends React.Component<
                 isOpen: this.state.showPicker,
                 onClose: this.closePicker,
                 popoverRef: this.handlePopoverRef,
+                canEscapeKeyClose: true,
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
@@ -272,23 +277,26 @@ class DatePickerComponent extends React.Component<
   closePicker = (e: any) => {
     const { closeOnSelection } = this.props;
     try {
-      // close the picker when escape key and tab key is pressed
-      if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
-        this.setState({ showPicker: false });
+      //close if escape key was press
+      if (e.key === KEYS.Escape) {
+        this.setState({
+          showPicker: false,
+        });
         return;
       }
-      // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
-      const showPicker =
-        this.pickerRef && this.pickerRef.contains(e.target)
-          ? !closeOnSelection
-          : false;
-      this.setState({ showPicker });
+      // close on select
+      this.setState({ showPicker: !closeOnSelection });
     } catch (error) {
       this.setState({ showPicker: false });
     }
   };
   handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    this.closePicker(e);
+    // close the picker when escape key and tab key is pressed
+    if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
+      this.setState({
+        showPicker: false,
+      });
+    }
   };
 }
 
