@@ -363,7 +363,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorBlur = () => {
-    console.error("Inside blur");
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
