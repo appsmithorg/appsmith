@@ -29,7 +29,7 @@ jobs:
           for changed_file in ${{ steps.files.outputs.all }}; do
             echo "Do something with this ${changed_file}."
           done
-          echo FILE_LIST='${{ steps.files.outputs.all }}'>> $GITHUB_ENV
+          echo FILE_LIST='${{ steps.files.outputs.all }}' >> $GITHUB_ENV
       
              
       - name: Verify Changed files and add comments
