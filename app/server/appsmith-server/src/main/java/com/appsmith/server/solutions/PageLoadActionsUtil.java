@@ -64,7 +64,8 @@ public class PageLoadActionsUtil {
                                                               Set<String> widgetNames,
                                                               Set<ActionDependencyEdge> edges,
                                                               Map<String, Set<String>> widgetDynamicBindingsMap,
-                                                              List<ActionDTO> flatmapPageLoadActions) {
+                                                              List<ActionDTO> flatmapPageLoadActions,
+                                                              Set<String> actionsUsedInDSL) {
 
         Set<String> possibleEntityNamesInDsl = new HashSet<>();
         Set<String> onPageLoadActionSet = new HashSet<>();
@@ -99,6 +100,7 @@ public class PageLoadActionsUtil {
                 // Add dependencies of the actions found in the DSL in the graph.
                 .map(action -> {
                     // This action is directly referenced in the DSL. This action is an ideal candidate for on page load
+                    actionsUsedInDSL.add(action.getValidName());
                     extractAndSetActionBindingsInGraphEdges(edges, action, bindingsFromActions, actionsFoundDuringWalk);
                     return action;
                 })

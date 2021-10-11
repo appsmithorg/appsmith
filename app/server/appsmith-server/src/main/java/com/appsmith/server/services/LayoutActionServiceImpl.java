@@ -763,7 +763,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         List<String> messages = new ArrayList<>();
 
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions);
+                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL);
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
