@@ -804,7 +804,7 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                 },
                 {
@@ -970,7 +970,7 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
