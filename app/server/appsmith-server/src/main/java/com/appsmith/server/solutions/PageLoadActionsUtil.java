@@ -137,6 +137,12 @@ public class PageLoadActionsUtil {
                     // of actions set since no relationships were found with any other appsmith entity
                     if (!pageLoadActionNames.isEmpty()) {
                         onPageLoadActionSet.addAll(explicitUserSetOnLoadActions);
+
+                        // In case there are no page load actions, initialize the 0th set of page load actions list.
+                        if (onPageLoadActionsSchedulingOrder.isEmpty()) {
+                            onPageLoadActionsSchedulingOrder.add(new HashSet<>());
+                        }
+
                         onPageLoadActionsSchedulingOrder.get(0).addAll(explicitUserSetOnLoadActions);
                     }
 
