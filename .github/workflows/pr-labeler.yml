@@ -23,7 +23,7 @@ jobs:
             **Hello**
             allow-repeats:true
       
-       - name: Hello world action step
+      - name: Hello world action step
         uses: BusseBu/comment-on-push@master
         with:
           pattern: ^post-review fixes$
