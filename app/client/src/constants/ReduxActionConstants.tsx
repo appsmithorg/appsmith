@@ -11,6 +11,7 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  UPDATE_BRANCH_LOCALLY: "UPDATE_BRANCH_LOCALLY",
   FETCH_BRANCHES_INIT: "FETCH_BRANCHES_INIT",
   FETCH_BRANCHES_SUCCESS: "FETCH_BRANCHES_SUCCESS",
   APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS:
@@ -897,5 +898,5 @@ export interface LoadWidgetSidebarPayload {
 export type InitializeEditorPayload = {
   applicationId: string;
   pageId: string;
-  branchName?: string;
+  branch?: string;
 };

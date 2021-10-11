@@ -20,11 +20,15 @@ import {
 } from "selectors/editorSelectors";
 import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
-const getRecentEntitiesKey = (applicationId: string) => applicationId;
+const getRecentEntitiesKey = (applicationId: string, branch?: string) =>
+  branch ? `${applicationId}-${branch}` : applicationId;
 
 export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
   try {
+    const branch = yield select(getCurrentGitBranch);
+
     const applicationId = yield select(getCurrentApplicationId);
 
     const recentEntitiesRestored = yield select(
@@ -65,7 +69,7 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
       yield call(
         setRecentAppEntities,
         recentEntities,
-        getRecentEntitiesKey(applicationId),
+        getRecentEntitiesKey(applicationId, branch),
       );
     }
   } catch (e) {
@@ -74,14 +78,14 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
 }
 
 export function* restoreRecentEntities(
-  actionPayload: ReduxAction<{ applicationId: string }>,
+  actionPayload: ReduxAction<{ applicationId: string; branch?: string }>,
 ) {
   const {
-    payload: { applicationId },
+    payload: { applicationId, branch },
   } = actionPayload;
   const recentAppEntities = yield call(
     fetchRecentAppEntities,
-    getRecentEntitiesKey(applicationId),
+    getRecentEntitiesKey(applicationId, branch),
   );
   yield putResolve(setRecentEntities(recentAppEntities));
   yield put(restoreRecentEntitiesSuccess());

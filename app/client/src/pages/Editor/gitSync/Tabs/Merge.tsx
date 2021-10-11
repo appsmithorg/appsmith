@@ -32,11 +32,11 @@ const listOfBranchesExceptCurrentBranch = [
 
 export default function Merge() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const currentBranchName = gitMetaData?.branchName;
+  const currentBranch = gitMetaData?.branchName;
 
   const currentBranchDropdownOption = {
-    label: currentBranchName || "",
-    value: currentBranchName || "",
+    label: currentBranch || "",
+    value: currentBranch || "",
   };
 
   return (

@@ -190,7 +190,7 @@ export function* createActionSaga(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, branchName } = action.payload;
+  const { applicationId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
@@ -198,7 +198,6 @@ export function* fetchActionsSaga(
   try {
     const response: GenericApiResponse<Action[]> = yield ActionAPI.fetchActions(
       applicationId,
-      branchName,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -226,7 +225,7 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId, branchName } = action.payload;
+  const { applicationId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
@@ -234,7 +233,6 @@ export function* fetchActionsForViewModeSaga(
   try {
     const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
-      branchName,
     );
     const correctFormatResponse = response.data.map((action) => {
       return {

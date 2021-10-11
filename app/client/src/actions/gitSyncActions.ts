@@ -66,22 +66,22 @@ export const connectToGitSuccess = (payload: ConnectToGitResponse) => ({
   payload,
 });
 
-export const switchGitBranchInit = (branchName: string) => ({
+export const switchGitBranchInit = (branch: string) => ({
   type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
-  payload: branchName,
+  payload: branch,
 });
 
 export const createNewBranchInit = ({
-  branchName,
+  branch,
   onErrorCallback,
   onSuccessCallback,
 }: {
-  branchName: string;
+  branch: string;
   onSuccessCallback: () => void;
   onErrorCallback: () => void;
 }) => ({
   type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
-  payload: branchName,
+  payload: branch,
   onErrorCallback,
   onSuccessCallback,
 });
@@ -148,5 +148,10 @@ export const fetchLocalGitConfigInit = () => ({
 
 export const fetchLocalGitConfigSuccess = (payload: GitConfig) => ({
   type: ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+export const updateBranchLocally = (payload?: string) => ({
+  type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
   payload,
 });

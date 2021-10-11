@@ -1,5 +1,3 @@
-import { APP_MODE } from "entities/App";
-
 const { compile, match } = require("path-to-regexp");
 
 import { getQueryParamsObject } from "utils/helpers";
@@ -79,9 +77,10 @@ export const extractAppIdAndPageIdFromUrl = (url = "") => {
 
 export const compileBuilderUrl = compile(BUILDER_URL);
 
-export const getDefaultPathForBranch = (params: any, mode?: APP_MODE) => {
-  const modeDependentPath = mode === APP_MODE.PUBLISHED ? "" : "/edit";
-  return `/applications/${params.applicationId}${modeDependentPath}?${GIT_BRANCH_QUERY_KEY}=${params.branchName}`;
+export const addBranchParam = (branch: string) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set(GIT_BRANCH_QUERY_KEY, branch);
+  return url.toString().slice(url.origin.length);
 };
 
 export type BuilderRouteParams = {

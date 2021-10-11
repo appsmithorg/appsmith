@@ -56,8 +56,10 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
+import { updateBranchLocally } from "actions/gitSyncActions";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -97,16 +99,16 @@ function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
   yield put(resetEditorSuccess());
-  const { applicationId, branchName, pageId } = initializeEditorAction.payload;
+  const { applicationId, branch, pageId } = initializeEditorAction.payload;
   try {
+    yield put(updateBranchLocally(branch));
+
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
     yield put(setAppMode(APP_MODE.EDIT));
     yield put(
-      updateAppPersistentStore(
-        getPersistentAppStore(applicationId, branchName),
-      ),
+      updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
     );
     yield put({ type: ReduxActionTypes.START_EVALUATION });
 
@@ -114,7 +116,6 @@ function* initializeEditorSaga(
       fetchApplication({
         payload: {
           applicationId,
-          branchName,
           mode: APP_MODE.EDIT,
         },
       }),
@@ -160,7 +161,7 @@ function* initializeEditorSaga(
     }
 
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollections({ applicationId, branchName })],
+      [fetchJSCollections({ applicationId })],
       [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
@@ -189,7 +190,7 @@ function* initializeEditorSaga(
     if (!pluginFormCall) return;
 
     const actionsCall = yield failFastApiCalls(
-      [fetchActions({ applicationId, branchName }, [executePageLoadActions()])],
+      [fetchActions({ applicationId }, [executePageLoadActions()])],
       [ReduxActionTypes.FETCH_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR],
     );
@@ -198,10 +199,12 @@ function* initializeEditorSaga(
     const currentApplication = yield select(getCurrentApplication);
     const appName = currentApplication ? currentApplication.name : "";
     const appId = currentApplication ? currentApplication.id : "";
+    const branchInStore = yield select(getCurrentGitBranch);
 
     yield put(
       restoreRecentEntitiesRequest({
         applicationId: appId,
+        branch: branchInStore,
       }),
     );
 
@@ -230,6 +233,11 @@ function* initializeEditorSaga(
 
       history.replace(pathname);
     }
+
+    // add branch query to path
+    if (branchInStore) {
+      history.replace(addBranchParam(branchInStore));
+    }
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
@@ -246,17 +254,20 @@ function* initializeEditorSaga(
 export function* initializeAppViewerSaga(
   action: ReduxAction<{
     applicationId: string;
-    branchName: string;
+    branch: string;
     pageId: string;
   }>,
 ) {
-  const { applicationId, branchName, pageId } = action.payload;
+  const { applicationId, branch, pageId } = action.payload;
+
+  yield put(updateBranchLocally(branch));
+
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(
-    updateAppPersistentStore(getPersistentAppStore(applicationId, branchName)),
+    updateAppPersistentStore(getPersistentAppStore(applicationId, branch)),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
 
@@ -264,17 +275,15 @@ export function* initializeAppViewerSaga(
     put(
       fetchJSCollectionsForView({
         applicationId,
-        branchName,
       }),
     ),
     // TODO (hetu) Remove spl view call for fetch actions
-    put(fetchActionsForView({ applicationId, branchName })),
-    put(fetchPageList({ applicationId, branchName }, APP_MODE.PUBLISHED)),
+    put(fetchActionsForView({ applicationId })),
+    put(fetchPageList({ applicationId }, APP_MODE.PUBLISHED)),
     put(
       fetchApplication({
         payload: {
           applicationId,
-          branchName,
           mode: APP_MODE.PUBLISHED,
         },
       }),

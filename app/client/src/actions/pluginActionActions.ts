@@ -26,30 +26,27 @@ export const createActionSuccess = (payload: Action) => {
 
 export type FetchActionsPayload = {
   applicationId: string;
-  branchName?: string;
 };
 
 export const fetchActions = (
-  { applicationId, branchName }: { applicationId: string; branchName?: string },
+  { applicationId }: { applicationId: string },
   postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload: { applicationId, branchName },
+    payload: { applicationId },
     postEvalActions,
   };
 };
 
 export const fetchActionsForView = ({
   applicationId,
-  branchName,
 }: {
   applicationId: string;
-  branchName?: string;
 }): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId, branchName },
+    payload: { applicationId },
   };
 };
 

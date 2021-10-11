@@ -21,7 +21,6 @@ import {
 
 export interface FetchPageListPayload {
   applicationId: string;
-  branchName?: string;
   mode: APP_MODE;
 }
 
@@ -40,10 +39,8 @@ export interface CreatePageActionPayload {
 export const fetchPageList = (
   {
     applicationId,
-    branchName,
   }: {
     applicationId: string;
-    branchName?: string;
   },
   mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
@@ -51,7 +48,6 @@ export const fetchPageList = (
     type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
     payload: {
       applicationId,
-      branchName,
       mode,
     },
   };

@@ -45,16 +45,11 @@ import {
   collabStartSharingPointerEvent,
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
-import { debug } from "loglevel";
 
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
-  initEditor: (
-    applicationId: string,
-    pageId: string,
-    branchName?: string,
-  ) => void;
+  initEditor: (applicationId: string, pageId: string, branch?: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
@@ -67,7 +62,7 @@ type EditorProps = {
   handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
-  handleBranchChange: (branchName: string) => void;
+  handleBranchChange: (branch: string) => void;
   currentPageId?: string;
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
@@ -185,8 +180,6 @@ class Editor extends Component<Props> {
       return <Welcome />;
     }
 
-    debug(this.props.isEditorInitialized, "this.props.isEditorInitialized");
-
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
@@ -242,8 +235,8 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string, branchName?: string) =>
-      dispatch(initEditor(applicationId, pageId, branchName)),
+    initEditor: (applicationId: string, pageId: string, branch?: string) =>
+      dispatch(initEditor(applicationId, pageId, branch)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),

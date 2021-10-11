@@ -7,13 +7,13 @@ export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
 
 const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 
-export const getAppStoreName = (appId: string, branchName?: string) =>
-  branchName
-    ? `${APP_STORE_NAMESPACE}-${appId}-${branchName}`
+export const getAppStoreName = (appId: string, branch?: string) =>
+  branch
+    ? `${APP_STORE_NAMESPACE}-${appId}-${branch}`
     : `${APP_STORE_NAMESPACE}-${appId}`;
 
-export const getPersistentAppStore = (appId: string, branchName?: string) => {
-  const appStoreName = getAppStoreName(appId, branchName);
+export const getPersistentAppStore = (appId: string, branch?: string) => {
+  const appStoreName = getAppStoreName(appId, branch);
   let storeString = "{}";
   // Check if localStorage exists
   if (localStorage.isSupported()) {

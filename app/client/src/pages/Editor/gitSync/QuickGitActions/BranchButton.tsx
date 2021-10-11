@@ -64,7 +64,7 @@ const CloseBtnContainer = styled.div`
 
 function BranchButton() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const currentBranchName = gitMetaData?.branchName;
+  const currentBranch = gitMetaData?.branchName;
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateBranchForm, setShowCreateNewBranchForm] = useState(false);
   const title = showCreateBranchForm
@@ -112,7 +112,7 @@ function BranchButton() {
         <div className="icon">
           <GitMerge />
         </div>
-        <div className="label">{currentBranchName}</div>
+        <div className="label">{currentBranch}</div>
       </ButtonContainer>
     </Popover2>
   );

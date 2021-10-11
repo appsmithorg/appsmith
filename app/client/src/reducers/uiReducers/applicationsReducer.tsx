@@ -403,6 +403,19 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_BRANCH_LOCALLY]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      gitApplicationMetadata: {
+        ...(state.currentApplication?.gitApplicationMetadata || {}),
+        branchName: action.payload,
+      },
+    },
+  }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;

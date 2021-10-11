@@ -67,7 +67,7 @@ export type AppViewerProps = {
   initializeAppViewer: (params: {
     applicationId: string;
     pageId?: string;
-    branchName?: string;
+    branch?: string;
   }) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
@@ -107,7 +107,7 @@ class AppViewer extends Component<Props> {
 
     if (applicationId) {
       this.props.initializeAppViewer({
-        branchName: branch,
+        branch: branch,
         applicationId,
         pageId,
       });
@@ -130,7 +130,7 @@ class AppViewer extends Component<Props> {
       this.props.initializeAppViewer({
         applicationId,
         pageId,
-        branchName: branch,
+        branch: branch,
       });
     }
   }
@@ -209,7 +209,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   initializeAppViewer: (params: {
     applicationId: string;
     pageId?: string;
-    branchName?: string;
+    branch?: string;
   }) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,

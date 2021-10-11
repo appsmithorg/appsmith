@@ -119,16 +119,12 @@ export function* fetchPageListSaga(
     PerformanceTransactionName.FETCH_PAGE_LIST_API,
   );
   try {
-    const { applicationId, branchName, mode } = fetchPageListAction.payload;
+    const { applicationId, mode } = fetchPageListAction.payload;
     const apiCall =
       mode === APP_MODE.EDIT
         ? PageApi.fetchPageList
         : PageApi.fetchPageListViewMode;
-    const response: FetchPageListResponse = yield call(
-      apiCall,
-      applicationId,
-      branchName,
-    );
+    const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;

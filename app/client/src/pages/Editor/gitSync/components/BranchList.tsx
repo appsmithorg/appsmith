@@ -164,10 +164,10 @@ export default function BranchList(props: {
     setShowCreateNewBranchForm(true);
   };
 
-  const handleCreateNewBranch = (branchName: string) => {
+  const handleCreateNewBranch = (branch: string) => {
     dispatch(
       createNewBranchInit({
-        branchName,
+        branch,
         onErrorCallback: () => {
           setIsCreatingNewBranch(false);
         },

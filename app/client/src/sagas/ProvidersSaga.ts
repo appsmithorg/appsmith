@@ -40,8 +40,6 @@ import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
 ) {
@@ -106,8 +104,7 @@ export function* addApiToPageSaga(
       });
 
       const applicationId = yield select(getCurrentApplicationId);
-      const branchName = yield select(getCurrentGitBranch);
-      yield put(fetchActions({ applicationId, branchName }, []));
+      yield put(fetchActions({ applicationId }, []));
     }
   } catch (error) {
     yield put({
