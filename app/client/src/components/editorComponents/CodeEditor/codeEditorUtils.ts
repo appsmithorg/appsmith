@@ -66,3 +66,14 @@ export const isActionEntity = (entity: any): entity is DataTreeAction => {
 export const isWidgetEntity = (entity: any): entity is DataTreeWidget => {
   return entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 };
+
+export const preventAutoComplete = (
+  isFocused: boolean,
+  change: CodeMirror.EditorChangeCancellable | null,
+) => {
+  if (!isFocused) return true;
+  // if (change?.origin === "+delete") return true;
+  if (change?.text?.[0] === " ") return true;
+  if (change?.text?.[0] === "\t") return true;
+  return false;
+};

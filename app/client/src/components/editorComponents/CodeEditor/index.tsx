@@ -68,6 +68,7 @@ import {
   getInputValue,
   isActionEntity,
   isWidgetEntity,
+  preventAutoComplete,
   removeNewLineChars,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
@@ -88,7 +89,6 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Tab",
   "Escape",
   "Comma",
-  "Backspace",
   "Semicolon",
   "Space",
 ];
@@ -168,6 +168,7 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
+  currentChange: CodeMirror.EditorChangeCancellable | null;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   constructor(props: Props) {
     super(props);
@@ -178,8 +179,8 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
+    this.currentChange = null;
   }
-
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
@@ -247,7 +248,7 @@ class CodeEditor extends Component<Props, State> {
         // changes here are completed
         //
 
-        editor.on("beforeChange", this.handleBeforeChange);
+        editor.on("beforeChange", this.handleBeforeChange.bind(this));
         editor.on("change", _.debounce(this.handleChange, 600));
         editor.on("change", this.handleAutocompleteVisibility);
         editor.on("change", this.onChangeTrigger);
@@ -362,6 +363,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorBlur = () => {
+    console.error("Inside blur");
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -382,6 +384,7 @@ class CodeEditor extends Component<Props, State> {
         change.update(undefined, undefined, formattedText);
       }
     }
+    this.currentChange = change;
   }
 
   handleChange = (instance?: any, changeObj?: any) => {
@@ -437,7 +440,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    if (!this.state.isFocused) return;
+    if (preventAutoComplete(this.state.isFocused, this.currentChange)) return;
     const entityInformation: FieldEntityInformation = this.getEntityInformation();
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
