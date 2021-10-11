@@ -1133,7 +1133,7 @@ Cypress.Commands.add("AddActionWithModal", () => {
     .last()
     .click();
   cy.get(".single-select")
-    .contains("Open Modal")
+    .contains("Open modal")
     .click({ force: true });
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -1144,7 +1144,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(widgetsPage.actionSelect)
     .first()
     .click({ force: true });
-  cy.selectOnClickOption("Open Modal");
+  cy.selectOnClickOption("Open modal");
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
@@ -1573,7 +1573,7 @@ Cypress.Commands.add("addAction", (value) => {
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show Message")
+    .contains("Show message")
     .click();
   cy.enterActionValue(value);
 });
@@ -1584,7 +1584,7 @@ Cypress.Commands.add("onTableAction", (value, value1, value2) => {
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show Message")
+    .contains("Show message")
     .click();
   cy.testJsontext(value1, value2);
 });
@@ -1592,7 +1592,7 @@ Cypress.Commands.add("onTableAction", (value, value1, value2) => {
 Cypress.Commands.add("selectShowMsg", () => {
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show Message")
+    .contains("Show message")
     .click();
 });
 
@@ -1874,7 +1874,7 @@ Cypress.Commands.add(
       .first()
       .click({ force: true });
     cy.get(widgetsPage.menubar)
-      .contains("Show Message")
+      .contains("Show message")
       .click({ force: true });
 
     cy.get(alertcss)
@@ -1891,7 +1891,7 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a Query")
+    .selectOnClickOption("Execute a query")
     .selectOnClickOption(QueryName);
 });
 
@@ -1899,7 +1899,7 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a Query")
+    .selectOnClickOption("Execute a query")
     .selectOnClickOption(ApiName);
 });
 
@@ -2372,7 +2372,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Execute a Query")
+    .contains("Execute a query")
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
@@ -2456,10 +2456,10 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
     .children()
-    .contains("No Action")
+    .contains("No action")
     .first()
     .click({ force: true })
-    .selectOnClickOption("Show Message")
+    .selectOnClickOption("Show message")
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .click()
     .type(forSuccess)
@@ -2472,10 +2472,10 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // For Failure
   cy.get(".code-highlight")
     .children()
-    .contains("No Action")
+    .contains("No action")
     .last()
     .click({ force: true })
-    .selectOnClickOption("Show Message")
+    .selectOnClickOption("Show message")
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
@@ -2851,7 +2851,7 @@ Cypress.Commands.add("callApi", (apiname) => {
     .first()
     .click({ force: true });
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute a Query")
+    .contains("Execute a query")
     .click({ force: true });
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
