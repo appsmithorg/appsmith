@@ -16,7 +16,7 @@ body:
     options:
     - label: I have searched the existing issues
       required: true
-- type: textarea
+- type: input
   attributes:
     label: Documentation Link 
     description: Add a link to the page which needs improvement (if relevant)
@@ -27,17 +27,10 @@ body:
     label: Describe the problem
     description: Is the documentation missing? Or is it confusing? Why is it confusing?
   validations:
-    required: false
+    required: true
 - type: textarea
   attributes:
     label: Describe the improvement
     description: A clear and concise description of the improvement.  
   validations:
-    required: false
-- type: textarea
-  attributes:
-    label: Anything else?
-    description: |
-      Links? References? Anything that will give us more context about the issue you are encountering!
-  validations:
-    required: false
+    required: true
