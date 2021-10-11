@@ -774,3 +774,31 @@ export const getParentBottomRowAfterAddingWidget = (
       )
     : stateParent.bottomRow;
 };
+
+/**
+ * sometimes, selected widgets contains the grouped widget,
+ * in those cases, we will just selected the main container as the
+ * pastingIntoWidget
+ *
+ * @param copiedWidgetGroups
+ * @param pastingIntoWidgetId
+ */
+export function* getParentWidgetIdForGrouping(
+  widgets: CanvasWidgetsReduxState,
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  pastingIntoWidgetId: string,
+) {
+  const pastingIntoWidget = widgets[pastingIntoWidgetId];
+  const widgetIds = copiedWidgetGroups.map(
+    (widgetGroup) => widgetGroup.widgetId,
+  );
+
+  if (
+    pastingIntoWidget.parentId &&
+    widgetIds.includes(pastingIntoWidget.parentId)
+  ) {
+    return MAIN_CONTAINER_WIDGET_ID;
+  }
+
+  return pastingIntoWidgetId;
+}
