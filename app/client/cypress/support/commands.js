@@ -2389,13 +2389,6 @@ Cypress.Commands.add("CreateMockQuery", (queryName) => {
     force: true,
   });
   cy.assertPageSave();
-  cy.get(queryEditor.templateMenu + " div")
-    .contains("Select")
-    .click({ force: true });
-  cy.runQuery();
-  // cy.wait(3000);
-  // cy.get(queryEditor.runQuery)
-  //   .click({force: true});
 });
 
 Cypress.Commands.add("openPropertyPane", (widgetType) => {
