@@ -62,7 +62,6 @@ import {
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
-import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,
@@ -108,9 +107,11 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   getFirstTimeUserOnboardingApplicationId,
   getIsFirstTimeUserOnboardingEnabled,
+  getOnboardingOrganisations,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { Organization } from "constants/orgConstants";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -174,8 +175,14 @@ function* listenForWidgetAdditions() {
               widgetName: "Standup_Table",
               tableData: [],
               columnSizeMap: {
-                avatar: 20,
-                name: 30,
+                avatar: 80,
+                name: 120,
+              },
+              columnTypeMap: {
+                avatar: {
+                  type: "image",
+                  format: "",
+                },
               },
               migrated: false,
               ...getStandupTableDimensions(),
@@ -231,7 +238,6 @@ function* listenForAddInputWidget() {
             inputWidget.widgetId,
             "widgetName",
             "Standup_Input",
-            RenderModes.CANVAS,
           ),
         );
         yield put(
@@ -284,7 +290,6 @@ function* listenForAddInputWidget() {
               inputWidget.widgetId,
               "onSubmit",
               "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-              RenderModes.CANVAS,
             ),
           );
           AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -335,18 +340,6 @@ function* listenForSuccessfulBinding() {
           errors.length === 0;
 
         if (bindSuccessful) {
-          yield put(
-            batchUpdateWidgetProperty(selectedWidget.widgetId, {
-              modify: {
-                columnTypeMap: {
-                  avatar: {
-                    type: "image",
-                    format: "",
-                  },
-                },
-              },
-            }),
-          );
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.ADD_INPUT_WIDGET));
 
@@ -568,7 +561,8 @@ function* createApplication() {
     AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
 
   const currentUser = yield select(getCurrentUser);
-  const userOrgs = yield select(getUserApplicationsOrgs);
+  const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
   const isFirstTimeUserOnboardingdEnabled = yield select(
@@ -847,7 +841,6 @@ function* addOnSubmitHandler() {
           inputWidget.widgetId,
           "onSubmit",
           "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-          RenderModes.CANVAS,
         ),
       );
       AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -881,7 +874,6 @@ function* addBinding() {
         standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
-        RenderModes.CANVAS,
       ),
     );
 

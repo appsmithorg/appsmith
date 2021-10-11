@@ -18,6 +18,10 @@ import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { bootIntercom } from "utils/helpers";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
+import { createMessage, HELP_RESOURCE_TOOLTIP } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -136,11 +140,19 @@ class HelpModal extends React.Component<Props> {
             layer={layers.max}
             onClick={this.onOpen}
           >
-            {isHelpModalOpen ? (
-              <CloseIcon height={50} width={50} />
-            ) : (
-              <HelpIcon height={50} width={50} />
-            )}
+            <TooltipComponent
+              boundary="viewport"
+              content={createMessage(HELP_RESOURCE_TOOLTIP)}
+              disabled={isHelpModalOpen}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.LEFT}
+            >
+              {isHelpModalOpen ? (
+                <CloseIcon height={50} width={50} />
+              ) : (
+                <HelpIcon height={50} width={50} />
+              )}
+            </TooltipComponent>
           </HelpButton>
         )}
       </>

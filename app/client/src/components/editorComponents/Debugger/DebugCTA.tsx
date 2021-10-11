@@ -13,6 +13,7 @@ import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
+import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const EVDebugButton = styled.button`
   ${(props) => getTypographyByKey(props, "btnSmall")};
@@ -51,12 +52,12 @@ const Wrapper = styled.div`
 
 export function EvaluatedValueDebugButton(props: {
   error: Message;
-  entityName?: string;
+  entity?: FieldEntityInformation;
 }) {
   return (
     <Wrapper>
       <ContextualMenu
-        entityName={props.entityName}
+        entity={props.entity}
         error={props.error}
         modifiers={{
           offset: {
@@ -90,6 +91,7 @@ const StyledButton = styled(Button)`
   width: fit-content;
   margin-top: 4px;
   text-transform: none;
+  height: 26px;
   ${(props) => getTypographyByKey(props, "p2")}
   .${Classes.ICON} {
     margin-right: 5px;
@@ -98,6 +100,10 @@ const StyledButton = styled(Button)`
     .${Classes.ICON} {
       margin-right: 5px;
     }
+  }
+
+  svg, svg path{
+    fill: ${Colors.WHITE};
   }
  }
 `;

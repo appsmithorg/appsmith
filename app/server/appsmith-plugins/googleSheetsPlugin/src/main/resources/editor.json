@@ -79,7 +79,8 @@
               "LIST"
             ]
           },
-          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
+          "initialValue": ""
         },
         {
           "label": "Spreadsheet Name Key",
@@ -382,29 +383,9 @@
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
           "controlType": "ARRAY_FIELD",
           "hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET"
-              },
-              {
-                "conditionType": "AND",
-                "conditions": [
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                    "comparison": "EQUALS",
-                    "value": "GET"
-                  },
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-                    "comparison": "EQUALS",
-                    "value": "RANGE"
-                  }
-                ]
-              }
-            ]
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET"
           },
           "initialValue": [],
           "schema": [
@@ -472,7 +453,7 @@
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
             "conditionType": "OR",
-            "conditions" : [
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
@@ -497,7 +478,7 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
             "conditionType": "OR",
-            "conditions":[
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
@@ -529,7 +510,7 @@
           "evaluationSubstitutionType": "PARAMETER",
           "hidden": {
             "conditionType": "OR",
-            "conditions" : [
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
@@ -555,7 +536,7 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "hidden": {
             "conditionType": "OR",
-            "conditions" : [
+            "conditions": [
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",

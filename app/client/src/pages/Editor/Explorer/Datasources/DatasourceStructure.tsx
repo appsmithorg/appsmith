@@ -9,10 +9,10 @@ import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import { DatasourceTable } from "entities/Datasource";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
-    color: #ff7235;
     svg,
     svg path {
       fill: #ff7235;
@@ -21,10 +21,10 @@ const Wrapper = styled(EntityTogglesWrapper)`
   span {
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     margin-left: 5px;
-    color: white;
     padding-top: 2px;
   }
   padding: 0 5px;
+  color: ${Colors.GRAY2};
 `;
 
 const StyledEntity = styled(Entity)`
@@ -76,6 +76,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
           setActive(false);
         }
       }}
+      popoverClassName="t--structure-template-menu-popover"
       position={Position.RIGHT_TOP}
     >
       <StyledEntity

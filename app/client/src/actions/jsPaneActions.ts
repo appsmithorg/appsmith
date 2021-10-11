@@ -55,7 +55,7 @@ export const deleteJSObjectAction = (payload: {
 
 export const refactorJSCollectionAction = (payload: {
   actionId: string;
-  collectionId: string;
+  collectionName: string;
   pageId: string;
   oldName: string;
   newName: string;
@@ -69,6 +69,7 @@ export const refactorJSCollectionAction = (payload: {
 export const executeJSFunction = (payload: {
   collectionName: string;
   action: JSAction;
+  collectionId: string;
 }) => {
   return {
     type: ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,

@@ -100,7 +100,7 @@ class AudioRecorderWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: undefined,
+      value: null,
     };
   }
 
@@ -111,6 +111,8 @@ class AudioRecorderWidget extends BaseWidget<
   }
 
   handleRecordingStart = () => {
+    this.props.updateWidgetMetaProperty("value", null);
+
     if (this.props.onRecordingStart) {
       super.executeAction({
         triggerPropertyName: "onRecordingStart",
@@ -147,6 +149,7 @@ class AudioRecorderWidget extends BaseWidget<
       parentRowSpace,
       rightColumn,
       topRow,
+      value,
     } = this.props;
 
     return (
@@ -157,6 +160,7 @@ class AudioRecorderWidget extends BaseWidget<
         isDisabled={isDisabled}
         onRecordingComplete={this.handleRecordingComplete}
         onRecordingStart={this.handleRecordingStart}
+        value={value}
         width={(rightColumn - leftColumn) * parentColumnSpace}
       />
     );
