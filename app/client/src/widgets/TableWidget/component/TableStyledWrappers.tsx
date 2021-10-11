@@ -458,10 +458,8 @@ export const CellCheckbox = styled.div`
   .th-svg {
     display: block;
     position: absolute;
-    left: 14.29%;
-    right: 14.29%;
-    top: 14.29%;
-    bottom: 14.29%;
+    left: 2px;
+    top: 2px;
     height: 10px;
     width: 10px;
   }
