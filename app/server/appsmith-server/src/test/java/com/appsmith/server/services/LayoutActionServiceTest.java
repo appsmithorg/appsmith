@@ -927,7 +927,7 @@ public class LayoutActionServiceTest {
          * But there is an implicit dependency :
          * secondAction <- firstAction
          * This is because :
-         * secondAction <- secondWidget <- firstWidget <- firstAction
+         * thirdWidget <- secondAction <- secondWidget <- firstWidget <- firstAction
          */
 
         ActionDTO action1 = new ActionDTO();
@@ -945,6 +945,7 @@ public class LayoutActionServiceTest {
         actionConfiguration2.setHttpMethod(HttpMethod.GET);
         actionConfiguration2.setBody("{{secondWidget.data}}");
         action2.setActionConfiguration(actionConfiguration2);
+        action2.setDynamicBindingPathList(List.of(new Property("body", null)));
         action2.setDatasource(datasource);
 
         JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
@@ -965,7 +966,7 @@ public class LayoutActionServiceTest {
         temp = new JSONArray();
         temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
         secondWidget.put("dynamicBindingPathList", temp);
-        secondWidget.put("testField", "{{ firstWidget.data }}");
+        secondWidget.put("testField", "{{ firstWidget.testField }}");
         children.add(secondWidget);
 
         JSONObject thirdWidget = new JSONObject();
@@ -1116,6 +1117,89 @@ public class LayoutActionServiceTest {
                     assertEquals("body", actionCollectionDTOResult.getBody());
                     assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
                     assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
+                })
+                .verifyComplete();
+
+    }
+
+    @SneakyThrows
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void OnLoadActionsWhenActionDependentOnWidgetButNotPageLoadCandidate() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        /*
+         * The left entity depends on the entity on the right
+         * firstWidget <- firstAction
+         * secondWidget <- firstWidget
+         * secondAction <- secondWidget
+         *
+         * Since firstWidget is getting data from action firstAction, it
+         * should exist in onPageLoadActions.
+         *
+         * But there is an implicit dependency :
+         * secondAction <- firstAction
+         * This is because :
+         * secondAction <- secondWidget <- firstWidget <- firstAction
+         */
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("secondAction");
+        action2.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        actionConfiguration2.setBody("{{secondWidget.data}}");
+        action2.setActionConfiguration(actionConfiguration2);
+        action2.setDynamicBindingPathList(List.of(new Property("body", null)));
+        action2.setDatasource(datasource);
+
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
+        }));
+
+        ArrayList children = (ArrayList) parentDsl.get("children");
+
+        JSONObject firstWidget = new JSONObject();
+        firstWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        firstWidget.put("dynamicBindingPathList", temp);
+        firstWidget.put("testField", "{{ firstAction.data }}");
+        children.add(firstWidget);
+
+        JSONObject secondWidget = new JSONObject();
+        secondWidget.put("widgetName", "secondWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        secondWidget.put("dynamicBindingPathList", temp);
+        secondWidget.put("testField", "{{ firstWidget.testField }}");
+        children.add(secondWidget);
+
+        parentDsl.put("children", children);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+
+                    assertThat(updatedLayout.getLayoutOnLoadActions().size()).isEqualTo(1);
+
+                    DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("firstAction");
+
                 })
                 .verifyComplete();
 

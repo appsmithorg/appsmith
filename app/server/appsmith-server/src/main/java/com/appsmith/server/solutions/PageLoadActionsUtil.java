@@ -2,7 +2,6 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.ActionDTO;
@@ -368,7 +367,8 @@ public class PageLoadActionsUtil {
     }
 
     private void extractAndSetActionBindingsInGraphEdges(Set<ActionDependencyEdge> edges,
-                                                         ActionDTO action, Set<String> bindingsFromActions,
+                                                         ActionDTO action,
+                                                         Set<String> bindingsFromActions,
                                                          Set<String> actionsFoundDuringWalk) {
 
         // Check if the action has been deleted in unpublished state. If yes, ignore it.
@@ -458,8 +458,8 @@ public class PageLoadActionsUtil {
 
         if (dynamicBindingPathList != null) {
             // Each of these might have nested structures, so we iterate through them to find the leaf node for each
-            for (Object x : dynamicBindingPathList) {
-                final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
+            for (Property x : dynamicBindingPathList) {
+                final String fieldPath = String.valueOf(x.getKey());
                 String[] fields = fieldPath.split("[].\\[]");
                 // For nested fields, the parent dsl to search in would shift by one level every iteration
                 Object parent = configurationObj;
