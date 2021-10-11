@@ -272,6 +272,11 @@ class DatePickerComponent extends React.Component<
   closePicker = (e: any) => {
     const { closeOnSelection } = this.props;
     try {
+      // close the picker or escape key is pressed
+      if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
+        this.setState({ showPicker: false });
+        return;
+      }
       // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
       const showPicker =
         this.pickerRef && this.pickerRef.contains(e.target)
@@ -283,9 +288,7 @@ class DatePickerComponent extends React.Component<
     }
   };
   handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
-      this.closePicker(e);
-    }
+    this.closePicker(e);
   };
 }
 
