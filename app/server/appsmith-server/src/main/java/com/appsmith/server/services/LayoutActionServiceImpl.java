@@ -412,7 +412,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                                                       String layoutId,
                                                                       Set<String> escapedWidgetNames) throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
-            // This isnt a valid widget configuration. No need to traverse this.
+            // This isn't a valid widget configuration. No need to traverse this.
             return dsl;
         }
 
@@ -468,30 +468,31 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
                     }
-                }
-                // Only extract mustache keys from leaf nodes
-                if (isLeafNode) {
 
-                    // We found the path. But if the path does not have any mustache bindings, throw the error
-                    if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
-                        try {
-                            String bindingAsString = objectMapper.writeValueAsString(parent);
-                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                    widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
-                        } catch (JsonProcessingException e) {
-                            throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
+                    // Only extract mustache keys from leaf nodes
+                    if (isLeafNode) {
+
+                        // We found the path. But if the path does not have any mustache bindings, throw the error
+                        if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
+                            try {
+                                String bindingAsString = objectMapper.writeValueAsString(parent);
+                                throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                        widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                            } catch (JsonProcessingException e) {
+                                throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
+                            }
                         }
-                    }
 
-                    // Stricter extraction of dynamic bindings
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                        // Stricter extraction of dynamic bindings
+                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
 
-                    String completePath = widgetName + "." + fieldPath;
-                    if (widgetDynamicBindingsMap.containsKey(completePath)) {
-                        Set<String> mustacheKeysForWidget = widgetDynamicBindingsMap.get(completePath);
-                        mustacheKeysFromFields.addAll(mustacheKeysForWidget);
+                        String completePath = widgetName + "." + fieldPath;
+                        if (widgetDynamicBindingsMap.containsKey(completePath)) {
+                            Set<String> mustacheKeysForWidget = widgetDynamicBindingsMap.get(completePath);
+                            mustacheKeysFromFields.addAll(mustacheKeysForWidget);
+                        }
+                        widgetDynamicBindingsMap.put(completePath, mustacheKeysFromFields);
                     }
-                    widgetDynamicBindingsMap.put(completePath, mustacheKeysFromFields);
                 }
             }
         }

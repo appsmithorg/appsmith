@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -68,8 +67,11 @@ public class PageLoadActionsUtil {
         Set<String> explicitUserSetOnLoadActions = new HashSet<>();
         Set<String> bindingsFromActions = new HashSet<>();
         Set<String> actionsFoundDuringWalk = new HashSet<>();
+        Set<String> bindingsInWidgets = new HashSet<>();
 
-        widgetDynamicBindingsMap.keySet().stream().forEach(binding -> possibleEntityNamesInDsl.addAll(getPossibleParents(binding)));
+        widgetDynamicBindingsMap.values().forEach(bindings -> bindingsInWidgets.addAll(bindings));
+
+        bindingsInWidgets.stream().forEach(binding -> possibleEntityNamesInDsl.addAll(getPossibleParents(binding)));
 
         Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
@@ -114,7 +116,7 @@ public class PageLoadActionsUtil {
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
                     Map<String, ActionDTO> actionNameToActionMap = tuple.getT3();
 
-                    return computeOnPageLoadActionsSchedulingOrder(graph, actionNames, onPageLoadActionSet, actionNameToActionMap);
+                    return computeOnPageLoadActionsSchedulingOrder(graph, onPageLoadActionSet, actionNames, actionNameToActionMap);
                 })
                 .map(onPageLoadActionsSchedulingOrder -> {
                     // Find all explicitly turned on actions which haven't found their way into the scheduling order
@@ -187,34 +189,35 @@ public class PageLoadActionsUtil {
 
         Set<ActionDependencyEdge> implicitParentChildEdges = new HashSet<>();
 
-        // Remove any edge which contains an unknown entity - aka neither a known action nor a known widget
-        // Note : appsmith world objects like `appsmith` would also count as an unknown here.
-        // TODO : Handle the above global variables provided by appsmith in the following filtering.
-        edges = edges.stream().filter(edge -> {
-
-                    String source = edge.getSource();
-                    String target = edge.getTarget();
-
-                    Set<String> vertices = Set.of(source, target);
-
-                    AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
-
-                    // Assert that the vertices which are entire property paths have a possible parent which is either
-                    // an action or a widget.
-                    // TODO : Add a static set of global variables exposed on the client side and check for the same below.
-                    vertices
-                            .stream()
-                            .forEach(vertex -> getPossibleParents(vertex)
-                                    .stream()
-                                    .forEach(parent -> {
-                                        if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
-                                            isValidVertex.set(false);
-                                        }
-                                    }));
-
-                    return isValidVertex.get();
-                })
-                .collect(Collectors.toSet());
+        // TODO : Remove unnecessary edges with unknown entities.
+//        // Remove any edge which contains an unknown entity - aka neither a known action nor a known widget
+//        // Note : appsmith world objects like `appsmith` would also count as an unknown here.
+//        // TODO : Handle the above global variables provided by appsmith in the following filtering.
+//        edges = edges.stream().filter(edge -> {
+//
+//                    String source = edge.getSource();
+//                    String target = edge.getTarget();
+//
+//                    Set<String> vertices = Set.of(source, target);
+//
+//                    AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
+//
+//                    // Assert that the vertices which are entire property paths have a possible parent which is either
+//                    // an action or a widget.
+//                    // TODO : Add a static set of global variables exposed on the client side and check for the same below.
+//                    vertices
+//                            .stream()
+//                            .forEach(vertex -> getPossibleParents(vertex)
+//                                    .stream()
+//                                    .forEach(parent -> {
+//                                        if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
+//                                            isValidVertex.set(false);
+//                                        }
+//                                    }));
+//
+//                    return isValidVertex.get();
+//                })
+//                .collect(Collectors.toSet());
 
         // Now add the relationship aka when a child gets updated, the parent should get updated as well. Aka
         // parent depends on the child.
@@ -253,8 +256,7 @@ public class PageLoadActionsUtil {
         return actionSchedulingGraph;
     }
 
-    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String,
-                                                                          DefaultEdge> dag,
+    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String,DefaultEdge> dag,
                                                                           Set<String> onPageLoadActionSet,
                                                                           Set<String> actionNames,
                                                                           Map<String, ActionDTO> actionNameToActionMap) {
