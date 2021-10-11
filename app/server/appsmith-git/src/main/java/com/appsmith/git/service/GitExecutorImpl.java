@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
@@ -310,13 +311,19 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<String>> getBranches(Path repoSuffix) {
+    public Mono<List<String>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             System.out.println(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             Git git = Git.open(baseRepoPath.toFile());
-            // Only show local branches
-            List<Ref> refList = git.branchList().call();
+            List<Ref> refList;
+            if (listMode == null) {
+                // Only show local branches
+                refList = git.branchList().call();
+            } else {
+                // Show remote/all the branches depending upon the listMode
+                refList = git.branchList().setListMode(listMode).call();
+            }
             List<String> branchList = new ArrayList<>();
 
             if(refList.isEmpty()) {
@@ -337,9 +344,7 @@ public class GitExecutorImpl implements GitExecutor {
      *
      * @param repoPath Path to actual repo
      * @param branchName branch name for which the status is required
-     * @return Map of file names those are added, removed, modified
-     * @throws GitAPIException exceptions due to git commands
-     * @throws IOException Exceptions due to file operations
+     * @return Map of file names those are modified, conflicted etc.
      */
     @Override
     public Mono<Map<String, Object>> getStatus(Path repoPath, String branchName) {
@@ -357,9 +362,6 @@ public class GitExecutorImpl implements GitExecutor {
             response.put("modified", modifiedAssets);
             response.put("conflicting", status.getConflicting());
             response.put("isClean", status.isClean());
-
-            // TODO fetch the branch to track remote changes correctly
-            // git.fetch().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).call();
 
             BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
             if (trackingStatus != null) {
@@ -398,6 +400,25 @@ public class GitExecutorImpl implements GitExecutor {
                 return e.getMessage();
             }
         }).subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath) {
+        Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
+        return Mono.fromCallable(() -> {
+            TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
+            Git git = Git.open(repoPath.toFile());
+            log.debug(Thread.currentThread().getName() + ": fetch remote repo " + git.getRepository());
+            return git.fetch()
+                    .setTransportConfigCallback(config)
+                    .call()
+                    .getMessages();
+        })
+        .onErrorResume(error -> {
+            log.error(error.getMessage());
+            return Mono.error(error);
+        })
+        .subscribeOn(scheduler);
     }
 
     private void resetToLastCommit(Git git) throws GitAPIException {
