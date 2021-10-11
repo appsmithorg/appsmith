@@ -20,7 +20,7 @@ export default {
     return selectedItem;
   },
   //
-  getItems: (props, moment, _) => {
+  getItems: (props) => {
     let item = {};
 
     Object.keys(props.template).map((widgetName) => {
@@ -111,7 +111,7 @@ export default {
     return updatedItems;
   },
   //
-  getPageSize: (props, moment, _) => {
+  getPageSize: (props) => {
     const LIST_WIDGET_PAGINATION_HEIGHT = 36;
     const DEFAULT_GRID_ROW_HEIGHT = 10;
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;

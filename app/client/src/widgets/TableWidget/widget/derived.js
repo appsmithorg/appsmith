@@ -112,7 +112,7 @@ export default {
     return [];
   },
   //
-  getTableColumns: (props, moment, _) => {
+  getTableColumns: (props) => {
     let columns = [];
     let allColumns = Object.assign({}, props.primaryColumns || {});
     const data = props.sanitizedTableData || [];

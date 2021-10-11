@@ -12,7 +12,7 @@ describe("Validates Derived Properties", () => {
 
     const expected = { id: 2 };
 
-    let result = getSelectedItem(input, moment, _);
+    let result = getSelectedItem(input);
     expect(result).toStrictEqual(expected);
   });
 
@@ -47,7 +47,7 @@ describe("Validates Derived Properties", () => {
       },
     ];
 
-    let result = getItems(input, moment, _);
+    let result = getItems(input);
     expect(result).toStrictEqual(expected);
   });
 
@@ -70,8 +70,8 @@ describe("Validates Derived Properties", () => {
     const expected1 = 4;
     const expected2 = 2;
 
-    let result1 = getPageSize(input1, moment, _);
-    let result2 = getPageSize(input2, moment, _);
+    let result1 = getPageSize(input1);
+    let result2 = getPageSize(input2);
 
     expect(result1).toStrictEqual(expected1);
     expect(result2).toStrictEqual(expected2);

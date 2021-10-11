@@ -44,7 +44,7 @@ describe("Create new org and share with a user", function() {
       .should("be.visible");
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
-    cy.launchApp(appid);
+    cy.launchApp();
     cy.LogOut();
   });
 

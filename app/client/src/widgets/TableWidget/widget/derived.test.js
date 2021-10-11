@@ -14,19 +14,15 @@ describe("Validates Derived Properties", () => {
     };
     const expected = [];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getTableColumns(input);
     expect(result).toStrictEqual(expected);
 
-    let result = getTableColumns(
-      {
-        sortOrder: {
-          column: "",
-          order: null,
-        },
+    let result = getTableColumns({
+      sortOrder: {
+        column: "",
+        order: null,
       },
-      moment,
-      _,
-    );
+    });
     expect(result).toStrictEqual(expected);
   });
 
@@ -79,7 +75,7 @@ describe("Validates Derived Properties", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getTableColumns(input);
     expect(result).toStrictEqual(expected);
   });
   it("generated columns does not modify primary columns", () => {
@@ -169,7 +165,7 @@ describe("Validates Derived Properties", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getTableColumns(input);
     expect(result).toStrictEqual(expected);
   });
 
@@ -278,7 +274,7 @@ describe("Validates Derived Properties", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getTableColumns(input);
     expect(result).toStrictEqual(expected);
   });
   it("generated columns does not remove derived columns in primary columns", () => {
@@ -404,7 +400,7 @@ describe("Validates Derived Properties", () => {
       },
     ];
 
-    let result = getTableColumns(input, moment, _);
+    let result = getTableColumns(input);
     expect(result).toStrictEqual(expected);
   });
 

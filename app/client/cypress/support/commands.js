@@ -170,7 +170,7 @@ Cypress.Commands.add("enablePublicAccess", () => {
   cy.get(homePage.closeBtn).click();
 });
 
-Cypress.Commands.add("deleteUserFromOrg", (orgName) => {
+Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
   cy.get(homePage.orgList.concat(orgName).concat(")"))
     .scrollIntoView()
     .should("be.visible");
@@ -239,7 +239,7 @@ Cypress.Commands.add("updateUserRoleForOrg", (orgName, email, role) => {
   );
 });
 
-Cypress.Commands.add("launchApp", () => {
+Cypress.Commands.add("launchApp", (appName) => {
   cy.get(homePage.appView)
     .should("be.visible")
     .first()
@@ -555,7 +555,7 @@ Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
   cy.xpath(apiwidget.responseStatus).contains(statusCode);
 });
 
-Cypress.Commands.add("ResponseCheck", () => {
+Cypress.Commands.add("ResponseCheck", (textTocheck) => {
   //Explicit assert
   cy.get(apiwidget.responseText).should("be.visible");
 });
@@ -945,12 +945,15 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("EnterSourceDetailsWithbody", (baseUrl, v1method) => {
-  cy.enterDatasourceAndPath(baseUrl, v1method);
-  cy.get(apiwidget.addHeader)
-    .first()
-    .click({ first: true });
-});
+Cypress.Commands.add(
+  "EnterSourceDetailsWithbody",
+  (baseUrl, v1method, hKey, hValue) => {
+    cy.enterDatasourceAndPath(baseUrl, v1method);
+    cy.get(apiwidget.addHeader)
+      .first()
+      .click({ first: true });
+  },
+);
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(pages.addEntityAPI).click();
@@ -973,7 +976,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(apiwidget.apiTxt).blur();
 });
 
-Cypress.Commands.add("MoveAPIToHome", () => {
+Cypress.Commands.add("MoveAPIToHome", (apiname) => {
   cy.xpath(apiwidget.popover)
     .last()
     .click({ force: true });
@@ -1088,7 +1091,7 @@ Cypress.Commands.add("deleteEntity", () => {
   cy.get(apiwidget.delete).click({ force: true });
 });
 
-Cypress.Commands.add("DeleteAPI", () => {
+Cypress.Commands.add("DeleteAPI", (apiname) => {
   cy.get(ApiEditor.ApiActionMenu)
     .first()
     .click({ force: true });
@@ -1430,7 +1433,7 @@ Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
   cy.wait(200);
 });
 
-Cypress.Commands.add("assertControlVisibility", (endp) => {
+Cypress.Commands.add("assertControlVisibility", (endp, value) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror")
     .first()
     .should("not.be.visible");
@@ -2467,7 +2470,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
     });
 });
 
-Cypress.Commands.add("deleteWidget", () => {
+Cypress.Commands.add("deleteWidget", (widget) => {
   // Delete the button widget
   cy.get(widgetsPage.removeWidget).click({ force: true });
   cy.wait(5000);
@@ -2548,7 +2551,7 @@ Cypress.Commands.add("setDate", (date, dateFormate) => {
   cy.get(sel).click();
 });
 
-Cypress.Commands.add("pageNo", () => {
+Cypress.Commands.add("pageNo", (index) => {
   cy.get(".page-item")
     .first()
     .click({ force: true });
