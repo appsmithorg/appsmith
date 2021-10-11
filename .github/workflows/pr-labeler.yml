@@ -24,6 +24,8 @@ jobs:
       
       - name: Verify Changed files
         uses: tj-actions/verify-changed-files@v8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: verify-changed-files
         with:
           files: |
