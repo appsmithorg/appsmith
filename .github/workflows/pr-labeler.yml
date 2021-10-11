@@ -23,7 +23,8 @@ jobs:
             **Hello**
             allow-repeats:true
       
-      - id: files
+      - name: Check for files changed
+        id: files
         uses: Ana06/get-changed-files@v2.0.0
       - run: |
           for changed_file in ${{ steps.files.outputs.all }}; do
