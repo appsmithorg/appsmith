@@ -78,7 +78,7 @@ describe("Onboarding", function() {
         cy.dragAndDropToCanvas("inputwidget", { x: 360, y: 40 });
         cy.get(".t--property-control-onsubmit .t--open-dropdown-Select-Action")
           .click({ force: true })
-          .selectOnClickOption("Execute a Query")
+          .selectOnClickOption("Execute a query")
           .selectOnClickOption("Create New Query");
 
         cy.contains(
