@@ -59,11 +59,29 @@ public class PageLoadActionsUtil {
     private final Pattern parentPattern = Pattern.compile(IMMEDIATE_PARENT_REGEX);
 
 
+    /**
+     * This function computes the sequenced on page load actions.
+     *
+     * !!!WARNING!!! : This function edits the parameters edges, actionsUsedInDSL and flatPageLoadActions
+     * and the same are used by the caller function for further processing.
+     *
+     * @param pageId : Argument used for fetching actions in this page
+     * @param widgetNames : Set of widget names which have been set before calling this function
+     * @param edges : Set where this function adds all the relationships (dependencies) between actions
+     * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
+     * @param widgetDynamicBindingsMap : A map of widget path and the set of dynamic binding words in the mustache at the
+     *                                 path in the widget
+     * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
+     *                            would be called on page load)
+     * @return : Returns page load actions which is a list of sets of actions. Inside a set, all actions can be executed
+     * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
+     * in the list.
+     */
     public Mono<List<Set<DslActionDTO>>> findAllOnLoadActions(String pageId,
                                                               Set<String> widgetNames,
                                                               Set<ActionDependencyEdge> edges,
                                                               Map<String, Set<String>> widgetDynamicBindingsMap,
-                                                              List<ActionDTO> flatmapPageLoadActions,
+                                                              List<ActionDTO> flatPageLoadActions,
                                                               Set<String> actionsUsedInDSL) {
 
         Set<String> possibleEntityNamesInDsl = new HashSet<>();
@@ -73,8 +91,10 @@ public class PageLoadActionsUtil {
         Set<String> actionsFoundDuringWalk = new HashSet<>();
         Set<String> bindingsInWidgets = new HashSet<>();
 
+        // Create a set of all the bindings found in the widget.
         widgetDynamicBindingsMap.values().forEach(bindings -> bindingsInWidgets.addAll(bindings));
 
+        // From all the bindings found in the widget, extract all possible entity names.
         bindingsInWidgets.stream().forEach(binding -> possibleEntityNamesInDsl.addAll(getPossibleParents(binding)));
 
         Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
@@ -93,7 +113,8 @@ public class PageLoadActionsUtil {
                 .cache();
 
 
-        // This publisher traverses the actions and widgets to add all possible edges between entity paths
+        /* This publisher traverses the actions and widgets to add all possible edges between entity paths */
+        // First find all the actions in the page whose name matches the possible entity names found in the bindings in the widget
         Mono<Boolean> createAllEdgesForPageMono = newActionService.findUnpublishedActionsInPageByNames(possibleEntityNamesInDsl, pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // Add dependencies of the actions found in the DSL in the graph.
@@ -105,7 +126,9 @@ public class PageLoadActionsUtil {
                 })
                 // Add dependencies of all on page load actions set by the user in the graph
                 .then(findExplicitUserSetOnLoadActionsAndTheirDependents(pageId, edges, explicitUserSetOnLoadActions, actionsFoundDuringWalk, bindingsFromActions))
+                // For all the actions found so far, recursively walk the dynamic bindings of the actions to find more relationships with other actions (& widgets)
                 .then(recursivelyFindActionsAndTheirDependents(pageId, edges, actionsFoundDuringWalk, bindingsFromActions))
+                // At last, add all the widget relationships to the graph as well.
                 .then(addWidgetRelationshipToDAG(edges, widgetDynamicBindingsMap));
 
 
@@ -115,7 +138,7 @@ public class PageLoadActionsUtil {
                 .cache();
 
         // Generate on page load actions
-        Mono<List<Set<DslActionDTO>>> onPageLoadActionScheduleMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
+        Mono<List<Set<DslActionDTO>>> computePageLoadActionScheduleMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
                 .map(tuple -> {
                     Set<String> actionNames = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
@@ -180,14 +203,13 @@ public class PageLoadActionsUtil {
                     Map<String, ActionDTO> actionMap = tuple.getT2();
                     onPageLoadActionSet
                             .stream()
-                            .forEach(actionName -> flatmapPageLoadActions.add(actionMap.get(actionName)));
+                            .forEach(actionName -> flatPageLoadActions.add(actionMap.get(actionName)));
                     return tuple.getT1();
                 });
 
-
         return createAllEdgesForPageMono
                 .then(createGraphMono)
-                .then(onPageLoadActionScheduleMono);
+                .then(computePageLoadActionScheduleMono);
 
     }
 
@@ -358,7 +380,6 @@ public class PageLoadActionsUtil {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // Add the vertices and edges to the graph
                 .map(actionDTO -> {
-                    log.debug("Inspecting user set on true action {}", actionDTO.getName());
                     extractAndSetActionBindingsInGraphEdges(edges, actionDTO, bindingsFromActions, actionsFoundDuringWalk);
                     explicitUserSetOnLoadActions.add(actionDTO.getValidName());
                     return actionDTO;
@@ -383,9 +404,8 @@ public class PageLoadActionsUtil {
         }
         actionsFoundDuringWalk.add(name);
 
-        // If the user has explicitly set an action to not run on page load, this action should be ignored
+        // If the user has explicitly set an action to **NOT** run on page load, this action should be ignored
         if (hasUserSetActionToNotRunOnPageLoad(action)) {
-            log.debug("Ignoring action {} since user set on load false ", name);
             return;
         }
 
