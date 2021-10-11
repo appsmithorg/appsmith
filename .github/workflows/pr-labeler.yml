@@ -26,20 +26,14 @@ jobs:
       - name: Check for files changed
         id: files
         uses: Ana06/get-changed-files@v2.0.0
+        uses: mshick/add-pr-comment@v1
       - run: |
           for changed_file in ${{ steps.files.outputs.all }}; do
             echo "Do something with this ${changed_file}."
           done
           if: contains('${{ steps.files.outputs.all }}', 'cypress')
             echo  "cypressfound"
-      
-             
-      - name: Verify Changed files and add comments
-        uses: mshick/add-pr-comment@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          if: contains(env.FILE_LIST, 'SomeString')
             message:|
               Unable to find testcases in the PR
-              allow-repeats:true
+      
+
