@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
+import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -92,8 +93,8 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @PutMapping()
-    public Mono<ResponseDTO<User>> update(@RequestBody User resource, ServerWebExchange exchange) {
-        return service.updateCurrentUser(resource, exchange)
+    public Mono<ResponseDTO<User>> update(@RequestBody UserUpdateDTO updates, ServerWebExchange exchange) {
+        return service.updateCurrentUser(updates, exchange)
                 .map(updatedUser -> new ResponseDTO<>(HttpStatus.OK.value(), updatedUser, null));
     }
 

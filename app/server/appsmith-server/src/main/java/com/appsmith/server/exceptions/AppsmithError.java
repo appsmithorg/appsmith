@@ -93,7 +93,7 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     PLUGIN_LOAD_TEMPLATES_FAIL(500, 5005, "Unable to load datasource templates. Details: {0}.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
-    GIT_ACTION_FAILED(500, 5006, "git {0} failed. Details: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
+    GIT_ACTION_FAILED(500, 5006, "git {0} failed. \nDetails: {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR),
     IO_ERROR(503, 5003, "IO action failed with error {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     MARKETPLACE_TIMEOUT(504, 5041, "Marketplace is responding too slowly. Please try again later",
             AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),

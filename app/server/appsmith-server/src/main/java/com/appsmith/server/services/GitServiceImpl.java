@@ -16,6 +16,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -32,7 +33,6 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
@@ -293,14 +293,6 @@ public class GitServiceImpl implements GitService {
             });
     }
 
-    private Mono<String> commitApplication(boolean doPush, String defaultApplicationId, String branchName) {
-        GitCommitDTO commitDTO = new GitCommitDTO();
-        commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
-        commitDTO.setDoPush(doPush);
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add(FieldName.BRANCH_NAME, branchName);
-        return commitApplication(commitDTO, defaultApplicationId, params);
-    }
     /**
      * Method to get commit history for application branch
      * @param defaultApplicationId application for which the commit history is needed
@@ -537,19 +529,19 @@ public class GitServiceImpl implements GitService {
     public Mono<Application> detachRemote(String applicationId) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
-                    if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
+                    if(Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
+                            || isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         return Mono.just(application);
                     }
                     //Remove the git contents from file system
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     String repoName = gitApplicationMetadata.getRepoName();
                     Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
-                    fileUtils.detachRemote(repoPath);
                     application.setGitApplicationMetadata(null);
-
-                    //Remove the git metadata from the db
-                    return applicationService.save(application);
-                });
+                    return fileUtils.detachRemote(repoPath)
+                            .then(Mono.just(application));
+                })
+                .flatMap(application -> applicationService.save(application));
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params) {
@@ -671,11 +663,11 @@ public class GitServiceImpl implements GitService {
      * @return return the status of pull operation
      */
     @Override
-    public Mono<Object> pullApplication(String defaultApplicationId, String branchName) {
+    public Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName) {
         /*
-         * 1.Dehydrate the application from Mongodb to make sure that the file system has latest application data from mongodb
+         * 1.Dehydrate the application from Mongodb so that the file system has latest application data
          * 2.Do git pull after the rehydration and merge the remote changes to the current branch
-         * 3.Then rehydrate the from the file system to mongodb so that the latest changes from remote are rendered to the application
+         * 3.Then rehydrate from the file system to mongodb so that the latest changes from remote are rendered to the application
          * 4.Get the latest application mono from the mongodb and send it back to client
          * */
 
@@ -717,7 +709,7 @@ public class GitServiceImpl implements GitService {
                                 Mono.just(application),
                                 Mono.just(gitApplicationMetadata.getGitAuth()));
                     } catch (IOException | GitAPIException e) {
-                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
                     }
                 })
                 .flatMap(tuple -> {
@@ -741,27 +733,36 @@ public class GitServiceImpl implements GitService {
                                 }
                             });
 
-                    return pullStatus.flatMap(status -> {
-                        //3. Hydrate from file system to db
-                        ApplicationJson applicationJson;
-                        try {
-                            applicationJson = fileUtils.reconstructApplicationFromGitRepo(
-                                    application.getOrganizationId(),
-                                    defaultApplicationId,
-                                    application.getGitApplicationMetadata().getRepoName(),
-                                    branchName);
-                        } catch (IOException | GitAPIException e) {
-                            if (e.getMessage().contains("Nothing to fetch.")) {
-                                return Mono.just("Nothing to fetch from remote. All changes are upto date.");
-                            } else {
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
-                            }
-                        }
-                        //4. Get the latest application mono with all the changes
-                        return importExportApplicationService
-                                .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId());
-                    });
+                    //3. Hydrate from file system to db
+                    ApplicationJson applicationJson;
+                    try {
+                        applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                                application.getOrganizationId(),
+                                defaultApplicationId,
+                                application.getGitApplicationMetadata().getRepoName(),
+                                branchName);
+                        return Mono.zip(pullStatus, Mono.just(application), Mono.just(applicationJson));
+                    } catch (IOException | GitAPIException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
+                    }
+                })
+                .flatMap(tuple -> {
+                    Application application = tuple.getT2();
+                    ApplicationJson applicationJson = tuple.getT3();
+                    String status = tuple.getT1();
+
+                    //4. Get the latest application mono with all the changes
+                    return importExportApplicationService
+                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId())
+                            .map(application1 -> setPullStatusAndApplication(application1, status));
                 });
+    }
+
+    private GitPullDTO setPullStatusAndApplication(Application application, String status) {
+        GitPullDTO gitPullDTO = new GitPullDTO();
+        gitPullDTO.setPullStatus(status);
+        gitPullDTO.setApplication(application);
+        return gitPullDTO;
     }
 
     @Override
