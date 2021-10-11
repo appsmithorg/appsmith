@@ -21,6 +21,7 @@ jobs:
         with:
           message: |
             **Hello**
+          allow-repeats:true
       
       - id: files
         uses: jitterbit/get-changed-files@v1
@@ -37,4 +38,4 @@ jobs:
           if: steps.verify-changed-files.outputs.files_changed == 'true'
             message:|
               Unable to find testcases in the PR
-              allow-repeats:true
+            allow-repeats:true
