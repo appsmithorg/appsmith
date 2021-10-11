@@ -43,6 +43,8 @@ import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { getQueryParams } from "../../../../utils/AppsmithUtils";
+import { AuthType } from "entities/Datasource/RestAPIForm";
+import { setDatsourceEditorMode } from "actions/datasourceActions";
 
 type ReduxStateProps = {
   orgId: string;
@@ -54,6 +56,7 @@ type ReduxStateProps = {
 
 type ReduxDispatchProps = {
   updateDatasource: (datasource: Datasource | EmbeddedRestDatasource) => void;
+  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
 };
 
 type Props = EditorProps &
@@ -202,6 +205,22 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
 
   handleDatasourceHighlight = () => {
     const { datasource } = this.props;
+    const authType = get(
+      datasource,
+      "datasourceConfiguration.authentication.authenticationType",
+      "",
+    );
+
+    const hasError = !get(datasource, "isValid", true);
+
+    let className = "datasource-highlight";
+
+    if (authType === AuthType.OAuth2) {
+      className = `${className} ${
+        hasError ? "datasource-highlight-error" : "datasource-highlight-success"
+      }`;
+    }
+
     return (editorInstance: CodeMirror.Doc) => {
       if (
         editorInstance.lineCount() === 1 &&
@@ -214,7 +233,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
           {
-            className: "datasource-highlight",
+            className,
             atomic: true,
             inclusiveRight: false,
           },
@@ -320,7 +339,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
         ) : datasource && "id" in datasource ? (
           <DatasourceIcon
             enable
-            onClick={() =>
+            onClick={() => {
+              this.props.setDatasourceEditorMode(datasource.id, false);
               history.push(
                 DATA_SOURCES_EDITOR_ID_URL(
                   this.props.applicationId,
@@ -328,8 +348,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                   datasource.id,
                   getQueryParams(),
                 ),
-              )
-            }
+              );
+            }}
           >
             <Icon name="edit" size={IconSize.LARGE} />
             <Text type={TextType.P1}>Edit Datasource</Text>
@@ -374,6 +394,8 @@ const mapStateToProps = (
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) =>
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource)),
+  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
+    dispatch(setDatsourceEditorMode({ id, viewMode })),
 });
 
 const EmbeddedDatasourcePathConnectedComponent = connect(
