@@ -28,7 +28,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,6 +38,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
 import static com.appsmith.external.helpers.MustacheHelper.getWordsFromMustache;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Component
@@ -189,35 +193,45 @@ public class PageLoadActionsUtil {
 
         Set<ActionDependencyEdge> implicitParentChildEdges = new HashSet<>();
 
-        // TODO : Remove unnecessary edges with unknown entities.
-//        // Remove any edge which contains an unknown entity - aka neither a known action nor a known widget
-//        // Note : appsmith world objects like `appsmith` would also count as an unknown here.
-//        // TODO : Handle the above global variables provided by appsmith in the following filtering.
-//        edges = edges.stream().filter(edge -> {
-//
-//                    String source = edge.getSource();
-//                    String target = edge.getTarget();
-//
-//                    Set<String> vertices = Set.of(source, target);
-//
-//                    AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
-//
-//                    // Assert that the vertices which are entire property paths have a possible parent which is either
-//                    // an action or a widget.
-//                    // TODO : Add a static set of global variables exposed on the client side and check for the same below.
-//                    vertices
-//                            .stream()
-//                            .forEach(vertex -> getPossibleParents(vertex)
-//                                    .stream()
-//                                    .forEach(parent -> {
-//                                        if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
-//                                            isValidVertex.set(false);
-//                                        }
-//                                    }));
-//
-//                    return isValidVertex.get();
-//                })
-//                .collect(Collectors.toSet());
+        // Remove any edge which contains an unknown entity - aka neither a known action nor a known widget
+        // Note : appsmith world objects like `appsmith` would also count as an unknown here.
+        // TODO : Handle the above global variables provided by appsmith in the following filtering.
+        edges = edges.stream().filter(edge -> {
+
+                    String source = edge.getSource();
+                    String target = edge.getTarget();
+
+                    Set<String> vertices = Set.of(source, target);
+
+                    AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
+
+                    // Assert that the vertices which are entire property paths have a possible parent which is either
+                    // an action or a widget.
+                    // TODO : Add a static set of global variables exposed on the client side and check for the same below.
+                    vertices
+                            .stream()
+                            .forEach(vertex -> {
+                                Optional<String> validEntity = getPossibleParents(vertex)
+                                        .stream()
+                                        .filter(parent -> {
+                                            if (!actionNames.contains(parent) && !widgetNames.contains(parent)) {
+                                                return false;
+                                            }
+                                            return true;
+                                        }).findFirst();
+
+                                // If any of the generated entity names from the path are valid appsmith entity name,
+                                // the vertex is considered valid
+                                if (validEntity.isPresent()) {
+                                    isValidVertex.set(TRUE);
+                                } else {
+                                    isValidVertex.set(FALSE);
+                                }
+                            });
+
+                    return isValidVertex.get();
+                })
+                .collect(Collectors.toSet());
 
         // Now add the relationship aka when a child gets updated, the parent should get updated as well. Aka
         // parent depends on the child.
@@ -256,7 +270,7 @@ public class PageLoadActionsUtil {
         return actionSchedulingGraph;
     }
 
-    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String,DefaultEdge> dag,
+    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
                                                                           Set<String> onPageLoadActionSet,
                                                                           Set<String> actionNames,
                                                                           Map<String, ActionDTO> actionNameToActionMap) {
@@ -299,7 +313,7 @@ public class PageLoadActionsUtil {
                                                                    Set<String> actionsFoundDuringWalk,
                                                                    Set<String> dynamicBindings) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
-            return Mono.just(Boolean.TRUE);
+            return Mono.just(TRUE);
         }
 
         Set<String> possibleActionNames = new HashSet<>();
@@ -342,7 +356,7 @@ public class PageLoadActionsUtil {
                     explicitUserSetOnLoadActions.add(actionDTO.getValidName());
                     return actionDTO;
                 })
-                .then(Mono.just(Boolean.TRUE));
+                .then(Mono.just(TRUE));
     }
 
     private void extractAndSetActionBindingsInGraphEdges(Set<ActionDependencyEdge> edges,
@@ -415,13 +429,13 @@ public class PageLoadActionsUtil {
 
                     return widgetDynamicBindingsMap;
                 })
-                .then(Mono.just(Boolean.TRUE));
+                .then(Mono.just(TRUE));
     }
 
 
     private boolean hasUserSetActionToNotRunOnPageLoad(ActionDTO unpublishedAction) {
-        if (Boolean.TRUE.equals(unpublishedAction.getUserSetOnLoad())
-                && !Boolean.TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
+        if (TRUE.equals(unpublishedAction.getUserSetOnLoad())
+                && !TRUE.equals(unpublishedAction.getExecuteOnLoad())) {
             return true;
         }
 
@@ -549,7 +563,7 @@ public class PageLoadActionsUtil {
 
     private boolean isSyncJSFunction(ActionDTO unpublishedAction) {
         if (PluginType.JS.equals(unpublishedAction.getPluginType())
-                && Boolean.FALSE.equals(unpublishedAction.getActionConfiguration().getIsAsync())) {
+                && FALSE.equals(unpublishedAction.getActionConfiguration().getIsAsync())) {
             return true;
         }
 
