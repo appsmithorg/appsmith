@@ -81,6 +81,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     NewActionService newActionService;
 
+    @MockBean
+    ApplicationService applicationService;
+
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
     @Before
@@ -93,7 +96,8 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionRepository,
                 analyticsService,
                 newActionService,
-                policyGenerator
+                policyGenerator,
+                applicationService
         );
 
         layoutCollectionService = new LayoutCollectionServiceImpl(

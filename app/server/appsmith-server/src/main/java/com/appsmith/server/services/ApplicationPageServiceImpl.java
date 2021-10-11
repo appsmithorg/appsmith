@@ -301,17 +301,29 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .flatMap(application -> {
-                    log.debug("Archiving pages for applicationId: {}", id);
-                    return Mono.when(
-                            newPageService.archivePagesByApplicationId(id, MANAGE_PAGES),
-                            newActionService.archiveActionsByApplicationId(id, MANAGE_ACTIONS)
-                    ).thenReturn(application);
-                })
-                .flatMap(applicationService::archive);
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
 
-        return applicationMono
+        /* As part of git sync feature a new application will be created for each branch with reference to main application
+         * feat/new-branch ----> new application in Appsmith
+         * Get all the applications which refer to the current application and archive those first one by one
+         * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+         * */
+        return applicationService.findAllApplicationsByGitDefaultApplicationId(id)
+                .flatMap(application -> {
+                    log.debug("Archiving application with id: {}", application.getId());
+                    return deleteApplicationByResource(application);
+                })
+                .then(applicationMono)
+                .flatMap(application -> deleteApplicationByResource(application));
+    }
+
+    private Mono<Application> deleteApplicationByResource(Application application) {
+        log.debug("Archiving pages for applicationId: {}", application.getId());
+        application.setGitApplicationMetadata(null);
+        return Mono.when(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES),
+                newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .thenReturn(application)
+                .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 

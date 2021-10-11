@@ -43,4 +43,4 @@ ff4j:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emailDomains
-            value: test.com
+            value: appsmith.com

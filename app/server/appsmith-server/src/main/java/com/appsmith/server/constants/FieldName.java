@@ -18,6 +18,7 @@ public class FieldName {
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
+    public static final String DEFAULT_APPLICATION_ID = "defaultApplicationId";
     public static String PLUGIN_ID = "pluginId";
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
@@ -89,4 +90,6 @@ public class FieldName {
     public static final String IS_DISABLED = "isDisabled";
     public static final String IS_REQUIRED = "isRequired";
     public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
+    public static final String BRANCH_NAME = "branchName";
+    public static final String DEFAULT_GIT_PROFILE = "default";
 }

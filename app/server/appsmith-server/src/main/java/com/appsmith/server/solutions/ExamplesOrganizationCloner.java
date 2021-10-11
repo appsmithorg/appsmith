@@ -451,8 +451,8 @@ public class ExamplesOrganizationCloner {
         return applicationService.createDefault(application)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            // organization_application_deleted_gitRepo_gitBranch_compound_index
-                            && error.getMessage().contains("organization_application_deleted_gitRepo_gitBranch_compound_index")) {
+                            // organization_application_deleted_gitApplicationMetadata_compound_index
+                            && error.getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedApplication(application, name, 1 + suffix);
                     }
@@ -464,6 +464,7 @@ public class ExamplesOrganizationCloner {
         // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.
         domain.setId(null);
+        domain.setUpdatedAt(null);
         if (domain.getPolicies() != null) {
             domain.getPolicies().clear();
         }

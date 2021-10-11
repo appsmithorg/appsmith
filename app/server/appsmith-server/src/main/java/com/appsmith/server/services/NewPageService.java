@@ -32,6 +32,8 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<Void> deleteAll();
 
+    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, String branchName, Boolean view);
+
     Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, Boolean view);
 
     Layout createDefaultLayout();

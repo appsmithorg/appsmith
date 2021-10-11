@@ -14,17 +14,18 @@ import com.appsmith.server.services.SessionUserServiceImpl;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
-import java.util.Collection;
-import java.util.Map;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -70,18 +71,11 @@ public class ApplicationFetcher {
                     User user = userAndUserDataTuple.getT1();
                     UserData userData = userAndUserDataTuple.getT2();
 
-                    UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
-                    userHomepageDTO.setUser(user);
-
                     Set<String> orgIds = user.getOrganizationIds();
-                    if(CollectionUtils.isEmpty(orgIds)) {
-                        userHomepageDTO.setOrganizationApplications(new ArrayList<>());
-                        return Mono.just(userHomepageDTO);
-                    }
 
                     // create a set of org id where recently used ones will be at the beginning
                     List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
-                    Set<String> orgIdSortedSet = new LinkedHashSet<>();
+                    Set<String> orgIdSortedSet = new LinkedHashSet<>(orgIds.size());
                     if(recentlyUsedOrgIds != null && recentlyUsedOrgIds.size() > 0) {
                         // user has a recently used list, add them to the beginning
                         orgIdSortedSet.addAll(recentlyUsedOrgIds);
@@ -91,7 +85,13 @@ public class ApplicationFetcher {
                     // Collect all the applications as a map with organization id as a key
                     Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
+                            // TODO optimise this before pushing to release only fetch the latest application branch instead of default one
+                            .filter(application -> application.getGitApplicationMetadata() == null
+                                || (StringUtils.equals(application.getId(),application.getGitApplicationMetadata().getDefaultApplicationId())))
                             .collectMultimap(Application::getOrganizationId, Function.identity());
+
+                    UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
+                    userHomepageDTO.setUser(user);
 
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)

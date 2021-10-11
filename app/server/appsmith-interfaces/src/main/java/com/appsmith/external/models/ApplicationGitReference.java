@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -9,10 +10,13 @@ import java.util.Map;
  * export/save that application into a json files.
  */
 @Data
+@NoArgsConstructor
 public class ApplicationGitReference {
 
     Object application;
+    Object metadata;
     Map<String, Object> actions;
+    Map<String, Object> actionsCollections;
     Map<String, Object> pages;
     Map<String, Object> datasources;
 
