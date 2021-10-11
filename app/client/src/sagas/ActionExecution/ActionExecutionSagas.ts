@@ -96,7 +96,7 @@ export function* executeActionTriggers(
       yield call(resetWidgetActionSaga, trigger.payload, triggerMeta);
       break;
     case ActionTriggerType.SET_INTERVAL:
-      yield call(setIntervalSaga, trigger.payload, triggerMeta);
+      yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
       break;
     case ActionTriggerType.CLEAR_INTERVAL:
       yield call(clearIntervalSaga, trigger.payload, triggerMeta);
