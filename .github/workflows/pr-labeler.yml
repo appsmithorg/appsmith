@@ -29,6 +29,7 @@ jobs:
           for changed_file in ${{ steps.files.outputs.all }}; do
             echo "Do something with this ${changed_file}."
           done
+          continue-on-error: true
              
       - name: Verify Changed files and add comments
         uses: mshick/add-pr-comment@v1
