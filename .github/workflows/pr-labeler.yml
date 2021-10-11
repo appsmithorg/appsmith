@@ -23,11 +23,15 @@ jobs:
             **Hello**
             allow-repeats:true
       
-      - name: Hello world action step
-        uses: BusseBu/comment-on-push@master
-        with:
-          pattern: ^post-review fixes$
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v10
+
+      - name: List all modified files
+        run: |
+          for file in "${{ steps.changed-files.outputs.all_modified_files }}"; do
+            echo "$file was modified"
+          done
       
              
       - name: Verify Changed files and add comments
