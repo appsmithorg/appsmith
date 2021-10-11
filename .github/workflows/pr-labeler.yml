@@ -14,15 +14,14 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v10
-
-      - name: List all modified files
-        run: |
-          for file in "${{ steps.changed-files.outputs.all }}"; do
-            echo "$file was modified"
-          done
+            allow-repeats:true
+      
+      - name: Check for files changed
+        id: files
+        uses: Ana06/get-changed-files@v2.0.0
+        with: |
+          if contains(${{ steps.files.outputs.all }}, 'cypress')
+            echo "Do something with this "
 
       
 
