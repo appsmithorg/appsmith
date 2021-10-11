@@ -72,11 +72,11 @@ describe("<DropdownWidget />", () => {
       serverSideFiltering: false,
       onFilterUpdate: "mock-update",
     };
-    const { asFragment } = renderDropdownWidget(mockDataWithEmptyOptions);
+    renderDropdownWidget(mockDataWithEmptyOptions);
 
     const selectElement = screen.getByText("-- Select --");
     fireEvent.click(selectElement);
 
-    expect(asFragment()).toMatchSnapshot();
+    expect(screen.getByText("No Results")).toBeInTheDocument();
   });
 });

@@ -168,7 +168,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     return (
       <DropdownContainer>
-        {!_.isEmpty(this.props.options) ? <DropdownStyles /> : null}
+        <DropdownStyles />
         <StyledControlGroup
           fill
           haslabel={!!this.props.label ? "true" : "false"}
@@ -200,6 +200,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             }
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
+            noResults={<MenuItem disabled text="No Results" />}
             onItemSelect={this.onItemSelect}
             onQueryChange={
               this.props.serverSideFiltering ? this.serverSideSearch : undefined
