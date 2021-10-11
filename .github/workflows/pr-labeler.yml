@@ -33,4 +33,13 @@ jobs:
           if: contains('${{ steps.files.outputs.all }}', 'cypress')
             echo  "cypressfound"
       
-
+             
+      - name: Verify Changed files and add comments
+        uses: mshick/add-pr-comment@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          if: contains(env.FILE_LIST, 'SomeString')
+            message:|
+              Unable to find testcases in the PR
+              allow-repeats:true
