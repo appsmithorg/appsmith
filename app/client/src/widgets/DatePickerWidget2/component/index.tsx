@@ -272,7 +272,7 @@ class DatePickerComponent extends React.Component<
   closePicker = (e: any) => {
     const { closeOnSelection } = this.props;
     try {
-      // close the picker on escape key and tab key is press
+      // close the picker when escape key and tab key is pressed
       if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
         this.setState({ showPicker: false });
         return;
