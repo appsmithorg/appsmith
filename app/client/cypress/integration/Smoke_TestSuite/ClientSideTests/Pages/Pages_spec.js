@@ -24,7 +24,9 @@ describe("Pages", function() {
       .its("length")
       .should("be.gt", 1);
 
-    cy.get(".t--entity-name:contains(Datasources) ~ .t--entity-add-btn").click({
+    cy.get(
+      `.t--entity-name:contains(Datasources) ~ .bp3-popover-wrapper .t--entity-add-btn`,
+    ).click({
       multiple: true,
     });
     cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 2);
