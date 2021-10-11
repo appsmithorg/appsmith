@@ -91,6 +91,7 @@ import DownArrow from "remixicon-react/ArrowDownSFillIcon";
 import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
+import EditLineIcon from "remixicon-react/EditLineIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
 import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
@@ -203,6 +204,7 @@ export const IconCollection = [
   "download",
   "duplicate",
   "edit",
+  "edit-line",
   "emoji",
   "error",
   "expand-less",
@@ -429,6 +431,9 @@ const Icon = forwardRef(
         break;
       case "edit":
         returnIcon = <EditIcon />;
+        break;
+      case "edit-line":
+        returnIcon = <EditLineIcon />;
         break;
       case "emoji":
         returnIcon = <Emoji />;
