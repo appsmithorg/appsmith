@@ -37,6 +37,7 @@ const CameraContainer = styled.div<CameraContainerProps>`
   align-items: center;
   justify-content: center;
   overflow: auto;
+  background: black;
 
   video {
     ${({ scaleAxis }) => (scaleAxis === "x" ? `width: 100%` : `height: 100%`)};
