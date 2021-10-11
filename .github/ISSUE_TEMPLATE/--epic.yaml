@@ -58,12 +58,11 @@ body:
     label: RACI matrix
     description: Please fill the table below.
     value: |
-      | Label | Value | 
       | ------------- | ------------- |
-      | Responsible |  |
-      | Accountable |  |
-      | Consulted | @Nikhil-Nandagopal, @mohanarpit, @areyabhishek|
-      | Informed |  |
+      | Responsible   |               |
+      | Accountable   |               |
+      | Consulted     | @Nikhil-Nandagopal, @mohanarpit, @areyabhishek|
+      | Informed      |               |
     render: markdown
   validations:
     required: true
