@@ -5,6 +5,7 @@ import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
 import _ from "lodash";
+import { Colors } from "constants/Colors";
 
 const DropdownContainer = styled.div<{ width?: string }>`
   width: ${(props) => props.width || "260px"};
@@ -32,15 +33,16 @@ const Selected = styled.div<{ isOpen: boolean; disabled?: boolean }>`
       : `border: 1px solid ${props.theme.colors.dropdown.header.bg}`};
   ${(props) =>
     props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
-  ${(props) =>
-    props.isOpen && !props.disabled
-      ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
-      : null};
   .${Classes.TEXT} {
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
         : `color: ${props.theme.colors.dropdown.header.text}`};
+  }
+
+  svg {
+    fill: ${Colors.DARK_GRAY};
+    margin-right: 8px;
   }
 `;
 
@@ -50,8 +52,6 @@ const DropdownWrapper = styled.div<{
   width: ${(props) => props.width || "260px"};
   z-index: 1;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-  box-shadow: ${(props) =>
-    `0px 2px 4px ${props.theme.colors.dropdown.menuShadow}`};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
   padding: ${(props) => props.theme.spaces[3]}px 0;
 `;
@@ -69,7 +69,7 @@ const OptionWrapper = styled.div<{
     props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
 
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    color: ${Colors.CHARCOAL};
   }
 
   .${Classes.ICON} {
@@ -88,7 +88,7 @@ const OptionWrapper = styled.div<{
     background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
 
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.textOnDarkBG};
+      color: ${Colors.CHARCOAL};
     }
 
     .${Classes.ICON} {
@@ -110,7 +110,7 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
   &:hover {
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.dropdown.selected.text};
+      color: ${Colors.CHARCOAL};
     }
   }
 `;
@@ -119,24 +119,11 @@ const MultiOptionWrapper = styled(OptionWrapper)`
   background-color: transparent;
   .${Classes.MULTI_SELECT_BOX} {
     background-color: ${(props) =>
-      props.selected ? props.theme.colors.dropdown.hovered.bg : "transparent"};
+      props.selected ? Colors.DANUBE : "transparent"};
     border-color: ${(props) =>
       props.selected
-        ? props.theme.colors.dropdown.hovered.bg
+        ? Colors.DANUBE
         : props.theme.colors.propertyPane.jsIconBg};
-  }
-
-  &:hover {
-    .${Classes.MULTI_SELECT_BOX} {
-      border-color: ${(props) =>
-        props.selected
-          ? props.theme.colors.propertyPane.multiDropdownBoxHoverBg
-          : props.theme.colors.textOnDarkBG};
-      background-color: ${(props) =>
-        props.selected
-          ? props.theme.colors.propertyPane.multiDropdownBoxHoverBg
-          : "transparent"};
-    }
   }
 `;
 
@@ -252,7 +239,7 @@ function MultiSelectDropdown(props: DropdownProps) {
               ? `${props.selected.length} Selected`
               : "Select file types"}
           </Text>
-          <Icon name="downArrow" size={IconSize.XXS} />
+          <Icon name="expand-more" size={IconSize.XXL} />
         </Selected>
         <DropdownWrapper
           width={props.optionWidth ? props.optionWidth : containerWidth}

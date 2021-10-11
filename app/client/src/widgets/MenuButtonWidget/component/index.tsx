@@ -20,7 +20,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-} from "widgets/ButtonWidget/component";
+} from "widgets/WidgetUtils";
 
 type MenuButtonContainerProps = {
   disabled?: boolean;
@@ -214,6 +214,7 @@ export interface PopoverContentProps {
 function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
+  if (!itemsObj) return <StyledMenu />;
   const items = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);
