@@ -23,13 +23,24 @@ jobs:
             **Hello**
             allow-repeats:true
       
-      - id: files
-        uses: jitterbit/get-changed-files@v1
-      - run: |
-          for changed_file in ${{ steps.files.outputs.all }}; do
-            echo "Do something with this ${changed_file}."
-          done
-          continue-on-error: true
+      - name: Get specific changed files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v10
+        with:
+          files: |
+            my-file.txt
+            test.txt
+            new.txt
+            test_directory
+            \.sh$
+            .(png|jpeg)$
+            .(sql|py)$
+            ^(mynewfile|custom)
+
+      - name: Run step if any of the listed files above change
+        if: steps.changed-files-specific.outputs.any_changed == 'false'
+        run: |
+          echo "One or more files listed above has changed."
              
       - name: Verify Changed files and add comments
         uses: mshick/add-pr-comment@v1
