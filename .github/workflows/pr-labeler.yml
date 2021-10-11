@@ -27,7 +27,7 @@ jobs:
         id: files
         uses: Ana06/get-changed-files@v2.0.0
         with: |
-          if 'changed_file' in '${{ steps.files.outputs.all }}'
+          if contains('${{ steps.files.outputs.all }}', 'cypress')
             echo "Do something with this ${changed_file}."
 
       
