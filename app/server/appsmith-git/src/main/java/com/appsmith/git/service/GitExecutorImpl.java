@@ -294,20 +294,29 @@ public class GitExecutorImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
             Git git = Git.open(repoPath.toFile());
-            long count = Arrays.stream(git
-                    .pull()
-                    .setRemoteBranchName(branchName)
-                    .setTransportConfigCallback(transportConfigCallback)
-                    .setFastForward(MergeCommand.FastForwardMode.FF)
-                    .call()
-                    .getMergeResult()
-                    .getMergedCommits())
-                    .count();
-            git.close();
-            if (count > 0) {
-                return count + " commits merged from origin/" + branchName;
+            try {
+                long count = Arrays.stream(git
+                        .pull()
+                        .setRemoteBranchName(branchName)
+                        .setTransportConfigCallback(transportConfigCallback)
+                        .setFastForward(MergeCommand.FastForwardMode.FF)
+                        .call()
+                        .getMergeResult()
+                        .getMergedCommits())
+                        .count();
+                git.close();
+                if (count > 0) {
+                    return count + " commits merged from origin/" + branchName;
+                }
+                return "Your branch is up-to-date with latest commits";
+            } catch (GitAPIException e) {
+                //On merge conflicts abort the merge => git merge --abort
+                git.getRepository().writeMergeCommitMsg(null);
+                git.getRepository().writeMergeHeads(null);
+                Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
+                git.close();
+                return e.getMessage();
             }
-            return "Your branch is up-to-date with latest commits";
         }).subscribeOn(scheduler);
     }
 
