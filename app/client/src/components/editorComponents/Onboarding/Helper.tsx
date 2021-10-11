@@ -72,6 +72,9 @@ const SkipButton = styled(Button)`
   background-color: transparent;
   font-size: 14px;
   color: #6d6d6d;
+  &:hover {
+    color: ${Colors.GREY_10};
+  }
 `;
 
 const ActionButton = styled(Button)<{ initialStep?: boolean }>`
