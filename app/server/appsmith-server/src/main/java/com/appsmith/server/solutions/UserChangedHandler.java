@@ -4,6 +4,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.events.UserChangedEvent;
 import com.appsmith.server.events.UserPhotoChangedEvent;
 import com.appsmith.server.repositories.CommentRepository;
+import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class UserChangedHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CommentRepository commentRepository;
+    private final NotificationRepository notificationRepository;
     private final OrganizationRepository organizationRepository;
 
     public User publish(User user) {
@@ -45,6 +47,10 @@ public class UserChangedHandler {
         updateNameInUserRoles(user)
                 .subscribeOn(Schedulers.elastic())
                 .subscribe();
+
+        updateNameInNotifications(user)
+                .subscribeOn(Schedulers.elastic())
+                .subscribe();
     }
 
     @Async
@@ -64,6 +70,16 @@ public class UserChangedHandler {
 
         log.debug("Updating name in comments for user {}", user.getId());
         return commentRepository.updateAuthorNames(user.getId(), user.getName());
+    }
+
+    private Mono<Void> updateNameInNotifications(User user) {
+        if (user.getId() == null) {
+            log.warn("Attempt to update name in notifications for user with null ID.");
+            return Mono.empty();
+        }
+
+        log.debug("Updating name in notifications for user {}", user.getId());
+        return notificationRepository.updateCommentAuthorNames(user.getId(), user.getName());
     }
 
     private Mono<Void> updatePhotoIdInComments(String userId, String photoId) {

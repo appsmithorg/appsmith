@@ -1,5 +1,5 @@
-import React, { useState, useRef, RefObject } from "react";
-import { connect, useSelector, useDispatch } from "react-redux";
+import React, { useState, useRef, RefObject, useCallback } from "react";
+import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
 import { AppState } from "reducers";
@@ -10,16 +10,13 @@ import {
   DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
   EMPTY_JS_OBJECT,
-  PARSING_WARNING,
   PARSING_ERROR,
 } from "constants/messages";
-import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { executeJSFunction } from "actions/jsPaneActions";
@@ -34,6 +31,12 @@ import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
+import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { DebugButton } from "./Debugger/DebugCTA";
+import { thinScrollbar } from "constants/DefaultTheme";
+import { setCurrentTab } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import EntityBottomTabs from "./EntityBottomTabs";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -64,6 +67,10 @@ const ResponseTabActionsList = styled.ul`
   width: 20%;
   list-style: none;
   padding-left: 0;
+  ${thinScrollbar};
+  scrollbar-width: thin;
+  overflow: auto;
+  padding-bottom: 40px;
 `;
 
 const ResponseTabAction = styled.li`
@@ -88,7 +95,7 @@ const ResponseTabAction = styled.li`
 `;
 
 const TabbedViewWrapper = styled.div`
-  height: calc(100% - 30px);
+  height: 100%;
 
   &&& {
     ul.react-tabs__tab-list {
@@ -129,6 +136,18 @@ const HelpSection = styled.div`
   padding-top: 10px;
 `;
 
+const FailedMessage = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+`;
+
+const StyledCallout = styled(Callout)`
+  .${Classes.TEXT} {
+    line-height: normal;
+  }
+`;
+
 interface ReduxStateProps {
   responses: Record<string, any>;
   isExecuting: Record<string, boolean>;
@@ -146,8 +165,6 @@ function JSResponseView(props: Props) {
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const [selectActionId, setSelectActionId] = useState("");
-  const initialIndex = useSelector(getActionTabsInitialIndex);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const actionList = jsObject?.actions;
   const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
@@ -158,9 +175,14 @@ function JSResponseView(props: Props) {
   const errorsList = errors.filter((er) => {
     return er.severity === Severity.ERROR;
   });
-  const warningsList = errors.filter((er) => {
-    return er.severity === Severity.WARNING;
-  });
+
+  const onDebugClick = useCallback(() => {
+    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+      source: "JS_OBJECT",
+    });
+    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  }, []);
+
   const tabs = [
     {
       key: "body",
@@ -169,18 +191,15 @@ function JSResponseView(props: Props) {
         <>
           <HelpSection>
             {errorsList.length > 0 ? (
-              <Callout
+              <StyledCallout
                 fill
-                key={"error"}
+                label={
+                  <FailedMessage>
+                    <DebugButton onClick={onDebugClick} />
+                  </FailedMessage>
+                }
                 text={createMessage(PARSING_ERROR)}
                 variant={Variant.danger}
-              />
-            ) : warningsList.length > 0 ? (
-              <Callout
-                fill
-                key={"error"}
-                text={createMessage(PARSING_WARNING)}
-                variant={Variant.warning}
               />
             ) : (
               ""
@@ -242,36 +261,25 @@ function JSResponseView(props: Props) {
       ),
     },
     {
-      key: "ERROR",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
 
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(tabs[index].key) &&
-      debuggerTabKeys.includes(tabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: tabs[index].key,
-      });
-    }
-    setSelectedIndex(index);
-  };
-
   const runAction = (action: JSAction) => {
     setSelectActionId(action.id);
+    const collectionId = getJSCollectionIdFromURL();
     dispatch(
       executeJSFunction({
         collectionName: jsObject?.name || "",
         action: action,
+        collectionId: collectionId || "",
       }),
     );
   };
@@ -280,11 +288,7 @@ function JSResponseView(props: Props) {
     <ResponseContainer ref={panelRef}>
       <Resizer panelRef={panelRef} />
       <TabbedViewWrapper>
-        <TabComponent
-          onSelect={onTabSelect}
-          selectedIndex={selectedIndex}
-          tabs={tabs}
-        />
+        <EntityBottomTabs defaultIndex={0} tabs={tabs} />
       </TabbedViewWrapper>
     </ResponseContainer>
   );

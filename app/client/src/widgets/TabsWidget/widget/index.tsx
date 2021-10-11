@@ -25,7 +25,7 @@ export function selectedTabValidation(
   return {
     isValid: value === "" ? true : tabNames.includes(value as string),
     parsed: value,
-    message: `Tab name ${value} does not exist`,
+    messages: [`Tab name ${value} does not exist`],
   };
 }
 class TabsWidget extends BaseWidget<
@@ -136,6 +136,7 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
           },
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",

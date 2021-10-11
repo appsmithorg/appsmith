@@ -223,7 +223,7 @@ public class FilterDataService {
                     valueBuilder.append(finalValues);
                 } catch (IOException e) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            value + " could not parsed into an array");
+                            value + " could not be parsed into an array");
                 }
 
                 valueBuilder.append(")");
@@ -322,6 +322,7 @@ public class FilterDataService {
     private void executeDbQuery(String query) {
 
         Connection conn = checkAndGetConnection();
+        log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), query);
 
         try {
             conn.createStatement().execute(query);
@@ -537,11 +538,9 @@ public class FilterDataService {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
                     break;
                 }
-                case STRING: {
-                    preparedStatement.setString(index, value);
-                    break;
-                }
+                case STRING: 
                 default:
+                    preparedStatement.setString(index, value);
                     break;
             }
 
@@ -563,8 +562,8 @@ public class FilterDataService {
                 .map(condition -> {
                     if (!Condition.isValid(condition)) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Condition for filtering was incomplete or incorrect : " + condition.getPath() +
-                                        condition.getOperator().toString() + condition.getValue());
+                                "Condition \" " + condition.getPath() + " " + condition.getOperator().toString() + " "
+                                        + condition.getValue() + " \" is incorrect and could not be parsed.");
                     }
 
                     String path = condition.getPath();
