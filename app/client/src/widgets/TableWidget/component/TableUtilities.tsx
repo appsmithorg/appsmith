@@ -442,15 +442,13 @@ function CheckBoxLineIcon() {
     <svg
       className="th-svg t--table-multiselect-header-half-check-svg"
       fill="none"
-      height="15"
-      width="15"
+      height="0.83"
+      width="5.83"
     >
       <path
-        d="M11.183673404886235,7.5 H3.81632661819458 "
-        stroke="white"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeOpacity="0.9"
+        d="M0.0820312 0.583313L5.91537 0.583313L5.91537 1.41665L0.0820312 1.41665L0.0820312 0.583313Z"
+        fill="white"
+        transform="translate(2.08,4.58)"
       />
     </svg>
   );
@@ -458,13 +456,11 @@ function CheckBoxLineIcon() {
 
 function CheckBoxCheckIcon() {
   return (
-    <svg className="th-svg" fill="none" height="15" width="15">
+    <svg className="th-svg" fill="none" height="6.5" width="8.5">
       <path
-        d="M3.523326302644791,8.068102895600848 L5.7957131234862,10.340476082148596 L11.476673358442884,4.659524027768102 "
-        stroke="white"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeOpacity="0.9"
+        d="M8.10387 0.500001L9 1.40822L3.48269 7L0.5 3.97705L1.39613 3.06883L3.48269 5.18305L8.10387 0.500001Z"
+        fill="white"
+        transform="translate(0.5,1.5)"
       />
     </svg>
   );
