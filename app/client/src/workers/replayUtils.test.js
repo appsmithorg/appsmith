@@ -106,7 +106,7 @@ describe("check processDiff from replayUtils for type of update", () => {
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
-      expect(replay[WIDGETS]["abcde"][UPDATES]).toEqual(path);
+      expect(replay[WIDGETS].abcde[UPDATES]).toEqual(path);
     });
     it("should be considered PropertyUpdate when path length is more than 1 in kind 'D'", () => {
       const replay = {};
@@ -120,7 +120,7 @@ describe("check processDiff from replayUtils for type of update", () => {
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
-      expect(replay[WIDGETS]["abcde"][UPDATES]).toEqual(path);
+      expect(replay[WIDGETS].abcde[UPDATES]).toEqual(path);
     });
   });
   describe("check diff of kind 'E'", () => {
@@ -134,7 +134,7 @@ describe("check processDiff from replayUtils for type of update", () => {
       processDiff(dsl, updateWidgetDiff, replay, true);
 
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
-      expect(replay[WIDGETS]["abcde"][FOCUSES]).toBe(true);
+      expect(replay[WIDGETS].abcde[FOCUSES]).toBe(true);
     });
     it("should be considered PropertyUpdate if custom widget props Change", () => {
       const replay = {};
@@ -148,7 +148,7 @@ describe("check processDiff from replayUtils for type of update", () => {
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
-      expect(replay[WIDGETS]["abcde"][UPDATES]).toEqual(path);
+      expect(replay[WIDGETS].abcde[UPDATES]).toEqual(path);
     });
   });
 });
