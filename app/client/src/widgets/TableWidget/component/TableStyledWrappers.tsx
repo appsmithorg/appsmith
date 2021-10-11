@@ -432,23 +432,23 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
   width: 40px;
   background: ${Colors.WHITE};
   & > div {
-    background: ${(props) => (props.isChecked ? Colors.FERN_GREEN : "")};
-    border: ${(props) =>
-      !props.isChecked ? `1px solid ${Colors.GEYSER_LIGHT}` : ""};
-  }
-
-  ${(props) =>
-    props.isChecked
-      ? `
-    background: ${Colors.NARVIK_GREEN};
-    `
-      : `
-    &:hover {
-      & > div {
-        background: ${Colors.GALLERY_1};
+    ${(props) =>
+      !props.isChecked
+        ? `
+      border: 1px solid ${Colors.GREY_3};
+      &:hover {
+        border: 1px solid ${Colors.GREY_5};
       }
-    }
-  `}
+    `
+        : `
+      background: ${Colors.FERN_GREEN};
+      &:hover {
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+        ${Colors.FERN_GREEN};
+      } 
+        `}
+  }
+  ${(props) => (props.isChecked ? `background: ${Colors.NARVIK_GREEN};` : "")}
 `;
 
 export const CellCheckbox = styled.div`
