@@ -13,13 +13,6 @@ jobs:
       - uses: appsmithorg/labeler@master
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      
-      - name: Verify Changed files
-        uses: tj-actions/verify-changed-files@v8
-        id: verify-changed-files
-        with:
-          files: |
-             cypress
 
       - name: Addcomment
         uses: mshick/add-pr-comment@v1
@@ -28,8 +21,15 @@ jobs:
         with:
           message: |
             **Hello**
-             
+      
       - name: Verify Changed files
+        uses: tj-actions/verify-changed-files@v8
+        id: verify-changed-files
+        with:
+          files: |
+             cypress
+             
+      - name: Verify Changed files and add comments
         uses: mshick/add-pr-comment@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
