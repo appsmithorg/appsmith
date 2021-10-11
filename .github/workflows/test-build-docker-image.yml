@@ -604,6 +604,29 @@ jobs:
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
 
+      # Run & test Docker image before pushing to Docker Hub
+      - name: Build and test Docker image
+        if: |
+          success() &&
+          (github.event_name == 'workflow_dispatch' ||
+          github.event_name == 'push' ||
+          (github.event_name == 'pull_request_review' && 
+          github.event.review.state == 'approved' && 
+          github.event.pull_request.head.repo.full_name == github.repository))
+        working-directory: "."
+        run: |
+          docker build \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith:automation-test \
+            .
+          docker run \
+            -p 80:80 --name appsmith -d \
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith:automation-test
+          sleep 180
+          cd $GITHUB_WORKSPACE/deploy/test-scripts/docker
+          chmod +x run-test.sh
+          ./run-test.sh
+
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
