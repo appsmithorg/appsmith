@@ -13,8 +13,6 @@ jobs:
       - uses: appsmithorg/labeler@master
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-            allow-repeats:true
       
       - name: Check for files changed
         id: files
