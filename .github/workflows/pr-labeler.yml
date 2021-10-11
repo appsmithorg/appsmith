@@ -19,7 +19,7 @@ jobs:
         id: verify-changed-files
         with:
           files: |
-             "app/client/**"
+             cypress
 
       - name: Addcomment
         uses: mshick/add-pr-comment@v1
