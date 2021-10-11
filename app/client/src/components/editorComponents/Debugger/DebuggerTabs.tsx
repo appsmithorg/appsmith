@@ -1,13 +1,11 @@
-import React, { RefObject, useEffect, useRef, useState } from "react";
+import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
-import { TabComponent } from "components/ads/Tabs";
 import Icon, { IconSize } from "components/ads/Icon";
 import DebuggerLogs from "./DebuggerLogs";
-import { useDispatch, useSelector } from "react-redux";
-import { setCurrentTab, showDebugger } from "actions/debuggerActions";
+import { useDispatch } from "react-redux";
+import { showDebugger } from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import EntityDeps from "./EntityDependecies";
 import {
   createMessage,
@@ -16,9 +14,9 @@ import {
   INSPECT_ENTITY,
 } from "constants/messages";
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { getCurrentDebuggerTab } from "selectors/debuggerSelectors";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
+import EntityBottomTabs from "../EntityBottomTabs";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -69,35 +67,15 @@ const DEBUGGER_TABS = [
 ];
 
 function DebuggerTabs(props: DebuggerTabsProps) {
-  const [selectedIndex, setSelectedIndex] = useState(props.defaultIndex);
-  const currentTab = useSelector(getCurrentDebuggerTab);
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const onTabSelect = (index: number) => {
-    AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-      tabName: DEBUGGER_TABS[index].key,
-    });
-    setSelectedIndex(index);
-    dispatch(setCurrentTab(DEBUGGER_TABS[index].key));
-  };
   const onClose = () => dispatch(showDebugger(false));
-
-  useEffect(() => {
-    const index = DEBUGGER_TABS.findIndex((tab) => tab.key === currentTab);
-
-    if (index >= 0) {
-      onTabSelect(index);
-    } else {
-      onTabSelect(0);
-    }
-  }, [currentTab]);
 
   return (
     <Container onClick={stopEventPropagation} ref={panelRef}>
       <Resizer panelRef={panelRef} />
-      <TabComponent
-        onSelect={onTabSelect}
-        selectedIndex={selectedIndex}
+      <EntityBottomTabs
+        defaultIndex={props.defaultIndex}
         tabs={DEBUGGER_TABS}
       />
       <Icon
