@@ -27,9 +27,8 @@ jobs:
         id: files
         uses: Ana06/get-changed-files@v2.0.0
       - run: |
-          for changed_file in ${{ steps.files.outputs.all }}; do
+          if 'changed_file' in ${{ steps.files.outputs.all }}
             echo "Do something with this ${changed_file}."
-          done
 
       
 
