@@ -46,6 +46,7 @@ body:
       - Production
       - Release
       - Deploy Preview
+  validations:
     required: true
 - type: dropdown
   id: version
@@ -54,4 +55,5 @@ body:
     options:
       - Cloud
       - Self-Hosted
+  validations:
     required: true
