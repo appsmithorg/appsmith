@@ -402,6 +402,9 @@ export const DOWNLOAD = () => `Download`;
 export const COPY_TO_CLIPBOARD = () => `Copy to clipboard`;
 export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
+export const SET_INTERVAL = () => `Set interval`;
+export const CLEAR_INTERVAL = () => `Clear interval`;
+
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} copied to page ${pageName} successfully`;
