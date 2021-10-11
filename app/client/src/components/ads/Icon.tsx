@@ -304,7 +304,7 @@ export const IconWrapper = styled.span<IconProps>`
           ? `
             fill: ${props.hoverFillColor || ""};
             path {
-              fill: ${props.fillColor || ""};
+              fill: ${props.hoverFillColor || ""};
             }
           `
           : ""}
