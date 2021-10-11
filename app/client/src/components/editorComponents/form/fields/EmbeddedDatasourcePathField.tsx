@@ -246,7 +246,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const { datasourceList } = this.props;
     return () => {
       return {
-        trigger: (editor: CodeMirror.Editor) => {
+        showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
           if (
@@ -291,11 +291,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                 return hints;
               },
             });
+            return true;
           }
-        },
-        showHint: () => {
           return false;
         },
+        fireOnFocus: true,
       };
     };
   };

@@ -46,9 +46,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      const shouldShowBinding =
-        slashIndex > -1 || (!value && currentEntityType === ENTITY_TYPE.WIDGET);
-      if (!cursorBetweenBinding && shouldShowBinding) {
+      const shouldShowBinding = !cursorBetweenBinding && slashIndex > -1;
+      if (shouldShowBinding) {
         const searchText = value.substring(slashIndex + 1);
         const list = generateQuickCommands(
           entitiesForSuggestions,
@@ -96,7 +95,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                 if (selected.action && typeof selected.action === "function") {
                   selected.action();
                 } else {
-                  CodeMirror.signal(editor, "postPick");
+                  selected.triggerCompletionsPostPick &&
+                    CodeMirror.signal(editor, "postPick");
                 }
               });
               try {

@@ -51,6 +51,7 @@ export type Completion = Hint & {
 export type CommandsCompletion = Completion & {
   action?: () => void;
   shortcut: string;
+  triggerCompletionsPostPick?: boolean;
 };
 
 type TernDocs = Record<string, TernDoc>;
