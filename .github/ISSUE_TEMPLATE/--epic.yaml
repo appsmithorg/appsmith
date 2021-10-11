@@ -1,36 +1,29 @@
 name: 📓 Epic
 description: A large planned scope of work for the quarter
 title: "[Epic]: "
-labels: [Epic, Product Note]
+labels: [Epic]
 assignees:
 - Nikhil-Nandagopal
 body:
-- type: checkboxes
-  attributes:
-    label: Is there an existing issue for this?
-    description: Please search to see if an issue already exists.
-    options:
-    - label: I have searched the existing issues
-      required: true
 - type: textarea
   attributes:
     label: Objective
     description: Here you fill in the objective of the product/feature that you are writing about.
   validations:
-    required: false
-- type: textarea
+    required: true
+- type: markdown
   attributes:
     label: Success Metrics
     description: List of all metrics you are tracking and the desired goal.
     value: |
-      | Goal  | Metric |
-      | ------------- | ------------- |
+      | Goal          | Metric         |
+      | ------------- | -------------- |
       | e.g. Simplify user experience  | Customer satisfaction score increases  |
-      | e.g. Simplify onboarding flow  | Decrease churn rate down to 30% |
+      | e.g. Simplify onboarding flow  | Decrease churn rate down to 30%        |
     render: markdown
   validations:
-    required: false
-- type: textarea
+    required: true
+- type: markdown
   attributes:
     label: Requirements 
     value: |
@@ -41,7 +34,7 @@ body:
     render: markdown
   validations:
     required: false
-- type: textarea
+- type: markdown
   attributes:
     label: Out of Scope
     description: |
@@ -53,13 +46,13 @@ body:
     render: markdown
   validations:
     required: false
-- type: textarea
+- type: input
   attributes:
     label: Developer Handoff Document in Figma
     description: Link to the developer Handoff Document. 
   validations:
     required: false
-- type: textarea
+- type: markdown
   attributes:
     label: RACI matrix
     description: Please fill the table below.
@@ -72,11 +65,4 @@ body:
       | Informed |  |
     render: markdown
   validations:
-    required: false
-- type: textarea
-  attributes:
-    label: Anything else?
-    description: |
-      Links? References? Anything that will give us more context about this!
-  validations:
-    required: false
+    required: true
