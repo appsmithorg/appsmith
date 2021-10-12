@@ -177,7 +177,6 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
-  currentChange: CodeMirror.EditorChangeCancellable | null;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   constructor(props: Props) {
     super(props);
@@ -188,12 +187,11 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
-    this.currentChange = null;
   }
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
-        mode: { name: this.props.mode, globalVars: true },
+        mode: this.props.mode,
         theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
         tabSize: 2,
