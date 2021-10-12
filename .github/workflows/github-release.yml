@@ -1,10 +1,10 @@
 name: Appsmith Github Release Workflow
 
-# This workflow builds Docker images for server and client, and then pushes them to Docher Hub.
-# The docker-tag with which this push happens in the release tag (e.g., v1.2.3 etc.).
+# This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
+# The docker-tag with which this push happens is the release tag (e.g., v1.2.3 etc.).
 # In addition to the above tag, unless the git-tag matches `*beta*`, we also push to the `latest` docker-tag.
 # This workflow does NOT run tests.
-# This workflow is automatically triggered when a relese is created on GitHub.
+# This workflow is automatically triggered when a release is created on GitHub.
 
 on:
   # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
