@@ -107,7 +107,7 @@ jobs:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
       - name: Figure out the PR number
-        run: echo ${{ github.event.pull_request.number }}
+        run: echo ${{ github.event.client_payload.pull_request.number }}
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
