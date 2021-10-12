@@ -21,7 +21,7 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
-import evaluate from "workers/evaluate";
+import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
 
@@ -71,6 +71,10 @@ ctx.addEventListener(
   "message",
   messageEventListener((method, requestData: any) => {
     switch (method) {
+      case EVAL_WORKER_ACTIONS.SETUP: {
+        setupEvaluationEnvironment();
+        return true;
+      }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
           shouldReplay = true,

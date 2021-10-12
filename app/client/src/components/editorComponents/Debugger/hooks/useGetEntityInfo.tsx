@@ -4,13 +4,14 @@ import { isEqual, keyBy } from "lodash";
 import {
   getPluginIcon,
   getWidgetIcon,
+  jsIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo, useCallback } from "react";
 import { AppState } from "reducers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getAction, getDatasource } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import { isAction, isWidget } from "workers/evaluationUtils";
+import { isAction, isJSAction, isWidget } from "workers/evaluationUtils";
 import { doesEntityHaveErrors } from "../helpers";
 
 export const useGetEntityInfo = (name: string) => {
@@ -19,7 +20,6 @@ export const useGetEntityInfo = (name: string) => {
   const action = useSelector((state: AppState) =>
     isAction(entity) ? getAction(state, entity.actionId) : undefined,
   );
-
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   }, isEqual);
@@ -53,6 +53,16 @@ export const useGetEntityInfo = (name: string) => {
         hasError,
         type: ENTITY_TYPE.ACTION,
         entityType: action?.pluginId ? pluginGroups[action.pluginId].name : "",
+      };
+    } else if (isJSAction(entity)) {
+      const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
+      const icon = jsIcon;
+      return {
+        name,
+        icon,
+        hasError,
+        type: ENTITY_TYPE.JSACTION,
+        entityType: entity.type,
       };
     }
   }, [name]);

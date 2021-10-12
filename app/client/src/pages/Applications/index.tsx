@@ -190,7 +190,6 @@ const PaddingWrapper = styled.div`
 `;
 
 const LeftPaneWrapper = styled.div`
-  // height: 50vh;
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
@@ -206,7 +205,7 @@ const ApplicationContainer = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
   overflow: auto;
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
-  margin-top: 16px;
+  padding-top: 16px;
   margin-left: ${(props) =>
     props.theme.homePage.leftPane.width +
     props.theme.homePage.leftPane.rightMargin +
@@ -689,7 +688,7 @@ function ApplicationsSection(props: any) {
               {hasManageOrgPermissions && (
                 <Dialog
                   canEscapeKeyClose={false}
-                  canOutsideClickClose={false}
+                  canOutsideClickClose
                   isOpen={selectedOrgId === organization.id}
                   onClose={() => setSelectedOrgId("")}
                   title={`Invite Users to ${organization.name}`}

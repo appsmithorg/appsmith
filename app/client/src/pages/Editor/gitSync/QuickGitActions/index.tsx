@@ -127,6 +127,7 @@ const StyledIcon = styled(GitCommitLine)`
   & path {
     fill: ${Colors.DARK_GRAY};
   }
+  margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const PlaceholderButton = styled.div`
