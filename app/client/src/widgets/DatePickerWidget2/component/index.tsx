@@ -94,7 +94,6 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
-      showPicker: false,
     };
   }
 
@@ -173,10 +172,6 @@ class DatePickerComponent extends React.Component<
               closeOnSelection={this.props.closeOnSelection}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
-              inputProps={{
-                onFocus: this.showPicker,
-                onKeyDown: this.handleKeyDown,
-              }}
               maxDate={maxDate}
               minDate={minDate}
               onChange={this.onDateSelected}
@@ -184,8 +179,6 @@ class DatePickerComponent extends React.Component<
               placeholder={"Select Date"}
               popoverProps={{
                 usePortal: !this.props.withoutPortal,
-                isOpen: this.state.showPicker,
-                onClose: this.closePicker,
                 popoverRef: this.handlePopoverRef,
                 canEscapeKeyClose: true,
               }}
@@ -256,50 +249,12 @@ class DatePickerComponent extends React.Component<
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
     if (isUserChange) {
-      const { closeOnSelection, onDateSelected } = this.props;
-
+      const { onDateSelected } = this.props;
       const date = selectedDate ? selectedDate.toISOString() : "";
       this.setState({
         selectedDate: date,
-        // close picker while user changes in calender
-        // if closeOnSelection false, do not allow user to close picker
-        showPicker: !closeOnSelection,
       });
-
       onDateSelected(date);
-    }
-  };
-
-  showPicker = () => {
-    this.setState({ showPicker: true });
-  };
-
-  closePicker = (e: any) => {
-    const { closeOnSelection } = this.props;
-    try {
-      //close if escape key was press
-      if (e.key === KEYS.Escape) {
-        this.setState({
-          showPicker: false,
-        });
-        return;
-      }
-      // close on select
-      const showPicker =
-        this.pickerRef && this.pickerRef.contains(e.target)
-          ? !closeOnSelection
-          : false;
-      this.setState({ showPicker });
-    } catch (error) {
-      this.setState({ showPicker: false });
-    }
-  };
-  handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // close the picker when escape key and tab key is pressed
-    if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
-      this.setState({
-        showPicker: false,
-      });
     }
   };
 }
@@ -322,7 +277,6 @@ interface DatePickerComponentProps extends ComponentProps {
 
 interface DatePickerComponentState {
   selectedDate?: string;
-  showPicker?: boolean;
 }
 
 export default DatePickerComponent;
