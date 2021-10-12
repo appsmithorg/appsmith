@@ -153,6 +153,10 @@ export const useCanvasDragging = (
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
       const scrollObj: any = {};
+      const mousePosition = {
+        x: 0,
+        y: 0,
+      };
 
       const resetCanvasState = () => {
         if (canvasDrawRef.current && canvasRef.current) {
@@ -171,7 +175,7 @@ export const useCanvasDragging = (
         const startPoints = defaultHandlePositions;
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
-            onDrop(currentRectanglesToDraw);
+            onDrop(currentRectanglesToDraw.map(getResizeUpdatedBlock));
           }
           startPoints.top = defaultHandlePositions.top;
           startPoints.left = defaultHandlePositions.left;
@@ -228,6 +232,20 @@ export const useCanvasDragging = (
           const collidingBlocks = occSpaces.filter((each) => {
             return areIntersecting(each, blockRect);
           });
+          const cannotResize = collidingBlocks.some((each) => {
+            return isPointInsideRect(
+              {
+                x: mousePosition.x / snapColumnSpace,
+                y: mousePosition.y / snapRowSpace,
+              },
+              each,
+            );
+          });
+          if (cannotResize) {
+            return {
+              ...block,
+            };
+          }
 
           const processCollidingBlocks = collidingBlocks.map((each) => {
             const collidedPoints = [
@@ -270,18 +288,50 @@ export const useCanvasDragging = (
             if (collidedPoints.length === 4) {
               return {
                 ...each,
+                resizeParams: {
+                  doNotResize: true,
+                },
               };
             }
             return { ...each };
           });
+          const doNotResize = processCollidingBlocks.some((each: any) => {
+            return each?.resizeParams?.doNotResize;
+          });
+          if (doNotResize) {
+            return { ...block };
+          }
           const resizeUpdates = processCollidingBlocks.reduce(
             (update: any, each: any) => {
               if (each && each.resizeParams) {
-                update[each.resizeParams.direction] += each.resizeParams.amount;
+                const lastUpdate = update[each.resizeParams.direction];
+                if (lastUpdate && lastUpdate.current > each.resizeParams.to) {
+                  update[each.resizeParams.direction] = {
+                    amount: each.resizeParams.amount,
+                    current: each.resizeParams.to,
+                  };
+                }
               }
               return update;
             },
-            { top: 0, bottom: 0, left: 0, right: 0 },
+            {
+              top: {
+                amount: 0,
+                current: block.top,
+              },
+              bottom: {
+                amount: 0,
+                current: block.height,
+              },
+              left: {
+                amount: 0,
+                current: block.left,
+              },
+              right: {
+                amount: 0,
+                current: block.width,
+              },
+            },
           );
           return { ...block, resizeUpdates };
         };
@@ -293,6 +343,8 @@ export const useCanvasDragging = (
         };
         const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
+            mousePosition.x = e.layerX;
+            mousePosition.y = e.layerY;
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
@@ -433,18 +485,28 @@ export const useCanvasDragging = (
             blockDimensions.resizeUpdates
           ) {
             const updates = blockDimensions.resizeUpdates;
-            const updatedBlock = {
+            const updatedBlock: WidgetDraggingBlock = {
               ...blockDimensions,
-              top: blockDimensions.top + updates.top * snapRowSpace,
-              left: blockDimensions.left + updates.left * snapColumnSpace,
+              isNotColliding: true,
+              top: blockDimensions.top + updates.top.amount * snapRowSpace,
+              left:
+                blockDimensions.left + updates.left.amount * snapColumnSpace,
               width:
                 blockDimensions.width -
-                (updates.left + updates.right) * snapColumnSpace,
+                (updates.left.amount + updates.right.amount) * snapColumnSpace,
               height:
                 blockDimensions.height -
-                (updates.bottom + updates.top) * snapRowSpace,
+                (updates.bottom.amount + updates.top.amount) * snapRowSpace,
             };
-            return updatedBlock;
+            // const blockRect = {
+            //   left: updatedBlock.left,
+            //   top: updatedBlock.top,
+            //   right: updatedBlock.left + updatedBlock.columnWidth,
+            //   bottom: updatedBlock.top + updatedBlock.rowHeight,
+            // };
+            // const canResize = isPointInsideRect(mousePosition, blockRect);
+            // return canResize ? updatedBlock : blockDimensions;
+            return { ...updatedBlock };
           }
           return blockDimensions;
         };

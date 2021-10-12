@@ -88,19 +88,27 @@ export const getResizeParamsForPartialBoundaryCollision = (
   if (intersectingPoints.length === 2) {
     const [point1, point2] = intersectingPoints;
     if (point1.y === point2.y) {
+      const direction = point1.type.includes("top") ? "top" : "bottom";
+      const amount = point1.type.includes("top")
+        ? collidingBlock.bottom - point1.y
+        : point1.y - collidingBlock.top;
       return {
-        direction: point1.type.includes("top") ? "top" : "bottom",
-        amount: point1.type.includes("top")
-          ? collidingBlock.bottom - point1.y
-          : point1.y - collidingBlock.top,
+        from: blockRect[direction],
+        to: blockRect[direction] + amount,
+        direction,
+        amount,
       };
     }
     if (point1.x === point2.x) {
+      const direction = point1.type.includes("Left") ? "left" : "right";
+      const amount = point1.type.includes("Left")
+        ? collidingBlock.right - point1.x
+        : point1.x - collidingBlock.left;
       return {
-        direction: point1.type.includes("Left") ? "left" : "right",
-        amount: point1.type.includes("Left")
-          ? collidingBlock.right - point1.x
-          : point1.x - collidingBlock.left,
+        from: blockRect[direction],
+        to: blockRect[direction] + amount,
+        direction,
+        amount,
       };
     }
   }
@@ -120,6 +128,8 @@ export const getResizeParamsForFullBoundaryCollision = (
   },
 ):
   | {
+      from: number;
+      to: number;
       direction: string;
       amount: number;
     }
@@ -127,19 +137,27 @@ export const getResizeParamsForFullBoundaryCollision = (
   const [point1, point2] = points;
 
   if (point1.y === point2.y) {
+    const direction = point1.type.includes("top") ? "bottom" : "top";
+    const amount = point1.type.includes("top")
+      ? blockRect.bottom - point1.y
+      : point1.y - blockRect.top;
     return {
-      direction: point1.type.includes("top") ? "bottom" : "top",
-      amount: point1.type.includes("top")
-        ? blockRect.bottom - point1.y
-        : point1.y - blockRect.top,
+      from: blockRect[direction],
+      to: blockRect[direction] + amount,
+      direction,
+      amount,
     };
   }
   if (point1.x === point2.x) {
+    const direction = point1.type.includes("Left") ? "right" : "left";
+    const amount = point1.type.includes("Left")
+      ? blockRect.right - point1.x
+      : point1.x - blockRect.left;
     return {
-      direction: point1.type.includes("Left") ? "right" : "left",
-      amount: point1.type.includes("Left")
-        ? blockRect.right - point1.x
-        : point1.x - blockRect.left,
+      from: blockRect[direction],
+      to: blockRect[direction] + amount,
+      direction,
+      amount,
     };
   }
 };
@@ -158,6 +176,8 @@ export const getResizeParamsForSinglePointCollision = (
   },
 ):
   | {
+      from: number;
+      to: number;
       direction: string;
       amount: number;
     }
@@ -167,13 +187,17 @@ export const getResizeParamsForSinglePointCollision = (
       (blockRect.bottom - blockRect.top) * (point.x - blockRect.left);
     const heightResizedBlockArea =
       (point.y - blockRect.top) * (blockRect.right - blockRect.left);
+    const direction =
+      widthResizedBlockArea > heightResizedBlockArea ? "right" : "bottom";
+    const amount =
+      widthResizedBlockArea > heightResizedBlockArea
+        ? blockRect.right - point.x
+        : blockRect.bottom - point.y;
     return {
-      direction:
-        widthResizedBlockArea > heightResizedBlockArea ? "right" : "bottom",
-      amount:
-        widthResizedBlockArea > heightResizedBlockArea
-          ? blockRect.right - point.x
-          : blockRect.bottom - point.y,
+      from: blockRect[direction],
+      to: blockRect[direction] + amount,
+      direction,
+      amount,
     };
   }
   if (point.type === "topRight") {
@@ -181,13 +205,17 @@ export const getResizeParamsForSinglePointCollision = (
       (blockRect.bottom - blockRect.top) * (blockRect.right - point.x);
     const heightResizedBlockArea =
       (point.y - blockRect.top) * (blockRect.right - blockRect.left);
+    const direction =
+      widthResizedBlockArea > heightResizedBlockArea ? "left" : "bottom";
+    const amount =
+      widthResizedBlockArea > heightResizedBlockArea
+        ? point.x - blockRect.left
+        : blockRect.bottom - point.y;
     return {
-      direction:
-        widthResizedBlockArea > heightResizedBlockArea ? "left" : "bottom",
-      amount:
-        widthResizedBlockArea > heightResizedBlockArea
-          ? point.x - blockRect.left
-          : blockRect.bottom - point.y,
+      from: blockRect[direction],
+      to: blockRect[direction] + amount,
+      direction,
+      amount,
     };
   }
   if (point.type === "bottomLeft") {
@@ -195,13 +223,17 @@ export const getResizeParamsForSinglePointCollision = (
       (blockRect.bottom - blockRect.top) * (point.x - blockRect.left);
     const heightResizedBlockArea =
       (blockRect.bottom - point.y) * (blockRect.right - blockRect.left);
+    const direction =
+      widthResizedBlockArea > heightResizedBlockArea ? "right" : "top";
+    const amount =
+      widthResizedBlockArea > heightResizedBlockArea
+        ? blockRect.right - point.x
+        : point.y - blockRect.top;
     return {
-      direction:
-        widthResizedBlockArea > heightResizedBlockArea ? "right" : "top",
-      amount:
-        widthResizedBlockArea > heightResizedBlockArea
-          ? blockRect.right - point.x
-          : point.y - blockRect.top,
+      from: blockRect[direction],
+      to: blockRect[direction] + amount,
+      direction,
+      amount,
     };
   }
   if (point.type === "bottomRight") {
@@ -209,13 +241,17 @@ export const getResizeParamsForSinglePointCollision = (
       (blockRect.bottom - blockRect.top) * (blockRect.right - point.x);
     const heightResizedBlockArea =
       (blockRect.bottom - point.y) * (blockRect.right - blockRect.left);
+    const direction =
+      widthResizedBlockArea > heightResizedBlockArea ? "left" : "top";
+    const amount =
+      widthResizedBlockArea > heightResizedBlockArea
+        ? point.x - blockRect.left
+        : point.y - blockRect.top;
     return {
-      direction:
-        widthResizedBlockArea > heightResizedBlockArea ? "left" : "top",
-      amount:
-        widthResizedBlockArea > heightResizedBlockArea
-          ? point.x - blockRect.left
-          : point.y - blockRect.top,
+      from: blockRect[direction],
+      to: blockRect[direction] + amount,
+      direction,
+      amount,
     };
   }
 };
