@@ -21,12 +21,11 @@ jobs:
       
       - name: Run step when a file changes
         uses: mshick/add-pr-comment@v1
+        message:|
+              Unable to find testcases in the PR
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        with:
-          if: contains(steps.changed-files.outputs.files_modified, 'cypress') == false
-            message:|
-              Unable to find testcases in the PR
+        if: contains(steps.changed-files.outputs.files_modified, 'cypress') == false
 
       
 
