@@ -107,6 +107,7 @@ export const excludeList: WidgetType[] = [
   "IFRAME_WIDGET",
   "FILE_PICKER_WIDGET",
   "FILE_PICKER_WIDGET_V2",
+  "FORM_BUILDER_WIDGET",
 ];
 
 function PropertyPaneView(

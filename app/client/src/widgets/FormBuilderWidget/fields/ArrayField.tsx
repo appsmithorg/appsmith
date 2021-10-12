@@ -32,7 +32,6 @@ const StyledDeleteButton = styled(StyledButton)`
 `;
 
 function FieldArray({ name, schemaObject }: FieldArrayProps) {
-  debugger;
   const { append, fields, remove } = useFieldArray({
     name,
   });

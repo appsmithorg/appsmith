@@ -20,7 +20,6 @@ const fieldRenderer = (fieldName: string, schemaObject: SchemaObject) => {
       return <FieldComponent {...fieldProps} schemaObject={schemaObject} />;
     default:
       return <FieldComponent {...fieldProps} />;
-      break;
   }
 };
 

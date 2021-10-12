@@ -1,5 +1,4 @@
 import { camelCase, cloneDeep, difference, startCase } from "lodash";
-import equal from "fast-deep-equal/es6";
 import {
   DATA_TYPE_POTENTIAL_FIELD,
   DataType,
@@ -11,6 +10,9 @@ import {
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];
 
+// TODO: CHANGE SchemaObject to SchemaItem to avoid confusion
+
+// TODO: CHANGE NAME
 type ObjectToSchemaProps = {
   currFormData?: JSON;
   prevFormData?: JSON;
@@ -128,8 +130,7 @@ class Parser {
     };
   };
 
-  // TODO: Need a good name
-  static getUpdateSchemaObjectFor = (
+  static getModifiedSchemaObjectFor = (
     currData: JSON,
     prevData: JSON,
     schemaObject: SchemaObject,
@@ -177,7 +178,7 @@ class Parser {
         currFormData: currData,
       });
     } else {
-      schema.__array_item__ = Parser.getUpdateSchemaObjectFor(
+      schema.__array_item__ = Parser.getModifiedSchemaObjectFor(
         currData,
         prevData,
         schema.__array_item__,
@@ -202,7 +203,6 @@ class Parser {
     currSchema = {},
     prevFormData = {},
   }: ObjectToSchemaProps): Schema => {
-    debugger;
     const schema = cloneDeep(currSchema);
     const currObj = currFormData as Obj;
     const prevObj = prevFormData as Obj;
@@ -242,7 +242,7 @@ class Parser {
         );
         // TODO: CHECK FOR PRIMITIVE DATA TYPE
       } else {
-        schema[modifiedKey] = Parser.getUpdateSchemaObjectFor(
+        schema[modifiedKey] = Parser.getModifiedSchemaObjectFor(
           currObj[modifiedKey],
           prevObj[modifiedKey],
           currSchema[modifiedKey],

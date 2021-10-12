@@ -27,6 +27,7 @@ import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
+import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
@@ -75,6 +76,7 @@ export const PropertyControls = {
   BoxShadowOptionsControl,
   BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
+  FieldConfigurationControl,
 };
 
 export type PropertyControlPropsType =

@@ -17,7 +17,10 @@ import {
   setWidgetDynamicProperty,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import {
+  PanelConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
@@ -293,13 +296,15 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const openPanel = useCallback(
-    (panelProps: any) => {
-      if (props.panelConfig) {
+    (panelProps: any, passedPanelConfig?: PanelConfig) => {
+      const panelConfig = props.panelConfig || passedPanelConfig;
+
+      if (panelConfig) {
         props.panel.openPanel({
           component: PanelPropertiesEditor,
           props: {
             panelProps,
-            panelConfig: props.panelConfig,
+            panelConfig: panelConfig || props.panelConfig,
             onPropertiesChange: onBatchUpdateProperties,
             panelParentPropertyPath: props.propertyName,
             panel: props.panel,

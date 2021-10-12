@@ -12,6 +12,8 @@ type InputFieldProps = InputComponentProps & {
 };
 
 function InputField({ name, ...rest }: InputFieldProps) {
+  // eslint-disable-next-line
+  console.log("INPUT FIELD -- rest", rest);
   return (
     <Field
       name={name}

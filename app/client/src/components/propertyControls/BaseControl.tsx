@@ -5,7 +5,10 @@
 import { Component } from "react";
 import _ from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import {
+  PanelConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -46,7 +49,7 @@ export interface ControlData
 }
 export interface ControlFunctions {
   onPropertyChange?: (propertyName: string, propertyValue: string) => void;
-  openNextPanel: (props: any) => void;
+  openNextPanel: (panelProps: any, panelConfig?: PanelConfig) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   theme: EditorTheme;
   hideEvaluatedValue?: boolean;
