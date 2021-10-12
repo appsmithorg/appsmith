@@ -83,17 +83,17 @@ import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES = [
-  "Enter",
-  "Tab",
-  "Escape",
-  "Comma",
-  "Semicolon",
-  "Space",
-  "Delete",
-  "Backspace",
-  "Ctrl+Backspace",
-];
+const AUTOCOMPLETE_CLOSE_KEY_CODES: Record<KeyboardEvent["code"], string> = {
+  Enter: "Enter",
+  Tab: "Tab",
+  Escape: "Escape",
+  Comma: "Comma",
+  Semicolon: "Semicolon",
+  Space: "Space",
+  Delete: "Delete",
+  Backspace: "Backspace",
+  "Ctrl+Backspace": "Ctrl+Backspace",
+};
 
 const AUTOCOMPLETE_NAVIGATION = [
   "ArrowUp",
@@ -476,9 +476,9 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     if (
-      AUTOCOMPLETE_CLOSE_KEY_CODES.includes(
-        `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`,
-      )
+      AUTOCOMPLETE_CLOSE_KEY_CODES[
+        `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`
+      ]
     ) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
