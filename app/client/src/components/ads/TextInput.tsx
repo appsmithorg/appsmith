@@ -20,6 +20,8 @@ import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
 
+export type InputType = "text" | "password" | "number" | "email" | "tel";
+
 export type Validator = (
   value: string,
 ) => {
@@ -246,20 +248,22 @@ const IconWrapper = styled.div`
     margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 `;
+
+const initialValidation = (props: TextInputProps) => {
+  let validationObj = { isValid: true, message: "" };
+  if (props.defaultValue && props.validator) {
+    validationObj = props.validator(props.defaultValue);
+  }
+  return validationObj;
+};
+
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
-    const initialValidation = () => {
-      let validationObj = { isValid: true, message: "" };
-      if (props.defaultValue && props.validator) {
-        validationObj = props.validator(props.defaultValue);
-      }
-      return validationObj;
-    };
-
+    //
     const [validation, setValidation] = useState<{
       isValid: boolean;
       message: string;
-    }>(initialValidation());
+    }>(initialValidation(props));
 
     const [rightSideComponentWidth, setRightSideComponentWidth] = useState(0);
     const [isFocused, setIsFocused] = useState(false);
@@ -277,22 +281,45 @@ const TextInput = forwardRef(
       [props, validation.isValid, props.theme],
     );
 
+    const validate = useCallback(
+      (inputValue: string) => {
+        const validation = props.validator && props.validator(inputValue);
+        return validation;
+      },
+      [props.validator],
+    );
+
     const memoizedChangeHandler = useCallback(
       (el) => {
-        const inputValue = el.target.value.trim();
+        const inputValue: string = el.target.value.trim();
         setInputValue(inputValue);
-        const validation = props.validator && props.validator(inputValue);
-        if (validation) {
+        const inputValueValidation = validate(inputValue);
+        if (inputValueValidation) {
           props.validator && setValidation(validation);
           return (
-            validation.isValid && props.onChange && props.onChange(inputValue)
+            inputValueValidation.isValid &&
+            props.onChange &&
+            props.onChange(inputValue)
           );
         } else {
           return props.onChange && props.onChange(inputValue);
         }
       },
-      [props],
+      [props.onChange, setValidation, validate],
     );
+
+    const onBlurHandler = useCallback(
+      (e: React.FocusEvent<any>) => {
+        setIsFocused(false);
+        if (props.onBlur) props.onBlur(e);
+      },
+      [setIsFocused, props.onBlur],
+    );
+
+    const onFocusHandler = useCallback((e: React.FocusEvent<any>) => {
+      setIsFocused(true);
+      if (props.onFocus) props.onFocus(e);
+    }, []);
 
     const ErrorMessage = (
       <MsgWrapper>
@@ -307,6 +334,7 @@ const TextInput = forwardRef(
         <Text type={TextType.P3}>* {props.helperText}</Text>
       </MsgWrapper>
     );
+
     const iconColor = !validation.isValid
       ? props.theme.colors.danger.main
       : props.theme.colors.textInput.icon;
@@ -314,6 +342,7 @@ const TextInput = forwardRef(
     const hasLeftIcon = props.leftIcon
       ? IconCollection.includes(props.leftIcon)
       : false;
+
     return (
       <InputWrapper
         disabled={props.disabled}
@@ -346,15 +375,9 @@ const TextInput = forwardRef(
           data-cy={props.cypressSelector}
           hasLeftIcon={hasLeftIcon}
           inputRef={ref}
-          onBlur={(e: React.FocusEvent<any>) => {
-            setIsFocused(false);
-            if (props.onBlur) props.onBlur(e);
-          }}
+          onBlur={onBlurHandler}
           onChange={memoizedChangeHandler}
-          onFocus={(e: React.FocusEvent<any>) => {
-            setIsFocused(true);
-            if (props.onFocus) props.onFocus(e);
-          }}
+          onFocus={onFocusHandler}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
           rightSideComponentWidth={rightSideComponentWidth}
@@ -375,5 +398,3 @@ const TextInput = forwardRef(
 TextInput.displayName = "TextInput";
 
 export default withTheme(TextInput);
-
-export type InputType = "text" | "password" | "number" | "email" | "tel";

@@ -2,21 +2,29 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +33,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +43,12 @@ public class EnvManager {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final PolicyUtils policyUtils;
+    private final EmailSender emailSender;
+
     private final CommonConfig commonConfig;
+    private final EmailConfig emailConfig;
+    private final JavaMailSender javaMailSender;
+    private final GoogleRecaptchaConfig googleRecaptchaConfig;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -45,30 +59,35 @@ public class EnvManager {
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
 
-    private static final Set<String> VARIABLE_WHITELIST = Set.of(
-            "APPSMITH_INSTANCE_NAME",
-            "APPSMITH_MONGODB_URI",
-            "APPSMITH_REDIS_URL",
-            "APPSMITH_MAIL_ENABLED",
-            "APPSMITH_MAIL_FROM",
-            "APPSMITH_REPLY_TO",
-            "APPSMITH_MAIL_HOST",
-            "APPSMITH_MAIL_PORT",
-            "APPSMITH_MAIL_USERNAME",
-            "APPSMITH_MAIL_PASSWORD",
-            "APPSMITH_MAIL_SMTP_TLS_ENABLED",
-            "APPSMITH_SIGNUP_DISABLED",
-            "APPSMITH_SIGNUP_ALLOWED_DOMAINS",
-            "APPSMITH_ADMIN_EMAILS",
-            "APPSMITH_RECAPTCHA_SITE_KEY",
-            "APPSMITH_RECAPTCHA_SECRET_KEY",
-            "APPSMITH_GOOGLE_MAPS_API_KEY",
-            "APPSMITH_DISABLE_TELEMETRY",
-            "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",
-            "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
-            "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
-            "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"
-    );
+    private enum Vars {
+        APPSMITH_INSTANCE_NAME,
+        APPSMITH_MONGODB_URI,
+        APPSMITH_REDIS_URL,
+        APPSMITH_MAIL_ENABLED,
+        APPSMITH_MAIL_FROM,
+        APPSMITH_REPLY_TO,
+        APPSMITH_MAIL_HOST,
+        APPSMITH_MAIL_PORT,
+        APPSMITH_MAIL_SMTP_AUTH,
+        APPSMITH_MAIL_USERNAME,
+        APPSMITH_MAIL_PASSWORD,
+        APPSMITH_MAIL_SMTP_TLS_ENABLED,
+        APPSMITH_SIGNUP_DISABLED,
+        APPSMITH_SIGNUP_ALLOWED_DOMAINS,
+        APPSMITH_ADMIN_EMAILS,
+        APPSMITH_RECAPTCHA_SITE_KEY,
+        APPSMITH_RECAPTCHA_SECRET_KEY,
+        APPSMITH_GOOGLE_MAPS_API_KEY,
+        APPSMITH_DISABLE_TELEMETRY,
+        APPSMITH_OAUTH2_GOOGLE_CLIENT_ID,
+        APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET,
+        APPSMITH_OAUTH2_GITHUB_CLIENT_ID,
+        APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET,
+    }
+
+    private static final Set<String> VARIABLE_WHITELIST = Stream.of(Vars.values())
+            .map(Enum::name)
+            .collect(Collectors.toUnmodifiableSet());
 
     /**
      * Updates values of variables in the envContent string, based on the changes map given. This function **only**
@@ -86,12 +105,18 @@ public class EnvManager {
             throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
         }
 
-        if (changes.containsKey("APPSMITH_MAIL_HOST")) {
-            changes.put("APPSMITH_MAIL_ENABLED", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_HOST"))));
+        if (changes.containsKey(Vars.APPSMITH_MAIL_HOST.name())) {
+            changes.put(
+                    Vars.APPSMITH_MAIL_ENABLED.name(),
+                    Boolean.toString(StringUtils.isNotEmpty(changes.get(Vars.APPSMITH_MAIL_HOST.name())))
+            );
         }
 
-        if (changes.containsKey("APPSMITH_MAIL_USERNAME")) {
-            changes.put("APPSMITH_MAIL_SMTP_AUTH", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_USERNAME"))));
+        if (changes.containsKey(Vars.APPSMITH_MAIL_USERNAME.name())) {
+            changes.put(
+                    Vars.APPSMITH_MAIL_SMTP_AUTH.name(),
+                    Boolean.toString(StringUtils.isNotEmpty(changes.get(Vars.APPSMITH_MAIL_USERNAME.name())))
+            );
         }
 
         final Set<String> remainingChangedNames = new HashSet<>(changes.keySet());
@@ -120,9 +145,10 @@ public class EnvManager {
         return outLines;
     }
 
-    public Mono<Void> applyChanges(Map<String, String> changes) {
+    public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> {
+                    // Write the changes to the env file.
                     final String originalContent;
                     final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
 
@@ -142,7 +168,82 @@ public class EnvManager {
                         return Mono.error(e);
                     }
 
-                    return Mono.empty();
+                    return Mono.just(user);
+                })
+                .flatMap(user -> {
+                    // Try and update any at runtime, that can be.
+                    final Map<String, String> changesCopy = new HashMap<>(changes);
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_INSTANCE_NAME.name())) {
+                        commonConfig.setInstanceName(changesCopy.remove(Vars.APPSMITH_INSTANCE_NAME.name()));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_SIGNUP_DISABLED.name())) {
+                        commonConfig.setSignupDisabled("true".equals(changesCopy.remove(Vars.APPSMITH_SIGNUP_DISABLED.name())));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_SIGNUP_ALLOWED_DOMAINS.name())) {
+                        commonConfig.setAllowedDomainsString(changesCopy.remove(Vars.APPSMITH_SIGNUP_ALLOWED_DOMAINS.name()));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_ADMIN_EMAILS.name())) {
+                        commonConfig.setAdminEmails(changesCopy.remove(Vars.APPSMITH_ADMIN_EMAILS.name()));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_MAIL_FROM.name())) {
+                        emailConfig.setMailFrom(changesCopy.remove(Vars.APPSMITH_MAIL_FROM.name()));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_REPLY_TO.name())) {
+                        emailConfig.setReplyTo(changesCopy.remove(Vars.APPSMITH_REPLY_TO.name()));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_MAIL_ENABLED.name())) {
+                        emailConfig.setEmailEnabled("true".equals(changesCopy.remove(Vars.APPSMITH_MAIL_ENABLED.name())));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_MAIL_SMTP_AUTH.name())) {
+                        emailConfig.setEmailEnabled("true".equals(changesCopy.remove(Vars.APPSMITH_MAIL_SMTP_AUTH.name())));
+                    }
+
+                    if (javaMailSender instanceof JavaMailSenderImpl) {
+                        JavaMailSenderImpl javaMailSenderImpl = (JavaMailSenderImpl) javaMailSender;
+                        if (changesCopy.containsKey(Vars.APPSMITH_MAIL_HOST.name())) {
+                            javaMailSenderImpl.setHost(changesCopy.remove(Vars.APPSMITH_MAIL_HOST.name()));
+                        }
+                        if (changesCopy.containsKey(Vars.APPSMITH_MAIL_PORT.name())) {
+                            javaMailSenderImpl.setPort(Integer.parseInt(changesCopy.remove(Vars.APPSMITH_MAIL_PORT.name())));
+                        }
+                        if (changesCopy.containsKey(Vars.APPSMITH_MAIL_USERNAME.name())) {
+                            javaMailSenderImpl.setUsername(changesCopy.remove(Vars.APPSMITH_MAIL_USERNAME.name()));
+                        }
+                        if (changesCopy.containsKey(Vars.APPSMITH_MAIL_PASSWORD.name())) {
+                            javaMailSenderImpl.setPassword(changesCopy.remove(Vars.APPSMITH_MAIL_PASSWORD.name()));
+                        }
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_RECAPTCHA_SITE_KEY.name())) {
+                        googleRecaptchaConfig.setSiteKey(changesCopy.remove(Vars.APPSMITH_RECAPTCHA_SITE_KEY.name()));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_RECAPTCHA_SECRET_KEY.name())) {
+                        googleRecaptchaConfig.setSecretKey(changesCopy.remove(Vars.APPSMITH_RECAPTCHA_SECRET_KEY.name()));
+                    }
+
+                    if (changesCopy.containsKey(Vars.APPSMITH_DISABLE_TELEMETRY.name())) {
+                        commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove(Vars.APPSMITH_DISABLE_TELEMETRY.name())));
+                    }
+
+                    // Ideally, we should only need a restart here if `changesCopy` is not empty. However, some of these
+                    // env variables are also used in client code, which means restart might be necessary there. So, to
+                    // provide a more uniform and predictable experience, we always restart.
+
+                    Mono.delay(Duration.ofSeconds(1))
+                            .flatMap(ignored -> restart())
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .subscribe();
+
+                    return Mono.just(new EnvChangesResponseDTO(true));
                 });
     }
 
@@ -187,6 +288,35 @@ public class EnvManager {
                         user.getUsername()
                 ))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
+    }
+
+    public Mono<Void> restart() {
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> {
+                    log.warn("Initiating restart via supervisor.");
+                    try {
+                        Runtime.getRuntime().exec(new String[]{
+                                "supervisorctl",
+                                "restart",
+                                "backend",
+                                "editor",
+                                "rts",
+                        });
+                    } catch (IOException e) {
+                        log.error("Error invoking supervisorctl to restart.", e);
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    }
+                    return Mono.empty();
+                });
+    }
+
+    public Mono<Boolean> sendTestEmail() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> emailSender.sendMail(
+                        user.getEmail(),
+                        "Test email from Appsmith",
+                        "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n"
+                ));
     }
 
 }

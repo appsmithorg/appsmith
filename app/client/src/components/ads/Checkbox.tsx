@@ -62,7 +62,7 @@ const Checkmark = styled.span<{
 
 const StyledCheckbox = styled.label<{
   disabled?: boolean;
-  $fill: boolean;
+  $fill?: boolean;
 }>`
   position: relative;
   display: block;
@@ -115,7 +115,7 @@ const useUpdate = (intitialValue?: boolean) => {
 };
 
 function Checkbox(props: CheckboxProps) {
-  const { fill = true } = props;
+  const { fill } = props;
   const [checked, setChecked] = useUpdate(props.isDefaultChecked);
 
   const onChangeHandler = (checked: boolean) => {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState, useMemo } from "react";
 import { Space } from "../StyledComponents";
 import {
   createMessage,
@@ -74,11 +74,42 @@ const AUTHOR_INFO_LABEL = {
   NAME: "authorName",
 };
 
+type SetAuthorInfo = (authorInfo: AuthorInfo) => void;
+
+const setAuthorState = ({
+  authorInfo,
+  label,
+  setAuthorInfo,
+  value,
+}: {
+  authorInfo: AuthorInfo;
+  label: string;
+  value: string;
+  setAuthorInfo: SetAuthorInfo;
+}) => {
+  switch (label) {
+    case AUTHOR_INFO_LABEL.NAME:
+      setAuthorInfo({
+        authorEmail: authorInfo.authorEmail,
+        authorName: value,
+      });
+      break;
+    case AUTHOR_INFO_LABEL.EMAIL:
+      setAuthorInfo({
+        authorEmail: value,
+        authorName: authorInfo.authorName,
+      });
+      break;
+    default:
+      break;
+  }
+};
+
 // Component
 type UserGitProfileSettingsProps = {
   authType: string;
   authorInfo: AuthorInfo;
-  setAuthorInfo: (authorInfo: AuthorInfo) => void;
+  setAuthorInfo: SetAuthorInfo;
   useGlobalConfig: boolean;
   toggleUseDefaultConfig: (useDefaultConfig: boolean) => void;
   isLocalConfigDefined: boolean;
@@ -97,26 +128,28 @@ function UserGitProfileSettings({
   toggleUseDefaultConfig,
   useGlobalConfig,
 }: UserGitProfileSettingsProps) {
-  const setAuthorState = (label: string, value: string) => {
-    switch (label) {
-      case AUTHOR_INFO_LABEL.NAME:
-        setAuthorInfo({
-          authorEmail: authorInfo.authorEmail,
-          authorName: value,
-        });
-        break;
-      case AUTHOR_INFO_LABEL.EMAIL:
-        setAuthorInfo({
-          authorEmail: value,
-          authorName: authorInfo.authorName,
-        });
-        break;
-      default:
-        break;
-    }
-  };
+  //
+  const [emailInputFocused, setEmailInputFocused] = useState(false);
+  const [nameInputFocused, setNameInputFocused] = useState(false);
+
+  const changeHandler = useCallback(
+    (label: string, value: string) =>
+      setAuthorState({
+        label,
+        value,
+        authorInfo,
+        setAuthorInfo,
+      }),
+    [authorInfo, setAuthorInfo],
+  );
 
   const disableInput = isGlobalConfigDefined && useGlobalConfig;
+
+  const isValidEmail = useMemo(
+    () =>
+      authorInfo.authorEmail && emailValidator(authorInfo.authorEmail).isValid,
+    [authorInfo.authorEmail],
+  );
 
   return (
     <MainContainer>
@@ -154,8 +187,15 @@ function UserGitProfileSettings({
             dataType="text"
             defaultValue={authorInfo.authorName}
             disabled={disableInput}
+            errorMsg={
+              !authorInfo.authorName && !nameInputFocused
+                ? "Author name cannot be empty"
+                : ""
+            }
             fill
-            onChange={(value) => setAuthorState(AUTHOR_INFO_LABEL.NAME, value)}
+            onBlur={() => setNameInputFocused(false)}
+            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
+            onFocus={() => setNameInputFocused(true)}
             validator={notEmptyValidator}
           />
         </InputContainer>
@@ -170,12 +210,14 @@ function UserGitProfileSettings({
             dataType="email"
             disabled={disableInput}
             errorMsg={
-              emailValidator(authorInfo.authorEmail).isValid
-                ? ""
-                : "Please enter a valid email"
+              !isValidEmail && !emailInputFocused
+                ? "Please enter a valid email"
+                : ""
             }
             fill
-            onChange={(value) => setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)}
+            onBlur={() => setEmailInputFocused(false)}
+            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)}
+            onFocus={() => setEmailInputFocused(true)}
             value={authorInfo.authorEmail}
           />
         </InputContainer>
