@@ -19,6 +19,8 @@ jobs:
         uses: tj-actions/changed-files@v10
       
       - name: Run step when a file changes
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: contains(steps.changed-files.outputs.modified_files, 'my-file.txt')
         run: |
           echo "Your my-file.txt file has been modified."
