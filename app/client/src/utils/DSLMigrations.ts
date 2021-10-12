@@ -936,6 +936,11 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 41) {
+    currentDSL = migrateButtonVariant(currentDSL);
+    currentDSL.version = 42;
+  }
+
+  if (currentDSL.version === 42) {
     currentDSL = migrateCustomChartConfig(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
@@ -958,6 +963,63 @@ const migrateCustomChartConfig = (
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
       migrateCustomChartConfig(child),
+    );
+  }
+  return currentDSL;
+};
+
+const migrateButtonVariant = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (
+    currentDSL.type === "BUTTON_WIDGET" ||
+    currentDSL.type === "FORM_BUTTON_WIDGET" ||
+    currentDSL.type === "ICON_BUTTON_WIDGET"
+  ) {
+    switch (currentDSL.buttonVariant) {
+      case "OUTLINE":
+        currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
+        break;
+      case "GHOST":
+        currentDSL.buttonVariant = ButtonVariantTypes.TERTIARY;
+        break;
+      default:
+        currentDSL.buttonVariant = ButtonVariantTypes.PRIMARY;
+    }
+  }
+  if (currentDSL.type === "MENU_BUTTON_WIDGET") {
+    switch (currentDSL.menuVariant) {
+      case "OUTLINE":
+        currentDSL.menuVariant = ButtonVariantTypes.SECONDARY;
+        break;
+      case "GHOST":
+        currentDSL.menuVariant = ButtonVariantTypes.TERTIARY;
+        break;
+      default:
+        currentDSL.menuVariant = ButtonVariantTypes.PRIMARY;
+    }
+  }
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (currentDSL.hasOwnProperty("primaryColumns")) {
+      Object.keys(currentDSL.primaryColumns).forEach((column) => {
+        if (currentDSL.primaryColumns[column].columnType === "iconButton") {
+          let newVariant = ButtonVariantTypes.PRIMARY;
+          switch (currentDSL.primaryColumns[column].buttonVariant) {
+            case "OUTLINE":
+              newVariant = ButtonVariantTypes.SECONDARY;
+              break;
+            case "GHOST":
+              newVariant = ButtonVariantTypes.TERTIARY;
+              break;
+          }
+          currentDSL.primaryColumns[column].buttonVariant = newVariant;
+        }
+      });
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateButtonVariant(child),
     );
   }
   return currentDSL;
@@ -1010,7 +1072,7 @@ export const revertButtonStyleToButtonColor = (
           break;
         case "SECONDARY_BUTTON":
           currentDSL.buttonColor = Colors.GREEN;
-          currentDSL.buttonVariant = ButtonVariantTypes.OUTLINE;
+          currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
           break;
         case "DANGER_BUTTON":
           currentDSL.buttonColor = Colors.DANGER_SOLID;

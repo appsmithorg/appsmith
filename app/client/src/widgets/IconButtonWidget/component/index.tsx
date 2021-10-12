@@ -20,7 +20,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-} from "widgets/ButtonWidget/component";
+} from "widgets/WidgetUtils";
 const IconButtonContainer = styled.div`
   display: flex;
   align-items: center;
@@ -61,7 +61,7 @@ export const StyledButton = styled((props) => (
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SOLID
+          : buttonVariant === ButtonVariantTypes.PRIMARY
           ? theme.colors.button.primary.solid.bgColor
           : "none"
       } !important;
@@ -72,9 +72,9 @@ export const StyledButton = styled((props) => (
         background: ${
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-            : buttonVariant === ButtonVariantTypes.OUTLINE
+            : buttonVariant === ButtonVariantTypes.SECONDARY
             ? theme.colors.button.primary.outline.hoverColor
-            : buttonVariant === ButtonVariantTypes.GHOST
+            : buttonVariant === ButtonVariantTypes.TERTIARY
             ? theme.colors.button.primary.ghost.hoverColor
             : theme.colors.button.primary.solid.hoverColor
         } !important;
@@ -88,7 +88,7 @@ export const StyledButton = styled((props) => (
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-        : buttonVariant === ButtonVariantTypes.OUTLINE
+        : buttonVariant === ButtonVariantTypes.SECONDARY
         ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
         : "none"
     } !important;
@@ -101,11 +101,13 @@ export const StyledButton = styled((props) => (
       align-items: center;
 
       color: ${
-        buttonVariant === ButtonVariantTypes.SOLID
+        buttonVariant === ButtonVariantTypes.PRIMARY
           ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor) !==
-            "none"
-          ? getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
+          : getCustomBackgroundColor(
+              ButtonVariantTypes.PRIMARY,
+              buttonColor,
+            ) !== "none"
+          ? getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
           : `${theme.colors.button.primary.outline.textColor}`
       } !important;
     }
