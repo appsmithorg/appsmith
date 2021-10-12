@@ -20,7 +20,7 @@ jobs:
           private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
 
       - name: Slash Command Dispatch
-        uses: peter-evans/slash-command-dispatch@v2
+        uses: peter-evans/slash-command-dispatch@v1
         env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
