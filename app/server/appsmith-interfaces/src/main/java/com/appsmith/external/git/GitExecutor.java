@@ -1,5 +1,6 @@
 package com.appsmith.external.git;
 
+import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -111,7 +112,7 @@ public interface GitExecutor {
      * @param repoSuffix repo suffix path in local repo
      * @return List of branches for the application
      */
-    Mono<List<String>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode);
+    Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey);
 
     /**
      * This method will handle the git-status functionality

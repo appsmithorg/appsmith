@@ -1,5 +1,6 @@
 package com.appsmith.git.service;
 
+import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -323,10 +324,11 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<String>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode) {
+    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
+            TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
             List<Ref> refList;
             if (listMode == null) {
@@ -336,14 +338,29 @@ public class GitExecutorImpl implements GitExecutor {
                 // Show remote/all the branches depending upon the listMode
                 refList = git.branchList().setListMode(listMode).call();
             }
-            List<String> branchList = new ArrayList<>();
+            List<GitBranchListDTO> branchList = new ArrayList<>();
 
             if(refList.isEmpty()) {
-                branchList.add(git.getRepository().getBranch());
+                GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+                gitBranchListDTO.setBranchName(git.getRepository().getBranch());
+                gitBranchListDTO.setDefault(true);
+                branchList.add(gitBranchListDTO);
             } else {
+                // Get default branch name from the remote
+                String defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
+                GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+                gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
+                gitBranchListDTO.setDefault(true);
+                branchList.add(gitBranchListDTO);
+
                 for(Ref ref : refList) {
-                    branchList.add(ref.getName()
-                            .replace("refs/heads/",""));
+                    if(!ref.getName().equals(defaultBranch)) {
+                        gitBranchListDTO = new GitBranchListDTO();
+                        gitBranchListDTO.setBranchName(ref.getName()
+                                .replace("refs/heads/",""));
+                        gitBranchListDTO.setDefault(false);
+                        branchList.add(gitBranchListDTO);
+                    }
                 }
             }
             git.close();

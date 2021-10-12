@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -16,15 +17,11 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 @Slf4j
-@Import({GitExecutorImpl.class, GitServiceConfig.class})
-@RunWith(SpringRunner.class)
-@ContextConfiguration
 @RequiredArgsConstructor
+@Import({GitExecutorImpl.class})
 public class GitExecutorTest {
 
     GitExecutor gitExecutor;
-
-    GitServiceConfig gitServiceConfig;
 
     private final String gitRemoteUrl = "git@github.com:appsmithorg/appsmith-docs.git";
 
@@ -32,7 +29,7 @@ public class GitExecutorTest {
     public void cloneApplication_validRemoteUrlNonEmptyRepo_ThrowError() throws GitAPIException, IOException {
         try {
             gitExecutor.cloneApplication(
-                    Paths.get(gitServiceConfig.getGitRootPath()+"orgId"+"appId"+"repoName"),
+                    Paths.get("orgId"+"appId"+"repoName"),
                     gitRemoteUrl,
                     "PVT_KEY",
                     "PUBLIC_KEY");

@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -585,20 +586,20 @@ public class GitServiceImpl implements GitService {
                             gitExecutor.checkoutToBranch(repoSuffix, srcBranch)
                                     .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch))),
                             gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false))
-                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, ListBranchCommand.ListMode.REMOTE)
+                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, ListBranchCommand.ListMode.REMOTE, srcBranchGitData.getRemoteUrl(), defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey())
                                     .flatMap(branchList -> {
                                         boolean isDuplicateName = branchList.stream()
                                                 // TODO We are only supporting origin as the remote name so this is safe
                                                 //  but needs to be altered if we starts supporting user defined remote names
-                                                .anyMatch(branch -> branch.replace("refs/remotes/origin/", "")
+                                                .anyMatch(branch -> branch.getBranchName().replace("refs/remotes/origin/", "")
                                                         .equals(branchDTO.getBranchName()));
 
                                         if (isDuplicateName) {
-                                            throw new AppsmithException(
+                                            return Mono.error(new AppsmithException(
                                                     AppsmithError.DUPLICATE_KEY_USER_ERROR,
                                                     "remotes/origin/" + branchDTO.getBranchName(),
                                                     FieldName.BRANCH_NAME
-                                            );
+                                            ));
                                         }
                                         return gitExecutor.createAndCheckoutToBranch(repoSuffix, branchDTO.getBranchName());
                                     }))
@@ -775,7 +776,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<List<String>> listBranchForApplication(String defaultApplicationId) {
+    public Mono<List<GitBranchListDTO>> listBranchForApplication(String defaultApplicationId) {
         return getApplicationById(defaultApplicationId)
             .flatMap(application -> {
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -787,7 +788,12 @@ public class GitServiceImpl implements GitService {
                 Path repoPath = Paths.get(application.getOrganizationId(),
                         gitApplicationMetadata.getDefaultApplicationId(),
                         gitApplicationMetadata.getRepoName());
-                return gitExecutor.listBranches(repoPath, null)
+
+                return gitExecutor.listBranches(repoPath,
+                        null,
+                        gitApplicationMetadata.getRemoteUrl(),
+                        gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                        gitApplicationMetadata.getGitAuth().getPublicKey())
                         .onErrorResume(error -> Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
                                 "branch --list",
