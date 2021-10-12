@@ -16,7 +16,7 @@ jobs:
       
       - name: Get changed files using defaults
         id: changed-files
-        uses: tj-actions/changed-files@v10
+        uses: Ana06/get-changed-files@v2.0.0
       
       - name: Run step when a file changes
         env:
