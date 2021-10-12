@@ -18,7 +18,7 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
     // @ts-ignore: No types available
     ...editor.options.extraKeys,
     [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
-      TernServer.complete(cm),
+      checkIfCursorInsideBinding(cm) && TernServer.complete(cm),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
       TernServer.showType(cm);
     },

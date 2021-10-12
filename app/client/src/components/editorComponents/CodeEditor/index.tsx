@@ -92,6 +92,7 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Space",
   "Delete",
   "Backspace",
+  "Ctrl+Backspace",
 ];
 
 const AUTOCOMPLETE_NAVIGATION = [
@@ -192,7 +193,7 @@ class CodeEditor extends Component<Props, State> {
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
-        mode: this.props.mode,
+        mode: { name: this.props.mode, globalVars: true },
         theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
         tabSize: 2,
@@ -474,7 +475,11 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
-    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code) && !event.ctrlKey) {
+    if (
+      AUTOCOMPLETE_CLOSE_KEY_CODES.includes(
+        `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`,
+      )
+    ) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       cm.closeHint();
