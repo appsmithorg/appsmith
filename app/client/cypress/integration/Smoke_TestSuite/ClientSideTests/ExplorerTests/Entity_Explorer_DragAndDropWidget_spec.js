@@ -53,6 +53,9 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
       .first()
       .click();
     cy.SearchEntityandOpen("FormTest");
+    cy.get(".widgets " + explorer.collapse)
+      .last()
+      .click({ force: true });
     cy.get(explorer.property)
       .last()
       .click({ force: true });
