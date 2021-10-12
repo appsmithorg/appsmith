@@ -29,5 +29,4 @@ jobs:
           dispatch-type: workflow
           issue-type: pull-request
           commands: integration-tests
-          named-args: true
           permission: write
