@@ -474,11 +474,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
-    if (
-      AUTOCOMPLETE_CLOSE_KEY_CODES[
-        `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`
-      ]
-    ) {
+    const key = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
+    if (AUTOCOMPLETE_CLOSE_KEY_CODES[key]) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       cm.closeHint();
