@@ -2734,16 +2734,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
   cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
-
-  cy.intercept(
-    {
-      url: "*",
-      hostname: window.location.host,
-    },
-    (req) => {
-      req.headers["origin"] = "Cypress";
-    },
-  );
 });
 
 Cypress.Commands.add("alertValidate", (text) => {

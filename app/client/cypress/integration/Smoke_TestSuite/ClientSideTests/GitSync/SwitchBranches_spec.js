@@ -30,6 +30,16 @@ describe("Git sync connect to repo", function() {
     // cy.get(homePage.publishButton).click();
     // // todo: check for the initial state: init git connection button, regular deploy button
     // // add the test repo and click on submit btn
+    // intercept just the connect api
+    // cy.intercept(
+    //   {
+    //     url: "*",
+    //     hostname: window.location.host,
+    //   },
+    //   (req) => {
+    //     req.headers["origin"] = "Cypress";
+    //   },
+    // );
     // cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
     //   "generateKey",
     // );
