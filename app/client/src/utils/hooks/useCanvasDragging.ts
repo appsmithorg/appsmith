@@ -9,6 +9,14 @@ import { getNearestParentCanvas } from "utils/generators";
 import { noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
 import {
+  areIntersecting,
+  getDropZoneOffsets,
+  getResizeParamsForPartialBoundaryCollision,
+  getResizeParamsForSinglePointCollision,
+  getResizeParamsForFullBoundaryCollision,
+  isPointInsideRect,
+} from "utils/WidgetPropsUtils";
+import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
@@ -203,6 +211,86 @@ export const useCanvasDragging = (
             onMouseMove(e);
           }
         };
+        const getCollidingAreas = (block: WidgetDraggingBlock) => {
+          const [left, top] = getDropZoneOffsets(
+            snapColumnSpace,
+            snapRowSpace,
+            { x: block.left, y: block.top } as XYCord,
+            { x: 0, y: 0 },
+          );
+
+          const blockRect = {
+            left: left,
+            top: top,
+            right: left + block.columnWidth,
+            bottom: top + block.rowHeight,
+          };
+          const collidingBlocks = occSpaces.filter((each) => {
+            return areIntersecting(each, blockRect);
+          });
+
+          const processCollidingBlocks = collidingBlocks.map((each) => {
+            const collidedPoints = [
+              { y: each.top, x: each.left, type: "topLeft" },
+              { y: each.top, x: each.right, type: "topRight" },
+              { y: each.bottom, x: each.left, type: "bottomLeft" },
+              { y: each.bottom, x: each.right, type: "bottomRight" },
+            ].filter((eachPoint) => {
+              return isPointInsideRect(eachPoint, blockRect);
+            });
+            if (collidedPoints.length === 0) {
+              return {
+                ...each,
+                resizeParams: getResizeParamsForPartialBoundaryCollision(
+                  each,
+                  blockRect,
+                ),
+              };
+            }
+            if (collidedPoints.length === 1) {
+              return {
+                ...each,
+                resizeParams: getResizeParamsForSinglePointCollision(
+                  collidedPoints[0],
+                  blockRect,
+                ),
+              };
+            }
+            if (collidedPoints.length === 2) {
+              return {
+                ...each,
+                resizeParams: getResizeParamsForFullBoundaryCollision(
+                  collidedPoints,
+                  blockRect,
+                ),
+              };
+            }
+            // cannot have three colliding points.
+
+            if (collidedPoints.length === 4) {
+              return {
+                ...each,
+              };
+            }
+            return { ...each };
+          });
+          const resizeUpdates = processCollidingBlocks.reduce(
+            (update: any, each: any) => {
+              if (each && each.resizeParams) {
+                update[each.resizeParams.direction] += each.resizeParams.amount;
+              }
+              return update;
+            },
+            { top: 0, bottom: 0, left: 0, right: 0 },
+          );
+          return { ...block, resizeUpdates };
+        };
+        const resizeBlockToAllowDrop = (block: WidgetDraggingBlock) => {
+          const collidingAreas = getCollidingAreas(block);
+          // eslint-disable-next-line no-console
+          console.log(collidingAreas);
+          return collidingAreas;
+        };
         const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
             const delta = {
@@ -236,6 +324,12 @@ export const useCanvasDragging = (
                   each.detachFromLayout,
                 ),
             }));
+            currentRectanglesToDraw = currentRectanglesToDraw.map((each) => {
+              if (each.isNotColliding) {
+                return each;
+              }
+              return resizeBlockToAllowDrop(each);
+            });
             if (rowDelta && canvasRef.current) {
               isUpdatingRows = true;
               canScroll.current = false;
@@ -325,11 +419,34 @@ export const useCanvasDragging = (
             isUpdatingRows = false;
             if (canvasIsDragging) {
               currentRectanglesToDraw.forEach((each) => {
-                drawBlockOnCanvas(each);
+                drawBlockOnCanvas(getResizeUpdatedBlock(each));
               });
             }
             canvasCtx.restore();
           }
+        };
+        const getResizeUpdatedBlock = (
+          blockDimensions: WidgetDraggingBlock,
+        ) => {
+          if (
+            !blockDimensions.isNotColliding &&
+            blockDimensions.resizeUpdates
+          ) {
+            const updates = blockDimensions.resizeUpdates;
+            const updatedBlock = {
+              ...blockDimensions,
+              top: blockDimensions.top + updates.top * snapRowSpace,
+              left: blockDimensions.left + updates.left * snapColumnSpace,
+              width:
+                blockDimensions.width -
+                (updates.left + updates.right) * snapColumnSpace,
+              height:
+                blockDimensions.height -
+                (updates.bottom + updates.top) * snapRowSpace,
+            };
+            return updatedBlock;
+          }
+          return blockDimensions;
         };
 
         const drawBlockOnCanvas = (blockDimensions: WidgetDraggingBlock) => {
@@ -380,6 +497,16 @@ export const useCanvasDragging = (
                 (noPad ? 0 : CONTAINER_GRID_PADDING),
               blockDimensions.width - strokeWidth,
               blockDimensions.height - strokeWidth,
+            );
+            canvasCtx.setLineDash([0]);
+            canvasCtx.strokeStyle = "#d4d4d4";
+            canvasCtx.strokeRect(
+              blockDimensions.left + (noPad ? 0 : CONTAINER_GRID_PADDING),
+              blockDimensions.top -
+                topOffset +
+                (noPad ? 0 : CONTAINER_GRID_PADDING),
+              blockDimensions.width,
+              blockDimensions.height,
             );
           }
         };
