@@ -49,7 +49,7 @@ export const EntityItem = styled.div<{
   user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
-  background: ${(props) => (props.active ? Colors.ALABASTER_ALT : "none")};
+  background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
@@ -60,7 +60,7 @@ export const EntityItem = styled.div<{
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.ALABASTER_ALT};
+    background: ${Colors.GREY_2};
   }
   & .${Classes.POPOVER_TARGET}, & .${Classes.POPOVER_WRAPPER} {
     width: 100%;
@@ -236,6 +236,7 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           }`}
           highlight={!!props.highlight}
+          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
