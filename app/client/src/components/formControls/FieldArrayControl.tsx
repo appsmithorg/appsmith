@@ -22,7 +22,6 @@ const PrimaryBox = styled.div`
   flex-direction: column;
   border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: 10px;
-  border-radius: 5px;
 `;
 
 const SecondaryBox = styled.div`
