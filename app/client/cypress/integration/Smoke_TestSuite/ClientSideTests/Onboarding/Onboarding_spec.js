@@ -66,6 +66,11 @@ describe("Onboarding", function() {
           .should("be.visible")
           .click();
 
+        // Check if table is showing any data
+        cy.getTableDataSelector("0", "0").then((selector) => {
+          cy.get(selector).should("be.visible");
+        });
+
         // wait for animation duration
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.wait(1000);
@@ -73,7 +78,7 @@ describe("Onboarding", function() {
         cy.dragAndDropToCanvas("inputwidget", { x: 360, y: 40 });
         cy.get(".t--property-control-onsubmit .t--open-dropdown-Select-Action")
           .click({ force: true })
-          .selectOnClickOption("Execute a Query")
+          .selectOnClickOption("Execute a query")
           .selectOnClickOption("Create New Query");
 
         cy.contains(
@@ -99,7 +104,7 @@ describe("Onboarding", function() {
         window.location.target = "_self";
       });
     });
-    cy.get(homePage.publishButton).click();
+    cy.get(homePage.publishButton).click({ force: true });
     cy.wait("@publishApp");
 
     cy.url().should("include", "/pages");

@@ -95,19 +95,19 @@ export const getCustomHoverColor = (
 ) => {
   if (!backgroundColor) {
     return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()][
-      (buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()
+      (buttonVariant || ButtonVariantTypes.PRIMARY).toLowerCase()
     ].hoverColor;
   }
 
   switch (buttonVariant) {
-    case ButtonVariantTypes.OUTLINE:
+    case ButtonVariantTypes.SECONDARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
         : theme.colors.button.primary.outline.hoverColor;
 
-    case ButtonVariantTypes.GHOST:
+    case ButtonVariantTypes.TERTIARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
@@ -127,14 +127,16 @@ export const getCustomBackgroundColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  return buttonVariant === ButtonVariantTypes.SOLID ? backgroundColor : "none";
+  return buttonVariant === ButtonVariantTypes.PRIMARY
+    ? backgroundColor
+    : "none";
 };
 
 export const getCustomBorderColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  return buttonVariant === ButtonVariantTypes.OUTLINE
+  return buttonVariant === ButtonVariantTypes.SECONDARY
     ? backgroundColor
     : "none";
 };
