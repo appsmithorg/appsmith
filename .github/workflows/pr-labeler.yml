@@ -16,13 +16,13 @@ jobs:
       
       - name: Get changed files using defaults
         id: changed-files
-        uses: tj-actions/changed-files@v2.1
+        uses: trilom/file-changes-action@v1.2.3
         continue-on-error: true
       
       - name: Run step when a file changes
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        if: contains(steps.changed-files.outputs.modified_files, 'cypress')
+        if: contains(steps.changed-files.outputs.files_modified, 'cypress')
         run: |
           echo "Your my-file.txt file has been modified."
 
