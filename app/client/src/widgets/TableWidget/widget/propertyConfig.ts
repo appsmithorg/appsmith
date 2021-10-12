@@ -164,67 +164,6 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  propertyName: "isCellVisible",
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnType",
-                  ],
-                  label: "Visible",
-                  helpText: "Controls the visibility of the cell in the column",
-                  updateHook: updateDerivedColumnsHook,
-                  defaultValue: true,
-                  controlType: "SWITCH",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                },
-                {
-                  propertyName: "isDisabled",
-                  label: "Disabled",
-                  updateHook: updateDerivedColumnsHook,
-                  defaultValue: false,
-                  controlType: "SWITCH",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.ICON_BUTTON,
-                      ColumnTypes.MENU_BUTTON,
-                      ColumnTypes.BUTTON,
-                    ]);
-                  },
-                },
-                {
-                  propertyName: "isCompact",
-                  helpText: "Decides if menu items will consume lesser space",
-                  updateHook: updateDerivedColumnsHook,
-                  label: "Compact",
-                  controlType: "SWITCH",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                    ]);
-                  },
-                },
-                {
                   propertyName: "inputFormat",
                   label: "Original Date Format",
                   controlType: "DROP_DOWN",
@@ -496,7 +435,7 @@ export default [
                 {
                   helpText: "Selects the option with value by default",
                   propertyName: "defaultOptionValue",
-                  label: "Default Value",
+                  label: "Default Option",
                   controlType: "COMPUTE_VALUE",
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -548,14 +487,57 @@ export default [
                   },
                 },
                 {
-                  propertyName: "isDisabled",
-                  label: "Disabled",
+                  propertyName: "isCellVisible",
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnType",
+                  ],
+                  label: "Visible",
+                  helpText: "Controls the visibility of the cell in the column",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: true,
                   controlType: "SWITCH",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                },
+                {
+                  propertyName: "isDisabled",
+                  label: "Disabled",
                   updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                      ColumnTypes.MENU_BUTTON,
+                      ColumnTypes.BUTTON,
+                      ColumnTypes.SELECT,
+                    ]);
+                  },
+                },
+                {
+                  propertyName: "isFilterable",
+                  label: "Filterable",
+                  helpText: "Makes the dropdown list filterable",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.SELECT,
@@ -566,14 +548,6 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  validation: {
-                    type: ValidationTypes.ARRAY,
-                    params: {
-                      children: {
-                        type: ValidationTypes.BOOLEAN,
-                      },
-                    },
-                  },
                 },
                 {
                   propertyName: "onClick",
@@ -625,6 +599,27 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                },
+                {
+                  propertyName: "isCompact",
+                  helpText: "Decides if menu items will consume lesser space",
+                  updateHook: updateDerivedColumnsHook,
+                  label: "Compact",
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
                 },
               ],
             },

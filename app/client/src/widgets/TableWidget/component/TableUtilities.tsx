@@ -815,6 +815,7 @@ export function SelectCell(props: {
   options: DropdownOption[];
   placeholderText: string | undefined;
   isDisabled: boolean;
+  isFilterable: boolean;
   isHidden: boolean;
   onOptionChange: (
     columnId: string,
@@ -853,7 +854,7 @@ export function SelectCell(props: {
         <DropDownComponent
           disabled={Boolean(props.isDisabled)}
           height={0}
-          isFilterable={false}
+          isFilterable={props.isFilterable}
           isLoading={false}
           onFilterChange={noop}
           onOptionSelected={handleOptionChange}

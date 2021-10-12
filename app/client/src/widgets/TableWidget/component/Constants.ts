@@ -117,8 +117,6 @@ export interface CellLayoutProperties {
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
   isCellVisible: boolean;
-  // column type select related properties
-  placeholderText?: string;
   isCompact?: boolean;
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
@@ -126,6 +124,9 @@ export interface CellLayoutProperties {
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
+  // column type select related properties
+  placeholderText?: string;
+  isFilterable?: boolean;
 }
 
 export type MenuItems = Record<
@@ -213,6 +214,7 @@ export interface ColumnProperties {
   options?: DropdownOption[];
   defaultOptionValue?: string[];
   placeholderText?: string[];
+  isFilterable?: boolean[];
   onOptionChange?: string;
 }
 

@@ -20,11 +20,15 @@ export const getPropertyValue = (
   }
 };
 export const getBooleanPropertyValue = (value: any, index: number) => {
-  if (isBoolean(value)) {
-    return value;
-  }
-  if (Array.isArray(value) && isBoolean(value[index])) {
-    return value[index];
+  try {
+    if (isBoolean(JSON.parse(value))) {
+      return JSON.parse(value);
+    }
+  } catch (error) {
+    if (Array.isArray(value) && isBoolean(value[index])) {
+      return value[index];
+    }
+    return false;
   }
   return !!value;
 };
@@ -110,6 +114,16 @@ export const getCellProperties = (
         columnProperties.menuVariant,
         rowIndex,
         true,
+      ),
+      // column type select related properties
+      placeholderText: getPropertyValue(
+        columnProperties.placeholderText,
+        rowIndex,
+        true,
+      ),
+      isFilterable: getBooleanPropertyValue(
+        columnProperties.isFilterable,
+        rowIndex,
       ),
     } as CellLayoutProperties;
   }

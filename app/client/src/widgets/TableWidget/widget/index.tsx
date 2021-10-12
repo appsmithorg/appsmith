@@ -273,6 +273,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 columnId={accessor}
                 isCellVisible={isCellVisible}
                 isDisabled={Boolean(cellProperties.isDisabled)}
+                isFilterable={Boolean(cellProperties.isFilterable)}
                 isHidden={isHidden}
                 onOptionChange={this.handleDropdowOptionChange}
                 options={options}
