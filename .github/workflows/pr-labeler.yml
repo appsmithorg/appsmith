@@ -27,7 +27,7 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           body: |
-            Hello, @${{ github.actor }}!
+            Unable to find test scripts. Please add cypress tests to the PR.
 
       
 
