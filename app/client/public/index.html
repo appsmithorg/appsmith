@@ -24,6 +24,17 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','%REACT_APP_GOOGLE_ANALYTICS_ID%');</script>
   <!-- End Google Tag Manager -->
+  <script>
+    const isAppsmithCloud = '%REACT_APP_IS_APPSMITH_CLOUD%';
+    const shouldLoadPlausible = isAppsmithCloud.indexOf('%') !== 0 && isAppsmithCloud !== "false";
+    if (shouldLoadPlausible) {
+      const script = document.createElement('script');
+      script.defer = true;
+      script.dataset.domain = "app.appsmith.com";
+      script.src = "https://plausible.io/js/plausible.js";
+      document.getElementsByTagName('head')[0].appendChild(script);
+    }
+  </script>
 </head>
 
 <body>
