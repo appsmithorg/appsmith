@@ -21,7 +21,7 @@
       "leftColumn":0,
       "children":[
          {
-            "widgetName":"Multi TreeSelect",
+            "widgetName":"MultiSelectTree1",
             "displayName":"Multi TreeSelect",
             "iconSVG":"/static/media/icon.f264210c.svg",
             "labelText":"Label",

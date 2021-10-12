@@ -29,7 +29,7 @@ export const CONFIG = {
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
-    widgetName: "MultiSelectTree",
+    widgetName: "Multi TreeSelect",
     defaultOptionValue: ["GREEN"],
     version: 1,
     isVisible: true,
