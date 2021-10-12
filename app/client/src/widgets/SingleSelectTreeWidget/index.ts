@@ -28,7 +28,7 @@ export const CONFIG = {
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
-    widgetName: "TreeSelect",
+    widgetName: "SingleSelectTree",
     defaultOptionValue: "BLUE",
     version: 1,
     isVisible: true,
