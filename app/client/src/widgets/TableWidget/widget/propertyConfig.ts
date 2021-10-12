@@ -806,6 +806,17 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: ButtonVariantTypes.PRIMARY,
+                      allowedValues: [
+                        ButtonVariantTypes.PRIMARY,
+                        ButtonVariantTypes.SECONDARY,
+                        ButtonVariantTypes.TERTIARY,
+                      ],
+                    },
+                  },
                 },
                 {
                   propertyName: "borderRadius",
