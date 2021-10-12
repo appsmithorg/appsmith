@@ -2,7 +2,7 @@ import { isEqual } from "lodash";
 import React from "react";
 import DraggableList from "./DraggableList";
 
-type RenderComponentProps = {
+export type RenderComponentProps = {
   index: number;
   item: {
     label: string;

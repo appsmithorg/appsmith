@@ -60,6 +60,22 @@ const updateDerivedColumnsHook = (
   return;
 };
 
+/**
+ * On change of type of a field
+ * 1. update the type
+ * 2. Reset the config for that field
+ *
+ * Note: The logic is, the properties that can be modified will be set
+ * in the widget constant
+ * Move the PANEL_CONFIG to constants?
+ * Properties specific to the field components would reside in the *Field component
+ * itself
+ *
+ * When a field is modified to a non-primitive type, it's children would be removed
+ *
+ * MAKE OPERATIONS ATOMIC!!!
+ */
+
 const PANEL_CONFIG = {
   editableTitle: true,
   titlePropertyName: "config.props.label",
@@ -110,7 +126,6 @@ const PANEL_CONFIG = {
           propertyName: "children",
           label: "fieldConfiguration",
           controlType: "FIELD_CONFIGURATION",
-          customJSControl: "",
           isBindProperty: false,
           isTriggerProperty: false,
         },
@@ -119,7 +134,7 @@ const PANEL_CONFIG = {
   ],
 };
 
-function DroppableRenderComponent(props: RenderComponentProps<SchemaObject>) {
+function DroppableRenderComponent(props: RenderComponentProps) {
   const { index, item, onEdit } = props;
 
   return (
