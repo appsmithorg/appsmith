@@ -90,6 +90,7 @@ class TabsMigratorWidget extends BaseWidget<
             dependencies: ["tabsObj", "tabs"],
           },
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",
