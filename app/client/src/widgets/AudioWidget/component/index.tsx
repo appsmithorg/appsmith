@@ -44,7 +44,13 @@ export default function AudioComponent(props: AudioComponentProps) {
   } = props;
   return url ? (
     <ReactPlayer
-      config={{file: {attributes: {controlsList: 'nodownload nofullscreen noremoteplayback'}}}}
+      config={{
+        file: {
+          attributes: {
+            controlsList: "nodownload nofullscreen noremoteplayback",
+          },
+        },
+      }}
       controls={controls || true}
       height="100%"
       onEnded={onEnded}
