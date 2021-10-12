@@ -336,7 +336,6 @@ export default class DataTreeEvaluator {
 
   createDependencyMap(unEvalTree: DataTree): DependencyMap {
     let dependencyMap: DependencyMap = {};
-    this.allKeys = getAllPaths(unEvalTree);
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
@@ -347,11 +346,21 @@ export default class DataTreeEvaluator {
         dependencyMap = { ...dependencyMap, ...entityListedDependencies };
       }
     });
+    let holder: string[] = [];
+    const proxyTree = this.createProxyTree(unEvalTree, (propertyPath) => {
+      holder.push(propertyPath);
+    });
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(path, this.allKeys),
-        ),
+        dependencyMap[key].map((path) => {
+          holder = [];
+          try {
+            evaluate(path, proxyTree, this.resolvedFunctions);
+          } catch (e) {
+            //
+          }
+          return holder;
+        }),
       );
     });
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
@@ -941,7 +950,7 @@ export default class DataTreeEvaluator {
     // This is needed for NEW and DELETE events below.
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
-    this.allKeys = getAllPaths(unEvalDataTree);
+    // this.allKeys = getAllPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
     translatedDiffs.forEach((dataTreeDiff) => {
       const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
@@ -1134,12 +1143,18 @@ export default class DataTreeEvaluator {
     const subDepCalcStart = performance.now();
     if (didUpdateDependencyMap) {
       // TODO Optimise
+      let holder: string[] = [];
+      const proxyTree = this.createProxyTree(unEvalDataTree, (propertyPath) => {
+        holder.push(propertyPath);
+      });
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
-            this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(path, this.allKeys),
-            ),
+            this.dependencyMap[key].map((path) => {
+              holder = [];
+              evaluate(path, proxyTree, this.resolvedFunctions);
+              return holder;
+            }),
           ),
         );
       });
@@ -1358,6 +1373,44 @@ export default class DataTreeEvaluator {
       jsSnippets[0],
       EvaluationScriptType.TRIGGERS,
     );
+  }
+
+  private createProxyTree(
+    unEvalTree: DataTree,
+    getterCallback: (propertyPath: string) => void,
+  ) {
+    const proxyTree: DataTree = Object.create({});
+    const getter: (parentPath: string) => ProxyHandler<any>["get"] = (
+      parentPath,
+    ) => (_, property) => {
+      if (typeof property !== "symbol") {
+        getterCallback(String(`${parentPath}.${property}`));
+      }
+      return Reflect.get(_, property);
+    };
+    for (const entityName in unEvalTree) {
+      const entity = unEvalTree[entityName];
+      const proxyEntity = { ...entity };
+      if ("bindingPaths" in entity) {
+        for (const bindingPath in entity.bindingPaths) {
+          const pathValue = _.get(proxyEntity, bindingPath, {});
+          if (typeof pathValue === "object") {
+            _.set(
+              proxyEntity,
+              bindingPath,
+              new Proxy(pathValue, {
+                get: getter(`${entityName}.${bindingPath}`),
+              }),
+            );
+          }
+        }
+      }
+
+      proxyTree[entityName] = new Proxy(proxyEntity, {
+        get: getter(entityName),
+      });
+    }
+    return proxyTree;
   }
 }
 
