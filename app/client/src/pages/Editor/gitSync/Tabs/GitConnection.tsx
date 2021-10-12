@@ -45,7 +45,7 @@ import { isEqual } from "lodash";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
-} from "../../../../selectors/gitSyncSelectors";
+} from "selectors/gitSyncSelectors";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
