@@ -386,7 +386,7 @@ function CommentCard({
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
 
-    if (!commentThread.isViewed) {
+    if (!commentThread?.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
   };

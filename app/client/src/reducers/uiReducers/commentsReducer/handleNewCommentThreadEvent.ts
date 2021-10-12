@@ -6,7 +6,7 @@ const handleNewCommentThreadEvent = (
   state: CommentsReduxState,
   action: ReduxAction<any>,
 ) => {
-  const { thread } = action.payload;
+  const thread = action.payload;
   const applicationCommentIdsByRefId = get(
     state.applicationCommentThreadsByRef,
     thread.applicationId,

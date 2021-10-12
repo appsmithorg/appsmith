@@ -11,7 +11,6 @@ export interface CommentsReduxState {
   creatingNewThreadComment: boolean;
   appCommentsFilter: typeof filterOptions[number]["value"];
   shouldShowResolvedAppCommentThreads: boolean;
-  unreadCommentThreadsCount: number;
   visibleCommentThreadId?: string;
   isIntroCarouselVisible?: boolean;
   unsubscribed: boolean;

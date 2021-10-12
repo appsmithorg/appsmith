@@ -182,11 +182,11 @@ const CommentThreadContainer = withTheme(function CommentThreadContainer({
               isParentComment
               key={parentComment.id}
               numberOfReplies={numberOfReplies}
-              resolved={!!commentThread.resolvedState?.active}
+              resolved={!!commentThread?.resolvedState?.active}
               showReplies={hideChildren}
               showSubheader={showSubheader}
               toggleResolved={resolveCommentThread}
-              unread={!commentThread.isViewed}
+              unread={!commentThread?.isViewed}
               visible={isVisible}
             />
           )}
