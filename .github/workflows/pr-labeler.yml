@@ -23,8 +23,12 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: contains(steps.changed-files.outputs.files_modified, 'cypress') == false
+<<<<<<< HEAD
         run: |
           echo "Your my-file.txt file has been modified."
+=======
+          echo "asda"
+>>>>>>> 66cdb2a6e972c83a12e75362db3ea9c39b3c69a5
 
       
 
