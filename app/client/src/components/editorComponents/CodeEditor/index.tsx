@@ -93,6 +93,7 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES: Record<KeyboardEvent["code"], string> = {
   Delete: "Delete",
   Backspace: "Backspace",
   "Ctrl+Backspace": "Ctrl+Backspace",
+  OSLeft: "OSLeft",
 };
 
 const AUTOCOMPLETE_NAVIGATION = [
