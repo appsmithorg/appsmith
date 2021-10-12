@@ -4,15 +4,13 @@ name: Ok To Test
 on:
   issue_comment:
     types: [created]
-  pull_request_review:
-    types: [submitted]
 
 jobs:
   ok-to-test:
     runs-on: ubuntu-latest
     # Only run for PRs, not issue comments
     if: |
-      ${{ github.event.issue.pull_request || github.event.review.state == 'approved' }}
+      ${{ github.event.issue.pull_request }}
     steps:
       - name: Generate token
         id: generate_token
@@ -28,7 +26,8 @@ jobs:
         with:
           token: ${{ env.TOKEN }} # GitHub App installation access token
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
+          dispath-type: workflow
           issue-type: pull-request
-          commands: ok-to-test
+          commands: integration-tests
           named-args: true
           permission: write
