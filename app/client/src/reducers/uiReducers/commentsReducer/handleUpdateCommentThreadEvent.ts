@@ -39,11 +39,8 @@ const handleUpdateCommentThreadEvent = (
     };
   }
 
-  const showUnreadIndicator = !state.isCommentMode;
-
   return {
     ...state,
-    showUnreadIndicator,
     lastUpdatedCommentThreadId: id,
   };
 };
