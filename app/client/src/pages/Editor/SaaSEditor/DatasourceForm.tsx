@@ -42,6 +42,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import Connected from "../DataSourceEditor/Connected";
 import { Colors } from "constants/Colors";
 import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
+import { ButtonVariantTypes } from "components/constants";
 
 interface StateProps extends JSONtoFormProps {
   isSaving: boolean;
@@ -206,7 +207,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               <ActionButton
                 // accent="error"
                 buttonStyle="DANGER"
-                buttonVariant="SOLID"
+                buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() =>

@@ -7,6 +7,7 @@ import {
   GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
 import { GridDefaults } from "constants/WidgetConstants";
+import { ButtonVariantTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -83,7 +84,7 @@ export const CONFIG = {
                   props: {
                     text: "Close",
                     buttonStyle: "PRIMARY",
-                    buttonVariant: "OUTLINE",
+                    buttonVariant: ButtonVariantTypes.SECONDARY,
                     version: 1,
                   },
                 },
