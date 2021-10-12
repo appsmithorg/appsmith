@@ -86,12 +86,7 @@ export const loadingUserOrgs = [
       },
       {
         id: "loadingAppId2",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName2",
         organizationId: "loadingOrgId1",
         isPublic: false,
@@ -161,12 +156,7 @@ export const loadingUserOrgs = [
     applications: [
       {
         id: "loadingAppId3",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName3",
         organizationId: "loadingOrgId2",
         isPublic: false,
@@ -183,12 +173,7 @@ export const loadingUserOrgs = [
       },
       {
         id: "loadingAppId4",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName4",
         organizationId: "loadingOrgId2",
         isPublic: false,
@@ -205,12 +190,7 @@ export const loadingUserOrgs = [
       },
       {
         id: "loadingAppId5",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName5",
         organizationId: "loadingOrgId2",
         isPublic: false,
