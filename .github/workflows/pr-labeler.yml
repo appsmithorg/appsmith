@@ -19,7 +19,7 @@ jobs:
         uses: Ana06/get-changed-files@v2.0.0
 
       - run: |
-          if contains('${{ steps.files.outputs.all }}', 'cypress')
+          if contains(steps.files.outputs.all, 'cypress')
             echo "Do something with this "
 
       
