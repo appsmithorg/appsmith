@@ -1,10 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  getBorderCSSShorthand,
-  IntentColors,
-  labelStyle,
-} from "constants/DefaultTheme";
+import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
 import {
   FontStyleTypes,
@@ -84,7 +80,7 @@ const InputComponentWrapper = styled((props) => (
     .currency-type-filter,
     .country-type-filter {
       width: fit-content;
-      height: 32px;
+      height: 36px;
       position: absolute;
       display: inline-block;
       left: 0;
@@ -94,8 +90,12 @@ const InputComponentWrapper = styled((props) => (
           fill: ${(props) => props.theme.colors.icon?.hover};
         }
       }
+      &:hover {
+        border: 1px solid ${Colors.GREY_5} !important;
+      }
     }
     .${Classes.INPUT} {
+      min-height: 36px;
       ${(props) =>
         props.inputType === InputTypes.CURRENCY &&
         props.allowCurrencyChange &&
@@ -107,11 +107,13 @@ const InputComponentWrapper = styled((props) => (
         `
       padding-left: 35px;`};
       ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER && `padding-left: 85px;`};
+        props.inputType === InputTypes.PHONE_NUMBER &&
+        `padding-left: 85px;
+        `};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
-        hasError ? IntentColors.danger : Colors.GEYSER_LIGHT};
+        hasError ? Colors.DANGER_SOLID : Colors.GEYSER_LIGHT};
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
@@ -125,17 +127,21 @@ const InputComponentWrapper = styled((props) => (
       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
       &:active {
         border-color: ${({ hasError }) =>
-          hasError ? IntentColors.danger : Colors.HIT_GRAY};
+          hasError ? Colors.DANGER_SOLID : Colors.HIT_GRAY};
+      }
+      &:hover {
+        border-left: 1px solid ${Colors.GREY_5};
+        border-right: 1px solid ${Colors.GREY_5};
+        border-color: ${Colors.GREY_5};
       }
       &:focus {
         border-color: ${({ hasError }) =>
-          hasError ? IntentColors.danger : Colors.MYSTIC};
+          hasError ? Colors.DANGER_SOLID : Colors.MYSTIC};
 
         &:focus {
-          border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-          border-color: #80bdff;
           outline: 0;
-          box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+          border: 1px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
         }
       }
     }
@@ -189,6 +195,10 @@ const StyledNumericInput = styled(NumericInput)`
         border-left: 0;
         z-index: 16;
         line-height: 16px;
+
+        &:hover:not(:focus) {
+          border-left: 1px solid ${Colors.GREY_5};
+        }
       }
     }
   }

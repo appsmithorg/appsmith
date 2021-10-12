@@ -116,7 +116,8 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid #80bdff;
+      border: 1px solid ${Colors.GREEN_SOLID};
+      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
     `
       : null};
   .${Classes.TEXT} {
@@ -204,11 +205,35 @@ export const DropdownWrapper = styled.div<{
   z-index: 1;
   background-color: ${(props) => props.theme.colors.dropdown.menuBg};
   box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
-  margin-top: ${(props) => -props.theme.spaces[3]}px;
   padding: ${(props) => props.theme.spaces[3]}px 0;
   .dropdown-search {
     margin: 4px 12px 8px;
     width: calc(100% - 24px);
+
+    input {
+      height: 36px;
+      font-size: 14px !important;
+      color: ${Colors.GREY_10} !important;
+      padding-left: 36px !important;
+
+      &:focus {
+        border: 1.2px solid ${Colors.GREEN_SOLID};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+      }
+    }
+
+    .bp3-icon-search {
+      width: 36px;
+      height: 36px;
+      margin: 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 14px;
+      }
+    }
   }
 `;
 
@@ -232,9 +257,9 @@ const OptionWrapper = styled.div<{
   cursor: pointer;
   display: flex;
   align-items: center;
-
+  min-height: 36px;
   background-color: ${(props) =>
-    props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
+    props.selected ? Colors.GREEN_SOLID_HOVER_2 : null};
 
   &&& svg {
     rect {
@@ -262,7 +287,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.dropdown.menu.hover};
+    background-color: ${Colors.GREEN_SOLID_HOVER_2};
 
     &&& svg {
       rect {
@@ -313,7 +338,9 @@ const StyledSubText = styled(Text)<{
 `;
 
 const LeftIconWrapper = styled.span`
-  margin-right: 15px;
+  font-size: 20px;
+  line-height: 19px;
+  margin-right: 10px;
   height: 100%;
   position: relative;
   top: 1px;

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { InputGroup } from "@blueprintjs/core";
 import { debounce } from "lodash";
 import { Colors } from "constants/Colors";
+import Icon from "components/ads/Icon";
 
 interface SearchProps {
   onSearch: (value: any) => void;
@@ -20,6 +21,31 @@ const SearchInputWrapper = styled(InputGroup)`
   &&& svg {
     path {
       fill: ${Colors.SILVER_CHALICE};
+    }
+  }
+  &&& .bp3-input-action .close {
+    width: 34px;
+    height: 34px;
+    margin-right: 1px;
+    margin-left: 1px;
+    margin-top: 1px;
+    justify-content: center;
+    transition: 0.2s all ease;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      path {
+        fill: ${Colors.GREY_6};
+      }
+    }
+    &:hover {
+      background-color: ${Colors.GREY_2};
+      svg {
+        path {
+          fill: ${Colors.GREY_10};
+        }
+      }
     }
   }
   margin: 5px 16px;
@@ -61,7 +87,7 @@ class SearchComponent extends React.Component<
         leftIcon="search"
         onChange={this.handleSearch}
         placeholder={this.props.placeholder}
-        type="search"
+        rightElement={<Icon className="close" name="close-x" />}
         value={this.state.localValue}
       />
     );
