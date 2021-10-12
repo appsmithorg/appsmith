@@ -13,6 +13,8 @@ export enum ActionTriggerType {
   DOWNLOAD = "DOWNLOAD",
   COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+  SET_INTERVAL = "SET_INTERVAL",
+  CLEAR_INTERVAL = "CLEAR_INTERVAL",
 }
 
 export type PromiseActionDescription = {
@@ -101,6 +103,22 @@ export type ResetWidgetDescription = {
   };
 };
 
+export type SetIntervalDescription = {
+  type: ActionTriggerType.SET_INTERVAL;
+  payload: {
+    callback: string;
+    interval: number;
+    id?: string;
+  };
+};
+
+export type ClearIntervalDescription = {
+  type: ActionTriggerType.CLEAR_INTERVAL;
+  payload: {
+    id: string;
+  };
+};
+
 export type ActionDescription =
   | PromiseActionDescription
   | RunPluginActionDescription
@@ -112,4 +130,6 @@ export type ActionDescription =
   | StoreValueActionDescription
   | DownloadActionDescription
   | CopyToClipboardDescription
-  | ResetWidgetDescription;
+  | ResetWidgetDescription
+  | SetIntervalDescription
+  | ClearIntervalDescription;
