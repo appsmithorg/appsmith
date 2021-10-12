@@ -391,7 +391,6 @@ class CodeEditor extends Component<Props, State> {
         change.update(undefined, undefined, formattedText);
       }
     }
-    this.currentChange = change;
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
