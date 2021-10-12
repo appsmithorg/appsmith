@@ -24,7 +24,7 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: contains(steps.changed-files.outputs.files_modified, 'cypress') == false
         run: |
-          echo "Your my-file.txt file has been modified."
+          echo "Cypress tests not found."
 
       
 
