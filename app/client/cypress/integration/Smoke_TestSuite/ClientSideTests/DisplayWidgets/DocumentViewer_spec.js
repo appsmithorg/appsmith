@@ -13,13 +13,6 @@ describe("DocumentViewer Widget Functionality", function() {
   });
 
   it("Open Existing DocumentViewer from Widgets list", () => {
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Widgets)").click({
-      multiple: true,
-    });
-    cy.get(
-      ".bp3-icon-caret-right ~ .t--entity-name:contains(DocumentViewer1)",
-    ).click({
-      multiple: true,
-    });
+    cy.get(".t--widget-documentviewerwidget").should("exist");
   });
 });
