@@ -20,11 +20,14 @@ jobs:
         continue-on-error: true
       
       - name: Run step when a file changes
+        uses: actions-ecosystem/action-create-comment@v1
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: contains(steps.changed-files.outputs.files_modified, 'cypress') == false
-        run: |
-          echo "Cypress tests not found."
+        with:
+          github_token: ${{ secrets.github_token }}
+          body: |
+            Hello, @${{ github.actor }}!
 
       
 
