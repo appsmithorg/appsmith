@@ -462,6 +462,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
+  setInterval: {
+    "!doc": "Execute triggers at a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+  clearInterval: {
+    "!doc": "Stop executing a setInterval with id",
+    "!type": "fn(id: string) -> void",
+  },
 };
 
 export const getPropsForJSActionEntity = (

@@ -327,7 +327,7 @@ export const CurrentValueViewer = memo(
         <Collapse isOpen={openEvaluatedValue}>
           <CurrentValueWrapper colorTheme={props.theme}>
             {content}
-            {props.evaluatedValue && (
+            {props.hasOwnProperty("evaluatedValue") && (
               <CopyIconWrapper
                 colorTheme={props.theme}
                 minimal

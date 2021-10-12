@@ -14,8 +14,9 @@ import { getSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { isWidget, isAction } from "workers/evaluationUtils";
+import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
+import { JS_COLLECTION_ID_URL } from "constants/routes";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -134,6 +135,10 @@ export const useEntityLink = () => {
         if (url) {
           history.push(url);
         }
+      } else if (isJSAction(entity)) {
+        history.push(
+          JS_COLLECTION_ID_URL(applicationId, pageId, entity.actionId),
+        );
       }
     },
     [dataTree],
