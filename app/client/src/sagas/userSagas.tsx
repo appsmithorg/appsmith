@@ -37,7 +37,7 @@ import {
   invitedUserSignupSuccess,
   fetchFeatureFlagsSuccess,
   fetchFeatureFlagsError,
-  // fetchFeatureFlagsInit,
+  fetchFeatureFlagsInit,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -121,9 +121,7 @@ export function* getCurrentUserSaga() {
       ) {
         AnalyticsUtil.identifyUser(response.data);
         // make fetch feature call only if logged in
-        // yield put(fetchFeatureFlagsInit());
-        // TODO REMOVE
-        yield put(fetchFeatureFlagsSuccess());
+        yield put(fetchFeatureFlagsInit());
       } else {
         // reset the flagsFetched flag
         yield put(fetchFeatureFlagsSuccess());
