@@ -11,13 +11,14 @@ jobs:
 
     steps:
       - uses: appsmithorg/labeler@master
+      - uses: Ana06/get-changed-files@v2.0.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       
       - name: Check for files changed
         id: files
-        uses: Ana06/get-changed-files@v2.0.0
         if: contains(steps.files.outputs.all, 'cypress')
+        run: |
             echo "Do something with this "
 
       
