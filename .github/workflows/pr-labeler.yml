@@ -24,7 +24,7 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: contains(steps.changed-files.outputs.files_modified, 'cypress') == false
-        message:|
+          message:|
               Unable to find testcases in the PR
 
       
