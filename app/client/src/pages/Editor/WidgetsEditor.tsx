@@ -162,7 +162,11 @@ function WidgetsEditor() {
           onDragStart={onDragStart}
         >
           <MainContainerLayoutControl />
-          <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
+          <CanvasContainer
+            className={getCanvasClassName()}
+            id="appsmith-editor"
+            key={currentPageId}
+          >
             {node}
           </CanvasContainer>
           <Debugger />
