@@ -449,6 +449,7 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
 export const CellCheckbox = styled.div`
   height: 14px;
   width: 14px;
+  background: ${Colors.WHITE};
   cursor: pointer;
   position: relative;
   .th-svg {
