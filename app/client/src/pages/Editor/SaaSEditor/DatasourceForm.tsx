@@ -44,6 +44,7 @@ import { Colors } from "constants/Colors";
 import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
 import { getDefaultApplicationId } from "selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { ButtonVariantTypes } from "components/constants";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -214,7 +215,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               <ActionButton
                 // accent="error"
                 buttonStyle="DANGER"
-                buttonVariant="SOLID"
+                buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() =>
