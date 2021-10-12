@@ -28,4 +28,5 @@ jobs:
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
           commands: ok-to-test
+          named-args: true
           permission: write
