@@ -3,7 +3,7 @@ name: Appsmith External Integration Test Workflow
 on:
   # This workflow is only triggered by the ok to test command dispatch
   repository_dispatch:
-    types: [integration-tests-command]
+    types: [ok-to-test-command]
 
 jobs:
   server-build:
