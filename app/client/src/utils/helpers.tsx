@@ -21,6 +21,7 @@ import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
+import log from "loglevel";
 
 const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
 
@@ -559,7 +560,7 @@ export const trimQueryString = (value = "") => {
  */
 export const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
-  return params.get(key) || "";
+  return decodeURIComponent(params.get(key) || "");
 };
 
 /**
@@ -569,12 +570,17 @@ export const getSearchQuery = (search = "", key: string) => {
 export const getQueryParamsObject = () => {
   const search = window.location.search.substring(1);
   if (!search) return {};
-  return JSON.parse(
-    '{"' +
-      decodeURI(search)
-        .replace(/"/g, '\\"')
-        .replace(/&/g, '","')
-        .replace(/=/g, '":"') +
-      '"}',
-  );
+  try {
+    return JSON.parse(
+      '{"' +
+        decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"') +
+        '"}',
+    );
+  } catch (e) {
+    log.error(e, "error parsing search string");
+    return {};
+  }
 };

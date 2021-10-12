@@ -79,7 +79,7 @@ export const compileBuilderUrl = compile(BUILDER_URL);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
-  url.searchParams.set(GIT_BRANCH_QUERY_KEY, branch);
+  url.searchParams.set(GIT_BRANCH_QUERY_KEY, encodeURIComponent(branch));
   return url.toString().slice(url.origin.length);
 };
 
