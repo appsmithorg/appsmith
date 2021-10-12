@@ -119,11 +119,29 @@ const MultiOptionWrapper = styled(OptionWrapper)`
   background-color: transparent;
   .${Classes.MULTI_SELECT_BOX} {
     background-color: ${(props) =>
-      props.selected ? Colors.DANUBE : "transparent"};
-    border-color: ${(props) =>
-      props.selected
-        ? Colors.DANUBE
-        : props.theme.colors.propertyPane.jsIconBg};
+      props.selected ? props.theme.colors.info.main : "transparent"};
+    border: 1.8px solid
+      ${(props) =>
+        props.selected
+          ? props.theme.colors.info.main
+          : props.theme.colors.checkbox.unchecked};
+
+    &::after {
+      content: "";
+      position: absolute;
+      display: ${(props) => (props.selected ? "block" : "none")};
+      top: -1px;
+      left: 2.5px;
+      width: 5px;
+      height: 10px;
+      border: solid
+        ${(props) =>
+          props.selected
+            ? props.theme.colors.checkbox.normalCheck
+            : "transparent"};
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
   }
 `;
 
@@ -131,8 +149,8 @@ const SquareBox = styled.div`
   width: 14px;
   height: 14px;
   margin-right: 8px;
-  border: 1px solid;
   box-sizing: border-box;
+  position: relative;
 `;
 
 export type DropdownOption = {
