@@ -408,6 +408,11 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
       # Update check run called "ui-test-result"
       - name: Mark ui-test-result job as complete
         uses: actions/github-script@v1
