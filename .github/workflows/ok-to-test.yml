@@ -26,7 +26,8 @@ jobs:
         with:
           token: ${{ env.TOKEN }} # GitHub App installation access token
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
+          dispatch-type: workflow
           issue-type: pull-request
-          commands: ok-to-test
+          commands: integration-tests
           named-args: true
           permission: write
