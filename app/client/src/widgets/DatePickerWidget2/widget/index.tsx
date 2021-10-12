@@ -121,6 +121,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+            hideSubText: true,
           },
           {
             propertyName: "isRequired",

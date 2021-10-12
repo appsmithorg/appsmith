@@ -2,9 +2,9 @@ import React from "react";
 import Select from "react-select";
 
 import { WrappedFieldInputProps } from "redux-form";
-import { theme } from "constants/DefaultTheme";
 import { SelectComponentsConfig } from "react-select/src/components";
 import { LayersContext } from "../../../constants/Layers";
+import { Colors } from "constants/Colors";
 
 export type DropdownProps = {
   options: Array<{
@@ -29,13 +29,15 @@ const selectStyles = {
   control: (styles: any, state: any) => ({
     ...styles,
     width: state.selectProps.width || 100,
-    minHeight: "32px",
+    minHeight: "36px",
     border: state.isFocused
-      ? `${theme.colors.secondary} solid 1px`
-      : `${theme.colors.inputInactiveBorders} solid 1px`,
+      ? `${Colors.CRUSTA} solid 1px`
+      : `${Colors.ALTO2} solid 1px`,
     boxShadow: state.isFocused ? 0 : 0,
+    padding: "1px 3px 1px",
+    "border-radius": "0px",
     "&:hover": {
-      border: `${theme.colors.secondary} solid 1px`,
+      background: "#FAFAFA",
     },
   }),
   indicatorsContainer: (provided: any) => ({
@@ -51,7 +53,12 @@ const selectStyles = {
     padding: "5px",
   }),
   indicatorSeparator: () => ({}),
-  menu: (provided: any) => ({ ...provided, zIndex: 2 }),
+  menu: (provided: any) => ({
+    ...provided,
+    zIndex: 2,
+    backgroundColor: Colors.GREY_1,
+    borderRadius: 0,
+  }),
   menuPortal: (base: any) => ({ ...base, zIndex: 2 }),
 };
 

@@ -66,6 +66,8 @@ import {
   NAVIGATE_TO,
   EXECUTE_A_QUERY,
   NO_ACTION,
+  SET_INTERVAL,
+  CLEAR_INTERVAL,
 } from "constants/messages";
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -110,6 +112,14 @@ const baseOptions: any = [
   {
     label: createMessage(RESET_WIDGET),
     value: ActionType.resetWidget,
+  },
+  {
+    label: createMessage(SET_INTERVAL),
+    value: ActionType.setInterval,
+  },
+  {
+    label: createMessage(CLEAR_INTERVAL),
+    value: ActionType.clearInterval,
   },
 ];
 
@@ -332,6 +342,25 @@ function getFieldFromValue(
   if (value.indexOf("copyToClipboard") !== -1) {
     fields.push({
       field: FieldType.COPY_TEXT_FIELD,
+    });
+  }
+  if (value.indexOf("setInterval") !== -1) {
+    fields.push(
+      {
+        field: FieldType.CALLBACK_FUNCTION_FIELD,
+      },
+      {
+        field: FieldType.DELAY_FIELD,
+      },
+      {
+        field: FieldType.ID_FIELD,
+      },
+    );
+  }
+
+  if (value.indexOf("clearInterval") !== -1) {
+    fields.push({
+      field: FieldType.ID_FIELD,
     });
   }
   return fields;
