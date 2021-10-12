@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
@@ -590,10 +591,13 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void listBranchForApplication_EmptyRepo_DefaultBranch() throws IOException {
-        List<String> branchList = new ArrayList<>();
-        branchList.add("defaultBranch");
+        List<GitBranchListDTO> branchList = new ArrayList<>();
+        GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+        gitBranchListDTO.setBranchName("defaultBranch");
+        branchList.add(gitBranchListDTO);
+
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null)))
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
@@ -618,7 +622,7 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
         Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
 
-        Mono<List<String>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
 
         StepVerifier
                 .create(listMono)
@@ -632,11 +636,16 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void listBranchForApplication_NonEmptyRepo_ListBranch() throws IOException {
-        List<String> branchList = new ArrayList<>();
-        branchList.add("defaultBranch");
-        branchList.add("origin/defaultBranch");
+        List<GitBranchListDTO> branchList = new ArrayList<>();
+        GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+        gitBranchListDTO.setBranchName("defaultBranch");
+        branchList.add(gitBranchListDTO);
+        gitBranchListDTO = new GitBranchListDTO();
+        gitBranchListDTO.setBranchName("origin/defaultBranch");
+        branchList.add(gitBranchListDTO);
+
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null)))
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
@@ -661,7 +670,7 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
         Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
 
-        Mono<List<String>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
 
         StepVerifier
                 .create(listMono)
@@ -686,7 +695,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<String>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
 
         StepVerifier
                 .create(listMono)
@@ -715,7 +724,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<String>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
 
         StepVerifier
                 .create(listMono)
@@ -807,6 +816,26 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void pullChanges_NoChangesInRemotePullException_ShowError() throws IOException, GitAPIException {
+        Application application = createApplicationConnectedToGit("NoChangesInRemotePullException");
+        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(applicationJson);
+
+        Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(gitPullDTO -> {
+                    assertThat(gitPullDTO.getPullStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
+                });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void pullChanges_HydrateApplicationToFileSystem_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("NoChangesInRemotePullException");
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 

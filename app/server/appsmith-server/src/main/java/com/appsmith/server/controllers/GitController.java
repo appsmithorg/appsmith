@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -136,7 +137,7 @@ public class GitController {
     }
 
     @GetMapping("/branch/{defaultApplicationId}")
-    public Mono<ResponseDTO<List<String>>> branch(@PathVariable String defaultApplicationId) {
+    public Mono<ResponseDTO<List<GitBranchListDTO>>> branch(@PathVariable String defaultApplicationId) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
         return service.listBranchForApplication(defaultApplicationId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
