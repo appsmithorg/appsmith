@@ -54,11 +54,15 @@ describe("extractReferencesFromBinding", () => {
 
     const cases: { script: string; expectedResults: string[] }[] = [
       {
-        script: "Table1.data.details.map(c => ({ name: c.name }))",
+        script: "Table1.data.map(c => ({ name: c.name }))",
         expectedResults: ["Table1.data.details"],
       },
       {
         script: "(function(){ if(Table1.isVisible) { return Api1.data } })()",
+        expectedResults: ["Table1.isVisible", "Api1.data"],
+      },
+      {
+        script: "Table1['data']",
         expectedResults: ["Table1.isVisible", "Api1.data"],
       },
     ];
