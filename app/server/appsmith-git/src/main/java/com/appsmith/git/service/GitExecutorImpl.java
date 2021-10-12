@@ -294,6 +294,8 @@ public class GitExecutorImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
             Git git = Git.open(repoPath.toFile());
+            //checkout the branch on which the merge command is run
+            git.checkout().setName(branchName).setCreateBranch(false).call();
             try {
                 long count = Arrays.stream(git
                         .pull()
@@ -439,5 +441,4 @@ public class GitExecutorImpl implements GitExecutor {
     private void resetToLastCommit(Git git) throws GitAPIException {
         git.reset().setMode(ResetCommand.ResetType.HARD).call();
     }
-
 }

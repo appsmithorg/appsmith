@@ -151,7 +151,7 @@ public class GitController {
     }
 
     @PostMapping("/merge/{defaultApplicationId}")
-    public Mono<ResponseDTO<String>> merge(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<GitPullDTO>> merge(@PathVariable String defaultApplicationId,
                                            @RequestParam String sourceBranch,
                                            @RequestParam String destinationBranch) {
         log.debug("Going to get merge branch {} with branch {} for application {}", sourceBranch, destinationBranch, defaultApplicationId);
