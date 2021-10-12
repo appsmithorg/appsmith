@@ -71,18 +71,11 @@ public class ApplicationFetcher {
                     User user = userAndUserDataTuple.getT1();
                     UserData userData = userAndUserDataTuple.getT2();
 
-                    UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
-                    userHomepageDTO.setUser(user);
-
                     Set<String> orgIds = user.getOrganizationIds();
-                    if(CollectionUtils.isEmpty(orgIds)) {
-                        userHomepageDTO.setOrganizationApplications(new ArrayList<>());
-                        return Mono.just(userHomepageDTO);
-                    }
 
                     // create a set of org id where recently used ones will be at the beginning
                     List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
-                    Set<String> orgIdSortedSet = new LinkedHashSet<>();
+                    Set<String> orgIdSortedSet = new LinkedHashSet<>(orgIds.size());
                     if(recentlyUsedOrgIds != null && recentlyUsedOrgIds.size() > 0) {
                         // user has a recently used list, add them to the beginning
                         orgIdSortedSet.addAll(recentlyUsedOrgIds);
@@ -96,6 +89,9 @@ public class ApplicationFetcher {
                             .filter(application -> application.getGitApplicationMetadata() == null
                                 || (StringUtils.equals(application.getId(),application.getGitApplicationMetadata().getDefaultApplicationId())))
                             .collectMultimap(Application::getOrganizationId, Function.identity());
+
+                    UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
+                    userHomepageDTO.setUser(user);
 
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)
