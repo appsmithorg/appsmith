@@ -29,7 +29,7 @@ import {
   getDifferenceInJSCollection,
   pushLogsForObjectUpdate,
 } from "../utils/JSPaneUtils";
-import JSActionAPI from "../api/JSActionAPI";
+import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
 import {
   updateJSCollectionSuccess,
   refactorJSCollectionAction,
@@ -346,13 +346,7 @@ function* handleExecuteJSFunctionSaga(
 
 function* handleRefactorJSActionNameSaga(
   data: ReduxAction<{
-    refactorAction: {
-      actionId: string;
-      collectionName: string;
-      pageId: string;
-      oldName: string;
-      newName: string;
-    };
+    refactorAction: RefactorAction;
     actionCollection: JSCollection;
   }>,
 ) {

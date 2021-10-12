@@ -31,15 +31,19 @@ export interface CreateJSCollectionRequest {
   pluginType: PluginType;
 }
 
+export interface RefactorAction {
+  pageId: string;
+  actionId: string;
+  newName: string;
+  oldName: string;
+  collectionName: string;
+}
+export interface RefactorActionRequest extends RefactorAction {
+  layoutId: string;
+}
+
 export interface UpdateCollectionActionNameRequest {
-  refactorAction: {
-    pageId: string;
-    actionId: string;
-    layoutId: string;
-    newName: string;
-    oldName: string;
-    collectionName: string;
-  };
+  refactorAction: RefactorActionRequest;
   actionCollection: JSCollection;
 }
 class JSActionAPI extends API {

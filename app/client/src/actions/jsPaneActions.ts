@@ -1,6 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
-
+import { RefactorAction } from "api/JSActionAPI";
 export const createNewJSCollection = (
   pageId: string,
 ): ReduxAction<{ pageId: string }> => ({
@@ -24,13 +24,7 @@ export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
 };
 
 export const refactorJSCollectionAction = (payload: {
-  refactorAction: {
-    actionId: string;
-    collectionName: string;
-    pageId: string;
-    oldName: string;
-    newName: string;
-  };
+  refactorAction: RefactorAction;
   actionCollection: JSCollection;
 }) => {
   return {
