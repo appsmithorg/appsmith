@@ -170,6 +170,7 @@ function UserGitProfileSettings({
             dataType="email"
             disabled={disableInput}
             errorMsg={
+              authorInfo.authorEmail &&
               emailValidator(authorInfo.authorEmail).isValid
                 ? ""
                 : "Please enter a valid email"
