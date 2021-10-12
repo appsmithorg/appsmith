@@ -174,8 +174,29 @@ export function Resizable(props: ResizableProps) {
   });
 
   const setNewDimensions = (rect: DimensionProps) => {
-    reflow(rect);
-    set({ ...rect, reset: false });
+    const { horizontalMove, verticalMove } = reflow(rect);
+    set((prevState) => {
+      let newRect = { ...rect };
+      if (!horizontalMove) {
+        newRect = {
+          ...newRect,
+          width: prevState.width,
+          x: prevState.x,
+          X: prevState.X,
+        };
+      }
+
+      if (!verticalMove) {
+        newRect = {
+          ...newRect,
+          height: prevState.height,
+          y: prevState.y,
+          Y: prevState.Y,
+        };
+      }
+
+      return newRect;
+    });
   };
 
   useEffect(() => {

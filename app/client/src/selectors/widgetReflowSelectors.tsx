@@ -9,16 +9,28 @@ export const getReflowSelector = (widgetId: string) => {
     if (reflowState.reflow?.reflowingWidgets) {
       return reflowState.reflow.reflowingWidgets[widgetId];
     }
+    return;
   });
 };
 
 export const getReflowStaticWidgetSelector = (widgetId: string) => {
   return createSelector(getReflow, (reflowState: widgetReflowState) => {
     if (
-      reflowState.reflow.staticWidget &&
+      reflowState?.reflow?.staticWidget &&
       reflowState.reflow.staticWidget.id === widgetId
     ) {
       return reflowState.reflow.staticWidget;
+    }
+  });
+};
+
+export const getReflowWidgetSelector = (widgetId: string) => {
+  return createSelector(getReflow, (reflowState: widgetReflowState) => {
+    if (
+      reflowState?.reflow?.staticWidget &&
+      reflowState.reflow.staticWidget.id === widgetId
+    ) {
+      return reflowState;
     }
   });
 };
