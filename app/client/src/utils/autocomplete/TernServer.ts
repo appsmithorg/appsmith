@@ -377,11 +377,16 @@ class TernServer {
         if (!entityInfo) return c.text;
         return c.text.replace(name, entityInfo.subType);
       });
-      SortRules[expectedType].forEach((rule) => {
-        if (Array.isArray(groupedMatches[rule])) {
-          sortedMatches.push(...groupedMatches[rule]);
+
+      const expectedRules = SortRules[expectedType];
+      for (const [key, value] of Object.entries(groupedMatches)) {
+        const name = key.split(".")[0];
+        if (name === "JSACTION") {
+          sortedMatches.push(...value);
+        } else if (expectedRules.indexOf(key) !== -1) {
+          sortedMatches.push(...value);
         }
-      });
+      }
 
       sortedMatches.sort((a, b) => {
         let aRank = 0;

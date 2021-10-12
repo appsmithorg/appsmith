@@ -206,7 +206,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isDisabled: cellProperties.isDisabled || false,
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
-              menuVariant: cellProperties.menuVariant ?? "SOLID",
+              menuVariant: cellProperties.menuVariant ?? "PRIMARY",
               menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
@@ -324,7 +324,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 } catch (e) {
                   isValidDate = false;
                 }
-                if (isValidDate) {
+                if (isValidDate && value) {
                   try {
                     if (outputFormat === "SAME_AS_INPUT") {
                       outputFormat = inputFormat;
@@ -684,6 +684,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   applyFilters = (filters: ReactTableFilter[]) => {
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("filters", filters);
+    this.props.updateWidgetMetaProperty("pageNo", 1);
   };
 
   toggleDrag = (disable: boolean) => {
