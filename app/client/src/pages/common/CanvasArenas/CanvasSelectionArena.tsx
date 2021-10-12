@@ -500,6 +500,7 @@ export function CanvasSelectionArena({
       id={`div-selection-${widgetId}`}
       ref={canvasRef}
       showCanvas={shouldShow}
+      snapColSpace={snapColumnSpace}
       snapRowSpace={snapRowSpace}
       snapRows={snapRows}
     />

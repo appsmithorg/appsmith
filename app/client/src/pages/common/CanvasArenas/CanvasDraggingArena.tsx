@@ -63,6 +63,7 @@ export function CanvasDraggingArena({
       id={`div-dragarena-${widgetId}`}
       ref={canvasRef}
       showCanvas={showCanvas}
+      snapColSpace={snapColumnSpace}
       snapRowSpace={snapRowSpace}
       snapRows={snapRows}
     />

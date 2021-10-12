@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import styled from "constants/DefaultTheme";
-import React, { forwardRef, RefObject, useCallback, useEffect } from "react";
+import React, { forwardRef, RefObject, useEffect } from "react";
+import { intersectionAPI } from "./hooks/useIntersectionAPI";
 import { getCanvasTopOffset } from "./utils";
 
 interface StickyCanvasArenaProps {
@@ -9,6 +10,7 @@ interface StickyCanvasArenaProps {
   id: string;
   canvasPadding: number;
   snapRows: number;
+  snapColSpace: number;
   snapRowSpace: number;
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
@@ -24,6 +26,7 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   position: absolute;
   top: 0px;
   left: 0px;
+  height: calc(100% + ${(props) => props.paddingBottom}px);
   width: 100%;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
@@ -41,12 +44,13 @@ export const StickyCanvasArena = forwardRef(
       getRelativeScrollingParent,
       id,
       showCanvas,
+      snapColSpace,
       snapRows,
       snapRowSpace,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
 
-    const updateCanvasStyles = useCallback(() => {
+    const updateCanvasStyles = (snapRowChange = false) => {
       if (slidingArenaRef.current) {
         const parentCanvas: Element | null = getRelativeScrollingParent(
           slidingArenaRef.current,
@@ -56,59 +60,94 @@ export const StickyCanvasArena = forwardRef(
           const {
             height: scrollParentTopHeight,
           } = parentCanvas.getBoundingClientRect();
-          const {
-            height,
-            width,
-          } = slidingArenaRef.current.getBoundingClientRect();
-
+          const sliderBounds = slidingArenaRef.current.getBoundingClientRect();
+          const snapRowsHeight = snapRows * snapRowSpace + canvasPadding;
+          // recalculating height when widget is deleted or copy pasted.
+          // this is done coz we do a ref style update in DropTargetComponent which is not updating slider in time.
+          // ToDo(Ashok): Might need a better understanding of refs and forwardRefs to handle this without creating exceptions.
+          const sliderHeight = snapRowChange
+            ? snapRowsHeight
+            : sliderBounds.height;
+          const isProjectorBiggerThanSlider =
+            sliderHeight > scrollParentTopHeight;
           const calculatedTopPosition = getCanvasTopOffset(
             slidingArenaRef,
             stickyCanvasRef,
             canExtend,
           );
-          stickyCanvasRef.current.style.width = width + "px";
+          stickyCanvasRef.current.style.width = "100%";
           stickyCanvasRef.current.style.position = canExtend
             ? "absolute"
             : "sticky";
           stickyCanvasRef.current.style.left = "0px";
-          stickyCanvasRef.current.style.top =
-            Math.min(calculatedTopPosition, height - scrollParentTopHeight) +
-            "px";
+          if (canExtend) {
+            stickyCanvasRef.current.style.top =
+              (isProjectorBiggerThanSlider
+                ? Math.min(
+                    calculatedTopPosition,
+                    sliderHeight - scrollParentTopHeight,
+                  )
+                : calculatedTopPosition) + "px";
+          } else {
+            stickyCanvasRef.current.style.top =
+              (isProjectorBiggerThanSlider
+                ? Math.min(
+                    calculatedTopPosition,
+                    sliderHeight - scrollParentTopHeight,
+                  )
+                : calculatedTopPosition) + "px";
+          }
           stickyCanvasRef.current.style.height =
-            Math.min(scrollParentTopHeight, height) + "px";
-        }
-      }
-    }, [snapRows, canExtend]);
-    const updateSliderHeight = () => {
-      if (slidingArenaRef.current) {
-        const {
-          height: canvasHeight,
-        } = slidingArenaRef.current.getBoundingClientRect();
-        const height = snapRows * snapRowSpace + canvasPadding;
-        if (canvasHeight !== height) {
-          // setting styles to recalculate height when widget is deleted or copy pasted.
-          // this is done coz we do a ref style update in DropTargetComponent which is not updating slider in time.
-          // ToDo(Ashok): Might need a better understanding of refs and forwardRefs to handle this without creating exceptions.
-          slidingArenaRef.current.style.height = `${snapRows * snapRowSpace +
-            canvasPadding}px`;
+            Math.min(window.innerHeight, scrollParentTopHeight, sliderHeight) +
+            "px";
         }
       }
     };
+    const updateCanvasStylesIntersection = (
+      entry: IntersectionObserverEntry,
+    ) => {
+      if (slidingArenaRef.current) {
+        const parentCanvas: Element | null = getRelativeScrollingParent(
+          slidingArenaRef.current,
+        );
+
+        if (parentCanvas && stickyCanvasRef.current) {
+          stickyCanvasRef.current.style.width = "100%";
+          stickyCanvasRef.current.style.position = "absolute";
+          stickyCanvasRef.current.style.left = "0px";
+          stickyCanvasRef.current.style.top =
+            ((entry.rootBounds && entry.rootBounds.top) || 0) -
+            entry.boundingClientRect.top +
+            "px";
+          stickyCanvasRef.current.style.height =
+            entry.intersectionRect.height + "px";
+        }
+      }
+    };
+    const updateIntersection = (entries: IntersectionObserverEntry[]) => {
+      if (entries && entries.length) {
+        updateCanvasStylesIntersection(entries[0]);
+      }
+    };
+    const onScroll = () => {
+      const parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
+      intersectionAPI(updateIntersection, id, parentCanvas);
+    };
+
     useEffect(() => {
       if (showCanvas) {
-        updateSliderHeight();
-        updateCanvasStyles();
+        updateCanvasStyles(true);
       }
-    }, [snapRows, canExtend]);
+    }, [showCanvas, snapRows, canExtend, snapColSpace, snapRowSpace]);
 
     useEffect(() => {
       let parentCanvas: Element | null;
       if (slidingArenaRef.current) {
         parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
-        parentCanvas?.addEventListener("scroll", updateCanvasStyles, false);
+        parentCanvas?.addEventListener("scroll", onScroll, false);
       }
       return () => {
-        parentCanvas?.removeEventListener("scroll", updateCanvasStyles);
+        parentCanvas?.removeEventListener("scroll", onScroll);
       };
     }, []);
 
