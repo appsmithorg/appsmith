@@ -694,7 +694,7 @@ function getCompositeMovementMap(
     delete reflowWidgets[keyToDelete];
   }
 
-  if (primaryCollidingKeys.length > 0 && secondaryCollidingKeys.length > 0) {
+  if (primaryCollidingKeys.length > 0 || secondaryCollidingKeys.length > 0) {
     for (const key of allReflowKeys) {
       if (!reflowWidgets[key]) {
         const reflowWidget =
