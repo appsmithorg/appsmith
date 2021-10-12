@@ -22,7 +22,7 @@ jobs:
       - name: Run step when a file changes
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        if: contains(steps.changed-files.outputs.modified_files, 'my-file.txt')
+        if: contains(steps.changed-files.outputs.modified_files, 'cypress')
         run: |
           echo "Your my-file.txt file has been modified."
 
