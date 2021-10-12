@@ -30,7 +30,6 @@ import {
   CrashingError,
   DataTreeDiff,
   DataTreeDiffEvent,
-  getAllPaths,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   getValidatedTree,
