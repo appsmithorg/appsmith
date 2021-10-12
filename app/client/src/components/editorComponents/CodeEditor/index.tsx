@@ -274,7 +274,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
-          this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
 
@@ -336,7 +335,6 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    showLightningMenu?: boolean,
     additionalDynamicData?: Record<string, Record<string, unknown>>,
   ) {
     return hinting.map((helper) => {
