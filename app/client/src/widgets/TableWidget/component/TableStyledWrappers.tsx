@@ -62,12 +62,9 @@ export const TableWrapper = styled.div<{
       background: ${Colors.WHITE};
       &.selected-row {
         background: ${Colors.NARVIK_GREEN}!important;
-        &:hover {
-          background: ${Colors.NARVIK_GREEN};
-        }
       }
       &:hover {
-        background: ${Colors.ATHENS_GRAY};
+        background: ${Colors.NARVIK_GREEN};
       }
     }
     .th,
@@ -430,7 +427,6 @@ export const CellWrapper = styled.div<{
 export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
   justify-content: center;
   width: 40px;
-  background: ${Colors.WHITE};
   & > div {
     ${(props) =>
       props.isChecked
@@ -448,12 +444,12 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
           }
         `};
   }
-  ${(props) => (props.isChecked ? `background: ${Colors.NARVIK_GREEN};` : "")}
 `;
 
 export const CellCheckbox = styled.div`
   height: 14px;
   width: 14px;
+  cursor: pointer;
   position: relative;
   .th-svg {
     display: block;
