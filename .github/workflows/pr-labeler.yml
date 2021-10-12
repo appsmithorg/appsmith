@@ -20,12 +20,11 @@ jobs:
         continue-on-error: true
       
       - name: Run step when a file changes
-        uses: mshick/add-pr-comment@v1
-         message:|
-              Unable to find testcases in the PR
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: contains(steps.changed-files.outputs.files_modified, 'cypress') == false
+        run: |
+          echo "Your my-file.txt file has been modified."
 
       
 
