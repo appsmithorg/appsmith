@@ -13,8 +13,10 @@ export const getIsGitSyncModalOpen = createSelector(
 
 export const getIsGitRepoSetup = () => true;
 
-export const getIsCommittingInProgress = (state: AppState) =>
-  state.ui.gitSync.isCommitting;
+export const getIsCommittingInProgress = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isCommitting,
+);
 
 export const getIsPushingToGit = createSelector(
   getGitSyncState,
@@ -31,31 +33,50 @@ export const getIsPushSuccessful = createSelector(
   (gitSync) => gitSync.isPushSuccessful,
 );
 
-export const getActiveGitSyncModalTab = (state: AppState) =>
-  state.ui.gitSync.activeGitSyncModalTab;
+export const getActiveGitSyncModalTab = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.activeGitSyncModalTab,
+);
 
-export const getIsGitErrorPopupVisible = (state: AppState) =>
-  state.ui.gitSync.isErrorPopupVisible;
+export const getIsGitErrorPopupVisible = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isErrorPopupVisible,
+);
 
-export const getGitPushError = (state: AppState) =>
-  state.ui.gitSync.gitPushError;
+export const getGitPushError = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.gitPushError,
+);
 
-export const getIsImportAppViaGitModalOpen = (state: AppState) =>
-  state.ui.gitSync.isImportAppViaGitModalOpen;
+export const getIsImportAppViaGitModalOpen = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isImportAppViaGitModalOpen,
+);
 
-export const getOrganizationIdForImport = (state: AppState) =>
-  state.ui.gitSync.organizationIdForImport;
+export const getOrganizationIdForImport = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.organizationIdForImport,
+);
 
-export const getGlobalGitConfig = (state: AppState) =>
-  state.ui.gitSync.globalGitConfig;
+export const getGlobalGitConfig = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.globalGitConfig,
+);
 
 export const getLocalGitConfig = createSelector(
   getGitSyncState,
   (gitSync) => gitSync.localGitConfig,
 );
 
-export const getIsFetchingGlobalGitConfig = (state: AppState) =>
-  state.ui.gitSync.isFetchingGitConfig;
+export const getIsFetchingGlobalGitConfig = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isFetchingGitConfig,
+);
+
+export const getIsFetchingLocalGitConfig = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isFetchingLocalGitConfig,
+);
 
 export const getGitStatus = createSelector(
   getGitSyncState,

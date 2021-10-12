@@ -41,6 +41,11 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import { getLocalGitConfig } from "selectors/gitSyncSelectors";
 import { emailValidator } from "components/ads/TextInput";
+import { isEqual } from "lodash";
+import {
+  getIsFetchingGlobalGitConfig,
+  getIsFetchingLocalGitConfig,
+} from "../../../../selectors/gitSyncSelectors";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -173,6 +178,8 @@ function GitConnection({ isImport, onSuccess }: Props) {
   const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore);
 
   const isGitConnected = !!remoteUrlInStore;
+  const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
+  const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
 
   const globalGitConfig = useSelector(getGlobalGitConfig);
   const localGitConfig = useSelector(getLocalGitConfig);
@@ -186,7 +193,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
 
   const dispatch = useDispatch();
 
-  const getInitGitConfig = () => {
+  const getInitGitConfig = useCallback(() => {
     let initialAuthInfo = {
       authorName: "",
       authorEmail: "",
@@ -207,7 +214,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
     }
 
     return initialAuthInfo;
-  };
+  }, [globalGitConfig, localGitConfig]);
 
   const initialAuthorInfoRef = useRef(getInitGitConfig());
 
@@ -282,8 +289,11 @@ function GitConnection({ isImport, onSuccess }: Props) {
 
   const isAuthorInfoUpdated = useCallback(() => {
     return (
-      authorInfo.authorEmail !== initialAuthorInfoRef.current.authorEmail ||
-      authorInfo.authorName !== initialAuthorInfoRef.current.authorName
+      !isEqual(
+        authorInfo.authorEmail,
+        initialAuthorInfoRef.current.authorEmail,
+      ) ||
+      !isEqual(authorInfo.authorName, initialAuthorInfoRef.current.authorName)
     );
   }, [
     authorInfo.authorEmail,
@@ -296,7 +306,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
     return remoteUrl !== remoteUrlInStore;
   };
 
-  const onSubmit = () => {
+  const onSubmit = useCallback(() => {
     if (
       authorInfo.authorName &&
       authorInfo.authorEmail &&
@@ -321,7 +331,13 @@ function GitConnection({ isImport, onSuccess }: Props) {
         text: "Please enter valid user details",
       });
     }
-  };
+  }, [
+    updateLocalGitConfigInit,
+    isAuthorInfoUpdated,
+    isRemoteUrlUpdated,
+    connectToGit,
+    useGlobalConfig,
+  ]);
 
   useEffect(() => {
     // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
@@ -339,13 +355,24 @@ function GitConnection({ isImport, onSuccess }: Props) {
     [],
   );
 
-  const submitButtonDisabled = useMemo(
-    () =>
-      !authorInfo.authorEmail ||
-      !authorInfo.authorName ||
-      !emailValidator(authorInfo.authorEmail).isValid,
-    [authorInfo.authorEmail, authorInfo.authorName],
-  );
+  const submitButtonDisabled = useMemo(() => {
+    const isAuthorInfoEmpty = !authorInfo.authorEmail || !authorInfo.authorName;
+    const isAuthorEmailInvalid = !emailValidator(authorInfo.authorEmail)
+      .isValid;
+    const isAuthInfoUpdated = isGitConnected && isAuthorInfoUpdated();
+    return isAuthorInfoEmpty || isAuthorEmailInvalid || !isAuthInfoUpdated;
+  }, [
+    authorInfo.authorEmail,
+    authorInfo.authorName,
+    isAuthorInfoUpdated,
+    isGitConnected,
+  ]);
+
+  const submitButtonIsLoading = useMemo(() => {
+    const isFetchingConfig =
+      isGitConnected && (isFetchingGlobalGitConfig || isFetchingLocalGitConfig);
+    return isConnectingToGit || isFetchingConfig;
+  }, [isConnectingToGit, isFetchingGlobalGitConfig, isFetchingLocalGitConfig]);
 
   useEffect(() => {
     // OnMount fetch global and local config
@@ -355,7 +382,9 @@ function GitConnection({ isImport, onSuccess }: Props) {
 
   useEffect(() => {
     // on local config update
-    setAuthorInfo(getInitGitConfig());
+    const newAuthConfig = getInitGitConfig();
+    setAuthorInfo(newAuthConfig);
+    initialAuthorInfoRef.current = newAuthConfig;
   }, [
     localGitConfig.authorEmail,
     localGitConfig.authorName,
@@ -487,7 +516,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
           <ButtonContainer topMargin={11}>
             <Button
               disabled={submitButtonDisabled}
-              isLoading={isConnectingToGit}
+              isLoading={submitButtonIsLoading}
               onClick={onSubmit}
               size={Size.large}
               tag="button"
