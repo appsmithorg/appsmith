@@ -107,7 +107,7 @@ jobs:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
       - name: Figure out the PR number
-        run: echo ${{ github.event.pull_request.number }}
+        run: echo ${{ github.event.client_payload.pull_request.number }}
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
@@ -408,6 +408,11 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
       # Update check run called "ui-test-result"
       - name: Mark ui-test-result job as complete
         uses: actions/github-script@v1
@@ -467,6 +472,11 @@ jobs:
 
             return result;
             }
+
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
 
   package:
     needs: ui-test

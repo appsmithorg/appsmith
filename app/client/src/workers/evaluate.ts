@@ -24,10 +24,12 @@ export enum EvaluationScriptType {
   TRIGGERS = "TRIGGERS",
 }
 
+export const ScriptTemplate = "<<string>>";
+
 export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
-    const result = <<script>>
+    const result = ${ScriptTemplate}
     return result;
   }
   closedFunction()
@@ -38,11 +40,11 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
     const result = userFunction.apply(self, ARGUMENTS);
     return result;
   }
-  callback(<<script>>)
+  callback(${ScriptTemplate})
   `,
   [EvaluationScriptType.TRIGGERS]: `
   function closedFunction () {
-    const result = <<script>>
+    const result = ${ScriptTemplate}
     return result
   }
   closedFunction();
@@ -66,8 +68,26 @@ export const getScriptToEval = (
   userScript: string,
   type: EvaluationScriptType,
 ): string => {
-  return EvaluationScripts[type].replace("<<script>>", userScript);
+  // Using replace here would break scripts with replacement patterns (ex: $&, $$)
+  const buffer = EvaluationScripts[type].split(ScriptTemplate);
+  return `${buffer[0]}${userScript}${buffer[1]}`;
 };
+
+export function setupEvaluationEnvironment() {
+  ///// Adding extra libraries separately
+  extraLibraries.forEach((library) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[library.accessor] = library.lib;
+  });
+
+  ///// Remove all unsafe functions
+  unsafeFunctionForEval.forEach((func) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[func] = undefined;
+  });
+}
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
@@ -98,7 +118,10 @@ export const createGlobalData = (
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
       Object.keys(resolvedObject).forEach((key: any) => {
-        GLOBAL_DATA[datum][key] = resolvedObject[key];
+        const dataTreeKey = GLOBAL_DATA[datum];
+        if (dataTreeKey) {
+          dataTreeKey[key] = resolvedObject[key];
+        }
       });
     });
   }
@@ -141,22 +164,8 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[entity] = GLOBAL_DATA[entity];
     }
-
     errors = getLintingErrors(scriptToLint, GLOBAL_DATA, js, scriptType);
 
-    ///// Adding extra libraries separately
-    extraLibraries.forEach((library) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[library.accessor] = library.lib;
-    });
-
-    ///// Remove all unsafe functions
-    unsafeFunctionForEval.forEach((func) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[func] = undefined;
-    });
     try {
       result = eval(script);
       if (isTriggerBased) {

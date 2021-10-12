@@ -18,7 +18,7 @@ export const CONFIG = {
     borderRadius: ButtonBorderRadiusTypes.CIRCLE,
     boxShadow: ButtonBoxShadowTypes.NONE,
     buttonColor: Colors.GREEN,
-    buttonVariant: ButtonVariantTypes.SOLID,
+    buttonVariant: ButtonVariantTypes.PRIMARY,
     isDisabled: false,
     isVisible: true,
     rows: 1 * GRID_DENSITY_MIGRATION_V1,

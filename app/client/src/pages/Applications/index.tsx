@@ -190,7 +190,6 @@ const PaddingWrapper = styled.div`
 `;
 
 const LeftPaneWrapper = styled.div`
-  // height: 50vh;
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
@@ -689,7 +688,7 @@ function ApplicationsSection(props: any) {
               {hasManageOrgPermissions && (
                 <Dialog
                   canEscapeKeyClose={false}
-                  canOutsideClickClose={false}
+                  canOutsideClickClose
                   isOpen={selectedOrgId === organization.id}
                   onClose={() => setSelectedOrgId("")}
                   title={`Invite Users to ${organization.name}`}
