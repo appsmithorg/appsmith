@@ -97,8 +97,6 @@ class DatePickerComponent extends React.Component<
     };
   }
 
-  pickerRef: HTMLElement | null = null;
-
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     if (
       this.props.selectedDate !== this.state.selectedDate &&
@@ -114,11 +112,6 @@ class DatePickerComponent extends React.Component<
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
-  };
-
-  handlePopoverRef = (ref: any) => {
-    // get popover ref as callback
-    this.pickerRef = ref as HTMLElement;
   };
 
   render() {
@@ -179,7 +172,6 @@ class DatePickerComponent extends React.Component<
               placeholder={"Select Date"}
               popoverProps={{
                 usePortal: !this.props.withoutPortal,
-                popoverRef: this.handlePopoverRef,
                 canEscapeKeyClose: true,
               }}
               shortcuts={this.props.shortcuts}
