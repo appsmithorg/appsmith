@@ -15,6 +15,7 @@ export type INJECTED_CONFIGS = {
   };
   enableGoogleOAuth: boolean;
   enableGithubOAuth: boolean;
+  enableKeycloakOAuth: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -77,6 +78,9 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       : false,
     enableGithubOAuth: process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID
       ? process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID.length > 0
+      : false,
+    enableKeycloakOAuth: process.env.REACT_APP_OAUTH2_KEYCLOAK_CLIENT_ID
+      ? process.env.REACT_APP_OAUTH2_KEYCLOAK_CLIENT_ID.length > 0
       : false,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
@@ -271,6 +275,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     enableGithubOAuth:
       ENV_CONFIG.enableGithubOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGithubOAuth,
+    enableKeycloakOAuth:
+      ENV_CONFIG.enableKeycloakOAuth ||
+      APPSMITH_FEATURE_CONFIGS.enableKeycloakOAuth,
     enableGoogleOAuth:
       ENV_CONFIG.enableGoogleOAuth ||
       APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,

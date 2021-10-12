@@ -50,7 +50,11 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
+const {
+  enableGithubOAuth,
+  enableGoogleOAuth,
+  enableKeycloakOAuth,
+} = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
   const errors: LoginFormValues = {};
@@ -80,6 +84,7 @@ type LoginFormProps = { emailValue: string } & InjectedFormProps<
 const SocialLoginList: string[] = [];
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
+if (enableKeycloakOAuth) SocialLoginList.push(SocialLoginTypes.KEYCLOAK);
 
 export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;

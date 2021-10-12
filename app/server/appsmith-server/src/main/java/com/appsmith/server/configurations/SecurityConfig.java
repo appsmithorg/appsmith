@@ -163,6 +163,7 @@ public class SecurityConfig {
 
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 // For Google SSO Login, check transformation class: CustomOAuth2UserServiceImpl
+                // For Keycloak SSO Login, check transformation class: CustomOAuth2UserServiceImpl
                 .and().oauth2Login()
                 .authorizationRequestResolver(new CustomServerOAuth2AuthorizationRequestResolver(reactiveClientRegistrationRepository, commonConfig, redirectHelper))
                 .authenticationSuccessHandler(authenticationSuccessHandler)

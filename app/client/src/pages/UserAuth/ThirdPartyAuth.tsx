@@ -24,14 +24,7 @@ const StyledSocialLoginButton = styled.a`
   justify-content: center;
   border: solid 1px ${(props) => props.theme.colors.auth.socialBtnBorder};
   padding: ${(props) => props.theme.spaces[2]}px;
-
-  &:first-child {
-    margin-bottom: ${(props) => props.theme.spaces[4]}px;
-  }
-
-  &:only-child {
-    margin-bottom: 0;
-  }
+  margin-bottom: ${(props) => props.theme.spaces[4]}px;
 
   &:hover {
     text-decoration: none;
@@ -54,6 +47,7 @@ const ButtonLogo = styled.img`
 export const SocialLoginTypes = {
   GOOGLE: "google",
   GITHUB: "github",
+  KEYCLOAK: "keycloak",
 };
 
 type SignInType = "SIGNIN" | "SIGNUP";

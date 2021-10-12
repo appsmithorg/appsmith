@@ -47,10 +47,15 @@ import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "constants/forms";
 import { getAppsmithConfigs } from "configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
-const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
+const {
+  enableGithubOAuth,
+  enableGoogleOAuth,
+  enableKeycloakOAuth,
+} = getAppsmithConfigs();
 const SocialLoginList: string[] = [];
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
+if (enableKeycloakOAuth) SocialLoginList.push(SocialLoginTypes.KEYCLOAK);
 
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";

@@ -1,7 +1,13 @@
-import { GoogleOAuthURL, GithubOAuthURL } from "constants/ApiConstants";
+import {
+  GoogleOAuthURL,
+  GithubOAuthURL,
+  KeycloakOAuthURL,
+} from "constants/ApiConstants";
 
 import GithubLogo from "assets/images/Github.png";
 import GoogleLogo from "assets/images/Google.png";
+import KeycloakLogo from "assets/images/Keycloak.png";
+
 export type SocialLoginButtonProps = {
   url: string;
   name: string;
@@ -20,12 +26,19 @@ export const GithubSocialLoginButtonProps: SocialLoginButtonProps = {
   logo: GithubLogo,
 };
 
+export const KeycloakSocialLoginButtonProps: SocialLoginButtonProps = {
+  url: KeycloakOAuthURL,
+  name: "Keycloak",
+  logo: KeycloakLogo,
+};
+
 export const SocialLoginButtonPropsList: Record<
   string,
   SocialLoginButtonProps
 > = {
   google: GoogleSocialLoginButtonProps,
   github: GithubSocialLoginButtonProps,
+  keycloak: KeycloakSocialLoginButtonProps,
 };
 
 export type SocialLoginType = keyof typeof SocialLoginButtonPropsList;
