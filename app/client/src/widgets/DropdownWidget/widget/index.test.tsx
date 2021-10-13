@@ -77,6 +77,6 @@ describe("<DropdownWidget />", () => {
     const selectElement = screen.getByText("-- Select --");
     fireEvent.click(selectElement);
 
-    expect(screen.getByText("No Results")).toBeInTheDocument();
+    expect(screen.getByText("No Results Found")).toBeInTheDocument();
   });
 });
