@@ -624,103 +624,103 @@ describe("Drag and Drop widgets into Main container", () => {
     expect(newlyAddedCanvas.length).toBe(1);
   });
 
-  it("Disallow drag if widget not focused", () => {
-    const initialState = (store.getState() as unknown) as Partial<AppState>;
+  // it("Disallow drag if widget not focused", () => {
+  //   const initialState = (store.getState() as unknown) as Partial<AppState>;
 
-    const children: any = buildChildren([
-      {
-        type: "CONTAINER_WIDGET",
-        parentId: "0",
-      },
-    ]);
+  //   const children: any = buildChildren([
+  //     {
+  //       type: "CONTAINER_WIDGET",
+  //       parentId: "0",
+  //     },
+  //   ]);
 
-    const dsl: any = widgetCanvasFactory.build({
-      children,
-    });
+  //   const dsl: any = widgetCanvasFactory.build({
+  //     children,
+  //   });
 
-    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
-    mockGetIsFetchingPage.mockImplementation(() => false);
+  //   spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+  //   mockGetIsFetchingPage.mockImplementation(() => false);
 
-    const component = render(
-      <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
-      >
-        <MockApplication>
-          <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
-          </GlobalHotKeys>
-        </MockApplication>
-      </MemoryRouter>,
-      { initialState, sagasToRun: sagasToRunForTests },
-    );
+  //   const component = render(
+  //     <MemoryRouter
+  //       initialEntries={["/applications/app_id/pages/page_id/edit"]}
+  //     >
+  //       <MockApplication>
+  //         <GlobalHotKeys>
+  //           <UpdatedMainContainer dsl={dsl} />
+  //         </GlobalHotKeys>
+  //       </MockApplication>
+  //     </MemoryRouter>,
+  //     { initialState, sagasToRun: sagasToRunForTests },
+  //   );
 
-    const widget: any = component.container.querySelector(
-      ".t--widget-containerwidget",
-    );
-    const draggableWidget: any = component.container.querySelector(
-      ".t--draggable-containerwidget",
-    );
+  //   const widget: any = component.container.querySelector(
+  //     ".t--widget-containerwidget",
+  //   );
+  //   const draggableWidget: any = component.container.querySelector(
+  //     ".t--draggable-containerwidget",
+  //   );
 
-    const canvasWidgets = component.queryAllByTestId("test-widget");
-    expect(canvasWidgets.length).toBe(1);
+  //   const canvasWidgets = component.queryAllByTestId("test-widget");
+  //   expect(canvasWidgets.length).toBe(1);
 
-    const initWidgetPosition = {
-      left: widget.style.left,
-      top: widget.style.top,
-    };
+  //   const initWidgetPosition = {
+  //     left: widget.style.left,
+  //     top: widget.style.top,
+  //   };
 
-    act(() => {
-      fireEvent.dragStart(draggableWidget);
-    });
+  //   act(() => {
+  //     fireEvent.dragStart(draggableWidget);
+  //   });
 
-    let mainCanvas: any = component.queryByTestId("canvas-dragging-0");
-    expect(mainCanvas).toBeNull();
+  //   let mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+  //   expect(mainCanvas).toBeNull();
 
-    // Focus on widget and drag
-    act(() => {
-      fireEvent.mouseOver(draggableWidget);
-    });
+  //   // Focus on widget and drag
+  //   act(() => {
+  //     fireEvent.mouseOver(draggableWidget);
+  //   });
 
-    act(() => {
-      fireEvent.dragStart(draggableWidget);
-    });
+  //   act(() => {
+  //     fireEvent.dragStart(draggableWidget);
+  //   });
 
-    mainCanvas = component.queryByTestId("canvas-dragging-0");
-    act(() => {
-      fireEvent(
-        mainCanvas,
-        syntheticTestMouseEvent(
-          new MouseEvent("mousemove", {
-            bubbles: true,
-            cancelable: true,
-          }),
-          {
-            offsetX: 500,
-            offsetY: 500,
-          },
-        ),
-      );
-      fireEvent(
-        mainCanvas,
-        syntheticTestMouseEvent(
-          new MouseEvent("mouseup", {
-            bubbles: true,
-            cancelable: true,
-          }),
-        ),
-      );
-    });
+  //   mainCanvas = component.queryByTestId("canvas-dragging-0");
+  //   act(() => {
+  //     fireEvent(
+  //       mainCanvas,
+  //       syntheticTestMouseEvent(
+  //         new MouseEvent("mousemove", {
+  //           bubbles: true,
+  //           cancelable: true,
+  //         }),
+  //         {
+  //           offsetX: 500,
+  //           offsetY: 500,
+  //         },
+  //       ),
+  //     );
+  //     fireEvent(
+  //       mainCanvas,
+  //       syntheticTestMouseEvent(
+  //         new MouseEvent("mouseup", {
+  //           bubbles: true,
+  //           cancelable: true,
+  //         }),
+  //       ),
+  //     );
+  //   });
 
-    const movedWidget: any = component.container.querySelector(
-      ".t--widget-containerwidget",
-    );
-    const finalWidgetPosition = {
-      left: movedWidget.style.left,
-      top: movedWidget.style.top,
-    };
+  //   const movedWidget: any = component.container.querySelector(
+  //     ".t--widget-containerwidget",
+  //   );
+  //   const finalWidgetPosition = {
+  //     left: movedWidget.style.left,
+  //     top: movedWidget.style.top,
+  //   };
 
-    expect(finalWidgetPosition).not.toStrictEqual(initWidgetPosition);
-  });
+  //   expect(finalWidgetPosition).not.toStrictEqual(initWidgetPosition);
+  // });
 
   afterAll(() => jest.resetModules());
 });

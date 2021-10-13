@@ -776,40 +776,42 @@ function ApplicationsSection(props: any) {
                       >
                         {hasManageOrgPermissions && (
                           <>
-                            <OrgRename
-                              cypressSelector="t--org-rename-input"
-                              defaultValue={organization.name}
-                              editInteractionKind={EditInteractionKind.SINGLE}
-                              fill
-                              hideEditIcon={false}
-                              isEditingDefault={false}
-                              isInvalid={(value: string) => {
-                                return notEmptyValidator(value).message;
-                              }}
-                              onBlur={(value: string) => {
-                                OrgNameChange(value, organization.id);
-                              }}
-                              placeholder="Workspace name"
-                              savingState={
-                                isSavingOrgInfo
-                                  ? SavingState.STARTED
-                                  : SavingState.NOT_STARTED
-                              }
-                              underline
-                            />
-                            <MenuItem
-                              cypressSelector="t--org-setting"
-                              icon="general"
-                              onSelect={() =>
-                                getOnSelectAction(
-                                  DropdownOnSelectActions.REDIRECT,
-                                  {
-                                    path: `/org/${organization.id}/settings/general`,
-                                  },
-                                )
-                              }
-                              text="Organization Settings"
-                            />
+                            <div className="px-3 py-2">
+                              <OrgRename
+                                cypressSelector="t--org-rename-input"
+                                defaultValue={organization.name}
+                                editInteractionKind={EditInteractionKind.SINGLE}
+                                fill
+                                hideEditIcon={false}
+                                isEditingDefault={false}
+                                isInvalid={(value: string) => {
+                                  return notEmptyValidator(value).message;
+                                }}
+                                onBlur={(value: string) => {
+                                  OrgNameChange(value, organization.id);
+                                }}
+                                placeholder="Workspace name"
+                                savingState={
+                                  isSavingOrgInfo
+                                    ? SavingState.STARTED
+                                    : SavingState.NOT_STARTED
+                                }
+                                underline
+                              />
+                              <MenuItem
+                                cypressSelector="t--org-setting"
+                                icon="general"
+                                onSelect={() =>
+                                  getOnSelectAction(
+                                    DropdownOnSelectActions.REDIRECT,
+                                    {
+                                      path: `/org/${organization.id}/settings/general`,
+                                    },
+                                  )
+                                }
+                                text="Organization Settings"
+                              />
+                            </div>
                             {enableImportExport && (
                               <MenuItem
                                 cypressSelector="t--org-import-app"
