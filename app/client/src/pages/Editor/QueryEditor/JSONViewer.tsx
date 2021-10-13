@@ -7,7 +7,6 @@ const OutputContainer = styled.div`
   background: #f5f6f7;
   border: 1px solid #d0d7dd;
   box-sizing: border-box;
-  border-radius: 4px;
   padding: 6px;
 `;
 
@@ -17,6 +16,7 @@ const ResponseContent = styled.div`
 
 const Record = styled(Card)`
   margin: 5px;
+  border-radius: 0;
   span.string-value {
     overflow-wrap: anywhere;
   }
