@@ -13,31 +13,11 @@ const handleUpdateCommentThreadEvent = (
   const existingComments = get(commentThreadInStore, "comments", []);
   const newComments = get(action.payload, "comments", []);
 
-  const pinnedStateChanged =
-    commentThreadInStore?.pinnedState?.active !==
-    action.payload?.pinnedState?.active;
-
-  const resolvedStateUpdated =
-    commentThreadInStore?.resolvedState?.active !==
-    action.payload?.resolvedState?.active;
-
-  const shouldRefreshList = resolvedStateUpdated || pinnedStateChanged;
-
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
     ...action.payload,
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
-
-  if (shouldRefreshList) {
-    state.applicationCommentThreadsByRef[
-      action.payload.applicationId as string
-    ] = {
-      ...state.applicationCommentThreadsByRef[
-        action.payload.applicationId as string
-      ],
-    };
-  }
 
   return {
     ...state,
