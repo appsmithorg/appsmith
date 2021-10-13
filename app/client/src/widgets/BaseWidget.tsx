@@ -1,6 +1,6 @@
 /**
- * Widget are responsible for accepting the abstraction layer inputs, interpretting them into rederable props and
- * spawing components based on those props
+ * Widget are responsible for accepting the abstraction layer inputs, interpretting them into renderable props and
+ * spawning components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
