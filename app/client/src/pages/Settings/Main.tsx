@@ -175,7 +175,7 @@ export function Main(
               disabled={Object.keys(props.settings).length == 0}
               onClick={onClear}
               tag="button"
-              text={createMessage(() => "Clear")}
+              text={createMessage(() => "Reset")}
             />
           </SettingsButtonWrapper>
         )}
