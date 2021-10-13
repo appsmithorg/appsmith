@@ -125,6 +125,17 @@ export const getCellProperties = (
         columnProperties.isFilterable,
         rowIndex,
       ),
+      // column type switch related properties
+      defaultSwitchState: getPropertyValue(
+        columnProperties.defaultSwitchState,
+        rowIndex,
+        true,
+      ),
+      switchLabel: getPropertyValue(
+        columnProperties.switchLabel,
+        rowIndex,
+        true,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;

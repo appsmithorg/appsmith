@@ -781,17 +781,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     //Runs only when column properties are updated,
     // basically column type or column deleted
     if (!isEqual(this.props.primaryColumns, prevProps.primaryColumns)) {
-      this.updateEditedColumnData(true, true);
+      this.updateEditedColumnData(true);
+    }
+
+    // keep selectedRowIndex as last edited row when editedColumnData exist
+    if (
+      Object.keys(this.props.editedColumnData).length &&
+      this.props.editedRowIndex !== this.props.selectedRowIndex
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndex",
+        this.props.editedRowIndex,
+      );
     }
   }
 
   // editedColumnData is used to show temparary changed values in cell
   // update edited column data based on various column type
   // on componentDidMount and componentDidUpdate
-  updateEditedColumnData = (
-    shouldCleanData?: boolean,
-    shouldStopResettingIndex?: boolean,
-  ) => {
+  updateEditedColumnData = (shouldCleanData?: boolean) => {
     const columnIds = Object.keys(this.props.primaryColumns);
     const editedColumnData = { ...this.props.editedColumnData };
     for (let index = 0; index < columnIds.length; index++) {
@@ -829,18 +837,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
     this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
-
-    // if column edited by "select", do not reset selectedRowIndex
-    // keep selectedRowIndex as last selected edited row
-    // value will be True when called from componentDidUpdate
-    if (shouldStopResettingIndex && size(editedColumnData)) {
-      if (this.props.editedRowIndex !== this.props.selectedRowIndex) {
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndex",
-          this.props.editedRowIndex,
-        );
-      }
-    }
   };
 
   updateSelectedRowIndex = () => {
