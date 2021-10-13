@@ -19,14 +19,11 @@ export type whereClauseValueType = {
   children: [conditionBlock | whereClauseValueType];
 };
 
-const customStyles = { width: "30vh", height: "30px" };
-
 const valueFieldConfig: any = {
   // label: "Value",
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
-  customStyles,
 };
 
 const keyFieldConfig: any = {
@@ -34,7 +31,6 @@ const keyFieldConfig: any = {
   key: "key",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "key",
-  customStyles,
 };
 
 const conditionFieldConfig: any = {
@@ -43,11 +39,10 @@ const conditionFieldConfig: any = {
   controlType: "DROP_DOWN",
   initialValue: "EQ",
   options: [],
-  customStyles,
 };
 
 const logicalFieldConfig: any = {
-  // label: "Operator",
+  label: "Operator",
   key: "logicalType",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
@@ -55,14 +50,11 @@ const logicalFieldConfig: any = {
   customStyles: { width: "10vh", height: "30px" },
 };
 
-const INIT_CONDITION_BLOCK = {
-  logicalType: "OR",
-  children: [{}],
-};
-
 const CenteredIcon = styled(Icon)`
   /* margin-top: 25px; */
   margin-left: 5px;
+  align-self: end;
+  margin-bottom: 10px;
   &.hide {
     opacity: 0;
     pointer-events: none;
@@ -75,7 +67,6 @@ const PrimaryBox = styled.div`
   flex-direction: column;
   border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: 10px;
-  border-radius: 5px;
 `;
 
 const SecondaryBox = styled.div`
@@ -121,15 +112,35 @@ const AddMoreAction = styled.div`
 `;
 
 function ConditionComponent(props: any, index: number) {
+  const customStyles = {
+    width: `${(props.maxWidth - 15) / 3}vh`,
+    height: "30px",
+  };
+
+  let keyLabel = "";
+  let valueLabel = "";
+  let conditionLabel = "";
+  if (index === 0) {
+    keyLabel = "Key";
+    valueLabel = "Value";
+    conditionLabel = "Operator";
+  }
   return (
     <ConditionBox key={index}>
       <FormControl
-        config={{ ...keyFieldConfig, configProperty: `${props.field}.key` }}
+        config={{
+          ...keyFieldConfig,
+          label: keyLabel,
+          customStyles,
+          configProperty: `${props.field}.key`,
+        }}
         formName={props.formName}
       />
       <FormControl
         config={{
           ...conditionFieldConfig,
+          label: conditionLabel,
+          customStyles,
           configProperty: `${props.field}.condition`,
           options: props.comparisonTypes,
           initialValue: props.comparisonTypes[0],
@@ -137,7 +148,12 @@ function ConditionComponent(props: any, index: number) {
         formName={props.formName}
       />
       <FormControl
-        config={{ ...valueFieldConfig, configProperty: `${props.field}.value` }}
+        config={{
+          ...valueFieldConfig,
+          label: valueLabel,
+          customStyles,
+          configProperty: `${props.field}.value`,
+        }}
         formName={props.formName}
       />
       <CenteredIcon
@@ -155,7 +171,11 @@ function ConditionComponent(props: any, index: number) {
 function NestedComponents(props: any) {
   useEffect(() => {
     if (props.fields.length < 1) {
-      props.fields.push({});
+      if (props.currentNestingLevel === 0) {
+        props.fields.push({});
+      } else {
+        props.onDeletePressed(props.index);
+      }
     }
   }, [props.fields.length]);
   const onDeletePressed = (index: number) => {
@@ -164,7 +184,7 @@ function NestedComponents(props: any) {
   // eslint-disable-next-line no-console
   // console.log("Ayush checking fields", props.fields);
   return (
-    <PrimaryBox>
+    <PrimaryBox style={{ width: `${props.maxWidth}vh` }}>
       <SecondaryBox>
         <FormControl
           config={{
@@ -182,24 +202,46 @@ function NestedComponents(props: any) {
               // eslint-disable-next-line no-console
               // console.log("Ayush checking children of fields", field);
               const fieldValue = props.fields.get(index);
-              if (!!fieldValue && "logicalType" in fieldValue) {
+              if (
+                !!fieldValue &&
+                ("logicalType" in fieldValue || "children" in fieldValue)
+              ) {
                 // eslint-disable-next-line no-console
                 console.log(
                   "Ayush checking for special child",
                   fieldValue,
                   props,
+                  field,
                 );
                 return (
-                  <p>asasas</p>
-                  // <FieldArray
-                  //   component={NestedComponents}
-                  //   name={`${props.configProperty}[${index}]`}
-                  //   props={{
-                  //     ...props,
-                  //     currentNestingLevel: props.currentNestingLevel + 1,
-                  //   }}
-                  //   rerenderOnEveryChange={false}
-                  // />
+                  <ConditionBox>
+                    <FieldArray
+                      component={NestedComponents}
+                      key={`${field}.children`}
+                      name={`${field}.children`}
+                      props={{
+                        maxWidth: props.maxWidth - 15,
+                        configProperty: `${field}`,
+                        formName: props.formName,
+                        logicalTypes: props.logicalTypes,
+                        comparisonKeys: props.comparisonKeys,
+                        comparisonTypes: props.comparisonTypes,
+                        nestedLevels: props.nestedLevels,
+                        currentNestingLevel: props.currentNestingLevel + 1,
+                        onDeletePressed,
+                        index,
+                      }}
+                      rerenderOnEveryChange={false}
+                    />
+                    <CenteredIcon
+                      name="cross"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeletePressed(index);
+                      }}
+                      size={IconSize.SMALL}
+                    />
+                  </ConditionBox>
                 );
               } else {
                 return ConditionComponent(
@@ -208,6 +250,7 @@ function NestedComponents(props: any) {
                     field,
                     formName: props.formName,
                     comparisonTypes: props.comparisonTypes,
+                    maxWidth: props.maxWidth,
                   },
                   index,
                 );
@@ -223,7 +266,10 @@ function NestedComponents(props: any) {
         {props.currentNestingLevel < props.nestedLevels && (
           <AddMoreAction
             onClick={() => {
-              props.fields.push(Object.assign({}, INIT_CONDITION_BLOCK));
+              props.fields.push({
+                logicalType: props.logicalTypes[0].value,
+                children: [{}],
+              });
               // eslint-disable-next-line no-console
               console.log("Ayush new field", props.fields.getAll());
             }}
@@ -247,14 +293,17 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
     logicalTypes,
     nestedLevels,
   } = props;
+  const maxWidth = 105;
   return (
     <>
       <FormLabel>{label}</FormLabel>
       <FieldArray
         component={NestedComponents}
+        key={`${configProperty}.children`}
         name={`${configProperty}.children`}
         props={{
           configProperty,
+          maxWidth,
           formName,
           logicalTypes,
           comparisonKeys,
