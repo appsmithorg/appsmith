@@ -11,6 +11,7 @@ export const TooltipStyles = createGlobalStyle<{
   .${Classes.PORTAL} {
     .${Classes.TOOLTIP}.${GLOBAL_STYLE_TOOLTIP_CLASSNAME} {
       max-width: 350px;
+      overflow-wrap: anywhere;
       .${Classes.POPOVER_CONTENT} {
         padding: 10px 12px;
         border-radius: 0px;

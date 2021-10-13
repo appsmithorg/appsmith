@@ -12,7 +12,7 @@ import React, {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Classes } from "@blueprintjs/core";
+import { Classes, Position } from "@blueprintjs/core";
 import { AppState } from "reducers";
 import {
   getExistingActionNames,
@@ -28,6 +28,13 @@ const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
+
+const Container = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
+  overflow: hidden;
+`;
 
 const Wrapper = styled.div`
   .${Classes.POPOVER_TARGET} {
@@ -196,18 +203,23 @@ export const EntityName = forwardRef(
 
     if (!props.isEditing)
       return (
-        <Wrapper
-          className={props.className}
-          onDoubleClick={props.enterEditMode}
-          ref={ref}
-        >
+        <Container>
           <TooltipComponent
+            boundary={"viewport"}
             content={updatedName}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            modifiers={{ arrow: { enabled: false } }}
+            position={Position.TOP_LEFT}
           >
-            {searchHighlightedName}
+            <Wrapper
+              className={props.className}
+              onDoubleClick={props.enterEditMode}
+              ref={ref}
+            >
+              {searchHighlightedName}
+            </Wrapper>
           </TooltipComponent>
-        </Wrapper>
+        </Container>
       );
     return (
       <Wrapper>
