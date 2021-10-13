@@ -66,7 +66,7 @@ describe("Table Widget new column type - Select", function() {
     cy.changeColumnType("Select");
     cy.testJsontext("options", JSON.stringify(colorDropdownOptions));
     cy.testJsontext(
-      "defaultvalue",
+      "defaultoption",
       `{{currentRow.orderAmount > 10 ? "RED" : "GREEN"}}`,
     );
     cy.wait(2000);

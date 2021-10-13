@@ -12,6 +12,7 @@ import {
   size,
   setWith,
   isArray,
+  sortBy,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -24,6 +25,8 @@ import {
   renderDropdown,
   renderActions,
   SelectCell,
+  renderMenuButton,
+  RenderMenuButtonProps,
   renderIconButton,
   SwitchCell,
   RatingCell,
@@ -39,7 +42,6 @@ import derivedProperties from "./parseDerivedProperties";
 import { DropdownOption } from "components/constants";
 import {
   ColumnProperties,
-  CellLayoutProperties,
   ReactTableColumnProps,
   ColumnTypes,
   CompactModeTypes,
@@ -48,6 +50,7 @@ import {
 import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
+import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 
 const ReactTableComponent = lazy(() =>
@@ -101,140 +104,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndices: "defaultSelectedRow",
     };
   }
-
-  getBooleanPropertyValue = (value: any, index: number) => {
-    if (isBoolean(value)) {
-      return value;
-    }
-    if (Array.isArray(value) && isBoolean(value[index])) {
-      return value[index];
-    }
-    return value;
-  };
-
-  getPropertyValue = (value: any, index: number, preserveCase = false) => {
-    if (value && Array.isArray(value) && value[index]) {
-      return preserveCase
-        ? value[index].toString()
-        : value[index].toString().toUpperCase();
-    } else if (value) {
-      return preserveCase ? value.toString() : value.toString().toUpperCase();
-    } else {
-      return value;
-    }
-  };
-
-  getCellProperties = (
-    columnProperties: ColumnProperties,
-    rowIndex: number,
-  ) => {
-    const cellProperties: CellLayoutProperties = {
-      horizontalAlignment: this.getPropertyValue(
-        columnProperties.horizontalAlignment,
-        rowIndex,
-      ),
-      verticalAlignment: this.getPropertyValue(
-        columnProperties.verticalAlignment,
-        rowIndex,
-      ),
-      cellBackground: this.getPropertyValue(
-        columnProperties.cellBackground,
-        rowIndex,
-      ),
-      buttonColor: this.getPropertyValue(
-        columnProperties.buttonColor,
-        rowIndex,
-      ),
-      buttonLabelColor: this.getPropertyValue(
-        columnProperties.buttonLabelColor,
-        rowIndex,
-      ),
-      buttonLabel: this.getPropertyValue(
-        columnProperties.buttonLabel,
-        rowIndex,
-        true,
-      ),
-      iconName: this.getPropertyValue(
-        columnProperties.iconName,
-        rowIndex,
-        true,
-      ),
-      buttonVariant: this.getPropertyValue(
-        columnProperties.buttonVariant,
-        rowIndex,
-        true,
-      ),
-      borderRadius: this.getPropertyValue(
-        columnProperties.borderRadius,
-        rowIndex,
-        true,
-      ),
-      boxShadow: this.getPropertyValue(
-        columnProperties.boxShadow,
-        rowIndex,
-        true,
-      ),
-      boxShadowColor: this.getPropertyValue(
-        columnProperties.boxShadowColor,
-        rowIndex,
-        true,
-      ),
-      textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
-      textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
-      fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
-      isVisible: this.getBooleanPropertyValue(
-        columnProperties.isVisible,
-        rowIndex,
-      ),
-      isDisabled: this.getBooleanPropertyValue(
-        columnProperties.isDisabled,
-        rowIndex,
-      ),
-      isCellVisible: this.getBooleanPropertyValue(
-        columnProperties.isCellVisible,
-        rowIndex,
-      ),
-      displayText: this.getPropertyValue(
-        columnProperties.displayText,
-        rowIndex,
-        true,
-      ),
-      // column type select related properties
-      placeholderText: this.getPropertyValue(
-        columnProperties.placeholderText,
-        rowIndex,
-        true,
-      ),
-      // column type switch related properties
-      defaultSwitchState: this.getPropertyValue(
-        columnProperties.defaultSwitchState,
-        rowIndex,
-        true,
-      ),
-      switchLabel: this.getPropertyValue(
-        columnProperties.switchLabel,
-        rowIndex,
-        true,
-      ),
-      // column type rating related properties
-      maxCount: this.getPropertyValue(columnProperties.maxCount, rowIndex),
-      activeColor: this.getPropertyValue(
-        columnProperties.activeColor,
-        rowIndex,
-        true,
-      ),
-      inactiveColor: this.getPropertyValue(
-        columnProperties.inactiveColor,
-        rowIndex,
-        true,
-      ),
-      isAllowHalf: this.getBooleanPropertyValue(
-        columnProperties.isAllowHalf,
-        rowIndex,
-      ),
-    };
-    return cellProperties;
-  };
 
   handleDropdowOptionChange = (
     columnId: string,
@@ -368,19 +237,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
           // cellProperties order or size does not change when filter/sorting/grouping is applied
           // on the data thus original index is need to identify the column's cell property.
-          const cellProperties = this.getCellProperties(
+          const cellProperties = getCellProperties(
             columnProperties,
             originalIndex,
           );
+          let isSelected = false;
+          if (this.props.multiRowSelection) {
+            isSelected =
+              Array.isArray(this.props.selectedRowIndices) &&
+              this.props.selectedRowIndices.includes(rowIndex);
+          } else {
+            isSelected = this.props.selectedRowIndex === rowIndex;
+          }
           if (columnProperties.columnType === "button") {
-            let isSelected = false;
-            if (this.props.multiRowSelection) {
-              isSelected =
-                Array.isArray(this.props.selectedRowIndices) &&
-                this.props.selectedRowIndices.includes(rowIndex);
-            } else {
-              isSelected = this.props.selectedRowIndex === rowIndex;
-            }
             const buttonProps = {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
@@ -413,7 +282,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 : undefined,
             });
           } else if (columnProperties.columnType === "image") {
-            const isSelected = !!props.row.isSelected;
             const isCellVisible = cellProperties.isCellVisible ?? true;
             const onClick = columnProperties.onClick
               ? () =>
@@ -446,6 +314,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 columnId={accessor}
                 isCellVisible={isCellVisible}
                 isDisabled={Boolean(cellProperties.isDisabled)}
+                isFilterable={Boolean(cellProperties.isFilterable)}
                 isHidden={isHidden}
                 onOptionChange={this.handleDropdowOptionChange}
                 options={options}
@@ -494,9 +363,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 widgetId={this.props.widgetId}
               />
             );
+          } else if (columnProperties.columnType === "menuButton") {
+            const menuButtonProps: RenderMenuButtonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: (action: string, onComplete?: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
+              isDisabled: cellProperties.isDisabled || false,
+              menuItems: cellProperties.menuItems,
+              isCompact: cellProperties.isCompact || false,
+              menuVariant: cellProperties.menuVariant ?? "PRIMARY",
+              menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
+              borderRadius: cellProperties.borderRadius,
+              boxShadow: cellProperties.boxShadow,
+              boxShadowColor: cellProperties.boxShadowColor,
+              iconName: cellProperties.iconName,
+              iconAlign: cellProperties.iconAlign,
+              isCellVisible: cellProperties.isCellVisible ?? true,
+              label: cellProperties.menuButtonLabel ?? "Open menu",
+            };
+            return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "iconButton") {
             const iconButtonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               columnActions: [
@@ -508,9 +396,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               iconName: cellProperties.iconName as IconName,
               buttonColor: cellProperties.buttonColor || Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant,
-              borderRadius: cellProperties.borderRadius,
-              boxShadow: cellProperties.boxShadow,
-              boxShadowColor: cellProperties.boxShadowColor,
+              borderRadius: cellProperties.borderRadius || "SHARP",
+              boxShadow: cellProperties.boxShadow || "NONE",
+              boxShadowColor: cellProperties.boxShadowColor || "",
               isCellVisible: cellProperties.isCellVisible ?? true,
             };
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
@@ -601,7 +489,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 } catch (e) {
                   isValidDate = false;
                 }
-                if (isValidDate) {
+                if (isValidDate && value) {
                   try {
                     if (outputFormat === "SAME_AS_INPUT") {
                       outputFormat = inputFormat;
@@ -761,10 +649,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   updateColumnProperties = (
     tableColumns?: Record<string, ColumnProperties>,
   ) => {
-    const { primaryColumns = {} } = this.props;
+    const { primaryColumns = {}, derivedColumns = {} } = this.props;
     const { columnOrder, migrated } = this.props;
     if (tableColumns) {
       const previousColumnIds = Object.keys(primaryColumns);
+      const previousDerivedColumnIds = Object.keys(derivedColumns);
+
       const newColumnIds = Object.keys(tableColumns);
 
       if (xor(previousColumnIds, newColumnIds).length > 0) {
@@ -778,7 +668,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         });
 
         // If new columnOrders have different values from the original columnOrders
-        if (xor(newColumnIds, columnOrder).length > 0) {
+        // Only update when there are new Columns(Derived or Primary)
+        if (
+          xor(newColumnIds, columnOrder).length > 0 &&
+          newColumnIds.length > 0 &&
+          !isEqual(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
+        ) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
 
@@ -928,17 +823,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     //Runs only when column properties are updated,
     // basically column type or column deleted
     if (!isEqual(this.props.primaryColumns, prevProps.primaryColumns)) {
-      this.updateEditedColumnData(true, true);
+      this.updateEditedColumnData(true);
+    }
+
+    // keep selectedRowIndex as last edited row when editedColumnData exist
+    if (
+      Object.keys(this.props.editedColumnData).length &&
+      this.props.editedRowIndex !== this.props.selectedRowIndex
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "selectedRowIndex",
+        this.props.editedRowIndex,
+      );
     }
   }
 
   // editedColumnData is used to show temparary changed values in cell
   // update edited column data based on various column type
   // on componentDidMount and componentDidUpdate
-  updateEditedColumnData = (
-    shouldCleanData?: boolean,
-    shouldStopResettingIndex?: boolean,
-  ) => {
+  updateEditedColumnData = (shouldCleanData?: boolean) => {
     const columnIds = Object.keys(this.props.primaryColumns);
     const editedColumnData = { ...this.props.editedColumnData };
     for (let index = 0; index < columnIds.length; index++) {
@@ -979,18 +882,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
     this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
-
-    // if column edited by "select", do not reset selectedRowIndex
-    // keep selectedRowIndex as last selected edited row
-    // value will be True when called from componentDidUpdate
-    if (shouldStopResettingIndex && size(editedColumnData)) {
-      if (this.props.editedRowIndex !== this.props.selectedRowIndex) {
-        this.props.updateWidgetMetaProperty(
-          "selectedRowIndex",
-          this.props.editedRowIndex,
-        );
-      }
-    }
   };
 
   updateSelectedRowIndex = () => {
@@ -1027,6 +918,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   applyFilters = (filters: ReactTableFilter[]) => {
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("filters", filters);
+    this.props.updateWidgetMetaProperty("pageNo", 1);
   };
 
   toggleDrag = (disable: boolean) => {
@@ -1157,7 +1049,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   onCommandClick = (
     rowIndex: number,
     action: string,
-    onComplete: () => void,
+    onComplete?: () => void,
   ) => {
     try {
       const rowData = [this.props.filteredTableData[rowIndex]];
@@ -1180,7 +1072,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           responseData: rowData,
         });
       } else {
-        onComplete();
+        onComplete?.();
       }
     } catch (error) {
       log.debug("Error parsing row action", error);
