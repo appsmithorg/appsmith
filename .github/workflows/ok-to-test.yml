@@ -20,7 +20,7 @@ jobs:
           private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
 
       - name: Slash Command Dispatch
-        uses: peter-evans/slash-command-dispatch@v2
+        uses: peter-evans/slash-command-dispatch@v1
         env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
@@ -28,4 +28,5 @@ jobs:
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
           commands: ok-to-test
+          named-args: true
           permission: write
