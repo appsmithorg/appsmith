@@ -345,11 +345,22 @@ export const parseBlobUrl = (blobId: string) => {
   return url.split("?type=");
 };
 
+/**
+ * Convert a string into camelCase
+ * @param sourceString input string
+ * @returns camelCase string
+ */
 export const getCamelCaseString = (sourceString: string) => {
   let out = "";
-  sourceString.split(" ").forEach(function(el, idx) {
-    const add = el.toLowerCase();
-    out += idx === 0 ? add : add[0].toUpperCase() + add.slice(1);
-  });
+  // Split the input string to separate words using RegEx
+  const regEx = /[A-Z\xC0-\xD6\xD8-\xDE]?[a-z\xDF-\xF6\xF8-\xFF]+|[A-Z\xC0-\xD6\xD8-\xDE]+(?![a-z\xDF-\xF6\xF8-\xFF])|\d+/g;
+  const words = sourceString.match(regEx);
+  if (words) {
+    words.forEach(function(el, idx) {
+      const add = el.toLowerCase();
+      out += idx === 0 ? add : add[0].toUpperCase() + add.slice(1);
+    });
+  }
+
   return out;
 };
