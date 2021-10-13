@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
 import { Icon } from "@blueprintjs/core";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import General from "./General";
 import { Colors } from "constants/Colors";
 import getFeatureFlags from "utils/featureFlags";
@@ -17,7 +17,7 @@ const ProfileWrapper = styled.div`
   margin: 0 auto;
 `;
 
-const LinkToApplications = styled(Link)`
+const LinkToApplications = styled.div`
   margin-top: 30px;
   margin-bottom: 35px;
   display: inline-block;
@@ -55,14 +55,20 @@ function UserProfile() {
     }
   }
 
+  const [selectedTabIndex, setSelectedTabIndex] = useState(initialTabIndex);
+
   return (
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
-        <LinkToApplications className="t--back" to={"/applications"}>
+        <LinkToApplications className="t--back" onClick={() => history.back()}>
           <Icon color={Colors.SILVER_CHALICE} icon="chevron-left" />
           <Text type={TextType.H1}>Profile</Text>
         </LinkToApplications>
-        <TabComponent selectedIndex={initialTabIndex} tabs={tabs} />
+        <TabComponent
+          onSelect={setSelectedTabIndex}
+          selectedIndex={selectedTabIndex}
+          tabs={tabs}
+        />
       </ProfileWrapper>
     </PageWrapper>
   );

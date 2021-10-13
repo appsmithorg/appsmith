@@ -78,6 +78,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
   };
 
   const goToGitConnectionPopup = () => {
+    setIsOpen(false);
     dispatch(
       setIsGitSyncModalOpen({
         isOpen: true,
@@ -100,7 +101,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
             </DeployLink>
           )}
 
-          <DeployLink href={props.link} target="_blank">
+          <DeployLink href={props.link} onClick={onClose} target="_blank">
             <IconWrapper>
               <Icon
                 color={props.theme.colors.header.deployToolTipText}

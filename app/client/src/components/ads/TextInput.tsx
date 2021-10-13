@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 import { Classes, CommonComponentProps, hexToRgba } from "./common";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
 import {
@@ -104,6 +105,24 @@ const boxStyles = (
   return { bgColor, color, borderColor };
 };
 
+const InputLoader = styled.div<{
+  $value?: string;
+  $noBorder?: boolean;
+  $isFocused?: boolean;
+  $isLoading?: boolean;
+  $height?: string;
+}>`
+  display: ${(props) => (props.$isLoading ? "static" : "none")};
+  border-radius: 0;
+  width: ${(props) =>
+    props.$value && !props.$noBorder && props.$isFocused
+      ? "calc(100% - 50px)"
+      : "100%"};
+
+  height: ${(props) => props.$height || "36px"};
+  border-radius: 0;
+`;
+
 const StyledInput = styled((props) => {
   // we are removing non input related props before passing them in the components
   // eslint-disable @typescript-eslint/no-unused-vars
@@ -142,9 +161,11 @@ const StyledInput = styled((props) => {
     isValid: boolean;
     rightSideComponentWidth: number;
     hasLeftIcon: boolean;
+    $isLoading?: boolean;
   }
 >`
-  ${(props) => (props.noCaret ? "caret-color: white;" : null)}
+  display: ${(props) => (props.$isLoading ? "none" : "static")};
+  ${(props) => (props.noCaret ? "caret-color: white;" : null)};
   color: ${(props) => props.inputStyle.color};
   width: ${(props) =>
     props.value && !props.noBorder && props.isFocused
@@ -182,11 +203,13 @@ const InputWrapper = styled.div<{
   inputStyle: boxReturnType;
   isValid?: boolean;
   disabled?: boolean;
+  $isLoading?: boolean;
 }>`
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
+  padding: ${(props) =>
+    props.$isLoading ? 0 : `0px ${props.theme.spaces[6]}px`};
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
@@ -281,19 +304,12 @@ const TextInput = forwardRef(
       [props, validation.isValid, props.theme],
     );
 
-    const validate = useCallback(
-      (inputValue: string) => {
-        const validation = props.validator && props.validator(inputValue);
-        return validation;
-      },
-      [props.validator],
-    );
-
     const memoizedChangeHandler = useCallback(
       (el) => {
         const inputValue: string = el.target.value.trim();
         setInputValue(inputValue);
-        const inputValueValidation = validate(inputValue);
+        const inputValueValidation =
+          props.validator && props.validator(inputValue);
         if (inputValueValidation) {
           props.validator && setValidation(validation);
           return (
@@ -305,7 +321,7 @@ const TextInput = forwardRef(
           return props.onChange && props.onChange(inputValue);
         }
       },
-      [props.onChange, setValidation, validate],
+      [props.onChange, setValidation],
     );
 
     const onBlurHandler = useCallback(
@@ -345,6 +361,7 @@ const TextInput = forwardRef(
 
     return (
       <InputWrapper
+        $isLoading={props.isLoading}
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}
@@ -364,7 +381,18 @@ const TextInput = forwardRef(
             />
           </IconWrapper>
         )}
+
+        <InputLoader
+          $height={props.height}
+          $isFocused={isFocused}
+          $isLoading={props.isLoading}
+          $noBorder={props.noBorder}
+          $value={props.value}
+          className={BlueprintClasses.SKELETON}
+        />
+
         <StyledInput
+          $isLoading={props.isLoading}
           autoFocus={props.autoFocus}
           defaultValue={props.defaultValue}
           inputStyle={inputStyle}
