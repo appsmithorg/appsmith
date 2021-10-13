@@ -105,6 +105,9 @@ jobs:
           else
             REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           fi
+          if [[ $GITHUB_REF == "refs/heads/master" ]]; then
+            REACT_APP_PLAUSIBLE_DOMAIN=${{ secrets.PLAUSIBLE_DOMAIN }}
+          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
