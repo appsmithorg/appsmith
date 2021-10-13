@@ -76,7 +76,7 @@ export const useSSHKeyPair = () => {
   };
 };
 
-export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
+export const useGitConnect = () => {
   const dispatch = useDispatch();
 
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
@@ -85,7 +85,6 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
-    onSuccess();
   }, [setIsConnectingToGit]);
 
   const onGitConnectFailure = useCallback(() => {

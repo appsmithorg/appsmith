@@ -17,6 +17,11 @@ import { GIT_PROFILE_ROUTE } from "constants/routes";
 import history from "utils/history";
 import { Colors } from "constants/Colors";
 import { ReactComponent as RightArrow } from "assets/icons/ads/arrow-right-line.svg";
+import { useSelector } from "react-redux";
+import {
+  getIsFetchingGlobalGitConfig,
+  getIsFetchingLocalGitConfig,
+} from "selectors/gitSyncSelectors";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -131,6 +136,8 @@ function UserGitProfileSettings({
   //
   const [emailInputFocused, setEmailInputFocused] = useState(false);
   const [nameInputFocused, setNameInputFocused] = useState(false);
+  const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
+  const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
 
   const changeHandler = useCallback(
     (label: string, value: string) =>
@@ -151,6 +158,12 @@ function UserGitProfileSettings({
     [authorInfo.authorEmail],
   );
 
+  const isFetchingConfig =
+    isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
+
+  const showDefaultConfig =
+    !isFetchingConfig && !isLocalConfigDefined && isGlobalConfigDefined;
+
   return (
     <MainContainer>
       <TitleWrapper>
@@ -158,7 +171,7 @@ function UserGitProfileSettings({
           {createMessage(USER_PROFILE_SETTINGS_TITLE)}
         </span>
       </TitleWrapper>
-      {!isLocalConfigDefined && isGlobalConfigDefined ? (
+      {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
             fill={false}
@@ -193,6 +206,7 @@ function UserGitProfileSettings({
                 : ""
             }
             fill
+            isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
             onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
             onFocus={() => setNameInputFocused(true)}
@@ -215,6 +229,7 @@ function UserGitProfileSettings({
                 : ""
             }
             fill
+            isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}
             onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)}
             onFocus={() => setEmailInputFocused(true)}

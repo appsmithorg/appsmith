@@ -21,6 +21,7 @@ import { LabelContainer } from "components/ads/Checkbox";
 
 import {
   getGitStatus,
+  getIsFetchingGitStatus,
   // getIsCommitSuccessful,
   getIsCommittingInProgress,
   // getIsPushingToGit,
@@ -100,6 +101,7 @@ function Deploy() {
   // const isPushingToGit = useSelector(getIsPushingToGit);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
+  const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const gitPushError = useSelector(getGitPushError);
   const errorMsgRef = useRef<HTMLDivElement>(null);
 
@@ -155,6 +157,7 @@ function Deploy() {
   }, []);
 
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
+  const commitButtonLoading = isCommittingInProgress || isFetchingGitStatus;
   // const pushButtonDisabled = !hasCommitsToPush;
   const errorMsgShowMoreEnabled = useMemo(() => {
     let showMoreEnabled = false;
@@ -197,7 +200,7 @@ function Deploy() {
         <Space size={11} />
         <Button
           disabled={commitButtonDisabled}
-          isLoading={isCommittingInProgress}
+          isLoading={commitButtonLoading}
           onClick={handleCommit}
           size={Size.medium}
           tag="button"

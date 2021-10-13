@@ -299,12 +299,11 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
 
 function* pushToGitRepoSaga() {
   try {
-    const applicationId: string = yield select(getCurrentApplicationId);
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
     const response: ApiResponse = yield GitSyncAPI.push({
-      applicationId,
+      defaultApplicationId: gitMetaData?.defaultApplicationId || "",
       branchName: gitMetaData?.branchName || "",
     });
     const isValidResponse: boolean = yield validateResponse(response);
