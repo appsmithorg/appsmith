@@ -45,6 +45,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { Toaster } from "components/ads/Toast";
+import { deselectAllInitAction } from "actions/widgetSelectionActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -201,6 +202,8 @@ export function* closeModalSaga(
         ),
       );
     }
+    yield put(deselectAllInitAction());
+    yield put(focusWidget("0"));
   } catch (error) {
     log.error(error);
   }

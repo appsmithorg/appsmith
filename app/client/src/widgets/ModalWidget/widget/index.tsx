@@ -44,14 +44,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          {
-            propertyName: "canOutsideClickClose",
-            label: "Quick Dismiss",
-            helpText: "Allows dismissing the modal when user taps outside",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
         ],
       },
       {
