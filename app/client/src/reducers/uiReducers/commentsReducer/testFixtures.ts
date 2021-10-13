@@ -378,15 +378,13 @@ export const updateCommentThreadPayload = {
 };
 
 export const newCommentThreadEventPayload = {
-  thread: {
-    _id: "606bf995c7a35467ac887f99",
-    position: {
-      topPercent: 4,
-      leftPercent: 28,
-    },
-    refId: "0",
-    applicationId: "605c435a91dea93f0eaf91b8",
+  _id: "606bf995c7a35467ac887f99",
+  position: {
+    topPercent: 4,
+    leftPercent: 28,
   },
+  refId: "0",
+  applicationId: "605c435a91dea93f0eaf91b8",
 };
 
 export const updateCommentThreadEventPayload = {
