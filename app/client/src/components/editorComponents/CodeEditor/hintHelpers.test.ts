@@ -44,8 +44,8 @@ describe("hint helpers", () => {
           toCall: "showHint",
         },
         {
-          value: '{ name: "{{{}}" }',
-          cursor: { ch: 12, line: 0 },
+          value: "{test(",
+          cursor: { ch: 1, line: 0 },
           toCall: "closeHint",
         },
       ];
