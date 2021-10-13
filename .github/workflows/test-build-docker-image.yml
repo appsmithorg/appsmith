@@ -107,7 +107,7 @@ jobs:
           fi
           if [[ $GITHUB_REF == "refs/heads/release" ]]; then
             REACT_APP_PLAUSIBLE_DOMAIN=${{ secrets.PLAUSIBLE_DOMAIN_RELEASE }}
-          else
+          elif [[ $GITHUB_REF == "refs/heads/master" ]]; then
             REACT_APP_PLAUSIBLE_DOMAIN=${{ secrets.PLAUSIBLE_DOMAIN_MASTER }}
           fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
