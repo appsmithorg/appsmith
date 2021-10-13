@@ -107,7 +107,10 @@ class ComputeTablePropertyControl extends BaseControl<
     Object.keys(columns).forEach((id: string) => {
       currentRow[id] = undefined;
     });
-
+    // Load default value in evaluated value
+    if (value && !propertyValue) {
+      this.onTextChange(value);
+    }
     return (
       <InputText
         additionalDynamicData={{
@@ -144,7 +147,7 @@ class ComputeTablePropertyControl extends BaseControl<
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
     if (typeof event !== "string") {
-      value = event.target.value;
+      value = event.target?.value;
     } else {
       value = event;
     }

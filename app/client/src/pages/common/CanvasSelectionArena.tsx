@@ -436,6 +436,7 @@ export function CanvasSelectionArena({
     mainContainer,
     isDragging,
     isResizing,
+    isCommentMode,
     snapRows,
     snapColumnSpace,
     snapRowSpace,

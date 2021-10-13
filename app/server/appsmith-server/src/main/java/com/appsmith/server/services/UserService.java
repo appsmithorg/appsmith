@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
+import com.appsmith.server.dtos.UserUpdateDTO;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -33,7 +34,7 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
 
-    Mono<User> updateCurrentUser(User updates, ServerWebExchange exchange);
+    Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 
     Map<String, String> getEmailParams(Organization organization, User inviterUser, String inviteUrl, boolean isNewUser);
 
