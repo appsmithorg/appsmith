@@ -21,15 +21,6 @@ import {
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
 
-enum KEYS {
-  Tab = "Tab",
-  Escape = "Escape",
-}
-
-enum Events {
-  Keydown,
-}
-
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
