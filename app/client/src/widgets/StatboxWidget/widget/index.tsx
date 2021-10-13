@@ -32,6 +32,7 @@ class StatboxWidget extends ContainerWidget {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",

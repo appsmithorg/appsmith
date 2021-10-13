@@ -4,15 +4,6 @@ on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
-  pull_request_review:
-    types: [submitted]
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "app/server/**"
-      - "app/rts/**"
-      - "!app/client/cypress/manual_TestSuite/**"
-
   # trigger for pushes to release and master
   push:
     branches: [release, release-frozen, master]
@@ -29,7 +20,9 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -107,9 +100,14 @@ jobs:
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
         run: |
+          if [[ $GITHUB_REF == "refs/heads/release" ]]; then
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          else
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
-            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
@@ -135,7 +133,9 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository)
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -222,7 +222,9 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository)
 
     steps:
       # Checkout the code
@@ -278,8 +280,9 @@ jobs:
       success() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved'))
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -480,7 +483,12 @@ jobs:
 
   ui-test-result:
     needs: ui-test
-    if: always()
+    if: always() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -506,8 +514,14 @@ jobs:
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
+    if: github.ref == 'refs/heads/master' ||
+      ((github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)) &&
+      github.ref == 'refs/heads/release')
     #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
-    if: always() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release')
 
     steps:
       # Checkout the code
@@ -590,7 +604,7 @@ jobs:
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
             --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
             $tag_args \
             .
 
@@ -613,7 +627,7 @@ jobs:
         if: success() && github.ref == 'refs/heads/release'
         working-directory: app/server
         run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
