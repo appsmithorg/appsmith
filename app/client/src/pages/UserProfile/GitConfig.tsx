@@ -4,7 +4,6 @@ import {
   FieldWrapper,
   LabelWrapper,
   Loader,
-  TextLoader,
 } from "./StyledComponents";
 import {
   createMessage,
@@ -79,10 +78,7 @@ export default function GitConfig() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          {!isFetching && (
-            <Text type={TextType.H4}>{createMessage(AUTHOR_NAME)}</Text>
-          )}
-          {isFetching && <TextLoader className={Classes.SKELETON} />}
+          <Text type={TextType.H4}>{createMessage(AUTHOR_NAME)}</Text>
         </LabelWrapper>
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
@@ -100,10 +96,7 @@ export default function GitConfig() {
       </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
-          {!isFetching && (
-            <Text type={TextType.H4}>{createMessage(AUTHOR_EMAIL)}</Text>
-          )}
-          {isFetching && <TextLoader className={Classes.SKELETON} />}
+          <Text type={TextType.H4}>{createMessage(AUTHOR_EMAIL)}</Text>
         </LabelWrapper>
         {isFetching && <Loader className={Classes.SKELETON} />}
         {!isFetching && (
