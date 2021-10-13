@@ -94,7 +94,7 @@
                 "topRow": 12,
                 "bottomRow": 16,
                 "parentRowSpace": 10,
-                 "rightColumn": 15,
+                "rightColumn": 15,
                 "isVisible": true,
                 "label": "",
                 "type": "MULTI_SELECT_WIDGET",
@@ -104,7 +104,7 @@
                   "First",
                   "Seventh"
                 ],
-               "parentColumnSpace": 71.75,
+                "parentColumnSpace": 71.75,
                 "leftColumn": 10,
                 "options": [
                   {

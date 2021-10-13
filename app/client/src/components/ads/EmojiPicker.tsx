@@ -11,15 +11,19 @@ import Tooltip from "components/ads/Tooltip";
 import { ADD_REACTION, createMessage, EMOJI } from "constants/messages";
 import { Colors } from "constants/Colors";
 
-const StyledIcon = styled(Icon)`
+const StyledIcon = styled(Icon)<{
+  fillColor?: string;
+}>`
   &:hover circle,
   &:hover path {
-    stroke: ${Colors.CHARCOAL};
-  }
-  &:hover path.color-fill {
     fill: ${Colors.CHARCOAL};
-    stroke: unset;
   }
+  ${(props) =>
+    props.fillColor
+      ? `svg {
+        fill: ${props.fillColor};
+      }`
+      : null}
 `;
 
 const EmojiPicker = withTheme(
