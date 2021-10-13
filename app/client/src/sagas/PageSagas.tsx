@@ -107,6 +107,7 @@ import {
 import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 const getWidgetName = (state: AppState, widgetId: string) =>
