@@ -38,6 +38,7 @@
   "onDateSelectedField": ".t--property-control-ondateselected",
   "TableRow": ".t--draggable-tablewidget .tbody",
   "Disablejs": ".t--property-control-disabled",
+  "spellCheck": ".t--property-control-spellcheck",
   "requiredjs": ".t--property-control-required",
   "horizontalScroll": ".t--property-control-allowhorizontalscroll input",
   "tableInner": ".t--draggable-tablewidget span.t--widget-name",
