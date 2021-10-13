@@ -156,10 +156,10 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     }
   }, [isCommentMode]);
 
-  // // Need to fetch the comments on app edit for the first time.
-  // useEffect(() => {
-  //   dispatch(fetchApplicationCommentsRequest());
-  // }, []);
+  // Need to fetch the comments on app edit for the first time.
+  useEffect(() => {
+    dispatch(fetchApplicationCommentsRequest());
+  }, []);
 };
 
 export const setCommentModeInUrl = (isCommentMode: boolean) => {
