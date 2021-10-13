@@ -1,4 +1,4 @@
-import { Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
+import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";

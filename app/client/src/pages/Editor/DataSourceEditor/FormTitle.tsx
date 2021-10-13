@@ -9,7 +9,7 @@ import { AppState } from "reducers";
 import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
-import { isNameValid } from "utils/helpers";
+import { isNameValid, removeSpecialChars } from "utils/helpers";
 import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
@@ -117,6 +117,7 @@ function FormTitle(props: FormTitleProps) {
         placeholder="Datasource Name"
         type="text"
         updating={saveStatus.isSaving}
+        valueTransform={removeSpecialChars}
       />
       {saveStatus.isSaving && <Spinner size={16} />}
     </Wrapper>
