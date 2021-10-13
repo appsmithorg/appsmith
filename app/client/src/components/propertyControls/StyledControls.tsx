@@ -122,39 +122,6 @@ export const StyledMenu = styled(Menu)`
   }
 `;
 
-export const StyledPopover = styled(Popover)`
-  .${Classes.POPOVER_TARGET} {
-    display: flex;
-  }
-  div {
-    flex: 1 1 auto;
-  }
-  span {
-    width: 100%;
-    position: relative;
-  }
-  .${Classes.BUTTON} {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .${Classes.BUTTON_TEXT} {
-    text-overflow: ellipsis;
-    text-align: left;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-  && {
-    .${Classes.ICON} {
-      width: fit-content;
-      color: ${Colors.SLATE_GRAY};
-    }
-  }
-`;
-
 export const StyledMenuItem = styled(MenuItem)`
   &&&&&& {
     border-radius: 0;

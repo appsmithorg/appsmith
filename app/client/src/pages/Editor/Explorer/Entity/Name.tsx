@@ -1,6 +1,7 @@
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
+import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 
 import React, {
@@ -11,6 +12,7 @@ import React, {
   useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Classes } from "@blueprintjs/core";
 import { AppState } from "reducers";
 import {
   getExistingActionNames,
@@ -21,12 +23,16 @@ import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
 
 const Wrapper = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -195,7 +201,12 @@ export const EntityName = forwardRef(
           onDoubleClick={props.enterEditMode}
           ref={ref}
         >
-          {searchHighlightedName}
+          <TooltipComponent
+            content={updatedName}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          >
+            {searchHighlightedName}
+          </TooltipComponent>
         </Wrapper>
       );
     return (
