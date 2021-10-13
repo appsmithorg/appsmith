@@ -30,15 +30,25 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.Authentication.API_KEY;
+import static com.appsmith.external.constants.Authentication.OAUTH2;
+import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION;
+import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
+import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
+import static com.external.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
+import static com.external.helpers.HintMessageUtils.getAllDuplicateHeaders;
+import static com.external.helpers.HintMessageUtils.getAllDuplicateParams;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -574,4 +584,341 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testGetDuplicateHeadersAndParams() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        List<Property> dsHeaders = new ArrayList<>();
+        dsHeaders.add(new Property("myHeader1", "myVal"));
+        dsHeaders.add(new Property("myHeader1", "myVal")); // duplicate header
+        dsHeaders.add(new Property("myHeader2", "myVal"));
+        dsHeaders.add(new Property("myHeader2", "myVal")); // duplicate header
+        dsHeaders.add(new Property("myHeader3", "myVal")); // unique header in datasource config
+        dsConfig.setHeaders(dsHeaders);
+
+        // This authentication mechanism will add `apiKey` as header.
+        AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "apiKey", "Token", "test");
+        dsConfig.setAuthentication(authenticationDTO);
+        dsConfig.getAuthentication().setAuthenticationType(API_KEY);
+
+        List<Property> dsParams = new ArrayList<>();
+        dsParams.add(new Property("myParam1", "myVal"));
+        dsParams.add(new Property("myParam1", "myVal")); // duplicate param
+        dsParams.add(new Property("myParam2", "myVal"));
+        dsParams.add(new Property("myParam2", "myVal")); // duplicate param
+        dsParams.add(new Property("myParam3", "myVal")); // unique param in datasource
+        dsConfig.setQueryParameters(dsParams);
+
+        // Add headers to API query editor page.
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        ArrayList<Property> actionHeaders = new ArrayList<>();
+        actionHeaders.add(new Property("myHeader3", "myVal")); // duplicate - because also inherited from datasource.
+        actionHeaders.add(new Property("myHeader4", "myVal"));
+        actionHeaders.add(new Property("myHeader4", "myVal")); // duplicate
+        actionHeaders.add(new Property("myHeader5", "myVal"));
+        actionHeaders.add(new Property("apiKey", "myVal"));  // duplicate - because also inherited from authentication
+        actionConfig.setHeaders(actionHeaders);
+
+        // Add params to API query editor page.
+        ArrayList<Property> actionParams = new ArrayList<>();
+        actionParams.add(new Property("myParam3", "myVal")); // duplicate - because also inherited from datasource.
+        actionParams.add(new Property("myParam4", "myVal"));
+        actionParams.add(new Property("myParam4", "myVal")); // duplicate
+        actionParams.add(new Property("myParam5", "myVal"));
+        actionConfig.setQueryParameters(actionParams);
+
+        /* Test duplicate headers in datasource configuration only */
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateHeadersWithDsConfigOnly = getAllDuplicateHeaders(null, dsConfig);
+
+        // Header duplicates
+        Set <String> expectedDuplicateHeaders = new HashSet<>();
+        expectedDuplicateHeaders.add("myHeader1");
+        expectedDuplicateHeaders.add("myHeader2");
+        assertTrue(expectedDuplicateHeaders.equals(duplicateHeadersWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
+
+        /* Test duplicate query params in datasource configuration only */
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly = getAllDuplicateParams(null,
+                dsConfig);
+
+        // Query param duplicates
+        Set <String> expectedDuplicateParams = new HashSet<>();
+        expectedDuplicateParams.add("myParam1");
+        expectedDuplicateParams.add("myParam2");
+        assertTrue(expectedDuplicateParams.equals(duplicateParamsWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
+
+        /* Test duplicate headers in datasource + action configuration */
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders = getAllDuplicateHeaders(actionConfig, dsConfig);
+
+        // Header duplicates in ds config only
+        expectedDuplicateHeaders = new HashSet<>();
+        expectedDuplicateHeaders.add("myHeader1");
+        expectedDuplicateHeaders.add("myHeader2");
+        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_CONFIG_ONLY)));
+
+        // Header duplicates in action config only
+        expectedDuplicateHeaders = new HashSet<>();
+        expectedDuplicateHeaders.add("myHeader4");
+        expectedDuplicateHeaders.add("myHeader4");
+        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(ACTION_CONFIG_ONLY)));
+
+        // Header duplicates with one instance in action and another in datasource config
+        expectedDuplicateHeaders = new HashSet<>();
+        expectedDuplicateHeaders.add("myHeader3");
+        expectedDuplicateHeaders.add("apiKey");
+        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG)));
+
+        /* Test duplicate query params in action + datasource config */
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams = getAllDuplicateParams(actionConfig,
+                dsConfig);
+
+        // Query param duplicates in datasource config only
+        expectedDuplicateParams = new HashSet<>();
+        expectedDuplicateParams.add("myParam1");
+        expectedDuplicateParams.add("myParam2");
+        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(DATASOURCE_CONFIG_ONLY)));
+
+        // Query param duplicates in action config only
+        expectedDuplicateParams = new HashSet<>();
+        expectedDuplicateParams.add("myParam4");
+        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(ACTION_CONFIG_ONLY)));
+
+        // Query param duplicates in action + datasource config
+        expectedDuplicateParams = new HashSet<>();
+        expectedDuplicateParams.add("myParam3");
+        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(DATASOURCE_AND_ACTION_CONFIG)));
+    }
+
+    @Test
+    public void testGetDuplicateHeadersWithOAuth() {
+        // This authentication mechanism will add `Authorization` as header.
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setAuthenticationType(OAUTH2);
+        authenticationDTO.setGrantType(OAuth2.Type.AUTHORIZATION_CODE);
+        authenticationDTO.setIsTokenHeader(true); // adds header `Authorization`
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authenticationDTO);
+
+        // Add headers to API query editor page.
+        ArrayList<Property> actionHeaders = new ArrayList<>();
+        actionHeaders.add(new Property("myHeader1", "myVal"));
+        actionHeaders.add(new Property("Authorization", "myVal"));  // duplicate - because also inherited from dsConfig
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(actionHeaders);
+
+        /* Test duplicate headers in datasource + action configuration */
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateHeaders = getAllDuplicateHeaders(actionConfig, dsConfig);
+
+        // Header duplicates in ds config only
+        assertTrue(allDuplicateHeaders.get(DATASOURCE_CONFIG_ONLY).isEmpty());
+
+        // Header duplicates in action config only
+        assertTrue(allDuplicateHeaders.get(ACTION_CONFIG_ONLY).isEmpty());
+
+        // Header duplicates with one instance in action and another in datasource config
+        HashSet<String> expectedDuplicateHeaders = new HashSet<>();
+        expectedDuplicateHeaders.add("Authorization");
+        assertTrue(expectedDuplicateHeaders.equals(allDuplicateHeaders.get(DATASOURCE_AND_ACTION_CONFIG)));
+    }
+
+    @Test
+    public void testGetDuplicateParamsWithOAuth() {
+        // This authentication mechanism will add `access_token` as query param.
+        OAuth2 authenticationDTO = new OAuth2();
+        authenticationDTO.setAuthenticationType(OAUTH2);
+        authenticationDTO.setGrantType(OAuth2.Type.AUTHORIZATION_CODE);
+        authenticationDTO.setIsTokenHeader(false); // adds query param `access_token`
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authenticationDTO);
+
+        // Add headers to API query editor page.
+        // Add params to API query editor page.
+        ArrayList<Property> actionParams = new ArrayList<>();
+        actionParams.add(new Property("myParam1", "myVal")); // duplicate - because also inherited from datasource.
+        actionParams.add(new Property("access_token", "myVal"));
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setQueryParameters(actionParams);
+
+        /* Test duplicate params in datasource + action configuration */
+        Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams = getAllDuplicateParams(actionConfig,
+                dsConfig);
+
+        // Param duplicates in ds config only
+        assertTrue(allDuplicateParams.get(DATASOURCE_CONFIG_ONLY).isEmpty());
+
+        // Param duplicates in action config only
+        assertTrue(allDuplicateParams.get(ACTION_CONFIG_ONLY).isEmpty());
+
+        // Param duplicates with one instance in action and another in datasource config
+        HashSet<String> expectedDuplicateParams = new HashSet<>();
+        expectedDuplicateParams.add("access_token");
+        assertTrue(expectedDuplicateParams.equals(allDuplicateParams.get(DATASOURCE_AND_ACTION_CONFIG)));
+    }
+
+    /**
+     * This test case is only meant to test the actual hint statement i.e. how it is worded. It is not meant to test
+     * the correctness of duplication finding flow - since it is done as part of the test case named
+     * `testGetDuplicateHeadersAndParams`. A separate test is used instead of a single test because the list of
+     * duplicates is returned as a set, hence order cannot be ascertained beforehand. 
+     */
+    @Test
+    public void testHintMessageForDuplicateHeadersAndParamsWithDatasourceConfigOnly() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        List<Property> headers = new ArrayList<>();
+        headers.add(new Property("myHeader1", "myVal"));
+        headers.add(new Property("myHeader1", "myVal")); // duplicate
+        headers.add(new Property("myHeader2", "myVal"));
+        dsConfig.setHeaders(headers);
+
+        List<Property> params = new ArrayList<>();
+        params.add(new Property("myParam1", "myVal"));
+        params.add(new Property("myParam1", "myVal")); // duplicate
+        params.add(new Property("myParam2", "myVal"));
+        dsConfig.setQueryParameters(params);
+
+        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(null, dsConfig);
+        StepVerifier.create(hintMessagesMono)
+                .assertNext(tuple -> {
+                    Set<String> datasourceHintMessages = tuple.getT1();
+                    Set<String> expectedDatasourceHintMessages = new HashSet<>();
+                    expectedDatasourceHintMessages.add("API queries linked to this datasource may not run as expected" +
+                            " because this datasource has duplicate definition(s) for param(s): [myParam1]. Please " +
+                            "remove the duplicate definition(s) to resolve this warning. Please note that some of the" +
+                            " authentication mechanisms also implicitly define a param.");
+
+                    expectedDatasourceHintMessages.add("API queries linked to this datasource may not run as expected" +
+                            " because this datasource has duplicate definition(s) for header(s): [myHeader1]. Please " +
+                            "remove the duplicate definition(s) to resolve this warning. Please note that some of the" +
+                            " authentication mechanisms also implicitly define a header.");
+                    assertTrue(expectedDatasourceHintMessages.equals(datasourceHintMessages));
+
+                    Set<String> actionHintMessages = tuple.getT2();
+                    Set<String> expectedActionHintMessages = new HashSet<>();
+                    expectedActionHintMessages.add("Your API query may not run as expected because its datasource has" +
+                            " duplicate definition(s) for param(s): [myParam1]. Please remove the duplicate " +
+                            "definition(s) from the datasource to resolve this warning.");
+
+                    expectedActionHintMessages.add("Your API query may not run as expected because its datasource has" +
+                            " duplicate definition(s) for header(s): [myHeader1]. Please remove the duplicate " +
+                            "definition(s) from the datasource to resolve this warning.");
+                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test case is only meant to test the actual hint statement i.e. how it is worded. It is not meant to test
+     * the correctness of duplication finding flow - since it is done as part of the test case named
+     * `testGetDuplicateHeadersAndParams`. A separate test is used instead of a single test because the list of
+     * duplicates is returned as a set, hence order cannot be ascertained beforehand.
+     */
+    @Test
+    public void testHintMessageForDuplicateHeadersAndParamsWithActionConfigOnly() {
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        List<Property> headers = new ArrayList<>();
+        headers.add(new Property("myHeader1", "myVal"));
+        headers.add(new Property("myHeader1", "myVal")); // duplicate
+        headers.add(new Property("myHeader2", "myVal"));
+        actionConfig.setHeaders(headers);
+
+        List<Property> params = new ArrayList<>();
+        params.add(new Property("myParam1", "myVal"));
+        params.add(new Property("myParam1", "myVal")); // duplicate
+        params.add(new Property("myParam2", "myVal"));
+        actionConfig.setQueryParameters(params);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
+        StepVerifier.create(hintMessagesMono)
+                .assertNext(tuple -> {
+                    Set<String> datasourceHintMessages = tuple.getT1();
+                    assertTrue(datasourceHintMessages.isEmpty());
+
+                    Set<String> actionHintMessages = tuple.getT2();
+                    Set<String> expectedActionHintMessages = new HashSet<>();
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
+                            "definition(s) for header(s): [myHeader1]. Please remove the duplicate definition(s) from" +
+                            " the 'Headers' tab to resolve this warning.");
+
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
+                            "definition(s) for param(s): [myParam1]. Please remove the duplicate definition(s) from " +
+                            "the 'Params' tab to resolve this warning.");
+                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test case is only meant to test the actual hint statement i.e. how it is worded. It is not meant to test
+     * the correctness of duplication finding flow - since it is done as part of the test case named
+     * `testGetDuplicateHeadersAndParams`. A separate test is used instead of a single test because the list of
+     * duplicates is returned as a set, hence order cannot be ascertained beforehand.
+     */
+    @Test
+    public void testHintMessageForDuplicateHeaderWithOneInstanceEachInActionAndDsConfig() {
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        List<Property> headers = new ArrayList<>();
+        headers.add(new Property("myHeader1", "myVal"));
+        actionConfig.setHeaders(headers);
+
+
+        // This authentication mechanism will add `myHeader1` as header implicitly.
+        AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "myHeader1", "Token", "test");
+        authenticationDTO.setAuthenticationType(API_KEY);
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authenticationDTO);
+
+        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
+        StepVerifier.create(hintMessagesMono)
+                .assertNext(tuple -> {
+                    Set<String> datasourceHintMessages = tuple.getT1();
+                    assertTrue(datasourceHintMessages.isEmpty());
+
+                    Set<String> actionHintMessages = tuple.getT2();
+                    Set<String> expectedActionHintMessages = new HashSet<>();
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
+                            "definition(s) for header(s): [myHeader1]. Please remove the duplicate definition(s) from" +
+                            " the 'Headers' section of either the API query or the datasource. Please note that some " +
+                            "of the authentication mechanisms also implicitly define a header.");
+
+                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This test case is only meant to test the actual hint statement i.e. how it is worded. It is not meant to test
+     * the correctness of duplication finding flow - since it is done as part of the test case named
+     * `testGetDuplicateHeadersAndParams`. A separate test is used instead of a single test because the list of
+     * duplicates is returned as a set, hence order cannot be ascertained beforehand.
+     */
+    @Test
+    public void testHintMessageForDuplicateParamWithOneInstanceEachInActionAndDsConfig() {
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        List<Property> params = new ArrayList<>();
+        params.add(new Property("myParam1", "myVal"));
+        actionConfig.setQueryParameters(params);
+
+
+        // This authentication mechanism will add `myHeader1` as query param implicitly.
+        AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.QUERY_PARAMS, "myParam1", "Token", "test");
+        authenticationDTO.setAuthenticationType(API_KEY);
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setAuthentication(authenticationDTO);
+
+        Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
+        StepVerifier.create(hintMessagesMono)
+                .assertNext(tuple -> {
+                    Set<String> datasourceHintMessages = tuple.getT1();
+                    assertTrue(datasourceHintMessages.isEmpty());
+
+                    Set<String> actionHintMessages = tuple.getT2();
+                    Set<String> expectedActionHintMessages = new HashSet<>();
+                    expectedActionHintMessages.add("Your API query may not run as expected because it has duplicate " +
+                            "definition(s) for param(s): [myParam1]. Please remove the duplicate definition(s) from" +
+                            " the 'Params' section of either the API query or the datasource. Please note that some " +
+                            "of the authentication mechanisms also implicitly define a param.");
+
+                    assertTrue(expectedActionHintMessages.equals(actionHintMessages));
+                })
+                .verifyComplete();
+    }
 }

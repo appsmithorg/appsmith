@@ -48,6 +48,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -65,6 +66,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.external.helpers.HintMessageUtils.getActionHintMessages;
+import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -678,6 +681,12 @@ public class RestApiPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
-    }
 
+        @Override
+        public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                           DatasourceConfiguration datasourceConfiguration) {
+            return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+                    Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
+        }
+    }
 }
