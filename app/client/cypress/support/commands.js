@@ -2616,6 +2616,14 @@ Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
   cy.get(widgetCss + disableCss).should("exist");
 });
 
+Cypress.Commands.add("validateToolbarVisible", (widgetCss, toolbarCss) => {
+  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("exist");
+});
+
+Cypress.Commands.add("validateToolbarHidden", (widgetCss, toolbarCss) => {
+  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("not.exist");
+});
+
 Cypress.Commands.add("validateEnableWidget", (widgetCss, disableCss) => {
   cy.get(widgetCss + disableCss).should("not.exist");
 });
