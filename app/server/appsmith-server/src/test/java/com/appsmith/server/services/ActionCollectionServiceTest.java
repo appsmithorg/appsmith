@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -15,6 +16,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -400,5 +402,56 @@ public class ActionCollectionServiceTest {
                     );
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testActionCollectionInViewMode() {
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO.setActions(List.of(action1));
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+
+        final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = applicationPageService.publish(testApp.getId(), true)
+                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId()))
+                .collectList();
+
+        StepVerifier.create(viewModeCollectionsMono)
+                .assertNext(viewModeCollections -> {
+                    assertThat(viewModeCollections.size()).isEqualTo(1);
+
+                    final ActionCollectionViewDTO actionCollectionViewDTO = viewModeCollections.get(0);
+
+                    // Actions
+                    final List<ActionDTO> actions = actionCollectionViewDTO.getActions();
+                    assertThat(actions.size()).isEqualTo(1);
+                    assertThat(actions.get(0).getActionConfiguration().getBody()).isEqualTo("mockBody");
+
+                    // Variables
+                    final List<JSValue> variables = actionCollectionViewDTO.getVariables();
+                    assertThat(variables.size()).isEqualTo(1);
+                    assertThat(variables.get(0).getValue()).isEqualTo("test");
+
+                    // Metadata
+                    assertThat(actionCollectionViewDTO.getId()).isEqualTo(createdActionCollectionDTO.getId());
+                    assertThat(actionCollectionViewDTO.getName()).isEqualTo("testCollection1");
+                    assertThat(actionCollectionViewDTO.getApplicationId()).isEqualTo(testApp.getId());
+                    assertThat(actionCollectionViewDTO.getPageId()).isEqualTo(testPage.getId());
+
+                })
+                .verifyComplete();
+
     }
 }

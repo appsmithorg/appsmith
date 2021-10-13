@@ -9,6 +9,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static java.lang.Boolean.TRUE;
@@ -143,6 +145,34 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                         actionCollectionDTO.setArchivedActions(archivedActionList);
                     }
                     return actionCollectionDTO;
+                });
+    }
+
+    @Override
+    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId) {
+        if (applicationId == null || applicationId.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        }
+
+        return repository
+                .findByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS)
+                .flatMap(actionCollection -> {
+                    ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
+                    final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+                    actionCollectionViewDTO.setId(actionCollection.getId());
+                    actionCollectionViewDTO.setName(publishedCollection.getName());
+                    actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
+                    actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
+                    actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+                    return Flux.fromIterable(publishedCollection.getActionIds())
+                            .flatMap(actionId -> {
+                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
+                            })
+                            .collectList()
+                            .map(actionDTOList -> {
+                                actionCollectionViewDTO.setActions(actionDTOList);
+                                return actionCollectionViewDTO;
+                            });
                 });
     }
 
