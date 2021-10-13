@@ -22,6 +22,9 @@ export enum INPUT_TEXT_INPUT_TYPES {
 }
 
 const StyledDynamicTextField = styled(DynamicTextField)`
+  .CodeEditorTarget .CodeMirror.CodeMirror-wrap:hover {
+    background-color: inherit;
+  }
   &&& .t--code-editor-wrapper {
     border: none;
   }
