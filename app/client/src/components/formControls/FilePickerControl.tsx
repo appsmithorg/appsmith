@@ -11,6 +11,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 
 const StyledDiv = styled.div`
@@ -111,7 +112,7 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
         <StyledDiv>{value.name}</StyledDiv>
         <SelectButton
           buttonStyle="PRIMARY"
-          buttonVariant="OUTLINE"
+          buttonVariant={ButtonVariantTypes.SECONDARY}
           onClick={() => {
             this.openModal();
           }}
