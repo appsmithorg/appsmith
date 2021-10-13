@@ -15,6 +15,7 @@ const LinkWrapper = styled.div`
 `;
 
 const StyledLink = styled.a`
+  cursor: pointer;
   &&,
   &:hover {
     color: ${(props) => props.theme.colors.settings.link};
