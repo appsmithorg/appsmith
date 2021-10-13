@@ -24,7 +24,7 @@ export const CONFIG = {
           props: {
             containerStyle: "none",
             canExtend: false,
-            detachFromLayout: false,
+            detachFromLayout: true,
             children: [],
             version: 1,
             blueprint: {
