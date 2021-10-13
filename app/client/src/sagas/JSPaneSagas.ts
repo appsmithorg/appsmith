@@ -375,6 +375,10 @@ function* handleRefactorJSActionNameSaga(
       const currentPageId = yield select(getCurrentPageId);
 
       if (isRefactorSuccessful) {
+        yield put({
+          type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
+          payload: { collectionId: data.payload.actionCollection.id },
+        });
         if (currentPageId === data.payload.refactorAction.pageId) {
           yield updateCanvasWithDSL(
             refactorResponse.data,
@@ -386,7 +390,7 @@ function* handleRefactorJSActionNameSaga(
     } catch (error) {
       yield put({
         type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
-        payload: { error },
+        payload: { collectionId: data.payload.actionCollection.id },
       });
     }
   }
