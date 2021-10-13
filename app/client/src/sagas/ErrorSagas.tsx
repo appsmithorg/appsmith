@@ -25,6 +25,7 @@ import {
 } from "constants/messages";
 
 import * as Sentry from "@sentry/react";
+import { axiosConnectionAbortedCode } from "../api/ApiUtils";
 
 /**
  * making with error message with action name
@@ -71,8 +72,8 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
     throw Error("");
   }
 
-  // if there is an error during api call, then letting `apiFailureResponseInterceptor` handle it
-  if (response?.isAxiosError) {
+  // letting `apiFailureResponseInterceptor` handle it this case
+  if (response?.code === axiosConnectionAbortedCode) {
     return false;
   }
 
