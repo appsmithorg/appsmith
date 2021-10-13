@@ -14,7 +14,6 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE, SETTINGS_CATEGORY_DEFAULT_URL } from "constants/routes";
-import UserApi from "api/UserApi";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
 import {
