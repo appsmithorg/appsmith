@@ -93,7 +93,7 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Space",
 ];
 
-const AUTOCOMPLETE_CLOSE_KEYS = ["}", "{", "(", ")"];
+const AUTOCOMPLETE_CLOSE_KEYS = ["(", ")"];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
