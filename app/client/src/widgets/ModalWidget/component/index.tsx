@@ -10,7 +10,7 @@ import React, {
 import { Overlay, Classes } from "@blueprintjs/core";
 import { get, omit } from "lodash";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import {
@@ -25,6 +25,7 @@ import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { deselectAllInitAction } from "actions/widgetSelectionActions";
 
 const Container = styled.div<{
   width?: number;
@@ -137,6 +138,8 @@ export default function ModalComponent(props: ModalComponentProps) {
   const { enableResize = false } = props;
   const resizeRef = React.useRef<HTMLDivElement>(null);
 
+  const dispatch = useDispatch();
+
   const [modalPosition, setModalPosition] = useState<string>("fixed");
 
   const { setIsResizing } = useWidgetDragResize();
@@ -164,6 +167,7 @@ export default function ModalComponent(props: ModalComponentProps) {
       // will be called in all cases :-
       //  escape key press, click out side, close click from other btn widget
       if (props.onModalClose) props.onModalClose();
+      dispatch(deselectAllInitAction());
     };
   }, []);
 
