@@ -11,7 +11,11 @@ describe("Org name validation spec", function() {
     cy.wait("@createOrg").then((interception) => {
       newOrganizationName = interception.response.body.data.name;
       cy.NavigateToHome();
-      cy.contains(newOrganizationName).click({ force: true });
+      cy.contains(newOrganizationName)
+        .closest(homePage.orgCompleteSection)
+        .find(homePage.orgNamePopover)
+        .find(homePage.optionsIcon)
+        .click({ force: true });
       cy.get(homePage.renameOrgInput)
         .should("be.visible")
         .type(" ");

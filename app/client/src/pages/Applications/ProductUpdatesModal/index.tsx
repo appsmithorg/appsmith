@@ -16,7 +16,7 @@ import { Color } from "constants/Colors";
 const CloseIcon = HelpIcons.CLOSE_ICON;
 
 const HeaderContents = styled.div`
-  padding: ${(props) => props.theme.spaces[9]}px;
+  padding: 20px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -86,7 +86,7 @@ const Header = withTheme(
           </CloseIconContainer>
         </HeaderRight>
       </HeaderContents>
-      <div style={{ padding: `0 ${theme.spaces[9]}px` }}>
+      <div style={{ padding: `0` }}>
         <StyledSeparator />
       </div>
     </>

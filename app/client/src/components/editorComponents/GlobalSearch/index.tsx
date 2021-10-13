@@ -176,7 +176,7 @@ function GlobalSearch() {
   const setCategory = useCallback(
     (category: SearchCategory) => {
       if (isSnippet(category)) {
-        AnalyticsUtil.logEvent("SNIPPET_CATEGORY_CLICK");
+        AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
       }
       dispatch(setGlobalSearchFilterContext({ category: category }));
     },

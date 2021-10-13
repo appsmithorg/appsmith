@@ -16,7 +16,7 @@ describe("Unique react keys", function() {
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
 
     cy.dragAndDropToCanvas("dropdownwidget", { x: 200, y: 600 });
-    cy.dragAndDropToCanvas("dropdownwidget", { x: 200, y: 800 });
+    cy.dragAndDropToCanvas("dropdownwidget", { x: 200, y: 700 });
 
     cy.openPropertyPane("chartwidget");
     cy.deleteWidget(widgetsPage.chartWidget);

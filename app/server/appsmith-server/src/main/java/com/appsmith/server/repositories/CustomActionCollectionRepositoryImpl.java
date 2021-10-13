@@ -3,10 +3,13 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
@@ -88,5 +91,35 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
         }
 
         return queryAll(criteriaList, aclPermission, sort);
+    }
+
+    @Override
+    public Flux<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
+        String unpublishedPage = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
+        String publishedPage = fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId);
+
+        Criteria pageCriteria = new Criteria().orOperator(
+                where(unpublishedPage).is(pageId),
+                where(publishedPage).is(pageId)
+        );
+
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMapMany(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    Query query = new Query();
+
+                    if (aclPermission == null) {
+                        query.addCriteria(new Criteria().andOperator(notDeleted(), pageCriteria));
+                    } else {
+                        query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, aclPermission), pageCriteria));
+                    }
+
+                    return mongoOperations.query(ActionCollection.class)
+                            .matching(query)
+                            .all()
+                            .map(obj -> setUserPermissionsInObject(obj, user));
+                });
+
     }
 }

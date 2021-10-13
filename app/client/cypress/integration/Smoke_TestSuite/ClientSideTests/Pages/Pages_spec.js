@@ -25,7 +25,7 @@ describe("Pages", function() {
       .should("be.gt", 1);
 
     cy.get(
-      ".bp3-icon-caret-right ~ .t--entity-name:contains(Datasources)",
+      `.t--entity-name:contains(Datasources) ~ .bp3-popover-wrapper .t--entity-add-btn`,
     ).click({
       multiple: true,
     });

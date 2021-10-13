@@ -3,8 +3,10 @@ package com.appsmith.server.configurations;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,10 +29,13 @@ public class CommonConfig {
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
 
+    @Value("${appsmith.instance.name:}")
+    private String instanceName;
+
     @Value("${signup.disabled}")
     private boolean isSignupDisabled;
 
-    @Value("${admin.emails}")
+    @Setter(AccessLevel.NONE)
     private Set<String> adminEmails = Collections.emptySet();
 
     @Value("${oauth2.allowed-domains}")
@@ -52,6 +57,8 @@ public class CommonConfig {
     @Value("${appsmith.admin.envfile:}")
     public String envFilePath;
 
+    @Value("${disable.telemetry:true}")
+    private boolean isTelemetryDisabled;
 
     private List<String> allowedDomains;
 
@@ -93,4 +100,10 @@ public class CommonConfig {
 
         return allowedDomains;
     }
+
+    @Autowired
+    public void setAdminEmails(@Value("${admin.emails}") String value) {
+        adminEmails = Set.of(value.trim().split("\\s*,\\s*"));
+    }
+
 }

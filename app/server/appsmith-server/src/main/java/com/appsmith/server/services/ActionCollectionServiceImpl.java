@@ -267,6 +267,11 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
+    public Flux<ActionCollection> findByPageId(String pageId, AclPermission permission) {
+        return repository.findByPageId(pageId, permission);
+    }
+
+    @Override
     public Mono<ActionCollection> delete(String id) {
         Mono<ActionCollection> actionCollectionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))

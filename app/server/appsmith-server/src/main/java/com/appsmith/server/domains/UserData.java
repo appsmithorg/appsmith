@@ -27,6 +27,9 @@ public class UserData extends BaseDomain {
     // Role of the user in their organization, example, Designer, Developer, Product Lead etc.
     private String role;
 
+    // The goal the user is trying to solve with Appsmith.
+    private String useCase;
+
     // The ID of the asset which has the profile photo of this user.
     private String profilePhotoAssetId;
 

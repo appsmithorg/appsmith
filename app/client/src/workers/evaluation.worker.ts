@@ -21,7 +21,7 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
-import evaluate from "workers/evaluate";
+import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
 
@@ -71,6 +71,10 @@ ctx.addEventListener(
   "message",
   messageEventListener((method, requestData: any) => {
     switch (method) {
+      case EVAL_WORKER_ACTIONS.SETUP: {
+        setupEvaluationEnvironment();
+        return true;
+      }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
           shouldReplay = true,
@@ -235,22 +239,28 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body, jsAction } = requestData;
-
-        if (!dataTreeEvaluator) {
-          return true;
-        }
+        /**
+         * In case of a cyclical dependency, the dataTreeEvaluator will not
+         * be present. This causes an issue because evalTree is needed to resolve
+         * the cyclical dependency in a JS Collection
+         *
+         * By setting evalTree to an empty object, the parsing can still take place
+         * and it would resolve the cyclical dependency
+         * **/
+        const currentEvalTree = dataTreeEvaluator
+          ? dataTreeEvaluator.evalTree
+          : {};
         try {
           const { evalTree, result } = parseJSCollection(
             body,
             jsAction,
-            dataTreeEvaluator.evalTree,
+            currentEvalTree,
           );
           return {
             evalTree,
             result,
           };
         } catch (e) {
-          const evalTree = dataTreeEvaluator.evalTree;
           const errors = [
             {
               errorType: PropertyEvaluationErrorType.PARSE,
@@ -259,9 +269,13 @@ ctx.addEventListener(
               errorMessage: e.message,
             },
           ];
-          _.set(evalTree, `${jsAction.name}.${EVAL_ERROR_PATH}.body`, errors);
+          _.set(
+            currentEvalTree,
+            `${jsAction.name}.${EVAL_ERROR_PATH}.body`,
+            errors,
+          );
           return {
-            evalTree,
+            currentEvalTree,
           };
         }
       }

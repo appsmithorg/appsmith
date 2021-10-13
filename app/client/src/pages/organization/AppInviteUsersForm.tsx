@@ -93,9 +93,7 @@ function AppInviteUsersForm(props: any) {
         </ShareWithPublicOption>
       )}
       <Title>
-        <Text type={TextType.H5}>
-          Get Shareable link for this for this application
-        </Text>
+        <Text type={TextType.H5}>Get shareable link for this application</Text>
       </Title>
       <CopyToClipBoard copyText={getViewApplicationURL()} />
 

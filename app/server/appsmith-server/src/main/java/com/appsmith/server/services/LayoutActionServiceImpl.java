@@ -4,11 +4,11 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -218,8 +218,11 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         String pageId = refactorActionNameDTO.getPageId();
         String layoutId = refactorActionNameDTO.getLayoutId();
         String oldName = refactorActionNameDTO.getOldName();
+        final String oldFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
+                oldName :
+                refactorActionNameDTO.getCollectionName() + "." + oldName;
         String newName = refactorActionNameDTO.getNewName();
-        String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
+        final String newFullyQualifiedName = StringUtils.isEmpty(refactorActionNameDTO.getCollectionName()) ?
                 newName :
                 refactorActionNameDTO.getCollectionName() + "." + newName;
         String actionId = refactorActionNameDTO.getActionId();
@@ -239,9 +242,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 })
                 .flatMap(action -> {
                     action.setName(newName);
+                    if (!StringUtils.isEmpty(refactorActionNameDTO.getCollectionName())) {
+                        action.setFullyQualifiedName(newFullyQualifiedName);
+                    }
                     return newActionService.updateUnpublishedAction(actionId, action);
                 })
-                .then(refactorName(pageId, layoutId, oldName, newName));
+                .then(refactorName(pageId, layoutId, oldFullyQualifiedName, newFullyQualifiedName));
     }
 
     /**
