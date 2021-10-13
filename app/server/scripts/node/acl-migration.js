@@ -276,7 +276,7 @@ async function addSelfPermissions(db) {
 
 async function findOrganizationUserPairs(db) {
 	const pairs = [];
-	return new Promise((resolve, reject) => {
+	return await new Promise((resolve, reject) => {
 		db.collection("user")
 			.find({ organizationIds: { $exists: true }, email: { $exists: true, $not: { $eq: SUPER_EMAIL } } })
 			.project({ email: 1, organizationIds: 1 })

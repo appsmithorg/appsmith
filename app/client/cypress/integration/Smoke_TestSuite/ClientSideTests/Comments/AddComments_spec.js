@@ -12,7 +12,7 @@ let orgName;
 describe("Comments", function() {
   before(() => {
     return cy.wrap(null).then(async () => {
-      cy.NavigateToHome();
+     await cy.NavigateToHome();
 
       cy.generateUUID().then((uid) => {
         appName = uid;
