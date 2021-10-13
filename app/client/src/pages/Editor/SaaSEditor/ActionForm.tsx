@@ -72,7 +72,10 @@ function ActionForm(props: Props) {
     for (let i = 0; i < props.actionObjectDiff.length; i++) {
       //kind = N indicates a newly added property/element
       //This property is present in initialValues but not in action object
-      if (props.actionObjectDiff[i]?.kind === "N") {
+      if (
+        props.actionObjectDiff[i]?.kind === "N" &&
+        props.actionObjectDiff[i].path
+      ) {
         // Calculate path from path[] in diff
         path = props.actionObjectDiff[i].path.reduce(
           (acc: string, item: number | string) => {
