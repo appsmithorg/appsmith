@@ -20,7 +20,7 @@ export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
   success: Colors.PURPLE,
   secondary: Colors.BLACK_PEARL,
-  danger: Colors.RED,
+  danger: Colors.ERROR_RED,
   none: Colors.GEYSER_LIGHT,
   warning: Colors.JAFFA,
   successLight: Colors.GREEN,
@@ -3016,9 +3016,9 @@ export const theme: Theme = {
   dropdown: {
     [Skin.LIGHT]: {
       hoverBG: lightShades[2],
-      hoverText: lightShades[0],
-      inActiveBG: lightShades[3],
-      inActiveText: lightShades[8],
+      hoverText: lightShades[10],
+      inActiveBG: lightShades[2],
+      inActiveText: lightShades[10],
       border: Colors.WHITE,
       background: Colors.WHITE,
     },

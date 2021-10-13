@@ -118,8 +118,12 @@ export type SearchCategory = {
 };
 
 export function getOptionalFilters(optionalFilterMeta: any) {
-  return Object.keys(optionalFilterMeta || {}).map(
-    (field) => `${field}:${optionalFilterMeta[field]}`,
+  return Object.entries(optionalFilterMeta || {}).reduce(
+    (acc: Array<string>, [key, value]: any) => {
+      value.forEach((value: string) => acc.push(`${key}:${value}`));
+      return acc;
+    },
+    [],
   );
 }
 
@@ -175,7 +179,6 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     item.kind === SEARCH_ITEM_TYPES.category
   )
     type = item.kind;
-  else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
   else if (item.config?.pluginType === PluginType.JS)
     type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
@@ -293,6 +296,7 @@ export const getEntityId = (entity: any) => {
     case "widget":
       return entity.widgetId;
     case "action":
+    case "jsAction":
       return entity.config?.id;
   }
 };

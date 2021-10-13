@@ -24,6 +24,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
+import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -226,7 +227,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.defer(() -> {
                     PasswordResetToken passwordResetToken = new PasswordResetToken();
                     passwordResetToken.setEmail(email);
-                    passwordResetToken.setRequestCount(1);
+                    passwordResetToken.setRequestCount(0);
                     passwordResetToken.setFirstRequestTime(Instant.now());
                     return Mono.just(passwordResetToken);
                 }))
@@ -818,19 +819,37 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     @Override
-    public Mono<User> updateCurrentUser(User allUpdates, ServerWebExchange exchange) {
-        // Not all fields can be updated. We only let a few fields of a User object be updated with this method.
-        final User allowedUpdates = new User();
-        allowedUpdates.setName(allUpdates.getName());
+    public Mono<User> updateCurrentUser(final UserUpdateDTO allUpdates, ServerWebExchange exchange) {
+        List<Mono<Void>> monos = new ArrayList<>();
 
-        return sessionUserService.getCurrentUser()
-                .flatMap(user ->
-                        update(user.getEmail(), allowedUpdates, fieldName(QUser.user.email))
-                                .then(exchange == null
-                                        ? repository.findByEmail(user.getEmail())
-                                        : sessionUserService.refreshCurrentUser(exchange))
-                )
-                .map(userChangedHandler::publish);
+        Mono<User> updatedUserMono;
+
+        if (allUpdates.hasUserUpdates()) {
+            final User updates = new User();
+            updates.setName(allUpdates.getName());
+            updatedUserMono = sessionUserService.getCurrentUser()
+                    .flatMap(user ->
+                            update(user.getEmail(), updates, fieldName(QUser.user.email))
+                                    .then(exchange == null
+                                            ? repository.findByEmail(user.getEmail())
+                                            : sessionUserService.refreshCurrentUser(exchange))
+                    )
+                    .map(userChangedHandler::publish)
+                    .cache();
+            monos.add(updatedUserMono.then());
+        } else {
+            updatedUserMono = sessionUserService.getCurrentUser()
+                    .flatMap(user -> findByEmail(user.getEmail()));
+        }
+
+        if (allUpdates.hasUserDataUpdates()) {
+            final UserData updates = new UserData();
+            updates.setRole(allUpdates.getRole());
+            updates.setUseCase(allUpdates.getUseCase());
+            monos.add(userDataService.updateForCurrentUser(updates).then());
+        }
+
+        return Mono.whenDelayError(monos).then(updatedUserMono);
     }
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
@@ -882,6 +901,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setAnonymous(user.isAnonymous());
                     profile.setEnabled(user.isEnabled());
                     profile.setCommentOnboardingState(userData.getCommentOnboardingState());
+                    profile.setRole(userData.getRole());
+                    profile.setUseCase(userData.getUseCase());
+                    profile.setPhotoId(userData.getProfilePhotoAssetId());
 
                     profile.setSuperUser(policyUtils.isPermissionPresentForUser(
                             userFromDb.getPolicies(),

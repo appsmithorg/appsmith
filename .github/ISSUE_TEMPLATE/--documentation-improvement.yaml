@@ -1,0 +1,36 @@
+name: 📖 Documentation Improvement
+description: Suggest improvements to our documentation
+title: "[Docs]: "
+labels: [Documentation]
+assignees:
+- Nikhil-Nandagopal
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thanks for taking the time to fill out this documentation improvement request!
+- type: checkboxes
+  attributes:
+    label: Is there an existing issue for this?
+    description: Please search to see if an issue realated to this already exists.
+    options:
+    - label: I have searched the existing issues
+      required: true
+- type: input
+  attributes:
+    label: Documentation Link 
+    description: Add a link to the page which needs improvement (if relevant)
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Describe the problem
+    description: Is the documentation missing? Or is it confusing? Why is it confusing?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Describe the improvement
+    description: A clear and concise description of the improvement.  
+  validations:
+    required: true

@@ -442,7 +442,7 @@ function CommentCard({
           </Section>
         </CommentSubheader>
       )}
-      <CommentHeader>
+      <CommentHeader data-cy="comments-card-header">
         <HeaderSection>
           <ProfileImage
             side={25}

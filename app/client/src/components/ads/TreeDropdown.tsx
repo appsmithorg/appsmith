@@ -105,7 +105,7 @@ const DropdownTarget = styled.div`
     box-shadow: none;
     border-radius: 0px;
     border: 1px solid ${Colors.GREY_5};
-    height: 36px;
+    min-height: 36px;
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
     background-image: none;
