@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
   getActiveGitSyncModalTab,
@@ -72,44 +72,38 @@ function GitSyncModal() {
     [dispatch, setIsGitSyncModalOpen, isModalOpen],
   );
 
-  const showDeployTab = useCallback(() => {
-    setActiveTabIndex(GitSyncModalTab.DEPLOY);
-  }, [isModalOpen]);
-
-  const gitInitialMenuState = useCallback(() => {
-    let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
-    if (!isGitConnected) {
-      menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
-    } else {
-      menuOptions = allMenuOptions;
+  useEffect(() => {
+    if (!isGitConnected && activeTabIndex !== GitSyncModalTab.GIT_CONNECTION) {
+      setActiveTabIndex(GitSyncModalTab.DEPLOY);
     }
-
-    return {
-      menuOptions,
-    };
-  }, [isGitConnected]);
-
-  const [stateMenuOptions, setStateMenuOptions] = useState(
-    gitInitialMenuState().menuOptions,
-  );
+  }, [activeTabIndex]);
 
   useEffect(() => {
-    // OnMount set initial state according to git connected to app or not
-    const { menuOptions } = gitInitialMenuState();
-
-    if (menuOptions.length !== stateMenuOptions.length) {
-      setStateMenuOptions(menuOptions);
-    }
-  }, []);
-
-  useEffect(() => {
+    // when git connected
     if (isGitConnected && activeTabIndex === GitSyncModalTab.GIT_CONNECTION) {
       setActiveTabIndex(GitSyncModalTab.DEPLOY);
     }
   }, [isGitConnected]);
 
-  const activeMenuItemKey = stateMenuOptions[activeTabIndex]
-    ? stateMenuOptions[activeTabIndex].key
+  let menuOptions = allMenuOptions;
+  if (!isGitConnected) {
+    menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
+  } else {
+    menuOptions = allMenuOptions;
+  }
+
+  useEffect(() => {
+    // onMount or onChange of activeTabIndex
+    if (
+      activeTabIndex !== GitSyncModalTab.GIT_CONNECTION &&
+      menuOptions.length - 1 < activeTabIndex
+    ) {
+      setActiveTabIndex(GitSyncModalTab.GIT_CONNECTION);
+    }
+  }, [activeTabIndex]);
+
+  const activeMenuItemKey = menuOptions[activeTabIndex]
+    ? menuOptions[activeTabIndex].key
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
   const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
@@ -129,11 +123,11 @@ function GitSyncModal() {
             <Menu
               activeTabIndex={activeTabIndex}
               onSelect={setActiveTabIndex}
-              options={stateMenuOptions}
+              options={menuOptions}
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent onSuccess={showDeployTab} />
+            <BodyComponent />
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon

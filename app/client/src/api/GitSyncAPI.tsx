@@ -11,7 +11,7 @@ export type CommitPayload = {
 };
 
 export type PushToGitPayload = {
-  applicationId: string;
+  defaultApplicationId: string;
   branchName: string;
 };
 
@@ -49,11 +49,11 @@ class GitSyncAPI extends Api {
   }
 
   static push({
-    applicationId,
     branchName,
+    defaultApplicationId,
   }: PushToGitPayload): AxiosPromise<ApiResponse> {
     return Api.post(
-      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/push/${defaultApplicationId}?branchName=${branchName}`,
     );
   }
 

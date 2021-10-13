@@ -304,19 +304,12 @@ const TextInput = forwardRef(
       [props, validation.isValid, props.theme],
     );
 
-    const validate = useCallback(
-      (inputValue: string) => {
-        const validation = props.validator && props.validator(inputValue);
-        return validation;
-      },
-      [props.validator],
-    );
-
     const memoizedChangeHandler = useCallback(
       (el) => {
         const inputValue: string = el.target.value.trim();
         setInputValue(inputValue);
-        const inputValueValidation = validate(inputValue);
+        const inputValueValidation =
+          props.validator && props.validator(inputValue);
         if (inputValueValidation) {
           props.validator && setValidation(validation);
           return (
@@ -328,7 +321,7 @@ const TextInput = forwardRef(
           return props.onChange && props.onChange(inputValue);
         }
       },
-      [props.onChange, setValidation, validate],
+      [props.onChange, setValidation],
     );
 
     const onBlurHandler = useCallback(

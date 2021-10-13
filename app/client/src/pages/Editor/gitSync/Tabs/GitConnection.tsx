@@ -160,6 +160,10 @@ const TooltipWrapper = styled.div`
   align-items: center;
 `;
 
+const RemoteUrlInfoWrapper = styled.div`
+  margin-top: ${(props) => props.theme.spaces[3]}px;
+`;
+
 const Section = styled.div``;
 
 // v1 only support SSH
@@ -167,11 +171,10 @@ const selectedAuthType = AUTH_TYPE_OPTIONS[0];
 const HTTP_LITERAL = "https";
 
 type Props = {
-  onSuccess: () => void;
   isImport?: boolean;
 };
 
-function GitConnection({ isImport, onSuccess }: Props) {
+function GitConnection({ isImport }: Props) {
   const { remoteUrl: remoteUrlInStore = "" } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
@@ -248,7 +251,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
     connectToGit,
     // failedConnectingToGit,
     isConnectingToGit,
-  } = useGitConnect({ onSuccess });
+  } = useGitConnect();
 
   const stopShowingCopiedAfterDelay = () => {
     timerRef.current = setTimeout(() => {
@@ -347,6 +350,8 @@ function GitConnection({ isImport, onSuccess }: Props) {
   }, [SSHKeyPair]);
 
   const remoteUrlChangeHandler = (value: string) => {
+    const isInvalid = remoteUrlIsInvalid(value);
+    setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
   };
 
@@ -415,30 +420,25 @@ function GitConnection({ isImport, onSuccess }: Props) {
           <UrlInputContainer>
             <TextInput
               disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
+              errorMsg={
+                isInvalidRemoteUrl
+                  ? "Please paste SSH URL of your repository"
+                  : ""
+              }
               fill
               onChange={remoteUrlChangeHandler}
               placeholder={placeholderText}
-              validator={(value) => {
-                const isInvalid = remoteUrlIsInvalid(value);
-                setIsValidRemoteUrl(isInvalid);
-                return {
-                  isValid: true,
-                  message: isInvalid
-                    ? "Please paste SSH URL of your repository"
-                    : "",
-                };
-              }}
               value={remoteUrl}
             />
           </UrlInputContainer>
         </UrlContainer>
 
         {!isInvalidRemoteUrl && !SSHKeyPair ? (
-          <div>
+          <RemoteUrlInfoWrapper>
             <Text color={Colors.GREY_9} type={TextType.P3}>
               {createMessage(REMOTE_URL_INFO)}
             </Text>
-          </div>
+          </RemoteUrlInfoWrapper>
         ) : null}
 
         {!SSHKeyPair ? (
@@ -446,7 +446,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
             <ButtonContainer topMargin={!isInvalidRemoteUrl ? 10 : 14}>
               <Button
                 category={Category.secondary}
-                disabled={!remoteUrl}
+                disabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => generateSSHKey()}
                 size={Size.medium}
