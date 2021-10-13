@@ -12,7 +12,7 @@ export const CONFIG = {
     columns: 25,
     widgetName: "FormBuilder",
     children: [],
-    schema: {},
+    schema: [],
     primaryFields: [],
     version: 1,
   },

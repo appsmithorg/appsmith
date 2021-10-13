@@ -1,10 +1,11 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
+import { isEmpty } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import FormBuilderComponent from "../component";
-import Parser from "../parser";
 import propertyConfig from "./propertyConfig";
+import SchemaParser from "../schemaParser";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Schema } from "../constants";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
@@ -54,30 +55,22 @@ class FormBuilderWidget extends BaseWidget<
     const prevFormData = prevProps?.formData;
     const currFormData = this.props?.formData;
 
+    if (isEmpty(currFormData)) {
+      return;
+    }
+
     // Hot path - early exit
     if (equal(prevFormData, currFormData)) {
       return;
     }
 
-    const currSchema = (() => {
-      if (this.props.schema?.__root__) {
-        return this.props.schema.__root__.children;
-      }
-
-      return;
-    })();
-
-    const rootSchemaObject = Parser.getSchemaObjectFor("", currFormData, {
-      currFormData,
-      prevFormData,
-      currSchema,
-    });
+    const schema = SchemaParser.parse(currFormData, this.props.schema);
 
     // eslint-disable-next-line
-    console.log("FORM BUILDER", this.props);
-    const schema = {
-      __root__: rootSchemaObject,
-    };
+    // console.log("FORM BUILDER", this.props);
+    // const schema = {
+    //   __root__: rootSchemaObject,
+    // };
 
     // eslint-disable-next-line
     console.log("FORM BUILDER - SCHEMA", schema);

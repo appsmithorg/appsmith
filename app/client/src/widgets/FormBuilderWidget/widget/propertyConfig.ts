@@ -40,6 +40,7 @@ export default [
     sectionName: "General",
     children: [
       {
+        // TODO: Change formData to Source data
         propertyName: "formData",
         helpText: "Input JSON sample for default form layout",
         label: "Form Data",

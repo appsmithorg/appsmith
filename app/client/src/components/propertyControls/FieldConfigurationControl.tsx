@@ -14,7 +14,7 @@ import {
   StyledInputGroup,
   StyledVisibleIcon,
 } from "./StyledControls";
-import { Schema, SchemaObject } from "widgets/FormBuilderWidget/constants";
+import { Schema, SchemaItem } from "widgets/FormBuilderWidget/constants";
 import { noop } from "lodash";
 import { PanelConfig } from "constants/PropertyControlConstants";
 import { FormBuilderWidgetProps } from "widgets/FormBuilderWidget/widget";
@@ -167,12 +167,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
   onEdit = (index: number) => {
     const schema: Schema = this.props.propertyValue || {};
 
-    const entries = Object.entries(schema) || [];
-    const [key, value] = entries[index];
-
     this.props.openNextPanel(
       {
-        ...value,
+        ...schema[index],
         propPaneId: this.props.widgetProperties.widgetId,
       },
       PANEL_CONFIG,
@@ -182,15 +179,13 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
   render() {
     const { dataTreePath, widgetProperties } = this.props;
     const schema = this.props.propertyValue as Schema;
-    const entries = Object.entries(schema) || [];
+    const entries = schema || [];
 
-    const draggableComponentColumns = entries.map(
-      ([key, schemaObject], index) => ({
-        index: index,
-        id: key,
-        label: schemaObject.title,
-      }),
-    );
+    const draggableComponentColumns = entries.map(({ label, name }, index) => ({
+      index,
+      id: name,
+      label,
+    }));
 
     return (
       <TabsWrapper>

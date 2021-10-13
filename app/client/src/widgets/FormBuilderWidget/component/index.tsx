@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import styled from "styled-components";
 
 import Form from "./Form";
@@ -28,15 +28,15 @@ function FormBuilderComponent<TValues>({
 }: FormBuilderComponentProps<TValues>) {
   if (isEmpty(schema)) return null;
 
-  const rootSchemaObject = schema.__root__;
+  const rootSchemaItem = schema[0];
 
-  const RootField = FIELD_MAP[rootSchemaObject.fieldType]?.fieldComponent;
+  const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
 
   return (
     <StyledContainer backgroundColor={backgroundColor}>
       {/* eslint-disable-next-line */}
       <Form defaultValues={inputData} onSubmit={console.log}>
-        <RootField schemaObject={rootSchemaObject} />
+        <RootField schemaItem={rootSchemaItem} />
       </Form>
     </StyledContainer>
   );

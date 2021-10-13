@@ -3,11 +3,11 @@ import styled from "styled-components";
 import { ControllerRenderProps, useFieldArray } from "react-hook-form";
 
 import fieldRenderer from "./fieldRenderer";
-import { SchemaObject } from "../constants";
+import { SchemaItem } from "../constants";
 
 type FieldArrayProps = {
   name: ControllerRenderProps["name"];
-  schemaObject: SchemaObject;
+  schemaItem: SchemaItem;
 };
 
 const WRAPPER_PADDING_Y = 10;
@@ -31,12 +31,12 @@ const StyledDeleteButton = styled(StyledButton)`
   align-self: center;
 `;
 
-function FieldArray({ name, schemaObject }: FieldArrayProps) {
+function FieldArray({ name, schemaItem }: FieldArrayProps) {
   const { append, fields, remove } = useFieldArray({
     name,
   });
 
-  const arrayItemSchema = schemaObject.children.__array_item__;
+  const [arrayItemSchema] = schemaItem.children;
 
   const onAddClick = () => {
     append({ firstName: "appendBill", lastName: "appendLuo" });

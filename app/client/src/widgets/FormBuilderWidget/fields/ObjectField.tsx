@@ -2,11 +2,11 @@ import React from "react";
 import styled from "styled-components";
 
 import fieldRenderer from "./fieldRenderer";
-import { SchemaObject } from "../constants";
+import { SchemaItem } from "../constants";
 
 type ObjectFieldProps = {
   name?: string;
-  schemaObject: SchemaObject;
+  schemaItem: SchemaItem;
 };
 
 const WRAPPER_PADDING_Y = 10;
@@ -17,14 +17,12 @@ const StyledWrapper = styled.div`
   width: 100%;
 `;
 
-function ObjectField({ name, schemaObject }: ObjectFieldProps) {
-  const entries = Object.entries(schemaObject.children);
-
+function ObjectField({ name, schemaItem }: ObjectFieldProps) {
   const renderFields = () => {
-    return entries.map(([key, value]) => {
-      const fieldName = name ? `${name}.${key}` : key;
+    return schemaItem.children.map((schemaItem) => {
+      const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
 
-      return fieldRenderer(fieldName, value);
+      return fieldRenderer(fieldName, schemaItem);
     });
   };
 
