@@ -359,8 +359,12 @@ function GitConnection({ isImport, onSuccess }: Props) {
     const isAuthorInfoEmpty = !authorInfo.authorEmail || !authorInfo.authorName;
     const isAuthorEmailInvalid = !emailValidator(authorInfo.authorEmail)
       .isValid;
-    const isAuthInfoUpdated = isGitConnected && isAuthorInfoUpdated();
-    return isAuthorInfoEmpty || isAuthorEmailInvalid || !isAuthInfoUpdated;
+    const isAuthInfoUpdated = isAuthorInfoUpdated();
+    let buttonDisabled = isAuthorInfoEmpty || isAuthorEmailInvalid;
+    if (isGitConnected) {
+      buttonDisabled = buttonDisabled || !isAuthInfoUpdated;
+    }
+    return buttonDisabled;
   }, [
     authorInfo.authorEmail,
     authorInfo.authorName,
@@ -393,9 +397,9 @@ function GitConnection({ isImport, onSuccess }: Props) {
     globalGitConfig.authorEmail,
   ]);
 
-  const toggleHandler = () => {
+  const toggleHandler = useCallback(() => {
     setUseGlobalConfig(!useGlobalConfig);
-  };
+  }, [setUseGlobalConfig, useGlobalConfig]);
 
   return (
     <Container>

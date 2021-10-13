@@ -77,20 +77,14 @@ function GitSyncModal() {
   }, [isModalOpen]);
 
   const gitInitialMenuState = useCallback(() => {
-    let initialTabIndex = GitSyncModalTab.GIT_CONNECTION;
     let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
     if (!isGitConnected) {
       menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
     } else {
       menuOptions = allMenuOptions;
-      // when git is connected directly open deploy tab
-      initialTabIndex = menuOptions.findIndex(
-        (menuItem) => menuItem.key === MENU_ITEMS_MAP.DEPLOY.key,
-      );
     }
 
     return {
-      initialTabIndex,
       menuOptions,
     };
   }, [isGitConnected]);
@@ -101,23 +95,16 @@ function GitSyncModal() {
 
   useEffect(() => {
     // OnMount set initial state according to git connected to app or not
-    const { initialTabIndex, menuOptions } = gitInitialMenuState();
+    const { menuOptions } = gitInitialMenuState();
 
-    if (initialTabIndex !== activeTabIndex) {
-      setActiveTabIndex(initialTabIndex);
-    }
     if (menuOptions.length !== stateMenuOptions.length) {
       setStateMenuOptions(menuOptions);
     }
   }, []);
 
   useEffect(() => {
-    const { initialTabIndex, menuOptions } = gitInitialMenuState();
-    if (menuOptions.length !== stateMenuOptions.length) {
-      setStateMenuOptions(menuOptions);
-    }
-    if (initialTabIndex !== activeTabIndex) {
-      setActiveTabIndex(initialTabIndex);
+    if (isGitConnected && activeTabIndex === GitSyncModalTab.GIT_CONNECTION) {
+      setActiveTabIndex(GitSyncModalTab.DEPLOY);
     }
   }, [isGitConnected]);
 
