@@ -8,6 +8,7 @@ import {
   Classes,
 } from "@blueprintjs/core";
 import { ReactComponent as CheckedIcon } from "assets/icons/control/checkmark.svg";
+import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce } from "lodash";
 import { Colors } from "constants/Colors";
 
@@ -20,6 +21,15 @@ const ColorIcon = styled.div<{ color: string }>`
   top: 6px;
   left: 6px;
   background: ${(props) => (props.color ? props.color : "transparent")};
+`;
+
+const ColorPickerIconContainer = styled.div`
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  height: 24px;
+  width: 24px;
+  z-index: 1;
 `;
 
 const StyledInputGroup = styled(InputGroup)`
@@ -123,20 +133,6 @@ function ColorBoard(props: ColorBoardProps) {
   );
 }
 
-const NoColorIconWrapper = styled.div`
-  position: absolute;
-  z-index: 1;
-  top: 6px;
-  left: 6px;
-  width: 24px;
-  height: 24px;
-  .line {
-    left: 8px;
-    top: -4px;
-    height: 26px;
-  }
-`;
-
 const NoColorIcon = styled.div`
   width: 100%;
   height: 100%;
@@ -194,11 +190,9 @@ function ColorPickerComponent(props: ColorPickerProps) {
           color ? (
             <ColorIcon color={color} />
           ) : (
-            <NoColorIconWrapper>
-              <NoColorIcon>
-                <div className="line" />
-              </NoColorIcon>
-            </NoColorIconWrapper>
+            <ColorPickerIconContainer>
+              <ColorPickerIcon />
+            </ColorPickerIconContainer>
           )
         }
         onChange={handleChangeColor}
