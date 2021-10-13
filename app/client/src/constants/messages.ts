@@ -486,9 +486,7 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
-  "Hurray! Your application is ready to use.";
-export const GEN_CRUD_SUCCESS_DESC = () =>
-  "Search through your data in the table and update it using the form";
+  "Hurray! Your application is ready for use.";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
   "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
