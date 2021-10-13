@@ -29,4 +29,4 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           body: |
-            Unable to find test scripts. Please add necessary tests to the PR. Check
+            Unable to find test scripts. Please add necessary tests to the PR.
