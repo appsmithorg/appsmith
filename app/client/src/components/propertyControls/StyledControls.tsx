@@ -5,6 +5,7 @@ import { Colors } from "constants/Colors";
 import styled, { Skin } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
 import TextInput from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
@@ -53,27 +54,20 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   margin: 4px;
   margin-top: 0px;
   cursor: pointer;
-  border-radius: 4px;
   height: auto;
   width: 28px;
   height: 16px;
-  border: 0.5px solid
-    ${(props) => props.theme.colors.propertyPane.activeButtonText};
+  border: 0.5px solid ${Colors.BLACK};
   background-color: ${(props) =>
-    props.active
-      ? props.theme.colors.propertyPane.activeButtonText
-      : props.theme.colors.propertyPane.buttonText};
+    props.active ? Colors.GREY_10 : Colors.GREY_2};
 
   &:hover {
     background-color: ${(props) =>
-      props.theme.colors.propertyPane.jsButtonHoverBG};
+      props.active ? Colors.GREY_9 : Colors.GREY_3};
 
     &&& svg {
       path {
-        fill: ${(props) =>
-          props.active
-            ? props.theme.colors.propertyPane.activeButtonText
-            : props.theme.colors.propertyPane.activeButtonText};
+        fill: ${(props) => (props.active ? Colors.GREY_2 : Colors.GREY_9)};
       }
     }
   }
@@ -82,12 +76,13 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
 
   &&& svg {
     width: 28px;
     height: 16px;
-    transform: scale(1.6);
+    transform: scale(1.4);
 
     rect {
       fill: transparent;
@@ -95,21 +90,21 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
 
     path {
       fill: ${(props) =>
-        props.active
-          ? props.theme.colors.WHITE
-          : props.theme.colors.propertyPane.activeButtonText};
+        props.active ? props.theme.colors.GREY_2 : Colors.GREY_9};
     }
   }
 `;
 
 export const StyledDropDownContainer = styled.div`
   width: 100%;
+  height: 100%;
 `;
 
 export const StyledDropDown = styled(Dropdown)`
-  height: auto;
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
+  height: 36px;
+  border: 1px solid ${Colors.GREY_5};
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
@@ -119,11 +114,11 @@ export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
 
 export const StyledMenu = styled(Menu)`
   && {
-    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
+    background: ${(props) => props.theme.dropdown[Skin.LIGHT].background};
     border-radius: unset;
   }
   .bp3-submenu .bp3-menu {
-    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
+    background: ${(props) => props.theme.dropdown[Skin.LIGHT].background};
   }
 `;
 
@@ -162,20 +157,19 @@ export const StyledPopover = styled(Popover)`
 
 export const StyledMenuItem = styled(MenuItem)`
   &&&&&& {
-    border-radius: ${(props) => props.theme.radii[1]}px;
-    background: ${(props) => props.theme.dropdown[Skin.DARK].background};
-    color: ${(props) => props.theme.dropdown[Skin.DARK].inActiveText};
+    border-radius: 0;
+    background: ${(props) => props.theme.dropdown[Skin.LIGHT].background};
+    color: ${(props) => props.theme.dropdown[Skin.LIGHT].inActiveText};
     padding: 4px 8px;
     margin: 4px 0px;
     &:hover {
-      background: ${(props) => props.theme.dropdown[Skin.DARK].hoverBG};
+      background: ${(props) => props.theme.dropdown[Skin.LIGHT].hoverBG};
       &&&.bp3-menu-item.bp3-intent-danger:hover {
-        background: ${(props) => props.theme.colors.error};
+        color: ${(props) => props.theme.colors.error};
       }
     }
     &.${Classes.ACTIVE} {
-      background: ${(props) => props.theme.dropdown[Skin.DARK].hoverBG};
-      color: ${(props) => props.theme.dropdown[Skin.DARK].hoverText};
+      background: ${(props) => props.theme.dropdown[Skin.LIGHT].hoverBG};
       position: relative;
       &.single-select {
         &:before {
@@ -183,15 +177,15 @@ export const StyledMenuItem = styled(MenuItem)`
           top: -2px;
           position: absolute;
           content: "";
-          background: ${(props) => props.theme.dropdown[Skin.DARK].hoverBG};
-          border-radius: 4px 0 0 4px;
+          background: ${(props) => props.theme.dropdown[Skin.LIGHT].hoverBG};
+          border-radius: 0;
           width: 4px;
           height: 100%;
         }
       }
     }
     &&&& .${Classes.MENU} {
-      background: ${(props) => props.theme.dropdown[Skin.DARK].inActiveBG};
+      background: ${(props) => props.theme.dropdown[Skin.LIGHT].inActiveBG};
     }
   }
 `;
@@ -214,7 +208,7 @@ export const StyledDynamicInput = styled.div`
 
 export const StyledInputGroup = styled(TextInput)`
   width: 100%;
-  border-radius: 4px;
+  border-radius: 0;
   background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
   color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
   &:focus {
@@ -242,12 +236,13 @@ export const StyledEditIcon = styled(
   position: absolute;
   margin-left: 0;
   cursor: pointer;
-  right: 35px;
+  right: 40px;
+  display: flex;
+  align-items: center;
   && svg {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     position: relative;
-    top: 2px;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
     }
@@ -275,17 +270,19 @@ export const StyledDragIcon = styled(
 `;
 
 export const StyledDeleteIcon = styled(
-  ControlIcons.DELETE_COLUMN as AnyStyledComponent,
+  FormIcons.DELETE_ICON as AnyStyledComponent,
 )`
   padding: 0;
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
   right: ${(props) => props.marginRight ?? 12}px;
+  display: flex;
+  align-items: center;
+
   && svg {
-    width: 24px;
-    height: 24px;
-    top: -2px;
+    width: 16px;
+    height: 16px;
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
@@ -304,11 +301,12 @@ export const StyledVisibleIcon = styled(
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
   right: ${(props) => props.marginRight ?? 12}px;
   && svg {
-    width: 24px;
-    height: 24px;
-    top: -2px;
+    width: 16px;
+    height: 16px;
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
@@ -324,11 +322,11 @@ export const StyledHiddenIcon = styled(
   margin-left: 15px;
   cursor: pointer;
   right: ${(props) => props.marginRight ?? 12}px;
+  display: flex;
+  align-items: center;
   && svg {
-    width: 14px;
-    top: 3px;
-    height: 14px;
-    left: 3px;
+    width: 16px;
+    height: 16px;
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
@@ -341,21 +339,27 @@ export const StyledPropertyPaneButton = styled(Button)`
   margin-left: auto;
   display: flex;
   justify-content: flex-end;
+  border: 1px solid ${Colors.GREY_8};
 
   &,
-  &:active,
+  &:active {
+    border: 1px solid ${Colors.GREY_8};
+    color: ${Colors.GREY_8};
+    background-color: transparent;
+  }
+
   &:hover {
-    border-color: transparent;
-    color: ${(props) => props.theme.colors.propertyPane.buttonText};
-    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
+    border: 1px solid ${Colors.GREY_8};
+    color: ${Colors.GREY_8};
+    background-color: ${Colors};
   }
 
   &&& svg {
     width: 14px;
     height: 14px;
     path {
-      fill: ${(props) => props.theme.colors.propertyPane.buttonText};
-      stroke: ${(props) => props.theme.colors.propertyPane.buttonText};
+      fill: ${Colors.GREY_8};
+      stroke: ${Colors.GREY_8};
     }
   }
 `;

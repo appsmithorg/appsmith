@@ -46,18 +46,18 @@ const getCustomHoverColor = (
   if (!backgroundColor) {
     return theme.colors.button[
       (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
-    ][(buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()].hoverColor;
+    ][(buttonVariant || ButtonVariantTypes.PRIMARY).toLowerCase()].hoverColor;
   }
 
   switch (buttonVariant) {
-    case ButtonVariantTypes.OUTLINE:
+    case ButtonVariantTypes.SECONDARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
         : theme.colors.button.primary.outline.hoverColor;
 
-    case ButtonVariantTypes.GHOST:
+    case ButtonVariantTypes.TERTIARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
@@ -79,7 +79,7 @@ const getCustomBackgroundColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  return buttonVariant === ButtonVariantTypes.SOLID
+  return buttonVariant === ButtonVariantTypes.PRIMARY
     ? backgroundColor
       ? backgroundColor
       : theme.colors.button[
@@ -94,7 +94,7 @@ const getCustomBorderColor = (
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
-  return buttonVariant === ButtonVariantTypes.OUTLINE
+  return buttonVariant === ButtonVariantTypes.SECONDARY
     ? backgroundColor
       ? backgroundColor
       : theme.colors.button[
@@ -126,19 +126,19 @@ const StyledButton = styled((props) => (
     &:enabled {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
-          ? buttonVariant === ButtonVariantTypes.SOLID
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
             ? theme.colors.button.warning.solid.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.DANGER
-          ? buttonVariant === ButtonVariantTypes.SOLID
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
             ? theme.colors.button.danger.solid.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.INFO
-          ? buttonVariant === ButtonVariantTypes.SOLID
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
             ? theme.colors.button.info.solid.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? buttonVariant === ButtonVariantTypes.SOLID
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
             ? theme.colors.button.secondary.solid.bgColor
             : "none"
           : buttonStyle === ButtonStyleTypes.CUSTOM
@@ -148,7 +148,7 @@ const StyledButton = styled((props) => (
               buttonVariant,
               buttonColor,
             )
-          : buttonVariant === ButtonVariantTypes.SOLID
+          : buttonVariant === ButtonVariantTypes.PRIMARY
           ? theme.colors.button.primary.solid.bgColor
           : "none"
       } !important;
@@ -157,23 +157,23 @@ const StyledButton = styled((props) => (
     &:hover:enabled, &:active:enabled {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
-          ? buttonVariant === ButtonVariantTypes.OUTLINE
+          ? buttonVariant === ButtonVariantTypes.SECONDARY
             ? theme.colors.button.warning.outline.hoverColor
-            : buttonVariant === ButtonVariantTypes.GHOST
+            : buttonVariant === ButtonVariantTypes.TERTIARY
             ? theme.colors.button.warning.ghost.hoverColor
             : theme.colors.button.warning.solid.hoverColor
           : buttonStyle === ButtonStyleTypes.DANGER
-          ? buttonVariant === ButtonVariantTypes.SOLID
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
             ? theme.colors.button.danger.solid.hoverColor
             : theme.colors.button.danger.outline.hoverColor
           : buttonStyle === ButtonStyleTypes.INFO
-          ? buttonVariant === ButtonVariantTypes.SOLID
+          ? buttonVariant === ButtonVariantTypes.PRIMARY
             ? theme.colors.button.info.solid.hoverColor
             : theme.colors.button.info.outline.hoverColor
           : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? buttonVariant === ButtonVariantTypes.OUTLINE
+          ? buttonVariant === ButtonVariantTypes.SECONDARY
             ? theme.colors.button.secondary.outline.hoverColor
-            : buttonVariant === ButtonVariantTypes.GHOST
+            : buttonVariant === ButtonVariantTypes.TERTIARY
             ? theme.colors.button.secondary.ghost.hoverColor
             : theme.colors.button.secondary.solid.hoverColor
           : buttonStyle === ButtonStyleTypes.CUSTOM
@@ -183,9 +183,9 @@ const StyledButton = styled((props) => (
               buttonVariant,
               buttonColor,
             )
-          : buttonVariant === ButtonVariantTypes.OUTLINE
+          : buttonVariant === ButtonVariantTypes.SECONDARY
           ? theme.colors.button.primary.outline.hoverColor
-          : buttonVariant === ButtonVariantTypes.GHOST
+          : buttonVariant === ButtonVariantTypes.TERTIARY
           ? theme.colors.button.primary.ghost.hoverColor
           : theme.colors.button.primary.solid.hoverColor
       } !important;
@@ -197,7 +197,7 @@ const StyledButton = styled((props) => (
     }
 
     border: ${
-      buttonVariant === ButtonVariantTypes.OUTLINE
+      buttonVariant === ButtonVariantTypes.SECONDARY
         ? buttonStyle === ButtonStyleTypes.WARNING
           ? `1px solid ${theme.colors.button.warning.outline.borderColor}`
           : buttonStyle === ButtonStyleTypes.DANGER
@@ -227,7 +227,7 @@ const StyledButton = styled((props) => (
       -webkit-box-orient: vertical;
 
       color: ${
-        buttonVariant === ButtonVariantTypes.SOLID
+        buttonVariant === ButtonVariantTypes.PRIMARY
           ? buttonStyle === ButtonStyleTypes.CUSTOM
             ? getCustomTextColor(theme, buttonColor, prevButtonStyle)
             : `${theme.colors.button.primary.solid.textColor}`
@@ -243,14 +243,13 @@ const StyledButton = styled((props) => (
           ? getCustomBackgroundColor(
               theme,
               prevButtonStyle,
-              ButtonVariantTypes.SOLID,
+              ButtonVariantTypes.PRIMARY,
               buttonColor,
             )
           : `${theme.colors.button.primary.outline.textColor}`
       } !important;
     }
   `}
-
 
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
@@ -354,7 +353,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
 
 BaseButton.defaultProps = {
   buttonStyle: "SECONDARY",
-  buttonVariant: "SOLID",
+  buttonVariant: ButtonVariantTypes.PRIMARY,
   disabled: false,
   text: "Button Text",
   minimal: true,

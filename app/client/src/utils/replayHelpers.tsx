@@ -2,7 +2,7 @@ import React from "react";
 
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { modText, flashElementsById } from "./helpers";
+import { modText, flashElementsById, isMac } from "./helpers";
 import localStorage from "./localStorage";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -24,10 +24,12 @@ export const getReplayToastActionText = (replayType = "undo") => {
     case "undo":
       return <>UNDO ({modText()}+Z) </>;
     case "redo":
-      return (
+      return isMac() ? (
         <>
           REDO ({modText()}+<span>&#8682;</span>+Z){" "}
         </>
+      ) : (
+        <>REDO ({modText()}+Y) </>
       );
   }
 };

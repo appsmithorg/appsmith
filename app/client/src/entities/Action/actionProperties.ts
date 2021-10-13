@@ -43,8 +43,9 @@ export const getBindingPathsOfAction = (
         }
       }
       if (formConfig.controlType === "ARRAY_FIELD") {
-        const actionValue = _.get(action, formConfig.configProperty);
+        let actionValue = _.get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
+          actionValue = actionValue.filter((val) => val);
           for (let i = 0; i < actionValue.length; i++) {
             formConfig.schema.forEach((schemaField: any) => {
               if (
