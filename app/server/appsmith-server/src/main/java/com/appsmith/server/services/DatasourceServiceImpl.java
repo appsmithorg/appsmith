@@ -148,8 +148,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
         if(datasource.getPluginId() == null) {
             /*
-             * - Not throwing an exception here because we do not throw an error in case of missing datasource.
-             *   We try not to fail as much as possible during create and update actions.
+             * - Not throwing an exception here because we try not to fail as much as possible during datasource create
+             * and update events.
              */
             return Mono.just(datasource);
         }
