@@ -70,6 +70,12 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
   if (!response) {
     throw Error("");
   }
+
+  // if there is an error during api call, then letting `apiFailureResponseInterceptor` handle it
+  if (response?.isAxiosError) {
+    return false;
+  }
+
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }

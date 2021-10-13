@@ -12,6 +12,7 @@ export type ResponseMeta = {
 export type ApiResponse = {
   responseMeta: ResponseMeta;
   data: any;
+  isAxiosError?: boolean;
 };
 
 export type GenericApiResponse<T> = {
