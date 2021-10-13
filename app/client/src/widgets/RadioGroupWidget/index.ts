@@ -9,7 +9,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
-    columns: 3 * GRID_DENSITY_MIGRATION_V1,
+    columns: 5 * GRID_DENSITY_MIGRATION_V1,
     label: "",
     options: [
       { label: "Yes", value: "Y" },

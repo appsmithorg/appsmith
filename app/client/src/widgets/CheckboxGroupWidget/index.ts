@@ -8,8 +8,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 2 * GRID_DENSITY_MIGRATION_V1,
-    columns: 3 * GRID_DENSITY_MIGRATION_V1,
+    rows: 3 * GRID_DENSITY_MIGRATION_V1,
+    columns: 5 * GRID_DENSITY_MIGRATION_V1,
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
