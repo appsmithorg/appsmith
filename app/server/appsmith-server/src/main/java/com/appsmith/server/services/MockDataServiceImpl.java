@@ -2,13 +2,13 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
@@ -28,10 +28,8 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
@@ -70,12 +68,21 @@ public class MockDataServiceImpl implements MockDataService {
             return Mono.justOrEmpty(mockData);
         }
 
-        return  WebClient
-                .create( baseUrl + "/api/v1/mocks")
+        return WebClient
+                .create(baseUrl + "/api/v1/mocks")
                 .get()
                 .exchange()
-                .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {}))
-                .map(result -> result.getData())
+                .flatMap(response -> {
+                    if (response.statusCode().is2xxSuccessful()) {
+                        return response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {
+                        });
+                    } else {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.CLOUD_SERVICES_ERROR,
+                                "Unable to connect to cloud-services with error status {}", response.statusCode()));
+                    }
+                })
+                .map(ResponseDTO::getData)
                 .map(config -> {
                     mockData = config;
                     cacheExpiryTime = Instant.now().plusSeconds(2 * 60 * 60);

@@ -8,31 +8,32 @@ import Text, { TextType } from "components/ads/Text";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
-import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import Dialog from "components/ads/DialogComponent";
-import { GenerateCRUDSuccessInfoData } from "../../../../reducers/uiReducers/crudInfoModalReducer";
+import { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
 import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
-  GEN_CRUD_SUCCESS_DESC,
   createMessage,
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
+import { CheckmarkWrapper } from "./styles";
+import { ReactComponent as CheckmarkSvg } from "assets/svg/checkmark.svg";
+import ProgressiveImage, {
+  Container as ProgressiveImageContainer,
+} from "components/ads/ProgressiveImage";
 
 type Props = {
   crudInfoModalOpen: boolean;
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
 
-const getSuccessGIF = () => `${S3_BUCKET_URL}/crud/check_mark_verified.gif`;
-
 const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
   display: flex;
   justify-content: center;
-  font-size: 20px;
-  line-height: 24px;
+  ${(props) => getTypographyByKey(props, "h1")}
 `;
 
 const ActionButtonWrapper = styled.div`
@@ -59,12 +60,6 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
-const Desc = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")}
-  color: ${Colors.DOVE_GRAY2};
-  margin-top: 8px;
-`;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -78,16 +73,25 @@ const Wrapper = styled.div`
   }
 `;
 
-const InfoImage = styled.img`
-  flex: 1;
-  width: 340px;
-`;
-
 const ImageWrapper = styled.div`
   padding: 50px 10px 10px;
   display: flex;
   flex: 1;
   justify-content: center;
+  & ${ProgressiveImageContainer} {
+    width: 100%;
+    height: 284px;
+  }
+  .progressive-image--thumb,
+  progressive-image--full {
+    object-fit: contain;
+  }
+
+  .progressive-image--thumb {
+    filter: blur(20px);
+    opacity: 0.3;
+    transition: visibility 0ms ease 100ms;
+  }
 `;
 
 const SuccessContentWrapper = styled.div`
@@ -99,21 +103,21 @@ const SuccessContentWrapper = styled.div`
   height: 100%;
 `;
 
-const SuccessImage = styled.img`
-  margin: ${(props) => props.theme.spaces[6]}px;
-`;
-
 const STEP = {
   SHOW_SUCCESS_GIF: "show_success_gif",
   SHOW_INFO: "show_info",
 };
 
+const DELAY_TIME = 3000;
+
 function InfoContent({
   onClose,
+  successImageUrl,
   successMessage,
 }: {
   onClose: () => void;
   successMessage: string;
+  successImageUrl: string;
 }) {
   return (
     <>
@@ -126,7 +130,11 @@ function InfoContent({
           type={TextType.P1}
         />
         <ImageWrapper>
-          <InfoImage alt="CRUD Info" src={getInfoImage()} />
+          <ProgressiveImage
+            alt="template information"
+            imageSource={successImageUrl}
+            thumbnailSource={getInfoThumbnail()}
+          />
         </ImageWrapper>
       </Content>
 
@@ -143,8 +151,6 @@ function InfoContent({
     </>
   );
 }
-const getInfoImage = (): string =>
-  `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
 
 function GenCRUDSuccessModal(props: Props) {
   const { crudInfoModalOpen, generateCRUDSuccessInfo } = props;
@@ -161,10 +167,14 @@ function GenCRUDSuccessModal(props: Props) {
     (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successMessage) ||
     createMessage(GEN_CRUD_INFO_DIALOG_SUBTITLE);
 
+  const successImageUrl =
+    (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successImageUrl) ||
+    getInfoImage();
+
   useEffect(() => {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
-    }, 2000);
+    }, DELAY_TIME);
     return () => {
       if (timerId) clearTimeout(timerId);
     };
@@ -180,13 +190,18 @@ function GenCRUDSuccessModal(props: Props) {
       <Wrapper>
         {step === STEP.SHOW_SUCCESS_GIF ? (
           <SuccessContentWrapper>
-            <SuccessImage alt="Success" src={getSuccessGIF()} width="50px" />
+            <CheckmarkWrapper>
+              <CheckmarkSvg />
+            </CheckmarkWrapper>
             <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
-            <Desc>{createMessage(GEN_CRUD_SUCCESS_DESC)}</Desc>
           </SuccessContentWrapper>
         ) : null}
         {step === STEP.SHOW_INFO ? (
-          <InfoContent onClose={onClose} successMessage={successMessage} />
+          <InfoContent
+            onClose={onClose}
+            successImageUrl={successImageUrl}
+            successMessage={successMessage}
+          />
         ) : null}
       </Wrapper>
     </Dialog>

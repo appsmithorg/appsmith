@@ -3,11 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  DroppableWidgets,
-  WidgetTypes,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 import {
   getWidgetImmediateChildren,
@@ -32,7 +28,9 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetChildren } from "./WidgetOperationUtils";
 import { AppState } from "reducers";
-
+import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
 // in the entity explorer so that the selected widget is visible
@@ -78,7 +76,7 @@ function* selectedWidgetAncestrySaga(
 }
 
 function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
-  if (DroppableWidgets.includes(widgetLastSelected.type)) {
+  if (checkIsDropTarget(widgetLastSelected.type)) {
     const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const childWidgets: string[] = yield select(
       getWidgetImmediateChildren,

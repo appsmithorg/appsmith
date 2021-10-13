@@ -17,12 +17,14 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
+import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -93,6 +95,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final ApplicationPageService applicationPageService;
+    private final UserDataService userDataService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -123,8 +126,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            EmailConfig emailConfig,
                            UserChangedHandler userChangedHandler,
                            EncryptionService encryptionService,
-                           ApplicationPageService applicationPageService
-    ) {
+                           ApplicationPageService applicationPageService,
+                           UserDataService userDataService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -142,6 +145,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.applicationPageService = applicationPageService;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -223,7 +227,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.defer(() -> {
                     PasswordResetToken passwordResetToken = new PasswordResetToken();
                     passwordResetToken.setEmail(email);
-                    passwordResetToken.setRequestCount(1);
+                    passwordResetToken.setRequestCount(0);
                     passwordResetToken.setFirstRequestTime(Instant.now());
                     return Mono.just(passwordResetToken);
                 }))
@@ -457,8 +461,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return Mono.just(user)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .then(repository.findByEmail(user.getUsername()))
-                .flatMap(analyticsService::trackNewUser);
+                .then(Mono.zip(
+                        repository.findByEmail(user.getUsername()),
+                        userDataService.getForUserEmail(user.getUsername())
+                ))
+                .flatMap(tuple -> analyticsService.trackNewUser(tuple.getT1(), tuple.getT2()));
     }
 
     /**
@@ -812,19 +819,37 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     }
 
     @Override
-    public Mono<User> updateCurrentUser(User allUpdates, ServerWebExchange exchange) {
-        // Not all fields can be updated. We only let a few fields of a User object be updated with this method.
-        final User allowedUpdates = new User();
-        allowedUpdates.setName(allUpdates.getName());
+    public Mono<User> updateCurrentUser(final UserUpdateDTO allUpdates, ServerWebExchange exchange) {
+        List<Mono<Void>> monos = new ArrayList<>();
 
-        return sessionUserService.getCurrentUser()
-                .flatMap(user ->
-                        update(user.getEmail(), allowedUpdates, fieldName(QUser.user.email))
-                                .then(exchange == null
-                                        ? repository.findByEmail(user.getEmail())
-                                        : sessionUserService.refreshCurrentUser(exchange))
-                )
-                .map(userChangedHandler::publish);
+        Mono<User> updatedUserMono;
+
+        if (allUpdates.hasUserUpdates()) {
+            final User updates = new User();
+            updates.setName(allUpdates.getName());
+            updatedUserMono = sessionUserService.getCurrentUser()
+                    .flatMap(user ->
+                            update(user.getEmail(), updates, fieldName(QUser.user.email))
+                                    .then(exchange == null
+                                            ? repository.findByEmail(user.getEmail())
+                                            : sessionUserService.refreshCurrentUser(exchange))
+                    )
+                    .map(userChangedHandler::publish)
+                    .cache();
+            monos.add(updatedUserMono.then());
+        } else {
+            updatedUserMono = sessionUserService.getCurrentUser()
+                    .flatMap(user -> findByEmail(user.getEmail()));
+        }
+
+        if (allUpdates.hasUserDataUpdates()) {
+            final UserData updates = new UserData();
+            updates.setRole(allUpdates.getRole());
+            updates.setUseCase(allUpdates.getUseCase());
+            monos.add(userDataService.updateForCurrentUser(updates).then());
+        }
+
+        return Mono.whenDelayError(monos).then(updatedUserMono);
     }
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
@@ -855,8 +880,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        return isUsersEmpty()
-                .map(isUsersEmpty -> {
+        return Mono.zip(
+                        isUsersEmpty(),
+                        user.isAnonymous() ? Mono.just(user) : findByEmail(user.getEmail()),
+                        userDataService.getForCurrentUser().defaultIfEmpty(new UserData())
+                )
+                .map(tuple -> {
+                    final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
+                    final User userFromDb = tuple.getT2();
+                    final UserData userData = tuple.getT3();
+
                     final UserProfileDTO profile = new UserProfileDTO();
 
                     profile.setEmail(user.getEmail());
@@ -865,6 +898,18 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setName(user.getName());
                     profile.setGender(user.getGender());
                     profile.setEmptyInstance(isUsersEmpty);
+                    profile.setAnonymous(user.isAnonymous());
+                    profile.setEnabled(user.isEnabled());
+                    profile.setCommentOnboardingState(userData.getCommentOnboardingState());
+                    profile.setRole(userData.getRole());
+                    profile.setUseCase(userData.getUseCase());
+                    profile.setPhotoId(userData.getProfilePhotoAssetId());
+
+                    profile.setSuperUser(policyUtils.isPermissionPresentForUser(
+                            userFromDb.getPolicies(),
+                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                            userFromDb.getUsername()
+                    ));
 
                     return profile;
                 });

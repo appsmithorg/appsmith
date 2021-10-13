@@ -19,7 +19,11 @@ import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
 import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
-import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getAllPageWidgets,
+  getJSCollections,
+} from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   toggleShowGlobalSearchModal,
@@ -53,7 +57,11 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { BUILDER_PAGE_URL, DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  DATA_SOURCES_EDITOR_ID_URL,
+  JS_COLLECTION_ID_URL,
+} from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
@@ -66,6 +74,11 @@ import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
 import { lightTheme } from "selectors/themeSelectors";
+import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import copy from "copy-to-clipboard";
+import { getSnippet } from "./SnippetsDescription";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
@@ -160,12 +173,15 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
-  const setCategory = (category: SearchCategory) => {
-    if (isSnippet(category)) {
-      AnalyticsUtil.logEvent("SNIPPET_CATEGORY_CLICK");
-    }
-    dispatch(setGlobalSearchFilterContext({ category: category }));
-  };
+  const setCategory = useCallback(
+    (category: SearchCategory) => {
+      if (isSnippet(category)) {
+        AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      }
+      dispatch(setGlobalSearchFilterContext({ category: category }));
+    },
+    [dispatch, isSnippet, setGlobalSearchFilterContext],
+  );
   const setRefinements = (entityMeta: any) =>
     dispatch(setGlobalSearchFilterContext({ refinements: entityMeta }));
   const refinements = useSelector(
@@ -222,6 +238,7 @@ function GlobalSearch() {
     [allWidgets],
   );
   const actions = useSelector(getActions);
+  const jsActions = useSelector(getJSCollections);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
 
@@ -294,6 +311,17 @@ function GlobalSearch() {
       return isActionNameMatching || isPageNameMatching;
     });
   }, [actions, query]);
+  const filteredJSCollections = useMemo(() => {
+    if (!query) return jsActions;
+
+    return jsActions.filter((action: any) => {
+      const page = pageMap[action?.config?.pageId];
+      const isPageNameMatching = isMatching(page?.pageName, query);
+      const isActionNameMatching = isMatching(action?.config?.name, query);
+
+      return isActionNameMatching || isPageNameMatching;
+    });
+  }, [jsActions, query]);
   const filteredPages = useMemo(() => {
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
 
@@ -320,6 +348,7 @@ function GlobalSearch() {
     if (isNavigation(category) || isMenu(category)) {
       filteredEntities = [
         ...filteredActions,
+        ...filteredJSCollections,
         ...filteredWidgets,
         ...filteredPages,
         ...filteredDatasources,
@@ -345,6 +374,7 @@ function GlobalSearch() {
   }, [
     filteredWidgets,
     filteredActions,
+    filteredJSCollections,
     documentationSearchResults,
     filteredDatasources,
     query,
@@ -424,6 +454,13 @@ function GlobalSearch() {
     url && history.push(url);
   };
 
+  const handleJSCollectionClick = (item: SearchItem) => {
+    const { config } = item;
+    const { id, pageId } = config;
+    history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
+    toggleShow();
+  };
+
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
@@ -441,9 +478,30 @@ function GlobalSearch() {
     history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
   };
 
+  const onEnterSnippet = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.onEnter,
+  );
+
   const handleSnippetClick = (event: SelectEvent, item: any) => {
     if (event && event.type === "click") return;
-    dispatch(insertSnippet(get(item, "body.snippet", "")));
+    const snippetExecuteBtn = document.querySelector(
+      ".snippet-execute",
+    ) as HTMLButtonElement;
+    if (snippetExecuteBtn && !snippetExecuteBtn.disabled) {
+      return snippetExecuteBtn && snippetExecuteBtn.click();
+    }
+    if (onEnterSnippet === SnippetAction.INSERT) {
+      dispatch(insertSnippet(get(item, "body.snippet", "")));
+    } else {
+      const snippet = getSnippet(get(item, "body.snippet", ""), {});
+      const title = get(item, "body.title", "");
+      copy(snippet);
+      Toaster.show({
+        text: "Snippet copied to clipboard",
+        variant: Variant.success,
+      });
+      AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet, title });
+    }
     toggleShow();
   };
 
@@ -458,6 +516,8 @@ function GlobalSearch() {
       handleDatasourceClick(item),
     [SEARCH_ITEM_TYPES.page]: (e: SelectEvent, item: any) =>
       handlePageClick(item),
+    [SEARCH_ITEM_TYPES.jsAction]: (e: SelectEvent, item: any) =>
+      handleJSCollectionClick(item),
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
     [SEARCH_ITEM_TYPES.category]: (e: SelectEvent, item: any) =>

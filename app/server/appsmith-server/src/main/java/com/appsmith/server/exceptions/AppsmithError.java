@@ -22,8 +22,10 @@ public enum AppsmithError {
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     USER_DOESNT_BELONG_TO_ORGANIZATION(400, 4010, "User {0} does not belong to an organization with id {1}",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
-    NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "No datasource configuration found. Please configure it and try again.",
-            AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid", ErrorType.DATASOURCE_CONFIGURATION_ERROR),
+    NO_CONFIGURATION_FOUND_IN_DATASOURCE(400, 4011, "No datasource configuration found. Please configure it and try again.", 
+            AppsmithErrorAction.DEFAULT, "Datasource configuration is invalid",  ErrorType.DATASOURCE_CONFIGURATION_ERROR),
+    INVALID_ACTION_COLLECTION(400, 4038, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
+            AppsmithErrorAction.DEFAULT, "Collection configuration is invalid",  ErrorType.CONFIGURATION_ERROR),
     INVALID_ACTION(400, 4012, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
             AppsmithErrorAction.DEFAULT, "Action configuration is invalid", ErrorType.CONFIGURATION_ERROR),
     INVALID_DATASOURCE(400, 4013, "{0} is not correctly configured. Please fix the following and then re-run: \n{1}",
@@ -84,7 +86,7 @@ public enum AppsmithError {
     PLUGIN_RUN_FAILED(500, 5003, "Plugin execution failed with error {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     PLUGIN_EXECUTION_TIMEOUT(504, 5040, "Plugin Execution exceeded the maximum allowed time. Please increase the timeout in your action settings or check your backend action endpoint",
             AppsmithErrorAction.DEFAULT, null, ErrorType.CONNECTIVITY_ERROR),
-    PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "Unable to load datasource form configuration. Details: {0}.",
+    PLUGIN_LOAD_FORM_JSON_FAIL(500, 5004, "[{0}] Unable to load datasource form configuration. Details: {1}.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     PLUGIN_LOAD_TEMPLATES_FAIL(500, 5005, "Unable to load datasource templates. Details: {0}.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
@@ -110,6 +112,8 @@ public enum AppsmithError {
     AUTHENTICATION_FAILURE(500, 5010, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR),
     INSTANCE_REGISTRATION_FAILURE(500, 5011, "Registration for instance failed with error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     TOO_MANY_REQUESTS(429, 4039, "Too many requests received. Please try later.", AppsmithErrorAction.DEFAULT, "Too many requests", ErrorType.INTERNAL_ERROR),
+    INVALID_JS_ACTION(400, 4040, "Something went wrong while trying to parse this action. Please check the JS object for errors.", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
+    CLOUD_SERVICES_ERROR(500, 5012, "Received error from cloud services {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     ;
 
     private final Integer httpErrorCode;

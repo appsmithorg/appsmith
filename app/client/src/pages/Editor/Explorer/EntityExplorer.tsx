@@ -6,6 +6,7 @@ import {
   useWidgets,
   useActions,
   useFilteredDatasources,
+  useJSCollections,
 } from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
@@ -19,9 +20,14 @@ import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
+import { Colors } from "constants/Colors";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -37,13 +43,32 @@ const Wrapper = styled.div`
 const NoResult = styled(NonIdealState)`
   &.${Classes.NON_IDEAL_STATE} {
     height: auto;
+    margin: 20px 0;
+
+    .${Classes.NON_IDEAL_STATE_VISUAL} {
+      margin-bottom: 16px;
+      height: 52px;
+
+      svg {
+        height: 52px;
+        width: 144px;
+      }
+    }
+
+    div {
+      color: ${Colors.DOVE_GRAY2};
+    }
+
+    .${Classes.HEADING} {
+      margin-bottom: 4px;
+      color: ${(props) => props.theme.colors.textOnWhiteBG};
+    }
   }
 `;
 
 const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
-
 function EntityExplorer(props: IPanelProps) {
   const { applicationId } = useParams<ExplorerURLParams>();
 
@@ -62,10 +87,19 @@ function EntityExplorer(props: IPanelProps) {
 
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
+  const jsActions = useJSCollections(searchKeyword);
+  const dispatch = useDispatch();
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
 
   let noResults = false;
   if (searchKeyword) {
     const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
+    const noJSActions =
+      Object.values(jsActions).filter(
+        (jsActions) => jsActions && jsActions.length > 0,
+      ).length === 0;
     const noActions =
       Object.values(actions).filter((actions) => actions && actions.length > 0)
         .length === 0;
@@ -73,15 +107,19 @@ function EntityExplorer(props: IPanelProps) {
       Object.values(datasources).filter(
         (datasources) => datasources && datasources.length > 0,
       ).length === 0;
-    noResults = noWidgets && noActions && noDatasource;
+    noResults = noWidgets && noActions && noDatasource && noJSActions;
   }
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
       history.push(BUILDER_PAGE_URL(applicationId, pageId));
       openPanel({ component: WidgetSidebar });
+      dispatch(forceOpenWidgetPanel(true));
+      if (isFirstTimeUserOnboardingEnabled) {
+        dispatch(toggleInOnboardingWidgetSelection(true));
+      }
     },
-    [openPanel, applicationId],
+    [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
   );
 
   return (
@@ -90,6 +128,7 @@ function EntityExplorer(props: IPanelProps) {
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}
+        jsActions={jsActions}
         plugins={plugins}
         searchKeyword={searchKeyword}
         showWidgetsSidebar={showWidgetsSidebar}
@@ -100,7 +139,7 @@ function EntityExplorer(props: IPanelProps) {
         <NoResult
           className={Classes.DARK}
           description="Try modifying the search keyword."
-          icon="search"
+          icon={<NoEntityFoundSvg />}
           title="No entities found"
         />
       )}
@@ -112,9 +151,5 @@ function EntityExplorer(props: IPanelProps) {
 }
 
 EntityExplorer.displayName = "EntityExplorer";
-
-EntityExplorer.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default EntityExplorer;

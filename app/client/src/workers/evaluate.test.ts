@@ -1,10 +1,10 @@
-import evaluate from "workers/evaluate";
+import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import {
   DataTree,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluate", () => {
   const widget: DataTreeWidget = {
@@ -16,7 +16,7 @@ describe("evaluate", () => {
     renderMode: RenderModes.CANVAS,
     rightColumn: 0,
     topRow: 0,
-    type: WidgetTypes.INPUT_WIDGET,
+    type: "INPUT_WIDGET",
     version: 0,
     widgetId: "",
     widgetName: "",
@@ -30,9 +30,12 @@ describe("evaluate", () => {
   const dataTree: DataTree = {
     Input1: widget,
   };
+  beforeAll(() => {
+    setupEvaluationEnvironment();
+  });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
-    const response = evaluate(js, {});
+    const response = evaluate(js, {}, {});
     expect(response.result).toBe("Hello!");
   });
   it("throws error for undefined js", () => {
@@ -41,16 +44,18 @@ describe("evaluate", () => {
     expect(() => evaluate(undefined, {})).toThrow(TypeError);
   });
   it("Returns for syntax errors", () => {
-    const response1 = evaluate("wrongJS", {});
+    const response1 = evaluate("wrongJS", {}, {});
     expect(response1).toStrictEqual({
       result: undefined,
       triggers: [],
       errors: [
         {
+          ch: 1,
           code: "W117",
           errorMessage: "'wrongJS' is not defined.",
           errorSegment: "    const result = wrongJS",
           errorType: "LINT",
+          line: 0,
           raw: `
   function closedFunction () {
     const result = wrongJS
@@ -58,7 +63,7 @@ describe("evaluate", () => {
   }
   closedFunction()
   `,
-          severity: "warning",
+          severity: "error",
           originalBinding: "wrongJS",
           variables: ["wrongJS", undefined, undefined, undefined],
         },
@@ -77,7 +82,7 @@ describe("evaluate", () => {
         },
       ],
     });
-    const response2 = evaluate("{}.map()", {});
+    const response2 = evaluate("{}.map()", {}, {});
     expect(response2).toStrictEqual({
       result: undefined,
       triggers: [],
@@ -100,13 +105,29 @@ describe("evaluate", () => {
   });
   it("evaluates value from data tree", () => {
     const js = "Input1.text";
-    const response = evaluate(js, dataTree);
+    const response = evaluate(js, dataTree, {});
     expect(response.result).toBe("value");
   });
   it("gets triggers from a function", () => {
     const js = "showAlert('message', 'info')";
-    const response = evaluate(js, dataTree, undefined, true);
-    expect(response.result).toBe(undefined);
+    const response = evaluate(js, dataTree, {}, undefined, true);
+    //this will be changed again in new implemenation for promises
+    const data = {
+      action: {
+        payload: {
+          executor: [
+            {
+              payload: { message: "message", style: "info" },
+              type: "SHOW_ALERT",
+            },
+          ],
+          then: [],
+        },
+        type: "PROMISE",
+      },
+      triggerReference: 0,
+    };
+    expect(response.result).toEqual(data);
     expect(response.triggers).toStrictEqual([
       {
         type: "PROMISE",
@@ -127,7 +148,7 @@ describe("evaluate", () => {
   });
   it("disallows unsafe function calls", () => {
     const js = "setTimeout(() => {}, 100)";
-    const response = evaluate(js, dataTree);
+    const response = evaluate(js, dataTree, {});
     expect(response).toStrictEqual({
       result: undefined,
       triggers: [],
@@ -150,13 +171,13 @@ describe("evaluate", () => {
   });
   it("has access to extra library functions", () => {
     const js = "_.add(1,2)";
-    const response = evaluate(js, dataTree);
+    const response = evaluate(js, dataTree, {});
     expect(response.result).toBe(3);
   });
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, callbackData);
+    const response = evaluate(js, dataTree, {}, callbackData);
     expect(response.result).toBe("test1");
   });
 });

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -30,12 +30,13 @@ const customSelectStyles = {
   ) => {
     return {
       ...styles,
+      color: Colors.CODE_GRAY,
       backgroundColor: isDisabled
         ? undefined
         : isSelected
-        ? theme.colors.primaryOld
+        ? Colors.GREY_3
         : isFocused
-        ? theme.colors.hover
+        ? Colors.GREY_2
         : undefined,
       ":active": {
         ...styles[":active"],

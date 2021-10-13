@@ -16,6 +16,8 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollection } from "entities/JSCollection";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
 
@@ -137,6 +139,9 @@ export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
 
+export const getJSCollections = (state: AppState): JSCollectionDataState =>
+  state.entities.jsActions;
+
 export const getDatasource = (
   state: AppState,
   datasourceId: string,
@@ -176,6 +181,13 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
+export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter(
+    (plugin) =>
+      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+  ),
+);
+
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
   state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
 
@@ -188,6 +200,19 @@ export const getDBDatasources = createSelector(
 
     return datasources.filter((datasource) =>
       dbPluginIds.includes(datasource.pluginId),
+    );
+  },
+);
+
+export const getDBAndRemoteDatasources = createSelector(
+  getDBAndRemotePlugins,
+  getEntities,
+  (plugins, entities) => {
+    const datasources = entities.datasources.list;
+    const pluginIds = plugins.map((plugin) => plugin.id);
+
+    return datasources.filter((datasource) =>
+      pluginIds.includes(datasource.pluginId),
     );
   },
 );
@@ -272,6 +297,15 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getJSCollectionsForCurrentPage = createSelector(
+  getCurrentPageId,
+  getJSCollections,
+  (pageId, actions) => {
+    if (!pageId) return [];
+    return actions.filter((a) => a.config.pageId === pageId);
+  },
+);
+
 export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
@@ -302,11 +336,33 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getJSCollection = (
+  state: AppState,
+  actionId: string,
+): JSCollection | undefined => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction ? jsaction.config : undefined;
+};
+
 export function getCurrentPageNameByActionId(
   state: AppState,
   actionId: string,
 ): string {
   const action = state.entities.actions.find((action) => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
+export function getCurrentPageNameByJSCollectionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.jsActions.find((action) => {
     return action.config.id === actionId;
   });
   const pageId = action ? action.config.pageId : "";
@@ -458,4 +514,22 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
   return appMode === APP_MODE.EDIT
     ? getAllWidgetsMap(state)
     : getCanvasWidgetsWithParentId(state);
+};
+
+export const getIsOnboardingTasksView = createSelector(
+  getCanvasWidgets,
+  (widgets) => {
+    return Object.keys(widgets).length == 1;
+  },
+);
+
+export const getIsOnboardingWidgetSelection = (state: AppState) =>
+  state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getPageActions = (pageId = "") => {
+  return (state: AppState) => {
+    return state.entities.actions.filter((action) => {
+      return action.config.pageId == pageId;
+    });
+  };
 };

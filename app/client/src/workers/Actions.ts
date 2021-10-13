@@ -250,7 +250,7 @@ const DATA_TREE_FUNCTIONS: Record<
       },
     ]);
   },
-  resetWidget: function(widgetName: string, resetChildren = false) {
+  resetWidget: function(widgetName: string, resetChildren = true) {
     return new AppsmithPromise([
       {
         type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
@@ -296,6 +296,28 @@ const DATA_TREE_FUNCTIONS: Record<
         },
       ]);
     },
+  },
+  setInterval: function(callback: Function, interval: number, id?: string) {
+    return new AppsmithPromise([
+      {
+        type: ActionTriggerType.SET_INTERVAL,
+        payload: {
+          callback: callback.toString(),
+          interval,
+          id,
+        },
+      },
+    ]);
+  },
+  clearInterval: function(id: string) {
+    return new AppsmithPromise([
+      {
+        type: ActionTriggerType.CLEAR_INTERVAL,
+        payload: {
+          id,
+        },
+      },
+    ]);
   },
 };
 

@@ -4,7 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -81,7 +81,7 @@ public class CurlImporterService extends BaseApiImporter {
                     datasource.setOrganizationId(orgId);
                     return Mono.just(action1);
                 })
-                .flatMap(layoutActionService::createAction);
+                .flatMap(layoutActionService::createSingleAction);
     }
 
     public ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException {

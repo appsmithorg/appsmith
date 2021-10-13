@@ -24,7 +24,7 @@ import { Plugin } from "api/PluginApi";
 import { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
 import PerformanceTracker, {
@@ -32,7 +32,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { CurrentApplicationData } from "constants/ReduxActionConstants";
 import { getPluginSettingConfigs } from "selectors/entitiesSelector";
 import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
@@ -47,7 +47,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];
@@ -182,14 +182,7 @@ class ApiEditor extends React.Component<Props> {
     }
 
     return (
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+      <div style={formStyles}>
         {formUiComponent === "ApiEditorForm" && (
           <ApiEditorForm
             apiName={this.props.apiName}
@@ -237,6 +230,13 @@ class ApiEditor extends React.Component<Props> {
     );
   }
 }
+
+const formStyles: CSSProperties = {
+  position: "relative",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+};
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);

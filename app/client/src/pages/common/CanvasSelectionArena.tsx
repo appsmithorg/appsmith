@@ -19,6 +19,7 @@ import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCord } from "utils/hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
+import { commentModeSelector } from "../../selectors/commentsSelectors";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -56,6 +57,7 @@ export function CanvasSelectionArena({
   snapRowSpace: number;
 }) {
   const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
     getWidget(state, parentId || ""),
@@ -434,12 +436,16 @@ export function CanvasSelectionArena({
     mainContainer,
     isDragging,
     isResizing,
+    isCommentMode,
     snapRows,
     snapColumnSpace,
     snapRowSpace,
   ]);
 
-  return appMode === APP_MODE.EDIT && !(isDragging || isResizing) ? (
+  const shouldShow =
+    appMode === APP_MODE.EDIT && !(isDragging || isResizing || isCommentMode);
+
+  return shouldShow ? (
     <StyledSelectionCanvas
       data-testid={`canvas-${widgetId}`}
       id={`canvas-${widgetId}`}

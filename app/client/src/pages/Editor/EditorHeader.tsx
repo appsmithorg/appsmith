@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
@@ -21,7 +21,7 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
 } from "selectors/editorSelectors";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
@@ -36,19 +36,18 @@ import EditorAppName from "./EditorAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import GlobalSearch from "components/editorComponents/GlobalSearch";
 import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
-import { IconWrapper } from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
@@ -57,32 +56,34 @@ import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
+import getFeatureFlags from "utils/featureFlags";
+import { getIsInOnboarding } from "selectors/onboardingSelectors";
+import { retryPromise } from "utils/AppsmithUtils";
+import { fetchUsersForOrg } from "actions/orgActions";
+import { OrgUser } from "constants/orgConstants";
+import TooltipComponent from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core/lib/esnext/common";
+import {
+  createMessage,
+  DEPLOY_BUTTON_TOOLTIP,
+  LOGO_TOOLTIP,
+  RENAME_APPLICATION_TOOLTIP,
+  SHARE_BUTTON_TOOLTIP,
+  SHARE_BUTTON_TOOLTIP_WITH_USER,
+} from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
-  padding-right: 0;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
   & .editable-application-name {
     ${(props) => getTypographyByKey(props, "h4")}
     color: ${(props) => props.theme.colors.header.appName};
-  }
-
-  & .header__application-share-btn {
-    background-color: ${(props) => props.theme.colors.header.background};
-    border-color: ${(props) => props.theme.colors.header.background};
-    // margin-right: ${(props) => props.theme.spaces[1]}px;
-  }
-
-  & .header__application-share-btn:hover {
-    color: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    ${IconWrapper} path {
-      fill: ${(props) => props.theme.colors.header.shareBtnHighlight};
-    }
   }
 
   & ${Profile} {
@@ -115,9 +116,20 @@ const HeaderSection = styled.div`
   }
 `;
 
-const AppsmithLogoImg = styled.img`
-  margin-right: ${(props) => props.theme.spaces[6]}px;
-  height: 24px;
+const AppsmithLink = styled((props) => {
+  // we are removing non input related props before passing them in the components
+  // eslint-disable @typescript-eslint/no-unused-vars
+  return <Link {...props} />;
+})`
+  margin-right: ${(props) => props.theme.spaces[4]}px;
+  height: 20px;
+  width: 20px;
+  transform: translate(0px, 2px);
+  display: inline-block;
+  img {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const DeploySection = styled.div`
@@ -125,13 +137,20 @@ const DeploySection = styled.div`
 `;
 
 const ProfileDropdownContainer = styled.div`
-  margin: 0 ${(props) => props.theme.spaces[7]}px;
+  margin: 0 10px;
+  margin-right: 0px;
 `;
 
-const StyledDeployButton = styled(Button)`
+const StyledInviteButton = styled(Button)`
+  margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   ${(props) => getTypographyByKey(props, "btnLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
+`;
+
+const StyledDeployButton = styled(StyledInviteButton)`
+  margin-right: 0px;
+  height: 20px;
 `;
 
 const BindingBanner = styled.div`
@@ -157,6 +176,39 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
+const StyledDeployIcon = styled(Icon)`
+  height: 20px;
+  align-self: center;
+  background: ${(props) => props.theme.colors.header.shareBtnHighlight};
+  transform: translate(-6px, 0px);
+  padding-right: 4px;
+
+  &:hover {
+    background: rgb(191, 65, 9);
+  }
+
+  & svg {
+    transform: translate(3px, 0px);
+  }
+`;
+
+const ShareButton = styled.div`
+  display: inline-block;
+  cursor: pointer;
+  margin: 4px 12px 0px 0px;
+`;
+
+const StyledShareText = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 4px;
+`;
+
+const StyledSharedIcon = styled(Icon)`
+  display: inline-block;
+  vertical-align: middle;
+`;
+
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -165,12 +217,27 @@ type EditorHeaderProps = {
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
-  darkTheme: any;
   lastUpdatedTime?: number;
+  inOnboarding: boolean;
+  sharedUserList: OrgUser[];
+  currentUser?: User;
 };
+
+const GlobalSearch = lazy(() => {
+  return retryPromise(() => import("components/editorComponents/GlobalSearch"));
+});
+
+export function ShareButtonComponent() {
+  return (
+    <ShareButton className="t--application-share-btn header__application-share-btn">
+      <StyledSharedIcon name="share-line" />
+      <StyledShareText>SHARE</StyledShareText>
+    </ShareButton>
+  );
+}
 
 export function EditorHeader(props: EditorHeaderProps) {
   const {
@@ -223,55 +290,83 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  // eslint-disable-next-line
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(true));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const isMultiplayerEnabledForUser = useSelector(
-    isMultiplayerEnabledForUserSelector,
+  const handleClickDeploy = useCallback(() => {
+    if (getFeatureFlags().GIT) {
+      showGitSyncModal();
+    } else {
+      handlePublish();
+    }
+  }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
+
+  //Fetch all users for the application to show the share button tooltip
+  useEffect(() => {
+    if (orgId) {
+      dispatch(fetchUsersForOrg(orgId));
+    }
+  }, [orgId]);
+  const filteredSharedUserList = props.sharedUserList.filter(
+    (user) => user.username !== props.currentUser?.username,
   );
 
   return (
-    <ThemeProvider theme={props.darkTheme}>
+    <ThemeProvider theme={theme}>
       <HeaderWrapper>
         <HeaderSection>
-          <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
-            <AppsmithLogoImg
-              alt="Appsmith logo"
-              className="t--appsmith-logo"
-              src={AppsmithLogo}
-            />
-          </Link>
+          <TooltipComponent
+            content={createMessage(LOGO_TOOLTIP)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM_LEFT}
+          >
+            <AppsmithLink to={APPLICATIONS_URL}>
+              <img
+                alt="Appsmith logo"
+                className="t--appsmith-logo"
+                src={AppsmithLogo}
+              />
+            </AppsmithLink>
+          </TooltipComponent>
           <Boxed step={OnboardingStep.FINISH}>
-            <EditorAppName
-              applicationId={applicationId}
-              className="t--application-name editable-application-name"
-              currentDeployLink={getApplicationViewerPageURL(
-                applicationId,
-                pageId,
-              )}
-              defaultSavingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              defaultValue={currentApplication?.name || ""}
-              deploy={handlePublish}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              fill
-              isError={isErroredSavingName}
-              isNewApp={
-                applicationList.filter((el) => el.id === applicationId).length >
-                0
-              }
-              isPopoverOpen={isPopoverOpen}
-              onBlur={(value: string) =>
-                updateApplicationDispatch(applicationId || "", {
-                  name: value,
-                  currentApp: true,
-                })
-              }
-              setIsPopoverOpen={setIsPopoverOpen}
-            />
+            <TooltipComponent
+              autoFocus={false}
+              content={createMessage(RENAME_APPLICATION_TOOLTIP)}
+              disabled={isPopoverOpen}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              openOnTargetFocus={false}
+              position={Position.BOTTOM}
+            >
+              <EditorAppName
+                applicationId={applicationId}
+                className="t--application-name editable-application-name"
+                currentDeployLink={getApplicationViewerPageURL(
+                  applicationId,
+                  pageId,
+                )}
+                defaultSavingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                defaultValue={currentApplication?.name || ""}
+                deploy={handleClickDeploy}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                fill
+                isError={isErroredSavingName}
+                isNewApp={
+                  applicationList.filter((el) => el.id === applicationId)
+                    .length > 0
+                }
+                isPopoverOpen={isPopoverOpen}
+                onBlur={(value: string) =>
+                  updateApplicationDispatch(applicationId || "", {
+                    name: value,
+                    currentApp: true,
+                  })
+                }
+                setIsPopoverOpen={setIsPopoverOpen}
+              />
+            </TooltipComponent>
             <ToggleModeButton showSelectedMode={!isPopoverOpen} />
           </Boxed>
         </HeaderSection>
@@ -281,9 +376,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <EditorSaveIndicator />
-          {isMultiplayerEnabledForUser && (
-            <RealtimeAppEditors applicationId={applicationId} />
-          )}
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
@@ -297,12 +390,21 @@ export function EditorHeader(props: EditorHeaderProps) {
                   : "Share Application"
               }
               trigger={
-                <Button
-                  className="t--application-share-btn header__application-share-btn"
-                  icon={"share"}
-                  size={Size.small}
-                  text={"Share"}
-                />
+                <TooltipComponent
+                  content={
+                    filteredSharedUserList.length
+                      ? createMessage(
+                          SHARE_BUTTON_TOOLTIP_WITH_USER(
+                            filteredSharedUserList.length,
+                          ),
+                        )
+                      : createMessage(SHARE_BUTTON_TOOLTIP)
+                  }
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM}
+                >
+                  <ShareButtonComponent />
+                </TooltipComponent>
               }
             />
           </Boxed>
@@ -316,19 +418,29 @@ export function EditorHeader(props: EditorHeaderProps) {
                 step={OnboardingStep.DEPLOY}
                 width={75}
               >
-                <StyledDeployButton
-                  className="t--application-publish-btn"
-                  isLoading={isPublishing}
-                  onClick={handlePublish}
-                  size={Size.small}
-                  text={"Deploy"}
-                />
+                <TooltipComponent
+                  content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM_RIGHT}
+                >
+                  <StyledDeployButton
+                    className="t--application-publish-btn"
+                    isLoading={isPublishing}
+                    onClick={handleClickDeploy}
+                    size={Size.small}
+                    text={"Deploy"}
+                  />
+                </TooltipComponent>
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
                 link={getApplicationViewerPageURL(applicationId, pageId)}
                 trigger={
-                  <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
+                  <StyledDeployIcon
+                    fillColor="#fff"
+                    name={"down-arrow"}
+                    size={IconSize.XXL}
+                  />
                 }
               />
             </DeploySection>
@@ -342,8 +454,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <OnboardingHelper />
-        <GlobalSearch />
+        {props.inOnboarding && <OnboardingHelper />}
+        <Suspense fallback={<span />}>
+          <GlobalSearch />
+        </Suspense>
         {isSnipingMode && (
           <BindingBanner className="t--sniping-mode-banner">
             Select a widget to bind
@@ -354,6 +468,8 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
+const theme = getTheme(ThemeMode.LIGHT);
+
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   orgId: getCurrentOrgId(state),
@@ -361,7 +477,9 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  darkTheme: getThemeDetails(state, ThemeMode.DARK),
+  inOnboarding: getIsInOnboarding(state),
+  sharedUserList: getAllUsers(state),
+  currentUser: getCurrentUser(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -374,5 +492,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     });
   },
 });
+
+EditorHeader.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);

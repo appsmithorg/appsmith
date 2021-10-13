@@ -1,6 +1,7 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
+import { CommentsOnboardingState } from "../constants/userConstants";
 
 export interface LoginUserRequest {
   email: string;
@@ -55,6 +56,23 @@ export interface UpdateUserRequest {
   email?: string;
 }
 
+export interface CommentsOnboardingStateRequest {
+  commentOnboardingState: CommentsOnboardingState;
+}
+
+export interface CreateSuperUserRequest {
+  email: string;
+  name: string;
+  source: "FORM";
+  state: "ACTIVATED";
+  isEnabled: boolean;
+  password: string;
+  role: "Developer";
+  companyName: string;
+  allowCollectingAnonymousData: boolean;
+  signupForNewsletter: boolean;
+}
+
 class UserApi extends Api {
   static usersURL = "v1/users";
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
@@ -69,6 +87,8 @@ class UserApi extends Api {
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
+  static superUserURL = "v1/users/super";
+  static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
 
   static createUser(
     request: CreateUserRequest,
@@ -149,6 +169,18 @@ class UserApi extends Api {
 
   static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.featureFlagsURL);
+  }
+
+  static createSuperUser(
+    request: CreateSuperUserRequest,
+  ): AxiosPromise<CreateUserResponse> {
+    return Api.post(UserApi.superUserURL, request);
+  }
+
+  static updateUsersCommentOnboardingState(
+    request: CommentsOnboardingStateRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.patch(UserApi.commentsOnboardingStateURL, request);
   }
 }
 

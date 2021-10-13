@@ -1,0 +1,659 @@
+name: Test, build and push Docker Image
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+  # trigger for pushes to release and master
+  push:
+    branches: [release, release-frozen, master]
+    paths:
+      - "app/client/**"
+      - "app/server/**"
+      - "app/rts/**"
+      - "!app/client/cypress/manual_TestSuite/**"
+
+jobs:
+  buildClient:
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Figure out the PR number
+        run: echo ${{ github.event.pull_request.number }}
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Set the build environment based on the branch
+        id: vars
+        run: |
+          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+          fi
+          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+          fi
+          # Since this is an unreleased build, we set the version to incremented version number with
+          # a `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+
+      # We burn React environment & the Segment analytics key into the build itself.
+      # This is to ensure that we don't need to configure it in each installation
+      - name: Create the bundle
+        run: |
+          if [[ $GITHUB_REF == "refs/heads/release" ]]; then
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          else
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          fi
+          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
+            REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
+            REACT_APP_IS_APPSMITH_CLOUD=${{ secrets.IS_APPSMITH_CLOUD }} \
+            yarn build
+          ls -l build
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build/
+
+  buildServer:
+    defaults:
+      run:
+        working-directory: app/server
+    runs-on: ubuntu-latest
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository)
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Test and Build package
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+        working-directory: app/server
+        run: |
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+          ./build.sh -DskipTests
+          ls -l dist
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist/
+
+  buildRts:
+    defaults:
+      run:
+        working-directory: app/rts
+    runs-on: ubuntu-latest
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository)
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Build
+        run: |
+          ./build.sh
+          ls -l dist
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist/
+
+      - name: Upload RTS dependencies bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
+
+  ui-test:
+    needs: [buildClient, buildServer, buildRts]
+    # Only run if the build step is successful
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      success() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' && 
+      github.event.review.state == 'approved' && 
+      github.event.pull_request.head.repo.full_name == github.repository))
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      # Start server
+      - name: Start server
+        working-directory: app/server
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_USERNAME: ""
+          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
+        run: |
+          ls -l
+          ls -l scripts/
+          ls -l dist/
+          nohup ./scripts/start-dev-server.sh 2>&1 &
+
+      - name: Wait for 30s and check if server is running
+        run: |
+          sleep 30s
+          if lsof -i :8080; then
+            echo "Server Found"
+          else
+            echo "Server Not Started. Printing logs from server process"
+            cat app/server/nohup.out
+            exit 1
+          fi
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build
+
+      - name: Installing Yarn serve
+        run: |
+          yarn global add serve
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+
+      - name: Setting up the cypress tests
+        shell: bash
+        env:
+          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          POSTGRES_PASSWORD: postgres
+        run: |
+          ./cypress/setup-test.sh
+
+      - name: Run the cypress test
+        uses: cypress-io/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        with:
+          browser: chrome
+          headless: true
+          record: true
+          install: false
+          parallel: true
+          group: "Electrons on Github Action"
+          spec: "cypress/integration/Smoke_TestSuite/**/*.js"
+          working-directory: app/client
+          # tag will be either "push" or "pull_request"
+          tag: ${{ github.event_name }}
+          env: "NODE_ENV=development"
+
+      # Upload the screenshots as artifacts if there's a failure
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.job }}
+          path: app/client/cypress/screenshots/
+
+  ui-test-result:
+    needs: ui-test
+    if: always() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository))
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - run: echo "All ui-test matrices completed"
+
+      - name: Return status for ui-matrix
+        run: |
+          if [[ "${{ needs.ui-test.result }}" == "success" ]]; then
+            echo "Integration tests completed successfully!";
+            exit 0;
+          elif [[ "${{ needs.ui-test.result }}" == "skipped" ]]; then
+            echo "Integration tests were skipped";
+            exit 1;
+          else
+            echo "Integration tests have failed";
+            exit 1;
+          fi
+
+  package:
+    needs: ui-test
+    runs-on: ubuntu-latest
+
+    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
+    if: github.ref == 'refs/heads/master' ||
+      ((github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)) &&
+      github.ref == 'refs/heads/release')
+    #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
+
+    steps:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build-deps
+          path: app/rts/node_modules/
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Set up QEMU (needed for docker buildx)
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push client release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: app/client
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push client master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: app/client
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+
+      - name: Build and push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
+            $tag_args \
+            .
+
+      - name: Build and push master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: "."
+        run: |
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
+          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
+
+          docker buildx build \
+            --platform linux/arm64,linux/amd64 \
+            --push \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            $tag_args \
+            .
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push server release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        working-directory: app/server
+        run: |
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push server master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        working-directory: app/server
+        run: |
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push RTS release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push RTS master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly

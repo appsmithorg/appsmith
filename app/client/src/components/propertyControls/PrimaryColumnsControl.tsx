@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -11,16 +11,16 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   getDefaultColumnProperties,
   getTableStyles,
-} from "components/designSystems/appsmith/TableComponent/TableUtilities";
+} from "widgets/TableWidget/component/TableUtilities";
 import { debounce } from "lodash";
 import { Size, Category } from "components/ads/Button";
-import { reorderColumns } from "components/designSystems/appsmith/TableComponent/TableHelpers";
+import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -38,19 +38,18 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   margin-bottom: 2px;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 10px;
   padding-right: 60px;
   text-overflow: ellipsis;
+  background: inherit;
   &&& {
     input {
       padding-left: 24px;
       border: none;
       color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }
@@ -93,6 +92,12 @@ const getOriginalColumn = (
 
 function ColumnControlComponent(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && props.item && props.item.label)
+      setValue(props.item.label);
+  }, [props.item?.label, isEditing]);
 
   const {
     deleteOption,
@@ -111,16 +116,22 @@ function ColumnControlComponent(props: RenderComponentProps) {
     },
     [updateOption],
   );
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        defaultValue={value}
+        onBlur={onBlur}
         onChange={(value: string) => {
           onChange(index, value);
         }}
+        onFocus={onFocus}
         placeholder="Column Title"
+        value={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"

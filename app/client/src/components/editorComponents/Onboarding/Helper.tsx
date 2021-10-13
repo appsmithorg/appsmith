@@ -9,7 +9,7 @@ import useClipboard from "utils/hooks/useClipboard";
 import TickIcon from "assets/images/tick.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { CloseButton } from "../../designSystems/blueprint/CloseButton";
+import { CloseButton } from "components/designSystems/appsmith/CloseButton";
 import { getIsOnboardingHelperVisible } from "selectors/onboardingSelectors";
 import { Layers } from "constants/Layers";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -72,6 +72,9 @@ const SkipButton = styled(Button)`
   background-color: transparent;
   font-size: 14px;
   color: #6d6d6d;
+  &:hover {
+    color: ${Colors.GREY_10};
+  }
 `;
 
 const ActionButton = styled(Button)<{ initialStep?: boolean }>`
@@ -233,6 +236,19 @@ function Helper() {
   const snippetRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(snippetRef);
 
+  const isClickedRef = useRef(false);
+
+  const cheatActionOnClick = () => {
+    if (isClickedRef.current) return;
+
+    dispatch(helperConfig.cheatAction?.action);
+    isClickedRef.current = true;
+  };
+
+  useEffect(() => {
+    isClickedRef.current = false;
+  }, [helperConfig.step]);
+
   if (!showHelper) return null;
 
   const copyBindingToClipboard = () => {
@@ -352,9 +368,7 @@ function Helper() {
           {(cheatMode || !helperConfig.action) && (
             <CheatActionButton
               className="t--onboarding-cheat-action"
-              onClick={() => {
-                dispatch(helperConfig.cheatAction?.action);
-              }}
+              onClick={cheatActionOnClick}
             >
               {helperConfig.cheatAction?.label}
             </CheatActionButton>

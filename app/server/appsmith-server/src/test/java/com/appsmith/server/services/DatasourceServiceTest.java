@@ -14,7 +14,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
@@ -569,7 +569,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return layoutActionService.createAction(action).thenReturn(datasource);
+                    return layoutActionService.createSingleAction(action).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.delete(datasource.getId()));
 

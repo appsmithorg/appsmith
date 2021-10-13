@@ -8,8 +8,8 @@ import {
   InputGroup,
   MaybeElement,
 } from "@blueprintjs/core";
-import { ComponentProps } from "./BaseComponent";
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { ComponentProps } from "widgets/BaseComponent";
+import { Colors } from "constants/Colors";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TextInput = styled(({ hasError, ...rest }) => (
@@ -17,21 +17,26 @@ export const TextInput = styled(({ hasError, ...rest }) => (
 ))<{ hasError: boolean }>`
   flex: 1;
   & input {
+    box-shadow: none;
+    border-radius: 0;
+    height: 36px;
     border: 1px solid
       ${(props) =>
         props.hasError ? props.theme.colors.error : props.theme.colors.border};
-    border-radius: 4px;
-    box-shadow: none;
-    height: 32px;
-    background-color: ${(props) => props.theme.colors.textOnDarkBG};
+    background-color: ${(props) =>
+      props.hasError ? Colors.FAIR_PINK : "#fff"};
+    padding: 8px 12px 9px;
+    color: ${(props) =>
+      props.hasError ? Colors.DANGER_SOLID : Colors.CODE_GRAY};
     &:focus {
       border-color: ${(props) =>
-        props.hasError
-          ? props.theme.colors.error
-          : props.theme.colors.secondary};
+        props.hasError ? props.theme.colors.error : Colors.CRUSTA};
       background-color: ${(props) => props.theme.colors.textOnDarkBG};
       outline: 0;
       box-shadow: none;
+    }
+    &:hover {
+      background: ${(props) => (props.hasError ? "" : "#FAFAFA")};
     }
   }
   &.bp3-input-group {
@@ -56,6 +61,12 @@ export const TextInput = styled(({ hasError, ...rest }) => (
       }
     }
   }
+`;
+
+const TextInputError = styled.p`
+  color: ${Colors.DANGER_SOLID};
+  font-size: 12px;
+  margin-top: 6px;
 `;
 
 const InputContainer = styled.div`
@@ -122,21 +133,19 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
       (meta.touched || meta.active) &&
       meta.error
     );
-    const errorIsOpen = hasError && this.state.inputIsFocused;
 
     return (
       <InputContainer className={className}>
-        <ErrorTooltip isOpen={errorIsOpen} message={meta ? meta.error : ""}>
-          <TextInput
-            hasError={hasError}
-            inputRef={refHandler}
-            {...input}
-            autoComplete={"off"}
-            onBlur={this.handleBlur}
-            onFocus={this.handleFocus}
-            {...rest}
-          />
-        </ErrorTooltip>
+        <TextInput
+          hasError={hasError}
+          inputRef={refHandler}
+          {...input}
+          autoComplete={"off"}
+          onBlur={this.handleBlur}
+          onFocus={this.handleFocus}
+          {...rest}
+        />
+        {hasError && <TextInputError>{meta ? meta.error : ""}</TextInputError>}
       </InputContainer>
     );
   }

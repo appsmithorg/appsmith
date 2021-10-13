@@ -111,6 +111,7 @@ export interface UpdateActionNameRequest {
   layoutId: string;
   newName: string;
   oldName: string;
+  collectionName?: string;
 }
 
 class ActionAPI extends API {

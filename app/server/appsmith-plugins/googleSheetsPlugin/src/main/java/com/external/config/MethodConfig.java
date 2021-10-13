@@ -2,6 +2,7 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.Property;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,12 +37,14 @@ public class MethodConfig {
     String rowObject;
     String rowObjects;
     Object body;
+    List<Condition> whereConditions = new ArrayList<>();
     Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
 
     public MethodConfig(List<Property> propertyList) {
         propertyList.stream().parallel().forEach(property -> {
-            if (property.getValue() != null) {
-                String propertyValue = String.valueOf(property.getValue());
+            Object value = property.getValue();
+            if (value != null) {
+                String propertyValue = String.valueOf(value);
                 switch (property.getKey()) {
                     case "sheetUrl":
                         this.spreadsheetUrl = propertyValue;
@@ -84,6 +89,18 @@ public class MethodConfig {
                         break;
                     case "rowObjects":
                         this.rowObjects = propertyValue;
+                        break;
+                    case "where":
+                        if (value instanceof List) {
+                            // Check if all values in the where condition are null.
+                            boolean allValuesNull = ((List) value).stream()
+                                    .allMatch(valueMap -> valueMap == null ||
+                                            ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
+
+                            if (!allValuesNull) {
+                                this.whereConditions = Condition.generateFromConfiguration((List<Object>) value);
+                            }
+                        }
                         break;
                 }
             }

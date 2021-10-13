@@ -6,14 +6,14 @@ import {
 } from "utils/autocomplete/TernServer";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
-import { PluginType } from "entities/Action";
+import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
+import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
-import { ReactComponent as Function } from "assets/icons/menu/function.svg";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import getFeatureFlags from "utils/featureFlags";
+import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -85,7 +85,7 @@ const generateCreateNewCommand = ({
 const iconsByType = {
   [Shortcuts.BINDING]: <Binding />,
   [Shortcuts.PLUS]: <NewPlus />,
-  [Shortcuts.FUNCTION]: <Function />,
+  [Shortcuts.FUNCTION]: <Snippet className="snippet-icon" />,
 };
 
 function Command(props: {
@@ -103,6 +103,8 @@ function Command(props: {
             DB: <DataSourcesColoredIcon />,
             API: <ApisIcon />,
             SAAS: <DataSourcesColoredIcon />,
+            REMOTE: <DataSourcesColoredIcon />,
+            JS: <JsIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
         {props.shortcut && iconsByType[props.shortcut]}
@@ -123,7 +125,7 @@ export const generateQuickCommands = (
     recentEntities,
   }: {
     datasources: Datasource[];
-    executeCommand: (payload: { actionType: string; args?: any }) => void;
+    executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
   },
@@ -145,7 +147,7 @@ export const generateQuickCommands = (
     shortcut: Shortcuts.FUNCTION,
     action: () =>
       executeCommand({
-        actionType: "NEW_SNIPPET",
+        actionType: SlashCommand.NEW_SNIPPET,
         args: {
           entityType: currentEntityType,
           expectedType: expectedType,
@@ -159,7 +161,8 @@ export const generateQuickCommands = (
     displayText: "New Datasource",
     action: () =>
       executeCommand({
-        actionType: "NEW_INTEGRATION",
+        actionType: SlashCommand.NEW_INTEGRATION,
+        args: {},
       }),
     shortcut: Shortcuts.PLUS,
   });
@@ -167,8 +170,10 @@ export const generateQuickCommands = (
     const name = suggestion.name || suggestion.widgetName;
     return {
       text:
-        currentEntityType === ENTITY_TYPE.WIDGET
+        suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
           ? `{{${name}.data}}`
+          : suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+          ? `{{${name}.}}`
           : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
@@ -194,7 +199,7 @@ export const generateQuickCommands = (
       data: action,
       action: () =>
         executeCommand({
-          actionType: "NEW_QUERY",
+          actionType: SlashCommand.NEW_QUERY,
           args: { datasource: action },
         }),
       render: (element: HTMLElement, self: any, data: any) => {
@@ -215,10 +220,7 @@ export const generateQuickCommands = (
     recentEntities,
     5,
   );
-  const actionCommands = [newBinding];
-  if (getFeatureFlags().SNIPPET) {
-    actionCommands.push(insertSnippet);
-  }
+  const actionCommands = [newBinding, insertSnippet];
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),

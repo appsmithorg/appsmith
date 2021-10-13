@@ -25,13 +25,15 @@ const generateInitialEvalState = (formConfig: any) => {
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if (formConfig.hasOwnProperty("conditionals")) {
-    let key = "unkowns";
+    let key = "unknowns";
 
-    // A unique key is used to refer the object in the eval state, can be configProperty or serverLabel
-    if (formConfig.hasOwnProperty("configProperty")) {
+    // A unique key is used to refer the object in the eval state, can be propertyName, configProperty or identifier
+    if (formConfig.hasOwnProperty("propertyName")) {
+      key = formConfig.propertyName;
+    } else if (formConfig.hasOwnProperty("configProperty")) {
       key = formConfig.configProperty;
-    } else if (formConfig.hasOwnProperty("serverLabel")) {
-      key = formConfig.serverLabel;
+    } else if (formConfig.hasOwnProperty("identifier")) {
+      key = formConfig.identifier;
     }
 
     // Conditionals are stored in the eval state itself for quick access
@@ -73,19 +75,22 @@ function* evaluate(
   return currentEvalState;
 }
 
+// Fetches current evaluation and runs a new one based on the new data
 function* getFormEvaluation(formId: string, actionConfiguration: any): any {
   const currentEvalState: any = yield select(getFormEvaluationState);
 
-  if (currentEvalState.hasOwnProperty(formId)) {
-    return {
-      [formId]: yield call(
-        evaluate,
-        actionConfiguration,
-        currentEvalState[formId],
-      ),
-    };
-  } else {
-    return currentEvalState;
+  // Only change the form evaluation state if the form ID is same or the evaluation state is present
+  if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
+    currentEvalState[formId] = yield call(
+      evaluate,
+      actionConfiguration,
+      currentEvalState[formId],
+    );
+
+    yield put({
+      type: ReduxActionTypes.SET_FORM_EVALUATION,
+      payload: currentEvalState,
+    });
   }
 }
 
@@ -93,12 +98,24 @@ function* getFormEvaluation(formId: string, actionConfiguration: any): any {
 function* setFormEvaluationSaga(type: string, payload: any) {
   if (type === ReduxActionTypes.INIT_FORM_EVALUATION) {
     finalEvalObj = {};
-    payload.editorConfig.forEach((config: any) => {
-      generateInitialEvalState(config);
-    });
-    payload.settingConfig.forEach((config: any) => {
-      generateInitialEvalState(config);
-    });
+    if (
+      "editorConfig" in payload &&
+      !!payload.editorConfig &&
+      payload.editorConfig.length > 0
+    ) {
+      payload.editorConfig.forEach((config: any) => {
+        generateInitialEvalState(config);
+      });
+    }
+    if (
+      "settingConfig" in payload &&
+      !!payload.settingConfig &&
+      payload.settingConfig.length > 0
+    ) {
+      payload.settingConfig.forEach((config: any) => {
+        generateInitialEvalState(config);
+      });
+    }
     yield put({
       type: ReduxActionTypes.SET_FORM_EVALUATION,
       payload: {
@@ -111,15 +128,7 @@ function* setFormEvaluationSaga(type: string, payload: any) {
     if (!actionConfiguration.formData) {
       yield;
     } else {
-      const formEvaluation = yield call(
-        getFormEvaluation,
-        formId,
-        actionConfiguration,
-      );
-      yield put({
-        type: ReduxActionTypes.SET_FORM_EVALUATION,
-        payload: formEvaluation,
-      });
+      yield call(getFormEvaluation, formId, actionConfiguration);
     }
   }
 }

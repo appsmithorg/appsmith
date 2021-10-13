@@ -1,10 +1,14 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
+import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -16,6 +20,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -23,6 +30,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -47,6 +55,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
+    private final EncryptionService encryptionService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -57,12 +66,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
-                                  CommentThreadRepository commentThreadRepository, SessionUserService sessionUserService) {
+                                  CommentThreadRepository commentThreadRepository,
+                                  SessionUserService sessionUserService,
+                                  EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -223,24 +235,28 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
-        AclPermission applicationPermission = READ_APPLICATIONS;
-        AclPermission datasourcePermission = EXECUTE_DATASOURCES;
 
         User user = new User();
         user.setName(FieldName.ANONYMOUS_USER);
         user.setEmail(FieldName.ANONYMOUS_USER);
         user.setIsAnonymous(true);
 
-        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(applicationPermission), user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(READ_APPLICATIONS), user);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
 
-        Flux<NewPage> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+        final Flux<NewPage> updatedPagesFlux = policyUtils
+                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+        // Use the same policy map as actions for action collections since action collections have the same kind of permissions
+        final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
+                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, isPublic);
 
-        Flux<NewAction> updatedActionsFlux = updatedPagesFlux
+        final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
-                .then(Mono.just(application.getId()))
+                .thenMany(updatedActionCollectionsFlux)
+                .collectList()
+                .then(Mono.justOrEmpty(application.getId()))
                 .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
@@ -302,6 +318,45 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
+    @Override
+    public Mono<String> generateSshKeyPair(String applicationId) {
+        JSch jsch = new JSch();
+        KeyPair kpair;
+        try {
+            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
+        } catch (JSchException e) {
+            log.error("failed to generate RSA key pair", e);
+            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
+        }
+
+        StringOutputStream privateKeyOutput = new StringOutputStream();
+        StringOutputStream publicKeyOutput = new StringOutputStream();
+
+        kpair.writePrivateKey(privateKeyOutput);
+        kpair.writePublicKey(publicKeyOutput, "appsmith");
+
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey(publicKeyOutput.toString());
+        gitAuth.setPrivateKey(encryptionService.encryptString(privateKeyOutput.toString()));
+
+        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
+                ))
+                .map(application -> {
+                    String targetApplicationId = application.getId(); // by default, we'll update the provided app
+                    if(application.getGitApplicationMetadata() != null
+                            && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
+                        // this is a child application, update the master application
+                        targetApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
+                    }
+                    return targetApplicationId;
+                })
+                .flatMap(targetApplicationId -> repository
+                        .setGitAuth(targetApplicationId, gitAuth, MANAGE_APPLICATIONS)
+                        .thenReturn(gitAuth.getPublicKey())
+                );
+    }
     /**
      * Sets the updatedAt and modifiedBy fields of the Application
      * @param applicationId Application ID

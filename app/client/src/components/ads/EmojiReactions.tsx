@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import React from "react";
 import styled from "styled-components";
 import EmojiPicker from "./EmojiPicker";
@@ -10,7 +11,7 @@ const Container = styled.div`
 `;
 
 const Bubble = styled.div<{ active?: boolean }>`
-  font-size: 16px; // emoji
+  font-size: 12px; // emoji
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -21,6 +22,14 @@ const Bubble = styled.div<{ active?: boolean }>`
       ? props.theme.colors.reactionsComponent.reactionBackgroundActive
       : props.theme.colors.reactionsComponent.reactionBackground};
 
+  ${(props) =>
+    !props.active &&
+    `
+    &:hover {
+      background-color: ${Colors.GREY_3};
+    }
+  `}
+
   border: 1px solid
     ${(props) =>
       props.active
@@ -28,8 +37,7 @@ const Bubble = styled.div<{ active?: boolean }>`
         : "transparent"};
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
-  margin-right: ${(props) => `${props.theme.radii[1]}px`};
-  margin-top: ${(props) => `${props.theme.radii[1]}px`};
+  margin-right: ${(props) => `${props.theme.radii[1]}px`};  
 
   & span.emoji {
     /*
@@ -43,7 +51,7 @@ const Bubble = styled.div<{ active?: boolean }>`
       not screen and (min-device-pixel-ratio: 2),
       not screen and (min-resolution: 192dpi),
       not screen and (min-resolution: 2dppx) {
-      margin-right: 3px;
+      /* margin-right: 3px;*/
     }
   }
 `;
@@ -59,6 +67,13 @@ const Count = styled.div<{ active?: boolean }>`
   overflow: hidden;
   white-space: nowrap;
   margin-left: 2px;
+  ${(props) =>
+    !props.active &&
+    `
+  ${Bubble}: hover & {
+    color: ${Colors.GREY_9};
+  }
+`}
 `;
 
 const ReactionsByContainer = styled.span`
@@ -180,14 +195,14 @@ function EmojiReactions({
       {!hideReactions ? (
         <Bubble>
           <EmojiPicker
-            iconName="reaction"
+            iconName="emoji"
             iconSize={iconSize}
             onSelectEmoji={(e, emoji) => handleSelectReaction(e, emoji.native)}
           />
         </Bubble>
       ) : (
         <EmojiPicker
-          iconName="reaction-2"
+          iconName="emoji"
           iconSize={iconSize}
           onSelectEmoji={(e, emoji) => handleSelectReaction(e, emoji.native)}
         />

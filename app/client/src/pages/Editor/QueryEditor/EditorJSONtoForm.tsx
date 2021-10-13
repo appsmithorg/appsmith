@@ -49,6 +49,7 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
@@ -63,10 +64,15 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
-import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
+import * as Sentry from "@sentry/react";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SearchSnippets from "components/ads/SnippetButton";
+import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
+import { setCurrentTab } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -99,7 +105,7 @@ const ErrorMessage = styled.p`
   margin-right: 10px;
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
   height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   // Minimum height of bottom tabs as it can be resized
@@ -147,11 +153,13 @@ const DocumentationLink = styled.a`
   right: 23px;
   top: -6px;
   color: black;
+  display: flex;
   font-weight: 500;
   font-size: 12px;
   line-height: 14px;
   span {
     display: flex;
+    margin-left: 5px;
   }
   &:hover {
     color: black;
@@ -224,7 +232,7 @@ const ErrorDescriptionText = styled(Text)`
   letter-spacing: -0.195px;
 `;
 
-const StyledFormRow = styled(FormRow)`
+export const StyledFormRow = styled(FormRow)`
   padding: 0px 20px;
   flex: 0;
 `;
@@ -257,6 +265,15 @@ const ActionsWrapper = styled.div`
 const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
+
+  .t--switch-datasource > div {
+    min-height: 30px;
+    height: 30px;
+
+    & > div {
+      height: 100%;
+    }
+  }
 `;
 
 const CreateDatasource = styled.div`
@@ -322,7 +339,7 @@ const TabContainerView = styled.div`
   a {
     font-size: 14px;
     line-height: 20px;
-    margin-top: 15px;
+    margin-top: 12px;
   }
   .react-tabs__tab-panel {
     overflow: auto;
@@ -418,8 +435,6 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const initialIndex = useSelector(getActionTabsInitialIndex);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
@@ -506,68 +521,89 @@ export function EditorJSONtoForm(props: Props) {
 
   // Added function to handle the render of the configs
   const renderConfig = (editorConfig: any) => {
-    // Selectively rendering form based on uiComponent prop
-    return uiComponent === UIComponentTypes.UQIDbEditorForm
-      ? editorConfig.map(renderEachConfigV2(formName))
-      : editorConfig.map(renderEachConfig(formName));
+    try {
+      // Selectively rendering form based on uiComponent prop
+      return uiComponent === UIComponentTypes.UQIDbEditorForm
+        ? editorConfig.map((config: any, idx: number) => {
+            return renderEachConfigV2(formName, config, idx);
+          })
+        : editorConfig.map(renderEachConfig(formName));
+    } catch (e) {
+      log.error(e);
+      Sentry.captureException(e);
+      return (
+        <>
+          <ErrorMessage>Invalid form configuration</ErrorMessage>
+          <Tag
+            intent="warning"
+            interactive
+            minimal
+            onClick={() => window.location.reload()}
+            round
+          >
+            Refresh
+          </Tag>
+        </>
+      );
+    }
   };
 
   // V2 call to make rendering more flexible, used for UQI forms
-  const renderEachConfigV2 = (formName: string) => (section: any): any => {
-    return section.children.map(
-      (formControlOrSection: ControlProps, idx: number) => {
-        if (
-          !!formControlOrSection &&
-          props.hasOwnProperty("formEvaluationState") &&
-          !!props.formEvaluationState
-        ) {
-          let allowToRender = true;
-          if (
-            formControlOrSection.hasOwnProperty("configProperty") &&
-            props.formEvaluationState.hasOwnProperty(
-              formControlOrSection.configProperty,
-            )
-          ) {
-            allowToRender =
-              props?.formEvaluationState[formControlOrSection.configProperty]
-                .visible;
-          } else if (
-            formControlOrSection.hasOwnProperty("serverLabel") &&
-            !!formControlOrSection.serverLabel &&
-            props.formEvaluationState.hasOwnProperty(
-              formControlOrSection.serverLabel,
-            )
-          ) {
-            allowToRender =
-              props?.formEvaluationState[formControlOrSection.serverLabel]
-                .visible;
-          }
+  const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
+    if (
+      !!section &&
+      props.hasOwnProperty("formEvaluationState") &&
+      !!props.formEvaluationState
+    ) {
+      let allowToRender = true;
+      if (
+        section.hasOwnProperty("propertyName") &&
+        props.formEvaluationState.hasOwnProperty(section.propertyName)
+      ) {
+        allowToRender =
+          props?.formEvaluationState[section.propertyName].visible;
+      } else if (
+        section.hasOwnProperty("configProperty") &&
+        props.formEvaluationState.hasOwnProperty(section.configProperty)
+      ) {
+        allowToRender =
+          props?.formEvaluationState[section.configProperty].visible;
+      } else if (
+        section.hasOwnProperty("identifier") &&
+        !!section.identifier &&
+        props.formEvaluationState.hasOwnProperty(section.identifier)
+      ) {
+        allowToRender = props?.formEvaluationState[section.identifier].visible;
+      }
 
-          if (!allowToRender) return null;
-        }
-
-        // If component is type section, render it's children
-        if (
-          formControlOrSection.hasOwnProperty("controlType") &&
-          formControlOrSection.controlType === "SECTION" &&
-          formControlOrSection.hasOwnProperty("children")
-        ) {
-          return renderEachConfigV2(formName)(formControlOrSection);
-        }
-        try {
-          const { configProperty } = formControlOrSection;
-          return (
-            <FieldWrapper key={`${configProperty}_${idx}`}>
-              <FormControl config={formControlOrSection} formName={formName} />
-            </FieldWrapper>
-          );
-        } catch (e) {
-          log.error(e);
-        }
-
-        return null;
-      },
-    );
+      if (!allowToRender) return null;
+    }
+    if (section.hasOwnProperty("controlType")) {
+      // If component is type section, render it's children
+      if (
+        section.controlType === "SECTION" &&
+        section.hasOwnProperty("children")
+      ) {
+        return section.children.map((section: any, idx: number) => {
+          return renderEachConfigV2(formName, section, idx);
+        });
+      }
+      try {
+        const { configProperty } = section;
+        return (
+          <FieldWrapper key={`${configProperty}_${idx}`}>
+            <FormControl config={section} formName={formName} />
+          </FieldWrapper>
+        );
+      } catch (e) {
+        log.error(e);
+      }
+    } else {
+      return section.map((section: any, idx: number) => {
+        renderEachConfigV2(formName, section, idx);
+      });
+    }
+    return null;
   };
 
   // Recursive call to render forms pre UQI
@@ -629,8 +665,11 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  setSelectedIndex(1);
+                  dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
                 }}
+                secondHalfText={createMessage(
+                  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
+                )}
               />
             </ErrorContainer>
           )}
@@ -673,35 +712,22 @@ export function EditorJSONtoForm(props: Props) {
       ),
     },
     {
-      key: "ERROR",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={actionName} />,
     },
     {
-      key: "ENTITY_DEPENDENCIES",
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
       title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
     },
   ];
 
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(responseTabs[index].key) &&
-      debuggerTabKeys.includes(responseTabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: responseTabs[index].key,
-      });
-    }
-
-    setSelectedIndex(index);
-  };
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
@@ -732,6 +758,11 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <OnboardingIndicator
               step={OnboardingStep.EXAMPLE_DATABASE}
               width={75}
@@ -752,16 +783,18 @@ export function EditorJSONtoForm(props: Props) {
           <SecondaryWrapper>
             <TabContainerView>
               {documentationLink && (
-                <DocumentationLink
-                  className="t--datasource-documentation-link"
-                  onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-                >
+                <DocumentationLink>
                   <TooltipComponent
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
                     hoverOpenDelay={50}
                     position="top"
                   >
-                    <span>
+                    <span
+                      className="t--datasource-documentation-link"
+                      onClick={(e: React.MouseEvent) =>
+                        handleDocumentationClick(e)
+                      }
+                    >
                       <AdsIcon
                         keepColors
                         name="book-line"
@@ -853,11 +886,7 @@ export function EditorJSONtoForm(props: Props) {
                 </Boxed>
               )}
 
-              <TabComponent
-                onSelect={onTabSelect}
-                selectedIndex={selectedIndex}
-                tabs={responseTabs}
-              />
+              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper show={hasDependencies || !!output}>

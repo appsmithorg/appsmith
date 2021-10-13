@@ -12,21 +12,20 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
+import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
+import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
-  useEntityLink,
-  useGetEntityInfo,
-} from "components/editorComponents/Debugger/hooks";
-import {
+  DEBUGGER_TAB_KEYS,
   doesEntityHaveErrors,
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { showDebugger } from "actions/debuggerActions";
-import { setActionTabsInitialIndex } from "actions/pluginActionActions";
+import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
 
 const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
@@ -35,12 +34,12 @@ const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  border-bottom: 0.5px solid #e0dede;
+  background-color: ${Colors.GREY_1};
 
   .connection-dropdown {
     box-shadow: none;
-    background-color: ${(props) => props.theme.colors.propertyPane.bg};
     border: none;
+    background-color: ${Colors.GREY_1};
   }
   .error {
     border: 1px solid
@@ -232,10 +231,10 @@ function OptionNode(props: any) {
 
   const onClick = () => {
     if (entityInfo?.hasError) {
-      if (entityInfo?.type === ENTITY_TYPE.ACTION) {
-        dispatch(setActionTabsInitialIndex(1));
-      } else {
+      if (entityInfo?.type === ENTITY_TYPE.WIDGET) {
         dispatch(showDebugger(true));
+      } else {
+        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
       }
     }
     navigateToEntity(props.option.label);

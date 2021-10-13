@@ -10,6 +10,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
+import { SlashCommandPayload } from "entities/Action";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions = Object.values(data).filter(
@@ -28,14 +29,15 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         update,
       }: {
         datasources: Datasource[];
-        executeCommand: (payload: { actionType: string; args?: any }) => void;
+        executeCommand: (payload: SlashCommandPayload) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
         update: (value: string) => void;
         entityId: string;
       },
     ): boolean => {
-      const currentEntityType = entityType || ENTITY_TYPE.ACTION;
+      const currentEntityType =
+        entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
         return currentEntityType === ENTITY_TYPE.WIDGET
           ? entity.ENTITY_TYPE !== ENTITY_TYPE.WIDGET

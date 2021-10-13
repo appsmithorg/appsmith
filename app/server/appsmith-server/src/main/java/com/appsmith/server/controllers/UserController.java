@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -8,6 +9,7 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
+import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -90,8 +93,8 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @PutMapping()
-    public Mono<ResponseDTO<User>> update(@RequestBody User resource, ServerWebExchange exchange) {
-        return service.updateCurrentUser(resource, exchange)
+    public Mono<ResponseDTO<User>> update(@RequestBody UserUpdateDTO updates, ServerWebExchange exchange) {
+        return service.updateCurrentUser(updates, exchange)
                 .map(updatedUser -> new ResponseDTO<>(HttpStatus.OK.value(), updatedUser, null));
     }
 
@@ -204,6 +207,14 @@ public class UserController extends BaseController<UserService, User, String> {
     public Mono<ResponseDTO<Map<String, Boolean>>> getFeatureFlags() {
         return userDataService.getFeatureFlagsForCurrentUser()
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
+    }
+
+    @PatchMapping("/comment/state")
+    public Mono<ResponseDTO<CommentOnboardingState>> setCommentState(@RequestBody UserData userData) {
+        return userDataService.setCommentState(userData.getCommentOnboardingState())
+                .map(savedUserData ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentOnboardingState(), null)
+                );
     }
 
 }

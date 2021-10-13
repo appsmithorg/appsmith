@@ -515,6 +515,7 @@ class IntegrationsHomeScreen extends React.Component<
             {currentScreen}
             {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
               <TabComponent
+                className="t--vertical-menu"
                 onSelect={this.onSelectSecondaryMenu}
                 selectedIndex={this.state.activeSecondaryMenuId}
                 tabs={

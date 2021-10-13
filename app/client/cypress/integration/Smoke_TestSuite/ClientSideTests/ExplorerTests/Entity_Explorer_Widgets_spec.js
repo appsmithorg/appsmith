@@ -9,9 +9,6 @@ describe("Entity explorer tests related to widgets and validation", function() {
 
   it("Widget edit/delete/copy to clipboard validation", function() {
     cy.SearchEntityandOpen("Text1");
-    cy.get(explorer.collapse)
-      .last()
-      .click({ force: true });
     cy.get(explorer.property)
       .last()
       .click({ force: true });
@@ -23,7 +20,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
     cy.GlobalSearchEntity("Text1");
     cy.EditApiNameFromExplorer("TextUpdated");
     cy.GlobalSearchEntity("TextUpdated");
-    cy.get(".t--entity-collapse-toggle")
+    cy.get(".widgets .t--entity-collapse-toggle")
       .last()
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {

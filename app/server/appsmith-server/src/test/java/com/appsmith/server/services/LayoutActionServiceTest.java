@@ -1,22 +1,26 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -29,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +47,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +61,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -86,7 +93,7 @@ public class LayoutActionServiceTest {
     LayoutActionService layoutActionService;
 
     @Autowired
-    LayoutService layoutService;
+    LayoutCollectionService layoutCollectionService;
 
     @Autowired
     NewPageService newPageService;
@@ -94,11 +101,16 @@ public class LayoutActionServiceTest {
     @Autowired
     NewActionRepository actionRepository;
 
+    @Autowired
+    ActionCollectionService actionCollectionService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
 
     Datasource datasource;
+
+    Datasource jsDatasource;
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -122,9 +134,11 @@ public class LayoutActionServiceTest {
             JSONObject dsl = new JSONObject();
             dsl.put("widgetName", "firstWidget");
             JSONArray temp = new JSONArray();
-            temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+            temp.addAll(List.of(new JSONObject(Map.of("key", "testField")),
+                    new JSONObject(Map.of("key", "testField2"))));
             dsl.put("dynamicBindingPathList", temp);
             dsl.put("testField", "{{ query1.data }}");
+            dsl.put("testField2", "{{jsObject.data.jsFunction}}");
 
             JSONObject dsl2 = new JSONObject();
             dsl2.put("widgetName", "Table1");
@@ -155,6 +169,13 @@ public class LayoutActionServiceTest {
         datasource.setOrganizationId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
+
+        jsDatasource = new Datasource();
+        jsDatasource.setName("Default JS Database");
+        jsDatasource.setOrganizationId(orgId);
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        assert installedJsPlugin != null;
+        jsDatasource.setPluginId(installedJsPlugin.getId());
     }
 
     @After
@@ -167,11 +188,55 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testOnPageLoadActionsAfterActionDelete() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("query1");
+        action.setFullyQualifiedName(action.getName());
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<PageDTO> resultMono = layoutActionService
+                .createSingleAction(action)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+
+                    // Configure action to execute on page load.
+                    updates.setExecuteOnLoad(true);
+
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
+
+                    // Save updated configuration and re-compute on page load actions.
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                })
+                .flatMap(savedAction -> layoutActionService.deleteUnpublishedAction(savedAction.getId())) // Delete action
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false)); // Get page info
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(page -> {
+                    assertThat(page.getLayouts()).hasSize(1);
+
+                    // Verify that no action is marked to run on page load.
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(0);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateActionUpdatesLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         ActionDTO action = new ActionDTO();
         action.setName("query1");
+        action.setFullyQualifiedName(action.getName());
         action.setPageId(testPage.getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setHttpMethod(HttpMethod.GET);
@@ -180,6 +245,7 @@ public class LayoutActionServiceTest {
 
         ActionDTO unreferencedAction = new ActionDTO();
         unreferencedAction.setName("query2");
+        unreferencedAction.setFullyQualifiedName(unreferencedAction.getName());
         unreferencedAction.setPageId(testPage.getId());
         unreferencedAction.setUserSetOnLoad(true);
         ActionConfiguration actionConfiguration2 = new ActionConfiguration();
@@ -187,23 +253,50 @@ public class LayoutActionServiceTest {
         unreferencedAction.setActionConfiguration(actionConfiguration2);
         unreferencedAction.setDatasource(datasource);
 
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("jsAction");
+        action3.setPluginType(PluginType.JS);
+        action3.setFullyQualifiedName("jsObject.jsFunction");
+        action3.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration3 = new ActionConfiguration();
+        actionConfiguration3.setIsValid(false);
+        action3.setActionConfiguration(actionConfiguration3);
+        Datasource d2 = new Datasource();
+        d2.setOrganizationId(datasource.getOrganizationId());
+        d2.setPluginId(datasource.getPluginId());
+        d2.setIsAutoGenerated(true);
+        d2.setName("UNUSED_DATASOURCE");
+        action3.setDatasource(d2);
+
         Mono<PageDTO> resultMono = layoutActionService
-                .createAction(action)
+                .createSingleAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
-                .flatMap(savedAction -> layoutActionService.createAction(unreferencedAction))
+                .flatMap(savedAction -> layoutActionService.createSingleAction(unreferencedAction))
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                    updates.setDatasource(datasource);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                })
+                .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
+                .flatMap(savedAction -> {
+                    Assert.assertFalse(savedAction.getActionConfiguration().getIsValid());
+                    Assert.assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
+                    ActionDTO updates = new ActionDTO();
+                    updates.setExecuteOnLoad(true);
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 // fetch the unpublished page
                 .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
@@ -214,7 +307,7 @@ public class LayoutActionServiceTest {
                     assertThat(page.getLayouts()).hasSize(1);
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
                     Set<DslActionDTO> dslActionDTOS = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
-                    assertThat(dslActionDTOS).hasSize(2);
+                    assertThat(dslActionDTOS).hasSize(3);
                     assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "query2"));
                 })
                 .verifyComplete();
@@ -244,7 +337,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
@@ -290,7 +383,7 @@ public class LayoutActionServiceTest {
 
         Layout layout = testPage.getLayouts().get(0);
 
-        ActionDTO firstAction = layoutActionService.createAction(action).block();
+        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
 
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
@@ -301,7 +394,7 @@ public class LayoutActionServiceTest {
 
         // Create another action with the same name as the erstwhile deleted action
         action.setId(null);
-        ActionDTO secondAction = layoutActionService.createAction(action).block();
+        ActionDTO secondAction = layoutActionService.createSingleAction(action).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
@@ -348,7 +441,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
@@ -401,8 +494,8 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        ActionDTO createdAction1 = layoutActionService.createAction(action1).block();
-        ActionDTO createdAction2 = layoutActionService.createAction(action2).block();
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
 
@@ -478,17 +571,8 @@ public class LayoutActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO unreferencedAction = new ActionDTO();
-        unreferencedAction.setName("query2");
-        unreferencedAction.setPageId(testPage.getId());
-        unreferencedAction.setUserSetOnLoad(true);
-        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
-        actionConfiguration2.setHttpMethod(HttpMethod.GET);
-        unreferencedAction.setActionConfiguration(actionConfiguration2);
-        unreferencedAction.setDatasource(datasource);
-
         Mono<ActionDTO> resultMono = layoutActionService
-                .createAction(action)
+                .createSingleAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
@@ -501,7 +585,7 @@ public class LayoutActionServiceTest {
                     ds.getDatasourceConfiguration().setUrl("http://localhost");
                     ds.setPluginId(datasource.getPluginId());
                     updates.setDatasource(ds);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 });
 
         StepVerifier
@@ -581,7 +665,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO firstAction = layoutActionService.createAction(action).block();
+        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
 
         ActionDTO duplicateName = new ActionDTO();
         duplicateName.setName(name);
@@ -647,7 +731,7 @@ public class LayoutActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        layoutActionService.createAction(action).block();
+        layoutActionService.createSingleAction(action).block();
 
         ActionDTO duplicateAction = new ActionDTO();
         duplicateAction.setName(name);
@@ -655,7 +739,7 @@ public class LayoutActionServiceTest {
         duplicateAction.setActionConfiguration(actionConfiguration);
         duplicateAction.setDatasource(datasource);
 
-        Mono<ActionDTO> duplicateActionMono = layoutActionService.createAction(duplicateAction);
+        Mono<ActionDTO> duplicateActionMono = layoutActionService.createSingleAction(duplicateAction);
 
         StepVerifier
                 .create(duplicateActionMono)
@@ -743,5 +827,124 @@ public class LayoutActionServiceTest {
                     assertThat(widgetName).isEqualTo("NewNameTable1");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // Set up table widget in DSL
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "Table1");
+        dsl.put("type", "TABLE_WIDGET");
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        // Create an action collection that refers to the table
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setPageId(testPage.getId());
+        actionCollectionDTO1.setApplicationId(testApp.getId());
+        actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("Table1");
+        actionCollectionDTO1.setBody("Table1");
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("Table1");
+        refactorNameDTO.setNewName("NewNameTable1");
+
+        LayoutDTO updatedLayout = layoutActionService.refactorWidgetName(refactorNameDTO).block();
+
+        assert createdActionCollectionDTO1 != null;
+        final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO1.getId());
+        final Optional<String> optional = createdActionCollectionDTO1.getActionIds().stream().findFirst();
+        assert optional.isPresent();
+        final Mono<NewAction> actionMono = newActionService.findById(optional.get());
+
+        StepVerifier
+                .create(Mono.zip(actionCollectionMono, actionMono))
+                .assertNext(tuple -> {
+                    final ActionCollection actionCollection = tuple.getT1();
+                    final NewAction action = tuple.getT2();
+                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("NewNameTable1");
+                    final ActionDTO unpublishedAction = action.getUnpublishedAction();
+                    assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
+                    final Optional<String> first = unpublishedAction.getJsonPathKeys().stream().findFirst();
+                    assert first.isPresent();
+                    assertThat(first.get()).isEqualTo("NewNameTable1");
+                    assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("NewNameTable1");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRefactorCollection_withModifiedName_ignoresName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
+        originalActionCollectionDTO.setName("originalName");
+        originalActionCollectionDTO.setApplicationId(testApp.getId());
+        originalActionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        originalActionCollectionDTO.setPageId(testPage.getId());
+        originalActionCollectionDTO.setPluginId(jsDatasource.getPluginId());
+        originalActionCollectionDTO.setPluginType(PluginType.JS);
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("Table1");
+
+        originalActionCollectionDTO.setActions(List.of(action1));
+
+        final ActionCollectionDTO dto = layoutCollectionService.createCollection(originalActionCollectionDTO).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        assert dto != null;
+        actionCollectionDTO.setId(dto.getId());
+        actionCollectionDTO.setBody("body");
+        actionCollectionDTO.setName("newName");
+
+        RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO = new RefactorActionNameInCollectionDTO();
+        refactorActionNameInCollectionDTO.setActionCollection(actionCollectionDTO);
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO(
+                dto.getActions().get(0).getId(),
+                testPage.getId(),
+                testPage.getLayouts().get(0).getId(),
+                "testAction1",
+                "newTestAction",
+                "originalName"
+        );
+        refactorActionNameInCollectionDTO.setRefactorAction(refactorActionNameDTO);
+
+        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = layoutCollectionService
+                .refactorAction(refactorActionNameInCollectionDTO)
+                .then(actionCollectionService.getById(dto.getId())
+                        .zipWith(newActionService.findById(dto.getActions().get(0).getId())));
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(tuple -> {
+                    final ActionCollectionDTO actionCollectionDTOResult = tuple.getT1().getUnpublishedCollection();
+                    final NewAction newAction = tuple.getT2();
+                    assertEquals("originalName", actionCollectionDTOResult.getName());
+                    assertEquals("body", actionCollectionDTOResult.getBody());
+                    assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
+                    assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
+                })
+                .verifyComplete();
+
     }
 }

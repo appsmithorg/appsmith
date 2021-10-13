@@ -21,6 +21,7 @@ class DynamicTextField extends React.Component<
       hoverInteraction?: boolean;
       border?: CodeEditorBorder;
       showLightningMenu?: boolean;
+      height?: string;
     }
 > {
   render() {

@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -65,11 +66,32 @@ public class CustomCommentRepositoryImpl extends BaseAppsmithRepositoryImpl<Comm
     public Mono<Void> updateAuthorNames(String authorId, String authorName) {
         return mongoOperations
                 .updateMulti(
-                        Query.query(Criteria.where("authorId").is(authorId)),
-                        Update.update("authorName", authorName),
+                        Query.query(Criteria.where(fieldName(QComment.comment.authorId)).is(authorId)),
+                        Update.update(fieldName(QComment.comment.authorName), authorName),
                         Comment.class
                 )
                 .then();
     }
 
+    /**
+     * This method updates the authorPhotoId property of comments.
+     * If the photoId is null, it'll remove the property from comments.
+     * If not null and not empty, new value will be set to the comments.
+     * @param authorId id of the user who added the comment
+     * @param photoId id of the image asset
+     * @return void
+     */
+    @Override
+    public Mono<Void> updatePhotoId(String authorId, String photoId) {
+        Update update = new Update();
+        if(StringUtils.isEmpty(photoId)) {
+            update.unset(fieldName(QComment.comment.authorPhotoId));
+        } else {
+            update.set(fieldName(QComment.comment.authorPhotoId), photoId);
+        }
+
+        return mongoOperations
+                .updateMulti(Query.query(Criteria.where("authorId").is(authorId)), update, Comment.class)
+                .then();
+    }
 }

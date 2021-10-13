@@ -16,15 +16,18 @@ export type ExecutionResult = {
   success: boolean;
 };
 
+export type TriggerSource = {
+  id: string;
+  name: string;
+};
+
 export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
-};
-
-// triggerPropertyName was added as a requirement for logging purposes
-export type WidgetExecuteActionPayload = ExecuteTriggerPayload & {
   triggerPropertyName?: string;
+  source?: TriggerSource;
+  widgetId?: string;
 };
 
 export type ContentType =
@@ -74,12 +77,17 @@ export enum EventType {
   ON_VIDEO_END = "ON_VIDEO_END",
   ON_VIDEO_PLAY = "ON_VIDEO_PLAY",
   ON_VIDEO_PAUSE = "ON_VIDEO_PAUSE",
+  ON_AUDIO_START = "ON_AUDIO_START",
+  ON_AUDIO_END = "ON_AUDIO_END",
+  ON_AUDIO_PLAY = "ON_AUDIO_PLAY",
+  ON_AUDIO_PAUSE = "ON_AUDIO_PAUSE",
   ON_RATE_CHANGED = "ON_RATE_CHANGED",
   ON_IFRAME_URL_CHANGED = "ON_IFRAME_URL_CHANGED",
   ON_IFRAME_MESSAGE_RECEIVED = "ON_IFRAME_MESSAGE_RECEIVED",
   ON_SNIPPET_EXECUTE = "ON_SNIPPET_EXECUTE",
   ON_SORT = "ON_SORT",
   ON_CHECKBOX_GROUP_SELECTION_CHANGE = "ON_CHECKBOX_GROUP_SELECTION_CHANGE",
+  ON_LIST_PAGE_CHANGE = "ON_LIST_PAGE_CHANGE",
   ON_RECORDING_START = "ON_RECORDING_START",
   ON_RECORDING_COMPLETE = "ON_RECORDING_COMPLETE",
   ON_IMAGE_ANNOTATION_SAVED = "ON_IMAGE_ANNOTATION_SAVED",
@@ -119,12 +127,16 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.API]: apiActionSettingsConfig,
   [PluginType.DB]: queryActionSettingsConfig,
   [PluginType.SAAS]: saasActionSettingsConfig,
+  [PluginType.REMOTE]: saasActionSettingsConfig,
+  [PluginType.JS]: [],
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.API]: apiActionEditorConfig,
   [PluginType.DB]: [],
   [PluginType.SAAS]: [],
+  [PluginType.REMOTE]: [],
+  [PluginType.JS]: [],
 };
 
 export const defaultActionDependenciesConfig: Record<
@@ -134,4 +146,6 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.API]: apiActionDependencyConfig,
   [PluginType.DB]: {},
   [PluginType.SAAS]: {},
+  [PluginType.REMOTE]: {},
+  [PluginType.JS]: {},
 };
