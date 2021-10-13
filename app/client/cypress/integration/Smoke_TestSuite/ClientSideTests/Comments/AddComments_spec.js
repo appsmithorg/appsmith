@@ -2,7 +2,6 @@ const commentsLocators = require("../../../../locators/commentsLocators.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const dsl = require("../../../../fixtures/basicDsl.json");
-
 const { typeIntoDraftEditor } = require("./utils");
 
 const newCommentText1 = "new comment text 1";
