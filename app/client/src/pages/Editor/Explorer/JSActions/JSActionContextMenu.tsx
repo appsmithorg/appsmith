@@ -1,19 +1,17 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-
 import { AppState } from "reducers";
 import ContextMenuTrigger from "../ContextMenuTrigger";
-
 import {
   moveJSCollectionRequest,
   copyJSCollectionRequest,
   deleteJSCollection,
 } from "actions/jsActionActions";
-
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { useNewJSCollectionName } from "./helpers";
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
 
 type EntityContextMenuProps = {
   id: string;
@@ -59,6 +57,10 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
       value: page.pageName,
     }));
   });
+  const editJSCollectionName = useCallback(
+    () => dispatch(initExplorerEntityNameEdit(props.id)),
+    [dispatch, props.id],
+  );
 
   return (
     <TreeDropdown
@@ -67,6 +69,11 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
       optionTree={[
+        {
+          value: "rename",
+          onSelect: editJSCollectionName,
+          label: "Edit Name",
+        },
         {
           value: "copy",
           onSelect: noop,

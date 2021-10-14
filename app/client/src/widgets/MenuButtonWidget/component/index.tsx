@@ -65,7 +65,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SOLID
+          : buttonVariant === ButtonVariantTypes.PRIMARY
           ? theme.colors.button.primary.solid.bgColor
           : "none"
       } !important;
@@ -75,9 +75,9 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.OUTLINE
+          : buttonVariant === ButtonVariantTypes.SECONDARY
           ? theme.colors.button.primary.outline.hoverColor
-          : buttonVariant === ButtonVariantTypes.GHOST
+          : buttonVariant === ButtonVariantTypes.TERTIARY
           ? theme.colors.button.primary.ghost.hoverColor
           : theme.colors.button.primary.solid.hoverColor
       } !important;
@@ -91,7 +91,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-        : buttonVariant === ButtonVariantTypes.OUTLINE
+        : buttonVariant === ButtonVariantTypes.SECONDARY
         ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
         : "none"
     } !important;
@@ -104,11 +104,13 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       max-height: 100%;
       overflow: hidden;
       color: ${
-        buttonVariant === ButtonVariantTypes.SOLID
+        buttonVariant === ButtonVariantTypes.PRIMARY
           ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor) !==
-            "none"
-          ? getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
+          : getCustomBackgroundColor(
+              ButtonVariantTypes.PRIMARY,
+              buttonColor,
+            ) !== "none"
+          ? getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
           : `${theme.colors.button.primary.outline.textColor}`
       } !important;
     }

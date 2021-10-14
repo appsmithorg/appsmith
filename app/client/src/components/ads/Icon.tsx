@@ -289,21 +289,28 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.fillColor || ""};
-    circle {
-      fill: ${props.fillColor || ""};
+          fill: ${props.fillColor || ""};
+          circle {
+            fill: ${props.fillColor || ""};
+          }
+          path {
+            fill: ${props.fillColor || ""};
+          }
+          `
+        : ""};
+    ${(props) => (props.invisible ? `visibility: hidden;` : null)};
+    &:hover {
+      cursor: ${(props) => (props.clickable ? "pointer" : "default")};
+      ${(props) =>
+        !props.keepColors
+          ? `
+            fill: ${props.hoverFillColor || ""};
+            path {
+              fill: ${props.hoverFillColor || ""};
+            }
+          `
+          : ""}
     }
-    `
-        : ""}
-  ${(props) => (props.invisible ? `visibility: hidden;` : null)};
-  &:hover {
-    cursor: ${(props) => (props.clickable ? "pointer" : "default")};
-    ${(props) =>
-      !props.keepColors
-        ? `
-    fill: ${props.hoverFillColor || ""};
-    `
-        : ""}
   }
 `;
 
