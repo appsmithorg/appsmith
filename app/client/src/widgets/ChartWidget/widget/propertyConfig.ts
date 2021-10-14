@@ -95,6 +95,49 @@ export default [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.OBJECT,
+          params: {
+            allowedKeys: [
+              {
+                name: "chart",
+                type: ValidationTypes.OBJECT,
+                params: {
+                  allowedKeys: [
+                    {
+                      name: "paletteColors",
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        strict: true,
+                        ignoreCase: true,
+                      },
+                    },
+                  ],
+                  default: {},
+                },
+              },
+              {
+                name: "data",
+                type: ValidationTypes.ARRAY,
+                params: {
+                  default: [],
+                  children: {
+                    type: ValidationTypes.OBJECT,
+                    params: {
+                      allowedKeys: [
+                        {
+                          name: "label",
+                          type: ValidationTypes.TEXT,
+                        },
+                        {
+                          name: "value",
+                          type: ValidationTypes.NUMBER,
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
         },
         hidden: (props: ChartWidgetProps) =>
           props.chartType !== "CUSTOM_FUSION_CHART",
