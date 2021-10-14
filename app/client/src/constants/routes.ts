@@ -1,5 +1,7 @@
-import { match } from "path-to-regexp";
-
+// Leaving this require here. This module has a commonJS module and one for ESM. 
+// We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
+// All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
+const { match } = require("path-to-regexp");
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
 export const PAGE_NOT_FOUND_URL = "/404";
