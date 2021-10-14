@@ -26,8 +26,8 @@ export default function* handleAppLevelSocketEvents(event: any) {
       yield put(
         newCommentThreadEvent({
           ...thread,
-          // This is necessary to be done from the start, as client depends
-          // this props value to find if there is an unread thread.
+          // This is necessary to be done from the start, as client depends on
+          // these values to find if there is an unread thread.
           isViewed: isThreadFromEventViewed || thread?.resolvedState?.active,
         }),
       );
