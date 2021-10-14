@@ -23,6 +23,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -34,6 +35,12 @@ const MainWrapper = styled.div`
   &:focus,
   &:hover {
     overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      width: 0px;
+      -webkit-appearance: none;
+    }
   }
 
   &::-webkit-scrollbar-track {
@@ -74,6 +81,7 @@ function WidgetSidebar(props: IPanelProps) {
   const isForceOpenWidgetPanel = useSelector(
     (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
   );
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {
@@ -181,6 +189,7 @@ function WidgetSidebar(props: IPanelProps) {
             </Boxed>
           ))}
         </CardsWrapper>
+        <ScrollIndicator containerRef={sidebarRef} />
       </MainWrapper>
     </>
   );
