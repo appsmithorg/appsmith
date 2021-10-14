@@ -9,6 +9,13 @@ import {
 } from "selectors/settingsSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
+import {
+  createMessage,
+  RESTART_BANNER_BODY,
+  RESTART_BANNER_HEADER,
+  RESTART_ERROR_BODY,
+  RESTART_ERROR_HEADER,
+} from "constants/messages";
 
 const HeaderContents = styled.div`
   display: flex;
@@ -40,7 +47,11 @@ function Header() {
   return (
     <HeaderContents>
       <Heading>
-        <span>{isRestartFailed ? "Restart failed" : "Restarting Server"}</span>
+        <span>
+          {isRestartFailed
+            ? createMessage(RESTART_ERROR_HEADER)
+            : createMessage(RESTART_BANNER_HEADER)}
+        </span>
         {!isRestartFailed && (
           <StyledSpinner>
             <Spinner size={IconSize.LARGE} />
@@ -66,8 +77,8 @@ export default function RestartBanner() {
     >
       <RestartMessage>
         {isRestartFailed
-          ? "Something went wrong. Please contact your administrator."
-          : "We will notify you once we are done!"}
+          ? createMessage(RESTART_ERROR_BODY)
+          : createMessage(RESTART_BANNER_BODY)}
       </RestartMessage>
     </Dialog>
   ) : null;
