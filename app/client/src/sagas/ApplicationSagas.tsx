@@ -75,6 +75,7 @@ import {
 } from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
+import { fetchApplication } from "../actions/applicationActions";
 
 import {
   getEnableFirstTimeUserOnboarding,
@@ -111,7 +112,6 @@ export function* publishApplicationSaga(
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
       const defaultApplicationId = yield select(getDefaultApplicationId);
 
@@ -125,13 +125,15 @@ export function* publishApplicationSaga(
         appicationViewPageUrl += "?onboardingComplete=true";
       }
 
-      yield put({
-        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
-        payload: {
-          applicationId: applicationId,
-          mode: APP_MODE.EDIT,
-        },
-      });
+      yield put(
+        fetchApplication({
+          payload: {
+            defaultApplicationId: defaultApplicationId,
+            mode: APP_MODE.EDIT,
+          },
+        }),
+      );
+
       // If the tab is opened focus and reload else open in new tab
       if (!windowReference || windowReference.closed) {
         windowReference = window.open(appicationViewPageUrl, "_blank");
