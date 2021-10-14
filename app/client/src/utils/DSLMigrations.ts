@@ -955,7 +955,9 @@ const migrateCustomChartConfig = (
     if (currentDSL.hasOwnProperty("customFusionChartConfig")) {
       let config = currentDSL.customFusionChartConfig;
       if (isString(config)) {
-        config = JSON.parse(config);
+        try {
+          config = JSON.parse(config);
+        } catch {}
       }
       currentDSL.customFusionChartType = config.type;
       currentDSL.customFusionChartConfig = config.dataSource;
