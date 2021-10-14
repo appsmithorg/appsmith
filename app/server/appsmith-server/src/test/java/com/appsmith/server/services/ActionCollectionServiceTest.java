@@ -423,6 +423,10 @@ public class ActionCollectionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionCollectionInViewMode() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(testPage.getId());
