@@ -109,7 +109,7 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div className="p-3 overflow-y-scroll text-white">
+      <div className="p-3 overflow-y-scroll text-white t--property-pane-view">
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
