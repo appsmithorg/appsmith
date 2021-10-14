@@ -1,7 +1,11 @@
+import { Position } from "@blueprintjs/core";
 import { updateApplicationLayout } from "actions/applicationActions";
 import Dropdown from "components/ads/Dropdown";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
+import TooltipComponent from "components/ads/Tooltip";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
+import { createMessage, LAYOUT_DROPDOWN_TOOLTIP } from "constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -59,9 +63,6 @@ const LayoutControlWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  .bp3-popover-target {
-    pointer-events: none;
-  }
   .layout-control {
     pointer-events: all;
     cursor: pointer;
@@ -107,11 +108,18 @@ export function MainContainerLayoutControl() {
         <Dropdown
           SelectedValueNode={({ selected }) => {
             return (
-              <Icon
-                fillColor={Colors.BLACK}
-                name={selected.icon}
-                size={selected.iconSize || IconSize.SMALL}
-              />
+              <TooltipComponent
+                boundary="viewport"
+                content={createMessage(LAYOUT_DROPDOWN_TOOLTIP)}
+                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                position={Position.BOTTOM}
+              >
+                <Icon
+                  fillColor={Colors.BLACK}
+                  name={selected.icon}
+                  size={selected.iconSize || IconSize.SMALL}
+                />
+              </TooltipComponent>
             );
           }}
           className="layout-control"

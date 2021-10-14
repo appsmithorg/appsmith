@@ -23,7 +23,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Show Message")
+      .contains("Show message")
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
     // Close Property pane
@@ -126,7 +126,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Show Message")
+      .contains("Show message")
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
 
@@ -154,5 +154,16 @@ describe("Table Widget property pane feature validation", function() {
         const someText = text;
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
+  });
+  it("Table widget test on button icon click, row should not get deselected", () => {
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    //click icon button again
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
 });

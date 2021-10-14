@@ -29,6 +29,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",

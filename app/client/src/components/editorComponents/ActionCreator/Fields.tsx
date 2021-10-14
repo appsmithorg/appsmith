@@ -17,6 +17,26 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 
+/**
+ ******** Steps to add a new function *******
+ * In this file:
+ * 1. Create a new entry in ActionType object. This is the name of the function
+ *
+ * 2. Define new fields in FieldType object. This is the field names
+ * for each argument the function accepts.
+ *
+ * 3. Update fieldConfigs with your field's getter, setting and view. getter is
+ * the setting used to extract the field value from the function. setter is used to
+ * set the value in function when the field is updated. View is the component used
+ * to edit the field value
+ *
+ * 4. Update renderField function to change things like field label etc.
+ *
+ * On the index file:
+ * 1. Add the new action entry and its text in the baseOptions array
+ * 2. Attach fields to the new action in the getFieldFromValue function
+ **/
+
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
   { label: "Success", value: "'success'", id: "success" },
@@ -198,8 +218,6 @@ const enumTypeGetter = (
 export const ActionType = {
   none: "none",
   integration: "integration",
-  api: "api",
-  query: "query",
   showModal: "showModal",
   closeModal: "closeModal",
   navigateTo: "navigateTo",
@@ -209,6 +227,8 @@ export const ActionType = {
   copyToClipboard: "copyToClipboard",
   resetWidget: "resetWidget",
   jsFunction: "jsFunction",
+  setInterval: "setInterval",
+  clearInterval: "clearInterval",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -328,6 +348,9 @@ export const FieldType = {
   WIDGET_NAME_FIELD: "WIDGET_NAME_FIELD",
   RESET_CHILDREN_FIELD: "RESET_CHILDREN_FIELD",
   ARGUMENT_KEY_VALUE_FIELD: "ARGUMENT_KEY_VALUE_FIELD",
+  CALLBACK_FUNCTION_FIELD: "CALLBACK_FUNCTION_FIELD",
+  DELAY_FIELD: "DELAY_FIELD",
+  ID_FIELD: "ID_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -372,6 +395,9 @@ const fieldConfigs: FieldConfigs = {
           break;
         case ActionType.jsFunction:
           defaultArgs = option.args ? option.args : [];
+          break;
+        case ActionType.setInterval:
+          defaultParams = "() => { \n\t // add code here \n}, 5000";
           break;
         default:
           break;
@@ -551,6 +577,33 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
+  [FieldType.CALLBACK_FUNCTION_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 0);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 0);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.DELAY_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 1);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 1);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
+  [FieldType.ID_FIELD]: {
+    getter: (value: string) => {
+      return textGetter(value, 2);
+    },
+    setter: (value: string, currentValue: string) => {
+      return textSetter(value, currentValue, 2);
+    },
+    view: ViewTypes.TEXT_VIEW,
+  },
 };
 
 function renderField(props: {
@@ -717,6 +770,9 @@ function renderField(props: {
     case FieldType.DOWNLOAD_DATA_FIELD:
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
     case FieldType.COPY_TEXT_FIELD:
+    case FieldType.CALLBACK_FUNCTION_FIELD:
+    case FieldType.DELAY_FIELD:
+    case FieldType.ID_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -734,6 +790,12 @@ function renderField(props: {
         fieldLabel = "File name with extension";
       } else if (fieldType === FieldType.COPY_TEXT_FIELD) {
         fieldLabel = "Text to be copied to clipboard";
+      } else if (fieldType === FieldType.CALLBACK_FUNCTION_FIELD) {
+        fieldLabel = "Callback function";
+      } else if (fieldType === FieldType.DELAY_FIELD) {
+        fieldLabel = "Delay (ms)";
+      } else if (fieldType === FieldType.ID_FIELD) {
+        fieldLabel = "Id";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
@@ -758,10 +820,8 @@ function Fields(props: {
   value: string;
   fields: any;
   label?: string;
-  // apiOptionTree: TreeDropdownOption[];
   integrationOptionTree: TreeDropdownOption[];
   widgetOptionTree: TreeDropdownOption[];
-  // queryOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
   depth: number;

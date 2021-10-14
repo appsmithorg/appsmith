@@ -49,7 +49,6 @@ import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
 import { JSCollectionDataState } from "./entityReducers/jsActionsReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
-import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
 import { JSObjectNameReduxState } from "./uiReducers/jsObjectNameReducer";
 import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
@@ -67,7 +66,6 @@ export default appReducer;
 
 export interface AppState {
   ui: {
-    actionTabs: ActionTabsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     tableFilterPane: TableFilterPaneReduxState;

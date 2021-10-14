@@ -5,7 +5,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ButtonBorderRadiusTypes } from "components/constants";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
 import {
   updateDerivedColumnsHook,
   ColumnTypes,
@@ -789,20 +792,31 @@ export default [
                   ],
                   options: [
                     {
-                      label: "Solid",
-                      value: "SOLID",
+                      label: "Primary",
+                      value: ButtonVariantTypes.PRIMARY,
                     },
                     {
-                      label: "Outline",
-                      value: "OUTLINE",
+                      label: "Secondary",
+                      value: ButtonVariantTypes.SECONDARY,
                     },
                     {
-                      label: "Ghost",
-                      value: "GHOST",
+                      label: "Tertiary",
+                      value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: ButtonVariantTypes.PRIMARY,
+                      allowedValues: [
+                        ButtonVariantTypes.PRIMARY,
+                        ButtonVariantTypes.SECONDARY,
+                        ButtonVariantTypes.TERTIARY,
+                      ],
+                    },
+                  },
                 },
                 {
                   propertyName: "borderRadius",
@@ -943,16 +957,16 @@ export default [
                   helpText: "Sets the variant of the menu button",
                   options: [
                     {
-                      label: "Solid",
-                      value: "SOLID",
+                      label: "Primary",
+                      value: ButtonVariantTypes.PRIMARY,
                     },
                     {
-                      label: "Outline",
-                      value: "OUTLINE",
+                      label: "Secondary",
+                      value: ButtonVariantTypes.SECONDARY,
                     },
                     {
-                      label: "Ghost",
-                      value: "GHOST",
+                      label: "Tertiary",
+                      value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
                   isJSConvertible: true,
@@ -967,13 +981,17 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
                     type: ValidationTypes.TEXT,
                     params: {
-                      default: "SOLID",
-                      allowedValues: ["SOLID", "OUTLINE", "GHOST"],
+                      default: ButtonVariantTypes.PRIMARY,
+                      allowedValues: [
+                        ButtonVariantTypes.PRIMARY,
+                        ButtonVariantTypes.SECONDARY,
+                        ButtonVariantTypes.TERTIARY,
+                      ],
                     },
                   },
                 },
