@@ -50,7 +50,6 @@ describe("Table Widget property pane feature validation", function() {
     cy.openPropertyPane("tablewidget");
     // Open column details of "id".
     cy.editColumn("id");
-    // cy.get(widgetsPage.tableBtn).should("not.exist");
     // Changing column data type to "Button"
     cy.changeColumnType("Button");
     const color = "rgb(255, 0, 0)";
