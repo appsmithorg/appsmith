@@ -1,11 +1,14 @@
-import ArrayField from "./fields/ArrayField";
-import CheckboxField from "./fields/CheckboxField";
-import InputField from "./fields/InputField";
-import MultiSelectField from "./fields/MultiSelectField";
-import ObjectField from "./fields/ObjectField";
-import SelectField from "./fields/SelectField";
-import SwitchField from "./fields/SwitchField";
 import { InputType } from "widgets/InputWidget/constants";
+import {
+  ArrayField,
+  CheckboxField,
+  InputField,
+  MultiSelectField,
+  ObjectField,
+  RadioGroupField,
+  SelectField,
+  SwitchField,
+} from "./fields";
 
 export enum FieldType {
   CHECKBOX = "Checkbox",
@@ -39,7 +42,6 @@ export enum DataType {
 
 export type SchemaItem<TProps = any> = {
   children: Schema;
-  // TODO: Define typings for props
   props: TProps;
   dataType: DataType;
   fieldType: FieldType;
@@ -51,14 +53,14 @@ export type SchemaItem<TProps = any> = {
 export type Schema = SchemaItem[];
 
 export const FIELD_MAP: Record<FieldType, (props: any) => JSX.Element> = {
-  [FieldType.TEXT]: SelectField,
+  [FieldType.TEXT]: InputField,
   [FieldType.NUMBER]: InputField,
   [FieldType.EMAIL]: InputField,
   [FieldType.PHONE_NUMBER]: InputField,
   [FieldType.CHECKBOX]: CheckboxField,
   [FieldType.DATE]: InputField,
   [FieldType.FILE]: InputField,
-  [FieldType.RADIO_GROUP]: InputField,
+  [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.MULTI_SELECT]: MultiSelectField,
   [FieldType.SELECT]: SelectField,
   [FieldType.SWITCH]: SwitchField,
@@ -83,10 +85,11 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
   [DataType.STRING]: {
     default: FieldType.TEXT,
     options: [
-      FieldType.TEXT,
       FieldType.EMAIL,
       FieldType.PHONE_NUMBER,
+      FieldType.RADIO_GROUP,
       FieldType.SELECT,
+      FieldType.TEXT,
     ],
   },
   [DataType.BOOLEAN]: {
