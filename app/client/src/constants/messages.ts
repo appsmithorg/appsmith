@@ -765,6 +765,12 @@ export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
 export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
 export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
+export const GO_TO_PAGE = () => "Go to page";
+export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
+export const HIDDEN_TOOLTIP = () => "Hidden";
+export const CLONE_TOOLTIP = () => "Clone";
+export const DELETE_TOOLTIP = () => "Delete";
+export const SETTINGS_TOOLTIP = () => "Settings";
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
