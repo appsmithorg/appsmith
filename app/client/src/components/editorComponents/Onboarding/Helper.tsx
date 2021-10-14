@@ -25,6 +25,7 @@ const StyledContainer = styled.div`
   z-index: 8;
   padding: 12px;
   background-color: white;
+  border: 2px solid #df613c;
   box-shadow: rgb(0 0 0 / 32%) 0px 12px 28px;
   width: 310px;
 
