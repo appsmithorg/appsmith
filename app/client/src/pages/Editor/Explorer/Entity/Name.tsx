@@ -10,6 +10,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes, Position } from "@blueprintjs/core";
@@ -20,7 +21,7 @@ import {
   getExistingWidgetNames,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { removeSpecialChars } from "utils/helpers";
+import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
@@ -123,6 +124,7 @@ export const EntityName = forwardRef(
     const nameUpdateError = useSelector((state: AppState) => {
       return state.ui.explorer.updateEntityError === props.entityId;
     });
+    const targetRef = useRef<HTMLDivElement | null>(null);
 
     const [updatedName, setUpdatedName] = useState(name);
 
@@ -210,10 +212,11 @@ export const EntityName = forwardRef(
 
     if (!props.isEditing)
       return (
-        <Container>
+        <Container ref={ref}>
           <TooltipComponent
             boundary={"viewport"}
             content={updatedName}
+            disabled={!isEllipsisActive(targetRef.current)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
             modifiers={{ arrow: { enabled: false } }}
             position={Position.TOP_LEFT}
@@ -221,7 +224,7 @@ export const EntityName = forwardRef(
             <Wrapper
               className={props.className}
               onDoubleClick={props.enterEditMode}
-              ref={ref}
+              ref={targetRef}
             >
               {searchHighlightedName}
             </Wrapper>
