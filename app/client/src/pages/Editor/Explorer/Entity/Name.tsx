@@ -51,6 +51,13 @@ const Wrapper = styled.div`
   }
 `;
 
+const EditableWrapper = styled.div`
+  overflow: hidden;
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[3] + 1}px 0;
+  line-height: 13px;
+`;
+
 export const replace = (
   str: string,
   delimiter: string,
@@ -222,7 +229,7 @@ export const EntityName = forwardRef(
         </Container>
       );
     return (
-      <Wrapper>
+      <EditableWrapper>
         <EditableText
           className={`${props.className} editing`}
           defaultValue={updatedName}
@@ -236,7 +243,7 @@ export const EntityName = forwardRef(
           type="text"
           valueTransform={props.nameTransformFn || removeSpecialChars}
         />
-      </Wrapper>
+      </EditableWrapper>
     );
   },
 );
