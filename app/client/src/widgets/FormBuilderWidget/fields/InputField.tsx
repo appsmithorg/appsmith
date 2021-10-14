@@ -3,9 +3,7 @@ import { noop, omit } from "lodash";
 import { ControllerRenderProps } from "react-hook-form";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
-import InputComponent, {
-  InputComponentProps,
-} from "widgets/InputWidget/component";
+import InputComponent from "widgets/InputWidget/component";
 import { CONFIG as INPUT_WIDGET_CONFIG } from "widgets/InputWidget";
 import { INPUT_FIELD_TYPE, SchemaItem } from "../constants";
 
@@ -21,7 +19,7 @@ const DEFAULT_CONFIG = omit(
   BLACKLISTED_DEFAULT_CONFIG_KEYS,
 );
 
-type InputFieldProps = InputComponentProps & {
+type InputFieldProps = {
   name: ControllerRenderProps["name"];
   schemaItem: SchemaItem;
 };

@@ -288,6 +288,10 @@ export interface DropDownComponentProps extends ComponentProps {
   height: number;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  // For FormBuilderWidget - starts
+  inputRef?: (ref: HTMLInputElement | null) => any;
+  onBlurHandler?: React.FocusEventHandler;
+  // For FormBuilderWidget - ends
 }
 
 export default DropDownComponent;

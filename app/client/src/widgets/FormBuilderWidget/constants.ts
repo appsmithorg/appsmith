@@ -2,6 +2,8 @@ import ArrayField from "./fields/ArrayField";
 import InputField from "./fields/InputField";
 import MultiSelectField from "./fields/MultiSelectField";
 import ObjectField from "./fields/ObjectField";
+import SelectField from "./fields/SelectField";
+import SwitchField from "./fields/SwitchField";
 import { InputType } from "widgets/InputWidget/constants";
 
 export enum FieldType {
@@ -34,10 +36,10 @@ export enum DataType {
   FUNCTION = "function",
 }
 
-export type SchemaItem = {
+export type SchemaItem<TProps = any> = {
   children: Schema;
   // TODO: Define typings for props
-  props: Record<string, any>;
+  props: TProps;
   dataType: DataType;
   fieldType: FieldType;
   name: string;
@@ -48,7 +50,7 @@ export type SchemaItem = {
 export type Schema = SchemaItem[];
 
 export const FIELD_MAP: Record<FieldType, (props: any) => JSX.Element> = {
-  [FieldType.TEXT]: InputField,
+  [FieldType.TEXT]: SelectField,
   [FieldType.NUMBER]: InputField,
   [FieldType.EMAIL]: InputField,
   [FieldType.PHONE_NUMBER]: InputField,
@@ -57,8 +59,8 @@ export const FIELD_MAP: Record<FieldType, (props: any) => JSX.Element> = {
   [FieldType.FILE]: InputField,
   [FieldType.RADIO_GROUP]: InputField,
   [FieldType.MULTI_SELECT]: MultiSelectField,
-  [FieldType.SELECT]: InputField,
-  [FieldType.SWITCH]: InputField,
+  [FieldType.SELECT]: SelectField,
+  [FieldType.SWITCH]: SwitchField,
   [FieldType.TIME]: InputField,
   [FieldType.ARRAY]: ArrayField,
   [FieldType.OBJECT]: ObjectField,

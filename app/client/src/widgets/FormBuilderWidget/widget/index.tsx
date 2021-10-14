@@ -67,12 +67,6 @@ class FormBuilderWidget extends BaseWidget<
     const schema = SchemaParser.parse(currFormData, this.props.schema);
 
     // eslint-disable-next-line
-    // console.log("FORM BUILDER", this.props);
-    // const schema = {
-    //   __root__: rootSchemaObject,
-    // };
-
-    // eslint-disable-next-line
     console.log("FORM BUILDER - SCHEMA", schema);
     this.updateWidgetProperty("schema", schema);
   };
