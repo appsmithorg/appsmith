@@ -97,12 +97,21 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 z-index: 1;
 
                 & .t--application-view-link {
-                  border: none;
+                  border: 2px solid #000;
                   background-color: #000;
                   color: #fff;
                 }
+
                 & .t--application-view-link:hover {
-                  background-color: #666;
+                  background-color: transparent;
+                  border: 2px solid #000;
+                  color: #000;
+
+                  svg {
+                    path {
+                      fill: #000;
+                    }
+                  }
                 }
 
                 & .t--application-edit-link, & .t--application-view-link {
