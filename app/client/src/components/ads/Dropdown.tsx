@@ -562,6 +562,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
 
 export default function Dropdown(props: DropdownProps) {
   const {
+    autoFocusEnable,
     onSelect,
     showDropIcon = true,
     isLoading = false,
@@ -600,16 +601,17 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   const onFocus = useCallback(() => {
-    if (!props.disabled) {
+    if (!props.disabled && autoFocusEnable) {
       setIsOpen(true);
     }
   }, []);
 
   const onKeyUp = useCallback((event: any) => {
     if (
-      event.key === "ArrowUp" ||
-      event.key === "ArrowDown" ||
-      event.key === "Enter"
+      autoFocusEnable &&
+      (event.key === "ArrowUp" ||
+        event.key === "ArrowDown" ||
+        event.key === "Enter")
     ) {
       if (event.key === "ArrowUp" && optionIndex.current > 0) {
         optionIndex.current = optionIndex.current - 1;

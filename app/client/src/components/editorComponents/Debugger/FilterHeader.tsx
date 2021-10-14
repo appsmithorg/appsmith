@@ -106,6 +106,7 @@ function FilterHeader(props: FilterHeaderProps) {
         )}
       </div>
       <Dropdown
+        autoFocusEnable
         className="debugger-filter"
         onSelect={props.onSelect}
         optionWidth="115px"
