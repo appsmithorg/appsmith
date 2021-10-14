@@ -4,15 +4,6 @@ on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
-  pull_request_review:
-    types: [submitted]
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "app/server/**"
-      - "app/rts/**"
-      - "!app/client/cypress/manual_TestSuite/**"
-
   # trigger for pushes to release and master
   push:
     branches: [release, release-frozen, master]
@@ -530,8 +521,8 @@ jobs:
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)) &&
       github.ref == 'refs/heads/release')
-   #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
-   
+    #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
+
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
