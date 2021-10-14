@@ -77,7 +77,7 @@ function GitSyncModal() {
 
   const activeTabIndex = useSelector(getActiveGitSyncModalTab);
   const setActiveTabIndex = (index: number) =>
-    dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
+    dispatch(setIsGitSyncModalOpen({ isOpen: !!isModalOpen, tab: index }));
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const remoteUrlInStore = gitMetaData?.remoteUrl;
   let initialTabIndex = 0;
