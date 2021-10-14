@@ -10,7 +10,10 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
+import {
+  thinScrollbar,
+  truncateTextUsingEllipsis,
+} from "constants/DefaultTheme";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -314,6 +317,7 @@ const StyledAnchor = styled.a`
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
+  ${thinScrollbar};
   /* padding-bottom: 160px; */
 `;
 

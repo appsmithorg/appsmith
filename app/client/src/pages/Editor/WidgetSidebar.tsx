@@ -23,7 +23,7 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -34,12 +34,7 @@ const MainWrapper = styled.div`
   &:focus,
   &:hover {
     overflow: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar {
-      width: 0px;
-      -webkit-appearance: none;
-    }
+    ${thinScrollbar};
   }
   &::-webkit-scrollbar-track {
     background-color: transparent;
@@ -187,7 +182,6 @@ function WidgetSidebar(props: IPanelProps) {
             </Boxed>
           ))}
         </CardsWrapper>
-        <ScrollIndicator containerRef={sidebarRef} top={"90px"} />
       </MainWrapper>
     </>
   );
