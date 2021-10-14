@@ -137,6 +137,7 @@ Please check out our [Testing Contribution](docs/TestAutomation.md) guide for mo
 ```
 
 ### Windows WSL2 Setup
+[![How to Setup Appsmith for Client Side Development in Windows](../static/images/client-wsl-yt-video-thumbnail.png)](https://youtu.be/Od-qic69syA)
 
 Before you follow the instructions above, make sure to check the following steps:
 
