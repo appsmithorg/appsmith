@@ -19,6 +19,10 @@ const Wrapper = styled.div`
   justify-content: flex-start;
   margin-left: 30px;
   padding: 5px 0;
+  & > span > span.bp3-popover-target {
+    display: flex;
+    height: 100%;
+  }
   & > div {
     width: 160px;
     margin: 0 16px;

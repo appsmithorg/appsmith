@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  ReactElement,
+  useRef,
+} from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
@@ -79,6 +85,7 @@ export type DropdownProps = CommonComponentProps &
     dontUsePortal?: boolean;
     hideSubText?: boolean;
     boundary?: PopperBoundary;
+    autoFocusEnable?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -566,6 +573,7 @@ export default function Dropdown(props: DropdownProps) {
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
+  const optionIndex = useRef(0);
 
   const closeIfOpen = () => {
     if (isOpen) {
@@ -576,6 +584,9 @@ export default function Dropdown(props: DropdownProps) {
   useEffect(() => {
     setSelected(props.selected);
     closeIfOpen();
+    optionIndex.current = props.options.findIndex(
+      (option: DropdownOption) => option.value === selected.value,
+    );
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
@@ -588,6 +599,35 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
+  const onFocus = useCallback(() => {
+    if (!props.disabled) {
+      setIsOpen(true);
+    }
+  }, []);
+
+  const onKeyUp = useCallback((event: any) => {
+    if (
+      event.key === "ArrowUp" ||
+      event.key === "ArrowDown" ||
+      event.key === "Enter"
+    ) {
+      if (event.key === "ArrowUp" && optionIndex.current > 0) {
+        optionIndex.current = optionIndex.current - 1;
+        setSelected(props.options[optionIndex.current]);
+      } else if (
+        event.key === "ArrowDown" &&
+        optionIndex.current < props.options.length - 1
+      ) {
+        optionIndex.current = optionIndex.current + 1;
+        setSelected(props.options[optionIndex.current]);
+      } else if (event.key === "Enter") {
+        setIsOpen(false);
+        const option = props.options[optionIndex.current];
+        onSelect && onSelect(option.value, option);
+        option.onSelect && option.onSelect(option.value, option);
+      }
+    }
+  }, []);
   const disabled = props.disabled || isLoading;
   const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
@@ -621,6 +661,7 @@ export default function Dropdown(props: DropdownProps) {
       isOpen={isOpen}
       onClick={onClickHandler}
       ref={dropdownWrapperRef}
+      tabIndex={0}
     >
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
@@ -674,15 +715,19 @@ export default function Dropdown(props: DropdownProps) {
       className={props.containerClassName}
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
+      onFocus={onFocus}
+      onKeyUp={onKeyUp}
       tabIndex={0}
       width={dropdownWidth}
     >
       <Popover
+        autoFocus={!!true}
         boundary={props.boundary || "scrollParent"}
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
+        openOnTargetFocus={!!true}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
@@ -692,11 +737,7 @@ export default function Dropdown(props: DropdownProps) {
           {...props}
           optionClickHandler={optionClickHandler}
           optionWidth={dropdownOptionWidth}
-          selected={
-            props.selected
-              ? props.selected
-              : { id: undefined, value: undefined }
-          }
+          selected={selected || { id: undefined, value: undefined }}
         />
       </Popover>
     </DropdownContainer>
