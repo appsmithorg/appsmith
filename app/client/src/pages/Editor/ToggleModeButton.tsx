@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import TooltipComponent from "components/ads/Tooltip";
@@ -16,6 +16,7 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
+  getCommentsState,
   hasUnreadCommentThreadSelector,
 } from "../../selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -310,6 +311,14 @@ type ToggleCommentModeButtonProps = {
   showSelectedMode?: boolean;
 };
 
+export const useHasUnreadCommentThread = (applicationId: string) => {
+  const commentsState = useSelector(getCommentsState);
+  const state = useSelector((state: AppState) => state);
+  return useMemo(() => hasUnreadCommentThreadSelector(applicationId)(state), [
+    commentsState,
+  ]);
+};
+
 function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
@@ -317,9 +326,7 @@ function ToggleCommentModeButton({
   const currentUser = useSelector(getCurrentUser);
   const appId = useSelector(getCurrentApplicationId) || "";
   const appMode = useSelector(getAppMode);
-  const hasUnreadCommentThread = useSelector(
-    hasUnreadCommentThreadSelector(appId),
-  );
+  const hasUnreadCommentThread = useHasUnreadCommentThread(appId);
 
   // show comments indicator only if -
   // 1. user hasn't completed their comments onboarding and they are in published mode or
