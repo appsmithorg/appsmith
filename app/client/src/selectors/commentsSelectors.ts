@@ -150,8 +150,9 @@ export const getSortedAndFilteredAppCommentThreadIds = (
   return result;
 };
 
-export const getLastUpdatedCommentThreadId = (state: AppState) =>
-  state.ui.comments.lastUpdatedCommentThreadId;
+export const getLastUpdatedCommentThreadId = (applicationId: string) => (
+  state: AppState,
+) => state.ui.comments.lastUpdatedCommentThreadByAppId[applicationId];
 
 export const shouldShowResolved = (state: AppState) =>
   state.ui.comments.shouldShowResolvedAppCommentThreads;

@@ -35,7 +35,10 @@ const handleUpdateCommentThreadEvent = (
 
   return {
     ...state,
-    lastUpdatedCommentThreadId: id,
+    lastUpdatedCommentThreadByAppId: {
+      ...state.lastUpdatedCommentThreadByAppId,
+      [thread.applicationId]: id,
+    },
   };
 };
 
