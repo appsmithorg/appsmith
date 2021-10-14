@@ -5,10 +5,10 @@ export const navigateToCanvas = (
   currentPath: string,
   widgetPageId: string,
   widgetId: string,
-  defaultApplicationId: string,
+  applicationId: string,
 ) => {
   const canvasEditorURL = `${BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId: widgetPageId,
     hash: widgetId,
   })}`;

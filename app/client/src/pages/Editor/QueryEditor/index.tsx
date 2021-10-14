@@ -12,7 +12,10 @@ import history from "utils/history";
 import QueryEditorForm from "./Form";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import { AppState } from "reducers";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
@@ -39,7 +42,6 @@ import {
 } from "actions/evaluationActions";
 import { getUIComponent } from "selectors/formSelectors";
 import { diff } from "deep-diff";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -78,7 +80,7 @@ type ReduxStateProps = {
   settingConfig: any;
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
-  defaultApplicationId: string;
+  applicationId: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -152,8 +154,8 @@ class QueryEditor extends React.Component<Props> {
 
   render() {
     const {
+      applicationId,
       dataSources,
-      defaultApplicationId,
       editorConfig,
       isCreating,
       isDeleting,
@@ -193,11 +195,7 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(
-          defaultApplicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
-        ),
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
     };
     return (
@@ -265,7 +263,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
-    defaultApplicationId: getDefaultApplicationId(state),
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

@@ -49,11 +49,7 @@ import {
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
-  initEditor: (
-    defaultApplicationId: string,
-    pageId: string,
-    branchName?: string,
-  ) => void;
+  initEditor: (applicationId: string, pageId: string, branch?: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
@@ -66,7 +62,7 @@ type EditorProps = {
   handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
-  handleBranchChange: (branchName: string) => void;
+  handleBranchChange: (branch: string) => void;
   currentPageId?: string;
   isPageLevelSocketConnected: boolean;
   collabStartSharingPointerEvent: (pageId: string) => void;
@@ -92,9 +88,9 @@ class Editor extends Component<Props> {
     } = this.props;
     const branch = getSearchQuery(search, "branch");
 
-    const { defaultApplicationId, pageId } = this.props.match.params;
-    if (defaultApplicationId) {
-      this.props.initEditor(defaultApplicationId, pageId, branch);
+    const { applicationId, pageId } = this.props.match.params;
+    if (applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
@@ -141,7 +137,7 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { defaultApplicationId, pageId } = this.props.match.params || {};
+    const { applicationId, pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
     const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
 
@@ -149,8 +145,8 @@ class Editor extends Component<Props> {
 
     const isPageIdUpdated = pageId !== prevPageId;
 
-    if (isBranchUpdated && defaultApplicationId) {
-      this.props.initEditor(defaultApplicationId, pageId, branch);
+    if (isBranchUpdated && applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
     } else {
       /**
        * First time load is handled by init sagas
@@ -239,11 +235,8 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (
-      defaultApplicationId: string,
-      pageId: string,
-      branchName?: string,
-    ) => dispatch(initEditor(defaultApplicationId, pageId, branchName)),
+    initEditor: (applicationId: string, pageId: string, branch?: string) =>
+      dispatch(initEditor(applicationId, pageId, branch)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),

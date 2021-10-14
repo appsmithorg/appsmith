@@ -144,7 +144,7 @@ export const getCommentThreadURL = ({
 
   const url = new URL(
     `${window.location.origin}${urlBuilder({
-      defaultApplicationId: applicationId,
+      applicationId: applicationId,
       pageId,
       params: queryParams,
     })}`,

@@ -27,9 +27,10 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -54,7 +55,7 @@ function ActionForm(props: Props) {
     dispatch(deleteAction({ id: apiId, name: actionName }));
   };
 
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   //Following if block is the fix for the missing where key
   /**
@@ -108,11 +109,7 @@ function ActionForm(props: Props) {
 
   const onCreateDatasourceClick = () => {
     history.push(
-      INTEGRATION_EDITOR_URL(
-        defaultApplicationId,
-        pageId,
-        INTEGRATION_TABS.NEW,
-      ),
+      INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
     );
   };
 

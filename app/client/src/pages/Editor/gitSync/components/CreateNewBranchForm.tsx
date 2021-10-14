@@ -18,7 +18,7 @@ export default function CreateNewBranchForm({
   onCancel: () => void;
   onChange: (value: string) => void;
 }) {
-  const setBranchName = (value: string) => {
+  const setBranch = (value: string) => {
     if (typeof onChange === "function") onChange(value);
   };
 
@@ -29,7 +29,7 @@ export default function CreateNewBranchForm({
           autoFocus
           defaultValue={defaultBranchValue}
           fill
-          onChange={setBranchName}
+          onChange={setBranch}
           // validator={() => ({ isValid: isInputValid, message: "" })}
         />
       </div>
@@ -44,6 +44,7 @@ export default function CreateNewBranchForm({
         <Space horizontal size={3} />
         <Button
           category={Category.primary}
+          className="t--create-new-branch-submit-button"
           disabled={!isInputValid}
           isLoading={isCreatingNewBranch}
           onClick={onSubmit}

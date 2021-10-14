@@ -25,10 +25,7 @@ import ApplicationApi, {
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
-import {
-  getDefaultApplicationId,
-  getUserApplicationsOrgsList,
-} from "selectors/applicationSelectors";
+import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
 import {
@@ -113,10 +110,10 @@ export function* publishApplicationSaga(
       });
 
       const currentPageId = yield select(getCurrentPageId);
-      const defaultApplicationId = yield select(getDefaultApplicationId);
+      const applicationId = yield select(getCurrentApplicationId);
 
       let appicationViewPageUrl = getApplicationViewerPageURL({
-        defaultApplicationId,
+        applicationId,
         pageId: currentPageId,
       });
 
@@ -128,7 +125,7 @@ export function* publishApplicationSaga(
       yield put(
         fetchApplication({
           payload: {
-            defaultApplicationId: defaultApplicationId,
+            applicationId,
             mode: APP_MODE.EDIT,
           },
         }),
@@ -196,7 +193,7 @@ export function* getAllApplicationSaga() {
 
 export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
   try {
-    const { branchName, defaultApplicationId, mode } = action.payload;
+    const { applicationId, mode } = action.payload;
     // Get endpoint based on app mode
     const apiEndpoint =
       mode === APP_MODE.EDIT
@@ -205,8 +202,7 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
 
     const response: FetchApplicationResponse = yield call(
       apiEndpoint,
-      defaultApplicationId,
-      branchName,
+      applicationId,
     );
 
     yield put({
@@ -378,7 +374,7 @@ export function* duplicateApplicationSaga(
         payload: response.data,
       });
       const pageURL = BUILDER_PAGE_URL({
-        defaultApplicationId: application.id,
+        applicationId: application.id,
         pageId: application.defaultPageId,
       });
       history.push(pageURL);
@@ -507,7 +503,7 @@ export function* createApplicationSaga(
             payload: application.id,
           });
           pageURL = BUILDER_PAGE_URL({
-            defaultApplicationId: application.id,
+            applicationId: application.id,
             pageId: application.defaultPageId,
           });
         } else {
@@ -560,7 +556,7 @@ export function* forkApplicationSaga(
         },
       });
       const pageURL = BUILDER_PAGE_URL({
-        defaultApplicationId: application.id,
+        applicationId: application.id,
         pageId: application.defaultPageId,
       });
       history.push(pageURL);
@@ -605,7 +601,7 @@ export function* importApplicationSaga(
         });
         const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
         const pageURL = BUILDER_PAGE_URL({
-          defaultApplicationId: appId,
+          applicationId: appId,
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);

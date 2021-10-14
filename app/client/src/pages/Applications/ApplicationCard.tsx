@@ -45,7 +45,6 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import {
-  getApplicationIdFromPayload,
   isEllipsisActive,
   truncateString,
   howMuchTimeBeforeText,
@@ -369,7 +368,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
-  const applicationId = getApplicationIdFromPayload(props.application);
+  const applicationId = props.application?.id;
 
   useEffect(() => {
     let colorCode;
@@ -519,11 +518,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   const viewApplicationURL = getApplicationViewerPageURL({
-    defaultApplicationId: applicationId,
+    applicationId: applicationId,
     pageId: props.application.defaultPageId,
   });
   const editApplicationURL = BUILDER_PAGE_URL({
-    defaultApplicationId: applicationId,
+    applicationId: applicationId,
     pageId: props.application.defaultPageId,
   });
 

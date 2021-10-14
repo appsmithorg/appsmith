@@ -1,5 +1,3 @@
-import { APP_MODE } from "entities/App";
-
 const { compile, match } = require("path-to-regexp");
 
 import { getQueryParamsObject } from "utils/helpers";
@@ -29,8 +27,8 @@ export const SIGNUP_SUCCESS_URL = `/signup-success`;
 export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 
-export const BUILDER_URL = `/applications/:defaultApplicationId/(pages)?/:pageId?/edit`;
-export const VIEWER_URL = `/applications/:defaultApplicationId/(pages)?/:pageId?`;
+export const BUILDER_URL = `/applications/:applicationId/(pages)?/:pageId?/edit`;
+export const VIEWER_URL = `/applications/:applicationId/(pages)?/:pageId?`;
 
 export const VIEWER_FORK_PATH = `${VIEWER_URL}/fork`;
 
@@ -81,14 +79,15 @@ export const extractAppIdAndPageIdFromUrl = (url = "") => {
 
 export const compileBuilderUrl = compile(BUILDER_URL);
 
-export const getDefaultPathForBranch = (params: any, mode?: APP_MODE) => {
-  const modeDependentPath = mode === APP_MODE.PUBLISHED ? "" : "/edit";
-  return `/applications/${params.applicationId}${modeDependentPath}?${GIT_BRANCH_QUERY_KEY}=${params.branchName}`;
+export const addBranchParam = (branch: string) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set(GIT_BRANCH_QUERY_KEY, encodeURIComponent(branch));
+  return url.toString().slice(url.origin.length);
 };
 
 export type BuilderRouteParams = {
   pageId: string;
-  defaultApplicationId: string;
+  applicationId: string;
 };
 
 export type AppViewerRouteParams = {
@@ -115,15 +114,14 @@ export type JSEditorRouteParams = {
   collectionId?: string;
 };
 
-export const BUILDER_BASE_URL = (
-  applicationId = ":defaultApplicationId",
-): string => `/applications/${applicationId}`;
+export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
+  `/applications/${applicationId}`;
 
 export const GIT_BRANCH_QUERY_KEY = "branch";
 
 export const BUILDER_PAGE_URL = (props: {
   branch?: string;
-  defaultApplicationId?: string;
+  applicationId?: string;
   hash?: string;
   pageId?: string; // TODO make pageId mandatory
   params?: Record<string, string>;
@@ -131,7 +129,7 @@ export const BUILDER_PAGE_URL = (props: {
 }): string => {
   const {
     branch,
-    defaultApplicationId,
+    applicationId,
     hash = "",
     pageId,
     params = {},
@@ -152,72 +150,77 @@ export const BUILDER_PAGE_URL = (props: {
     modifiedParams = { branch: derivedBranch, ...params };
   }
 
+  if ((window as any).Cypress) {
+    // test param to make sure a query param is present in the URL
+    modifiedParams = { a: "b", ...modifiedParams };
+  }
+
   const queryString = convertToQueryParams(modifiedParams);
   const suffixPath = suffix ? `/${suffix}` : "";
   const hashPath = hash ? `#${hash}` : "";
 
-  return `/applications/${defaultApplicationId}/pages/${pageId}/edit${suffixPath}${hashPath}${queryString}`;
+  return `/applications/${applicationId}/pages/${pageId}/edit${suffixPath}${hashPath}${queryString}`;
 };
 
 export const API_EDITOR_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "api",
   });
 
 export const PAGE_LIST_EDITOR_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "pages",
   });
 
 export const DATA_SOURCES_EDITOR_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "datasource",
   });
 
 export const DATA_SOURCES_EDITOR_ID_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   datasourceId = ":datasourceId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: `datasource/${datasourceId}`,
     params,
   });
 
 export const QUERIES_EDITOR_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "queries",
   });
 
 export const JS_COLLECTION_EDITOR_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "jsObjects",
   });
@@ -232,7 +235,7 @@ export const INTEGRATION_EDITOR_MODES = {
   MOCK: "mock",
 };
 export const INTEGRATION_EDITOR_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   selectedTab = ":selectedTab",
   mode = "",
@@ -244,7 +247,7 @@ export const INTEGRATION_EDITOR_URL = (
   }
   const suffixPath = suffix ? `/${suffix}` : "";
   return BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: `datasources/${selectedTab}${suffixPath}`,
     params,
@@ -252,38 +255,38 @@ export const INTEGRATION_EDITOR_URL = (
 };
 
 export const QUERIES_EDITOR_ID_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   queryId = ":queryId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: `queries/${queryId}`,
     params,
   });
 
 export const API_EDITOR_ID_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   apiId = ":apiId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: `api/${apiId}`,
     params,
   });
 
 export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   selectedPageId = ":importTo",
 ): string => {
   return BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "api",
     params: {
@@ -293,13 +296,13 @@ export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
 };
 
 export const JS_COLLECTION_ID_URL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   collectionId = ":collectionId",
   params = {},
 ): string => {
   return BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: `jsObjects/${collectionId}`,
     params,
@@ -307,19 +310,19 @@ export const JS_COLLECTION_ID_URL = (
 };
 
 export const getApplicationViewerPageURL = (props: {
-  defaultApplicationId?: string;
+  applicationId?: string;
   pageId?: string; // TODO make pageId this mandatory
   params?: Record<string, string>;
   suffix?: string;
 }): string => {
   const {
-    defaultApplicationId = ":defaultApplicationId",
+    applicationId = ":applicationId",
     pageId = ":pageId",
     params = {},
     suffix,
   } = props;
 
-  const url = `/applications/${defaultApplicationId}/pages/${pageId}`;
+  const url = `/applications/${applicationId}/pages/${pageId}`;
 
   const existingParams = getQueryParamsObject() || {};
 
@@ -353,30 +356,30 @@ export function convertToQueryParams(
 }
 
 export const getCurlImportPageURL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "api/curl/curl-import",
     params,
   });
 
 export const getProviderTemplatesURL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   providerId = ":providerId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: `api/provider/${providerId}`,
   });
 
 export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   selectedPageId = ":importTo",
 ): string => {
@@ -384,7 +387,7 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     importTo: selectedPageId,
   };
   return BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "queries",
     params,
@@ -392,33 +395,33 @@ export const QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
 };
 
 export const getGenerateTemplateURL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: GEN_TEMPLATE_URL,
   });
 
 export const getGenerateTemplateFormURL = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
   params = {},
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: `${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`,
     params,
   });
 
 export const getOnboardingCheckListUrl = (
-  defaultApplicationId = ":defaultApplicationId",
+  applicationId = ":applicationId",
   pageId = ":pageId",
 ): string =>
   BUILDER_PAGE_URL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "checklist",
   });

@@ -21,7 +21,10 @@ import {
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
-import { getViewModePageList } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getViewModePageList,
+} from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -38,10 +41,7 @@ import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
-import {
-  getDefaultApplicationId,
-  showAppInviteUsersDialogSelector,
-} from "selectors/applicationSelectors";
+import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { ShareButtonComponent } from "../../Editor/EditorHeader";
 
@@ -153,7 +153,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
 
   const showAppInviteUsersDialog = useSelector(
@@ -173,7 +173,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
     window.location.origin
   }${getApplicationViewerPageURL({
-    defaultApplicationId,
+    applicationId,
     pageId,
     suffix: "fork",
   })}`;

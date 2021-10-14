@@ -11,6 +11,7 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  UPDATE_BRANCH_LOCALLY: "UPDATE_BRANCH_LOCALLY",
   FETCH_BRANCHES_INIT: "FETCH_BRANCHES_INIT",
   FETCH_BRANCHES_SUCCESS: "FETCH_BRANCHES_SUCCESS",
   FETCH_GIT_STATUS_INIT: "FETCH_GIT_STATUS_INIT",
@@ -880,7 +881,7 @@ export interface ApplicationPayload {
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
-  defaultApplicationId?: string;
+  applicationId?: string;
   modifiedBy?: string;
   modifiedAt?: string;
 }
@@ -904,7 +905,7 @@ export interface LoadWidgetSidebarPayload {
 }
 
 export type InitializeEditorPayload = {
-  defaultApplicationId: string;
+  applicationId: string;
   pageId: string;
-  branchName?: string;
+  branch?: string;
 };

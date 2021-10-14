@@ -4,7 +4,10 @@ import { useParams } from "react-router";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { getAction } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
 import { getSelectedWidget } from "selectors/ui";
@@ -13,7 +16,6 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
@@ -101,7 +103,7 @@ export const useSelectedEntity = () => {
 export const useEntityLink = () => {
   const dataTree = useSelector(getDataTree);
   const pageId = useSelector(getCurrentPageId);
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const { navigateToWidget } = useNavigateToWidget();
 
@@ -113,9 +115,9 @@ export const useEntityLink = () => {
       } else if (isAction(entity)) {
         const actionConfig = getActionConfig(entity.pluginType);
         const url =
-          defaultApplicationId &&
+          applicationId &&
           actionConfig?.getURL(
-            defaultApplicationId,
+            applicationId,
             pageId || "",
             entity.actionId,
             entity.pluginType,
@@ -126,7 +128,7 @@ export const useEntityLink = () => {
         }
       } else if (isJSAction(entity)) {
         history.push(
-          JS_COLLECTION_ID_URL(defaultApplicationId, pageId, entity.actionId),
+          JS_COLLECTION_ID_URL(applicationId, pageId, entity.actionId),
         );
       }
     },

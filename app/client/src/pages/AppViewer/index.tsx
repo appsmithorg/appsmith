@@ -65,9 +65,9 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 
 export type AppViewerProps = {
   initializeAppViewer: (params: {
-    defaultApplicationId: string;
+    applicationId: string;
     pageId?: string;
-    branchName?: string;
+    branch?: string;
   }) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
@@ -99,23 +99,23 @@ class AppViewer extends Component<Props> {
       this.setState({ registered: true });
     });
 
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { applicationId, pageId } = this.props.match.params;
     const {
       location: { search },
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (defaultApplicationId) {
+    if (applicationId) {
       this.props.initializeAppViewer({
-        branchName: branch,
-        defaultApplicationId,
+        branch: branch,
+        applicationId,
         pageId,
       });
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { defaultApplicationId, pageId } = this.props.match.params;
+    const { applicationId, pageId } = this.props.match.params;
     const {
       location: { search: prevSearch },
     } = prevProps;
@@ -126,11 +126,11 @@ class AppViewer extends Component<Props> {
     const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    if (branch && branch !== prevBranch && defaultApplicationId && pageId) {
+    if (branch && branch !== prevBranch && applicationId && pageId) {
       this.props.initializeAppViewer({
-        defaultApplicationId,
+        applicationId,
         pageId,
-        branchName: branch,
+        branch: branch,
       });
     }
   }
@@ -207,9 +207,9 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
   initializeAppViewer: (params: {
-    defaultApplicationId: string;
+    applicationId: string;
     pageId?: string;
-    branchName?: string;
+    branch?: string;
   }) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,

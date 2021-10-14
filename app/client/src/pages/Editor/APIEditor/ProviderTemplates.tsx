@@ -10,7 +10,6 @@ import { ProviderViewerRouteParams } from "constants/routes";
 import {
   getProviderTemplates,
   getProvidersTemplatesLoadingState,
-  getDefaultApplicationId,
 } from "selectors/applicationSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -34,6 +33,7 @@ import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -195,7 +195,7 @@ type ProviderTemplatesProps = {
   setLastSelectedPage: (selectedPageId: string) => void;
   addApiToPage: (templateData: AddApiToPageRequest) => void;
   appCardColors: string[];
-  defaultApplicationId: string;
+  applicationId: string;
 } & RouteComponentProps<ProviderViewerRouteParams>;
 
 class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
@@ -268,7 +268,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
 
   render() {
     const {
-      defaultApplicationId,
+      applicationId,
       history,
       isFetchingProviderTemplates,
       providerDetails,
@@ -310,7 +310,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             onClick={() =>
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  defaultApplicationId,
+                  applicationId,
                   pageId,
                   INTEGRATION_TABS.ACTIVE,
                 ),
@@ -322,7 +322,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             onClick={() =>
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  defaultApplicationId,
+                  applicationId,
                   pageId,
                   INTEGRATION_TABS.ACTIVE,
                 ),
@@ -513,7 +513,7 @@ const mapStateToProps = (state: AppState) => ({
   actions: state.entities.actions,
   providerDetails: state.ui.providers.providerDetailsByProviderId,
   appCardColors: getAppCardColorPalette(state),
-  defaultApplicationId: getDefaultApplicationId(state),
+  applicationId: getCurrentApplicationId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

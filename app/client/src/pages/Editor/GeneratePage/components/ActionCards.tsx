@@ -16,7 +16,7 @@ import {
 } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type routeId = {
   applicationId: string;
@@ -28,9 +28,7 @@ const routeToEmptyEditorFromGenPage = ({
   pageId,
 }: routeId): void => {
   AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
-  history.push(
-    BUILDER_PAGE_URL({ defaultApplicationId: applicationId, pageId }),
-  );
+  history.push(BUILDER_PAGE_URL({ applicationId: applicationId, pageId }));
 };
 
 const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
@@ -40,7 +38,7 @@ const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
 
 function ActionCards() {
   const { pageId } = useParams<ExplorerURLParams>();
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   return (
     <>
@@ -49,7 +47,7 @@ function ActionCards() {
         className="t--BuildFromScratch"
         onClick={() =>
           routeToEmptyEditorFromGenPage({
-            applicationId: defaultApplicationId,
+            applicationId: applicationId,
             pageId,
           })
         }
@@ -68,7 +66,7 @@ function ActionCards() {
         )}
         className="t--GenerateCRUDPage"
         onClick={() =>
-          goToGenPageForm({ applicationId: defaultApplicationId, pageId })
+          goToGenPageForm({ applicationId: applicationId, pageId })
         }
         subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
         title={GENERATE_PAGE_ACTION_TITLE()}

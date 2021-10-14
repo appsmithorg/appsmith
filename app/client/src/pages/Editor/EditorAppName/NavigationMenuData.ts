@@ -16,7 +16,7 @@ import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -27,6 +27,7 @@ import getFeatureFlags from "../../../utils/featureFlags";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "../../../selectors/gitSyncSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -45,11 +46,9 @@ export const GetNavigationMenuData = ({
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
 
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
-  const isApplicationIdPresent = !!(
-    defaultApplicationId && defaultApplicationId.length > 0
-  );
+  const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
   const isGitConnected = useSelector(getIsGitConnected);
 
   const openGitConnectionPopup = () =>
@@ -73,11 +72,11 @@ export const GetNavigationMenuData = ({
   }, []);
 
   const deleteApplication = () => {
-    if (defaultApplicationId && defaultApplicationId.length > 0) {
+    if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
         payload: {
-          applicationId: defaultApplicationId,
+          applicationId: applicationId,
         },
       });
       history.push(APPLICATIONS_URL);
@@ -126,7 +125,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId));
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
       },
       type: MenuTypes.MENU,
       isVisible: true,
@@ -197,8 +196,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Export Application",
       onClick: () =>
-        defaultApplicationId &&
-        openExternalLink(getExportAppAPIRoute(defaultApplicationId)),
+        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },

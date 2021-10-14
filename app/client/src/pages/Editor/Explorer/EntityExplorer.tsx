@@ -25,8 +25,9 @@ import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found
 import { Colors } from "constants/Colors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -69,7 +70,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 function EntityExplorer(props: IPanelProps) {
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -111,19 +112,19 @@ function EntityExplorer(props: IPanelProps) {
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
-      history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }));
+      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
       openPanel({ component: WidgetSidebar });
       dispatch(forceOpenWidgetPanel(true));
       if (isFirstTimeUserOnboardingEnabled) {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }
     },
-    [openPanel, defaultApplicationId, isFirstTimeUserOnboardingEnabled],
+    [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
   );
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search clear={clearSearch} isHidden ref={searchInputRef} />
+      <Search clear={clearSearch} ref={searchInputRef} />
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}
