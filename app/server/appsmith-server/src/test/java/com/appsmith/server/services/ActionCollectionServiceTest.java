@@ -404,6 +404,11 @@ public class ActionCollectionServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * For a given collection testCollection1, that refers to another action testCollection1.testAction1,
+     * When the page with this collection is published,
+     * Then the view mode collection should contain actions and variables
+     */
     @Test
     @WithUserDetails(value = "api_user")
     public void testActionCollectionInViewMode() {
