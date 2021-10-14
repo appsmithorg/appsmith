@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.ActionCollection;
@@ -45,6 +46,7 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,11 +100,12 @@ public class ActionCollectionServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    @MockBean
+    PluginExecutor pluginExecutor;
+
     Application testApp = null;
 
     PageDTO testPage = null;
-
-    Plugin testPlugin = null;
 
     Datasource datasource;
 
@@ -262,6 +265,10 @@ public class ActionCollectionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void refactorNameForActionRefactorsNameInCollection() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
         ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(testPage.getId());
@@ -336,6 +343,10 @@ public class ActionCollectionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testRefactorActionName_withActionNameEqualsRun_doesNotRefactorApiRunCalls() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
         ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(testPage.getId());

@@ -903,6 +903,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setCommentOnboardingState(userData.getCommentOnboardingState());
                     profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());
+                    profile.setPhotoId(userData.getProfilePhotoAssetId());
 
                     profile.setSuperUser(policyUtils.isPermissionPresentForUser(
                             userFromDb.getPolicies(),
