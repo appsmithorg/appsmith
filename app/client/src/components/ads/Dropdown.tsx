@@ -723,7 +723,6 @@ export default function Dropdown(props: DropdownProps) {
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
       onBlur={onBlur}
-      // onFocus={onFocus}
       onKeyUp={onKeyUp}
       ref={componentRef}
       tabIndex={0}
