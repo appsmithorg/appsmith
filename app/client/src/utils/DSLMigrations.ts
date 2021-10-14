@@ -953,10 +953,12 @@ const migrateCustomChartConfig = (
 ) => {
   if (currentDSL.type === "CHART_WIDGET") {
     if (currentDSL.hasOwnProperty("customFusionChartConfig")) {
-      currentDSL.customFusionChartType =
-        currentDSL.customFusionChartConfig.type;
-      currentDSL.customFusionChartConfig =
-        currentDSL.customFusionChartConfig.dataSource;
+      let config = currentDSL.customFusionChartConfig;
+      if (isString(config)) {
+        config = JSON.parse(config);
+      }
+      currentDSL.customFusionChartType = config.type;
+      currentDSL.customFusionChartConfig = config.dataSource;
     }
     return currentDSL;
   }
