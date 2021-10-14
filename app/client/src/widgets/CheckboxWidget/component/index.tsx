@@ -65,7 +65,9 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
             this.props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT
           }
           disabled={this.props.isDisabled}
+          inputRef={this.props.inputRef}
           label={this.props.label}
+          onBlur={this.props.onBlurHandler}
           onChange={this.onCheckChange}
           rowSpace={this.props.rowSpace}
         />
@@ -86,6 +88,10 @@ export interface CheckboxComponentProps extends ComponentProps {
   label: string;
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
+  // For FormBuilderWidget - starts
+  inputRef?: (ref: HTMLInputElement | null) => any;
+  onBlurHandler?: React.FocusEventHandler;
+  // For FormBuilderWidget - ends
 }
 
 export default CheckboxComponent;

@@ -1,4 +1,5 @@
 import ArrayField from "./fields/ArrayField";
+import CheckboxField from "./fields/CheckboxField";
 import InputField from "./fields/InputField";
 import MultiSelectField from "./fields/MultiSelectField";
 import ObjectField from "./fields/ObjectField";
@@ -54,7 +55,7 @@ export const FIELD_MAP: Record<FieldType, (props: any) => JSX.Element> = {
   [FieldType.NUMBER]: InputField,
   [FieldType.EMAIL]: InputField,
   [FieldType.PHONE_NUMBER]: InputField,
-  [FieldType.CHECKBOX]: InputField,
+  [FieldType.CHECKBOX]: CheckboxField,
   [FieldType.DATE]: InputField,
   [FieldType.FILE]: InputField,
   [FieldType.RADIO_GROUP]: InputField,
@@ -66,6 +67,11 @@ export const FIELD_MAP: Record<FieldType, (props: any) => JSX.Element> = {
   [FieldType.OBJECT]: ObjectField,
 };
 
+/**
+ * This translates FieldType to Input component inputType
+ * As InputField would handle all the below types (Text/Number), this map
+ * would help use identify what inputType it is based on the FieldType.
+ */
 export const INPUT_FIELD_TYPE = {
   [FieldType.TEXT]: "TEXT",
   [FieldType.NUMBER]: "NUMBER",
@@ -76,42 +82,47 @@ export const INPUT_FIELD_TYPE = {
 export const DATA_TYPE_POTENTIAL_FIELD = {
   [DataType.STRING]: {
     default: FieldType.TEXT,
-    options: [FieldType.TEXT, FieldType.EMAIL, FieldType.PHONE_NUMBER],
+    options: [
+      FieldType.TEXT,
+      FieldType.EMAIL,
+      FieldType.PHONE_NUMBER,
+      FieldType.SELECT,
+    ],
   },
   [DataType.BOOLEAN]: {
     default: FieldType.SWITCH,
-    options: [FieldType.SWITCH, FieldType.TEXT],
+    options: [FieldType.SWITCH, FieldType.CHECKBOX],
   },
   [DataType.NUMBER]: {
     default: FieldType.NUMBER,
-    options: [FieldType.NUMBER],
+    options: [FieldType.NUMBER, FieldType.PHONE_NUMBER],
   },
   [DataType.BIGINT]: {
     default: FieldType.NUMBER,
     options: [FieldType.NUMBER],
   },
   [DataType.SYMBOL]: {
-    default: FieldType.NUMBER,
-    options: [FieldType.NUMBER],
+    default: FieldType.TEXT,
+    options: [FieldType.TEXT],
   },
   [DataType.UNDEFINED]: {
-    default: FieldType.NUMBER,
-    options: [FieldType.NUMBER],
+    default: FieldType.TEXT,
+    options: [FieldType.TEXT],
   },
   [DataType.NULL]: {
-    default: FieldType.NUMBER,
-    options: [FieldType.NUMBER],
+    default: FieldType.TEXT,
+    options: [FieldType.TEXT],
   },
   [DataType.OBJECT]: {
     default: FieldType.OBJECT,
-    options: [FieldType.NUMBER],
+    options: [FieldType.OBJECT],
   },
   [DataType.ARRAY]: {
     default: FieldType.ARRAY,
-    options: [FieldType.NUMBER],
+    options: [FieldType.ARRAY, FieldType.MULTI_SELECT],
   },
   [DataType.FUNCTION]: {
-    default: FieldType.NUMBER,
-    options: [FieldType.NUMBER],
+    default: FieldType.TEXT,
+    options: [FieldType.TEXT],
   },
 };
