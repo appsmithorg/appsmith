@@ -58,7 +58,7 @@ export function defaultValueValidation(
 
     return {
       isValid: true,
-      parsed,
+      parsed: parsed.toString(),
       messages: [""],
     };
   }
