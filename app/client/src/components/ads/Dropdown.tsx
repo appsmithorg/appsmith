@@ -85,7 +85,7 @@ export type DropdownProps = CommonComponentProps &
     dontUsePortal?: boolean;
     hideSubText?: boolean;
     boundary?: PopperBoundary;
-    autoFocusEnable?: boolean;
+    keyboardInteraction?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -562,7 +562,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
 
 export default function Dropdown(props: DropdownProps) {
   const {
-    autoFocusEnable,
+    keyboardInteraction,
     onSelect,
     showDropIcon = true,
     isLoading = false,
@@ -575,6 +575,7 @@ export default function Dropdown(props: DropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
   const optionIndex = useRef(0);
+  const componentRef = useRef<HTMLDivElement>(null);
 
   const closeIfOpen = () => {
     if (isOpen) {
@@ -600,20 +601,29 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
+  const onBlur = useCallback(() => {
+    if (!props.disabled && keyboardInteraction) {
+      setIsOpen(false);
+    }
+  }, []);
+
   const onFocus = useCallback(() => {
-    if (!props.disabled && autoFocusEnable) {
+    if (!props.disabled && keyboardInteraction) {
       setIsOpen(true);
     }
   }, []);
 
   const onKeyUp = useCallback((event: any) => {
     if (
-      autoFocusEnable &&
+      keyboardInteraction &&
       (event.key === "ArrowUp" ||
         event.key === "ArrowDown" ||
-        event.key === "Enter")
+        event.key === "Enter" ||
+        event.key === "Tab")
     ) {
-      if (event.key === "ArrowUp" && optionIndex.current > 0) {
+      if (event.key === "Tab") {
+        setIsOpen(true);
+      } else if (event.key === "ArrowUp" && optionIndex.current > 0) {
         optionIndex.current = optionIndex.current - 1;
         setSelected(props.options[optionIndex.current]);
       } else if (
@@ -623,6 +633,7 @@ export default function Dropdown(props: DropdownProps) {
         optionIndex.current = optionIndex.current + 1;
         setSelected(props.options[optionIndex.current]);
       } else if (event.key === "Enter") {
+        componentRef.current?.focus();
         setIsOpen(false);
         const option = props.options[optionIndex.current];
         onSelect && onSelect(option.value, option);
@@ -717,19 +728,19 @@ export default function Dropdown(props: DropdownProps) {
       className={props.containerClassName}
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
+      onBlur={onBlur}
       onFocus={onFocus}
       onKeyUp={onKeyUp}
+      ref={componentRef}
       tabIndex={0}
       width={dropdownWidth}
     >
       <Popover
-        autoFocus={!!true}
         boundary={props.boundary || "scrollParent"}
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
-        openOnTargetFocus={!!true}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}

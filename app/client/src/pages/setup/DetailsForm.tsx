@@ -76,11 +76,11 @@ function withDropdown(options: OptionType[]) {
     const selected =
       options.find((option) => option.value == ComponentProps.input.value) ||
       {};
-
     return (
       <Dropdown
         className={DROPDOWN_CLASSNAME}
         dontUsePortal
+        keyboardInteraction
         onSelect={onSelect}
         options={options}
         selected={selected}
