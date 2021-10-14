@@ -607,12 +607,6 @@ export default function Dropdown(props: DropdownProps) {
     }
   }, []);
 
-  const onFocus = useCallback(() => {
-    if (!props.disabled && keyboardInteraction) {
-      setIsOpen(true);
-    }
-  }, []);
-
   const onKeyUp = useCallback((event: any) => {
     if (
       keyboardInteraction &&
@@ -729,7 +723,7 @@ export default function Dropdown(props: DropdownProps) {
       data-cy={props.cypressSelector}
       height={props.height || "38px"}
       onBlur={onBlur}
-      onFocus={onFocus}
+      // onFocus={onFocus}
       onKeyUp={onKeyUp}
       ref={componentRef}
       tabIndex={0}
