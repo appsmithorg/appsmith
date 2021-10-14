@@ -43,12 +43,10 @@
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
 
     // Initialize plausible
-    const plausibleDomain = parseConfig("%REACT_APP_PLAUSIBLE_DOMAIN%");
-    const shouldLoadPlausible = plausibleDomain && CLOUD_HOSTING;
-    if (shouldLoadPlausible) {
+    if (CLOUD_HOSTING) {
       const script = document.createElement('script');
       script.defer = true;
-      script.dataset.domain = plausibleDomain;
+      script.dataset.domain = location.hostname;
       script.src = "https://plausible.io/js/plausible.js";
       document.getElementsByTagName('head')[0].appendChild(script);
     }
