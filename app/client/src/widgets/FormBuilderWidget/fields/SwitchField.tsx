@@ -1,40 +1,31 @@
 import React from "react";
-import { omit } from "lodash";
-import { ControllerRenderProps } from "react-hook-form";
+import { pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
-import { SwitchComponent } from "widgets/SwitchWidget/component";
-import { CONFIG as SWITCH_WIDGET_CONFIG } from "widgets/SwitchWidget";
-import { SchemaItem } from "../constants";
+import {
+  SwitchComponent,
+  SwitchComponentProps,
+} from "widgets/SwitchWidget/component";
+import { BaseFieldComponentProps } from "./types";
+import { CONFIG } from "widgets/SwitchWidget";
 
-const BLACKLISTED_DEFAULT_CONFIG_KEYS = [
-  "label",
-  "columns",
-  "rows",
-  "version",
-  "widgetName",
-  "defaultSwitchState",
-];
+const COMPONENT_DEFAULT_VALUES = pick(CONFIG.defaults, ["isDisabled"]);
 
-const DEFAULT_CONFIG = omit(
-  SWITCH_WIDGET_CONFIG.defaults,
-  BLACKLISTED_DEFAULT_CONFIG_KEYS,
-);
+type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
 
-type SwitchFieldProps = {
-  name: ControllerRenderProps["name"];
-  schemaItem: SchemaItem;
-};
+type SwitchComponentOwnProps = Pick<SwitchComponentProps, PICKED_DEFAULT_PROPS>;
+
+type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
 
 function SwitchField({ name, schemaItem }: SwitchFieldProps) {
-  const { label } = schemaItem;
+  const { label, props } = schemaItem;
 
   return (
     <Field
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <SwitchComponent
-          {...DEFAULT_CONFIG}
+          {...props}
           alignWidget="LEFT"
           inputRef={ref}
           isLoading={false}
@@ -48,5 +39,7 @@ function SwitchField({ name, schemaItem }: SwitchFieldProps) {
     />
   );
 }
+
+SwitchField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default SwitchField;

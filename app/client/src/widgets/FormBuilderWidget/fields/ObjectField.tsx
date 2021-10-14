@@ -2,12 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 import fieldRenderer from "./fieldRenderer";
-import { SchemaItem } from "../constants";
+import { BaseFieldComponentProps } from "./types";
 
-type ObjectFieldProps = {
-  name?: string;
-  schemaItem: SchemaItem;
-};
+type ObjectFieldProps = BaseFieldComponentProps;
 
 const WRAPPER_PADDING_Y = 10;
 const WRAPPER_PADDING_X = 15;
@@ -28,5 +25,7 @@ function ObjectField({ name, schemaItem }: ObjectFieldProps) {
 
   return <StyledWrapper>{renderFields()}</StyledWrapper>;
 }
+
+ObjectField.componentDefaultValues = {};
 
 export default ObjectField;

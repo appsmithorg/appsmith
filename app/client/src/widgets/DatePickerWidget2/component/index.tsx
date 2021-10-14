@@ -289,7 +289,7 @@ class DatePickerComponent extends React.Component<
   };
 }
 
-interface DatePickerComponentProps extends ComponentProps {
+export interface DatePickerComponentProps extends ComponentProps {
   label: string;
   dateFormat: string;
   selectedDate?: string;

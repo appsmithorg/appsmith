@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidget } from "widgets/constants";
 
-interface SwitchComponentProps extends ComponentProps {
+export interface SwitchComponentProps extends ComponentProps {
   label: string;
   isSwitchedOn: boolean;
   onChange: (isSwitchedOn: boolean) => void;

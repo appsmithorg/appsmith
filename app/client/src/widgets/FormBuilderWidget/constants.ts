@@ -1,7 +1,9 @@
 import { InputType } from "widgets/InputWidget/constants";
+import { BaseFieldComponentProps } from "./fields/types";
 import {
   ArrayField,
   CheckboxField,
+  DateField,
   InputField,
   MultiSelectField,
   ObjectField,
@@ -50,15 +52,21 @@ export type SchemaItem<TProps = any> = {
   label: string;
 };
 
+// This defines a react component with componentDefaultValues property attached to it.
+type FieldComponent = {
+  (props: BaseFieldComponentProps): JSX.Element;
+  componentDefaultValues: Record<string, any>;
+};
+
 export type Schema = SchemaItem[];
 
-export const FIELD_MAP: Record<FieldType, (props: any) => JSX.Element> = {
+export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.TEXT]: InputField,
   [FieldType.NUMBER]: InputField,
   [FieldType.EMAIL]: InputField,
   [FieldType.PHONE_NUMBER]: InputField,
   [FieldType.CHECKBOX]: CheckboxField,
-  [FieldType.DATE]: InputField,
+  [FieldType.DATE]: DateField,
   [FieldType.FILE]: InputField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.MULTI_SELECT]: MultiSelectField,

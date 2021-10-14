@@ -1,14 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import { ControllerRenderProps, useFieldArray } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 
 import fieldRenderer from "./fieldRenderer";
-import { SchemaItem } from "../constants";
+import { BaseFieldComponentProps } from "./types";
 
-type FieldArrayProps = {
-  name: ControllerRenderProps["name"];
-  schemaItem: SchemaItem;
-};
+type ArrayFieldProps = BaseFieldComponentProps;
 
 const WRAPPER_PADDING_Y = 10;
 const WRAPPER_PADDING_X = 15;
@@ -31,7 +28,7 @@ const StyledDeleteButton = styled(StyledButton)`
   align-self: center;
 `;
 
-function FieldArray({ name, schemaItem }: FieldArrayProps) {
+function ArrayField({ name, schemaItem }: ArrayFieldProps) {
   const { append, fields, remove } = useFieldArray({
     name,
   });
@@ -41,8 +38,6 @@ function FieldArray({ name, schemaItem }: FieldArrayProps) {
   const onAddClick = () => {
     append({ firstName: "appendBill", lastName: "appendLuo" });
   };
-  // eslint-disable-next-line
-  console.log("ARRAY fields", fields);
 
   return (
     <StyledWrapper>
@@ -61,4 +56,6 @@ function FieldArray({ name, schemaItem }: FieldArrayProps) {
   );
 }
 
-export default FieldArray;
+ArrayField.componentDefaultValues = {};
+
+export default ArrayField;

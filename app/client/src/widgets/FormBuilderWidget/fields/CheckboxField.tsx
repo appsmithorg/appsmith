@@ -1,14 +1,10 @@
 import React from "react";
-import { ControllerRenderProps } from "react-hook-form";
 
-import Field from "widgets/FormBuilderWidget/component/Field";
 import CheckboxComponent from "widgets/CheckboxWidget/component";
-import { SchemaItem } from "../constants";
+import Field from "widgets/FormBuilderWidget/component/Field";
+import { BaseFieldComponentProps } from "./types";
 
-type CheckboxFieldProps = {
-  name: ControllerRenderProps["name"];
-  schemaItem: SchemaItem;
-};
+type CheckboxFieldProps = BaseFieldComponentProps;
 
 function CheckboxField({ name, schemaItem }: CheckboxFieldProps) {
   const { label } = schemaItem;
@@ -34,5 +30,7 @@ function CheckboxField({ name, schemaItem }: CheckboxFieldProps) {
     />
   );
 }
+
+CheckboxField.componentDefaultValues = {};
 
 export default CheckboxField;

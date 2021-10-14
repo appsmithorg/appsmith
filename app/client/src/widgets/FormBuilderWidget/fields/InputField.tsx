@@ -1,33 +1,25 @@
 import React from "react";
-import { noop, omit } from "lodash";
-import { ControllerRenderProps } from "react-hook-form";
+import { noop, pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
-import InputComponent from "widgets/InputWidget/component";
-import { CONFIG as INPUT_WIDGET_CONFIG } from "widgets/InputWidget";
-import { INPUT_FIELD_TYPE, SchemaItem } from "../constants";
+import InputComponent, {
+  InputComponentProps,
+} from "widgets/InputWidget/component";
+import { BaseFieldComponentProps } from "./types";
+import { CONFIG } from "widgets/InputWidget";
+import { INPUT_FIELD_TYPE } from "../constants";
 
-const BLACKLISTED_DEFAULT_CONFIG_KEYS = [
-  "columns",
-  "rows",
-  "version",
-  "widgetName",
-];
+const COMPONENT_DEFAULT_VALUES = pick(CONFIG.defaults, ["isDisabled"]);
 
-const DEFAULT_CONFIG = omit(
-  INPUT_WIDGET_CONFIG.defaults,
-  BLACKLISTED_DEFAULT_CONFIG_KEYS,
-);
+type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
 
-type InputFieldProps = {
-  name: ControllerRenderProps["name"];
-  schemaItem: SchemaItem;
-};
+type InputComponentOwnProps = Pick<InputComponentProps, PICKED_DEFAULT_PROPS>;
+
+type InputFieldProps = BaseFieldComponentProps<InputComponentOwnProps>;
 
 function InputField({ name, schemaItem }: InputFieldProps) {
-  // eslint-disable-next-line
-
-  const { fieldType, label } = schemaItem;
+  const { fieldType, label, props } = schemaItem;
+  const { isDisabled } = props;
   const inputType = INPUT_FIELD_TYPE[fieldType];
 
   return (
@@ -35,8 +27,8 @@ function InputField({ name, schemaItem }: InputFieldProps) {
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <InputComponent
-          {...DEFAULT_CONFIG}
           compactMode={false}
+          disabled={isDisabled}
           inputRef={ref}
           inputType={inputType}
           isInvalid={false}
@@ -56,5 +48,7 @@ function InputField({ name, schemaItem }: InputFieldProps) {
     />
   );
 }
+
+InputField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default InputField;

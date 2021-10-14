@@ -1,28 +1,38 @@
 import { noop } from "lodash";
 import React from "react";
-import { ControllerRenderProps } from "react-hook-form";
 
+import Field from "widgets/FormBuilderWidget/component/Field";
 import MultiSelect, {
   MultiSelectProps,
 } from "widgets/MultiSelectWidget/component";
-import Field from "widgets/FormBuilderWidget/component/Field";
+import { BaseFieldComponentProps } from "./types";
+import { CONFIG } from "widgets/MultiSelectWidget";
 import { Layers } from "constants/Layers";
 
-type MultiSelectFieldProps = MultiSelectProps & {
-  name: ControllerRenderProps["name"];
+const COMPONENT_DEFAULT_VALUES = {
+  placeholder: CONFIG.defaults.placeholderText,
+  serverSideFiltering: CONFIG.defaults.serverSideFiltering,
 };
 
-function MultiSelectField({ name, ...rest }: MultiSelectFieldProps) {
+type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
+
+type DateComponentOwnProps = Pick<MultiSelectProps, PICKED_DEFAULT_PROPS>;
+
+type MultiSelectFieldProps = BaseFieldComponentProps<DateComponentOwnProps>;
+function MultiSelectField({ name, schemaItem }: MultiSelectFieldProps) {
+  const { props } = schemaItem;
+
   return (
     <Field
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <MultiSelect
-          {...rest}
+          {...props}
           disabled={false}
           dropdownStyle={{
             zIndex: Layers.dropdownModalWidget,
           }}
+          loading={false}
           onChange={onChange}
           onFilterChange={noop}
           options={[]}
@@ -34,5 +44,7 @@ function MultiSelectField({ name, ...rest }: MultiSelectFieldProps) {
     />
   );
 }
+
+MultiSelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default MultiSelectField;

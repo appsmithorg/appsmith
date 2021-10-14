@@ -2,9 +2,10 @@ import { camelCase, cloneDeep, difference, remove, startCase } from "lodash";
 import {
   DATA_TYPE_POTENTIAL_FIELD,
   DataType,
+  FIELD_MAP,
+  FieldType,
   Schema,
   SchemaItem,
-  FieldType,
 } from "./constants";
 
 type Obj = Record<string, any>;
@@ -96,7 +97,6 @@ class SchemaParser {
   // TODO: Rename to parse
   static parse = (currFormData?: JSON, schema: Schema = []) => {
     if (!currFormData) return schema;
-    debugger;
 
     const prevSchema = (() => {
       if (schema[0]) return schema[0].children;
@@ -120,8 +120,11 @@ class SchemaParser {
   ): SchemaItem => {
     const dataType = dataTypeFor(value);
     const fieldType = fieldTypeFor(value);
+    const FieldComponent = FIELD_MAP[fieldType];
     const { label, name } = SchemaParser.nameAndLabel(key);
-    const props = {};
+    const props = {
+      ...FieldComponent.componentDefaultValues,
+    };
 
     let children: SchemaItem[] = [];
     if (dataType === DataType.OBJECT) {

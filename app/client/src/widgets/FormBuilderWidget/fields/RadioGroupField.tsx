@@ -1,19 +1,17 @@
 import React from "react";
-import { ControllerRenderProps } from "react-hook-form";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
+import { BaseFieldComponentProps } from "./types";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
-import { SchemaItem } from "../constants";
 
 type RadioGroupComponentOwnProps = {
   options: RadioOption[];
 };
 
-type RadioGroupFieldProps = {
-  name: ControllerRenderProps["name"];
-  schemaItem: SchemaItem<RadioGroupComponentOwnProps>;
-};
+type RadioGroupFieldProps = BaseFieldComponentProps<
+  RadioGroupComponentOwnProps
+>;
 
 function RadioGroupField({ name, schemaItem }: RadioGroupFieldProps) {
   const { label, props } = schemaItem;
@@ -36,5 +34,7 @@ function RadioGroupField({ name, schemaItem }: RadioGroupFieldProps) {
     />
   );
 }
+
+RadioGroupField.componentDefaultValues = {};
 
 export default RadioGroupField;

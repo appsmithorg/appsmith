@@ -1,30 +1,34 @@
 import React from "react";
-import { noop } from "lodash";
-import { ControllerRenderProps } from "react-hook-form";
+import { noop, pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
-import DropDownComponent from "widgets/DropdownWidget/component";
+import DropDownComponent, {
+  DropDownComponentProps,
+} from "widgets/DropdownWidget/component";
+import { BaseFieldComponentProps } from "./types";
+import { CONFIG } from "widgets/DropdownWidget";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
-import { SchemaItem } from "../constants";
 
-type SelectFieldOwnProps = {
+const COMPONENT_DEFAULT_VALUES = pick(CONFIG.defaults, [
+  "serverSideFiltering",
+  "isFilterable",
+]);
+
+type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
+
+type SelectComponentOwnProps = Pick<
+  DropDownComponentProps,
+  PICKED_DEFAULT_PROPS
+> & {
+  isDisabled: boolean;
   options: DropdownOption[];
 };
 
-const defaultOpts = [
-  { label: "Blue", value: "BLUE" },
-  { label: "Green", value: "GREEN" },
-  { label: "Red", value: "RED" },
-];
-
-type SelectFieldProps = {
-  name: ControllerRenderProps["name"];
-  schemaItem: SchemaItem<SelectFieldOwnProps>;
-};
+type SelectFieldProps = BaseFieldComponentProps<SelectComponentOwnProps>;
 
 function SelectField({ name, schemaItem }: SelectFieldProps) {
   const { label, props } = schemaItem;
-  const { options = defaultOpts } = props;
+  const { options = [], isDisabled = false, ...rest } = props;
 
   return (
     <Field
@@ -42,10 +46,10 @@ function SelectField({ name, schemaItem }: SelectFieldProps) {
 
         return (
           <DropDownComponent
-            disabled={false}
+            {...rest}
+            disabled={isDisabled}
             height={10}
             inputRef={ref}
-            isFilterable={false}
             isLoading={false}
             label={label}
             onBlurHandler={onBlur}
@@ -54,7 +58,6 @@ function SelectField({ name, schemaItem }: SelectFieldProps) {
             options={options}
             placeholder=""
             selectedIndex={selectedIndex}
-            serverSideFiltering={false}
             widgetId=""
             width={10}
           />
@@ -63,5 +66,7 @@ function SelectField({ name, schemaItem }: SelectFieldProps) {
     />
   );
 }
+
+SelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default SelectField;

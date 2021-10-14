@@ -16,6 +16,8 @@ function Form<TValues>({
   });
   const { getValues, watch } = methods;
 
+  // TODO: Using watch here would lead to re-rendering of every field component.
+  // Find alternative
   // eslint-disable-next-line
   console.log("FORM VALUES", watch());
 

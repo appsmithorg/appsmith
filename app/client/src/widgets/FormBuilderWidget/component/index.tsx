@@ -36,7 +36,7 @@ function FormBuilderComponent<TValues>({
     <StyledContainer backgroundColor={backgroundColor}>
       {/* eslint-disable-next-line */}
       <Form defaultValues={inputData} onSubmit={console.log}>
-        <RootField schemaItem={rootSchemaItem} />
+        <RootField name="" schemaItem={rootSchemaItem} />
       </Form>
     </StyledContainer>
   );
