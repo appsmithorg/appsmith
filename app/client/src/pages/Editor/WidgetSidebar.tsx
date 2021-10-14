@@ -27,10 +27,9 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
-  padding: 10px 10px 20px 10px;
   height: 100%;
   overflow: hidden;
-
+  padding: 0px 10px 20px 10px;
   &:active,
   &:focus,
   &:hover {
@@ -42,7 +41,6 @@ const MainWrapper = styled.div`
       -webkit-appearance: none;
     }
   }
-
   &::-webkit-scrollbar-track {
     background-color: transparent;
   }
@@ -57,6 +55,7 @@ const CardsWrapper = styled.div`
 `;
 
 const Header = styled.div`
+  padding: 10px 10px 0px 10px;
   display: grid;
   grid-template-columns: 7fr 1fr;
 `;
@@ -151,13 +150,12 @@ function WidgetSidebar(props: IPanelProps) {
           ref={searchInputRef}
         />
       </Boxed>
-
-      <MainWrapper>
-        <Header>
-          <Info>
-            <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
-          </Info>
-        </Header>
+      <Header>
+        <Info>
+          <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
+        </Info>
+      </Header>
+      <MainWrapper ref={sidebarRef}>
         <CardsWrapper>
           {filteredCards.map((card) => (
             <Boxed
@@ -189,7 +187,7 @@ function WidgetSidebar(props: IPanelProps) {
             </Boxed>
           ))}
         </CardsWrapper>
-        <ScrollIndicator containerRef={sidebarRef} />
+        <ScrollIndicator containerRef={sidebarRef} top={"90px"} />
       </MainWrapper>
     </>
   );
