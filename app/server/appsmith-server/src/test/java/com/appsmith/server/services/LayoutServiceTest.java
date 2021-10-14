@@ -98,9 +98,9 @@ public class LayoutServiceTest {
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        Plugin installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
-        datasource.setPluginId(installed_plugin.getId());
+        datasource.setPluginId(installedPlugin.getId());
     }
 
     private void purgeAllPages() {
@@ -315,6 +315,8 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
+                    action.setExecuteOnLoad(false);
+                    action.setUserSetOnLoad(true);
                     monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
@@ -471,8 +473,8 @@ public class LayoutServiceTest {
                             "dynamicDelete", "some dynamic {{aDeleteAction.data}}"
                     ));
                     obj.putAll(Map.of(
-                            "collection1Key", "some dynamic {{Collection.data.anAsyncCollectionActionWithoutCall}}",
-                            "collection2Key", "some dynamic {{Collection.data.aSyncCollectionActionWithoutCall}}",
+                            "collection1Key", "some dynamic {{Collection.anAsyncCollectionActionWithoutCall.data}}",
+                            "collection2Key", "some dynamic {{Collection.aSyncCollectionActionWithoutCall.data}}",
                             "collection3Key", "some dynamic {{Collection.anAsyncCollectionActionWithCall()}}",
                             // only add sync function call dependencies in the dependency tree. sync call would be done during eval.
                             "collection4Key", "some dynamic {{Collection.aSyncCollectionActionWithCall()}}"
@@ -506,29 +508,36 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(testMono)
                 .assertNext(layout -> {
+                    log.debug("layout load actions : {}", layout.getLayoutOnLoadActions());
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(8);
+//                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
+//                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(8);
+
+                    Set<String> firstSetPageLoadActions = Set.of(
+                            "aPostTertiaryAction",
+                            "aGetAction",
+                            "aDBAction",
+                            "aTableAction",
+                            "anotherDBAction",
+                            "hiddenAction1",
+                            "hiddenAction2",
+                            "hiddenAction4"
+                    );
+
+                    // TODO : Once the client implements on page load execution of JS, uncomment the lines below.
+                    Set<String> secondSetPageLoadActions = Set.of(
+//                            "Collection.anAsyncCollectionActionWithoutCall",
+//                            "Collection.aSyncCollectionActionWithoutCall",
+//                            "Collection.aSyncCollectionActionWithCall",
+                            "aPostActionWithAutoExec"
+                    );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of(
-                                    "aPostTertiaryAction",
-                                    "aGetAction",
-                                    "aDBAction",
-                                    "aTableAction",
-                                    "anotherDBAction",
-                                    "hiddenAction1",
-                                    "hiddenAction2",
-                                    "hiddenAction4"
-                            ));
+                            .hasSameElementsAs(firstSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(3);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
-                            .hasSameElementsAs(Set.of(
-                                    "aPostActionWithAutoExec",
-                                    "Collection.anAsyncCollectionActionWithoutCall",
-                                    "Collection.aSyncCollectionActionWithoutCall"
-                            ));
+                            .hasSameElementsAs(secondSetPageLoadActions);
                     Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
                     for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
                         flatOnLoadActions.addAll(actions);
