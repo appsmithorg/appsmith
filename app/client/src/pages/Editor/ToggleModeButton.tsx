@@ -16,9 +16,9 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
+  getAppCommentThreads,
   getCommentsState,
-  hasUnreadCommentThreadSelector,
-} from "../../selectors/commentsSelectors";
+} from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
@@ -313,10 +313,11 @@ type ToggleCommentModeButtonProps = {
 
 export const useHasUnreadCommentThread = (applicationId: string) => {
   const commentsState = useSelector(getCommentsState);
-  const state = useSelector((state: AppState) => state);
-  return useMemo(() => hasUnreadCommentThreadSelector(applicationId)(state), [
-    commentsState,
-  ]);
+  return useMemo(() => {
+    return !!getAppCommentThreads(
+      commentsState.applicationCommentThreadsByRef[applicationId],
+    ).find((tId: string) => !commentsState.commentThreadsMap[tId]?.isViewed);
+  }, [commentsState]);
 };
 
 function ToggleCommentModeButton({
