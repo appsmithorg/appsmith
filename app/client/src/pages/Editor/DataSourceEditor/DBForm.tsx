@@ -32,6 +32,7 @@ import {
   PluginImage,
   SaveButtonContainer,
 } from "./JSONtoForm";
+import { ButtonVariantTypes } from "components/constants";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -189,7 +190,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <SaveButtonContainer>
               <ActionButton
                 buttonStyle="DANGER"
-                buttonVariant="SOLID"
+                buttonVariant={ButtonVariantTypes.PRIMARY}
                 // accent="error"
                 className="t--delete-datasource"
                 loading={isDeleting}
@@ -200,7 +201,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               <ActionButton
                 // accent="secondary"
                 buttonStyle="PRIMARY"
-                buttonVariant="OUTLINE"
+                buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--test-datasource"
                 loading={isTesting}
                 onClick={this.test}
