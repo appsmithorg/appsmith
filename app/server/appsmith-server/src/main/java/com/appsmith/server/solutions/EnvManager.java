@@ -8,6 +8,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.SessionUserService;
@@ -27,14 +28,11 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,8 +42,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Component
 @RequiredArgsConstructor
@@ -337,32 +333,11 @@ public class EnvManager {
                     try {
                         File envFile = Path.of(commonConfig.getEnvFilePath()).toFile();
                         File resourceFile = new ClassPathResource("docker-compose.yml").getFile();
-
-                        List<File> srcFiles = Arrays.asList(envFile, resourceFile);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        ZipOutputStream zipOut = new ZipOutputStream(baos);
-
-                        for (File fileToZip : srcFiles) {
-                            FileInputStream fis = new FileInputStream(fileToZip);
-                            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
-                            zipOut.putNextEntry(zipEntry);
-
-                            byte[] bytes = new byte[1024];
-                            int length;
-                            while ((length = fis.read(bytes)) >= 0) {
-                                zipOut.write(bytes, 0, length);
-                            }
-                            fis.close();
-                        }
-
+                        byte[] byteArray = FileUtils.getZipFileBytes(envFile, resourceFile);
                         final ServerHttpResponse response = exchange.getResponse();
                         response.setStatusCode(HttpStatus.OK);
                         response.getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/zip");
-                        response.getHeaders().set("Content-Disposition", "attachment; filename=\"" + "config.zip" + "\"");
-                        zipOut.close();
-                        byte[] byteArray = baos.toByteArray();
-                        baos.close();
-
+                        response.getHeaders().set("Content-Disposition", "attachment; filename=\"config.zip\"");
                         return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(byteArray)));
                     } catch (IOException e) {
                         log.error("failed to generate zip file", e);
