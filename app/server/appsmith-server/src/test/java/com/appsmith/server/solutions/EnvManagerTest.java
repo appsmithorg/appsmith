@@ -1,20 +1,64 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.configurations.GoogleRecaptchaConfig;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(SpringRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @Slf4j
 public class EnvManagerTest {
+    @MockBean
+    private SessionUserService sessionUserService;
+    @MockBean
+    private UserService userService;
+    @MockBean
+    private PolicyUtils policyUtils;
+    @MockBean
+    private EmailSender emailSender;
+    @MockBean
+    private CommonConfig commonConfig;
+    @MockBean
+    private EmailConfig emailConfig;
+    @MockBean
+    private JavaMailSender javaMailSender;
+    @MockBean
+    private GoogleRecaptchaConfig googleRecaptchaConfig;
+
+    private EnvManager envManager;
+
+    @Before
+    public void setUp() {
+        envManager = new EnvManager(
+                sessionUserService, userService, policyUtils, emailSender,
+                commonConfig, emailConfig, javaMailSender, googleRecaptchaConfig
+        );
+    }
 
     @Test
     public void simpleSample() {
@@ -190,6 +234,29 @@ public class EnvManagerTest {
                 "APPSMITH_INSTANCE_NAME=third value",
                 "APPSMITH_DISABLE_TELEMETRY=false"
         );
+    }
+
+    @Test
+    public void download_UserIsNotSuperUser_ThrowsAccessDenied() {
+        User user = new User();
+        user.setEmail("sample-super-user");
+
+        Policy policy = Policy.builder()
+                .permission(AclPermission.ORGANIZATION_MANAGE_APPLICATIONS.getValue())
+                .users(Set.of(user.getEmail()))
+                .build();
+
+        user.setPolicies(Set.of(policy));
+        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
+        Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
+        Mockito.when(policyUtils.isPermissionPresentForUser(
+                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
+        ).thenReturn(false);
+
+        ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
+        StepVerifier.create(envManager.download(exchange))
+                .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
+                .verify();
     }
 
 }

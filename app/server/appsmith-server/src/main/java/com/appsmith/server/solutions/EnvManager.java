@@ -15,16 +15,26 @@ import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +44,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Component
 @RequiredArgsConstructor
@@ -317,6 +329,47 @@ public class EnvManager {
                         "Test email from Appsmith",
                         "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n"
                 ));
+    }
+
+    public Mono<Void> download(ServerWebExchange exchange) {
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> {
+                    try {
+                        File envFile = Path.of(commonConfig.getEnvFilePath()).toFile();
+                        File resourceFile = new ClassPathResource("docker-compose.yml").getFile();
+
+                        List<File> srcFiles = Arrays.asList(envFile, resourceFile);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ZipOutputStream zipOut = new ZipOutputStream(baos);
+
+                        for (File fileToZip : srcFiles) {
+                            FileInputStream fis = new FileInputStream(fileToZip);
+                            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+                            zipOut.putNextEntry(zipEntry);
+
+                            byte[] bytes = new byte[1024];
+                            int length;
+                            while ((length = fis.read(bytes)) >= 0) {
+                                zipOut.write(bytes, 0, length);
+                            }
+                            fis.close();
+                        }
+
+                        final ServerHttpResponse response = exchange.getResponse();
+                        response.setStatusCode(HttpStatus.OK);
+                        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/zip");
+                        response.getHeaders().set("Content-Disposition", "attachment; filename=\"" + "config.zip" + "\"");
+                        zipOut.close();
+                        byte[] byteArray = baos.toByteArray();
+                        baos.close();
+
+                        return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(byteArray)));
+                    } catch (IOException e) {
+                        log.error("failed to generate zip file", e);
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST,
+                                "unable to read files while generating the zip file"));
+                    }
+                });
     }
 
 }
