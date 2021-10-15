@@ -76,6 +76,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
 
   &&& svg {

@@ -355,6 +355,7 @@ function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(worker.shutdown);
   yield call(worker.start);
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions);
@@ -407,7 +408,7 @@ export function* evaluateSnippetSaga(action: any) {
       //Result is when trigger is present. Following code will hide the evaluated snippet section
       yield put(setEvaluatedSnippet(result));
     } else {
-      /* 
+      /*
         JSON.stringify(undefined) is undefined.
         We need to set it manually to "undefined" for codeEditor to display it.
       */

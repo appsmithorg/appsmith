@@ -12,9 +12,6 @@ describe("Entity explorer tests related to widgets and validation", function() {
   it("Add a widget to default page and verify the properties", function() {
     cy.addDsl(dsl);
     cy.SearchEntityandOpen("Text1");
-    cy.get(".widgets " + explorer.collapse)
-      .last()
-      .click({ force: true });
     cy.get(explorer.property)
       .last()
       .click({ force: true });
@@ -31,9 +28,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.GlobalSearchEntity("Table1");
-    cy.get(".widgets " + explorer.collapse)
-      .last()
-      .click({ force: true });
+    cy.SearchEntityandOpen("Table1");
     cy.get(explorer.property)
       .last()
       .click({ force: true });
@@ -55,9 +50,6 @@ describe("Entity explorer tests related to widgets and validation", function() {
 
   it("Toggle between widgets in different pages using search functionality", function() {
     cy.SearchEntityandOpen("Text1");
-    cy.get(".widgets " + explorer.collapse)
-      .last()
-      .click({ force: true });
     cy.get(explorer.property)
       .last()
       .click({ force: true });

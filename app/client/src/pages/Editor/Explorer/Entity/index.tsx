@@ -14,11 +14,13 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
-import { Classes } from "@blueprintjs/core";
+import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import TooltipComponent from "components/ads/Tooltip";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -47,7 +49,7 @@ export const EntityItem = styled.div<{
   user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
-  background: ${(props) => (props.active ? Colors.ALABASTER_ALT : "none")};
+  background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
@@ -58,7 +60,7 @@ export const EntityItem = styled.div<{
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.ALABASTER_ALT};
+    background: ${Colors.GREY_2};
   }
   & .${Classes.POPOVER_TARGET}, & .${Classes.POPOVER_WRAPPER} {
     width: 100%;
@@ -150,6 +152,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
+  addButtonHelptext?: string;
 };
 
 export const Entity = forwardRef(
@@ -233,6 +236,7 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           }`}
           highlight={!!props.highlight}
+          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
@@ -263,10 +267,24 @@ export const Entity = forwardRef(
           >
             {props.rightIcon}
           </IconWrapper>
-          <AddButton
-            className={`${EntityClassNames.ADD_BUTTON}`}
-            onClick={props.onCreate}
-          />
+          {props.addButtonHelptext ? (
+            <TooltipComponent
+              boundary="viewport"
+              content={props.addButtonHelptext}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.RIGHT}
+            >
+              <AddButton
+                className={`${EntityClassNames.ADD_BUTTON}`}
+                onClick={props.onCreate}
+              />
+            </TooltipComponent>
+          ) : (
+            <AddButton
+              className={`${EntityClassNames.ADD_BUTTON}`}
+              onClick={props.onCreate}
+            />
+          )}
           {props.contextMenu}
           <Loader isVisible={isUpdating} />
         </EntityItem>

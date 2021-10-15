@@ -67,7 +67,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
         }
       }
     }
-    
+
     .${BPPopover2Classes.POPOVER2_OPEN} {
       .${Classes.ICON}.search-menu {
         path {

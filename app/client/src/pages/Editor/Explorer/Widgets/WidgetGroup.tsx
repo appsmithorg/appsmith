@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidgets } from "selectors/ui";
+import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -56,6 +57,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   return (
     <Entity
+      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!props.widgets && !!props.searchKeyword}
       entityId={props.pageId + "_widgets"}
