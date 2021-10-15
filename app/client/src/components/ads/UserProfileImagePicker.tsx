@@ -19,9 +19,9 @@ function FormDisplayImage() {
       if (file) {
         try {
           const response = await UserApi.uploadPhoto({ file });
-          const photoId = response.data?.profilePhotoAssetId;
+          const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
           setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
-          dispatch(updatePhotoId({ photoId }));
+          dispatch(updatePhotoId({ photoId })); //change global state to the updated photoId
         } catch (error) {
           console.error(error);
         }

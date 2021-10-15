@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import styled from "styled-components";
