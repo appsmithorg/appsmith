@@ -6,7 +6,6 @@ import Icon, { IconName, IconSize } from "./Icon";
 import { Classes, CommonComponentProps } from "./common";
 import { useEffect } from "react";
 import { Indices } from "constants/Layers";
-import { thinScrollbar } from "constants/DefaultTheme";
 
 export type TabProp = {
   key: string;
@@ -30,7 +29,6 @@ const TabsWrapper = styled.div<{
   .react-tabs__tab-panel {
     height: calc(100% - 36px);
     overflow: auto;
-    ${thinScrollbar};
   }
   .react-tabs__tab-list {
     margin: 0px;
@@ -48,7 +46,6 @@ const TabsWrapper = styled.div<{
       overflow-y: hidden;
       overflow-x: auto;
       white-space: nowrap;
-      ${thinScrollbar};
     `}
   }
   .react-tabs__tab {

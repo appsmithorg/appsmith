@@ -10,7 +10,6 @@ import React, {
   useMemo,
   useState,
 } from "react";
-
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -78,7 +77,6 @@ export interface EntityNameProps {
   exitEditMode: () => void;
   nameTransformFn?: (input: string, limit?: number) => string;
 }
-// DUMMY CHANGE
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
