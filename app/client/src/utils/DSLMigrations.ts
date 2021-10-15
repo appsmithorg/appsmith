@@ -292,6 +292,20 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   return currentDSL;
 };
 
+const mapAllowHorizontalScrollMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
+    if (children.type === "CHART_WIDGET") {
+      children.allowScroll = children.allowHorizontalScroll;
+      delete children.allowHorizontalScroll;
+    }
+    return children;
+  });
+
+  return currentDSL;
+};
+
 const tabsWidgetTabsPropertyMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
@@ -949,6 +963,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 42) {
     currentDSL = migrateMapWidgetIsClickedMarkerCentered(currentDSL);
+    currentDSL.version = 43;
+  }
+
+  if (currentDSL.version === 43) {
+    currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
