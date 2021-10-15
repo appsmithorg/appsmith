@@ -11,7 +11,7 @@ export const CONFIG = {
     rows: 7 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Video",
-    url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+    url: "https://youtu.be/OgCDkw1jSkY",
     autoPlay: false,
     version: 1,
   },

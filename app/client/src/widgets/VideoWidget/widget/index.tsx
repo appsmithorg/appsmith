@@ -37,7 +37,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
                 expected: {
                   type: "Video URL",
-                  example: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+                  example: "https://youtu.be/OgCDkw1jSkY",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
