@@ -108,6 +108,7 @@ const InputComponentWrapper = styled((props) => (
       padding-left: 35px;`};
       ${(props) =>
         props.inputType === InputTypes.PHONE_NUMBER && `padding-left: 85px;`};
+      color: ${Colors.GREY_10};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
@@ -138,6 +139,9 @@ const InputComponentWrapper = styled((props) => (
           box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
         }
       }
+    }
+    .${Classes.INPUT}:disabled {
+      background: ${Colors.GREY_1};
     }
     .${Classes.INPUT_GROUP} {
       display: block;
@@ -172,15 +176,12 @@ const InputComponentWrapper = styled((props) => (
 `;
 
 const StyledNumericInput = styled(NumericInput)`
-  &&&& .bp3-input-group {
+  &&&& .${Classes.INPUT_GROUP} {
     display: flex;
     > {
       &:first-child:not(input) {
         position: static;
-        background: ${(props) =>
-          props.disabled ? Colors.INPUT_DISABLED : "#fff"};
-        color: ${(props) =>
-          props.disabled ? Colors.INPUT_TEXT_DISABLED : "#000"};
+        color: ${Colors.GREY_10};
         border: 1px solid #e7e7e7;
         border-right: 0;
       }
@@ -191,6 +192,12 @@ const StyledNumericInput = styled(NumericInput)`
         line-height: 16px;
       }
     }
+  }
+  &&&& .${Classes.INPUT_GROUP}.${Classes.DISABLED} {
+    > {
+      &:first-child:not(input) {
+        background: ${Colors.GREY_1};
+      }
   }
 `;
 

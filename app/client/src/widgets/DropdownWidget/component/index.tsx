@@ -63,7 +63,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
   }
   &&&&& .${Classes.DISABLED} {
-    background-color: ${Colors.SELECT_DISABLED};
+    background-color: ${Colors.GREY_1};
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
