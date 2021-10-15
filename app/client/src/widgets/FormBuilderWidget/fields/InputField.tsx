@@ -24,6 +24,7 @@ function InputField({ name, schemaItem }: InputFieldProps) {
 
   return (
     <Field
+      label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <InputComponent
@@ -33,7 +34,7 @@ function InputField({ name, schemaItem }: InputFieldProps) {
           inputType={inputType}
           isInvalid={false}
           isLoading={false}
-          label={label}
+          label=""
           multiline={false}
           onBlurHandler={onBlur}
           onCurrencyTypeChange={noop}

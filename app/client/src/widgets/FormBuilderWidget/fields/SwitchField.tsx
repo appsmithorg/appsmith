@@ -22,6 +22,7 @@ function SwitchField({ name, schemaItem }: SwitchFieldProps) {
 
   return (
     <Field
+      label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <SwitchComponent
@@ -30,7 +31,7 @@ function SwitchField({ name, schemaItem }: SwitchFieldProps) {
           inputRef={ref}
           isLoading={false}
           isSwitchedOn={value}
-          label={label}
+          label=""
           onBlurHandler={onBlur}
           onChange={onChange}
           widgetId=""

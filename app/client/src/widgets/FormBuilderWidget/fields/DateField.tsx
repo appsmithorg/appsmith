@@ -31,6 +31,7 @@ function DateField({ name, schemaItem }: DateFieldProps) {
 
   return (
     <Field
+      label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <DateComponent

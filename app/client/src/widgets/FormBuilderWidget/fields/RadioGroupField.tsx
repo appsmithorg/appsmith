@@ -19,12 +19,13 @@ function RadioGroupField({ name, schemaItem }: RadioGroupFieldProps) {
 
   return (
     <Field
+      label={label}
       name={name}
       render={({ field: { onChange, value } }) => (
         <RadioGroupComponent
           isDisabled={false}
           isLoading={false}
-          label={label}
+          label=""
           onRadioSelectionChange={onChange}
           options={options}
           selectedOptionValue={value}

@@ -4,23 +4,30 @@ import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
 type FieldProps = {
   name: string;
+  label: string;
   render: ControllerProps["render"];
 };
 
-const WRAPPER_MARGIN_Y = 10;
+const WRAPPER_MARGIN_Y = 14;
+const LABEL_TEXT_MARGIN_BOTTOM = 4;
 
 const StyledWrapper = styled.div`
   margin: ${WRAPPER_MARGIN_Y}px 0;
 `;
 
-function Field({ name, render }: FieldProps) {
+const StyledLabelText = styled.p`
+  margin-bottom: ${LABEL_TEXT_MARGIN_BOTTOM}px;
+`;
+
+function Field({ label, name, render }: FieldProps) {
   const { control } = useFormContext();
 
   return (
     <StyledWrapper>
-      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-      {/* @ts-ignore */}
-      <Controller control={control} name={name} render={render} />
+      <label>
+        <StyledLabelText>{label}</StyledLabelText>
+        <Controller control={control} name={name} render={render} />
+      </label>
     </StyledWrapper>
   );
 }

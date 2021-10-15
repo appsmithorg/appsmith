@@ -11,6 +11,7 @@ function CheckboxField({ name, schemaItem }: CheckboxFieldProps) {
 
   return (
     <Field
+      label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <CheckboxComponent
@@ -19,7 +20,7 @@ function CheckboxField({ name, schemaItem }: CheckboxFieldProps) {
           isChecked={value}
           isLoading={false}
           isRequired={false}
-          label={label}
+          label=""
           onBlurHandler={onBlur}
           onCheckChange={onChange}
           // TODO: Handle default value of rowSpace

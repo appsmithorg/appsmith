@@ -20,10 +20,11 @@ type DateComponentOwnProps = Pick<MultiSelectProps, PICKED_DEFAULT_PROPS>;
 
 type MultiSelectFieldProps = BaseFieldComponentProps<DateComponentOwnProps>;
 function MultiSelectField({ name, schemaItem }: MultiSelectFieldProps) {
-  const { props } = schemaItem;
+  const { label, props } = schemaItem;
 
   return (
     <Field
+      label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <MultiSelect

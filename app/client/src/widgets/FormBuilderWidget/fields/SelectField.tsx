@@ -32,6 +32,7 @@ function SelectField({ name, schemaItem }: SelectFieldProps) {
 
   return (
     <Field
+      label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => {
         const selectedOptionIndex = options.findIndex(
@@ -51,7 +52,7 @@ function SelectField({ name, schemaItem }: SelectFieldProps) {
             height={10}
             inputRef={ref}
             isLoading={false}
-            label={label}
+            label=""
             onBlurHandler={onBlur}
             onFilterChange={noop}
             onOptionSelected={onOptionSelected}

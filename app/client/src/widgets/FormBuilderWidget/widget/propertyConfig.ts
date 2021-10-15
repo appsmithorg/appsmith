@@ -63,7 +63,7 @@ export default [
         },
       },
       {
-        propertyName: "schema.__root__.children",
+        propertyName: "schema[0].children",
         helpText: "Field configuration",
         label: "Field Configuration",
         controlType: "FIELD_CONFIGURATION",

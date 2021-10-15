@@ -16,7 +16,6 @@ export enum FieldType {
   CHECKBOX = "Checkbox",
   DATE = "Date",
   EMAIL = "Email",
-  FILE = "File",
   MULTI_SELECT = "Multi-Select",
   NUMBER = "Number",
   PHONE_NUMBER = "Phone Number",
@@ -67,7 +66,6 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.PHONE_NUMBER]: InputField,
   [FieldType.CHECKBOX]: CheckboxField,
   [FieldType.DATE]: DateField,
-  [FieldType.FILE]: InputField,
   [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.MULTI_SELECT]: MultiSelectField,
   [FieldType.SELECT]: SelectField,
@@ -93,6 +91,7 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
   [DataType.STRING]: {
     default: FieldType.TEXT,
     options: [
+      FieldType.DATE,
       FieldType.EMAIL,
       FieldType.PHONE_NUMBER,
       FieldType.RADIO_GROUP,

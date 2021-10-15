@@ -10,14 +10,18 @@ import {
   StyledDeleteIcon,
   StyledDragIcon,
   StyledEditIcon,
-  StyledHiddenIcon,
   StyledInputGroup,
-  StyledVisibleIcon,
 } from "./StyledControls";
-import { Schema, SchemaItem } from "widgets/FormBuilderWidget/constants";
-import { noop } from "lodash";
+import {
+  DATA_TYPE_POTENTIAL_FIELD,
+  Schema,
+  SchemaItem,
+} from "widgets/FormBuilderWidget/constants";
+import { get, noop } from "lodash";
 import { PanelConfig } from "constants/PropertyControlConstants";
 import { FormBuilderWidgetProps } from "widgets/FormBuilderWidget/widget";
+import { DropDownControlProps } from "components/propertyControls/DropDownControl";
+import { DropdownOption } from "components/ads/Dropdown";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -76,9 +80,35 @@ const updateDerivedColumnsHook = (
  * MAKE OPERATIONS ATOMIC!!!
  */
 
+// propertyPath -> "schema[0].children[0].fieldType"
+// returns parentPropertyPath -> "schema[0].children[0]"
+const getParentPropertyPath = (propertyPath: string) => {
+  const propertyPathChunks = propertyPath.split(".");
+
+  return propertyPathChunks.slice(0, -1).join(".");
+};
+
+const fieldTypeOptionsFn = (controlProps: DropDownControlProps) => {
+  const { propertyName, widgetProperties } = controlProps;
+  const parentPropertyPath = getParentPropertyPath(propertyName);
+  const schemaItem: SchemaItem = get(widgetProperties, parentPropertyPath, {});
+  const { dataType } = schemaItem;
+  const potentialField = DATA_TYPE_POTENTIAL_FIELD[dataType];
+
+  let options: DropdownOption[] = [];
+  if (potentialField) {
+    options = potentialField.options.map((option) => ({
+      label: option,
+      value: option,
+    }));
+  }
+
+  return options;
+};
+
 const PANEL_CONFIG = {
   editableTitle: true,
-  titlePropertyName: "config.props.label",
+  titlePropertyName: "label",
   panelIdPropertyName: "name",
   updateHook: updateDerivedColumnsHook,
   children: [
@@ -91,36 +121,8 @@ const PANEL_CONFIG = {
           controlType: "DROP_DOWN",
           isBindProperty: false,
           isTriggerProperty: false,
-          options: [
-            {
-              label: "Plain Text",
-              value: "text",
-            },
-            {
-              label: "URL",
-              value: "url",
-            },
-            {
-              label: "Number",
-              value: "number",
-            },
-            {
-              label: "Image",
-              value: "image",
-            },
-            {
-              label: "Video",
-              value: "video",
-            },
-            {
-              label: "Date",
-              value: "date",
-            },
-            {
-              label: "Button",
-              value: "button",
-            },
-          ],
+          optionsFn: fieldTypeOptionsFn,
+          dependencies: ["schema"],
         },
         {
           propertyName: "children",
@@ -177,8 +179,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const { dataTreePath, widgetProperties } = this.props;
-    const schema = this.props.propertyValue as Schema;
+    const { propertyValue } = this.props;
+    const schema = propertyValue as Schema;
     const entries = schema || [];
 
     const draggableComponentColumns = entries.map(({ label, name }, index) => ({
