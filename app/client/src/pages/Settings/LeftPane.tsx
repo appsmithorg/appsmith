@@ -1,4 +1,4 @@
-import { getSettingsCategoryUrl } from "constants/routes";
+import { getAdminSettingsCategoryUrl } from "constants/routes";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -26,17 +26,17 @@ const CategoryList = styled.ul`
 
 const Category = styled.li``;
 
-const StyledLink = styled(Link)<{ active: boolean }>`
+const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
   padding: 10px 16px;
   display: block;
   background-color: ${(props) =>
-    props.active ? props.theme.colors.menuItem.hoverBg : ""};
-  font-weight: ${(props) => (props.active ? 500 : 400)};
+    props.$active ? props.theme.colors.menuItem.hoverBg : ""};
+  font-weight: ${(props) => (props.$active ? 500 : 400)};
   text-transform: capitalize;
   && {
     color: ${(props) =>
-      props.active
+      props.$active
         ? props.theme.colors.menuItem.hoverText
         : props.theme.colors.menuItem.normalText};
   }
@@ -74,8 +74,8 @@ export default function LeftPane() {
         {categories.map((config) => (
           <Category key={config.slug}>
             <StyledLink
-              active={category == config.slug}
-              to={getSettingsCategoryUrl(config.slug)}
+              $active={category == config.slug}
+              to={getAdminSettingsCategoryUrl(config.slug)}
             >
               {config.label}
             </StyledLink>

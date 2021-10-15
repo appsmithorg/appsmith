@@ -284,9 +284,9 @@ export const extractAppIdAndPageIdFromUrl = (url = "") => {
   };
 };
 
-export const SETTINGS_URL = "/settings";
-export const SETTINGS_CATEGORY_DEFAULT_URL = "/settings/general";
-export const SETTINGS_CATEGORY_URL = "/settings/:category";
-export function getSettingsCategoryUrl(category: string) {
-  return `${SETTINGS_URL}/${category}`;
+export const ADMIN_SETTINGS_URL = "/settings";
+export const ADMIN_SETTINGS_CATEGORY_DEFAULT_URL = "/settings/general";
+export const ADMIN_SETTINGS_CATEGORY_URL = "/settings/:category";
+export function getAdminSettingsCategoryUrl(category: string) {
+  return `${ADMIN_SETTINGS_URL}/${category}`;
 }

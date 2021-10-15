@@ -10,7 +10,8 @@ const LinkWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[16]}px;
   margin-top: 3px;
   background: ${(props) => props.theme.settings.linkBg};
-  padding: 8px 16px;
+  padding: ${(props) => props.theme.spaces[3]}px
+    ${(props) => props.theme.spaces[7]}px;
   display: inline-block;
 `;
 
@@ -41,7 +42,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 const LinkLabel = styled.span`
-  color: ${Colors.BODY_COLOR};
+  color: ${Colors.MIRAGE};
 `;
 
 export default function Link({ setting }: SettingComponentProps) {

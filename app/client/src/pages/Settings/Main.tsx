@@ -7,7 +7,7 @@ import { createMessage } from "constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   APPLICATIONS_URL,
-  SETTINGS_CATEGORY_DEFAULT_URL,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
 } from "constants/routes";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
@@ -148,7 +148,7 @@ export function Main(
   }, []);
 
   if (!SettingsFactory.categories.has(category)) {
-    return <Redirect to={SETTINGS_CATEGORY_DEFAULT_URL} />;
+    return <Redirect to={ADMIN_SETTINGS_CATEGORY_DEFAULT_URL} />;
   }
 
   return (

@@ -19,9 +19,9 @@ import {
   PROFILE,
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
-  SETTINGS_URL,
-  SETTINGS_CATEGORY_URL,
-  SETTINGS_CATEGORY_DEFAULT_URL,
+  ADMIN_SETTINGS_URL,
+  ADMIN_SETTINGS_CATEGORY_URL,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -141,13 +141,13 @@ class AppRouter extends React.Component<any, any> {
                 <SentryRoute component={Setup} exact path={SETUP} />
                 <Redirect
                   exact
-                  from={SETTINGS_URL}
-                  to={SETTINGS_CATEGORY_DEFAULT_URL}
+                  from={ADMIN_SETTINGS_URL}
+                  to={ADMIN_SETTINGS_CATEGORY_DEFAULT_URL}
                 />
                 <SentryRoute
                   component={Settings}
                   exact
-                  path={SETTINGS_CATEGORY_URL}
+                  path={ADMIN_SETTINGS_CATEGORY_URL}
                 />
                 <SentryRoute component={PageNotFound} />
               </Switch>
