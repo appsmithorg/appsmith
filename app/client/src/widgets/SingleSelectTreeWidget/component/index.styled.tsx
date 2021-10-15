@@ -641,13 +641,13 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
       left: 0px !important;
     }
   }
-  .rc-tree-select-disabled {
+  && .rc-tree-select-disabled {
     cursor: not-allowed;
     input {
       cursor: not-allowed;
     }
     .rc-tree-select-selector {
-      opacity: 0.3;
+      background-color: ${Colors.GREY_1};
     }
   }
   .rc-tree-select-show-arrow.rc-tree-select-loading {
@@ -850,6 +850,7 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
       height: 100%;
       display: flex;
       align-items: center;
+      fill: ${Colors.SLATE_GRAY};
     }
     .rc-tree-select-arrow-icon {
       &::after {
