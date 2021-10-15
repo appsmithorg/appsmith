@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { updatePhoto, removePhoto } from "actions/userActions";
+import { updatePhoto, removePhoto, updatePhotoId } from "actions/userActions";
 import { useDispatch } from "react-redux";
 
 import DisplayImageUpload from "components/ads/DisplayImageUpload";
@@ -13,9 +13,22 @@ function FormDisplayImage() {
   const dispatch = useDispatch();
   const dispatchActionRef = useRef<(uppy: Uppy.Uppy) => void | null>();
 
-  const onUploadComplete = (uppy: Uppy.Uppy) => {
+  const onUploadComplete = (uppy: Uppy.Uppy, file: File) => {
     uppy.reset();
-    setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
+    const getUpdatedPhotoId = async (file: File) => {
+      if (file) {
+        try {
+          const response = await UserApi.uploadPhoto({ file });
+          const photoId = response.data?.profilePhotoAssetId;
+          setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
+          dispatch(updatePhotoId({ photoId }));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+
+    getUpdatedPhotoId(file);
   };
 
   const onSelectFile = (file: any) => {
@@ -24,7 +37,9 @@ function FormDisplayImage() {
 
   useEffect(() => {
     dispatchActionRef.current = (uppy: Uppy.Uppy) => {
-      dispatch(updatePhoto({ file, callback: () => onUploadComplete(uppy) }));
+      dispatch(
+        updatePhoto({ file, callback: () => onUploadComplete(uppy, file) }),
+      );
     };
   }, [file]);
 
@@ -39,6 +54,7 @@ function FormDisplayImage() {
         setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
       }),
     );
+    dispatch(updatePhotoId({ photoId: "" }));
   };
 
   return (

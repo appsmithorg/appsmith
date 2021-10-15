@@ -90,6 +90,11 @@ export const removePhoto = (callback: () => void) => ({
   payload: { callback },
 });
 
+export const updatePhotoId = (payload: { photoId: string }) => ({
+  type: ReduxActionTypes.UPDATE_PHOTO_ID,
+  payload,
+});
+
 export const leaveOrganization = (orgId: string) => {
   return {
     type: ReduxActionTypes.LEAVE_ORG_INIT,

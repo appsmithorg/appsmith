@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import styled from "styled-components";
@@ -91,7 +91,7 @@ export default function ProfileDropdown(props: TagProps) {
       position={Position.BOTTOM_RIGHT}
     >
       <ProfileImage
-        source={props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
+        source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
         userName={props.name || props.userName}
       />
     </TooltipComponent>
