@@ -759,12 +759,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     for (let index = 0; index < columnIds.length; index++) {
       const column = this.props.primaryColumns[columnIds[index]];
       if (column.columnType === "select") {
-        // set default value if values exist
-        if (column?.defaultOptionValue) {
+        // set computedValue as default value
+        if (column.computedValue) {
           setWith(
             editedColumnData,
             [column.id, "defaultOptionValue"],
-            column.defaultOptionValue,
+            column.computedValue,
             Object,
           );
         }

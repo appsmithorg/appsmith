@@ -93,8 +93,8 @@ export default {
     return pageSize;
   },
   // sanitizedTableData gets updated when editedColumnData has values
-  // case 1: if single row is updated, set columnName.index in editedColumnData
-  // case 2: if defaultOptionValue exist, update all not selected cell values of column
+  // case 1: set computed value as default value when change column type to "select"
+  // case 2: if single row is updated, set columnName.index in editedColumnData
   // i.e. editedColumnData = { [columnName] : { [rowindex]: "value1", defaultOptionValue: "default" } }
   getSanitizedTableData: (props, moment, _) => {
     const separatorRegex = /\W+/;

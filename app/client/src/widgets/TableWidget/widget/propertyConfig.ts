@@ -153,6 +153,7 @@ export default [
                       ColumnTypes.TEXT,
                       ColumnTypes.VIDEO,
                       ColumnTypes.URL,
+                      ColumnTypes.SELECT,
                     ]);
                   },
                   dependencies: [
@@ -378,115 +379,6 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  helpText:
-                    "Allows users to select a single option. Values must be unique",
-                  propertyName: "options",
-                  label: "Options",
-                  controlType: "INPUT_TEXT",
-                  placeholderText:
-                    'Enter [{"label": "label1", "value": "value2"}]',
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  isJSConvertible: false,
-                  validation: {
-                    type: ValidationTypes.ARRAY,
-                    params: {
-                      unique: ["value"],
-                      children: {
-                        type: ValidationTypes.OBJECT,
-                        params: {
-                          required: true,
-                          allowedKeys: [
-                            {
-                              name: "label",
-                              type: ValidationTypes.TEXT,
-                              params: {
-                                default: "",
-                                required: true,
-                              },
-                            },
-                            {
-                              name: "value",
-                              type: ValidationTypes.TEXT,
-                              params: {
-                                default: "",
-                                required: true,
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    },
-                  },
-                  evaluationSubstitutionType:
-                    EvaluationSubstitutionType.SMART_SUBSTITUTE,
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.SELECT,
-                    ]);
-                  },
-                },
-                {
-                  helpText: "Selects the option with value by default",
-                  propertyName: "defaultOptionValue",
-                  label: "Default Option",
-                  controlType: "COMPUTE_VALUE",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.SELECT,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  validation: {
-                    type: ValidationTypes.ARRAY,
-                    params: {
-                      children: {
-                        type: ValidationTypes.TEXT,
-                      },
-                    },
-                  },
-                },
-                {
-                  propertyName: "placeholderText",
-                  label: "Placeholder",
-                  controlType: "COMPUTE_VALUE",
-                  placeholderText: "Enter placeholder text",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.SELECT,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  validation: {
-                    type: ValidationTypes.ARRAY,
-                    params: {
-                      children: {
-                        type: ValidationTypes.TEXT,
-                      },
-                    },
-                  },
-                },
-                {
                   propertyName: "isCellVisible",
                   dependencies: [
                     "primaryColumns",
@@ -528,28 +420,6 @@ export default [
                   },
                 },
                 {
-                  propertyName: "isFilterable",
-                  label: "Filterable",
-                  helpText: "Makes the dropdown list filterable",
-                  updateHook: updateDerivedColumnsHook,
-                  defaultValue: false,
-                  controlType: "SWITCH",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.SELECT,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                },
-                {
                   propertyName: "onClick",
                   label: "onClick",
                   controlType: "ACTION_SELECTOR",
@@ -571,34 +441,6 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: true,
-                },
-                {
-                  helpText: "Triggers an action when a user selects an option",
-                  propertyName: "onOptionChange",
-                  label: "onOptionChange",
-                  controlType: "ACTION_SELECTOR",
-                  additionalAutoComplete: (props: TableWidgetProps) => ({
-                    currentRow: Object.assign(
-                      {},
-                      ...Object.keys(props.primaryColumns).map((key) => ({
-                        [key]: "",
-                      })),
-                    ),
-                  }),
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: true,
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.SELECT,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
                 },
                 {
                   propertyName: "isCompact",
@@ -805,6 +647,146 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                },
+              ],
+            },
+            {
+              sectionName: "Select Properties",
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                return hideByColumnType(
+                  props,
+                  propertyPath,
+                  [ColumnTypes.SELECT],
+                  true,
+                );
+              },
+              children: [
+                {
+                  helpText:
+                    "Allows users to select a single option. Values must be unique",
+                  propertyName: "options",
+                  label: "Options",
+                  controlType: "INPUT_TEXT",
+                  placeholderText:
+                    'Enter [{"label": "label1", "value": "value2"}]',
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  isJSConvertible: false,
+                  validation: {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      unique: ["value"],
+                      children: {
+                        type: ValidationTypes.OBJECT,
+                        params: {
+                          required: true,
+                          allowedKeys: [
+                            {
+                              name: "label",
+                              type: ValidationTypes.TEXT,
+                              params: {
+                                default: "",
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "value",
+                              type: ValidationTypes.TEXT,
+                              params: {
+                                default: "",
+                                required: true,
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                  evaluationSubstitutionType:
+                    EvaluationSubstitutionType.SMART_SUBSTITUTE,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  updateHook: updateDerivedColumnsHook,
+                },
+                {
+                  propertyName: "placeholderText",
+                  label: "Placeholder",
+                  controlType: "COMPUTE_VALUE",
+                  placeholderText: "Enter placeholder text",
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SELECT,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  validation: {
+                    type: ValidationTypes.ARRAY,
+                    params: {
+                      children: {
+                        type: ValidationTypes.TEXT,
+                      },
+                    },
+                  },
+                },
+                {
+                  propertyName: "isFilterable",
+                  label: "Filterable",
+                  helpText: "Makes the dropdown list filterable",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SELECT,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  helpText: "Triggers an action when a user selects an option",
+                  propertyName: "onOptionChange",
+                  label: "onOptionChange",
+                  controlType: "ACTION_SELECTOR",
+                  additionalAutoComplete: (props: TableWidgetProps) => ({
+                    currentRow: Object.assign(
+                      {},
+                      ...Object.keys(props.primaryColumns).map((key) => ({
+                        [key]: "",
+                      })),
+                    ),
+                  }),
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SELECT,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                 },
               ],
             },

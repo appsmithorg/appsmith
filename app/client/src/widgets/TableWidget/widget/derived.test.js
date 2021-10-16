@@ -839,11 +839,11 @@ describe("Validates Derived Properties", () => {
       editedColumnData: {
         name: {
           0: "RED",
-          defaultOptionValue: ["BLUE", "PINK"],
+          defaultOptionValue: ["John Doe", "Jane Doe"],
         },
         customColumn1: {
           1: "GREEN",
-          defaultOptionValue: ["PINK", "BLUE"],
+          defaultOptionValue: ["BLUE", "John Doe"],
         },
       },
       primaryColumns: {
@@ -901,18 +901,18 @@ describe("Validates Derived Properties", () => {
           options: [
             { label: "Blue", value: "BLUE" },
             { label: "Green", value: "GREEN" },
-            { label: "Red", value: "RED" },
-            { label: "Pink", value: "PINK" },
+            { label: "John Doe", value: "John Doe" },
+            { label: "Jane Doe", value: "Jane Doe" },
           ],
         },
       },
       selectedRowIndex: 0,
     };
     const expected = [
-      { id: 123, name: "RED", customColumn1: "PINK", __originalIndex__: 0 },
+      { id: 123, name: "RED", customColumn1: "BLUE", __originalIndex__: 0 },
       {
         id: 234,
-        name: "PINK",
+        name: "Jane Doe",
         customColumn1: "GREEN",
         __originalIndex__: 1,
       },
@@ -929,7 +929,7 @@ describe("Validates Derived Properties", () => {
     expect(row).toStrictEqual({
       id: 123,
       name: "RED",
-      customColumn1: "PINK",
+      customColumn1: "BLUE",
       __originalIndex__: 0,
     });
 
@@ -938,7 +938,7 @@ describe("Validates Derived Properties", () => {
     let row = getSelectedRow(input, moment, _);
     expect(row).toStrictEqual({
       id: 234,
-      name: "PINK",
+      name: "Jane Doe",
       customColumn1: "GREEN",
       __originalIndex__: 1,
     });

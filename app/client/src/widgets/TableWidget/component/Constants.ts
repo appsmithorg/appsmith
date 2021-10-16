@@ -212,7 +212,6 @@ export interface ColumnProperties {
   isCellVisible?: boolean;
   // column type select related properties
   options?: DropdownOption[];
-  defaultOptionValue?: string[];
   placeholderText?: string[];
   isFilterable?: boolean[];
   onOptionChange?: string;

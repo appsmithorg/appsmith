@@ -805,7 +805,7 @@ const StyledDropDownComponent = styled.div`
 
 /**
  * renders select component for each cell where column type is "select"
- * column properties have additional props related to select i.e. options, defaultOptionValue, onOptionChange
+ * column properties have additional props related to select i.e. options, onOptionChange
  * onOptionChange call, parent handler set new data into meta properties
  */
 export function SelectCell(props: {
