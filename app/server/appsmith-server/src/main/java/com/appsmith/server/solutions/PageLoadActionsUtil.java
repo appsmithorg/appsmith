@@ -278,7 +278,6 @@ public class PageLoadActionsUtil {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 // Add dependencies of the actions found in the DSL in the graph.
                 .map(action -> {
-                    log.debug("Here 1");
                     // This action is directly referenced in the DSL. This action is an ideal candidate for on page load
                     actionsUsedInDSL.add(action.getValidName());
                     extractAndSetActionBindingsInGraphEdges(edges, action, bindingsFromActions, actionsFoundDuringWalk);
@@ -401,6 +400,7 @@ public class PageLoadActionsUtil {
         // Implementation of offline scheduler by using level by level traversal. Level i+1 actions would be dependent
         // on Level i actions. All actions in a level can run independently and hence would get added to the same set.
         while (bfsIterator.hasNext()) {
+
             String vertex = bfsIterator.next();
             int level = bfsIterator.getDepth(vertex);
             if (onPageLoadActions.size() <= level) {
@@ -432,7 +432,6 @@ public class PageLoadActionsUtil {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
             return Mono.just(variable);
         }
-        log.debug("Here 4. Bindings for recursion : {}", dynamicBindings);
 
         Set<String> possibleActionNames = new HashSet<>();
 
@@ -496,13 +495,6 @@ public class PageLoadActionsUtil {
         }
         actionsFoundDuringWalk.add(name);
 
-        log.debug("Here adding found action's dependencies to graph : {}", name);
-
-//        // If the user has explicitly set an action to **NOT** run on page load, this action should be ignored
-//        if (hasUserSetActionToNotRunOnPageLoad(action)) {
-//            return;
-//        }
-
         Map<String, Set<String>> actionBindingMap = getActionBindingMap(action);
 
         Set<String> allBindings = new HashSet<>();
@@ -535,7 +527,7 @@ public class PageLoadActionsUtil {
 
     private Mono<String> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
                                                       Map<String, Set<String>> widgetBindingMap, String variable) {
-        log.debug("Here 5");
+
         return Mono.just(widgetBindingMap)
                 .map(widgetDynamicBindingsMap -> {
                     widgetDynamicBindingsMap.forEach((widgetPath, widgetDynamicBindings) -> {
@@ -679,17 +671,26 @@ public class PageLoadActionsUtil {
                 // This is definitely an action which hasn't yet been discovered for on page load.
                 ActionDTO action = actionNameToActionMap.get(entity);
 
-                // If this is a JS action, sync functions should not be added to on page load since
-                // they would be executed during evaluation.
-                if (isSyncJSFunction(action)) {
-                    // do nothing
-                } else {
-                    // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
-                    // of this async call is being referred in the binding.
-                    String validBinding = entity + "." + "data";
-                    if (dynamicBinding.contains(validBinding)) {
-                        onPageLoadCandidates.add(entity);
+                Boolean isCandidateForPageLoad = TRUE;
+
+                if (PluginType.JS.equals(action.getPluginType())) {
+
+                    // If this is a sync function, it should not be added to on page load since they would be executed
+                    // during evaluation.
+                    if (FALSE.equals(action.getActionConfiguration().getIsAsync())) {
+                        isCandidateForPageLoad= FALSE;
+                    } else {
+                        // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
+                        // of this async call is being referred in the binding.
+                        String validBinding = entity + "." + "data";
+                        if (!dynamicBinding.contains(validBinding)) {
+                            isCandidateForPageLoad = FALSE;
+                        }
                     }
+                }
+
+                if (isCandidateForPageLoad) {
+                    onPageLoadCandidates.add(entity);
                 }
             }
         }

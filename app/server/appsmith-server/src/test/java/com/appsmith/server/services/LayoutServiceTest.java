@@ -508,12 +508,11 @@ public class LayoutServiceTest {
         StepVerifier
                 .create(testMono)
                 .assertNext(layout -> {
-                    log.debug("layout load actions : {}", layout.getLayoutOnLoadActions());
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
                     assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-//                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-//                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(8);
+                    assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
+                    assertThat(layout.getLayoutOnLoadActions().get(0)).hasSize(8);
 
                     Set<String> firstSetPageLoadActions = Set.of(
                             "aPostTertiaryAction",
@@ -535,7 +534,6 @@ public class LayoutServiceTest {
                     );
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
-                    assertThat(layout.getLayoutOnLoadActions().get(1)).hasSize(3);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream().map(DslActionDTO::getName).collect(Collectors.toSet()))
                             .hasSameElementsAs(secondSetPageLoadActions);
                     Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
