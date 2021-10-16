@@ -1,5 +1,8 @@
 package com.appsmith.server.helpers;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,13 +11,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class FileUtils {
-    public static byte [] getZipFileBytes(File...srcFiles) throws IOException {
+    public static byte [] getZipFileBytes(ZipSourceFile...srcFiles) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zipOut = new ZipOutputStream(baos);
 
-        for (File fileToZip : srcFiles) {
-            FileInputStream fis = new FileInputStream(fileToZip);
-            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+        for (ZipSourceFile zipSourceFile : srcFiles) {
+            FileInputStream fis = new FileInputStream(zipSourceFile.fileToZip);
+            ZipEntry zipEntry = new ZipEntry(zipSourceFile.getNameInZip());
             zipOut.putNextEntry(zipEntry);
 
             byte[] bytes = new byte[1024];
@@ -29,5 +32,12 @@ public class FileUtils {
         byte[] byteArray = baos.toByteArray();
         baos.close();
         return byteArray;
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class ZipSourceFile {
+        private File fileToZip; // file whose content will be zipped
+        private String nameInZip; // name of the file that'll be used when unzip
     }
 }

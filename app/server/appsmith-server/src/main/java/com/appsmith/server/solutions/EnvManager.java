@@ -333,7 +333,10 @@ public class EnvManager {
                     try {
                         File envFile = Path.of(commonConfig.getEnvFilePath()).toFile();
                         File resourceFile = new ClassPathResource("docker-compose.yml").getFile();
-                        byte[] byteArray = FileUtils.getZipFileBytes(envFile, resourceFile);
+                        byte[] byteArray = FileUtils.getZipFileBytes(
+                                new FileUtils.ZipSourceFile(envFile, "docker.env"),
+                                new FileUtils.ZipSourceFile(resourceFile, "docker-compose.yml")
+                        );
                         final ServerHttpResponse response = exchange.getResponse();
                         response.setStatusCode(HttpStatus.OK);
                         response.getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/zip");
