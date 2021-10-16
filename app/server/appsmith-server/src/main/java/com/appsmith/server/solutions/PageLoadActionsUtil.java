@@ -121,26 +121,28 @@ public class PageLoadActionsUtil {
                 .collect(Collectors.toSet())
                 .cache();
 
-        String variable = "Adding external dependency between monos";
-
-        Mono<String> directlyReferencedActionsAddedToGraphMono = addDirectlyReferencedActionsToGraph(pageId,
+        Mono<Set<ActionDependencyEdge>> directlyReferencedActionsAddedToGraphMono = addDirectlyReferencedActionsToGraph(pageId,
                 edges, actionsUsedInDSL, bindingsFromActions, actionsFoundDuringWalk, bindingsInWidgets,
-                actionNameToActionMapMono, variable);
+                actionNameToActionMapMono);
 
         /* This publisher traverses the actions and widgets to add all possible edges between entity paths */
         // First find all the actions in the page whose name matches the possible entity names found in the bindings in the widget
-        Mono<String> createAllEdgesForPageMono = directlyReferencedActionsAddedToGraphMono
+        Mono<Set<ActionDependencyEdge>> createAllEdgesForPageMono = directlyReferencedActionsAddedToGraphMono
                 // Add dependencies of all on page load actions set by the user in the graph
-                .flatMap(obj -> addExplicitUserSetOnLoadActionsToGraph(pageId, edges, explicitUserSetOnLoadActions, actionsFoundDuringWalk, bindingsFromActions, obj))
+                .flatMap(updatedEdges -> addExplicitUserSetOnLoadActionsToGraph(pageId, updatedEdges, explicitUserSetOnLoadActions, actionsFoundDuringWalk, bindingsFromActions))
                 // For all the actions found so far, recursively walk the dynamic bindings of the actions to find more relationships with other actions (& widgets)
-                .flatMap(obj -> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(pageId, edges, actionsFoundDuringWalk, bindingsFromActions, obj))
+                .flatMap(updatedEdges -> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(pageId, updatedEdges, actionsFoundDuringWalk, bindingsFromActions))
                 // At last, add all the widget relationships to the graph as well.
-                .flatMap(obj -> addWidgetRelationshipToGraph(edges, widgetDynamicBindingsMap, obj));
+                .flatMap(updatedEdges -> addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap));
 
 
         // Create a graph given edges
-        Mono<DirectedAcyclicGraph<String, DefaultEdge>> createGraphMono = actionsInPageMono
-                .map(allActions -> constructDAG(allActions, widgetNames, edges))
+        Mono<DirectedAcyclicGraph<String, DefaultEdge>> createGraphMono = Mono.zip(actionsInPageMono, createAllEdgesForPageMono)
+                .map(tuple -> {
+                    Set<String> allActions = tuple.getT1();
+                    Set<ActionDependencyEdge> updatedEdges = tuple.getT2();
+                    return constructDAG(allActions, widgetNames, updatedEdges);
+                })
                 .cache();
 
         // Generate on page load schedule
@@ -195,8 +197,7 @@ public class PageLoadActionsUtil {
                     return flatPageLoadActions;
                 });
 
-        return createAllEdgesForPageMono
-                .then(createGraphMono)
+        return createGraphMono
                 .then(flatPageLoadActionsMono)
                 .then(computeCompletePageLoadActionScheduleMono);
 
@@ -234,7 +235,7 @@ public class PageLoadActionsUtil {
         });
     }
 
-    private Mono<String> addDirectlyReferencedActionsToGraph(String pageId, Set<ActionDependencyEdge> edges, Set<String> actionsUsedInDSL, Set<String> bindingsFromActions, Set<String> actionsFoundDuringWalk, Set<String> bindingsInWidgets, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, String variable) {
+    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(String pageId, Set<ActionDependencyEdge> edges, Set<String> actionsUsedInDSL, Set<String> bindingsFromActions, Set<String> actionsFoundDuringWalk, Set<String> bindingsInWidgets, Mono<Map<String, ActionDTO>> actionNameToActionMapMono) {
         return actionNameToActionMapMono
                 .map(actionMap -> {
                     Map<String, Set<String>> bindingToPossibleParentMap = bindingsInWidgets
@@ -284,7 +285,7 @@ public class PageLoadActionsUtil {
                     return action;
                 })
                 .collectList()
-                .thenReturn(variable);
+                .thenReturn(edges);
     }
 
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
@@ -424,13 +425,12 @@ public class PageLoadActionsUtil {
      * This ensures that the DAG that we create is complete and contains all possible actions and their dependencies
      * @return
      */
-    private Mono<String> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(String pageId,
-                                                                                    Set<ActionDependencyEdge> edges,
-                                                                                    Set<String> actionsFoundDuringWalk,
-                                                                                    Set<String> dynamicBindings,
-                                                                                    String variable) {
+    private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(String pageId,
+                                                                                                       Set<ActionDependencyEdge> edges,
+                                                                                                       Set<String> actionsFoundDuringWalk,
+                                                                                                       Set<String> dynamicBindings) {
         if (dynamicBindings == null || dynamicBindings.isEmpty()) {
-            return Mono.just(variable);
+            return Mono.just(edges);
         }
 
         Set<String> possibleActionNames = new HashSet<>();
@@ -455,15 +455,15 @@ public class PageLoadActionsUtil {
                 .flatMap(actions -> {
                     // Now that the next set of bindings have been found, find recursively all actions by these names
                     // and their bindings
-                    return recursivelyAddActionsAndTheirDependentsToGraphFromBindings(pageId, edges, actionsFoundDuringWalk, newBindings, variable);
+                    return recursivelyAddActionsAndTheirDependentsToGraphFromBindings(pageId, edges, actionsFoundDuringWalk, newBindings);
                 });
     }
 
-    private Mono<String> addExplicitUserSetOnLoadActionsToGraph(String pageId,
+    private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId,
                                                                 Set<ActionDependencyEdge> edges,
                                                                 Set<String> explicitUserSetOnLoadActions,
                                                                 Set<String> actionsFoundDuringWalk,
-                                                                Set<String> bindingsFromActions, String variable) {
+                                                                Set<String> bindingsFromActions) {
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
@@ -474,7 +474,7 @@ public class PageLoadActionsUtil {
                     return actionDTO;
                 })
                 .collectList()
-                .thenReturn(variable);
+                .thenReturn(edges);
     }
 
     private void extractAndSetActionBindingsInGraphEdges(Set<ActionDependencyEdge> edges,
@@ -525,8 +525,8 @@ public class PageLoadActionsUtil {
         }
     }
 
-    private Mono<String> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
-                                                      Map<String, Set<String>> widgetBindingMap, String variable) {
+    private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
+                                                                         Map<String, Set<String>> widgetBindingMap) {
 
         return Mono.just(widgetBindingMap)
                 .map(widgetDynamicBindingsMap -> {
@@ -545,7 +545,7 @@ public class PageLoadActionsUtil {
 
                     return widgetDynamicBindingsMap;
                 })
-                .thenReturn(variable);
+                .thenReturn(edges);
     }
 
 
