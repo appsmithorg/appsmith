@@ -5,7 +5,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -44,7 +43,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -135,9 +133,6 @@ public class ApplicationServiceTest {
     @MockBean
     ReleaseNotesService releaseNotesService;
 
-    @MockBean
-    ReactiveRedisTemplate<String, String> reactiveTemplate;
-
     String orgId;
 
     @Before
@@ -145,9 +140,6 @@ public class ApplicationServiceTest {
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         orgId = apiUser.getOrganizationIds().iterator().next();
-        Mockito.when(releaseNotesService.getReleasedVersion()).thenReturn("UNKNOWN");
-        Mockito.when(reactiveTemplate.convertAndSend(Appsmith.API_BUILD_VERSION, "UNKNOWN"))
-                .thenReturn(Mono.just(1L));
     }
 
     @Test

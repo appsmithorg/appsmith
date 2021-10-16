@@ -33,5 +33,4 @@ public interface Url {
     String NOTIFICATION_URL = BASE_URL + VERSION + "/notifications";
     String INSTANCE_ADMIN_URL = BASE_URL + VERSION + "/admin";
     String GIT_URL = BASE_URL + VERSION + "/git";
-    String RELEASE_VERSION = BASE_URL + VERSION + "/release";
 }
