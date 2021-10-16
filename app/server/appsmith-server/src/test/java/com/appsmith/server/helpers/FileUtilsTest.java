@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
@@ -16,13 +17,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 class FileUtilsTest {
+
+    private FileUtils fileUtils;
+
+    @BeforeEach
+    public void setUp() {
+        fileUtils = new FileUtils();
+    }
+
     @Test
     public void createZip_WhenFileExists_ValidZipCreated() throws IOException {
         // create a zip with sample two files from resources
         File file1 = new ClassPathResource("FileUtilsTest/sample-file1.txt").getFile();
         File file2 = new ClassPathResource("FileUtilsTest/sample-file2.txt").getFile();
-
-        FileUtils fileUtils = new FileUtils();
 
         byte[] zipBytes = fileUtils.createZip(
                 new FileUtils.ZipSourceFile(file1, "file_one.txt"),
