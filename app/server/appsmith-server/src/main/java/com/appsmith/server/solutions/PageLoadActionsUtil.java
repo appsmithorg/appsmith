@@ -73,11 +73,12 @@ public class PageLoadActionsUtil {
      * @param pageId : Argument used for fetching actions in this page
      * @param widgetNames : Set of widget names which have been set before calling this function
      * @param edges : Set where this function adds all the relationships (dependencies) between actions
-     * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
      * @param widgetDynamicBindingsMap : A map of widget path and the set of dynamic binding words in the mustache at the
      *                                 path in the widget
      * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
      *                            would be called on page load)
+     * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
+     *
      * @return : Returns page load actions which is a list of sets of actions. Inside a set, all actions can be executed
      * in parallel. But one set of actions MUST finish execution before the next set of actions can be executed
      * in the list.
@@ -125,7 +126,8 @@ public class PageLoadActionsUtil {
                 edges, actionsUsedInDSL, bindingsFromActions, actionsFoundDuringWalk, bindingsInWidgets,
                 actionNameToActionMapMono);
 
-        /* This publisher traverses the actions and widgets to add all possible edges between entity paths */
+        // This publisher traverses the actions and widgets to add all possible edges between entity paths
+
         // First find all the actions in the page whose name matches the possible entity names found in the bindings in the widget
         Mono<Set<ActionDependencyEdge>> createAllEdgesForPageMono = directlyReferencedActionsAddedToGraphMono
                 // Add dependencies of all on page load actions set by the user in the graph
@@ -367,7 +369,6 @@ public class PageLoadActionsUtil {
                     throw new AppsmithException(AppsmithError.CYCLICAL_DEPENDENCY_ERROR, edge.toString(), actionSchedulingGraph.edgeSet());
                 }
             }
-
         }
 
         return actionSchedulingGraph;
@@ -418,7 +419,7 @@ public class PageLoadActionsUtil {
     }
 
     /**
-     * This function gets a list of binding names that come from other actions. It looks for actions in the page with
+     * This function gets a set of binding names that come from other actions. It looks for actions in the page with
      * the same names as words in the binding names set. If yes, it creates a new set of dynamicBindingNames, adds these newly
      * found actions' bindings in the set, adds the new actions and their bindings to actionNames and edges and
      * recursively calls itself with the new set of dynamicBindingNames.
@@ -437,6 +438,8 @@ public class PageLoadActionsUtil {
 
         dynamicBindings.stream().forEach(binding -> possibleActionNames.addAll(getPossibleParents(binding)));
 
+        // All actions found from possibleActionNames set would add their dependencies in the following set for further
+        // walk to find more actions recursively.
         Set<String> newBindings = new HashSet<>();
 
         // First fetch all the actions in the page whose name matches the words found in all the dynamic bindings
@@ -464,10 +467,11 @@ public class PageLoadActionsUtil {
                                                                 Set<String> explicitUserSetOnLoadActions,
                                                                 Set<String> actionsFoundDuringWalk,
                                                                 Set<String> bindingsFromActions) {
+
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                // Add the vertices and edges to the graph
+                // Add the vertices and edges to the graph for these actions
                 .map(actionDTO -> {
                     extractAndSetActionBindingsInGraphEdges(edges, actionDTO, bindingsFromActions, actionsFoundDuringWalk);
                     explicitUserSetOnLoadActions.add(actionDTO.getValidName());
@@ -489,6 +493,7 @@ public class PageLoadActionsUtil {
         }
 
         String name = action.getValidName();
+
         if (actionsFoundDuringWalk.contains(name)) {
             // This action has already been found in our walk. Ignore this.
             return;
@@ -698,18 +703,10 @@ public class PageLoadActionsUtil {
         return onPageLoadCandidates;
     }
 
-    private boolean isSyncJSFunction(ActionDTO unpublishedAction) {
-        if (PluginType.JS.equals(unpublishedAction.getPluginType())
-                && FALSE.equals(unpublishedAction.getActionConfiguration().getIsAsync())) {
-            return true;
-        }
-
-        return false;
-    }
-
     private boolean isAsyncJsFunctionCall(ActionDTO action, String binding) {
         if (PluginType.JS.equals(action.getPluginType()) &&
                 TRUE.equals(action.getActionConfiguration().getIsAsync())) {
+
             // This function is ASYNC. Now check if the binding is a function call. If yes, then this action would not
             // be a candidate for on page load.
             String name = action.getValidName();
