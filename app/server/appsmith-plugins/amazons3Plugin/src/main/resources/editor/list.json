@@ -54,7 +54,7 @@
         },
         {
           "label": "Expiry Duration of Signed URL (Minutes)",
-          "configProperty": "actionConfiguration.formData.list.signedUrlExpiryDuration",
+          "configProperty": "actionConfiguration.formData.list.expiry",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5",
           "show": {
