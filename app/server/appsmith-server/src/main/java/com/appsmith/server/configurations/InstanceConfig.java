@@ -6,14 +6,12 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.solutions.ReleaseNotesService;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -23,20 +21,13 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.appsmith.server.constants.Appsmith.API_BUILD_VERSION;
-
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final ConfigService configService;
-
     private final CloudServicesConfig cloudServicesConfig;
-
-    private final ReactiveRedisTemplate<String, String> reactiveTemplate;
-
-    private final ReleaseNotesService releaseNotesService;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -45,19 +36,10 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .switchIfEmpty(registerInstance())
                 .doOnSuccess(ignored -> this.printReady())
                 .doOnError(ignored -> this.printReady())
-                .then(publishReleaseVersionToRedis())
                 .subscribe(null, e -> {
                     log.debug(e.getMessage());
                     Sentry.captureException(e);
                 });
-    }
-
-    private Mono<Long> publishReleaseVersionToRedis() {
-        String releaseVersion = releaseNotesService.getReleasedVersion();
-        if(!StringUtils.isEmpty(releaseVersion)) {
-            return reactiveTemplate.convertAndSend(API_BUILD_VERSION, releaseVersion);
-        }
-        return Mono.just(0L);
     }
 
     private Mono<? extends Config> registerInstance() {

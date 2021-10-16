@@ -1,15 +1,15 @@
 import http from "http"
 import path from "path"
-import express, { response } from "express"
+import express from "express"
 import { Server, Socket } from "socket.io"
 import { MongoClient, ObjectId } from "mongodb"
 import type mongodb from "mongodb"
 import axios from "axios"
 import { LogLevelDesc } from "loglevel";
 import log from "loglevel";
-import redis from "redis";
 
 import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread, MousePointerEvent } from "./models"
+import { VERSION as buildVersion } from "./version"  // release version of the api
 
 const RTS_BASE_PATH = "/rts"
 
@@ -23,11 +23,6 @@ const START_EDIT_EVENT_NAME : string = "collab:start_edit"
 const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
 const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
 const RELEASE_VERSION_EVENT_NAME : string = "info:release_version"
-
-const API_VERSION_INFO_CHANNEL = "API_BUILD_VERSION"
-
-// release version of the api
-let apiReleaseVersion = ""
 
 // Setting the logLevel for all log messages
 const logLevel : LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL || "debug") as LogLevelDesc
@@ -48,8 +43,6 @@ if (API_BASE_URL == null || API_BASE_URL === "") {
 main()
 
 function main() {
-	const REDIS_URI = process.env.APPSMITH_REDIS_URI
-	const subscriber = redis.createClient(REDIS_URI);
 	const app = express()
 	//Disable x-powered-by header to prevent information disclosure
 	app.disable("x-powered-by");
@@ -64,20 +57,12 @@ function main() {
 
 	const port = 8091
 
-	subscriber.on("message", function (channel, message) {
-		if(channel == API_VERSION_INFO_CHANNEL) {
-			log.debug(`API version updated. current version: ${apiReleaseVersion}, new version: ${message}`)
-			apiReleaseVersion = message;
-			io.emit(RELEASE_VERSION_EVENT_NAME, apiReleaseVersion);
-		}
-	});
-
 	app.get("/", (req, res) => {
 		res.redirect("/index.html")
 	})
 
 	io.on("connection", (socket: Socket) => {
-		socket.emit(RELEASE_VERSION_EVENT_NAME, apiReleaseVersion)
+		socket.emit(RELEASE_VERSION_EVENT_NAME, buildVersion)
 		subscribeToEditEvents(socket, APP_ROOM_PREFIX)
 		onAppSocketConnected(socket)
 			.catch((error) => log.error("Error in socket connected handler", error))
@@ -120,28 +105,12 @@ function main() {
 
 	app.use(express.static(path.join(__dirname, "static")))
 
-	// get api release version
-	axios.get(API_BASE_URL + "/release")
-	.then(function(response) {
-		apiReleaseVersion = response.data.data;
-
-		// start watching mongodb
-		watchMongoDB(io)
-			.catch((error) => log.error("Error watching MongoDB", error))
-
-		subscriber.subscribe(API_VERSION_INFO_CHANNEL);
-
-		// run the server
-		server.listen(port, () => {
-			log.info(`RTS will communicate with API: ${API_BASE_URL}, release version: ${apiReleaseVersion}`)
-			log.info(`RTS running at http://localhost:${port}`)
-		})
+	watchMongoDB(io).catch((error) => log.error("Error watching MongoDB", error))
+	
+	// run the server
+	server.listen(port, () => {
+		log.info(`RTS version ${buildVersion} running at http://localhost:${port}`)
 	})
-	.catch(function (error) {
-		log.error(`Failed to connect to ${API_BASE_URL}/release`, error);
-		log.error('Aborting... Please make sure API is running and then try again')
-		process.exit(1)
-	});
 }
 
 function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
