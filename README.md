@@ -47,7 +47,7 @@ The fastest way to start with Appsmith is the cloud-hosted version. When you're 
   <img src="static/animations/widgets.gif" width="100%">
 </p>
 
-Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms and more right into your app.
+Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in recorded time. Drag common elements like tables, charts, forms and more right into your app.
 
 _Includes text, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, datepickers, dropdowns, filepickers, containers, maps, modals, rich text editors, tabs & video._ <br>
 
@@ -105,7 +105,7 @@ Check out some real applications that can be built with Appsmith:
 - 💸 [Fundraising CRM](https://app.appsmith.com/applications/6098bdc65864501cc39c3d2f/pages/6098bdc65864501cc39c3d31/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 📄 [Application Tracking System App](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 
-- 🌟 Made something cool? [Share it with the community](https://discord.gg/Tx395War)
+- 🌟 Make something cool? [Share it with the community](https://discord.gg/Tx395War)
   <br><br>
 
 ## Tutorials
