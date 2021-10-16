@@ -3312,4 +3312,102 @@ public class DatabaseChangelog {
         }
     }
 
+    /**
+     * Recently a change was introduced to modify the default value of s3 plugin's permanent URL toggle from NO to YES.
+     * This created an issue with the older actions where the toggle didn't exist and hence no value was saved against its
+     * property. Hence, since the default is now ON and the older actions don't have any value saved, the action
+     * editor shows the toggle value as ON but behaves like the value is OFF. To fix this issue, this method adds
+     * URL toggle as `NO` where no toggle value exists.
+     *
+     * @param mongockTemplate : Mongo client
+     */
+    @ChangeSet(order = "092", id = "update-s3-permanent-url-toggle-default-value", author = "")
+    public void updateS3PermanentUrlToggleDefaultValue(MongockTemplate mongockTemplate) {
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        /**
+         * Query to find all S3 actions such that:
+         *   o action type is LIST
+         *   o permanent url property either does not exist or the property is null or the property's value is null -
+         *   indicating that the property has not been set.
+         */
+        Query missingToggleQuery = query(new Criteria().andOperator(
+                where("pluginId").is(s3Plugin.getId()),
+                where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value").is("LIST"),
+                new Criteria().orOperator(
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").exists(false),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").is(null),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8.value").is(null)
+                )
+        ));
+        List<NewAction> s3ListActionObjectsWithNoToggleValue = mongockTemplate.find(missingToggleQuery, NewAction.class);
+
+        // Replace old pluginSpecifiedTemplates with updated pluginSpecifiedTemplates.
+        s3ListActionObjectsWithNoToggleValue.stream()
+                .forEach(action -> {
+                    List<Property> oldPluginSpecifiedTemplates =
+                            action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    List<Property> newPluginSpecifiedTemplates = setS3ListActionDefaults(oldPluginSpecifiedTemplates);
+                    action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(newPluginSpecifiedTemplates);
+                });
+
+        /**
+         * Save changes only after all the processing is done so that in case any data manipulation fails, no data
+         * write occurs.
+         * Write data back to db only if all data manipulations done above have succeeded.
+         */
+        s3ListActionObjectsWithNoToggleValue.stream()
+                .forEach(action -> mongockTemplate.save(action));
+    }
+
+    /**
+     * This method fills `pluginSpecifiedTemplates` list with default values until the 7th index (i.e size = 8) for
+     * LIST action type. The 8th index is mapped against the toggle for generating a permanent url for s3 resource.
+     * However, a value cannot be set against this toggle if the value for previous keys in the list are missing.
+     * Hence, this method populates the values for all the keys that appear before the permanent url toggle key. To
+     * check out the indexes for each key / property please look into the `editor.json` file for s3 plugin.
+     *
+     * The keys are saved as `null` for properties where editor.json does not define any value for the property keys.
+     *
+     * @param oldPluginSpecifiedTemplates : current config saved in db.
+     * @return newPluginSpecifiedTemplates : new config with default values against missing keys.
+     */
+    private List<Property> setS3ListActionDefaults(List<Property> oldPluginSpecifiedTemplates) {
+        List<Property> newPluginSpecifiedTemplates = new ArrayList<>(oldPluginSpecifiedTemplates);
+        switch(newPluginSpecifiedTemplates.size()) {
+            case 0:
+                /**
+                 * This case is never expected to be hit. However, I am still adding the handling here for the sake
+                 * of completeness and comprehension.
+                 */
+                newPluginSpecifiedTemplates.add(new Property(null, "LIST")); // action type
+            case 1:
+                newPluginSpecifiedTemplates.add(new Property(null, "")); // bucket name
+            case 2:
+                newPluginSpecifiedTemplates.add(new Property(null, "NO")); // generate signed url
+            case 3:
+                newPluginSpecifiedTemplates.add(new Property(null, "5")); // expiry duration
+            case 4:
+                newPluginSpecifiedTemplates.add(new Property(null, "")); // prefix
+            case 5:
+                newPluginSpecifiedTemplates.add(new Property(null, "YES")); // base64 encode file
+            case 6:
+                newPluginSpecifiedTemplates.add(new Property(null, "YES")); // base64 data
+            case 7:
+                newPluginSpecifiedTemplates.add(new Property(null, "5")); // expiry duration for url with upload
+            case 8:
+                newPluginSpecifiedTemplates.add(new Property("generateUnsignedUrl", "NO")); // generate unsigned url
+            default:
+                if (newPluginSpecifiedTemplates.get(8) == null
+                        || newPluginSpecifiedTemplates.get(8).getValue() == null) {
+                    newPluginSpecifiedTemplates.set(8, new Property("generateUnsignedUrl", "NO"));
+                }
+        }
+
+        return newPluginSpecifiedTemplates;
+    }
+
 }

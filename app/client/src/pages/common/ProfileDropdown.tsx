@@ -14,16 +14,17 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE } from "constants/routes";
-import UserApi from "api/UserApi";
 import { Colors } from "constants/Colors";
 import TooltipComponent from "components/ads/Tooltip";
 import { ACCOUNT_TOOLTIP, createMessage } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
   name: string;
   modifiers?: PopperModifiers;
+  photoId?: string;
 };
 
 const StyledMenuItem = styled(MenuItem)`
@@ -90,7 +91,7 @@ export default function ProfileDropdown(props: TagProps) {
       position={Position.BOTTOM_RIGHT}
     >
       <ProfileImage
-        source={`/api/${UserApi.photoURL}`}
+        source={props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
         userName={props.name || props.userName}
       />
     </TooltipComponent>

@@ -15,6 +15,7 @@ export type User = {
   gender: Gender;
   emptyInstance?: boolean;
   commentOnboardingState?: CommentsOnboardingState | null;
+  photoId?: string;
 };
 
 export interface UserApplication {

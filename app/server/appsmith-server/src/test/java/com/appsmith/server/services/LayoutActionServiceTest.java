@@ -508,7 +508,6 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    log.debug("{}", updatedLayout.getMessages());
                     DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("firstAction");
 
@@ -577,15 +576,6 @@ public class LayoutActionServiceTest {
         actionConfiguration.setHttpMethod(HttpMethod.GET);
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
-
-        ActionDTO unreferencedAction = new ActionDTO();
-        unreferencedAction.setName("query2");
-        unreferencedAction.setPageId(testPage.getId());
-        unreferencedAction.setUserSetOnLoad(true);
-        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
-        actionConfiguration2.setHttpMethod(HttpMethod.GET);
-        unreferencedAction.setActionConfiguration(actionConfiguration2);
-        unreferencedAction.setDatasource(datasource);
 
         Mono<ActionDTO> resultMono = layoutActionService
                 .createSingleAction(action)
@@ -1067,6 +1057,8 @@ public class LayoutActionServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testRefactorCollection_withModifiedName_ignoresName() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
         ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
         originalActionCollectionDTO.setName("originalName");
         originalActionCollectionDTO.setApplicationId(testApp.getId());
