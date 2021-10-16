@@ -146,7 +146,7 @@ public class LayoutActionServiceTest {
                     new JSONObject(Map.of("key", "testField2"))));
             dsl.put("dynamicBindingPathList", temp);
             dsl.put("testField", "{{ query1.data }}");
-            dsl.put("testField2", "{{jsObject.jsFunction.run()}}");
+            dsl.put("testField2", "{{jsObject.jsFunction.data}}");
 
             JSONObject dsl2 = new JSONObject();
             dsl2.put("widgetName", "Table1");
@@ -255,7 +255,6 @@ public class LayoutActionServiceTest {
         unreferencedAction.setName("query2");
         unreferencedAction.setFullyQualifiedName(unreferencedAction.getName());
         unreferencedAction.setPageId(testPage.getId());
-        unreferencedAction.setUserSetOnLoad(true);
         ActionConfiguration actionConfiguration2 = new ActionConfiguration();
         actionConfiguration2.setHttpMethod(HttpMethod.GET);
         unreferencedAction.setActionConfiguration(actionConfiguration2);
@@ -266,7 +265,6 @@ public class LayoutActionServiceTest {
         action3.setPluginType(PluginType.JS);
         action3.setFullyQualifiedName("jsObject.jsFunction");
         action3.setPageId(testPage.getId());
-        action3.setUserSetOnLoad(true);
         ActionConfiguration actionConfiguration3 = new ActionConfiguration();
         actionConfiguration3.setIsValid(false);
         action3.setActionConfiguration(actionConfiguration3);
@@ -316,8 +314,8 @@ public class LayoutActionServiceTest {
                     assertThat(page.getLayouts()).hasSize(1);
                     assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(1);
                     Set<DslActionDTO> dslActionDTOS = page.getLayouts().get(0).getLayoutOnLoadActions().get(0);
-                    assertThat(dslActionDTOS).hasSize(3);
-                    assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "query2"));
+                    assertThat(dslActionDTOS).hasSize(2);
+                    assertThat(dslActionDTOS.stream().map(dto -> dto.getName()).collect(Collectors.toSet())).containsAll(Set.of("query1", "jsObject.jsFunction"));
                 })
                 .verifyComplete();
     }
