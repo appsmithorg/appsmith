@@ -57,6 +57,7 @@ public class EnvManager {
     private final EmailConfig emailConfig;
     private final JavaMailSender javaMailSender;
     private final GoogleRecaptchaConfig googleRecaptchaConfig;
+    private final FileUtils fileUtils;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -333,7 +334,7 @@ public class EnvManager {
                     try {
                         File envFile = Path.of(commonConfig.getEnvFilePath()).toFile();
                         File resourceFile = new ClassPathResource("docker-compose.yml").getFile();
-                        byte[] byteArray = FileUtils.getZipFileBytes(
+                        byte[] byteArray = fileUtils.createZip(
                                 new FileUtils.ZipSourceFile(envFile, "docker.env"),
                                 new FileUtils.ZipSourceFile(resourceFile, "docker-compose.yml")
                         );

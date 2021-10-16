@@ -2,6 +2,7 @@ package com.appsmith.server.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,8 +11,9 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Component
 public class FileUtils {
-    public static byte [] getZipFileBytes(ZipSourceFile...srcFiles) throws IOException {
+    public byte [] createZip(ZipSourceFile...srcFiles) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zipOut = new ZipOutputStream(baos);
 

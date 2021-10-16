@@ -7,6 +7,7 @@ import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.SessionUserService;
@@ -25,6 +26,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +52,8 @@ public class EnvManagerTest {
     private JavaMailSender javaMailSender;
     @MockBean
     private GoogleRecaptchaConfig googleRecaptchaConfig;
+    @MockBean
+    private FileUtils fileUtils;
 
     private EnvManager envManager;
 
@@ -57,7 +61,7 @@ public class EnvManagerTest {
     public void setUp() {
         envManager = new EnvManager(
                 sessionUserService, userService, policyUtils, emailSender,
-                commonConfig, emailConfig, javaMailSender, googleRecaptchaConfig
+                commonConfig, emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils
         );
     }
 
@@ -257,7 +261,7 @@ public class EnvManagerTest {
     }
 
     @Test
-    public void download_UserIsSuperUser_ReturnsZip() {
+    public void download_UserIsSuperUser_ReturnsZip() throws IOException {
         User user = new User();
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
@@ -266,6 +270,7 @@ public class EnvManagerTest {
                 user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
         ).thenReturn(true);
         Mockito.when(commonConfig.getEnvFilePath()).thenReturn("src/test/resources/test_assets/EnvManagerTest/docker.env");
+        Mockito.when(fileUtils.createZip(any())).thenReturn(new byte[1024]);
 
         ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
