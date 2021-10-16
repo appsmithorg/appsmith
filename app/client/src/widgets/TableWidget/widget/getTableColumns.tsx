@@ -51,6 +51,7 @@ export const getCellProperties = (
         columnProperties.cellBackground,
         rowIndex,
       ),
+      buttonColor: getPropertyValue(columnProperties.buttonColor, rowIndex),
       buttonLabelColor: getPropertyValue(
         columnProperties.buttonLabelColor,
         rowIndex,
