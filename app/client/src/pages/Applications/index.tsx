@@ -100,6 +100,7 @@ import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "configs";
+import * as log from "loglevel";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -1015,7 +1016,7 @@ class Applications extends Component<
           window.location.replace(redirectUrl);
         }
       } catch (e) {
-        console.error("Error handling the redirect url");
+        log.error("Error handling the redirect url");
       }
     }
   };
