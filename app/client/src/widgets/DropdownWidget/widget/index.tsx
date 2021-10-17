@@ -154,7 +154,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when a user selects an option",

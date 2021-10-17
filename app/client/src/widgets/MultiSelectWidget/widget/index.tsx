@@ -164,7 +164,7 @@ class MultiSelectWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when a user selects an option",
