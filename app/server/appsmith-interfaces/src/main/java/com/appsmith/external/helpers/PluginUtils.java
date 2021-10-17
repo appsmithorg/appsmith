@@ -112,6 +112,38 @@ public class PluginUtils {
 
     }
 
+    public static Object getValueSafelyFromFormDataOrDefault(Map<String, Object> formData, String field, Object defaultValue) {
+        if (formData == null || formData.isEmpty()) {
+            return defaultValue;
+        }
+
+        // formData exists and is not empty. Continue with fetching the value for the field
+
+        /**
+         * For a given fieldname : parent.child.grandchild, in the formData, there would be a key called "parent"
+         * which stores the parent map. In the map stored for parent, there would be a key called "child"
+         * which stores the child map. In the child map, there would be a key called grandchild which stores the value
+         * corresponding to the fieldname `parent.child.grandchild`
+         */
+        // This field value contains nesting
+        if (field.contains(".")) {
+
+            String[] fieldNames = field.split("\\.");
+
+            Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
+
+            String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+            String nestedFieldName = String.join(".", trimmedFieldNames);
+
+            // Now get the value from the new nested map using trimmed field name (without the parent key)
+            return getValueSafelyFromFormData(nestedMap, nestedFieldName);
+        } else {
+            // This is a top level field. Return the value
+            return formData.getOrDefault(field, defaultValue);
+        }
+
+    }
+
     public static void setValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {
 
         // In case the formData has not been initialized before the fxn call, assign a new HashMap to the variable

@@ -33,9 +33,9 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.pf4j.util.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -62,6 +62,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 
 public class AmazonS3Plugin extends BasePlugin {
 
@@ -300,40 +302,32 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                final String path = actionConfiguration.getPath();
-                requestProperties.put("path", path == null ? "" : path);
+                Map<String, Object> formData = actionConfiguration.getFormData();
 
-                final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-                if (CollectionUtils.isEmpty(properties)) {
+                String command = (String) getValueSafelyFromFormData(formData, "command");
+
+                if (StringUtils.isNullOrEmpty(command)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Mandatory parameters 'Action' and 'Bucket Name' are missing. Did you forget to edit " +
-                                            "the 'Action' and 'Bucket Name' fields in the query form ?"
+                                    "Mandatory parameter 'Command' is missing. Did you forget to select one of the commands" +
+                                            " from the Command dropdown ?"
                             )
                     );
                 }
 
-                if (properties.get(ACTION_PROPERTY_INDEX) == null) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Mandatory parameter 'Action' is missing. Did you forget to select one of the actions" +
-                                            " from the Action dropdown ?"
-                            )
-                    );
-                }
-
-                AmazonS3Action s3Action = AmazonS3Action.valueOf((String) properties.get(ACTION_PROPERTY_INDEX).getValue());
+                AmazonS3Action s3Action = AmazonS3Action.valueOf(command);
                 query[0] = s3Action.name();
 
-                requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(ACTION_PROPERTY_INDEX),
-                        properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null, null));
+                requestParams.add(new RequestParamDTO("actionConfiguration.formData.command",
+                        command, null, null, null));
+
+                final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
+                        null : (String) getValueSafelyFromFormData(formData, "bucket");
 
                 // If the action_type is LIST_BUCKET, remove the bucket name requirement
                 if (s3Action != AmazonS3Action.LIST_BUCKETS
-                    && (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
-                        || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null)) {
+                    && StringUtils.isNotNullOrEmpty(bucketName)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -343,21 +337,9 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
-                        null : (String) properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 requestProperties.put("bucket", bucketName == null ? "" : bucketName);
-                requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(BUCKET_NAME_PROPERTY_INDEX),
+                requestParams.add(new RequestParamDTO("bucket",
                         bucketName, null, null, null));
-
-                if (StringUtils.isEmpty(bucketName) && (s3Action != AmazonS3Action.LIST_BUCKETS)) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
-                                            "Name' field in the query form ?"
-                            )
-                    );
-                }
 
                 /*
                  * - Allow users to upload empty file. Hence, only check for null value.
@@ -375,8 +357,11 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
+                final String path = actionConfiguration.getPath();
+                requestProperties.put("path", path == null ? "" : path);
+
                 if ((s3Action == AmazonS3Action.UPLOAD_FILE_FROM_BODY || s3Action == AmazonS3Action.READ_FILE ||
-                        s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isBlank(path)) {
+                        s3Action == AmazonS3Action.DELETE_FILE) && StringUtils.isNullOrEmpty(path)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -389,23 +374,20 @@ public class AmazonS3Plugin extends BasePlugin {
                 Object actionResult;
                 switch (s3Action) {
                     case LIST:
-                        String prefix = "";
-                        if (properties.size() > PREFIX_PROPERTY_INDEX
-                                && properties.get(PREFIX_PROPERTY_INDEX) != null
-                                && properties.get(PREFIX_PROPERTY_INDEX).getValue() != null) {
-                            prefix = (String) properties.get(PREFIX_PROPERTY_INDEX).getValue();
-                        }
-                        requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(PREFIX_PROPERTY_INDEX),
+                        String prefix = (String) getValueSafelyFromFormDataOrDefault(formData, "list.prefix", "");
+                        requestParams.add(new RequestParamDTO("list.prefix",
                                 prefix, null, null, null));
 
                         ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
 
-                        if (properties.size() > GET_SIGNED_URL_PROPERTY_INDEX
-                                && properties.get(GET_SIGNED_URL_PROPERTY_INDEX) != null
-                                && properties.get(GET_SIGNED_URL_PROPERTY_INDEX).getValue().equals(YES)) {
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_SIGNED_URL_PROPERTY_INDEX), YES, null,
+                        Boolean isSignedUrl = YES.equals(getValueSafelyFromFormData(formData, "list.signedUrl"));
+
+                        if (isSignedUrl) {
+                            requestParams.add(new RequestParamDTO("list.signedUrl", YES, null,
                                     null, null));
 
+
+                            ////////////////
                             int durationInMinutes;
                             if (properties.size() < (1 + URL_EXPIRY_DURATION_PROPERTY_INDEX)
                                     || properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null
