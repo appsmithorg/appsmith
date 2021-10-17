@@ -103,7 +103,7 @@ public class PageLoadActionsUtil {
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .flatMap(action -> {
                     // filter actions which have been turned off by the user to run on page load and reduce the action world
-                    if (action.getExecuteOnLoad().equals(FALSE) && action.getUserSetOnLoad().equals(TRUE)) {
+                    if (hasUserSetActionToNotRunOnPageLoad(action)) {
                         return Mono.empty();
                     }
                     return Mono.just(action);
@@ -148,7 +148,7 @@ public class PageLoadActionsUtil {
                 .cache();
 
         // Generate on page load schedule
-        Mono<List<HashSet<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
+        Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono = Mono.zip(actionsInPageMono, createGraphMono, actionNameToActionMapMono)
                 .map(tuple -> {
                     Set<String> actionNames = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
@@ -178,7 +178,7 @@ public class PageLoadActionsUtil {
                         onPageLoadActionsSchedulingOrder.get(0).addAll(explicitUserSetOnLoadActions);
                     }
 
-                    return onPageLoadActionsSchedulingOrder;
+                    return ((List<Set<String>>) onPageLoadActionsSchedulingOrder);
                 });
 
 
@@ -205,10 +205,22 @@ public class PageLoadActionsUtil {
 
     }
 
-    private Mono<List<Set<DslActionDTO>>> filterAndTransformSchedulingOrderToDTO(Set<String> onPageLoadActionSet, Mono<Map<String, ActionDTO>> actionNameToActionMapMono, Mono<List<HashSet<String>>> computeOnPageLoadScheduleNamesMono) {
+    /**
+     * This function takes the schedule order of action names.
+     * First it trims the order to remove any unwanted actions which shouldnt be run.
+     * Next it creates a new schedule order consisting of DslActionDTO instead of just action names.
+     * @param onPageLoadActionSet
+     * @param actionNameToActionMapMono
+     * @param computeOnPageLoadScheduleNamesMono
+     * @return
+     */
+    private Mono<List<Set<DslActionDTO>>> filterAndTransformSchedulingOrderToDTO(Set<String> onPageLoadActionSet,
+                                                                                 Mono<Map<String, ActionDTO>> actionNameToActionMapMono,
+                                                                                 Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
+
         return Mono.zip(computeOnPageLoadScheduleNamesMono, actionNameToActionMapMono)
         .map(tuple -> {
-            List<HashSet<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
+            List<Set<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
             Map<String, ActionDTO> actionMap = tuple.getT2();
 
             List<Set<DslActionDTO>> onPageLoadActions = new ArrayList<>();
@@ -237,7 +249,30 @@ public class PageLoadActionsUtil {
         });
     }
 
-    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(String pageId, Set<ActionDependencyEdge> edges, Set<String> actionsUsedInDSL, Set<String> bindingsFromActions, Set<String> actionsFoundDuringWalk, Set<String> bindingsInWidgets, Mono<Map<String, ActionDTO>> actionNameToActionMapMono) {
+    /**
+     * This function finds all the actions in the page whose name matches the possible entity names found in the
+     * bindings in the widget. Caveat : It first removes all invalid bindings from the set of all bindings from the DSL
+     * This today means only the usage of an async JS function as a call instead of referring to the `.data`.
+     *
+     * !!! WARNING !!! : This function updates actionsUsedInDSL set which is used to store all the directly referenced
+     * actions in the DSL.
+     *
+     * @param pageId
+     * @param edges
+     * @param actionsUsedInDSL
+     * @param bindingsFromActions
+     * @param actionsFoundDuringWalk
+     * @param bindingsInWidgets
+     * @param actionNameToActionMapMono
+     * @return
+     */
+    private Mono<Set<ActionDependencyEdge>> addDirectlyReferencedActionsToGraph(String pageId,
+                                                                                Set<ActionDependencyEdge> edges,
+                                                                                Set<String> actionsUsedInDSL,
+                                                                                Set<String> bindingsFromActions,
+                                                                                Set<String> actionsFoundDuringWalk,
+                                                                                Set<String> bindingsInWidgets,
+                                                                                Mono<Map<String, ActionDTO>> actionNameToActionMapMono) {
         return actionNameToActionMapMono
                 .map(actionMap -> {
                     Map<String, Set<String>> bindingToPossibleParentMap = bindingsInWidgets
@@ -256,6 +291,8 @@ public class PageLoadActionsUtil {
                                         .filter(parent -> actionMap.get(parent) != null)
                                         .findFirst();
 
+                                // if the binding is referring to the action, ensure that for ASYNC JS functions, it
+                                // shouldn't be a function call since that is not supported in dynamic bindings.
                                 if (isAction.isPresent()) {
                                     ActionDTO action = actionMap.get(isAction.get());
                                     if (isAsyncJsFunctionCall(action, binding)) {
@@ -290,6 +327,20 @@ public class PageLoadActionsUtil {
                 .thenReturn(edges);
     }
 
+    /**
+     * This function takes all the edges found and outputs a Directed Acyclic Graph. To create the complete graph, the
+     * following steps are followed :
+     * 1. Trim the edges to only contain relationships between property paths belonging to appsmith entities (actions,
+     * widgets, global variables provided by appsmith). If any/all the vertices of the edge are unknown, the edge
+     * is removed.
+     * 2. Add implicit relationship between property paths and their immediate parents. This is to ensure that in the
+     * DAG, all the relationships are considered
+     * 3. Now create the DAG using the edges after the two steps.
+     * @param actionNames
+     * @param widgetNames
+     * @param edges
+     * @return
+     */
     private DirectedAcyclicGraph<String, DefaultEdge> constructDAG(Set<String> actionNames,
                                                                    Set<String> widgetNames,
                                                                    Set<ActionDependencyEdge> edges) {
@@ -386,11 +437,11 @@ public class PageLoadActionsUtil {
      * @param actionNameToActionMap : Map indexed by the action name for all the actions in the page.
      * @return
      */
-    private List<HashSet<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
+    private List<Set<String>> computeOnPageLoadActionsSchedulingOrder(DirectedAcyclicGraph<String, DefaultEdge> dag,
                                                                           Set<String> onPageLoadActionSet,
                                                                           Set<String> actionNames,
                                                                           Map<String, ActionDTO> actionNameToActionMap) {
-        List<HashSet<String>> onPageLoadActions = new ArrayList<>();
+        List<Set<String>> onPageLoadActions = new ArrayList<>();
 
         // Find all root nodes to start the BFS traversal from
         List<String> rootNodes = dag.vertexSet().stream()
@@ -446,8 +497,7 @@ public class PageLoadActionsUtil {
         Mono<List<ActionDTO>> findAndAddActionsInBindingsMono = newActionService.findUnpublishedActionsInPageByNames(possibleActionNames, pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .map(action -> {
-
-                    // Since this action was referred in an existing action which as been walked. Add it to the graph
+                    
                     extractAndSetActionBindingsInGraphEdges(edges, action, newBindings, actionsFoundDuringWalk);
 
                     return action;
@@ -462,6 +512,24 @@ public class PageLoadActionsUtil {
                 });
     }
 
+    /**
+     * This function finds all the actions which have been set to run on page load by the user and adds their
+     * dependencies to the graph.
+     *
+     * Note : If such an action has no dependencies and no interesting entity depends on it,
+     * this action would still not get added to the output of page load scheduler. This function only ensures that the
+     * dependencies of user set on page load actions are accounted for.
+     *
+     * !!! WARNING !!! : This function updates the set `explicitUserSetOnLoadActions` and adds the names of all such
+     * actions found in this function.
+     *
+     * @param pageId
+     * @param edges
+     * @param explicitUserSetOnLoadActions
+     * @param actionsFoundDuringWalk
+     * @param bindingsFromActions
+     * @return
+     */
     private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId,
                                                                 Set<ActionDependencyEdge> edges,
                                                                 Set<String> explicitUserSetOnLoadActions,
@@ -481,6 +549,22 @@ public class PageLoadActionsUtil {
                 .thenReturn(edges);
     }
 
+    /**
+     * Given an action, this function adds all the dependencies the action to the graph edges. This is achieved by first
+     * walking the action configuration and finding the paths and the mustache JS snippets found at the said path. Then
+     * the relationship between the complete path and the property paths found in the mustache JS snippets are added to
+     * the graph edges.
+     *
+     * !!! WARNING !!! : This function updates the set actionsFoundDuringWalk since this function is called from all
+     * places to add the action dependencies. If the action has already been discovered, this function exits by checking
+     * in the actionsFoundDuringWalk, else, it adds it to the set.
+     * This function also updates `edges` by adding all the new relationships for the said action in the set.
+     *
+     * @param edges
+     * @param action
+     * @param bindingsFromActions
+     * @param actionsFoundDuringWalk
+     */
     private void extractAndSetActionBindingsInGraphEdges(Set<ActionDependencyEdge> edges,
                                                          ActionDTO action,
                                                          Set<String> bindingsFromActions,
@@ -530,6 +614,14 @@ public class PageLoadActionsUtil {
         }
     }
 
+    /**
+     * This function walks the widget bindings and adds all the relationships which have been discovered earlier while
+     * walking the DSL and extracting all the relationships into edges between the widget path where there is a dynamic
+     * binding and the entities in the bindings.
+     * @param edges
+     * @param widgetBindingMap
+     * @return
+     */
     private Mono<Set<ActionDependencyEdge>> addWidgetRelationshipToGraph(Set<ActionDependencyEdge> edges,
                                                                          Map<String, Set<String>> widgetBindingMap) {
 
@@ -563,7 +655,15 @@ public class PageLoadActionsUtil {
         return false;
     }
 
+    /**
+     * This function walks the action configuration and extracts a map of all the dynamic bindings present and the
+     * action path where they exist.
+     *
+     * @param action
+     * @return
+     */
     private Map<String, Set<String>> getActionBindingMap(ActionDTO action) {
+
         List<Property> dynamicBindingPathList = action.getDynamicBindingPathList();
         Map<String, Set<String>> completePathToDynamicBindingMap = new HashMap<>();
 
@@ -639,6 +739,18 @@ public class PageLoadActionsUtil {
         return completePathToDynamicBindingMap;
     }
 
+    /**
+     * This function creates all `child -> parent` edges given a path.
+     *
+     * For example, given path `Dropdown1.options[1].value`, the following relationships are generated :
+     *
+     * Dropdown1.options[1].value -> Dropdown1.options[1]
+     * Dropdown1.options[1] -> Dropdown1.options
+     * Dropdown1.options -> Dropdown1
+     *
+     * @param path
+     * @return
+     */
     private Set<ActionDependencyEdge> generateParentChildRelationships(String path) {
         Set<ActionDependencyEdge> edges = new HashSet<>();
 
@@ -660,6 +772,21 @@ public class PageLoadActionsUtil {
         return edges;
     }
 
+    /**
+     * Given a dynamic binding, this function checks if it is a candidate for on page load. This is done by checking for
+     * the following two conditions :
+     *  - Is it an action name (which has been found in the page). If not, ignore.
+     *  - Has this action already been found for page load? If yes, ignore.
+     *  - If JS, following two conditions are checked for :
+     *      - If sync function, ignore. This is because client would execute the same during dynamic binding eval
+     *      - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
+     *
+     * @param allActionNames
+     * @param actionNameToActionMap
+     * @param dynamicBinding
+     * @param existingActionsInOnPageLoad
+     * @return
+     */
     private Set<String> actionCandidatesForPageLoadFromBinding(Set<String> allActionNames,
                                                                Map<String, ActionDTO> actionNameToActionMap,
                                                                String dynamicBinding,
