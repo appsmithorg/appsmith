@@ -19,13 +19,13 @@ let appId;
 import "./commands";
 import { initLocalstorage } from "./commands";
 
-Cypress.on("uncaught:exception", () => {
+Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test
   return false;
 });
 
-Cypress.on("fail", (error) => {
+Cypress.on("fail", (error, runnable) => {
   throw error; // throw error to have test still fail
 });
 

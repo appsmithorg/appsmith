@@ -1,6 +1,4 @@
 import derivedProperty from "./derived";
-import moment from "moment";
-import _ from "lodash";
 
 describe("Validates Derived Properties", () => {
   it("validates selectedItem property", () => {
