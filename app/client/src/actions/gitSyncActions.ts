@@ -171,6 +171,7 @@ export const fetchGitStatusInit = () => ({
 
 export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
   type: ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS,
+  payload,
 });
 
 export const updateBranchLocally = (payload: string) => ({
