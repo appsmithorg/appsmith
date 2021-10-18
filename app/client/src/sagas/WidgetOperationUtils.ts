@@ -788,16 +788,18 @@ export function* getParentWidgetIdForGrouping(
   copiedWidgetGroups: CopiedWidgetGroup[],
   pastingIntoWidgetId: string,
 ) {
-  const pastingIntoWidget = widgets[pastingIntoWidgetId];
   const widgetIds = copiedWidgetGroups.map(
     (widgetGroup) => widgetGroup.widgetId,
   );
 
-  if (
-    pastingIntoWidget.parentId &&
-    widgetIds.includes(pastingIntoWidget.parentId)
-  ) {
-    return MAIN_CONTAINER_WIDGET_ID;
+  // the pastingIntoWidgetId should parent of copiedWidgets
+  for (let i = 0; i < widgetIds.length; i++) {
+    const widgetId = widgetIds[i];
+    const widget = widgets[widgetId];
+
+    if (widget.parentId !== pastingIntoWidgetId) {
+      return MAIN_CONTAINER_WIDGET_ID;
+    }
   }
 
   return pastingIntoWidgetId;
