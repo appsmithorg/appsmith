@@ -93,7 +93,13 @@ const Header = withTheme(
   ),
 );
 
-function ProductUpdatesModal() {
+type ProductUpdatesModalProps = {
+  isOpen?: boolean;
+  onClose?: () => void;
+  hideTrigger?: boolean;
+};
+
+function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const { newReleasesCount, releaseItems } = useSelector(
     (state: AppState) => state.ui.releases,
   );
@@ -104,19 +110,29 @@ function ProductUpdatesModal() {
     await ReleasesAPI.markAsRead();
   }, []);
 
+  const onClose = useCallback(() => {
+    props.onClose && props.onClose();
+    setIsOpen(false);
+  }, []);
+
   const Layers = useContext(LayersContext);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
     <Dialog
       canEscapeKeyClose
       canOutsideClickClose
-      getHeader={() => <Header onClose={() => setIsOpen(false)} />}
+      getHeader={() => <Header onClose={onClose} />}
       isOpen={isOpen}
       maxHeight={"80vh"}
+      onClose={onClose}
       onOpening={onOpening}
       showHeaderUnderline
-      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
+      trigger={
+        props.hideTrigger ? null : (
+          <UpdatesButton newReleasesCount={newReleasesCount} />
+        )
+      }
       triggerZIndex={Layers.productUpdates}
       width={"580px"}
     >

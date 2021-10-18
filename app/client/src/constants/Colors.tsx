@@ -140,5 +140,6 @@ export const Colors = {
   GREY_10: "#090707",
 
   PRIMARY_ORANGE: "#F86A2B",
+  MIRAGE: "#182026",
 };
 export type Color = typeof Colors[keyof typeof Colors];
