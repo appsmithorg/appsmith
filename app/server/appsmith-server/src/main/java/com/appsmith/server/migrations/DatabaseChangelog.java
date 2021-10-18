@@ -52,9 +52,8 @@ import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
-import com.github.cloudyrock.mongock.decorator.impl.MongockTemplate;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
-import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -1937,7 +1936,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "059", id = "change-applayout-type-definition", author = "")
-    public void changeAppLayoutTypeDefinition(MongoOperations mongoOperations, MongoClient mongoClient) {
+    public void changeAppLayoutTypeDefinition(MongoOperations mongoOperations) {
         // Unset an old version of this field, that is no longer used.
         mongoOperations.updateMulti(
                 query(where("appLayout").exists(true)),

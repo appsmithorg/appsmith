@@ -7,16 +7,14 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.converters.StringToInstantConverter;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
-import com.github.cloudyrock.mongock.SpringBootMongock;
-import com.github.cloudyrock.mongock.SpringBootMongockBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.convert.DefaultTypeMapper;
 import org.springframework.data.convert.SimpleTypeInformationMapper;
 import org.springframework.data.convert.TypeInformationMapper;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -48,20 +46,30 @@ import java.util.Collections;
 )
 public class MongoConfig {
 
-    @Bean
-    public SpringBootMongock mongock(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-        return new SpringBootMongockBuilder(
-                mongoTemplate,
-                getClass().getPackageName().replaceFirst("\\.[^.]+$", ".migrations")
-        )
-                .setApplicationContext(springContext)
-                .setLockQuickConfig()
-                .build();
-    }
+//    @Bean
+//    public SpringBootMongock mongock(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+//        return new SpringBootMongockBuilder(
+//                mongoTemplate,
+//                getClass().getPackageName().replaceFirst("\\.[^.]+$", ".migrations")
+//        )
+//                .setApplicationContext(springContext)
+//                .setLockQuickConfig()
+//                .build();
+//    }
 
     @Bean
     public ReactiveMongoTemplate reactiveMongoTemplate(ReactiveMongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
         ReactiveMongoTemplate mongoTemplate = new ReactiveMongoTemplate(mongoDbFactory, mappingMongoConverter);
+        MappingMongoConverter conv = (MappingMongoConverter) mongoTemplate.getConverter();
+        // tell mongodb to use the custom converters
+        conv.setCustomConversions(mongoCustomConversions());
+        conv.afterPropertiesSet();
+        return mongoTemplate;
+    }
+
+    @Bean
+    public MongoTemplate mongoTemplate(MongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
+        MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory, mappingMongoConverter);
         MappingMongoConverter conv = (MappingMongoConverter) mongoTemplate.getConverter();
         // tell mongodb to use the custom converters
         conv.setCustomConversions(mongoCustomConversions());
