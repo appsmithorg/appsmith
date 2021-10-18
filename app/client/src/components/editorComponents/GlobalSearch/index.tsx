@@ -64,7 +64,10 @@ import {
 } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getPageList } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPageList,
+} from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, keyBy, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -189,6 +192,8 @@ function GlobalSearch() {
   );
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
+
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
@@ -444,12 +449,7 @@ function GlobalSearch() {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(
-      params.applicationId,
-      pageId,
-      id,
-      pluginType,
-    );
+    const url = actionConfig?.getURL(applicationId, pageId, id, pluginType);
     toggleShow();
     url && history.push(url);
   };
@@ -457,7 +457,7 @@ function GlobalSearch() {
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
-    history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
+    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id));
     toggleShow();
   };
 
@@ -465,7 +465,7 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
-        params.applicationId,
+        applicationId,
         item.pageId,
         item.id,
         getQueryParams(),
@@ -475,7 +475,7 @@ function GlobalSearch() {
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId: item.pageId }));
   };
 
   const onEnterSnippet = useSelector(
