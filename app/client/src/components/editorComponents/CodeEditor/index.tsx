@@ -265,7 +265,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", this.handleChange);
+        editor.on("change", _.debounce(this.handleChange, 600));
         editor.on("keyup", this.handleAutocompleteKeyup);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
@@ -402,7 +402,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleChange = _.debounce((instance?: any, changeObj?: any) => {
+  handleChange = (instance?: any, changeObj?: any) => {
     const value = this.editor.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
@@ -418,7 +418,7 @@ class CodeEditor extends Component<Props, State> {
       this.props.input.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
-  }, 600);
+  };
 
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, dynamicData, expected } = this.props;
