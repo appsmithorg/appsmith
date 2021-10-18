@@ -11,7 +11,7 @@ export type CommitPayload = {
 };
 
 export type PushToGitPayload = {
-  defaultApplicationId: string;
+  applicationId: string;
   branchName: string;
 };
 
@@ -26,7 +26,7 @@ export type ConnectToGitPayload = {
 };
 
 type GitStatusParam = {
-  defaultApplicationId: string;
+  applicationId: string;
   branchName: string;
 };
 
@@ -49,11 +49,11 @@ class GitSyncAPI extends Api {
   }
 
   static push({
+    applicationId,
     branchName,
-    defaultApplicationId,
   }: PushToGitPayload): AxiosPromise<ApiResponse> {
     return Api.post(
-      `${GitSyncAPI.baseURL}/push/${defaultApplicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branchName}`,
     );
   }
 
@@ -61,8 +61,8 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
 
-  static disconnect(defaultApplicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${defaultApplicationId}`);
+  static disconnect(applicationId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 
   static getGlobalConfig() {
@@ -73,20 +73,17 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
-  static getLocalConfig(defaultApplicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/profile/${defaultApplicationId}`);
+  static getLocalConfig(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/profile/${applicationId}`);
   }
 
-  static setLocalConfig(payload: GitConfig, defaultApplicationId: string) {
-    return Api.put(
-      `${GitSyncAPI.baseURL}/profile/${defaultApplicationId}`,
-      payload,
-    );
+  static setLocalConfig(payload: GitConfig, applicationId: string) {
+    return Api.put(`${GitSyncAPI.baseURL}/profile/${applicationId}`, payload);
   }
 
-  static getGitStatus({ branchName, defaultApplicationId }: GitStatusParam) {
+  static getGitStatus({ applicationId, branchName }: GitStatusParam) {
     return Api.get(
-      `${GitSyncAPI.baseURL}/status/${defaultApplicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branchName}`,
     );
   }
 }

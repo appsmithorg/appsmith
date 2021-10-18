@@ -29,7 +29,6 @@ export type GitApplicationMetadata =
       branchName: string;
       remoteUrl: string;
       repoName: string;
-      defaultApplicationId: string;
     }
   | undefined;
 

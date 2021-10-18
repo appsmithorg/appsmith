@@ -104,11 +104,8 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 function* disconnectToGitSaga() {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const gitMetaData: GitApplicationMetadata = yield select(
-      getCurrentAppGitMetaData,
-    );
-    const defaultAppId = gitMetaData?.defaultApplicationId || "";
-    const response: ApiResponse = yield GitSyncAPI.disconnect(defaultAppId);
+
+    const response: ApiResponse = yield GitSyncAPI.disconnect(applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
@@ -209,11 +206,14 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
 
 function* pushToGitRepoSaga() {
   try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
+
     const response: ApiResponse = yield GitSyncAPI.push({
-      defaultApplicationId: gitMetaData?.defaultApplicationId || "",
+      applicationId,
       branchName: gitMetaData?.branchName || "",
     });
     const isValidResponse: boolean = yield validateResponse(response);
@@ -236,9 +236,10 @@ function* pushToGitRepoSaga() {
 
 function* fetchGitStatusSaga() {
   try {
+    const applicationId: string = yield select(getCurrentApplicationId);
     const gitMetaData = yield select(getCurrentAppGitMetaData);
     const response: ApiResponse = yield GitSyncAPI.getGitStatus({
-      defaultApplicationId: gitMetaData.defaultApplicationId,
+      applicationId,
       branchName: gitMetaData?.branchName || "",
     });
     const isValidResponse: boolean = yield validateResponse(response, false);
