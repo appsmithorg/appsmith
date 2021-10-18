@@ -783,3 +783,10 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 export const DEPLOY_MENU_OPTION = () => "Deploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current Deployed Version";
 export const CONNECT_TO_GIT_OPTION = () => "Connect to Git Repository";
+//settings
+export const ADMIN_SETTINGS = () => "Admin Settings";
+export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
+export const RESTART_BANNER_HEADER = () => "Restarting Server";
+export const RESTART_ERROR_BODY = () =>
+  "Something went wrong. Please contact your administrator.";
+export const RESTART_ERROR_HEADER = () => "Restart failed";
