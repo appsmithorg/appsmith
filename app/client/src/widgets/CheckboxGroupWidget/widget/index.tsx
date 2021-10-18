@@ -19,7 +19,9 @@ function defaultSelectedValuesValidation(
   let isValid = true;
   let values: string[] = [];
   const messages: string[] = [];
-  const { options } = props;
+  let { options } = props;
+
+  if (!Array.isArray(options)) options = [];
 
   const optionValues = options.map((option) => option.value);
 
@@ -36,6 +38,7 @@ function defaultSelectedValuesValidation(
       }
     }
   }
+
   if (Array.isArray(value)) {
     values = Array.from(new Set(value));
   }
