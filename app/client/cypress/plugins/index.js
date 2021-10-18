@@ -24,6 +24,7 @@ const cypressLogToOutput = require("cypress-log-to-output");
  */
 module.exports = (on, config) => {
   // Todo: maybe raise a PR instead of overwriting `on("before:browser:launch", ...)` twice.
+  require("@cypress/code-coverage/task")(on, config);
   cypressLogToOutput.install(on, (type, event) => {
     if (event.level === "error" || event.type === "error") {
       return true;
