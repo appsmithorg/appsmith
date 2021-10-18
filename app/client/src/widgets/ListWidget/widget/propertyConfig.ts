@@ -25,7 +25,7 @@ const PropertyPaneConfig = [
       },
       {
         propertyName: "backgroundColor",
-        label: "Background",
+        label: "Background Color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -43,7 +43,7 @@ const PropertyPaneConfig = [
       },
       {
         propertyName: "itemBackgroundColor",
-        label: "Item Background",
+        label: "Item Background Color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
