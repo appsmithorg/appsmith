@@ -1,5 +1,5 @@
 import { get } from "lodash";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
 import React, { useCallback } from "react";
 
@@ -28,6 +28,8 @@ import {
 } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Position } from "@blueprintjs/core";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export const Container = styled.div`
   display: flex;
@@ -79,13 +81,13 @@ const HideIcon = ControlIcons.HIDE_COLUMN;
 
 export interface PageListItemProps {
   item: Page;
-  applicationId: string;
 }
 
 function PageListItem(props: PageListItemProps) {
   const theme = useTheme();
-  const { applicationId, item } = props;
+  const { item } = props;
   const dispatch = useDispatch();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   /**
    * clones the page
@@ -115,7 +117,7 @@ function PageListItem(props: PageListItemProps) {
    * @return void
    */
   const setPageAsDefaultCallback = useCallback((): void => {
-    dispatch(setPageAsDefault(item.pageId, props.applicationId));
+    dispatch(setPageAsDefault(item.pageId, applicationId));
   }, [dispatch]);
 
   /**
@@ -136,7 +138,7 @@ function PageListItem(props: PageListItemProps) {
           height={20}
           width={20}
         />
-        <EditName applicationId={applicationId} page={item} />
+        <EditName page={item} />
         <Actions>
           {item.isDefault && (
             <TooltipComponent
@@ -161,7 +163,6 @@ function PageListItem(props: PageListItemProps) {
             </TooltipComponent>
           )}
           <ContextMenu
-            applicationId={applicationId}
             onCopy={clonePageCallback}
             onDelete={deletePageCallback}
             onSetPageDefault={setPageAsDefaultCallback}
