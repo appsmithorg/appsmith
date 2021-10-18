@@ -14,8 +14,6 @@ import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "./helpers";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -27,7 +25,9 @@ import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found
 import { Colors } from "constants/Colors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -70,7 +70,7 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 function EntityExplorer(props: IPanelProps) {
-  const { applicationId } = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -112,7 +112,7 @@ function EntityExplorer(props: IPanelProps) {
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
-      history.push(BUILDER_PAGE_URL(applicationId, pageId));
+      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
       openPanel({ component: WidgetSidebar });
       dispatch(forceOpenWidgetPanel(true));
       if (isFirstTimeUserOnboardingEnabled) {
@@ -124,7 +124,7 @@ function EntityExplorer(props: IPanelProps) {
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search clear={clearSearch} isHidden ref={searchInputRef} />
+      <Search clear={clearSearch} ref={searchInputRef} />
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}
