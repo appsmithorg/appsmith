@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
-import { Popover, Position } from "@blueprintjs/core";
+import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
@@ -77,6 +77,8 @@ export type DropdownProps = CommonComponentProps &
      */
     fillOptions?: boolean;
     dontUsePortal?: boolean;
+    hideSubText?: boolean;
+    boundary?: PopperBoundary;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -87,6 +89,7 @@ export interface DefaultDropDownValueNodeProps {
   placeholder?: string;
   showDropIcon?: boolean;
   optionWidth: string;
+  hideSubText?: boolean;
 }
 
 export interface RenderDropdownOptionType {
@@ -393,6 +396,7 @@ const ErrorLabel = styled.span`
 
 function DefaultDropDownValueNode({
   errorMsg,
+  hideSubText,
   optionWidth,
   placeholder,
   renderNode,
@@ -437,7 +441,7 @@ function DefaultDropDownValueNode({
             />
           ) : null}
           <Label />
-          {selected?.subText ? (
+          {selected?.subText && !hideSubText ? (
             <StyledSubText
               className="sub-text"
               showDropIcon={showDropIcon}
@@ -634,6 +638,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         <SelectedValueNode
           errorMsg={errorMsg}
+          hideSubText={props.hideSubText}
           optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
           renderNode={renderOption}
@@ -673,7 +678,7 @@ export default function Dropdown(props: DropdownProps) {
       width={dropdownWidth}
     >
       <Popover
-        boundary="scrollParent"
+        boundary={props.boundary || "scrollParent"}
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}
