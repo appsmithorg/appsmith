@@ -61,7 +61,7 @@ export const getLintingErrors = (
 
   const options = {
     indent: 2,
-    esversion: 8, // For async/await support
+    esversion: 11, // For optional chaining and null coalescing support
     eqeqeq: false, // Not necessary to use ===
     curly: false, // Blocks can be added without {}, eg if (x) return true
     freeze: true, // Overriding inbuilt classes like Array is not allowed
