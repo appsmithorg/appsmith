@@ -22,7 +22,7 @@ import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
 
-const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -468,7 +468,7 @@ export function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
     let { email, username } = user || {};
     let name;
-    if (!isAppsmithCloud) {
+    if (!cloudHosting) {
       username = sha256(username || "");
       email = sha256(email || "");
     } else {
