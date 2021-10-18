@@ -114,12 +114,11 @@ function Deploy() {
   // const isCommitSuccessful = useSelector(getIsCommitSuccessful);
   // const isPushSuccessful = useSelector(getIsPushSuccessful);
 
-  const currentBranchName = gitMetaData?.branchName;
-
+  const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
 
   const handleCommit = () => {
-    if (currentBranchName) {
+    if (currentBranch) {
       dispatch(
         commitToRepoInit({
           commitMessage,
@@ -177,7 +176,7 @@ function Deploy() {
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
-            <span className="branch">&nbsp;{currentBranchName}</span>
+            <span className="branch">&nbsp;{currentBranch}</span>
           </SectionTitle>
         </Row>
         <Space size={3} />
@@ -194,11 +193,12 @@ function Deploy() {
           isDefaultChecked
           label={`${createMessage(
             PUSH_CHANGES_IMMEDIATELY_TO,
-          )} ${DEFAULT_REMOTE}/${currentBranchName}`}
+          )} ${DEFAULT_REMOTE}/${currentBranch}`}
           onCheckChange={(checked: boolean) => setPushImmediately(checked)}
         /> */}
         <Space size={11} />
         <Button
+          className="t--commit-button"
           disabled={commitButtonDisabled}
           isLoading={commitButtonLoading}
           onClick={handleCommit}
@@ -221,7 +221,7 @@ function Deploy() {
               }}
             >
               {createMessage(PUSH_TO)}
-              <span className="branch">&nbsp;{currentBranchName}</span>
+              <span className="branch">&nbsp;{currentBranch}</span>
             </SectionTitle>
           </Row>
           <Space size={3} />

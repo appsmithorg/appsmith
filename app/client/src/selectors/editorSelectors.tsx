@@ -98,7 +98,8 @@ export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
 export const getCurrentApplicationId = (state: AppState) =>
-  state.entities.pageList.applicationId;
+  state.entities.pageList.applicationId ||
+  ""; /** this is set during init can assume it to be defined */
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT

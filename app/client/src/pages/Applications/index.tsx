@@ -1009,7 +1009,12 @@ class Applications extends Component<
           );
           if (applicationId && pageId) {
             this.props.enableFirstTimeUserOnboarding(applicationId);
-            history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+            history.replace(
+              BUILDER_PAGE_URL({
+                applicationId: applicationId,
+                pageId,
+              }),
+            );
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);

@@ -783,6 +783,13 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 export const DEPLOY_MENU_OPTION = () => "Deploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current Deployed Version";
 export const CONNECT_TO_GIT_OPTION = () => "Connect to Git Repository";
+//
+export const GO_TO_PAGE = () => "Go to page";
+export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
+export const HIDDEN_TOOLTIP = () => "Hidden";
+export const CLONE_TOOLTIP = () => "Clone";
+export const DELETE_TOOLTIP = () => "Delete";
+export const SETTINGS_TOOLTIP = () => "Settings";
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";

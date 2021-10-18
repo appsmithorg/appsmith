@@ -13,6 +13,9 @@ export const ReduxSagaChannels = {
 export const ReduxActionTypes = {
   FETCH_GIT_STATUS_INIT: "FETCH_GIT_STATUS_INIT",
   FETCH_GIT_STATUS_SUCCESS: "FETCH_GIT_STATUS_SUCCESS",
+  UPDATE_BRANCH_LOCALLY: "UPDATE_BRANCH_LOCALLY",
+  FETCH_BRANCHES_INIT: "FETCH_BRANCHES_INIT",
+  FETCH_BRANCHES_SUCCESS: "FETCH_BRANCHES_SUCCESS",
   APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS:
     "APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS",
   FETCH_SSH_KEY_PAIR_INIT: "FETCH_SSH_KEY_PAIR_INIT",
@@ -628,6 +631,9 @@ export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTy
 
 export const ReduxActionErrorTypes = {
   FETCH_GIT_STATUS_ERROR: "FETCH_GIT_STATUS_ERROR",
+  CREATE_NEW_BRANCH_ERROR: "CREATE_NEW_BRANCH_ERROR",
+  CHECKOUT_BRANCH_ERROR: "CHECKOUT_BRANCH_ERROR",
+  FETCH_BRANCHES_ERROR: "FETCH_BRANCHES_ERROR",
   FETCH_LOCAL_GIT_CONFIG_ERROR: "FETCH_LOCAL_GIT_CONFIG_ERROR",
   UPDATE_LOCAL_GIT_CONFIG_ERROR: "UPDATE_LOCAL_GIT_CONFIG_ERROR",
   PUSH_TO_GIT_ERROR: "PUSH_TO_GIT_ERROR",
@@ -887,6 +893,7 @@ export interface ApplicationPayload {
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
+  applicationId?: string;
   modifiedBy?: string;
   modifiedAt?: string;
 }
@@ -912,4 +919,5 @@ export interface LoadWidgetSidebarPayload {
 export type InitializeEditorPayload = {
   applicationId: string;
   pageId: string;
+  branch?: string;
 };

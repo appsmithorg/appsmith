@@ -5,6 +5,8 @@ import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 
+// test comment
+
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;
@@ -82,9 +84,19 @@ export const switchGitBranchInit = (branch: string) => ({
   payload: branch,
 });
 
-export const createNewBranchInit = (branch: string) => ({
+export const createNewBranchInit = ({
+  branch,
+  onErrorCallback,
+  onSuccessCallback,
+}: {
+  branch: string;
+  onSuccessCallback: () => void;
+  onErrorCallback: () => void;
+}) => ({
   type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
   payload: branch,
+  onErrorCallback,
+  onSuccessCallback,
 });
 
 export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
@@ -123,6 +135,15 @@ export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   payload,
 });
 
+export const fetchBranchesInit = () => ({
+  type: ReduxActionTypes.FETCH_BRANCHES_INIT,
+});
+
+export const fetchBranchesSuccess = (payload: any) => ({
+  type: ReduxActionTypes.FETCH_BRANCHES_SUCCESS,
+  payload,
+});
+
 // Local Git config is repo level
 export const updateLocalGitConfigInit = (payload: GitConfig) => ({
   type: ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
@@ -150,5 +171,9 @@ export const fetchGitStatusInit = () => ({
 
 export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
   type: ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS,
+});
+
+export const updateBranchLocally = (payload: string) => ({
+  type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
   payload,
 });
