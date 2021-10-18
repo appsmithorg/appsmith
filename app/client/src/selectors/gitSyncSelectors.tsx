@@ -6,92 +6,57 @@ import { getCurrentAppGitMetaData } from "./applicationSelectors";
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
 
-export const getIsGitSyncModalOpen = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isGitSyncModalOpen,
-);
+export const getIsGitSyncModalOpen = (state: AppState) =>
+  state.ui.gitSync.isGitSyncModalOpen;
 
 export const getIsGitRepoSetup = () => true;
 
-export const getIsCommittingInProgress = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isCommitting,
-);
+export const getIsCommittingInProgress = (state: AppState) =>
+  state.ui.gitSync.isCommitting;
 
-export const getIsPushingToGit = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isPushingToGit,
-);
+export const getIsPushingToGit = (state: AppState) =>
+  state.ui.gitSync.isPushingToGit;
 
-export const getIsCommitSuccessful = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isCommitSuccessful,
-);
+export const getIsCommitSuccessful = (state: AppState) =>
+  state.ui.gitSync.isCommitSuccessful;
 
-export const getIsPushSuccessful = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isPushSuccessful,
-);
+export const getIsPushSuccessful = (state: AppState) =>
+  state.ui.gitSync.isPushSuccessful;
 
-export const getActiveGitSyncModalTab = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.activeGitSyncModalTab,
-);
+export const getActiveGitSyncModalTab = (state: AppState) =>
+  state.ui.gitSync.activeGitSyncModalTab;
 
-export const getIsGitErrorPopupVisible = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isErrorPopupVisible,
-);
+export const getIsGitErrorPopupVisible = (state: AppState) =>
+  state.ui.gitSync.isErrorPopupVisible;
 
-export const getGitPushError = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.gitPushError,
-);
+export const getGitPushError = (state: AppState) =>
+  state.ui.gitSync.gitPushError;
 
-export const getIsImportAppViaGitModalOpen = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isImportAppViaGitModalOpen,
-);
+export const getIsImportAppViaGitModalOpen = (state: AppState) =>
+  state.ui.gitSync.isImportAppViaGitModalOpen;
 
-export const getOrganizationIdForImport = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.organizationIdForImport,
-);
+export const getOrganizationIdForImport = (state: AppState) =>
+  state.ui.gitSync.organizationIdForImport;
 
-export const getGlobalGitConfig = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.globalGitConfig,
-);
+export const getGlobalGitConfig = (state: AppState) =>
+  state.ui.gitSync.globalGitConfig;
 
-export const getLocalGitConfig = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.localGitConfig,
-);
+export const getLocalGitConfig = (state: AppState) =>
+  state.ui.gitSync.localGitConfig;
 
-export const getIsFetchingGlobalGitConfig = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isFetchingGitConfig,
-);
+export const getIsFetchingGlobalGitConfig = (state: AppState) =>
+  state.ui.gitSync.isFetchingGitConfig;
 
-export const getIsFetchingLocalGitConfig = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isFetchingLocalGitConfig,
-);
+export const getIsFetchingLocalGitConfig = (state: AppState) =>
+  state.ui.gitSync.isFetchingLocalGitConfig;
 
-export const getGitStatus = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.gitStatus,
-);
+export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
-export const getIsFetchingGitStatus = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isFetchingGitStatus,
-);
+export const getIsFetchingGitStatus = (state: AppState) =>
+  state.ui.gitSync.isFetchingGitStatus;
 
-export const getIsDisconnectingGit = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isDisconnectingGit,
-);
+export const getIsDisconnectingGit = (state: AppState) =>
+  state.ui.gitSync.isDisconnectingGit;
 
 export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,

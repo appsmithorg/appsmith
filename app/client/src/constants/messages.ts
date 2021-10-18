@@ -778,3 +778,8 @@ export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
 export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
 export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
+
+// Navigation Menu
+export const DEPLOY_MENU_OPTION = () => "Deploy";
+export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current Deployed Version";
+export const CONNECT_TO_GIT_OPTION = () => "Connect to Git Repository";

@@ -66,7 +66,7 @@ const StyledCheckbox = styled.label<{
 }>`
   position: relative;
   display: block;
-  width: ${(props) => (props.$fill ? "100%" : "auto")};
+  width: ${(props) => (props.$fill ? "100%" : "unset")};
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   color: ${(props) => props.theme.colors.checkbox.labelColor};
   padding-left: ${(props) => props.theme.spaces[12] - 2}px;

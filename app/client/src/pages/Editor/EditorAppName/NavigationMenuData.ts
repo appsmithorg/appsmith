@@ -26,6 +26,12 @@ import getFeatureFlags from "../../../utils/featureFlags";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsGitConnected } from "../../../selectors/gitSyncSelectors";
+import {
+  createMessage,
+  DEPLOY_MENU_OPTION,
+  CONNECT_TO_GIT_OPTION,
+  CURRENT_DEPLOY_PREVIEW_OPTION,
+} from "constants/messages";
 
 type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
@@ -87,14 +93,14 @@ export const GetNavigationMenuData = ({
 
   const deployOptions = [
     {
-      text: "Deploy",
+      text: createMessage(DEPLOY_MENU_OPTION),
       onClick: deploy,
       type: MenuTypes.MENU,
       isVisible: true,
       isOpensNewWindow: true,
     },
     {
-      text: "Current Deployed Version",
+      text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
       onClick: () => openExternalLink(currentDeployLink),
       type: MenuTypes.MENU,
       isVisible: true,
@@ -104,7 +110,7 @@ export const GetNavigationMenuData = ({
 
   if (getFeatureFlags().GIT && !isGitConnected) {
     deployOptions.push({
-      text: "Connect to Git Repository",
+      text: createMessage(CONNECT_TO_GIT_OPTION),
       onClick: () => openGitConnectionPopup(),
       type: MenuTypes.MENU,
       isVisible: true,
