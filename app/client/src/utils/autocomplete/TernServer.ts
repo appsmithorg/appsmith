@@ -274,6 +274,7 @@ class TernServer {
           origins: true,
           caseInsensitive: true,
           guess: false,
+          inLiteral: false,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -486,6 +487,7 @@ class TernServer {
       preferFunction?: boolean;
       end?: CodeMirror.Position;
       guess?: boolean;
+      inLiteral?: boolean;
     },
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
@@ -535,6 +537,7 @@ class TernServer {
       start?: any;
       file?: any;
       includeKeywords?: boolean;
+      inLiteral?: boolean;
     },
     pos?: CodeMirror.Position,
   ) {
