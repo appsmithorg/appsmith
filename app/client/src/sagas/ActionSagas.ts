@@ -879,18 +879,20 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         entityId = currentEntity.entityId;
         entityType = currentEntity.entityType;
       }
-      const { fieldMeta, refinements } = yield buildMetaForSnippets(
-        entityId,
-        entityType,
-        expectedType,
-        propertyPath,
-      );
-      yield put(
-        setGlobalSearchFilterContext({
-          refinements,
-          fieldMeta,
-        }),
-      );
+      if (entityType !== ENTITY_TYPE.JSACTION) {
+        const { fieldMeta, refinements } = yield buildMetaForSnippets(
+          entityId,
+          entityType,
+          expectedType,
+          propertyPath,
+        );
+        yield put(
+          setGlobalSearchFilterContext({
+            refinements,
+            fieldMeta,
+          }),
+        );
+      }
       yield put(
         toggleShowGlobalSearchModal(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
@@ -902,6 +904,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
             typeof callback === "function"
               ? SnippetAction.INSERT
               : SnippetAction.COPY, //Set insertSnippet to true only if values
+          hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
         }),
       );
       AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
