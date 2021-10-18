@@ -13,7 +13,7 @@ import {
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
-
+import { Colors } from "constants/Colors";
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
   TEXT = "TEXT",
@@ -22,6 +22,9 @@ export enum INPUT_TEXT_INPUT_TYPES {
 }
 
 const StyledDynamicTextField = styled(DynamicTextField)`
+  .CodeEditorTarget .CodeMirror.CodeMirror-wrap {
+    background-color: ${Colors.WHITE};
+  }
   &&& .t--code-editor-wrapper {
     border: none;
   }

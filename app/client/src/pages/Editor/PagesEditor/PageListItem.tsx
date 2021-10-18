@@ -18,6 +18,16 @@ import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { MenuIcons } from "icons/MenuIcons";
+import TooltipComponent from "components/ads/Tooltip";
+import {
+  CLONE_TOOLTIP,
+  createMessage,
+  DEFAULT_PAGE_TOOLTIP,
+  DELETE_TOOLTIP,
+  HIDDEN_TOOLTIP,
+} from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Position } from "@blueprintjs/core";
 
 export const Container = styled.div`
   display: flex;
@@ -129,14 +139,26 @@ function PageListItem(props: PageListItemProps) {
         <EditName applicationId={applicationId} page={item} />
         <Actions>
           {item.isDefault && (
-            <Action disabled title="Default page">
-              <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
-            </Action>
+            <TooltipComponent
+              content={createMessage(DEFAULT_PAGE_TOOLTIP)}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.BOTTOM}
+            >
+              <Action>
+                <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
+              </Action>
+            </TooltipComponent>
           )}
           {item.isHidden && (
-            <Action disabled title="Hidden">
-              <HideIcon color={Colors.GREY_9} height={16} width={16} />
-            </Action>
+            <TooltipComponent
+              content={createMessage(HIDDEN_TOOLTIP)}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.BOTTOM}
+            >
+              <Action>
+                <HideIcon color={Colors.GREY_9} height={16} width={16} />
+              </Action>
+            </TooltipComponent>
           )}
           <ContextMenu
             applicationId={applicationId}
@@ -146,27 +168,39 @@ function PageListItem(props: PageListItemProps) {
             onSetPageHidden={setPageHidden}
             page={item}
           />
-          <Action title="Clone" type="button">
-            <CopyIcon
-              color={Colors.GREY_9}
-              height={16}
-              onClick={clonePageCallback}
-              width={16}
-            />
-          </Action>
-          <Action title="Delete" type="button">
-            <DeleteIcon
-              color={
-                item.isDefault
-                  ? get(theme, "colors.propertyPane.deleteIconColor")
-                  : Colors.GREY_9
-              }
-              disabled={item.isDefault}
-              height={16}
-              onClick={deletePageCallback}
-              width={16}
-            />
-          </Action>
+          <TooltipComponent
+            content={createMessage(CLONE_TOOLTIP)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM}
+          >
+            <Action type="button">
+              <CopyIcon
+                color={Colors.GREY_9}
+                height={16}
+                onClick={clonePageCallback}
+                width={16}
+              />
+            </Action>
+          </TooltipComponent>
+          <TooltipComponent
+            content={createMessage(DELETE_TOOLTIP)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM}
+          >
+            <Action type="button">
+              <DeleteIcon
+                color={
+                  item.isDefault
+                    ? get(theme, "colors.propertyPane.deleteIconColor")
+                    : Colors.GREY_9
+                }
+                disabled={item.isDefault}
+                height={16}
+                onClick={deletePageCallback}
+                width={16}
+              />
+            </Action>
+          </TooltipComponent>
         </Actions>
       </ListItem>
     </Container>
