@@ -84,22 +84,27 @@ class CheckboxGroupWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
+                default: [],
+                unique: ["value"],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",
                         type: ValidationTypes.TEXT,
                         params: {
-                          unique: true,
+                          default: "",
+                          required: true,
                         },
                       },
                       {
                         name: "value",
                         type: ValidationTypes.TEXT,
                         params: {
-                          unique: true,
+                          default: "",
+                          required: true,
                         },
                       },
                     ],
