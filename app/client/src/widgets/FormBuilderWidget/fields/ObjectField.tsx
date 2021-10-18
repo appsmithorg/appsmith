@@ -2,9 +2,13 @@ import React from "react";
 import styled from "styled-components";
 
 import fieldRenderer from "./fieldRenderer";
-import { BaseFieldComponentProps } from "./types";
+import { SchemaItem } from "../constants";
 
-type ObjectFieldProps = BaseFieldComponentProps;
+// Do not use BaseFieldComponent here, as it causes TS stack overflow
+type ObjectFieldProps = {
+  name: string;
+  schemaItem: SchemaItem;
+};
 
 const WRAPPER_PADDING_Y = 10;
 const WRAPPER_PADDING_X = 15;

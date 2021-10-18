@@ -59,7 +59,7 @@ type FieldComponent = {
 
 export type Schema = SchemaItem[];
 
-export const FIELD_MAP: Record<FieldType, FieldComponent> = {
+export const FIELD_MAP: Record<FieldType, any> = {
   [FieldType.TEXT]: InputField,
   [FieldType.NUMBER]: InputField,
   [FieldType.EMAIL]: InputField,

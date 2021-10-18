@@ -1,12 +1,17 @@
 import React, { PropsWithChildren } from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  SubmitHandler,
+  useForm,
+  DefaultValues,
+} from "react-hook-form";
 
-type FormProps<TValues> = PropsWithChildren<{
-  defaultValues: TValues;
+type FormProps<TValues = any> = PropsWithChildren<{
+  defaultValues: DefaultValues<TValues>;
   onSubmit: SubmitHandler<TValues>;
 }>;
 
-function Form<TValues>({
+function Form<TValues = any>({
   children,
   defaultValues,
   onSubmit,

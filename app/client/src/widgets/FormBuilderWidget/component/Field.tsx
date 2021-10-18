@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
 type FieldProps = {
-  name: string;
+  name: ControllerProps["name"];
   label: string;
   render: ControllerProps["render"];
 };

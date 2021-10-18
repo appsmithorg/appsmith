@@ -1,5 +1,6 @@
 import React, { Fragment } from "react";
 import styled from "styled-components";
+import { DefaultValues } from "react-hook-form";
 
 import Form from "./Form";
 import { FIELD_MAP, Schema } from "../constants";
@@ -34,8 +35,11 @@ function FormBuilderComponent<TValues>({
 
   return (
     <StyledContainer backgroundColor={backgroundColor}>
-      {/* eslint-disable-next-line */}
-      <Form defaultValues={inputData} onSubmit={console.log}>
+      <Form
+        defaultValues={inputData as DefaultValues<TValues>}
+        // eslint-disable-next-line no-console
+        onSubmit={console.log}
+      >
         <RootField name="" schemaItem={rootSchemaItem} />
       </Form>
     </StyledContainer>
