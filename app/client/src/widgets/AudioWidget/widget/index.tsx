@@ -38,7 +38,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
                 expected: {
                   type: "Audio URL",
                   example:
-                    "https://freesound.org/data/previews/416/416529_5121236-lq.mp3",
+                    "https://assets.appsmith.com/widgets/birds_chirping.mp3",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },

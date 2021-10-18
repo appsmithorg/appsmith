@@ -11,7 +11,7 @@ export const CONFIG = {
     rows: 7 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Video",
-    url: "https://youtu.be/OgCDkw1jSkY",
+    url: "https://assets.appsmith.com/widgets/bird.mp4",
     autoPlay: false,
     version: 1,
   },

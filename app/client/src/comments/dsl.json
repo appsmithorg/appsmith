@@ -811,7 +811,7 @@
      "bmyc9rnkyv":{
         "isVisible":true,
         "widgetName":"Video1",
-        "url":"https://youtu.be/OgCDkw1jSkY",
+        "url":"https://assets.appsmith.com/widgets/bird.mp4",
         "autoPlay":false,
         "version":1,
         "type":"VIDEO_WIDGET",

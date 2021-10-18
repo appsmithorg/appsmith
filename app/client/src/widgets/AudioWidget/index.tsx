@@ -11,7 +11,7 @@ export const CONFIG = {
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 7 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Audio",
-    url: "https://freesound.org/data/previews/416/416529_5121236-lq.mp3",
+    url: "https://assets.appsmith.com/widgets/birds_chirping.mp3",
     autoPlay: false,
     version: 1,
   },
