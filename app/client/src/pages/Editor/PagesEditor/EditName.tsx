@@ -12,6 +12,10 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import TooltipComponent from "components/ads/Tooltip";
+import { createMessage, GO_TO_PAGE } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Position } from "@blueprintjs/core";
 
 const LinkIcon = MenuIcons.LINK_ICON;
 
@@ -101,12 +105,18 @@ function EditName(props: Props) {
       />
       {!isEditing && (
         <div className="page-list-item-edit-icon">
-          <LinkIcon
-            color={get(theme, "colors.pagesEditor.iconColor")}
-            height={14}
-            onClick={switchPage}
-            width={14}
-          />
+          <TooltipComponent
+            content={createMessage(GO_TO_PAGE)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM}
+          >
+            <LinkIcon
+              color={get(theme, "colors.pagesEditor.iconColor")}
+              height={14}
+              onClick={switchPage}
+              width={14}
+            />
+          </TooltipComponent>
         </div>
       )}
     </EditNameContainer>
