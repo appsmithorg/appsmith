@@ -12,7 +12,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import CheckboxGroupComponent, { OptionProps } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultSelectedValuesValidation(
+export function defaultSelectedValuesValidation(
   value: unknown,
   props: CheckboxGroupWidgetProps,
 ): ValidationResponse {
