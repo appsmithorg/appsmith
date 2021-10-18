@@ -5,4 +5,6 @@ public interface SharedConfig {
     int getCodecSize();
 
     int getMaxResponseSize();
+
+    String getRemoteExecutionUrl();
 }

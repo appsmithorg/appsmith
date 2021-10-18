@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
@@ -74,6 +75,9 @@ public class ActionConfiguration implements AppsmithDomain {
      * instead of a list of properties
      */
     Map<String, Object> formData;
+
+    @Transient
+    String templateName;
 
     public void setTimeoutInMillisecond(String timeoutInMillisecond) {
         try {

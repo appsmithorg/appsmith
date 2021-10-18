@@ -49,10 +49,6 @@ $NGINX_SSL_CMNT  server_name $CUSTOM_DOMAIN ;
 		sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '\${APPSMITH_RECAPTCHA_ENABLED}';
 	}
 
-	location /f {
-		proxy_pass https://cdn.optimizely.com/;
-	}
-
 	location /api {
 		proxy_pass http://localhost:8080;
 	}
@@ -65,7 +61,7 @@ $NGINX_SSL_CMNT  server_name $CUSTOM_DOMAIN ;
 		proxy_pass http://localhost:8080;
 	}
 
-	location /socket.io {
+	location /rts {
 		proxy_pass http://localhost:8091;
 		proxy_http_version 1.1;
 		proxy_set_header Host \$host;
@@ -115,10 +111,6 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '\${APPSMITH_DI
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '\${APPSMITH_RECAPTCHA_SITE_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '\${APPSMITH_RECAPTCHA_SECRET_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '\${APPSMITH_RECAPTCHA_ENABLED}';
-$NGINX_SSL_CMNT    }
-$NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    location /f {
-$NGINX_SSL_CMNT       proxy_pass https://cdn.optimizely.com/;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /api {

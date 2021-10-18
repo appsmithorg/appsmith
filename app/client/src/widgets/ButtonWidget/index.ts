@@ -1,6 +1,8 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Colors } from "constants/Colors";
+import { ButtonVariantTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,8 +11,8 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     text: "Submit",
-    buttonStyle: "PRIMARY",
-    buttonVariant: "SOLID",
+    buttonColor: Colors.GREEN,
+    buttonVariant: ButtonVariantTypes.PRIMARY,
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Button",

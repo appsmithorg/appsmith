@@ -113,4 +113,10 @@ public class CommentController extends BaseController<CommentService, Comment, S
         return service.unsubscribeThread(threadId)
                 .map(updated -> new ResponseDTO<>(HttpStatus.OK.value(), updated, null));
     }
+
+    @GetMapping("/threads/{applicationId}/count/unread")
+    public Mono<ResponseDTO<Long>> countUnreadCommentThreads(@PathVariable String applicationId) {
+        return service.getUnreadCount(applicationId)
+                .map(threads -> new ResponseDTO<>(HttpStatus.OK.value(), threads, null));
+    }
 }

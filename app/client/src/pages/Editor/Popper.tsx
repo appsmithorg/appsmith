@@ -1,4 +1,5 @@
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
+import { Colors } from "constants/Colors";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -49,7 +50,7 @@ const DragHandleBlock = styled.div`
   width: 43px;
   height: 28px;
   z-index: 3;
-  background-color: ${(props) => props.theme.colors.propertyPane.bg};
+  background-color: ${Colors.GREY_1};
 
   svg {
     transform: rotate(90deg);

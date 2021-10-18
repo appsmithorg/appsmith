@@ -45,7 +45,6 @@ export type INJECTED_CONFIGS = {
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
-  isAppsmithCloud: boolean;
 };
 declare global {
   interface Window {
@@ -123,7 +122,6 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
-    isAppsmithCloud: !!process.env.REACT_APP_IS_APPSMITH_CLOUD,
   };
 };
 
@@ -293,6 +291,5 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
-    isAppsmithCloud: ENV_CONFIG.isAppsmithCloud,
   };
 };

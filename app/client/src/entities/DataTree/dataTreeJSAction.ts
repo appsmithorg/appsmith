@@ -19,9 +19,7 @@ export const generateDataTreeJSAction = (
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
-      result[variable.name] = JSON.stringify(variable.value);
-      bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
-      dynamicBindingPathList.push({ key: variable.name });
+      result[variable.name] = variable.value;
       listVariables.push(variable.name);
     }
   }

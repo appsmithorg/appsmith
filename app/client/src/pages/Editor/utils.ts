@@ -2,7 +2,6 @@ import { getDependenciesFromInverseDependencies } from "components/editorCompone
 import _, { debounce } from "lodash";
 import ReactDOM from "react-dom";
 import ResizeObserver from "resize-observer-polyfill";
-import getFeatureFlags from "utils/featureFlags";
 
 export const draggableElement = (
   id: string,
@@ -41,7 +40,7 @@ export const draggableElement = (
     calculatedLeft: number,
     calculatedTop: number,
   ) => {
-    const bottomBarOffset = getFeatureFlags().GIT ? 34 : 0;
+    const bottomBarOffset = 34;
 
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;
@@ -178,6 +177,13 @@ const createDragHandler = (
   return dragElement;
 };
 
+// Function to access nested property in an object
+const getNestedValue = (obj: Record<string, any>, path = "") => {
+  return path.split(".").reduce((prev, cur) => {
+    return prev && prev[cur];
+  }, obj);
+};
+
 export const useIsWidgetActionConnectionPresent = (
   widgets: any,
   actions: any,
@@ -200,7 +206,8 @@ export const useIsWidgetActionConnectionPresent = (
         widget.dynamicTriggerPathList &&
         !!widget.dynamicTriggerPathList.find((path: { key: string }) => {
           return !!actionLables.find((label: string) => {
-            return widget[path.key].indexOf(`${label}.run`) > -1;
+            const snippet = getNestedValue(widget, path.key);
+            return snippet ? snippet.indexOf(`${label}.run`) > -1 : false;
           });
         })
       );

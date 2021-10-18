@@ -1,6 +1,7 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { ApiContentTypes } from "constants/ApiEditorConstants";
+import { SlashCommandPayload } from "entities/Action";
 
 export const changeApi = (
   id: string,
@@ -78,4 +79,9 @@ export const redirectToNewIntegrations = (
 ): ReduxAction<{ applicationId: string; pageId: string; params: any }> => ({
   type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
   payload: { applicationId, pageId, params },
+});
+
+export const executeCommandAction = (payload: SlashCommandPayload) => ({
+  type: ReduxActionTypes.EXECUTE_COMMAND,
+  payload: payload,
 });

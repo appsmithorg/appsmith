@@ -54,7 +54,7 @@ Before you can start to hack on the Appsmith server, your machine should have th
 - A Redis instance - Refer to the [Setting up a local Redis instance](#setting-up-a-local-redis-instance) section to setup a Redis instance using `Docker`.
 - An IDE - We use IntelliJ IDEA as our primary IDE for backend development. To set it up, refer to the [Setting up IntelliJ IDEA](#setting-up-intellij-idea) section.
 
-This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these. Next we will setup MondoDB and Redis using `Docker`.
+This document doesn't provide instructions to install Java and Maven because these vary between different operating systems and distributions. Please refer to the documentation of your operating system or package manager to install these. Next we will setup MongoDB and Redis using `Docker`.
 
 ### Setting up a local MongoDB instance
 
@@ -175,6 +175,16 @@ In case the server doesn't work with the above config, please try re-compiling t
 ```sh
 mvn -B clean compile && ./build.sh -DskipTests
 ```
+## Running Tests on Server
+
+1. Ensure that you have Redis running on your local system.
+
+2. Run the command to execute tests
+```bash
+  cd app/server
+  mvn clean package
+```
+
 
 ## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please feel free to ask questions on our [Discord channel](https://discord.com/invite/rBTTVJp) or initiate a [Github discussion](https://github.com/appsmithorg/appsmith/discussions) or send an email to `support@appsmith.com`. We'll be happy to help you. 

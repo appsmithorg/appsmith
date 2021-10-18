@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.MongoPluginUtils.parseSafely;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 

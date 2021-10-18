@@ -20,7 +20,7 @@ describe("Table Widget property pane feature validation", function() {
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidget", { x: 300, y: 200 });
     // close Widget side bar
-    cy.get(widgetsPage.closeWidgetBar).click({ force: true });
+    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
     cy.wait(2000);
     cy.SearchEntityandOpen("Table2");
     // Verify default array data
@@ -68,19 +68,6 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the search text is changed
     cy.get(commonlocators.toastmsg).contains("Search Text Changed");
     cy.get(publish.backToEditor).click();
-  });
-
-  it("Explore Widget related documents Verification", function() {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    // Click on "Explore widget related docs" button
-    cy.get(widgetsPage.exploreWidget).click();
-    // Verify the widget related document
-    cy.get(widgetsPage.widgetRelatedDocument).should("contain", "Table");
-    cy.wait(2000);
-    cy.get(widgetsPage.header).click();
-    cy.wait(1000);
-    cy.PublishtheApp();
   });
 
   it("Check open section and column data in property pane", function() {

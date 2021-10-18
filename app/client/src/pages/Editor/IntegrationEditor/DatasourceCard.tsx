@@ -131,6 +131,19 @@ const CollapseComponentWrapper = styled.div`
   width: fit-content;
 `;
 
+const RedMenuItem = styled(MenuItem)`
+  &&,
+  && .cs-text {
+    color: ${Colors.DANGER_SOLID};
+  }
+  && {
+    svg,
+    svg path {
+      fill: ${Colors.DANGER_SOLID};
+    }
+  }
+`;
+
 type DatasourceCardProps = {
   datasource: Datasource;
   plugin: Plugin;
@@ -283,7 +296,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   </MoreOptionsContainer>
                 }
               >
-                <MenuItem
+                <RedMenuItem
                   className="t--datasource-option-delete"
                   icon="delete"
                   isLoading={isDeletingDatasource}

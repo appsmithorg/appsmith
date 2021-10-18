@@ -115,7 +115,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         },
       ]}
       selectedValue=""
-      toggle={<ContextMenuTrigger />}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
 }

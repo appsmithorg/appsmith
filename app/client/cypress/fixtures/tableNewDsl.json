@@ -122,6 +122,29 @@
                     "computedValue": ""
                 }
             }
-        }]
+        }, {
+            "widgetName": "Text1",
+            "displayName": "Text",
+            "topRow": 57,
+            "bottomRow": 71,
+            "parentRowSpace": 10,
+            "type": "TEXT_WIDGET",
+            "hideCard": false,
+            "parentColumnSpace": 17.28125,
+            "dynamicTriggerPathList": [],
+            "leftColumn": 12,
+            "dynamicBindingPathList": [{"key":"text"}],
+            "text": "{{Table1.triggeredRow.userName}}",
+            "key": "r76o6tqjaz",
+            "rightColumn": 15,
+            "textAlign": "LEFT",
+            "widgetId": "16zkg2v0na",
+            "isVisible": true,
+            "fontStyle": "BOLD",
+            "textColor": "#231F20",
+            "parentId": "0",
+            "isLoading": false,
+            "fontSize": "PARAGRAPH"
+        }]        
     }
 }

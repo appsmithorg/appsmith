@@ -36,6 +36,7 @@ import {
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div<{ active: boolean }>`
   position: relative;
@@ -47,18 +48,29 @@ const Wrapper = styled.div<{ active: boolean }>`
   padding: 10px 16px;
   transition: background-color 0.3s ease;
 
+  ${(props) =>
+    props.active &&
+    `
+      p {
+        color: ${Colors.WHITE};
+      }
+      svg {
+        fill: ${Colors.WHITE};
+      }
+  `}
+
   &:hover .hover-icons {
     opacity: 1;
   }
 `;
 
 const TitleWrapper = styled.p`
-  color: #fff;
+  color: ${Colors.GREY_10};
   ${(props) => getTypographyByKey(props, "p4")}
 `;
 
 const StatusText = styled.p`
-  color: #fff;
+  color: ${Colors.GREY_10};
   font-size: 13px;
   & .hover-icons {
     transform: translate(3px, 0px);
@@ -67,7 +79,7 @@ const StatusText = styled.p`
 `;
 
 const ProgressContainer = styled.div`
-  background-color: rgb(255, 255, 255, 0.35);
+  background-color: rgb(0, 0, 0, 0.2);
   border-radius: ${(props) => props.theme.radii[3]}px;
   overflow: hidden;
   margin-top: 12px;
@@ -78,7 +90,7 @@ const Progressbar = styled.div<StatusProgressbarType>`
   height: 6px;
   background: ${(props) =>
     props.active
-      ? "#fff"
+      ? Colors.WHITE
       : props.theme.colors.welcomeTourStickySidebarBackground};
   transition: width 0.3s ease, background 0.3s ease;
   border-radius: ${(props) => props.theme.radii[3]}px;
@@ -227,7 +239,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       {!isFirstTimeUserOnboardingComplete && (
         <StyledClose
           className="hover-icons"
-          color="#fff"
+          color={Colors.GREY_10}
           data-cy="statusbar-skip"
           icon="cross"
           iconSize={14}
@@ -242,7 +254,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         {!isChecklistPage && (
           <Icon
             className="hover-icons"
-            color="#fff"
+            color={Colors.GREY_10}
             icon="chevron-right"
             iconSize={14}
           />

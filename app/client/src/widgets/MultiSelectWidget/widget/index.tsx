@@ -96,7 +96,7 @@ class MultiSelectWidget extends BaseWidget<
             propertyName: "defaultOptionValue",
             label: "Default Value",
             controlType: "INPUT_TEXT",
-            placeholderText: "GREEN",
+            placeholderText: "[GREEN]",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -104,8 +104,8 @@ class MultiSelectWidget extends BaseWidget<
               params: {
                 fn: defaultOptionValueValidation,
                 expected: {
-                  type: "value or Array of values",
-                  example: `option1 | ['option1', 'option2']`,
+                  type: "Array of values",
+                  example: `['option1', 'option2']`,
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },

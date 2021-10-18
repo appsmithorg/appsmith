@@ -29,8 +29,17 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "canOutsideClickClose",
+            label: "Quick Dismiss",
+            helpText: "Allows dismissing the modal when user taps outside",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -119,7 +128,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   closeModal = (e: any) => {
     this.props.showPropertyPane(undefined);
-    this.onModalClose();
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
     this.props.updateWidgetMetaProperty("isVisible", false);
@@ -179,7 +187,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
         enableResize={isResizeEnabled}
-        hasBackDrop
         height={this.props.height}
         isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
@@ -190,7 +197,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
-        usePortal={false}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
       >

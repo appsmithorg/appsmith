@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
@@ -171,7 +172,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                  */
                 .flatMap(org -> pluginRepository.findByDefaultInstall(true)
                         .map(obj -> new OrganizationPlugin(obj.getId(), OrganizationPluginStatus.FREE))
-                        .collectList()
+                        .collect(Collectors.toSet())
                         .map(pluginList -> {
                             org.setPlugins(pluginList);
                             return org;
@@ -336,6 +337,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                             .flatMap(analyticsService::sendDeleteEvent)
                             .then(repository.save(organization));
                 });
+    }
+
+    @Override
+    public Flux<Organization> getAll() {
+        return repository.findAllOrganizations();
     }
 
 }

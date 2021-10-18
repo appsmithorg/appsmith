@@ -79,7 +79,9 @@ import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
-import getFeatureFlags from "utils/featureFlags";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommandPayload } from "entities/Action";
+import { Indices } from "constants/Layers";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -90,6 +92,9 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Semicolon",
   "Space",
 ];
+
+const AUTOCOMPLETE_CLOSE_KEYS = ["(", ")"];
+const CURLY_BRACKETS = ["{", "}"];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -129,6 +134,7 @@ export type EditorStyleProps = {
   useValidationMessage?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
+  popperZIndex?: Indices;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -269,9 +275,8 @@ class CodeEditor extends Component<Props, State> {
           this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
-        if (getFeatureFlags().LINTING) {
-          this.lintCode(editor);
-        }
+
+        this.lintCode(editor);
       };
 
       // Finally create the Codemirror editor
@@ -291,6 +296,7 @@ class CodeEditor extends Component<Props, State> {
         if (!!inputValue || inputValue === "") {
           if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
+            this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
           } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
             // Even if Editor is updated with new value, it cannot update without layour calcs.
             //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
@@ -357,13 +363,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    const entityInformation = this.getEntityInformation();
-    if (
-      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
-      this.editor.getValue().length === 0 &&
-      !this.editor.state.completionActive
-    )
-      this.handleAutocompleteVisibility(this.editor);
   };
 
   handleEditorBlur = () => {
@@ -412,6 +411,7 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
+
     if (dataTreePath) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         dataTreePath,
@@ -466,7 +466,21 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
-    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
+    if (
+      AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code) ||
+      AUTOCOMPLETE_CLOSE_KEYS.includes(event.key)
+    ) {
+      return cm.closeHint();
+    }
+
+    // Autocomplete Hint should not be open when curly bracket is pressed
+    // The only state in which it should be open is '{{}}'
+
+    // Bail out early if key isn't a curly bracket
+    if (!CURLY_BRACKETS.includes(event.key)) return;
+
+    const { ch, line } = cm.getCursor();
+    if (cm.getRange({ line, ch: ch - 2 }, { line, ch: ch + 2 }) !== "{{}}") {
       cm.closeHint();
     }
   };
@@ -484,9 +498,7 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    let annotations: Annotation[] = [];
-
-    annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(editor.getValue(), errors);
 
     this.updateLintingCallback(editor, annotations);
   }
@@ -581,7 +593,7 @@ class CodeEditor extends Component<Props, State> {
       evaluated = pathEvaluatedValue;
     }
 
-    const { entityName } = this.getEntityInformation();
+    const entityInformation = this.getEntityInformation();
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
       errors = this.props.errors;
@@ -591,22 +603,21 @@ class CodeEditor extends Component<Props, State> {
     }
     /*  Evaluation results for snippet snippets */
 
-    if (getFeatureFlags().LINTING) {
-      this.lintCode(this.editor);
-    }
+    this.lintCode(this.editor);
 
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
-        ("dataTreePath" in this.props && !!this.props.dataTreePath));
+        ("dataTreePath" in this.props && !!dataTreePath));
+
     return (
       <DynamicAutocompleteInputWrapper
+        className="t--code-editor-wrapper"
         isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
         isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
-        theme={this.props.theme}
       >
         {showLightningMenu !== false && !this.state.isFocused && (
           <Button
@@ -623,7 +634,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
-          entityName={entityName}
+          entity={entityInformation}
           errors={errors}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
@@ -632,6 +643,7 @@ class CodeEditor extends Component<Props, State> {
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
           popperPlacement={this.props.popperPlacement}
+          popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
@@ -704,7 +716,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  executeCommand: (payload) => dispatch({ type: "EXECUTE_COMMAND", payload }),
+  executeCommand: (payload: SlashCommandPayload) =>
+    dispatch(executeCommandAction(payload)),
 });
 
 export default Sentry.withProfiler(

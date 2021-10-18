@@ -65,6 +65,11 @@ public class PostgresPluginTest {
         public int getMaxResponseSize() {
             return 10000;
         }
+
+        @Override
+        public String getRemoteExecutionUrl() {
+            return "";
+        }
     }
 
 

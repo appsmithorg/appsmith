@@ -1,5 +1,5 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EventType,
@@ -7,142 +7,100 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import ButtonComponent, { ButtonType } from "widgets/ButtonWidget/component";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonStyleType } from "components/constants";
+import ButtonWidget from "widgets/ButtonWidget";
+import {
+  ButtonBorderRadius,
+  ButtonBoxShadow,
+  ButtonVariant,
+} from "components/constants";
+import { IconName } from "@blueprintjs/icons";
+import { Alignment } from "@blueprintjs/core";
 
-class FormButtonWidget extends BaseWidget<
-  FormButtonWidgetProps,
-  FormButtonWidgetState
-> {
-  onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
-  clickWithRecaptchaBound: (token: string) => void;
-
+class FormButtonWidget extends ButtonWidget {
   constructor(props: FormButtonWidgetProps) {
     super(props);
-    this.onButtonClickBound = this.onButtonClick.bind(this);
-    this.clickWithRecaptchaBound = this.clickWithRecaptcha.bind(this);
-    this.state = {
-      isLoading: false,
-    };
   }
 
   static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "text",
-            label: "Label",
-            helpText: "Sets the label of the button",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "buttonStyle",
-            label: "Button Style",
-            helpText: "Changes the style of the button",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Primary Button",
-                value: "PRIMARY_BUTTON",
-              },
-              {
-                label: "Secondary Button",
-                value: "SECONDARY_BUTTON",
-              },
-              {
-                label: "Danger Button",
-                value: "DANGER_BUTTON",
-              },
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            helpText:
-              "Disables the button when the parent form has a required widget that is not filled",
-            propertyName: "disabledWhenInvalid",
-            label: "Disabled Invalid Forms",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            helpText:
-              "Resets the fields within the parent form when the click action succeeds",
-            propertyName: "resetFormOnClick",
-            label: "Reset Form on Success",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "googleRecaptchaKey",
-            label: "Google Recaptcha Key",
-            helpText: "Sets Google Recaptcha v3 site key for button",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter google recaptcha key",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "recaptchaV2",
-            label: "Google reCAPTCHA v2",
-            controlType: "SWITCH",
-            helpText: "Use reCAPTCHA v2",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when the button is clicked",
-            propertyName: "onClick",
-            label: "onClick",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-    ];
-  }
-
-  static getMetaPropertiesMap(): Record<string, any> {
-    return {
-      recaptchaToken: undefined,
-    };
-  }
-
-  static getDerivedPropertiesMap() {
-    return {};
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    const buttonPropertyPaneConfig = super.getPropertyPaneConfig().slice(1);
+    buttonPropertyPaneConfig.unshift({
+      sectionName: "General",
+      children: [
+        {
+          propertyName: "text",
+          label: "Label",
+          helpText: "Sets the label of the button",
+          controlType: "INPUT_TEXT",
+          placeholderText: "Enter label text",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.TEXT },
+        },
+        {
+          helpText: "Show helper text with button on hover",
+          propertyName: "tooltip",
+          label: "Tooltip",
+          controlType: "INPUT_TEXT",
+          placeholderText: "Enter tooltip text",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.TEXT },
+        },
+        {
+          helpText:
+            "Disables the button when the parent form has a required widget that is not filled",
+          propertyName: "disabledWhenInvalid",
+          label: "Disabled Invalid Forms",
+          controlType: "SWITCH",
+          isJSConvertible: true,
+          isBindProperty: false,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+        },
+        {
+          helpText:
+            "Resets the fields within the parent form when the click action succeeds",
+          propertyName: "resetFormOnClick",
+          label: "Reset Form on Success",
+          controlType: "SWITCH",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+        },
+        {
+          propertyName: "isVisible",
+          label: "Visible",
+          helpText: "Controls the visibility of the widget",
+          controlType: "SWITCH",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+        },
+        {
+          propertyName: "googleRecaptchaKey",
+          label: "Google Recaptcha Key",
+          helpText: "Sets Google Recaptcha v3 site key for button",
+          controlType: "INPUT_TEXT",
+          placeholderText: "Enter google recaptcha key",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.TEXT },
+        },
+        {
+          propertyName: "recaptchaV2",
+          label: "Google reCAPTCHA v2",
+          controlType: "SWITCH",
+          helpText: "Use reCAPTCHA v2",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+        },
+      ],
+    });
+    return buttonPropertyPaneConfig;
   }
 
   clickWithRecaptcha(token: string) {
@@ -197,18 +155,9 @@ class FormButtonWidget extends BaseWidget<
 
     return (
       <ButtonComponent
-        buttonStyle={this.props.buttonStyle}
-        clickWithRecaptcha={this.clickWithRecaptchaBound}
-        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        {...super.getPageView().props}
         isDisabled={disabled}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        key={this.props.widgetId}
         onClick={!disabled ? this.onButtonClickBound : undefined}
-        recaptchaV2={this.props.recaptchaV2}
-        text={this.props.text}
-        type={this.props.buttonType || ButtonType.BUTTON}
-        widgetId={this.props.widgetId}
-        widgetName={this.props.widgetName}
       />
     );
   }
@@ -220,7 +169,6 @@ class FormButtonWidget extends BaseWidget<
 
 export interface FormButtonWidgetProps extends WidgetProps {
   text?: string;
-  buttonStyle?: ButtonStyleType;
   onClick?: string;
   isVisible?: boolean;
   buttonType: ButtonType;
@@ -230,6 +178,13 @@ export interface FormButtonWidgetProps extends WidgetProps {
   disabledWhenInvalid?: boolean;
   googleRecaptchaKey?: string;
   recaptchaV2?: boolean;
+  buttonVariant?: ButtonVariant;
+  buttonColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
 }
 
 export interface FormButtonWidgetState extends WidgetState {

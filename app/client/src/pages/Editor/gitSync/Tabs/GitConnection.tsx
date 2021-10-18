@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Subtitle, Title, Space } from "../components/StyledComponents";
 import {
   CONNECT_TO_GIT,
@@ -10,26 +10,31 @@ import {
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
-import { ReactComponent as LinkSvg } from "assets/icons/ads/link_2.svg";
+// import { ReactComponent as LinkSvg } from "assets/icons/ads/link_2.svg";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
+import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import Toggle from "components/ads/Toggle";
 import Text, { TextType } from "components/ads/Text";
-
+import { getGlobalGitConfig } from "selectors/gitSyncSelectors";
+import {
+  fetchGlobalGitConfigInit,
+  fetchLocalGitConfigInit,
+  updateLocalGitConfigInit,
+} from "actions/gitSyncActions";
+import DirectDeploy from "../components/DirectDeploy";
+import TooltipComponent from "components/ads/Tooltip";
+import { getLocalGitConfig } from "selectors/gitSyncSelectors";
 export const UrlOptionContainer = styled.div`
   display: flex;
   align-items: center;
@@ -132,6 +137,19 @@ const LintText = styled.a`
   cursor: pointer;
 `;
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const TooltipWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Section = styled.div``;
+
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
 const HTTP_LITERAL = "https";
@@ -139,48 +157,88 @@ const HTTP_LITERAL = "https";
 type Props = {
   onSuccess: () => void;
   isImport?: boolean;
-  organizationId?: string;
 };
 
-function GitConnection({ isImport, onSuccess, organizationId }: Props) {
+function GitConnection({ isImport, onSuccess }: Props) {
   const { remoteUrl: remoteUrlInStore } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const [remoteUrl, setRemoteUrl] = useState<string>(remoteUrlInStore);
-  // const [isValidRemoteUrl, setIsValidRemoteUrl] = useState(true);
 
-  const { applicationId: currentApplicationId } = useParams<
-    ExplorerURLParams
-  >();
+  const isGitConnected = !!remoteUrlInStore;
 
-  const currentUser = useSelector(getCurrentUser);
+  const globalGitConfig = useSelector(getGlobalGitConfig);
+  const localGitConfig = useSelector(getLocalGitConfig);
+
+  const dispatch = useDispatch();
+
+  const getInitGitConfig = () => {
+    let initialAuthInfo = {
+      authorName: "",
+      authorEmail: "",
+    };
+
+    if (localGitConfig.authorEmail || localGitConfig.authorName) {
+      initialAuthInfo = {
+        authorName: localGitConfig.authorName || "",
+        authorEmail: localGitConfig.authorEmail || "",
+      };
+    }
+    // TODO: fetch local config
+    return initialAuthInfo;
+  };
+
+  const initialAuthorInfoRef = useRef(getInitGitConfig());
 
   const [authorInfo, setAuthorInfo] = useState<{
     authorName: string;
     authorEmail: string;
   }>({
-    authorName: currentUser?.name || "",
-    authorEmail: currentUser?.email || "",
+    authorName: initialAuthorInfoRef.current.authorName,
+    authorEmail: initialAuthorInfoRef.current.authorEmail,
   });
 
   const [useGlobalConfig, setUseGlobalConfig] = useState(false);
+  const [showCopied, setShowCopied] = useState(false);
+  const timerRef = useRef(0);
 
   const {
-    failedGeneratingSSHKey,
+    deployKeyDocUrl,
+    // failedGeneratingSSHKey,
+    fetchingSSHKeyPair,
+    fetchSSHKeyPair,
     generateSSHKey,
     generatingSSHKey,
-    sshKeyPair,
+    SSHKeyPair,
   } = useSSHKeyPair();
 
   const {
     connectToGit,
-    failedConnectingToGit,
+    // failedConnectingToGit,
     isConnectingToGit,
   } = useGitConnect({ onSuccess });
 
+  const stopShowingCopiedAfterDelay = () => {
+    timerRef.current = setTimeout(() => {
+      setShowCopied(false);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    // On unmount clear timer to avoid memory leak
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
   const copyToClipboard = () => {
-    if (sshKeyPair) {
-      copy(sshKeyPair);
+    if (SSHKeyPair) {
+      copy(SSHKeyPair);
+      setShowCopied(true);
+      stopShowingCopiedAfterDelay();
+
       Toaster.show({
         text: "Copied SSH Key",
         variant: Variant.success,
@@ -190,25 +248,41 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
 
   const placeholderText = "Paste Your Git SSH URL";
 
-  const gitConnectionRequest = () => {
-    connectToGit({
-      applicationId: currentApplicationId,
-      remoteUrl,
-      gitConfig: authorInfo,
-      organizationId,
-      isImport,
-      isDefaultProfile: useGlobalConfig,
-    });
+  const isAuthorInfoUpdated = () => {
+    return (
+      authorInfo.authorEmail !== initialAuthorInfoRef.current.authorEmail ||
+      authorInfo.authorName !== initialAuthorInfoRef.current.authorName
+    );
+  };
+
+  const isRemoteUrlUpdated = () => {
+    return remoteUrl !== remoteUrlInStore;
+  };
+
+  const onSubmit = () => {
+    // Also check if isDefaultProfile switch is changed
+    // For this we will need to store `isDefaultProfile` in backend
+    if (isGitConnected && !isRemoteUrlUpdated()) {
+      if (isAuthorInfoUpdated()) {
+        // just update local config
+        dispatch(updateLocalGitConfigInit(authorInfo));
+      }
+    } else {
+      connectToGit({
+        remoteUrl,
+        gitProfile: authorInfo,
+        isImport,
+        isDefaultProfile: useGlobalConfig,
+      });
+    }
   };
 
   useEffect(() => {
-    if (failedGeneratingSSHKey || failedConnectingToGit) {
-      Toaster.show({
-        text: "Something Went Wrong",
-        variant: Variant.danger,
-      });
+    // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
+    if (!SSHKeyPair) {
+      fetchSSHKeyPair();
     }
-  }, [failedGeneratingSSHKey, failedConnectingToGit]);
+  }, [SSHKeyPair]);
 
   const remoteUrlChangeHandler = (value: string) => {
     setRemoteUrl(value);
@@ -216,120 +290,169 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
 
   const remoteUrlIsValid = (value: string) => value.startsWith(HTTP_LITERAL);
 
-  const connectButtonDisabled =
-    !authorInfo.authorEmail || !authorInfo.authorName;
+  const submitButtonDisabled =
+    !authorInfo.authorEmail ||
+    !authorInfo.authorName ||
+    (isGitConnected && useGlobalConfig);
+
+  const isGlobalConfigDefined = !!(
+    globalGitConfig.authorEmail && globalGitConfig.authorName
+  );
+
+  useEffect(() => {
+    // OnMount fetch global and local config
+    dispatch(fetchGlobalGitConfigInit());
+    dispatch(fetchLocalGitConfigInit());
+  }, []);
+
+  useEffect(() => {
+    setAuthorInfo(localGitConfig);
+  }, [localGitConfig.authorEmail, localGitConfig.authorName, setAuthorInfo]);
+
+  const showDirectDeployOption = !SSHKeyPair && !remoteUrl;
+
+  const toggleHandler = () => {
+    setUseGlobalConfig(!useGlobalConfig);
+  };
 
   return (
-    <>
-      <Title>{createMessage(CONNECT_TO_GIT)}</Title>
-      <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
-      <UrlOptionContainer>
-        <span>{createMessage(REMOTE_URL_VIA)}</span>
-        <span className="primary">&nbsp;{selectedAuthType.label}</span>
-      </UrlOptionContainer>
-      <UrlContainer>
-        <UrlInputContainer>
-          <TextInput
-            disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
-            fill
-            onChange={remoteUrlChangeHandler}
-            placeholder={placeholderText}
-            validator={(value) => ({
-              isValid: true,
-              message: remoteUrlIsValid(value)
-                ? "Please paste SSH URL of your repository"
-                : "",
-            })}
-            value={remoteUrl}
-          />
-        </UrlInputContainer>
-        <Icon
-          color={Colors.DARK_GRAY}
-          hoverColor={Colors.GRAY2}
-          onClick={() => setRemoteUrl("")}
-          size="22px"
-        >
-          <LinkSvg />
-        </Icon>
-      </UrlContainer>
-      {!sshKeyPair ? (
-        <ButtonContainer topMargin={10}>
-          <Button
-            category={Category.secondary}
-            disabled={!remoteUrl}
-            isLoading={generatingSSHKey}
-            onClick={() => generateSSHKey(currentApplicationId)}
-            size={Size.medium}
-            tag="button"
-            text="Generate SSH Key"
-          />
-        </ButtonContainer>
-      ) : (
-        <>
-          <FlexRow>
-            <DeployedKeyContainer>
-              <FlexRow>
-                <Flex>
-                  <KeySvg />
-                </Flex>
-
-                <FlexColumn>
-                  <LabelText>{createMessage(DEPLOY_KEY_TITLE)}</LabelText>
-                  <KeyText>{sshKeyPair}</KeyText>
-                </FlexColumn>
-              </FlexRow>
-            </DeployedKeyContainer>
+    <Container>
+      <Section>
+        <Title>{createMessage(CONNECT_TO_GIT)}</Title>
+        <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
+        <UrlOptionContainer>
+          <span>{createMessage(REMOTE_URL_VIA)}</span>
+          <span className="primary">&nbsp;{selectedAuthType.label}</span>
+        </UrlOptionContainer>
+        <UrlContainer>
+          <UrlInputContainer>
+            <TextInput
+              disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
+              fill
+              onChange={remoteUrlChangeHandler}
+              placeholder={placeholderText}
+              validator={(value) => ({
+                isValid: true,
+                message: remoteUrlIsValid(value)
+                  ? "Please paste SSH URL of your repository"
+                  : "",
+              })}
+              value={remoteUrl}
+            />
+          </UrlInputContainer>
+          {/* <TooltipComponent content="Unlink">
             <Icon
               color={Colors.DARK_GRAY}
               hoverColor={Colors.GRAY2}
-              marginOffset={3}
-              onClick={copyToClipboard}
+              onClick={() => setRemoteUrl("")}
               size="22px"
             >
-              <CopySvg />
+              <LinkSvg />
             </Icon>
-          </FlexRow>
-          <span>
-            {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-            <LintText href={DOCS_BASE_URL} target="_blank">
-              &nbsp;Learn More
-            </LintText>
-          </span>
-        </>
-      )}
+          </TooltipComponent> */}
+        </UrlContainer>
 
-      {sshKeyPair && remoteUrl ? (
+        {!SSHKeyPair ? (
+          remoteUrl && (
+            <ButtonContainer topMargin={10}>
+              <Button
+                category={Category.secondary}
+                disabled={!remoteUrl}
+                isLoading={generatingSSHKey || fetchingSSHKeyPair}
+                onClick={() => generateSSHKey()}
+                size={Size.medium}
+                tag="button"
+                text="Generate SSH Key"
+              />
+            </ButtonContainer>
+          )
+        ) : (
+          <>
+            <FlexRow>
+              <DeployedKeyContainer>
+                <FlexRow>
+                  <Flex>
+                    <KeySvg />
+                  </Flex>
+
+                  <FlexColumn>
+                    <LabelText>{createMessage(DEPLOY_KEY_TITLE)}</LabelText>
+                    <KeyText>{SSHKeyPair}</KeyText>
+                  </FlexColumn>
+                </FlexRow>
+              </DeployedKeyContainer>
+              {showCopied ? (
+                <Icon
+                  color={Colors.GREEN}
+                  hoverColor={Colors.GREEN}
+                  marginOffset={4}
+                  size="16px"
+                >
+                  <TickSvg />
+                </Icon>
+              ) : (
+                <TooltipWrapper>
+                  <TooltipComponent content="Copy Key">
+                    <Icon
+                      color={Colors.DARK_GRAY}
+                      hoverColor={Colors.GRAY2}
+                      marginOffset={3}
+                      onClick={copyToClipboard}
+                      size="22px"
+                    >
+                      <CopySvg />
+                    </Icon>
+                  </TooltipComponent>
+                </TooltipWrapper>
+              )}
+            </FlexRow>
+            <span>
+              {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
+              <LintText href={deployKeyDocUrl} target="_blank">
+                &nbsp;Learn More
+              </LintText>
+            </span>
+          </>
+        )}
+      </Section>
+
+      {SSHKeyPair && remoteUrl ? (
         <>
-          <Space size={12} />
-          <FlexRow>
-            <Text className="" type={TextType.P2}>
-              Use Default Config
-            </Text>
-            <Toggle
-              onToggle={() => setUseGlobalConfig(!useGlobalConfig)}
-              value={useGlobalConfig}
-            />
-          </FlexRow>
-          <Space size={12} />
+          {isGlobalConfigDefined ? (
+            <>
+              <Space size={7} />
+              <FlexRow>
+                <Text className="" type={TextType.P1}>
+                  Use Default Config
+                </Text>
+                <Space horizontal size={2} />
+                <Toggle onToggle={toggleHandler} value={useGlobalConfig} />
+              </FlexRow>
+            </>
+          ) : null}
+
+          <Space size={7} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
-            authorInfo={authorInfo}
+            authorInfo={useGlobalConfig ? globalGitConfig : authorInfo}
             disabled={useGlobalConfig}
             setAuthorInfo={setAuthorInfo}
           />
           <ButtonContainer topMargin={11}>
             <Button
-              disabled={connectButtonDisabled}
+              disabled={submitButtonDisabled}
               isLoading={isConnectingToGit}
-              onClick={gitConnectionRequest}
+              onClick={onSubmit}
               size={Size.large}
               tag="button"
-              text="CONNECT"
+              text={isGitConnected ? "UPDATE" : "CONNECT"}
             />
           </ButtonContainer>
         </>
-      ) : null}
-    </>
+      ) : (
+        showDirectDeployOption && <DirectDeploy />
+      )}
+    </Container>
   );
 }
 

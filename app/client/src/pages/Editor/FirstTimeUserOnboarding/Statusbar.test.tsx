@@ -11,11 +11,7 @@ import {
   ONBOARDING_STATUS_STEPS_FIVETH,
   ONBOARDING_STATUS_STEPS_SIXTH,
 } from "constants/messages";
-
-let useIsWidgetActionConnectionPresent = false;
-jest.mock("pages/Editor/utils", () => ({
-  useIsWidgetActionConnectionPresent: () => useIsWidgetActionConnectionPresent,
-}));
+import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 
 let container: any = null;
 
@@ -73,15 +69,111 @@ describe("Statusbar", () => {
   });
 
   it("is showing fifth step", async () => {
-    useIsWidgetActionConnectionPresent = true;
     renderComponent(getStore(4));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FIVETH());
   });
 
-  it("is showing fifth step", async () => {
+  it("is showing sixth step", async () => {
     renderComponent(getStore(5));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
     expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_SIXTH());
+  });
+
+  it("should test useIsWidgetActionConnectionPresent function", () => {
+    const store = getStore(4).getState() as any;
+    const useIsWidgetActionConnectionPresentHelper = () => {
+      return useIsWidgetActionConnectionPresent(
+        store.entities.canvasWidgets,
+        store.entities.actions,
+        store.evaluations.dependencies.inverseDependencyMap,
+      );
+    };
+    //Both property and trigger dependency present
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    //only trigger dependency present
+    store.evaluations.dependencies.inverseDependencyMap = {};
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    //no dependency present
+    store.entities.canvasWidgets = {};
+    store.entities.actions = [];
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(false);
+    //only trigger dependency present
+    store.entities.canvasWidgets = {
+      [Math.random()]: {
+        widgetName: "widget",
+        onClick: "{{Query.run()}}",
+        dynamicTriggerPathList: [
+          {
+            key: "onClick",
+          },
+        ],
+        text: "{{Query.data}}",
+      },
+    };
+    store.entities.actions = [
+      {
+        config: {
+          id: Math.random(),
+          pageId: 1,
+          name: "Query",
+        },
+      },
+    ];
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    //no dependency present
+    store.entities.canvasWidgets = {};
+    store.entities.actions = [];
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(false);
+    //only nested trigger dependency present
+    store.entities.canvasWidgets = {
+      [Math.random()]: {
+        widgetName: "widget",
+        column: {
+          onClick: "{{Query.run()}}",
+        },
+        dynamicTriggerPathList: [
+          {
+            key: "column.onClick",
+          },
+        ],
+        text: "label",
+      },
+    };
+    store.entities.actions = [
+      {
+        config: {
+          id: Math.random(),
+          pageId: 1,
+          name: "Query",
+        },
+      },
+    ];
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
+    //no dependency present
+    store.entities.canvasWidgets = {};
+    store.entities.actions = [];
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(false);
+    //only property dependency present
+    store.entities.canvasWidgets = {
+      [Math.random()]: {
+        widgetName: "widget",
+        dynamicTriggerPathList: [],
+        text: "{{Query.data}}",
+      },
+    };
+    store.entities.actions = [
+      {
+        config: {
+          id: Math.random(),
+          pageId: 1,
+          name: "Query",
+        },
+      },
+    ];
+    store.evaluations.dependencies.inverseDependencyMap = {
+      "Query.data": ["Query", "widget.text"],
+    };
+    expect(useIsWidgetActionConnectionPresentHelper()).toBe(true);
   });
 });

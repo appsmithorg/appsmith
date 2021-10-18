@@ -32,7 +32,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { CurrentApplicationData } from "constants/ReduxActionConstants";
 import { getPluginSettingConfigs } from "selectors/entitiesSelector";
 import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
@@ -47,7 +47,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];

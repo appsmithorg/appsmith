@@ -7,6 +7,11 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
+export enum SnippetAction {
+  INSERT,
+  COPY,
+}
+
 const initialState: GlobalSearchReduxState = {
   query: "", // used to prefill when opened via contextual help links
   modalOpen: false,
@@ -19,7 +24,7 @@ const initialState: GlobalSearchReduxState = {
     evaluatedSnippet: "",
     executionInProgress: false,
     evaluatedArguments: {},
-    insertSnippet: false,
+    onEnter: SnippetAction.COPY,
   },
 };
 
@@ -34,11 +39,13 @@ const globalSearchReducer = createReducer(initialState, {
   ) => ({
     ...state,
     modalOpen: !state.modalOpen,
-    filterContext: {
-      ...state.filterContext,
-      category: action.payload,
-      insertSnippet: false,
-    },
+    filterContext: state.modalOpen
+      ? initialState.filterContext
+      : {
+          ...state.filterContext,
+          category: action.payload,
+          onEnter: SnippetAction.COPY,
+        },
   }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
     state: GlobalSearchReduxState,
@@ -117,7 +124,7 @@ export interface GlobalSearchReduxState {
       dataType?: string;
       field?: string;
     };
-    insertSnippet: boolean;
+    onEnter: SnippetAction;
     evaluatedSnippet: string;
     executionInProgress: boolean;
     evaluatedArguments: any;

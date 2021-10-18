@@ -25,7 +25,6 @@ public enum FeatureFlagEnum {
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
     JS_EDITOR,
-    SNIPPET,
     LINTING,
     MULTIPLAYER,
     GIT;

@@ -30,5 +30,6 @@
         <module>snowflakePlugin</module>
         <module>arangoDBPlugin</module>
         <module>jsPlugin</module>
+        <module>saasPlugin</module>
     </modules>
 </project>

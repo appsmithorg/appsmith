@@ -47,8 +47,6 @@ import useOrg from "utils/hooks/useOrg";
 import { getCanCreateApplications } from "utils/helpers";
 
 import { getAppsmithConfigs } from "configs";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { User } from "constants/userConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -168,21 +166,16 @@ const sortMentionData = (filter = "") => (a: MentionData, b: MentionData) => {
 const useUserSuggestions = (
   users: Array<OrgUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
-  currentUser?: User,
 ) => {
   const { id } = useSelector(getCurrentAppOrg) || {};
   const currentOrg = useOrg(id);
   const canManage = getCanCreateApplications(currentOrg);
 
   useEffect(() => {
-    const result = [] as Array<MentionData>;
-    users.forEach((user) => {
-      if (user?.username !== currentUser?.username)
-        result.push({
-          name: user.name || user.username,
-          user,
-        });
-    });
+    const result: Array<MentionData> = users.map((user) => ({
+      name: user.name || user.username,
+      user,
+    }));
 
     result.sort(sortMentionData());
 
@@ -216,8 +209,7 @@ function AddCommentInput({
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   const [trigger, setTrigger] = useState<Trigger>();
-  const currentUser = useSelector(getCurrentUser);
-  useUserSuggestions(users, setSuggestions, currentUser);
+  useUserSuggestions(users, setSuggestions);
   const [editorState, setEditorStateInState] = useState(
     initialEditorState || EditorState.createEmpty(),
   );

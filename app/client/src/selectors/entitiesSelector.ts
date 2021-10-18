@@ -181,6 +181,13 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
+export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter(
+    (plugin) =>
+      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+  ),
+);
+
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
   state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
 
@@ -193,6 +200,19 @@ export const getDBDatasources = createSelector(
 
     return datasources.filter((datasource) =>
       dbPluginIds.includes(datasource.pluginId),
+    );
+  },
+);
+
+export const getDBAndRemoteDatasources = createSelector(
+  getDBAndRemotePlugins,
+  getEntities,
+  (plugins, entities) => {
+    const datasources = entities.datasources.list;
+    const pluginIds = plugins.map((plugin) => plugin.id);
+
+    return datasources.filter((datasource) =>
+      pluginIds.includes(datasource.pluginId),
     );
   },
 );

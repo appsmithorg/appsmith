@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.CommentBotEvent;
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -418,10 +418,45 @@ public class CommentServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createThread_WhenUserFinishedOnBoarding_CreatesBotThreadAndComment() {
+        UserData userData = new UserData();
+        userData.setCommentOnboardingState(CommentOnboardingState.ONBOARDED);
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        Comment comment = makePlainTextComment("test comment here");
+        Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
+                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
+        );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getIsPrivate()).isTrue();
+            assertThat(thread.getSequenceId()).isEqualTo("#0");
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createThread_WhenFirstCommentFromViewer_BotThreadNotCreated() {
         Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
                 Set.of(AclPermission.READ_APPLICATIONS), comment
+        );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getIsPrivate()).isNotEqualTo(Boolean.TRUE);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenUserSkippedOnBoarding_BotThreadNotCreated() {
+        UserData userData = new UserData();
+        userData.setCommentOnboardingState(CommentOnboardingState.SKIPPED);
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        Comment comment = makePlainTextComment("test comment here");
+        Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
+                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
@@ -448,7 +483,7 @@ public class CommentServiceTest {
     public void getThreadsByApplicationId_WhenThreadWithCommentExists_ReturnThreadWithComments() {
         // mock the user data so that bot comment is not created
         UserData userData = new UserData();
-        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+        userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Organization organization = new Organization();
@@ -490,7 +525,7 @@ public class CommentServiceTest {
     public void createThread_WhenSomeoneTaggedInFirstComment_NotificationCreated() {
         // mock the user data so that bot comment is not created
         UserData userData = new UserData();
-        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+        userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Organization organization = new Organization();

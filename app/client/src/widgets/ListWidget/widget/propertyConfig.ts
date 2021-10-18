@@ -73,6 +73,15 @@ const PropertyPaneConfig = [
         validation: { type: ValidationTypes.NUMBER, params: { min: 0 } },
       },
       {
+        helpText:
+          "Bind the List.pageNo property in your API and call it onPageChange",
+        propertyName: "serverSidePaginationEnabled",
+        label: "Server Side Pagination",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
         propertyName: "isVisible",
         label: "Visible",
         helpText: "Controls the visibility of the widget",
@@ -116,6 +125,30 @@ const PropertyPaneConfig = [
           };
         },
         dependencies: ["listData"],
+      },
+      {
+        helpText: "Triggers an action when a list page is changed",
+        propertyName: "onPageChange",
+        label: "onPageChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
+      },
+      {
+        helpText: "Triggers an action when a list page size is changed",
+        propertyName: "onPageSizeChange",
+        label: "onPageSizeChange",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
     ],
   },

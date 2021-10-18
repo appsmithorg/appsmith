@@ -30,6 +30,8 @@ public class Plugin extends BaseDomain {
 
     String packageName;
 
+    String pluginName;
+
     String jarLocation;
 
     String iconLocation;
@@ -68,6 +70,14 @@ public class Plugin extends BaseDomain {
     Boolean defaultInstall;
 
     Boolean allowUserDatasources = true;
+
+    boolean isRemotePlugin = false;
+
+    // Stores the equivalent of editor.json for remote plugins
+    Map actionUiConfig;
+
+    // Stores the equivalent of form.json for remote plugins
+    Map datasourceUiConfig;
 
     @Transient
     Map<String, String> templates;

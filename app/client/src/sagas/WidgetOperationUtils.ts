@@ -153,7 +153,7 @@ export const handleSpecificCasesWhilePasting = (
   newWidgetList: FlattenedWidgetProps[],
 ) => {
   // this is the case when whole list widget is copied and pasted
-  if (widget.type === "LIST_WIDGET") {
+  if (widget?.type === "LIST_WIDGET") {
     Object.keys(widget.template).map((widgetName) => {
       const oldWidgetName = widgetName;
       const newWidgetName = widgetNameMap[oldWidgetName];
@@ -194,7 +194,7 @@ export const handleSpecificCasesWhilePasting = (
     });
 
     widgets[widget.widgetId] = widget;
-  } else if (widget.type === "MODAL_WIDGET") {
+  } else if (widget?.type === "MODAL_WIDGET") {
     // if Modal is being copied handle all onClose action rename
     const oldWidgetName = Object.keys(widgetNameMap).find(
       (key) => widgetNameMap[key] === widget.widgetName,
