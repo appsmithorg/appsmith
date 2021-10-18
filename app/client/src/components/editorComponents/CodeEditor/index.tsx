@@ -83,7 +83,7 @@ import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 
-const AUTOCOMPLETE_CLOSE_KEY_CODES: Record<KeyboardEvent["code"], string> = {
+const AUTOCOMPLETE_CLOSE_KEY_CODES: Record<string, string> = {
   Enter: "Enter",
   Tab: "Tab",
   Escape: "Escape",
@@ -94,14 +94,23 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES: Record<KeyboardEvent["code"], string> = {
   Backspace: "Backspace",
   "Ctrl+Backspace": "Ctrl+Backspace",
   OSLeft: "OSLeft",
-};
+  "(": "(",
+  ")": ")",
+} as const;
 
-const AUTOCOMPLETE_NAVIGATION = [
-  "ArrowUp",
-  "ArrowDown",
-  "ArrowRight",
-  "ArrowLeft",
-];
+const MODIFIERS: Record<string, string> = {
+  Control: "Control",
+  Meta: "Meta",
+  Alt: "Alt",
+  Shift: "Shift",
+} as const;
+
+const AUTOCOMPLETE_NAVIGATION: Record<string, string> = {
+  ArrowUp: "ArrowUp",
+  ArrowDown: "ArrowDown",
+  ArrowRight: "ArrowRight",
+  ArrowLeft: "ArrowLeft",
+} as const;
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -256,7 +265,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 600));
+        editor.on("change", this.handleChange);
         editor.on("keyup", this.handleAutocompleteKeyup);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
@@ -393,7 +402,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleChange = (instance?: any, changeObj?: any) => {
+  handleChange = _.debounce((instance?: any, changeObj?: any) => {
     const value = this.editor.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
@@ -409,7 +418,7 @@ class CodeEditor extends Component<Props, State> {
       this.props.input.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
-  };
+  }, 600);
 
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, dynamicData, expected } = this.props;
@@ -471,12 +480,17 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
-    const key = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
-    if (AUTOCOMPLETE_CLOSE_KEY_CODES[key]) {
+    const key = event.key;
+    if (MODIFIERS[key]) return;
+    const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
+    if (
+      AUTOCOMPLETE_CLOSE_KEY_CODES[code] ||
+      AUTOCOMPLETE_CLOSE_KEY_CODES[key]
+    ) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       cm.closeHint();
-    } else if (!AUTOCOMPLETE_NAVIGATION.includes(event.code)) {
+    } else if (!AUTOCOMPLETE_NAVIGATION[event.code]) {
       this.handleAutocompleteVisibility(cm);
     }
   };
