@@ -103,6 +103,9 @@ const AUTOCOMPLETE_NAVIGATION = [
   "ArrowLeft",
 ];
 
+const AUTOCOMPLETE_CLOSE_KEYS = ["(", ")"];
+const CURLY_BRACKETS = ["{", "}"];
+
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
