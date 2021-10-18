@@ -25,7 +25,9 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 const getRecentEntitiesKey = (applicationId: string, branch?: string) =>
   branch ? `${applicationId}-${branch}` : applicationId;
 
-export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
+export function* updateRecentEntitySaga(
+  actionPayload: ReduxAction<RecentEntity>,
+) {
   try {
     const branch = yield select(getCurrentGitBranch);
 
@@ -93,7 +95,7 @@ export function* restoreRecentEntities(
 
 export default function* globalSearchSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.UPDATE_RECENT_ENTITY, updateRecentEntity),
+    takeLatest(ReduxActionTypes.UPDATE_RECENT_ENTITY, updateRecentEntitySaga),
     takeLatest(
       ReduxActionTypes.RESTORE_RECENT_ENTITIES_REQUEST,
       restoreRecentEntities,

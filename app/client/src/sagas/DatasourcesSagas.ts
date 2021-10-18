@@ -216,7 +216,6 @@ export function* deleteDatasourceSaga(
     if (isValidResponse) {
       const pageId = yield select(getCurrentPageId);
 
-      // TODO [new_urls] verify
       const datasourcePathWithoutQuery = trimQueryString(
         DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id),
       );
@@ -659,7 +658,6 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
   // this redirects to the same route, so checking first.
-  // TODO [new_urls] verify
   const datasourcePath = trimQueryString(
     DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
   );

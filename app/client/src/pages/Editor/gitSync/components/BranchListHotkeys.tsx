@@ -1,7 +1,6 @@
 import React from "react";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import { debug } from "loglevel";
 
 type Props = {
   handleUpKey: () => void;
@@ -18,7 +17,6 @@ class GlobalSearchHotKeys extends React.Component<Props> {
         combo: "up",
         onKeyDown: () => {
           this.props.handleUpKey();
-          debug("handle up key");
         },
         allowInInput: true,
         group: "Branches",

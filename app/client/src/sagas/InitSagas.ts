@@ -101,7 +101,7 @@ function* initializeEditorSaga(
   yield put(resetEditorSuccess());
   const { applicationId, branch, pageId } = initializeEditorAction.payload;
   try {
-    yield put(updateBranchLocally(branch));
+    if (branch) yield put(updateBranchLocally(branch));
 
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
@@ -260,7 +260,7 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId, branch, pageId } = action.payload;
 
-  yield put(updateBranchLocally(branch));
+  if (branch) yield put(updateBranchLocally(branch));
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
@@ -332,7 +332,7 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  // is pageId is not provided use the default page id
+  // if pageId is not provided use the default page id
   if (!pageId) {
     const defaultPageId = yield select(getDefaultPageId);
     const toLoadPageId = pageId || defaultPageId;

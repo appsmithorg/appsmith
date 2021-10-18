@@ -88,8 +88,7 @@ type Props = RouteComponentProps<BuilderRouteParams> & {
 class EditorsRouter extends React.Component<Props, RouterState> {
   constructor(props: Props) {
     super(props);
-    // TODO [new_urls] verify
-    const isOnBuilder = matchBuilderPath();
+    const isOnBuilder = matchBuilderPath(window.location.pathname);
     this.state = {
       isVisible: !isOnBuilder,
       isActionPath: this.isMatchPath(),
@@ -98,8 +97,7 @@ class EditorsRouter extends React.Component<Props, RouterState> {
 
   componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
     if (this.props.location.pathname !== prevProps.location.pathname) {
-      // TODO [new_urls] verify
-      const isOnBuilder = matchBuilderPath();
+      const isOnBuilder = matchBuilderPath(window.location.pathname);
       this.setState({
         isVisible: !isOnBuilder,
         isActionPath: this.isMatchPath(),

@@ -190,7 +190,7 @@ export interface DatasourcePaneFunctions {
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
   redirectToNewIntegrations: (
-    redirectToNewIntegrations: string,
+    applicationId: string,
     pageId: string,
     params: any,
   ) => void;

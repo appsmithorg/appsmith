@@ -711,12 +711,12 @@ function* addWidget(widgetConfig: any) {
     const pageId = yield select(getCurrentPageId);
     const applicationId = yield select(getCurrentApplicationId);
 
-    navigateToCanvas(
-      window.location.pathname,
+    navigateToCanvas({
       pageId,
-      newWidget.newWidgetId,
+      widgetId: newWidget.newWidgetId,
       applicationId,
-    );
+    });
+
     yield put({
       type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
@@ -826,12 +826,11 @@ function* addOnSubmitHandler() {
       const pageId = yield select(getCurrentPageId);
       const applicationId = yield select(getCurrentApplicationId);
 
-      navigateToCanvas(
-        window.location.pathname,
+      navigateToCanvas({
         pageId,
-        inputWidget.widgetId,
+        widgetId: inputWidget.widgetId,
         applicationId,
-      );
+      });
       yield put({
         type: ReduxActionTypes.SELECT_WIDGET_INIT,
         payload: { widgetId: inputWidget.widgetId },

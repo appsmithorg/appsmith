@@ -151,7 +151,7 @@ export const fetchLocalGitConfigSuccess = (payload: GitConfig) => ({
   payload,
 });
 
-export const updateBranchLocally = (payload?: string) => ({
+export const updateBranchLocally = (payload: string) => ({
   type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
   payload,
 });
