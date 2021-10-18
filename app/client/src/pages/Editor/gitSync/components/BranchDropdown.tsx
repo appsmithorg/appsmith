@@ -50,8 +50,8 @@ export default function BranchDropdown(props: {
     }
   };
 
-  const handleCreateNewBranch = (branchName: string) => {
-    dispatch(createNewBranchInit(branchName));
+  const handleCreateNewBranch = (branch: string) => {
+    dispatch(createNewBranchInit(branch));
   };
 
   return showCreateBranchForm ? (

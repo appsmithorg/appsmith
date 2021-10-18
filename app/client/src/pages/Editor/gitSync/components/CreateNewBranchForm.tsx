@@ -7,15 +7,15 @@ export default function CreateNewBranchForm({
   onCancel,
   onSubmit,
 }: {
-  onSubmit: (branchName: string) => void;
+  onSubmit: (branch: string) => void;
   onCancel: () => void;
 }) {
-  const [branchName, setBranchName] = useState("");
+  const [branch, setBranch] = useState("");
 
   return (
     <div>
       <div style={{ width: 260 }}>
-        <TextInput autoFocus fill onChange={setBranchName} />
+        <TextInput autoFocus fill onChange={setBranch} />
       </div>
       <Space size={6} />
       <div style={{ display: "flex" }}>
@@ -28,7 +28,7 @@ export default function CreateNewBranchForm({
         <Space horizontal size={3} />
         <Button
           category={Category.primary}
-          onClick={() => onSubmit(branchName)}
+          onClick={() => onSubmit(branch)}
           size={Size.small}
           text="Submit"
         />

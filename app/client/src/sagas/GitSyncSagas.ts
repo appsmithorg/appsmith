@@ -52,7 +52,7 @@ function* commitToGitRepoSaga(
     );
     const response: ApiResponse = yield GitSyncAPI.commit({
       ...action.payload,
-      branchName: gitMetaData?.branchName || "",
+      branch: gitMetaData?.branchName || "",
       applicationId,
     });
     const isValidResponse: boolean = yield validateResponse(response);
@@ -214,7 +214,7 @@ function* pushToGitRepoSaga() {
 
     const response: ApiResponse = yield GitSyncAPI.push({
       applicationId,
-      branchName: gitMetaData?.branchName || "",
+      branch: gitMetaData?.branchName || "",
     });
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -240,7 +240,7 @@ function* fetchGitStatusSaga() {
     const gitMetaData = yield select(getCurrentAppGitMetaData);
     const response: ApiResponse = yield GitSyncAPI.getGitStatus({
       applicationId,
-      branchName: gitMetaData?.branchName || "",
+      branch: gitMetaData?.branchName || "",
     });
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {

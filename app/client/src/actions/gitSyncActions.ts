@@ -77,14 +77,14 @@ export const disconnectToGitSuccess = (payload: unknown) => ({
   payload,
 });
 
-export const switchGitBranchInit = (branchName: string) => ({
+export const switchGitBranchInit = (branch: string) => ({
   type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
-  payload: branchName,
+  payload: branch,
 });
 
-export const createNewBranchInit = (branchName: string) => ({
+export const createNewBranchInit = (branch: string) => ({
   type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
-  payload: branchName,
+  payload: branch,
 });
 
 export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({

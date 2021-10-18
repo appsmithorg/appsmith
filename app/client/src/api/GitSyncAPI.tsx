@@ -7,12 +7,12 @@ export type CommitPayload = {
   applicationId: string;
   commitMessage: string;
   doPush: boolean;
-  branchName: string;
+  branch: string;
 };
 
 export type PushToGitPayload = {
   applicationId: string;
-  branchName: string;
+  branch: string;
 };
 
 export type ConnectToGitPayload = {
@@ -27,7 +27,7 @@ export type ConnectToGitPayload = {
 
 type GitStatusParam = {
   applicationId: string;
-  branchName: string;
+  branch: string;
 };
 
 class GitSyncAPI extends Api {
@@ -35,12 +35,12 @@ class GitSyncAPI extends Api {
 
   static commit({
     applicationId,
-    branchName,
+    branch,
     commitMessage,
     doPush,
   }: CommitPayload): AxiosPromise<ApiResponse> {
     return Api.post(
-      `${GitSyncAPI.baseURL}/commit/${applicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/commit/${applicationId}?branchName=${branch}`,
       {
         commitMessage,
         doPush,
@@ -50,10 +50,10 @@ class GitSyncAPI extends Api {
 
   static push({
     applicationId,
-    branchName,
+    branch,
   }: PushToGitPayload): AxiosPromise<ApiResponse> {
     return Api.post(
-      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branch}`,
     );
   }
 
@@ -81,9 +81,9 @@ class GitSyncAPI extends Api {
     return Api.put(`${GitSyncAPI.baseURL}/profile/${applicationId}`, payload);
   }
 
-  static getGitStatus({ applicationId, branchName }: GitStatusParam) {
+  static getGitStatus({ applicationId, branch }: GitStatusParam) {
     return Api.get(
-      `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
   }
 }
