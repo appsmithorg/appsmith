@@ -7,6 +7,7 @@ import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 import { typography, Typography, TypographyKeys } from "./typography";
+import { ColorPalette, colorpalette } from "./colorpalette";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -346,7 +347,7 @@ export type Theme = {
   drawerWidth: string;
   spaces: Array<number>;
   fontWeights: Array<number>;
-  colors: any;
+  colors: ColorPalette;
   typography: Typography;
   lineHeights: Array<number>;
   fonts: {
@@ -500,6 +501,7 @@ export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
 
 export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
+  color: ${(props) => props.theme.colors.builderBodyBG};
 `;
 
 // export const adsTheme: any = {
@@ -2768,77 +2770,7 @@ export const theme: Theme = {
     height: 500,
   },
   drawerWidth: "80%",
-  colors: {
-    tooltip: {
-      lightBg: lightShades[0],
-      lightText: lightShades[10],
-      darkBg: lightShades[10],
-      darkText: lightShades[0],
-    },
-    appBackground: "#EDEDED",
-    artboard: "#F6F6F6",
-    primaryOld: Colors.GREEN,
-    primaryDarker: Colors.JUNGLE_GREEN,
-    primaryDarkest: Colors.JUNGLE_GREEN_DARKER,
-    secondary: Colors.GEYSER_LIGHT,
-    secondaryDarker: Colors.CONCRETE,
-    secondaryDarkest: Colors.MERCURY,
-    error: Colors.ERROR_RED,
-    infoOld: Colors.SLATE_GRAY,
-    errorMessage: Colors.ERROR_RED,
-    hover: Colors.POLAR,
-    inputActiveBorder: Colors.HIT_GRAY,
-    inputInactiveBG: Colors.AQUA_HAZE,
-    textDefault: Colors.BLACK_PEARL,
-    textOnDarkBG: Colors.WHITE,
-    textOnGreyBG: Colors.CHARCOAL,
-    textOnWhiteBG: Colors.CODE_GRAY,
-    textAnchor: Colors.PURPLE,
-    border: Colors.GEYSER,
-    paneCard: Colors.SHARK,
-    paneInputBG: Colors.SHARK,
-    paneBG: Colors.OUTER_SPACE,
-    paneText: Colors.GRAY_CHATEAU,
-    paneTextBG: Colors.DEEP_SPACE,
-    paneTextUnderline: Colors.LIGHT_GREYISH_BLUE,
-    paneSectionLabel: Colors.CADET_BLUE,
-    navBG: Colors.SHARK,
-    grid: Colors.ALTO2,
-    containerBorder: Colors.FRENCH_PASS,
-    menuButtonBGInactive: Colors.JUNGLE_MIST,
-    menuIconColorInactive: Colors.OXFORD_BLUE,
-    bodyBG: Colors.ATHENS_GRAY,
-    builderBodyBG: Colors.WHITE,
-    widgetMultiSelectBorder: Colors.MALIBU,
-    widgetBorder: Colors.SLATE_GRAY,
-    widgetLightBorder: Colors.WHITE_SMOKE,
-    widgetSecondaryBorder: Colors.MERCURY,
-    messageBG: Colors.CONCRETE,
-    paneIcon: Colors.TROUT,
-    notification: Colors.JAFFA,
-    bindingTextDark: Colors.BINDING_COLOR,
-    bindingText: Colors.BINDING_COLOR_LT,
-    cmBacground: Colors.BLUE_CHARCOAL,
-    lightningborder: Colors.ALABASTER,
-    formButtonColor: Colors.WHITE,
-    appCardColors: appColors,
-    dataTypeBg: {
-      function: "#BDB2FF",
-      object: "#FFD6A5",
-      unknown: "#4bb",
-      array: "#CDFFA5",
-      number: "#FFB2B2",
-    },
-    scrollbarLight: getColorWithOpacity(Colors.CHARCOAL, 0.5),
-    scrollbarLightBG: getColorWithOpacity(Colors.WHITE, 0.5),
-    scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
-    scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
-    dropdownIconBg: Colors.ALTO2,
-    welcomeTourStickySidebarColor: Colors.WHITE,
-    welcomeTourStickySidebarBackground: "#F86A2B",
-    dropdownIconDarkBg: Colors.DARK_GRAY,
-    dropdownGreyBg: Colors.Gallery,
-  },
+  colors: colorpalette,
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
