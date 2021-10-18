@@ -645,7 +645,7 @@ describe("DataTreeEvaluator", () => {
     };
     evaluator.updateDataTree(updatedTree1);
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
-      "Api2.config.pluginSpecifiedTemplates[0].value",
+      "Api2.config.pluginSpecifiedTemplates",
     ]);
     const updatedTree2 = {
       ...updatedTree1,
@@ -666,7 +666,7 @@ describe("DataTreeEvaluator", () => {
     const dataTree = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",
-      "Api2.config.pluginSpecifiedTemplates[0].value",
+      "Api2.config.pluginSpecifiedTemplates",
     ]);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -693,7 +693,7 @@ describe("DataTreeEvaluator", () => {
     const dataTree3 = evaluator.evalTree;
     expect(evaluator.dependencyMap["Api2.config.body"]).toStrictEqual([
       "Text1.text",
-      "Api2.config.pluginSpecifiedTemplates[0].value",
+      "Api2.config.pluginSpecifiedTemplates",
     ]);
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
