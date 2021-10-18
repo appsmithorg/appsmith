@@ -19,6 +19,9 @@ import {
   PROFILE,
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
+  ADMIN_SETTINGS_URL,
+  ADMIN_SETTINGS_CATEGORY_URL,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -45,6 +48,7 @@ import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import Setup from "pages/setup";
+import Settings from "pages/Settings";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -135,6 +139,16 @@ class AppRouter extends React.Component<any, any> {
                   path={UNSUBSCRIBE_EMAIL_URL}
                 />
                 <SentryRoute component={Setup} exact path={SETUP} />
+                <Redirect
+                  exact
+                  from={ADMIN_SETTINGS_URL}
+                  to={ADMIN_SETTINGS_CATEGORY_DEFAULT_URL}
+                />
+                <SentryRoute
+                  component={Settings}
+                  exact
+                  path={ADMIN_SETTINGS_CATEGORY_URL}
+                />
                 <SentryRoute component={PageNotFound} />
               </Switch>
             </>
