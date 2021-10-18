@@ -132,7 +132,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
           {
             propertyName: "isClickedMarkerCentered",
-            label: "Center marker when clicked",
+            label: "Map & Marker centering",
             helpText:
               "Controls whether the clicked marker is centered on the map",
             controlType: "SWITCH",
