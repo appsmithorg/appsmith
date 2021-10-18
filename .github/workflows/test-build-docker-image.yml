@@ -489,6 +489,12 @@ jobs:
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
+      
+      # Upload the coverage as artifacts 
+      - uses: actions/upload-artifact@v1
+        with:
+          name: cypress-coverage-${{ matrix.job }}
+          path: app/client/.nyc_output        
 
   ui-test-result:
     needs: ui-test
