@@ -327,7 +327,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
                 // If the action_type is LIST_BUCKET, remove the bucket name requirement
                 if (s3Action != AmazonS3Action.LIST_BUCKETS
-                    && StringUtils.isNotNullOrEmpty(bucketName)) {
+                    && StringUtils.isNullOrEmpty(bucketName)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -386,32 +386,22 @@ public class AmazonS3Plugin extends BasePlugin {
                             requestParams.add(new RequestParamDTO("list.signedUrl", YES, null,
                                     null, null));
 
-
-                            ////////////////
                             int durationInMinutes;
-                            if (properties.size() < (1 + URL_EXPIRY_DURATION_PROPERTY_INDEX)
-                                    || properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX) == null
-                                    || StringUtils.isEmpty((String) properties.get(URL_EXPIRY_DURATION_PROPERTY_INDEX).getValue())) {
-                                durationInMinutes = DEFAULT_URL_EXPIRY_IN_MINUTES;
-                            } else {
-                                try {
-                                    durationInMinutes = Integer
-                                            .parseInt(
-                                                    (String) properties
-                                                            .get(URL_EXPIRY_DURATION_PROPERTY_INDEX)
-                                                            .getValue()
-                                            );
-                                } catch (NumberFormatException e) {
-                                    return Mono.error(new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                            "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
-                                                    "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
-                                                    "any non-negative integer. Please note that the maximum expiry " +
-                                                    "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
-                                    ));
-                                }
+
+                            try {
+                                durationInMinutes = Integer.parseInt((String) getValueSafelyFromFormDataOrDefault(formData,
+                                        "list.expiry", DEFAULT_URL_EXPIRY_IN_MINUTES));
+                            } catch (NumberFormatException e) {
+                                return Mono.error(new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                        "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
+                                                "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
+                                                "any non-negative integer. Please note that the maximum expiry " +
+                                                "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
+                                ));
                             }
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(URL_EXPIRY_DURATION_PROPERTY_INDEX),
+
+                            requestParams.add(new RequestParamDTO("list.expiry",
                                     durationInMinutes, null, null, null));
 
                             Calendar calendar = Calendar.getInstance();
@@ -452,10 +442,11 @@ public class AmazonS3Plugin extends BasePlugin {
                             }
                         }
 
-                        if (properties.size() > GET_UNSIGNED_URL_PROPERTY_INDEX
-                                && properties.get(GET_UNSIGNED_URL_PROPERTY_INDEX) != null
-                                && properties.get(GET_UNSIGNED_URL_PROPERTY_INDEX).getValue().equals(YES)) {
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_UNSIGNED_URL_PROPERTY_INDEX), YES, null,
+                        String isUnsignedUrl = (String) getValueSafelyFromFormData(formData, "list.unSignedUrl");
+
+                        if (YES.equals(isUnsignedUrl)) {
+
+                            requestParams.add(new RequestParamDTO("list.unSignedUrl", YES, null,
                                     null, null));
                             ((ArrayList<Object>) actionResult).stream()
                                     .forEach(item -> ((Map) item)
@@ -464,39 +455,31 @@ public class AmazonS3Plugin extends BasePlugin {
                                                     connection.getUrl(bucketName, (String) ((Map) item).get("fileName")).toString() // value
                                             )
                                     );
-                        }
-                        else {
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_UNSIGNED_URL_PROPERTY_INDEX), NO, null,
+                        } else {
+                            requestParams.add(new RequestParamDTO("list.unSignedUrl", NO, null,
                                     null, null));
                         }
 
                         break;
                     case UPLOAD_FILE_FROM_BODY:
+
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
                         int durationInMinutes;
-                        if (properties.size() < (1 + URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
-                                || properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX) == null
-                                || StringUtils.isEmpty((String) properties.get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX).getValue())) {
-                            durationInMinutes = DEFAULT_URL_EXPIRY_IN_MINUTES;
-                        } else {
-                            try {
-                                durationInMinutes = Integer
-                                        .parseInt(
-                                                (String) properties
-                                                        .get(URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX)
-                                                        .getValue()
-                                        );
-                            } catch (NumberFormatException e) {
-                                return Mono.error(new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
-                                                "Expiry Duration of Signed URL' field is a valid number - i.e. any " +
-                                                "non-negative integer. Please note that the maximum expiry duration supported" +
-                                                " by Amazon S3 is 7 days i.e. 10080 minutes."
-                                ));
-                            }
+
+                        try {
+                            durationInMinutes = Integer.parseInt((String) getValueSafelyFromFormDataOrDefault(formData,
+                                    "create.expiry", DEFAULT_URL_EXPIRY_IN_MINUTES));
+                        } catch (NumberFormatException e) {
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
+                                            "input to 'Expiry Duration of Signed URL' field is a valid number - i.e. " +
+                                            "any non-negative integer. Please note that the maximum expiry " +
+                                            "duration supported by Amazon S3 is 7 days i.e. 10080 minutes."
+                            ));
                         }
+
                         requestProperties.put("expiry duration in minutes", String.valueOf(durationInMinutes));
 
                         Calendar calendar = Calendar.getInstance();
@@ -506,14 +489,15 @@ public class AmazonS3Plugin extends BasePlugin {
                         String expiryDateTimeString = dateTimeFormat.format(expiryDateTime);
 
                         String signedUrl;
-                        if (properties.size() > USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX
-                                && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX) != null
-                                && properties.get(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX).getValue().equals(YES)) {
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX), "Base64",
+
+                        String dataType = (String) getValueSafelyFromFormData(formData, "create.dataType");
+
+                        if (YES.equals(dataType)) {
+                            requestParams.add(new RequestParamDTO("create.dataType", "Base64",
                                     null, null, null));
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, true, expiryDateTime);
                         } else {
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX),
+                            requestParams.add(new RequestParamDTO("create.dataType",
                                     "Text / Binary", null, null, null));
                             signedUrl = uploadFileFromBody(connection, bucketName, path, body, false, expiryDateTime);
                         }
@@ -529,14 +513,15 @@ public class AmazonS3Plugin extends BasePlugin {
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
                         String result;
-                        if (properties.size() > READ_WITH_BASE64_ENCODING_PROPERTY_INDEX
-                                && properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX) != null
-                                && properties.get(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX).getValue().equals(YES)) {
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX),
+
+                        String isBase64 = (String) getValueSafelyFromFormData(formData, "read.usingBase64Encoding");
+
+                        if (YES.equals(isBase64)) {
+                            requestParams.add(new RequestParamDTO("read.usingBase64Encoding",
                                     YES, null, null, null));
                             result = readFile(connection, bucketName, path, true);
                         } else {
-                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(READ_WITH_BASE64_ENCODING_PROPERTY_INDEX),
+                            requestParams.add(new RequestParamDTO("read.usingBase64Encoding",
                                     NO, null, null, null));
                             result = readFile(connection, bucketName, path, false);
                         }
@@ -642,7 +627,7 @@ public class AmazonS3Plugin extends BasePlugin {
                  */
                 if (properties == null
                         || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
-                        || StringUtils.isEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
+                        || StringUtils.isNullOrEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -658,7 +643,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if (!usingCustomEndpoint
                         && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
                         || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
-                        || StringUtils.isEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
+                        || StringUtils.isNullOrEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -673,7 +658,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         && (datasourceConfiguration.getEndpoints() == null
                         || CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())
                         || datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX) == null
-                        || StringUtils.isEmpty(datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost()))) {
+                        || StringUtils.isNullOrEmpty(datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost()))) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -687,7 +672,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if (usingCustomEndpoint
                         && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                         || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                        || StringUtils.isEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
+                        || StringUtils.isNullOrEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -704,8 +689,8 @@ public class AmazonS3Plugin extends BasePlugin {
 
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null
-                        || StringUtils.isEmpty(authentication.getUsername())
-                        || StringUtils.isEmpty(authentication.getPassword())) {
+                        || StringUtils.isNullOrEmpty(authentication.getUsername())
+                        || StringUtils.isNullOrEmpty(authentication.getPassword())) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -804,13 +789,13 @@ public class AmazonS3Plugin extends BasePlugin {
                         "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again.");
             } else {
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (StringUtils.isBlank(authentication.getUsername())) {
+                if (StringUtils.isNullOrEmpty(authentication.getUsername())) {
                     invalids.add("Mandatory parameter 'Access Key' is empty. Did you forget to edit the 'Access Key' " +
                             "field in the datasource creation form ? You need to fill it with your AWS Access " +
                             "Key.");
                 }
 
-                if (StringUtils.isBlank(authentication.getPassword())) {
+                if (StringUtils.isNullOrEmpty(authentication.getPassword())) {
                     invalids.add("Mandatory parameter 'Secret Key' is empty. Did you forget to edit the 'Secret Key' " +
                             "field in the datasource creation form ? You need to fill it with your AWS Secret " +
                             "Key.");
@@ -827,7 +812,7 @@ public class AmazonS3Plugin extends BasePlugin {
              */
             if (properties == null
                     || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
-                    || StringUtils.isEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
+                    || StringUtils.isNullOrEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
                 invalids.add("Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
                         "reach out to Appsmith customer support to resolve this.");
             }
@@ -837,7 +822,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if (!usingCustomEndpoint
                     && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
                     || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
+                    || StringUtils.isNullOrEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
                 invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
                         " in the datasource creation form ? You need to fill it with the region where " +
                         "your AWS S3 instance is hosted.");
@@ -847,7 +832,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     && (datasourceConfiguration.getEndpoints() == null
                     || CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())
                     || datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX) == null
-                    || StringUtils.isEmpty(datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost()))) {
+                    || StringUtils.isNullOrEmpty(datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost()))) {
                 invalids.add("Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint" +
                         " URL' field in the datasource creation form ? You need to fill it with " +
                         "the endpoint URL of your S3 instance.");
@@ -856,7 +841,7 @@ public class AmazonS3Plugin extends BasePlugin {
             if (usingCustomEndpoint
                     && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                     || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
+                    || StringUtils.isNullOrEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
                 invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
                         " in the datasource creation form ? You need to fill it with the region where " +
                         "your S3 instance is hosted.");

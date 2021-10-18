@@ -28,12 +28,14 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -652,17 +654,14 @@ public class AmazonS3PluginTest {
         String dummyPath = "path";
         actionConfiguration.setPath(dummyPath);
 
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("action", "LIST")); // 0
-        properties.add(new Property("bucketName", "bucket_name")); // 1
-        properties.add(new Property("getSignedUrl", "NO")); // 2
-        properties.add(new Property(null, null)); // 3
-        properties.add(new Property(null, "")); // 4
-        properties.add(new Property(null, null)); // 5
-        properties.add(new Property(null, null)); // 6
-        properties.add(new Property(null, null)); // 7
-        properties.add(new Property("getUnsignedUrl", "YES")); // 8
-        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, "command", "LIST");
+        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
+        setValueSafelyInFormData(configMap, "list.signedUrl", "NO");
+        setValueSafelyInFormData(configMap, "list.unSignedUrl", "YES");
+        setValueSafelyInFormData(configMap, "list.prefix", "");
+
+        actionConfiguration.setFormData(configMap);
 
         ObjectListing mockObjectListing = mock(ObjectListing.class);
         AmazonS3 mockConnection = mock(AmazonS3.class);
