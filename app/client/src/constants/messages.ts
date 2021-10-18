@@ -765,3 +765,10 @@ export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
 export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
 export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
+//settings
+export const ADMIN_SETTINGS = () => "Admin Settings";
+export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
+export const RESTART_BANNER_HEADER = () => "Restarting Server";
+export const RESTART_ERROR_BODY = () =>
+  "Something went wrong. Please contact your administrator.";
+export const RESTART_ERROR_HEADER = () => "Restart failed";
