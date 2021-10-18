@@ -486,9 +486,7 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
-  "Hurray! Your application is ready to use.";
-export const GEN_CRUD_SUCCESS_DESC = () =>
-  "Search through your data in the table and update it using the form";
+  "Hurray! Your application is ready for use.";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
   "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
@@ -767,3 +765,16 @@ export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
 export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
 export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
+export const GO_TO_PAGE = () => "Go to page";
+export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
+export const HIDDEN_TOOLTIP = () => "Hidden";
+export const CLONE_TOOLTIP = () => "Clone";
+export const DELETE_TOOLTIP = () => "Delete";
+export const SETTINGS_TOOLTIP = () => "Settings";
+//settings
+export const ADMIN_SETTINGS = () => "Admin Settings";
+export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
+export const RESTART_BANNER_HEADER = () => "Restarting Server";
+export const RESTART_ERROR_BODY = () =>
+  "Something went wrong. Please contact your administrator.";
+export const RESTART_ERROR_HEADER = () => "Restart failed";

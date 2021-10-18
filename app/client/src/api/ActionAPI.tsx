@@ -93,6 +93,7 @@ export interface ActionResponse {
   suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
   errorType?: string;
+  readableError?: string;
 }
 
 export interface MoveActionRequest {

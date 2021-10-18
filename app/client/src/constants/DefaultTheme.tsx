@@ -6,6 +6,7 @@ import { Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
+import { typography, Typography, TypographyKeys } from "./typography";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -86,7 +87,10 @@ export const truncateTextUsingEllipsis = css`
   display: block;
 `;
 
-export const getTypographyByKey = (props: Record<string, any>, key: string) => `
+export const getTypographyByKey = (
+  props: Record<string, any>,
+  key: TypographyKeys,
+) => `
   font-weight: ${props.theme.typography[key].fontWeight};
   font-size: ${props.theme.typography[key].fontSize}px;
   line-height: ${props.theme.typography[key].lineHeight}px;
@@ -343,7 +347,7 @@ export type Theme = {
   spaces: Array<number>;
   fontWeights: Array<number>;
   colors: any;
-  typography: any;
+  typography: Typography;
   lineHeights: Array<number>;
   fonts: {
     code: FontFamily;
@@ -456,6 +460,11 @@ export type Theme = {
   };
   onboarding: {
     statusBarHeight: number;
+  };
+  settings: {
+    footerHeight: number;
+    footerShadow: string;
+    linkBg: string;
   };
 };
 
@@ -1258,6 +1267,13 @@ type ColorType = {
     background: string;
     buttonBackgroundHover: string;
     branchBtnText: string;
+  };
+  link: string;
+  welcomePage?: {
+    text: string;
+  };
+  settings: {
+    link: string;
   };
 };
 
@@ -2077,6 +2093,13 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const light: ColorType = {
@@ -2708,6 +2731,13 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const theme: Theme = {
@@ -2715,138 +2745,7 @@ export const theme: Theme = {
   fontSizes: [0, 10, 12, 14, 16, 18, 24, 28, 32, 48, 64],
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
-  typography: {
-    h1: {
-      fontSize: 20,
-      lineHeight: 27,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h2: {
-      fontSize: 18,
-      lineHeight: 25,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h3: {
-      fontSize: 17,
-      lineHeight: 22,
-      letterSpacing: -0.204,
-      fontWeight: 500,
-    },
-    h4: {
-      fontSize: 16,
-      lineHeight: 21,
-      letterSpacing: -0.24,
-      fontWeight: 500,
-    },
-    h5: {
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.24,
-      fontWeight: 500,
-    },
-    h6: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.8,
-      fontWeight: 500,
-    },
-    p1: {
-      fontSize: 14,
-      lineHeight: 19,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    p2: {
-      fontSize: 13,
-      lineHeight: 17,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    p3: {
-      fontSize: 12,
-      lineHeight: 16,
-      letterSpacing: -0.221538,
-      fontWeight: "normal",
-    },
-    p4: {
-      fontSize: 13,
-      lineHeight: 16,
-      letterSpacing: -0.221538,
-      fontWeight: 600,
-    },
-    btnLarge: {
-      fontSize: 13,
-      lineHeight: 15,
-      letterSpacing: 0.6,
-      fontWeight: 600,
-    },
-    btnMedium: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.6,
-      fontWeight: 600,
-    },
-    btnSmall: {
-      fontSize: 11,
-      lineHeight: 12,
-      letterSpacing: 0.4,
-      fontWeight: 600,
-    },
-    floatingBtn: {
-      fontSize: 14,
-      lineHeight: 17,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    releaseList: {
-      fontSize: 14,
-      lineHeight: 23,
-      letterSpacing: -0.24,
-      fontWeight: "normal",
-    },
-    cardHeader: {
-      fontStyle: "normal",
-      fontWeight: 600,
-      fontSize: 25,
-      lineHeight: 20,
-    },
-    cardSubheader: {
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 15,
-      lineHeight: 20,
-    },
-    largeH1: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 28,
-      lineHeight: 36,
-    },
-    docHeader: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 17,
-    },
-    spacedOutP1: {
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 14,
-      lineHeight: 24,
-    },
-    categoryBtn: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.2,
-      fontWeight: 500,
-    },
-    sideHeading: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 13,
-    },
-  },
+  typography: typography,
   iconSizes: {
     XXS: 8,
     XS: 10,
@@ -3109,6 +3008,11 @@ export const theme: Theme = {
   },
   onboarding: {
     statusBarHeight: 83,
+  },
+  settings: {
+    footerHeight: 84,
+    footerShadow: "0px 0px 18px -6px rgb(0, 0, 0, 0.25)",
+    linkBg: lightShades[2],
   },
 };
 
