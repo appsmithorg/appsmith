@@ -956,6 +956,26 @@ function* undoEndFirstTimeUserOnboardingSaga(action: ReduxAction<string>) {
   });
 }
 
+function* firstTimeUserOnboardingInitSaga(
+  action: ReduxAction<{ applicationId: string; pageId: string }>,
+) {
+  yield put({
+    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+    payload: true,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+    payload: action.payload.applicationId,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+    payload: true,
+  });
+  history.replace(
+    BUILDER_PAGE_URL(action.payload.applicationId, action.payload.pageId),
+  );
+}
+
 function* onboardingActionSagas() {
   yield all([
     takeLatest(
@@ -1020,6 +1040,10 @@ function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
       undoEndFirstTimeUserOnboardingSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
+      firstTimeUserOnboardingInitSaga,
     ),
   ]);
 }

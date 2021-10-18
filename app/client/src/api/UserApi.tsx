@@ -54,6 +54,8 @@ export interface InviteUserRequest {
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
+  role?: string;
+  useCase?: string;
 }
 
 export interface CommentsOnboardingStateRequest {
