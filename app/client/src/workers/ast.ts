@@ -4,15 +4,6 @@ import { ancestor } from "acorn-walk";
 
 export const getAST = (code: string) => parse(code, { ecmaVersion: 2020 });
 
-interface MemberExpressionNode extends Node {
-  object: Node & {
-    name: string;
-  };
-  property: Node & {
-    name: string;
-  };
-}
-
 export const getAllIdentifiers = (code: string): string[] => {
   const identifiers = new Set<string>();
   const locationsCovered: [number, number][] = [];
@@ -38,7 +29,6 @@ export const getAllIdentifiers = (code: string): string[] => {
     },
     Identifier(node: Node, ancestors: Node[]) {
       if (ancestors[ancestors.length - 2].type !== "MemberExpression") {
-        debugger;
         // @ts-ignore
         identifiers.add(node.name);
       }
