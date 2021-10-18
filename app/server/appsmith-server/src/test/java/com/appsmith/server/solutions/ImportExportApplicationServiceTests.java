@@ -205,7 +205,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null);
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null, "");
         
         StepVerifier
             .create(resultMono)
@@ -217,7 +217,7 @@ public class ImportExportApplicationServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
-        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId);
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
         StepVerifier
                 .create(resultMono)
@@ -235,7 +235,7 @@ public class ImportExportApplicationServiceTests {
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithoutActionsAndDatasourceTest() {
 
-        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId);
+        final Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
@@ -285,7 +285,7 @@ public class ImportExportApplicationServiceTests {
                             applicationPageService.createApplication(testApplication, orgId)
                     );
                 })
-                .flatMap(tuple -> importExportApplicationService.exportApplicationById(tuple.getT3().getId()));
+                .flatMap(tuple -> importExportApplicationService.exportApplicationById(tuple.getT3().getId(), ""));
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
@@ -384,7 +384,7 @@ public class ImportExportApplicationServiceTests {
                             .then(layoutActionService.createSingleAction(action))
                             .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                             .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
-                            .then(importExportApplicationService.exportApplicationById(testApp.getId()));
+                            .then(importExportApplicationService.exportApplicationById(testApp.getId(), ""));
                 });
 
         StepVerifier

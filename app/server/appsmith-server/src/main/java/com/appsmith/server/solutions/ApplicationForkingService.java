@@ -32,6 +32,7 @@ public class ApplicationForkingService {
     private final PolicyUtils policyUtils;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
+    private final SanitiseResponse sanitiseResponse;
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
@@ -73,6 +74,14 @@ public class ApplicationForkingService {
                             .flatMap(application ->
                                     sendForkApplicationAnalyticsEvent(srcApplicationId, targetOrganizationId, application));
                 });
+    }
+
+    public Mono<Application> forkApplicationToOrganization(String srcApplicationId,
+                                                           String targetOrganizationId,
+                                                           String branchName) {
+        return applicationService.findChildApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
+                .flatMap(branchedApplicationId -> forkApplicationToOrganization(branchedApplicationId, targetOrganizationId))
+                .map(sanitiseResponse::sanitiseApplication);
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String orgId, Application application) {

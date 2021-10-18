@@ -159,7 +159,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .findChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                 .flatMapMany(childApplicationId ->
                     repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, READ_ACTIONS)
                 )

@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
@@ -204,7 +205,9 @@ public class ExamplesOrganizationCloner {
                     final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
-
+                    DefaultResources defaults = new DefaultResources();
+                    defaults.setDefaultApplicationId(newPage.getApplicationId());
+                    newPage.setDefaultResources(defaults);
                     makePristine(newPage);
                     PageDTO page = newPage.getUnpublishedPage();
 
@@ -215,7 +218,7 @@ public class ExamplesOrganizationCloner {
                     }
 
                     page.setApplicationId(newPage.getApplicationId());
-
+                    page.setDefaultResources(defaults);
                     return applicationPageService
                             .createPage(page)
                             .flatMap(savedPage ->

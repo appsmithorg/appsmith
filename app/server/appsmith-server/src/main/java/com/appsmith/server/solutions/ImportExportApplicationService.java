@@ -319,8 +319,9 @@ public class ImportExportApplicationService {
                 .thenReturn(applicationJson);
     }
 
-    public Mono<ApplicationJson> exportApplicationById(String applicationId) {
-        return exportApplicationById(applicationId, SerialiseApplicationObjective.SHARE);
+    public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
+        return applicationService.findChildApplicationId(branchName, applicationId, AclPermission.EXPORT_APPLICATIONS)
+                .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
 
     /**
@@ -511,9 +512,12 @@ public class ImportExportApplicationService {
                                 .flatMap(application -> {
                                     // Application Id will be present for GIT sync
                                     if (applicationId != null) {
-                            return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+                                        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
                                                 .switchIfEmpty(
-                                    Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                                                        Mono.error(new AppsmithException(
+                                                                AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                                FieldName.APPLICATION_ID,
+                                                                applicationId))
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
@@ -522,8 +526,7 @@ public class ImportExportApplicationService {
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
                                                     // the changes from remote
-
-                                    return applicationService.save(existingApplication);
+                                                    return applicationService.save(existingApplication);
                                                 });
                                     }
                                     return applicationService

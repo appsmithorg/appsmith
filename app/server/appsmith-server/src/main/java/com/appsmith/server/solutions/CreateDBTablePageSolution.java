@@ -14,6 +14,7 @@ import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -59,6 +60,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -72,6 +76,7 @@ public class CreateDBTablePageSolution {
     private final PluginService pluginService;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
+    private final SanitiseResponse sanitiseResponse;
     
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -119,11 +124,11 @@ public class CreateDBTablePageSolution {
     /**
      * This function will clone template page along with the actions. DatasourceStructure is used to map the
      * templateColumns with the datasource under consideration
-     * @param pageId for which the template page needs to be replicated
+     * @param defaultPageId for which the template page needs to be replicated
      * @param pageResourceDTO
      * @return generated pageDTO from the template resource
      */
-    public Mono<CRUDPageResponseDTO> createPageFromDBTable(String pageId,
+    public Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
                                                            CRUDPageResourceDTO pageResourceDTO,
                                                            String branchName) {
 
@@ -162,11 +167,7 @@ public class CreateDBTablePageSolution {
         Map<String, String> mappedColumnsAndTableName = new HashMap<>();
 
         // Fetch branched applicationId if connected to git
-        Mono<String> branchedApplicationIdMono = applicationService
-                .getChildApplicationId(branchName, defaultApplicationId, AclPermission.MANAGE_APPLICATIONS);
-
-        Mono<NewPage> pageMono = branchedApplicationIdMono
-                .flatMap(applicationId -> getOrCreatePage(applicationId, pageId, tableName, branchName));
+        Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<Datasource> datasourceMono = datasourceService
             .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
@@ -238,7 +239,7 @@ public class CreateDBTablePageSolution {
                         StringUtils.equals(datasource1.getPluginId(), plugin.getPackageName())
                             // In template resource we have used Postgresql as a representative of all sql datasource
                             // as the actionBodies will be same
-                        || (StringUtils.equals(datasource1.getPluginId(), "postgres-plugin")
+                        || (StringUtils.equals(datasource1.getPluginId(), Entity.POSTGRES_PLUGIN_PACKAGE_NAME)
                             && sqlPackageNames.contains(plugin.getPackageName()))
                     )
                     .findAny()
@@ -314,7 +315,7 @@ public class CreateDBTablePageSolution {
                         newAction.getUnpublishedAction().getPageId(),
                         plugin.getGenerateCRUDPageComponent())
                     )
-                    .peek(newAction -> newAction.setBranchName(branchName))
+                    .peek(newAction -> newAction.setDefaultResources(page.getDefaultResources()))
                     .collect(Collectors.toList());
 
                 // Extract S3 bucket name from template application and map to users bucket. Bucket name is stored at
@@ -346,7 +347,7 @@ public class CreateDBTablePageSolution {
                 Plugin plugin = tuple.getT4();
                 String tableNameInAction = tuple.getT5();
                 String savedPageId =  tuple.getT6();
-                log.debug("Going to clone actions from template application");
+                log.debug("Going to clone actions from template application for page {}", savedPageId);
                 return cloneActionsFromTemplateApplication(datasource,
                                                             tableNameInAction,
                                                             savedPageId,
@@ -365,7 +366,12 @@ public class CreateDBTablePageSolution {
                             CRUDPageResponseDTO crudPage = new CRUDPageResponseDTO();
                             crudPage.setPage(pageDTO);
                             createSuccessMessageAndSetAsset(plugin, crudPage);
-                            return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName());
+                            return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName())
+                                    .map(res -> {
+                                        PageDTO sanitisedResponse = sanitiseResponse.sanitisePageDTO(res.getPage());
+                                        crudPage.setPage(sanitisedResponse);
+                                        return crudPage;
+                                    });
                         })
                     );
             });
@@ -373,12 +379,13 @@ public class CreateDBTablePageSolution {
 
 
     /**
-     * @param applicationId application from which the page should be fetched
-     * @param pageId ref to page which is going to be fetched
+     * @param defaultApplicationId application from which the page should be fetched
+     * @param defaultPageId default page for which equivalent branched page is going to be fetched
      * @param tableName if page is not present then name of the page name should include tableName
+     * @param branchName branch of which the page needs to be fetched
      * @return NewPage if not present already with the incremental suffix number to avoid duplicate application names
      */
-    private Mono<NewPage> getOrCreatePage(String applicationId, String pageId, String tableName, String branchName) {
+    private Mono<NewPage> getOrCreatePage(String defaultApplicationId, String defaultPageId, String tableName, String branchName) {
 
         /*
             1. Check if the page is already available
@@ -386,11 +393,11 @@ public class CreateDBTablePageSolution {
             3. If page is not present create new page and return
         */
 
-        log.debug("Fetching page from application {}, defaultPageId {}", applicationId, pageId);
-        if(pageId != null) {
-            return newPageService.findPageByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+        log.debug("Fetching page from application {}, defaultPageId {}, branchName {}", defaultApplicationId, defaultPageId, branchName);
+        if(defaultPageId != null) {
+            return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                 )
                 .map(newPage -> {
                     Layout layout = newPage.getUnpublishedPage().getLayouts().get(0);
@@ -401,31 +408,35 @@ public class CreateDBTablePageSolution {
                 });
         }
 
-        return newPageService.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES, false)
-            .collectList()
-            .flatMap(pages -> {
-                // Avoid duplicating page names
-                String pageName = WordUtils.capitalize(tableName);
-                long maxCount = 0L;
-                for (PageDTO pageDTO : pages) {
-                    if (pageDTO.getName().matches("^" + Pattern.quote(pageName) + "\\d*$")) {
-                        long count = 1L;
-                        String pageCount = pageDTO.getName().substring(pageName.length());
-                        if (!pageCount.isEmpty()) {
-                            count = Long.parseLong(pageCount);
+        return applicationService.findChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, MANAGE_PAGES, false))
+                .collectList()
+                .flatMap(pages -> {
+                    // Avoid duplicating page names
+                    String applicationId = pages.get(0).getApplicationId();
+                    String pageName = WordUtils.capitalize(tableName);
+                    long maxCount = 0L;
+                    for (PageDTO pageDTO : pages) {
+                        if (pageDTO.getName().matches("^" + Pattern.quote(pageName) + "\\d*$")) {
+                            long count = 1L;
+                            String pageCount = pageDTO.getName().substring(pageName.length());
+                            if (!pageCount.isEmpty()) {
+                                count = Long.parseLong(pageCount);
+                            }
+                            maxCount = maxCount <= count ? count + 1 : maxCount;
                         }
-                        maxCount = maxCount <= count ? count + 1 : maxCount;
-                    }
 
-                }
-                pageName = maxCount != 0 ? pageName + maxCount : pageName;
-                PageDTO page = new PageDTO();
-                page.setApplicationId(applicationId);
-                page.setName(pageName);
-                page.setBranchName(branchName);
-                return applicationPageService.createPage(page);
-            })
-            .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), AclPermission.MANAGE_PAGES));
+                    }
+                    pageName = maxCount != 0 ? pageName + maxCount : pageName;
+                    PageDTO page = new PageDTO();
+                    page.setApplicationId(applicationId);
+                    page.setName(pageName);
+                    DefaultResources defaultResources = new DefaultResources();
+                    defaultResources.setBranchName(branchName);
+                    defaultResources.setDefaultApplicationId(defaultApplicationId);
+                    return applicationPageService.createPage(page);
+                })
+                .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), MANAGE_PAGES));
     }
 
     /**
@@ -509,7 +520,7 @@ public class CreateDBTablePageSolution {
                 actionDTO.setDatasource(datasource);
                 actionDTO.setPageId(pageId);
                 actionDTO.setName(templateAction.getUnpublishedAction().getName());
-                actionDTO.setBranchName(templateAction.getBranchName());
+                actionDTO.setDefaultResources(templateAction.getDefaultResources());
 
                 String actionBody = templateActionConfiguration.getBody();
                 actionDTO.setActionConfiguration(templateActionConfiguration);

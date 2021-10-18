@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.ActionDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,10 +42,9 @@ public class NewAction extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String gitSyncId;
 
-    // This field will be used to store the default/root actionId for actions generated for git connected applications
-    // and will be used to connect actions across the branches
-    String defaultActionId;
-
-    String branchName;
+    // This field will be used to store the default/root actionId and applicationId for actions generated for git
+    // connected applications and will be used to connect actions across the branches
+    @JsonIgnore
+    DefaultResources defaultResources;
 
 }

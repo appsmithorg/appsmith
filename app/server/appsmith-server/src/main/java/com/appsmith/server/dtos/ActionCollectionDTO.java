@@ -3,6 +3,7 @@ package com.appsmith.server.dtos;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -70,6 +71,10 @@ public class ActionCollectionDTO {
 
     // This list is currently used to record constants
     List<JSValue> variables;
+
+    // This will be used to store the defaultPageId and branchName for branching model in git sync
+    @JsonIgnore
+    DefaultResources defaultResources;
 
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();

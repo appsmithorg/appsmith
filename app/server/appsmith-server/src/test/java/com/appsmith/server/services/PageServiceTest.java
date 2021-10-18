@@ -422,7 +422,7 @@ public class PageServiceTest {
                     pageIds[1] = application.getPages().get(1).getId();
                     pageIds[2] = application.getPages().get(2).getId();
                     pageIds[3] = application.getPages().get(3).getId();
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 1);
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(3).getId(), 1, null);
                 });
 
         StepVerifier
@@ -473,7 +473,7 @@ public class PageServiceTest {
                     pageIds[1] = application.getPages().get(1).getId();
                     pageIds[2] = application.getPages().get(2).getId();
                     pageIds[3] = application.getPages().get(3).getId();
-                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3);
+                    return applicationPageService.reorderPage(application.getId(), application.getPages().get(0).getId(), 3, null);
                 });
 
         StepVerifier

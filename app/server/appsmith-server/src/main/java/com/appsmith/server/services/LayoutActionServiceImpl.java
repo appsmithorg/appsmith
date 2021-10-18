@@ -9,6 +9,7 @@ import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -26,6 +27,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
+import com.appsmith.server.solutions.SanitiseResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +75,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final ActionCollectionService actionCollectionService;
     private final CollectionService collectionService;
     private final ApplicationService applicationService;
+    private final SanitiseResponse sanitiseResponse;
+
     private JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
@@ -199,6 +203,36 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
+    public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO, String branchName) {
+
+        final String defaultDestinationPageId = actionMoveDTO.getDestinationPageId();
+        Mono<String> toPageMono = newPageService
+                .findPageByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .map(NewPage::getId);
+
+        // As client only have default page Id it will be sent under action and not the action.defaultResources
+        Mono<String> fromPageMono = newPageService
+                .findPageByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getAction().getPageId(), MANAGE_PAGES)
+                .map(NewPage::getId);;
+
+        Mono<String> branchedActionMono = newActionService
+                .findActionByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), MANAGE_ACTIONS)
+                .map(NewAction::getId);
+
+        return Mono.zip(toPageMono, fromPageMono, branchedActionMono)
+                .flatMap(tuple -> {
+                    String toPageId = tuple.getT1();
+                    String fromPageId = tuple.getT2();
+                    String branchedActionId = tuple.getT3();
+                    actionMoveDTO.setDestinationPageId(toPageId);
+                    actionMoveDTO.getAction().setPageId(fromPageId);
+                    actionMoveDTO.getAction().setId(branchedActionId);
+                    return moveAction(actionMoveDTO);
+                })
+                .map(sanitiseResponse::sanitiseActionDTO);
+    }
+
+    @Override
     public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO) {
         String pageId = refactorNameDTO.getPageId();
         String layoutId = refactorNameDTO.getLayoutId();
@@ -248,6 +282,19 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return newActionService.updateUnpublishedAction(actionId, action);
                 })
                 .then(refactorName(pageId, layoutId, oldFullyQualifiedName, newFullyQualifiedName));
+    }
+
+    @Override
+    public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO, String branchName) {
+
+        String defaultActionId = refactorActionNameDTO.getActionId();
+        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+                .flatMap(branchedAction -> {
+                    refactorActionNameDTO.setActionId(branchedAction.getId());
+                    refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
+                    return refactorActionName(refactorActionNameDTO);
+                })
+                .map(sanitiseResponse::sanitiseLayoutDTO);
     }
 
     /**
@@ -626,7 +673,16 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .flatMap(savedAction -> updatePageLayoutsGivenAction(savedAction.getPageId()))
                 // Return back the updated action.
                 .then(updateUnpublishedAction);
+    }
 
+    @Override
+    public Mono<ActionDTO> updateSingleActionWithBranchName(String defaultActionId, ActionDTO action, String branchName) {
+
+        action.setApplicationId(null);
+        action.setPageId(null);
+        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+                .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
+                .map(sanitiseResponse::sanitiseActionDTO);
     }
 
     @Override
@@ -648,6 +704,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
+    @Override
+    public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
+        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+                .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
+                .map(sanitiseResponse::sanitiseActionDTO);
+    }
+
     /**
      * - Delete action.
      * - Update page layout since a deleted action cannot be marked as on page load.
@@ -660,6 +723,12 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     ActionDTO actionDTO = tuple.getT1();
                     return Mono.just(actionDTO);
                 });
+    }
+
+    public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
+        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+                .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
+                .map(sanitiseResponse::sanitiseActionDTO);
     }
 
     private Mono<String> updatePageLayoutsGivenAction(String pageId) {
@@ -883,10 +952,29 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
-    public Mono<ActionDTO> createSingleAction(ActionDTO action, String branchName) {
+    public Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName) {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        action.setBranchName(branchName);
-        return createAction(action, eventContext);
+        DefaultResources defaultResources = action.getDefaultResources() == null ? new DefaultResources(): action.getDefaultResources();
+        defaultResources.setBranchName(branchName);
+        if (StringUtils.isEmpty(defaultResources.getDefaultPageId())) {
+            defaultResources.setDefaultPageId(action.getPageId());
+        }
+        if (StringUtils.isEmpty(defaultResources.getDefaultApplicationId())) {
+            defaultResources.setDefaultApplicationId(action.getApplicationId());
+        }
+        if (StringUtils.isEmpty(defaultResources.getDefaultActionCollectionId())) {
+            defaultResources.setDefaultApplicationId(action.getCollectionId());
+        }
+
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultResources.getDefaultPageId(), MANAGE_PAGES)
+                .flatMap(newPage -> {
+                    // Update the page and application id with branched resource
+                    action.setPageId(newPage.getId());
+                    action.setApplicationId(newPage.getApplicationId());
+                    action.setDefaultResources(defaultResources);
+                    return createAction(action, eventContext);
+                })
+                .map(sanitiseResponse::sanitiseActionDTO);
     }
 
     @Override
@@ -897,6 +985,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
+
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -912,11 +1001,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         NewAction newAction = new NewAction();
         newAction.setPublishedAction(new ActionDTO());
         newAction.getPublishedAction().setDatasource(new Datasource());
-        newAction.setBranchName(action.getBranchName());
-        newAction.setDefaultActionId(action.getDefaultActionId());
+
+        newAction.setDefaultResources(action.getDefaultResources());
 
         Mono<NewPage> pageMono = newPageService
-                // We are considering the pageId is not the defaultPageId but the actual
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))

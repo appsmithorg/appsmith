@@ -21,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
@@ -62,6 +63,7 @@ public class GitServiceImpl implements GitService {
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
+    private final SanitiseResponse sanitiseResponse;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "Appsmith default generated commit";
 
@@ -158,7 +160,7 @@ public class GitServiceImpl implements GitService {
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
                 );
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName)))
             .flatMap(childApplication -> publishAndOrGetApplication(childApplication.getId(), commitDTO.getDoPush()))
             .flatMap(childApplication -> {
@@ -256,7 +258,7 @@ public class GitServiceImpl implements GitService {
 
         String branchName = params.getFirst(FieldName.BRANCH_NAME);
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, READ_APPLICATIONS)
             .map(application -> {
                 GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                 if ( gitData == null || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
@@ -406,7 +408,7 @@ public class GitServiceImpl implements GitService {
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
-        return applicationService.getChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(
                 AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, "for " + defaultApplicationId
             )))
@@ -509,7 +511,7 @@ public class GitServiceImpl implements GitService {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findApplicationByBranchNameAndDefaultApplication(srcBranch, defaultApplicationId, MANAGE_APPLICATIONS)
             .flatMap(srcApplication -> {
                 GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
                 if (srcBranchGitData == null
@@ -548,7 +550,8 @@ public class GitServiceImpl implements GitService {
                     tuple.getT2(),
                     savedApplication.getId()
                 );
-            });
+            })
+            .map(sanitiseResponse::sanitiseApplication);
     }
 
     public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
@@ -561,10 +564,11 @@ public class GitServiceImpl implements GitService {
                 if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                     throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
                 }
-                return applicationService.getApplicationByBranchNameAndDefaultApplication(
+                return applicationService.findApplicationByBranchNameAndDefaultApplication(
                     branchName, defaultApplicationId, READ_APPLICATIONS
                 );
-            });
+            })
+            .map(sanitiseResponse::sanitiseApplication);
     }
 
     private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {
@@ -609,7 +613,7 @@ public class GitServiceImpl implements GitService {
                                 Mono.just(application.getGitApplicationMetadata())
                         );
                     } else {
-                        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                        return applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                                 .flatMap(application1 -> Mono.zip(
                                         Mono.just(application1),
                                         importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
@@ -747,7 +751,7 @@ public class GitServiceImpl implements GitService {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
-        return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();

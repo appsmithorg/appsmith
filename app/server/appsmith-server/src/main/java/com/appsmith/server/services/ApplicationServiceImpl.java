@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.solutions.SanitiseResponse;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
@@ -56,6 +57,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
+    private final SanitiseResponse sanitiseResponse;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -67,12 +69,14 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
-                                  SessionUserService sessionUserService) {
+                                  SessionUserService sessionUserService,
+                                  SanitiseResponse sanitiseResponse) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
+        this.sanitiseResponse = sanitiseResponse;
     }
 
     @Override
@@ -102,7 +106,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         if (StringUtils.isEmpty(branchName)) {
             return this.getById(id);
         }
-        return this.getChildApplicationId(branchName, id, READ_APPLICATIONS)
+        return this.findChildApplicationId(branchName, id, READ_APPLICATIONS)
             .flatMap(this::getById);
     }
 
@@ -222,16 +226,23 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
+    public Mono<Application> changeViewAccess(String defaultApplicationId,
+                                              String branchName,
+                                              ApplicationAccessDTO applicationAccessDTO) {
+        return this.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
+                .map(sanitiseResponse::sanitiseApplication);
+    }
+
+    @Override
     public Flux<Application> findAllApplicationsByOrganizationId(String organizationId) {
         return repository.findByOrganizationId(organizationId);
     }
 
     @Override
     public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
-            return getApplicationInViewMode(defaultApplicationId);
-        }
-        return getChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+
+        return this.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
             .flatMap(this::getApplicationInViewMode);
     }
 
@@ -440,9 +451,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
-                                                                             String defaultApplicationId,
-                                                                             AclPermission aclPermission){
+    public Mono<Application> findApplicationByBranchNameAndDefaultApplication(String branchName,
+                                                                              String defaultApplicationId,
+                                                                              AclPermission aclPermission){
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
@@ -470,7 +481,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
     }
 
-    public Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
+    public Mono<String> findChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
         if (StringUtils.isEmpty(branchName)) {
             return Mono.just(defaultApplicationId);
         }

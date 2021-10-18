@@ -639,7 +639,7 @@ public class ApplicationServiceTest {
                 .cache();
 
         Mono<Application> applicationMono = testApplicationMono
-                .flatMap(application -> applicationPageService.cloneApplication(application.getId()))
+                .flatMap(application -> applicationPageService.cloneApplication(application.getId(), null))
                 .cache();
 
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
@@ -992,7 +992,7 @@ public class ApplicationServiceTest {
         ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
 
         // Trigger the clone of application now.
-        applicationPageService.cloneApplication(originalApplication.getId())
+        applicationPageService.cloneApplication(originalApplication.getId(), null)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
@@ -1102,7 +1102,7 @@ public class ApplicationServiceTest {
 
         Mono<ApplicationPagesDTO> applicationPagesDTOMono = createApplicationMono
                 .map(application -> application.getId())
-                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, false));
+                .flatMap(applicationId -> newPageService.findApplicationPagesByApplicationIdViewMode(applicationId, false));
 
         StepVerifier
                 .create(applicationPagesDTOMono)

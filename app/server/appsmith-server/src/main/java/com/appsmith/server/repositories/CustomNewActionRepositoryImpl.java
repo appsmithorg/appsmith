@@ -3,9 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.QNewAction;
-import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -298,8 +296,8 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<NewAction> findActionByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
-        Criteria defaultPageIdCriteria = where(fieldName(QNewPage.newPage.defaultPageId)).is(defaultActionId);
-        Criteria branchCriteria = where(fieldName(QNewPage.newPage.branchName)).is(branchName);
+        Criteria defaultPageIdCriteria = where(fieldName(QNewAction.newAction.defaultResources.defaultActionId)).is(defaultActionId);
+        Criteria branchCriteria = where(fieldName(QNewAction.newAction.defaultResources.branchName)).is(branchName);
         return queryOne(List.of(defaultPageIdCriteria, branchCriteria), permission);
     }
 }

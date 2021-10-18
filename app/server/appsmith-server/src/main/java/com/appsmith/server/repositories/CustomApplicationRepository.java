@@ -23,7 +23,7 @@ public interface CustomApplicationRepository extends AppsmithRepository<Applicat
 
     Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
-    Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault);
+    Mono<UpdateResult> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId);
 
     Mono<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages);
 

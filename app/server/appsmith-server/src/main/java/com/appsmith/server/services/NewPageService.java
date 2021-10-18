@@ -32,11 +32,11 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<Void> deleteAll();
 
-    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId,
-                                                                             String branchName,
-                                                                             Boolean view);
+    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(String applicationId,
+                                                                                   String branchName,
+                                                                                   Boolean view);
 
-    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, Boolean view);
+    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view);
 
     Layout createDefaultLayout();
 
@@ -50,7 +50,7 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<PageDTO> updatePage(String pageId, PageDTO page);
 
-    Mono<PageDTO> updatePage(String pageId, PageDTO page, String branchName);
+    Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName);
 
     Mono<NewPage> save(NewPage page);
 

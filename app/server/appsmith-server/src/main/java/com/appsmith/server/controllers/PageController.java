@@ -12,12 +12,10 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
-import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,77 +38,74 @@ public class PageController {
     private final ApplicationPageService applicationPageService;
     private final NewPageService newPageService;
     private final CreateDBTablePageSolution createDBTablePageSolution;
-    private final SanitiseResponse sanitiseResponse;
 
     @Autowired
     public PageController(ApplicationPageService applicationPageService,
                           NewPageService newPageService,
-                          CreateDBTablePageSolution createDBTablePageSolution,
-                          SanitiseResponse sanitiseResponse
+                          CreateDBTablePageSolution createDBTablePageSolution
     ) {
         this.applicationPageService = applicationPageService;
         this.newPageService = newPageService;
         this.createDBTablePageSolution = createDBTablePageSolution;
-        this.sanitiseResponse = sanitiseResponse;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<PageDTO>> createPage(@Valid @RequestBody PageDTO resource,
-                                                 @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
                                                  @RequestHeader(name = "Origin", required = false) String originHeader,
                                                  ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return applicationPageService.createPage(resource, branchName)
+        return applicationPageService.createPageWithBranchName(resource, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PostMapping("/crud-page")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(@RequestBody @NonNull CRUDPageResourceDTO resource,
-                                                                 @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to create crud-page in application {}", resource.getApplicationId());
+                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to create crud-page in application {}, branchName {}", resource.getApplicationId(), branchName);
         return createDBTablePageSolution.createPageFromDBTable(null, resource, branchName)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
     
-    @PutMapping("/crud-page/{pageId}")
+    @PutMapping("/crud-page/{defaultPageId}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(@PathVariable String pageId,
+    public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(@PathVariable String defaultPageId,
                                                                  @NonNull @RequestBody CRUDPageResourceDTO resource,
-                                                                 @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to create CRUD page {}", pageId);
-        return createDBTablePageSolution.createPageFromDBTable(pageId, resource, branchName)
+                                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to create CRUD page {}, branchName {}", defaultPageId, branchName);
+        return createDBTablePageSolution.createPageFromDBTable(defaultPageId, resource, branchName)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @Deprecated
     @GetMapping("/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId,
-                                                                              @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, branchName, false)
+                                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newPageService.findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, false)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/view/application/{applicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId,
-                                                                                        @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, branchName, true)
+                                                                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newPageService.findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, true)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @GetMapping("/{pageId}")
-    public Mono<ResponseDTO<PageDTO>> getPageById(@PathVariable String pageId,
-                                                  @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationPageService.getPage(pageId, branchName, false)
+    @GetMapping("/{defaultPageId}")
+    public Mono<ResponseDTO<PageDTO>> getPageById(@PathVariable String defaultPageId,
+                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationPageService.getPageByBranchAndDefaultPageId(defaultPageId, branchName, false)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
 
-    @GetMapping("/{pageId}/view")
-    public Mono<ResponseDTO<PageDTO>> getPageView(@PathVariable String pageId,
-                                                  @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationPageService.getPage(pageId, branchName, true)
+    @GetMapping("/{defaultPageId}/view")
+    public Mono<ResponseDTO<PageDTO>> getPageView(@PathVariable String defaultPageId,
+                                                  @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationPageService.getPageByBranchAndDefaultPageId(defaultPageId, branchName, true)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
@@ -125,31 +120,31 @@ public class PageController {
      * In case the page has never been published, the page gets deleted.
      * In case the page has been published, this page would eventually get deleted whenever the application is published
      * next.
-     * @param pageId     defaultPageId which will be needed to find the actual page that needs to be deleted
-     * @param branchName git branch to find the exact page which needs to be deleted
-     * @return           deleted page DTO
+     * @param defaultPageId defaultPageId which will be needed to find the actual page that needs to be deleted
+     * @param branchName    git branch to find the exact page which needs to be deleted
+     * @return              deleted page DTO
      */
-    @DeleteMapping("/{pageId}")
-    public Mono<ResponseDTO<PageDTO>> deletePage(@PathVariable String pageId,
-                                                 @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to delete page with id: {}, branchName: {}", pageId, branchName);
-        return applicationPageService.deleteUnpublishedPage(pageId, branchName)
+    @DeleteMapping("/{defaultPageId}")
+    public Mono<ResponseDTO<PageDTO>> deletePage(@PathVariable String defaultPageId,
+                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to delete page with id: {}, branchName: {}", defaultPageId, branchName);
+        return applicationPageService.deleteUnpublishedPageByBranchAndDefaultPageId(defaultPageId, branchName)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
-    @PostMapping("/clone/{pageId}")
-    public Mono<ResponseDTO<PageDTO>> clonePage(@PathVariable String pageId,
-                                                @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return applicationPageService.clonePage(pageId, branchName)
+    @PostMapping("/clone/{defaultPageId}")
+    public Mono<ResponseDTO<PageDTO>> clonePage(@PathVariable String defaultPageId,
+                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return applicationPageService.clonePageByDefaultPageAndBranch(defaultPageId, branchName)
                 .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
     }
 
-    @PutMapping("/{pageId}")
-    public Mono<ResponseDTO<PageDTO>> updatePage(@PathVariable String pageId,
+    @PutMapping("/{defaultPageId}")
+    public Mono<ResponseDTO<PageDTO>> updatePage(@PathVariable String defaultPageId,
                                                  @RequestBody PageDTO resource,
-                                                 @CookieValue(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to update page with id: {}, branchName: {}", pageId, branchName);
-        return newPageService.updatePage(pageId, resource, branchName)
+                                                 @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update page with id: {}, branchName: {}", defaultPageId, branchName);
+        return newPageService.updatePageByDefaultPageIdAndBranch(defaultPageId, resource, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 }

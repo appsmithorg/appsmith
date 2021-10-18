@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -25,17 +26,8 @@ public class PageDTO {
 
     String name;
 
-    // This will be defaultApplicationId if this application is connected with git
     @Transient
     String applicationId;
-
-    // This field will be used to store the page for specific branch in git
-    @Transient
-    String branchName;
-
-    // This field will be used to store the default/root PageId for pages generated for git connected applications
-    @Transient
-    String defaultPageId;
 
     List<Layout> layouts;
 
@@ -53,4 +45,7 @@ public class PageDTO {
     @Transient
     Long lastUpdatedTime;
 
+    // This field will be used to store the default/root pageId and applicationId for actions generated for git
+    // connected applications and will be used to connect actions across the branches
+    DefaultResources defaultResources;
 }

@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -25,6 +26,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.solutions.SanitiseResponse;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +70,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
 
-    public Mono<PageDTO> createPage(PageDTO page, String branchName) {
+    private final SanitiseResponse sanitiseResponse;
+
+    public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         } else if (page.getName() == null) {
@@ -93,15 +97,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             }
         }
 
-        // Fetch the branched application if connected to git and update the applicationId with branched application in
-        // page resource
-        Mono<Application> applicationMono = applicationService
-                .getApplicationByBranchNameAndDefaultApplication(branchName, page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
-                .map(application -> {
-                    page.setApplicationId(application.getId());
-                    page.setBranchName(branchName);
-                    return application;
-                })
+        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, page.getApplicationId())))
                 .cache();
 
         Mono<PageDTO> pageMono = applicationMono
@@ -123,8 +120,25 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    public Mono<PageDTO> createPage(PageDTO page) {
-        return createPage(page, page.getBranchName());
+    public Mono<PageDTO> createPageWithBranchName(PageDTO page, String branchName) {
+
+        DefaultResources defaultResources = page.getDefaultResources() == null ? new DefaultResources() : page.getDefaultResources();
+        if (StringUtils.isEmpty(defaultResources.getDefaultApplicationId())) {
+            // Client will be aware of default application Id only so we are safe to assume this
+            defaultResources.setDefaultApplicationId(page.getApplicationId());
+        }
+        defaultResources.setBranchName(branchName);
+        return applicationService.findChildApplicationId(branchName, defaultResources.getDefaultApplicationId(), MANAGE_PAGES)
+                .flatMap(branchedApplicationId -> {
+                    page.setApplicationId(branchedApplicationId);
+                    return createPage(page);
+                })
+                .map(pageDTO -> {
+                    if (StringUtils.isEmpty(defaultResources.getDefaultPageId())) {
+                        defaultResources.setDefaultPageId(page.getId());
+                    }
+                    return sanitiseResponse.sanitisePageDTO(page);
+                });
     }
 
     /**
@@ -137,8 +151,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      */
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
+
+        String defaultPageId = page.getDefaultResources() == null || StringUtils.isEmpty(page.getDefaultResources().getDefaultPageId())
+                ? page.getId() : page.getDefaultResources().getDefaultPageId();
         if(isDuplicatePage(application, page.getId())) {
-            return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault)
+            return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
                     .doOnSuccess(result -> {
                         if (result.getModifiedCount() != 1) {
                             log.error("Add page to application didn't update anything, probably because application wasn't found.");
@@ -185,11 +202,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<PageDTO> getPage(String pageId, String branchName, boolean viewMode) {
+    public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
 
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, pageId, permission)
-                .flatMap(newPage -> getPage(newPage.getId(), viewMode));
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .flatMap(newPage -> getPage(newPage.getId(), viewMode))
+                .map(sanitiseResponse::sanitisePageDTO);
     }
 
     @Override
@@ -237,6 +255,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 .setDefaultPage(applicationId, pageId)
                                 .then(applicationService.getById(applicationId))
                 );
+    }
+
+    @Override
+    public Mono<Application> makePageDefault(String defaultApplicationId, String defaultPageId, String branchName) {
+        // TODO remove the dependency of applicationId as pageId and branch can get the exact resource
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .flatMap(branchedPage -> makePageDefault(branchedPage.getApplicationId(), branchedPage.getId()))
+                .map(sanitiseResponse::sanitiseApplication);
     }
 
     @Override
@@ -358,12 +384,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<PageDTO> clonePage(String pageId, String branchName) {
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
-                .flatMap(newPage -> clonePage(newPage.getId()));
+    public Mono<PageDTO> clonePageByDefaultPageAndBranch(String defaultPageId, String branchName) {
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .flatMap(newPage -> clonePage(newPage.getId()))
+                .map(sanitiseResponse::sanitisePageDTO);
     }
 
-    private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId,
+    private Mono<PageDTO> clonePageGivenApplicationId(String pageId,
+                                                      String applicationId,
                                                       @Nullable String newPageNameSuffix) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
@@ -392,7 +420,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return sourcePageMono
                 .flatMap(page -> {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
-                            .findApplicationPagesByApplicationIdAndViewMode(page.getApplicationId(), false);
+                            .findApplicationPagesByApplicationIdViewMode(page.getApplicationId(), false);
                     return pageNamesMono
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
@@ -418,6 +446,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Proceed with creating the copy of the page
                                 page.setId(null);
                                 page.setApplicationId(applicationId);
+                                DefaultResources defaults = new DefaultResources();
+                                defaults.setDefaultApplicationId(applicationId);
+                                page.setDefaultResources(defaults);
                                 return newPageService.createDefault(page);
                             });
                 })
@@ -427,7 +458,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .flatMap(action -> {
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
-
+                                DefaultResources actionDefaults = new DefaultResources();
+                                actionDefaults.setDefaultApplicationId(clonedPage.getApplicationId());
+                                actionDefaults.setDefaultPageId(newPageId);
+                                action.getUnpublishedAction().setDefaultResources(actionDefaults);
                                 /*
                                  * - Now create the new action from the template of the source action.
                                  * - Use CLONE_PAGE context to make sure that page / application clone quirks are
@@ -462,6 +496,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 ApplicationPage applicationPage = new ApplicationPage();
                                 applicationPage.setId(page.getId());
                                 applicationPage.setIsDefault(false);
+                                applicationPage.setDefaultPageId(page.getId());
                                 application.getPages().add(applicationPage);
                                 return applicationService.save(application)
                                         .thenReturn(page);
@@ -474,16 +509,16 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
-    public Mono<Application> cloneApplication(String applicationId) {
+    public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
-        Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Application")))
                 .cache();
 
         // Find the name for the cloned application which wouldn't lead to duplicate key exception
         Mono<String> newAppNameMono = applicationMono
                 .flatMap(application -> applicationService.findAllApplicationsByOrganizationId(application.getOrganizationId())
-                        .map(application1 -> application1.getName())
+                        .map(Application::getName)
                         .collect(Collectors.toSet())
                         .map(appNames -> {
                             String newAppName = application.getName() + " Copy";
@@ -500,6 +535,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(tuple -> {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
+
+                    // Remove the git related data before cloning
+                    sourceApplication.setGitApplicationMetadata(null);
 
                     // Create a new clone application object without the pages using the parameterized Application constructor
                     Application newApplication = new Application(sourceApplication);
@@ -520,6 +558,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                     .flatMap(applicationPage -> {
                                         String pageId = applicationPage.getId();
                                         Boolean isDefault = applicationPage.getIsDefault();
+                                        applicationPage.setDefaultPageId(null);
                                         return this.clonePageGivenApplicationId(pageId, savedApplication.getId())
                                                 .map(clonedPage -> {
                                                     ApplicationPage newApplicationPage = new ApplicationPage();
@@ -535,7 +574,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         return applicationService.save(savedApplication);
                                     })
                             );
-                });
+                })
+                .map(sanitiseResponse::sanitiseApplication);
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
         // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow
@@ -617,9 +657,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 });
     }
 
-    public Mono<PageDTO> deleteUnpublishedPage(String id, String branchName) {
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, id, MANAGE_PAGES)
-                .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()));
+    public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
+                .map(sanitiseResponse::sanitisePageDTO);
     }
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
@@ -735,6 +776,13 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     @Override
+    public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
+        return applicationService.findChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                .flatMap(branchedApplicationId -> publish(branchedApplicationId, isPublishedManually))
+                .map(sanitiseResponse::sanitiseApplication);
+    }
+
+    @Override
     public Mono<Void> sendApplicationPublishedEvent(Application application) {
         if (!analyticsService.isActive()) {
             return Mono.empty();
@@ -762,8 +810,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return Application object with the latest order
      **/
     @Override
-    public Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order) {
-        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+    public Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order, String branchName) {
+        return applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
                     // Update the order in unpublished pages here, since this should only ever happen in edit mode.
@@ -783,8 +831,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     return applicationRepository
                             .setPages(applicationId, pages)
-                            .then(newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId,Boolean.FALSE));
-                });
+                            .then(newPageService.findApplicationPagesByApplicationIdViewMode(applicationId,Boolean.FALSE));
+                })
+                .map(sanitiseResponse::sanitiseApplicationPagesDTO);
     }
 
 }

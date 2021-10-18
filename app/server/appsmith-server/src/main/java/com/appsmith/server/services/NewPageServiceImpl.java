@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -12,6 +13,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -25,7 +27,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import javax.validation.Validator;
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
+    private final SanitiseResponse sanitiseResponse;
 
     @Autowired
     public NewPageServiceImpl(Scheduler scheduler,
@@ -56,10 +58,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                               ReactiveMongoTemplate reactiveMongoTemplate,
                               NewPageRepository repository,
                               AnalyticsService analyticsService,
-                              ApplicationService applicationService, UserDataService userDataService) {
+                              ApplicationService applicationService,
+                              UserDataService userDataService,
+                              SanitiseResponse sanitiseResponse) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
+        this.sanitiseResponse = sanitiseResponse;
     }
 
     @Override
@@ -134,20 +139,23 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         newPage.setUnpublishedPage(object);
 
         newPage.setApplicationId(object.getApplicationId());
-        newPage.setBranchName(object.getBranchName());
         newPage.setPolicies(object.getPolicies());
         if (newPage.getGitSyncId() == null) {
             // Make sure gitSyncId will be unique
             newPage.setGitSyncId(newPage.getApplicationId() + "_" + new ObjectId());
         }
+        DefaultResources defaultResources = object.getDefaultResources();
+        newPage.setDefaultResources(defaultResources);
+        // Save page and update the defaultPageId after insertion
         return super.create(newPage)
-                .map(savedPage -> {
-                    if (StringUtils.isEmpty(savedPage.getDefaultPageId())) {
+                .flatMap(savedPage -> {
+                    if (StringUtils.isEmpty(defaultResources.getDefaultPageId())) {
                         NewPage updatePage = new NewPage();
-                        updatePage.setDefaultPageId(savedPage.getId());
-                        super.update(savedPage.getId(), updatePage).subscribeOn(Schedulers.boundedElastic()).subscribe();
+                        defaultResources.setDefaultPageId(savedPage.getId());
+                        updatePage.setDefaultResources(defaultResources);
+                        return super.update(savedPage.getId(), updatePage);
                     }
-                    return savedPage;
+                    return Mono.just(savedPage);
                 })
                 .flatMap(page -> getPageByViewMode(page, false));
     }
@@ -184,7 +192,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     }
 
     @Override
-    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String applicationId, Boolean view) {
+    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 // Throw a 404 error if the application has never been published
@@ -309,12 +317,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 });
     }
 
-    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdAndViewMode(String defaultApplicationId,
-                                                                                    String branchName,
-                                                                                    Boolean view) {
+    public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(String defaultApplicationId,
+                                                                                          String branchName,
+                                                                                          Boolean view) {
 
-        return applicationService.getChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
-            .flatMap(childApplicationId -> findApplicationPagesByApplicationIdAndViewMode(childApplicationId, view));
+        return applicationService.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+            .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view))
+            .map(sanitiseResponse::sanitiseApplicationPagesDTO);
     }
 
     @Override
@@ -415,9 +424,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     }
 
     @Override
-    public Mono<PageDTO> updatePage(String pageId, PageDTO page, String branchName) {
-        return repository.findPageByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
-                .flatMap(newPage -> updatePage(newPage.getId(), page));
+    public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
+        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .flatMap(newPage -> updatePage(newPage.getId(), page))
+                .map(sanitiseResponse::sanitisePageDTO);
     }
 
     @Override
@@ -456,7 +466,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
 
         if (StringUtils.isEmpty(defaultPageId)) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DEFAULT_PAGE_ID);
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
         } else if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultPageId, permission)
                     .switchIfEmpty(Mono.error(
@@ -464,8 +474,12 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     );
         }
         return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
-                );
+                .switchIfEmpty(Mono.defer(() -> {
+                    // No matching existing page found, fetch with defaultPageId
+                    return repository.findById(defaultPageId, permission)
+                            .switchIfEmpty(Mono.error(
+                                    new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
+                            );
+                }));
     }
 }

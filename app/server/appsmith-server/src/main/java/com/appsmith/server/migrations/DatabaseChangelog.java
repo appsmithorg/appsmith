@@ -17,9 +17,11 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -32,9 +34,11 @@ import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Permission;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Role;
@@ -42,6 +46,7 @@ import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
@@ -3323,5 +3328,149 @@ public class DatabaseChangelog {
                 makeIndex("organizationId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
                         .unique().named("organization_application_deleted_gitApplicationMetadata_compound_index")
         );
+    }
+
+    @ChangeSet(order = "093", id = "insert-default-resources", author = "")
+    public void insertDefaultResources(MongockTemplate mongockTemplate) {
+
+        // Update datasources
+        final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.gitSyncId)).exists(false))
+                .addCriteria(where(fieldName(QDatasource.datasource.deleted)).ne(true));
+
+        List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
+        for(Datasource datasource: datasources) {
+            final Update update = new Update();
+            final String gitSyncId = datasource.getOrganizationId() + "_" + new ObjectId();
+            update.set(fieldName(QDatasource.datasource.gitSyncId), gitSyncId);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    update,
+                    Datasource.class
+            );
+        }
+
+        // Update application
+        final Query applicationQuery = query(where(fieldName(QApplication.application.deleted)).ne(true))
+                .addCriteria(where(fieldName(QApplication.application.pages)).exists(true));
+        List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
+
+        for(Application application: applications) {
+            application.getPages().forEach(page -> {
+                page.setDefaultPageId(page.getId());
+            });
+
+            if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
+                application.getPublishedPages().forEach(page -> {
+                    page.setDefaultPageId(page.getId());
+                });
+            }
+            mongockTemplate.save(application);
+        }
+
+        // Update pages
+        final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
+
+        List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
+
+        for (NewPage page : pages) {
+            DefaultResources defaults = new DefaultResources();
+            defaults.setDefaultPageId(page.getId());
+            defaults.setDefaultApplicationId(page.getApplicationId());
+
+            String applicationId = page.getApplicationId();
+            final Update defaultResourceUpdates = new Update();
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.defaultResources), defaults);
+
+            // Update gitSyncId
+            if (StringUtils.isEmpty(page.getGitSyncId())) {
+                final String gitSyncId = applicationId + "_" + new ObjectId();
+                defaultResourceUpdates.set(fieldName(QNewPage.newPage.gitSyncId), gitSyncId);
+            }
+
+            if (!StringUtils.isEmpty(applicationId) ) {
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
+                        defaultResourceUpdates,
+                        NewPage.class
+                );
+            }
+        }
+
+        // Update actions
+        final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true));
+
+        List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
+
+        for (NewAction action : actions) {
+            DefaultResources defaults = new DefaultResources();
+            defaults.setDefaultActionId(action.getId());
+            defaults.setDefaultApplicationId(action.getApplicationId());
+
+            String applicationId = action.getApplicationId();
+            action.setDefaultResources(defaults);
+
+            ActionDTO unpublishedAction = action.getUnpublishedAction();
+            if (unpublishedAction != null) {
+                DefaultResources unpubDefaults = new DefaultResources();
+                unpubDefaults.setDefaultPageId(unpublishedAction.getPageId());
+                unpubDefaults.setDefaultActionCollectionId(unpublishedAction.getCollectionId());
+                unpublishedAction.setDefaultResources(unpubDefaults);
+            }
+
+            ActionDTO publishedAction = action.getPublishedAction();
+            if (publishedAction != null) {
+                DefaultResources pubDefaults = new DefaultResources();
+                pubDefaults.setDefaultPageId(publishedAction.getPageId());
+                pubDefaults.setDefaultActionCollectionId(publishedAction.getCollectionId());
+                publishedAction.setDefaultResources(pubDefaults);
+            }
+
+            // Update gitSyncId
+            if (StringUtils.isEmpty(action.getGitSyncId())) {
+                action.setGitSyncId(applicationId + "_" + new ObjectId());
+            }
+
+            if (!StringUtils.isEmpty(applicationId)) {
+                mongockTemplate.save(action);
+            }
+        }
+
+        // Update JS collection
+        final Query actionCollectionQuery = query(where(fieldName(QActionCollection.actionCollection.deleted)).ne(true));
+
+        List<ActionCollection> collections = mongockTemplate.find(actionCollectionQuery, ActionCollection.class);
+
+        for (ActionCollection collection : collections) {
+            DefaultResources defaults = new DefaultResources();
+            defaults.setDefaultActionCollectionId(collection.getId());
+            defaults.setDefaultApplicationId(collection.getApplicationId());
+
+            String applicationId = collection.getApplicationId();
+            collection.setDefaultResources(defaults);
+
+            ActionCollectionDTO unpublishedCollection = collection.getUnpublishedCollection();
+            if (unpublishedCollection != null) {
+                DefaultResources unpubDefaults = new DefaultResources();
+                unpubDefaults.setDefaultPageId(unpublishedCollection.getPageId());
+                unpublishedCollection.setDefaultResources(unpubDefaults);
+            }
+
+            ActionCollectionDTO publishedCollection = collection.getPublishedCollection();
+            if (publishedCollection != null) {
+                DefaultResources pubDefaults = new DefaultResources();
+                pubDefaults.setDefaultPageId(publishedCollection.getPageId());
+                publishedCollection.setDefaultResources(pubDefaults);
+            }
+
+            // Update gitSyncId
+            if (StringUtils.isEmpty(collection.getGitSyncId())) {
+                collection.setGitSyncId(applicationId + "_" + new ObjectId());
+            }
+
+            if (!StringUtils.isEmpty(applicationId)) {
+                mongockTemplate.save(collection);
+            }
+        }
+
     }
 }
