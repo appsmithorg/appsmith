@@ -164,7 +164,7 @@ async function tryAuth(socket:Socket) {
 	/* ********************************************************* */
 
 	const connectionCookie = socket.handshake.headers.cookie;
-	if (connectionCookie != null && connectionCookie !== "") {
+	if (connectionCookie !== null && connectionCookie !== "") {
 		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
 		if(matchedCookie) {
 			const sessionCookie = matchedCookie[0]
@@ -282,7 +282,7 @@ async function watchMongoDB(io) {
 			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
 		}
 		
-		if (thread == null) {
+		if (thread === null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
 			log.error("Null document recieved for comment change event", event)
 			return
@@ -326,7 +326,7 @@ async function watchMongoDB(io) {
 	notificationsStream.on("change", async (event: mongodb.ChangeEventCR) => {
 		const notification = event.fullDocument
 
-		if (notification == null) {
+		if (notification === null) {
 			// This happens when `event.operationType === "drop"`, when a notification is deleted.
 			log.error("Null document recieved for notification change event", event)
 			return

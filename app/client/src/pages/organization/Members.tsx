@@ -246,6 +246,7 @@ export default function MemberSettings(props: PageProps) {
             }}
             options={roles}
             selectedIndex={index}
+            selectedTextWidth="90px"
           />
         );
       },

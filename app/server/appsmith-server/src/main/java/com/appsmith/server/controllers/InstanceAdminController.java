@@ -1,12 +1,14 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.solutions.EnvManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,11 +34,25 @@ public class InstanceAdminController {
     }
 
     @PutMapping("/env")
-    public Mono<ResponseDTO<Boolean>> saveEnvChanges(
+    public Mono<ResponseDTO<EnvChangesResponseDTO>> saveEnvChanges(
             @Valid @RequestBody Map<String, String> changes
     ) {
         log.debug("Applying env updates {}", changes);
         return envManager.applyChanges(changes)
+                .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
+    }
+
+    @PostMapping("/restart")
+    public Mono<ResponseDTO<Boolean>> restart() {
+        log.debug("Received restart request");
+        return envManager.restart()
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+    }
+
+    @PostMapping("/send-test-email")
+    public Mono<ResponseDTO<Boolean>> sendTestEmail() {
+        log.debug("Sending test email");
+        return envManager.sendTestEmail()
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 

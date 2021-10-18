@@ -13,6 +13,7 @@ import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
+import { ADD_DATASOURCE_TOOLTIP, createMessage } from "constants/messages";
 
 type ExplorerPluginGroupProps = {
   step: number;
@@ -55,6 +56,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
   return (
     <Entity
       active={props.actionConfig?.isGroupActive(params, props.page.pageId)}
+      addButtonHelptext={createMessage(ADD_DATASOURCE_TOOLTIP)}
       className={`group ${props.actionConfig?.groupName
         .toLowerCase()
         .replace(/ /g, "")}`}

@@ -100,20 +100,16 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 .flatMap(this::getForUser);
     }
 
-    private Mono<UserData> updateForCurrentUser(UserData updates) {
+    @Override
+    public Mono<UserData> updateForCurrentUser(UserData updates) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userRepository.findByEmail(user.getEmail()))
-                .flatMap(user -> {
-                    // If a UserData document exists for this user, update it. If not, create one.
-                    updates.setUserId(user.getId());
-                    final Mono<UserData> updaterMono = update(user.getId(), updates);
-                    final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
-                    return updaterMono.switchIfEmpty(creatorMono);
-                });
+                .flatMap(user -> updateForUser(user, updates));
     }
 
     @Override
     public Mono<UserData> updateForUser(User user, UserData updates) {
+        // If a UserData document exists for this user, update it. If not, create one.
         updates.setUserId(user.getId());
         final Mono<UserData> updaterMono = update(user.getId(), updates);
         final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
