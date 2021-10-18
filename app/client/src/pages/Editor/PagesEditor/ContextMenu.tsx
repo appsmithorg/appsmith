@@ -15,6 +15,10 @@ import { useSelector } from "react-redux";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
+import TooltipComponent from "components/ads/Tooltip";
+import { createMessage, SETTINGS_TOOLTIP } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Position } from "@blueprintjs/core";
 
 // render over popover portals
 const Container = styled.div`
@@ -184,14 +188,20 @@ function ContextMenu(props: Props) {
       placement="bottom-start"
       portalClassName="pages-editor-context-menu"
     >
-      <Action className={isOpen ? "active" : ""} type="button">
-        <SettingsIcon
-          color={Colors.GREY_8}
-          height={16}
-          onClick={noop}
-          width={16}
-        />
-      </Action>
+      <TooltipComponent
+        content={createMessage(SETTINGS_TOOLTIP)}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position={Position.BOTTOM}
+      >
+        <Action className={isOpen ? "active" : ""} type="button">
+          <SettingsIcon
+            color={Colors.GREY_8}
+            height={16}
+            onClick={noop}
+            width={16}
+          />
+        </Action>
+      </TooltipComponent>
     </Popover2>
   );
 }
