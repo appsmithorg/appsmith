@@ -137,6 +137,7 @@ export const CONFIG = {
       step: 62,
       status: 75,
     },
+    columnOrder: ["step", "task", "status", "action"],
     blueprint: {
       operations: [
         {
