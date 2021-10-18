@@ -74,7 +74,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
 //{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
-  entity?: DataTreeEntity,
+  entity?: DataTreeEntity | undefined,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {

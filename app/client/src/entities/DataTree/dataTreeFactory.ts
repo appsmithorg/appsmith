@@ -70,6 +70,7 @@ export interface DataTreeJSAction {
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   listVariables: Array<string>;
+  dependencyMap: DependencyMap;
 }
 
 export interface MetaArgs {

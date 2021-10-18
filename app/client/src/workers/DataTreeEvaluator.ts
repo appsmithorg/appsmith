@@ -398,7 +398,7 @@ export default class DataTreeEvaluator {
         });
       }
     }
-    if (isAction(entity)) {
+    if (isAction(entity) || isJSAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
         ([path, entityDependencies]) => {
           const actionDependentPaths: Array<string> = [];
@@ -454,7 +454,7 @@ export default class DataTreeEvaluator {
             fullPropertyPath,
           );
           const isABindingPath =
-            (isAction(entity) || isWidget(entity)) &&
+            (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
             isPathADynamicBinding(entity, propertyPath);
           const isATriggerPath =
             isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
@@ -462,7 +462,7 @@ export default class DataTreeEvaluator {
           const requiresEval =
             isABindingPath &&
             !isATriggerPath &&
-            isDynamicValue(unEvalPropertyValue);
+            (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
           if (propertyPath) {
             _.set(currentTree, getEvalErrorPath(fullPropertyPath), []);
           }
@@ -537,6 +537,8 @@ export default class DataTreeEvaluator {
               safeEvaluatedValue,
             );
             _.set(currentTree, fullPropertyPath, evalPropertyValue);
+            return currentTree;
+          } else if (isJSAction(entity)) {
             return currentTree;
           } else {
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
@@ -645,9 +647,11 @@ export default class DataTreeEvaluator {
     fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
-    let entity;
+    let entity: DataTreeEntity | undefined = undefined;
+    let propertyPath: string;
     if (fullPropertyPath) {
       const entityName = fullPropertyPath.split(".")[0];
+      propertyPath = fullPropertyPath.split(".")[1];
       entity = data[entityName];
     }
     const { jsSnippets, stringSegments } = getDynamicBindings(
@@ -666,9 +670,13 @@ export default class DataTreeEvaluator {
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths
       const values = jsSnippets.map((jsSnippet, index) => {
+        const toBeSentForEval =
+          entity && isJSAction(entity) && propertyPath === "body"
+            ? jsSnippet.replace(/export default/g, "")
+            : jsSnippet;
         if (jsSnippet) {
           const result = this.evaluateDynamicBoundValue(
-            jsSnippet,
+            toBeSentForEval,
             data,
             resolvedFunctions,
             callBackData,
@@ -1089,7 +1097,7 @@ export default class DataTreeEvaluator {
                   // dependency map
                   delete this.dependencyMap[fullPropertyPath];
                 }
-                if (isAction(entity)) {
+                if (isAction(entity) || isJSAction(entity)) {
                   // Actions have a defined dependency map that should always be maintained
                   if (entityPropertyPath in entity.dependencyMap) {
                     const entityDependenciesName = entity.dependencyMap[

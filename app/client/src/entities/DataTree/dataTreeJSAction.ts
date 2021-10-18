@@ -5,6 +5,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
@@ -16,6 +17,8 @@ export const generateDataTreeJSAction = (
   let result: Record<string, unknown> = {};
   const variables = js.config.variables;
   const listVariables: Array<string> = [];
+  dynamicBindingPathList.push({ key: "body" });
+  bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
@@ -23,6 +26,8 @@ export const generateDataTreeJSAction = (
       listVariables.push(variable.name);
     }
   }
+  const dependencyMap: DependencyMap = {};
+  dependencyMap["body"] = [];
   const actions = js.config.actions;
   const subActionsObject: any = {};
   if (actions) {
@@ -38,6 +43,7 @@ export const generateDataTreeJSAction = (
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
+      dependencyMap["body"].push(action.name);
     }
   }
   result = {
@@ -52,6 +58,7 @@ export const generateDataTreeJSAction = (
     bindingPaths: bindingPaths,
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
+    dependencyMap: dependencyMap,
   };
 
   return Object.assign(result, subActionsObject);

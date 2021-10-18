@@ -7,6 +7,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
+  EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import { validate } from "./validations";
 import { Diff } from "deep-diff";
@@ -552,12 +553,6 @@ export const parseJSCollection = (
         undefined,
         true,
       );
-      const errorsList = errors && errors.length ? errors : [];
-      _.set(
-        evalTree,
-        `${jsCollection.name}.${EVAL_ERROR_PATH}.body`,
-        errorsList,
-      );
       const parsedLength = Object.keys(result).length;
       const actions = [];
       const variables = [];
@@ -582,29 +577,40 @@ export const parseJSCollection = (
         }
       }
       return {
-        evalTree,
+        errors,
         result: {
           actions: actions,
           variables: variables,
         },
       };
     } catch (e) {
+      const errors = [
+        {
+          type: EvalErrorTypes.PARSE_JS_ERROR,
+          context: {
+            entity: jsCollection,
+            propertyPath: jsCollection.name + ".body",
+          },
+          message: e.message,
+        },
+      ];
       return {
-        evalTree,
+        errors,
       };
     }
   } else {
     const errors = [
       {
-        errorType: PropertyEvaluationErrorType.PARSE,
-        raw: "",
-        severity: Severity.ERROR,
-        errorMessage: "Start object with export default",
+        type: EvalErrorTypes.PARSE_JS_ERROR,
+        context: {
+          entity: jsCollection,
+          propertyPath: jsCollection.name + ".body",
+        },
+        message: "Start object with export default",
       },
     ];
-    _.set(evalTree, `${jsCollection.name}.${EVAL_ERROR_PATH}.body`, errors);
     return {
-      evalTree,
+      errors,
     };
   }
 };

@@ -9,7 +9,6 @@ import {
   EvalErrorTypes,
   EvaluationError,
   PropertyEvaluationErrorType,
-  EVAL_ERROR_PATH,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -22,8 +21,6 @@ import {
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
-import { Severity } from "entities/AppsmithConsole";
-import _ from "lodash";
 
 const ctx: Worker = self as any;
 
@@ -251,31 +248,28 @@ ctx.addEventListener(
           ? dataTreeEvaluator.evalTree
           : {};
         try {
-          const { evalTree, result } = parseJSCollection(
+          const { errors, result } = parseJSCollection(
             body,
             jsAction,
             currentEvalTree,
           );
           return {
-            evalTree,
             result,
+            errors,
           };
         } catch (e) {
           const errors = [
             {
-              errorType: PropertyEvaluationErrorType.PARSE,
-              raw: "",
-              severity: Severity.ERROR,
-              errorMessage: e.message,
+              type: EvalErrorTypes.PARSE_JS_ERROR,
+              context: {
+                entity: jsAction,
+                propertyPath: jsAction.name + ".body",
+              },
+              message: e.message,
             },
           ];
-          _.set(
-            currentEvalTree,
-            `${jsAction.name}.${EVAL_ERROR_PATH}.body`,
-            errors,
-          );
           return {
-            currentEvalTree,
+            errors,
           };
         }
       }
