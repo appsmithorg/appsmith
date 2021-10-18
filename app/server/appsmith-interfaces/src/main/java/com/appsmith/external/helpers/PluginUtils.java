@@ -136,7 +136,7 @@ public class PluginUtils {
             String nestedFieldName = String.join(".", trimmedFieldNames);
 
             // Now get the value from the new nested map using trimmed field name (without the parent key)
-            return getValueSafelyFromFormData(nestedMap, nestedFieldName);
+            return getValueSafelyFromFormDataOrDefault(nestedMap, nestedFieldName, defaultValue);
         } else {
             // This is a top level field. Return the value
             return formData.getOrDefault(field, defaultValue);

@@ -81,7 +81,7 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     private static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
     private static final int CUSTOM_ENDPOINT_INDEX = 0;
-    private static final int DEFAULT_URL_EXPIRY_IN_MINUTES = 5; // max 7 days is possible
+    private static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
     private static final String YES = "YES";
     private static final String NO = "NO";
     private static final String BASE64_DELIMITER = ";base64,";
@@ -319,7 +319,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 AmazonS3Action s3Action = AmazonS3Action.valueOf(command);
                 query[0] = s3Action.name();
 
-                requestParams.add(new RequestParamDTO("actionConfiguration.formData.command",
+                requestParams.add(new RequestParamDTO("command",
                         command, null, null, null));
 
                 final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
