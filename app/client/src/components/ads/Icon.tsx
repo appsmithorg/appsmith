@@ -67,6 +67,7 @@ import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
+import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -275,6 +276,7 @@ export const IconCollection = [
   "down-arrow",
   "loader",
   "setting",
+  "dropdown",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -650,6 +652,9 @@ const Icon = forwardRef(
         break;
       case "loader":
         returnIcon = <LoaderLineIcon />;
+        break;
+      case "dropdown":
+        returnIcon = <DropdownIcon />;
         break;
       default:
         returnIcon = null;
