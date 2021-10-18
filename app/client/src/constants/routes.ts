@@ -148,8 +148,8 @@ export const BUILDER_PAGE_URL = (props: {
     modifiedParams = { branch: derivedBranch, ...params };
   }
 
-  if ((window as any).Cypress) {
-    // test param to make sure a query param is present in the URL
+  // test param to make sure a query param is present in the URL during dev and tests
+  if ((window as any).Cypress || process.env?.NODE_ENV === "development") {
     modifiedParams = { a: "b", ...modifiedParams };
   }
 
