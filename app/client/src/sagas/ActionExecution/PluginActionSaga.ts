@@ -91,6 +91,7 @@ import {
   PluginTriggerFailureError,
   PluginActionExecutionError,
   UserCancelledActionExecutionError,
+  getErrorAsString,
 } from "sagas/ActionExecution/errorUtils";
 
 enum ActionResponseDataTypes {
@@ -419,16 +420,43 @@ function* runActionSaga(
     error = e.message;
   }
 
+  // Error should be readable error if present.
+  // Otherwise payload's body.
+  // Default to "An unexpected error occurred" if none is available
+
+  const readableError = payload.readableError
+    ? getErrorAsString(payload.readableError)
+    : undefined;
+
+  const payloadBodyError = payload.body
+    ? getErrorAsString(payload.body)
+    : undefined;
+
+  const defaultError = "An unexpected error occurred";
+
   if (isError) {
-    // Get an appropriate error message
-    if (payload.body) {
-      error = !isString(payload.body)
-        ? JSON.stringify(payload.body)
-        : payload.body;
-      if (!error) {
-        error = "An unexpected error occurred";
-      }
+    error = readableError || payloadBodyError || defaultError;
+
+    // In case of debugger, both the current error message
+    // and the readableError needs to be present,
+    // since the readableError may be malformed for certain errors.
+
+    const appsmithConsoleErrorMessageList = [
+      {
+        message: error,
+        type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        subType: payload.errorType,
+      },
+    ];
+
+    if (error === readableError && !!payloadBodyError) {
+      appsmithConsoleErrorMessageList.push({
+        message: payloadBodyError,
+        type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        subType: payload.errorType,
+      });
     }
+
     AppsmithConsole.addError({
       id: actionId,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
@@ -440,13 +468,7 @@ function* runActionSaga(
         name: actionObject.name,
         id: actionId,
       },
-      messages: [
-        {
-          message: error,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-          subType: payload.errorType,
-        },
-      ],
+      messages: appsmithConsoleErrorMessageList,
       state: payload.request,
     });
 
