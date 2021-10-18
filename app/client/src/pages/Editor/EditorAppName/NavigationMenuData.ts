@@ -21,6 +21,7 @@ import {
   PERMISSION_TYPE,
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import { Colors } from "constants/Colors";
 
 type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
@@ -174,6 +175,7 @@ export const GetNavigationMenuData = ({
       onClick: deleteApplication,
       type: MenuTypes.RECONFIRM,
       isVisible: isApplicationIdPresent,
+      style: { color: Colors.ERROR_RED },
     },
   ];
 };

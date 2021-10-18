@@ -44,16 +44,10 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     props.isPopoverOpen &&
     `
       background-color: ${props.theme.colors.navigationMenu.backgroundInactive};
-      > span {
-        background-color: ${props.theme.colors.navigationMenu.backgroundInactive};
-      }`}
+    `}
   &:hover {
     background-color: ${(props) =>
-      props.theme.colors.navigationMenu.backgroundInactive};
-    > span {
-      background-color: ${(props) =>
-        props.theme.colors.navigationMenu.backgroundInactive};
-    }
+      props.theme.colors.navigationMenu.backgroundActive};
   }
 
   > span {
@@ -76,7 +70,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     display: block;
     ${(props) => getTypographyByKey(props, "h4")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
-    padding: 0 ${(props) => props.theme.spaces[4]}px;
+    padding: 0 ${(props) => props.theme.spaces[2]}px;
   }
   &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     margin-right: 20px;
@@ -85,12 +79,8 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
 
 const StyledIcon = styled(Icon)`
   height: 100%;
-  padding-right: ${(props) => props.theme.spaces[4]}px;
+  padding-right: ${(props) => props.theme.spaces[2]}px;
   align-self: center;
-
-  svg path {
-    fill: ${(props) => props.theme.colors.navigationMenu.contentActive};
-  }
 `;
 
 const StyledMenu = styled(Menu)`
@@ -246,9 +236,9 @@ export function EditorAppName(props: EditorAppNameProps) {
         />
         {!isEditing && (
           <StyledIcon
-            fillColor={theme.colors.navigationMenu.contentInactive}
+            fillColor={theme.colors.navigationMenu.contentActive}
             name={isPopoverOpen ? "upArrow" : "downArrow"}
-            size={IconSize.XXS}
+            size={IconSize.XXL}
           />
         )}
       </Container>

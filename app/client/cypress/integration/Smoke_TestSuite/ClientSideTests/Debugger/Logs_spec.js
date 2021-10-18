@@ -8,6 +8,7 @@ describe("Debugger logs", function() {
   });
 
   it("Modifying widget properties should log the same", function() {
+    cy.wait(5000);
     cy.get("button")
       .contains("Submit")
       .click({ force: true });

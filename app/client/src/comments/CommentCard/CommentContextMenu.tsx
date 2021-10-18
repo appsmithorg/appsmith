@@ -34,8 +34,7 @@ const MenuItem = styled.div`
 
 const StyledIcon = styled(Icon)`
   padding-left: ${(props) => props.theme.spaces[2]}px;
-  &:hover svg ellipse,
-  &:hover svg circle {
+  &:hover svg {
     fill: ${Colors.CHARCOAL};
   }
 `;
@@ -43,6 +42,10 @@ const StyledIcon = styled(Icon)`
 const MenuIcon = styled.div`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px ${props.theme.spaces[5]}px`};
+
+  svg {
+    fill: ${(props) => props.theme.colors.comments.unresolved};
+  }
 `;
 
 const MenuTitle = styled.div`
@@ -141,7 +144,7 @@ function CommentContextMenu({
                 <Icon
                   keepColors
                   name={option.icon as IconName}
-                  size={IconSize.XL}
+                  size={IconSize.XXL}
                 />
               </MenuIcon>
               <MenuTitle>{option.display}</MenuTitle>
@@ -157,7 +160,7 @@ function CommentContextMenu({
       portalClassName="comment-context-menu"
     >
       <Tooltip content={createMessage(MORE_OPTIONS)} hoverOpenDelay={1000}>
-        <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
+        <StyledIcon name="comment-context-menu" size={IconSize.XXL} />
       </Tooltip>
     </Popover2>
   );

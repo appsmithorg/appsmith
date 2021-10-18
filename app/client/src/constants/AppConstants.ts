@@ -26,3 +26,5 @@ export const getPersistentAppStore = (appId: string) => {
   }
   return store;
 };
+
+export const TOOLTIP_HOVER_ON_DELAY = 1000;

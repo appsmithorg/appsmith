@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import TooltipComponent from "components/ads/Tooltip";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
-import { ReactComponent as Pen } from "assets/icons/comments/pen.svg";
-import { ReactComponent as Eye } from "assets/icons/comments/eye.svg";
+import Pen from "remixicon-react/PencilFillIcon";
+import Eye from "remixicon-react/EyeLineIcon";
 import { ReactComponent as CommentModeUnread } from "assets/icons/comments/comment-mode-unread-indicator.svg";
 import { ReactComponent as CommentMode } from "assets/icons/comments/chat.svg";
 import { Indices } from "constants/Layers";
@@ -106,7 +106,7 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   z-index: ${Indices.Layer1};
-  margin-left: ${(props) => props.theme.smallHeaderHeight};
+  margin-left: ${(props) => props.theme.spaces[5]}px;
 `;
 
 /**
@@ -194,7 +194,7 @@ function EditModeReset() {
       hoverOpenDelay={1000}
       position={Position.BOTTOM}
     >
-      <Pen />
+      <Pen size={20} />
     </TooltipComponent>
   );
 }
@@ -211,7 +211,7 @@ function ViewModeReset() {
       hoverOpenDelay={1000}
       position={Position.BOTTOM}
     >
-      <Eye />
+      <Eye size={20} />
     </TooltipComponent>
   );
 }

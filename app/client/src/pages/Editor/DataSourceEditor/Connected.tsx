@@ -64,7 +64,7 @@ function Connected() {
             width={30}
           />
 
-          <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
+          <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
         </ConnectedText>
 
         <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>

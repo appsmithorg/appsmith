@@ -16,6 +16,8 @@ import { ControlIcons } from "icons/ControlIcons";
 
 import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
+import { MenuIcons } from "icons/MenuIcons";
 
 export const Container = styled.div`
   display: flex;
@@ -34,7 +36,7 @@ export const ListItem = styled.div`
   width: 100%;
   align-items: center;
   padding: 10px;
-  background-color: ${(props) => props.theme.colors.appBackground};
+  background-color: ${Colors.GREY_1};
 `;
 
 const Actions = styled.div`
@@ -52,28 +54,18 @@ export const Action = styled.button`
   outline: none;
   border: none;
   background: transparent;
-  margin-left: 8px;
-
-  &:hover,
-  &:active,
-  &.active {
-    background: ${(props) => (props.disabled ? "initial" : "#e1e1e1")};
-  }
+  margin-left: 4px;
 
   &:focus {
     outline: none;
   }
 `;
 
-const HomeIcon = FormIcons.HOME_ICON;
+const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CopyIcon = ControlIcons.COPY_CONTROL;
 const DragIcon = ControlIcons.DRAG_CONTROL;
 const HideIcon = ControlIcons.HIDE_COLUMN;
-
-const DefaultPageIcon = styled(HomeIcon)`
-  margin-right: 5px;
-`;
 
 export interface PageListItemProps {
   item: Page;
@@ -138,20 +130,12 @@ function PageListItem(props: PageListItemProps) {
         <Actions>
           {item.isDefault && (
             <Action disabled title="Default page">
-              <DefaultPageIcon
-                color={get(theme, "colors.primaryOld")}
-                height={16}
-                width={16}
-              />
+              <DefaultPageIcon color={Colors.GREEN} height={16} width={16} />
             </Action>
           )}
           {item.isHidden && (
             <Action disabled title="Hidden">
-              <HideIcon
-                color={get(theme, "colors.pagesEditor.iconColor")}
-                height={16}
-                width={16}
-              />
+              <HideIcon color={Colors.GREY_9} height={16} width={16} />
             </Action>
           )}
           <ContextMenu
@@ -164,7 +148,7 @@ function PageListItem(props: PageListItemProps) {
           />
           <Action title="Clone" type="button">
             <CopyIcon
-              color={get(theme, "colors.pagesEditor.iconColor")}
+              color={Colors.GREY_9}
               height={16}
               onClick={clonePageCallback}
               width={16}
@@ -175,7 +159,7 @@ function PageListItem(props: PageListItemProps) {
               color={
                 item.isDefault
                   ? get(theme, "colors.propertyPane.deleteIconColor")
-                  : get(theme, "colors.pagesEditor.iconColor")
+                  : Colors.GREY_9
               }
               disabled={item.isDefault}
               height={16}

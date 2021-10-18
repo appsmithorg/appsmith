@@ -324,7 +324,7 @@ class AnalyticsUtil {
           AnalyticsUtil.cachedUserId = userId;
         }
         const userProperties = {
-          userId: AnalyticsUtil.cachedUserId,
+          userId: AnalyticsUtil.cachedAnonymoustId,
           source: "ce",
         };
         log.debug(

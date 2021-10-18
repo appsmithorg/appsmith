@@ -129,6 +129,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                         if(authentication instanceof OAuth2AuthenticationToken) {
                             modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
+                        // not sent for superuser
                         monos.add(analyticsService.sendObjectEvent(
                                 AnalyticsEvents.FIRST_LOGIN,
                                 currentUser,

@@ -71,6 +71,7 @@ const StyledContainer = styled.div`
 
 const CommentBodyContainer = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[4]}px;
+  color: ${(props) => props.theme.colors.comments.profileUserName};
 `;
 
 const CommentHeader = styled.div`
@@ -409,7 +410,6 @@ function CommentCard({
   };
 
   const showOptions = visible || isHovered;
-
   const showResolveBtn =
     (showOptions || !!resolved) && isParentComment && toggleResolved;
 
@@ -434,7 +434,7 @@ function CommentCard({
           <Section className="pinned-by" onClick={pin}>
             {isPinned && (
               <>
-                <Icon className="pin" name="pin-3" />
+                <Icon className="pin" name="pin-3" size={IconSize.XXL} />
                 <span>Pinned By</span>
                 <strong>{` ${pinnedBy}`}</strong>
               </>

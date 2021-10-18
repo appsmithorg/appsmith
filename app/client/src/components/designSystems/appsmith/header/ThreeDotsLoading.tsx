@@ -9,7 +9,7 @@ const Spinner = styled.div`
   && > div {
     width: 4px;
     height: 4px;
-    background-color: #fff;
+    background-color: #4b4848;
 
     border-radius: 100%;
     display: inline-block;
