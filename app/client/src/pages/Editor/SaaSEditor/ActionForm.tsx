@@ -75,7 +75,9 @@ function ActionForm(props: Props) {
       if (
         props.actionObjectDiff &&
         props.actionObjectDiff.hasOwnProperty("kind") &&
-        props.actionObjectDiff.hasOwnProperty("path") &&
+        props.actionObjectDiff.path &&
+        Array.isArray(props.actionObjectDiff.path) &&
+        props.actionObjectDiff.path.length &&
         props.actionObjectDiff[i]?.kind === "N"
       ) {
         // Calculate path from path[] in diff
