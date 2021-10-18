@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";
 import Toggle from "components/ads/Toggle";
+import { createMessage } from "constants/messages";
 
 const ToggleWrapper = styled.div``;
 
@@ -33,10 +34,10 @@ function FieldToggleWithToggleText(toggleText?: (value: boolean) => string) {
         <Toggle onToggle={onToggle} value={ComponentProps.input.value} />
         <ToggleStatus>
           {typeof toggleText == "function"
-            ? toggleText(ComponentProps.input.value)
+            ? createMessage(() => toggleText(ComponentProps.input.value))
             : ComponentProps.input.value
-            ? "Enabled"
-            : "Disabled"}
+            ? createMessage(() => "Enabled")
+            : createMessage(() => "Disabled")}
         </ToggleStatus>
       </ToggleWrapper>
     );

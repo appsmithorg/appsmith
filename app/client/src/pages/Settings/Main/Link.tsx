@@ -1,6 +1,7 @@
 import { Icon } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
+import { createMessage } from "constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -61,7 +62,7 @@ export default function Link({ setting }: SettingComponentProps) {
   return (
     <LinkWrapper className={setting.isHidden ? "hide" : ""}>
       <StyledLink {...linkProps}>
-        <LinkLabel>{setting.label}</LinkLabel>
+        <LinkLabel>{createMessage(() => setting.label || "")}</LinkLabel>
         &nbsp;
         <StyledText type={TextType.P1}>READ MORE</StyledText>
         &nbsp;

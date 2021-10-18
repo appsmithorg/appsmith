@@ -53,14 +53,18 @@ export const StyledSubtext = styled.p`
 export function FormGroup({ children, setting }: FieldHelperProps) {
   return (
     <StyledFormGroup>
-      <StyledLabel>{setting.label}</StyledLabel>
+      <StyledLabel>{createMessage(() => setting.label || "")}</StyledLabel>
       {setting.helpText && (
         <Tooltip content={createMessage(() => setting.helpText || "")}>
           <StyledIcon fillColor="#fff" name="help" size={IconSize.XXS} />
         </Tooltip>
       )}
       {children}
-      {setting.subText && <StyledSubtext>* {setting.subText}</StyledSubtext>}
+      {setting.subText && (
+        <StyledSubtext>
+          * {createMessage(() => setting.subText || "")}
+        </StyledSubtext>
+      )}
     </StyledFormGroup>
   );
 }

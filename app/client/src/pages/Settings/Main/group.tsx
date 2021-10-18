@@ -10,6 +10,7 @@ import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
+import { createMessage } from "constants/messages";
 
 type GroupProps = {
   name?: string;
@@ -44,7 +45,7 @@ export default function Group({ name, settings }: GroupProps) {
   const state = useSelector((state) => state);
   return (
     <GroupWrapper>
-      <GroupHeader>{name}</GroupHeader>
+      <GroupHeader>{createMessage(() => name || "")}</GroupHeader>
       <GroupBody>
         {settings &&
           settings.map((setting) => {
@@ -57,42 +58,56 @@ export default function Group({ name, settings }: GroupProps) {
             switch (setting.controlType) {
               case SettingTypes.TEXTINPUT:
                 return (
-                  <div className={setting.isHidden ? "hide" : ""}>
-                    <TextInput key={setting.name} setting={setting} />
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    key={setting.name}
+                  >
+                    <TextInput setting={setting} />
                   </div>
                 );
               case SettingTypes.TOGGLE:
                 return (
-                  <div className={setting.isHidden ? "hide" : ""}>
-                    <Toggle key={setting.name} setting={setting} />
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    key={setting.name}
+                  >
+                    <Toggle setting={setting} />
                   </div>
                 );
               case SettingTypes.LINK:
                 return (
-                  <div className={setting.isHidden ? "hide" : ""}>
-                    <Link key={setting.name} setting={setting} />
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    key={setting.name}
+                  >
+                    <Link setting={setting} />
                   </div>
                 );
               case SettingTypes.TEXT:
                 return (
-                  <div className={setting.isHidden ? "hide" : ""}>
-                    <Text key={setting.name} setting={setting} />
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    key={setting.name}
+                  >
+                    <Text setting={setting} />
                   </div>
                 );
               case SettingTypes.BUTTON:
                 return (
-                  <div className={setting.isHidden ? "hide" : ""}>
-                    <Button key={setting.name} setting={setting} />
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    key={setting.name}
+                  >
+                    <Button setting={setting} />
                   </div>
                 );
               case SettingTypes.GROUP:
                 return (
-                  <div className={setting.isHidden ? "hide" : ""}>
-                    <Group
-                      key={setting.name}
-                      name={setting.name}
-                      settings={setting.children}
-                    />
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    key={setting.name}
+                  >
+                    <Group name={setting.name} settings={setting.children} />
                   </div>
                 );
             }
