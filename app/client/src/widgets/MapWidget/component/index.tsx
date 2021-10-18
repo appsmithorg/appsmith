@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
+import styled from "styled-components";
+import { Button } from "@blueprintjs/core";
 import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
+
 import { MarkerProps } from "../constants";
 import PickMyLocation from "./PickMyLocation";
-import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
 
@@ -71,6 +73,21 @@ const PickMyLocationWrapper = styled.div<PickMyLocationProps>`
   right: -90px;
   width: 140px;
 `;
+
+const ErrorInfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+
+  & > p {
+    text-align: center;
+  }
+`;
+
+const RefreshButton = styled(Button)``;
 
 const MyMapComponent = withGoogleMap((props: any) => {
   const [mapCenter, setMapCenter] = React.useState<
@@ -182,17 +199,46 @@ function MapComponent(props: MapComponentProps) {
     `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
     AddScriptTo.HEAD,
   );
+
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
+  const renderMapContent = () => {
+    switch (status) {
+      case ScriptStatus.ERROR:
+        return (
+          <ErrorInfoContainer>
+            <p>
+              There are some errors loading the API. Please check your network.
+            </p>
+            <RefreshButton
+              icon="refresh"
+              onClick={handleRefresh}
+              text="Retry loading the API again..."
+            />
+          </ErrorInfoContainer>
+        );
+        break;
+
+      case ScriptStatus.READY:
+        return (
+          <MyMapComponent
+            containerElement={<MapContainerWrapper />}
+            loadingElement={<MapContainerWrapper />}
+            mapElement={<MapContainerWrapper />}
+            {...props}
+            zoom={zoom}
+          />
+        );
+      default:
+        return null;
+        break;
+    }
+  };
   return (
     <MapWrapper onMouseLeave={props.enableDrag}>
-      {status === ScriptStatus.READY && (
-        <MyMapComponent
-          containerElement={<MapContainerWrapper />}
-          loadingElement={<MapContainerWrapper />}
-          mapElement={<MapContainerWrapper />}
-          {...props}
-          zoom={zoom}
-        />
-      )}
+      {renderMapContent()}
     </MapWrapper>
   );
 }
