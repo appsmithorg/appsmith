@@ -35,7 +35,9 @@ const DropdownTriggerIconWrapper = styled.div`
 
 const CurrencyIconWrapper = styled.span`
   height: 100%;
-  padding: 6px 4px 6px 12px;
+  display: flex;
+  align-items: center;
+  padding: 0px 4px 0px 12px;
   position: absolute;
   left: 0;
   z-index: 16;

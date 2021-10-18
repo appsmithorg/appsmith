@@ -31,7 +31,7 @@ const SearchInputWrapper = styled(InputGroup)`
     margin-top: 1px;
     justify-content: center;
     transition: 0.2s all ease;
-
+    cursor: pointer;
     svg {
       width: 18px;
       height: 18px;
@@ -80,6 +80,10 @@ class SearchComponent extends React.Component<
     this.setState({ localValue: search });
     this.onDebouncedSearch(search);
   };
+  clearSearch = () => {
+    this.setState({ localValue: "" });
+    this.onDebouncedSearch("");
+  };
   render() {
     return (
       <SearchInputWrapper
@@ -87,7 +91,9 @@ class SearchComponent extends React.Component<
         leftIcon="search"
         onChange={this.handleSearch}
         placeholder={this.props.placeholder}
-        rightElement={<Icon className="close" name="close-x" />}
+        rightElement={
+          <Icon className="close" name="close-x" onClick={this.clearSearch} />
+        }
         value={this.state.localValue}
       />
     );

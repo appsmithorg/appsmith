@@ -13,7 +13,6 @@ import {
   NumericInput,
   IconName,
   InputGroup,
-  Button,
   Label,
   Classes,
   ControlGroup,
@@ -44,6 +43,7 @@ import ISDCodeDropdown, {
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import Icon from "components/ads/Icon";
 
 /**
  * All design system component specific logic goes here.
@@ -113,7 +113,7 @@ const InputComponentWrapper = styled((props) => (
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
-        hasError ? Colors.DANGER_SOLID : Colors.GEYSER_LIGHT};
+        hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
@@ -122,7 +122,30 @@ const InputComponentWrapper = styled((props) => (
         `
         border-top-right-radius: 0px;
         border-bottom-right-radius: 0px;
-        border-right-width: 0px;
+        ${props.hasError ? "" : "border-right-width: 0px;"}
+      `}
+      ${(props) =>
+        props.inputType === "PASSWORD" &&
+        `
+        & + .bp3-input-action {
+          height: 36px;
+          width: 36px;
+          cursor: pointer;
+          padding: 1px;
+          .password-input {
+            color: ${Colors.GREY_6};
+            justify-content: center;
+            height: 100%;
+            svg {
+              width: 20px;
+              height: 20px;
+            }
+            &:hover {
+              background-color: ${Colors.GREY_2};
+              color: ${Colors.GREY_10};
+            }
+          }
+        }
       `}
       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
       &:active {
@@ -141,7 +164,14 @@ const InputComponentWrapper = styled((props) => (
         &:focus {
           outline: 0;
           border: 1px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
+        }
+      }
+      &:disabled {
+        background-color: ${Colors.GREY_1};
+        border: 1.2px solid ${Colors.GREY_3};
+        & + .bp3-input-action {
+          pointer-events: none;
         }
       }
     }
@@ -151,6 +181,12 @@ const InputComponentWrapper = styled((props) => (
       .bp3-tag {
         background-color: transparent;
         color: #5c7080;
+      }
+      &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
+        pointer-events: none;
+        button {
+          background: ${Colors.GREY_1};
+        }
       }
     }
     .${Classes.CONTROL_GROUP} {
@@ -184,20 +220,45 @@ const StyledNumericInput = styled(NumericInput)`
       &:first-child:not(input) {
         position: static;
         background: ${(props) =>
-          props.disabled ? Colors.INPUT_DISABLED : "#fff"};
-        color: ${(props) =>
-          props.disabled ? Colors.INPUT_TEXT_DISABLED : "#000"};
-        border: 1px solid #e7e7e7;
+          props.disabled ? Colors.GREY_1 : Colors.WHITE};
+        border: 1.2px solid ${Colors.GREY_3};
         border-right: 0;
       }
       input:not(:first-child) {
         padding-left: 5px;
-        border-left: 0;
+        border-left: 1px solid transparent;
         z-index: 16;
         line-height: 16px;
 
         &:hover:not(:focus) {
           border-left: 1px solid ${Colors.GREY_5};
+        }
+      }
+    }
+  }
+  &&&& .bp3-button-group.bp3-vertical {
+    border: 1.2px solid ${Colors.GREY_3};
+    border-left: none;
+    button {
+      background: ${Colors.WHITE};
+      box-shadow: none;
+      min-width: 24px;
+      width: 24px;
+      border-radius: 0;
+      &:hover {
+        background: ${Colors.GREY_2};
+        span {
+          color: ${Colors.GREY_10};
+        }
+      }
+      &:focus {
+        border: 1px solid ${Colors.GREEN_SOLID};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+      }
+      span {
+        color: ${Colors.GREY_6};
+        svg {
+          width: 14px;
         }
       }
     }
@@ -447,8 +508,9 @@ class InputComponent extends React.Component<
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
-            <Button
-              icon={"lock"}
+            <Icon
+              className="password-input"
+              name={this.state.showPassword ? "eye-off" : "eye-on"}
               onClick={() => {
                 this.setState({ showPassword: !this.state.showPassword });
               }}
