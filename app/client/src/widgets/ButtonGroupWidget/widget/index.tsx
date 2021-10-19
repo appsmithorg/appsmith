@@ -48,15 +48,15 @@ class ButtonGroupWidget extends BaseWidget<
             options: [
               {
                 label: "Primary",
-                value: "SOLID",
+                value: "PRIMARY",
               },
               {
                 label: "Secondary",
-                value: "OUTLINE",
+                value: "SECONDARY",
               },
               {
                 label: "Tertiary",
-                value: "GHOST",
+                value: "TERTIARY",
               },
             ],
             isJSConvertible: true,
