@@ -88,6 +88,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         }
 
         if (page != null) {
+            page.setDefaultResources(newPage.getDefaultResources());
             page.setId(newPage.getId());
             page.setApplicationId(newPage.getApplicationId());
             page.setUserPermissions(newPage.getUserPermissions());

@@ -182,8 +182,8 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @PostMapping(value = "/import/{orgId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<Application>> importApplicationFromFile(
-            @RequestPart("file") Mono<Part> fileMono, @PathVariable String orgId) {
+    public Mono<ResponseDTO<Application>> importApplicationFromFile(@RequestPart("file") Mono<Part> fileMono,
+                                                                    @PathVariable String orgId) {
         log.debug("Going to import application in organization with id: {}", orgId);
         return fileMono
                 .flatMap(file -> importExportApplicationService.extractFileAndSaveApplication(orgId, file))

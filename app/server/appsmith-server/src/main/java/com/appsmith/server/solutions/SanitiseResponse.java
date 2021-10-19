@@ -2,26 +2,21 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.DefaultResources;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
-import com.appsmith.server.services.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @Component
 public class SanitiseResponse {
-
-    private final ApplicationService applicationService;
 
     public PageDTO sanitisePageDTO(PageDTO page) {
         DefaultResources defaults = page.getDefaultResources();
@@ -73,18 +68,5 @@ public class SanitiseResponse {
                     }
                 });
         return application;
-    }
-
-    private Mono<String> fetchDefaultApplicationId(String defaultApplicationId, String branchedApplicationId) {
-
-        if (!StringUtils.isEmpty(defaultApplicationId)) {
-            return Mono.just(defaultApplicationId);
-        }
-        return applicationService.getById(branchedApplicationId)
-                .map(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    return gitData == null || StringUtils.isEmpty(gitData.getDefaultApplicationId())
-                            ? application.getId() : gitData.getDefaultApplicationId();
-                });
     }
 }
