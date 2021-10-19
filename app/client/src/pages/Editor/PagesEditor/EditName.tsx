@@ -1,7 +1,7 @@
 import { get, noop } from "lodash";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled, { useTheme } from "styled-components";
-import { useParams, useHistory } from "react-router";
+import { useHistory } from "react-router";
 import React, { useCallback, useState, useRef } from "react";
 
 import useClick from "utils/hooks/useClick";
@@ -11,7 +11,7 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { Page } from "constants/ReduxActionConstants";
 import EditNameInput from "pages/Editor/Explorer/Entity/Name";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, GO_TO_PAGE } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
@@ -54,7 +54,6 @@ export const EditNameContainer = styled.div`
 
 type Props = {
   page: Page;
-  applicationId: string;
 };
 
 function EditName(props: Props) {
@@ -62,8 +61,8 @@ function EditName(props: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const history = useHistory();
-  const params = useParams<ExplorerURLParams>();
   const [isEditing, setIsEditing] = useState(false);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const updateNameCallback = useCallback(
     (name: string) => {
@@ -79,10 +78,12 @@ function EditName(props: Props) {
   const enterEditMode = useCallback(() => setIsEditing(true), []);
 
   const switchPage = useCallback(() => {
-    if (!!params.applicationId && !isEditing) {
-      history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
+    if (!!applicationId && !isEditing) {
+      history.push(
+        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
+      );
     }
-  }, [props.page.pageId, params.applicationId]);
+  }, [props.page.pageId, applicationId]);
 
   const handleClick = () => {
     if (!isEditing) enterEditMode();

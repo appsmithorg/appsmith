@@ -46,6 +46,8 @@ import { getQueryParams } from "../../../../utils/AppsmithUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 type ReduxStateProps = {
   orgId: string;
   datasource: Datasource | EmbeddedRestDatasource;
@@ -393,7 +395,7 @@ const mapStateToProps = (
       (d) => d.pluginId === ownProps.pluginId,
     ),
     currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
