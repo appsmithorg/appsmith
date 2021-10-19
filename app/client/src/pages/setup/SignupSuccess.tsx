@@ -68,6 +68,7 @@ export function SignupSuccess() {
 
   const user = useSelector(getCurrentUser);
   const { cloudHosting } = getAppsmithConfigs();
+  const isCypressEnv = !!(window as any).Cypress;
 
   /*
    *  Proceed with redirection,
@@ -79,7 +80,7 @@ export function SignupSuccess() {
    */
   //TODO(Balaji): Factor in case, where user had closed the tab, while filling the form.And logs back in again.
   if (
-    !cloudHosting ||
+    (!cloudHosting && !isCypressEnv) ||
     user?.isSuperUser ||
     (user?.role && user?.useCase) ||
     shouldEnableFirstTimeUserOnboarding !== "true"
