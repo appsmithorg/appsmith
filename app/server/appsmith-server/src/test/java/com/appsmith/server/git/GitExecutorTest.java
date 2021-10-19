@@ -60,19 +60,6 @@ public class GitExecutorTest {
         }
     }
 
-    @Test
-    public void cloneApplication_InValidRemoteUrl_ThrowError() {
-        Mono<String> branchName = gitExecutor.cloneApplication(
-                Paths.get( gitServiceConfig.getGitRootPath(),"orgId", "applicationId", "repoName"),
-                "gitRemoteUrl",
-                "privateKey",
-                "publicKey");
-
-        StepVerifier
-                .create(branchName)
-                .expectErrorMatches(throwable -> throwable instanceof InvalidRemoteException)
-                .verify();
-    }
     // TODO cover the below mentioned test cases
     /*
     * Clone with invalid keys
