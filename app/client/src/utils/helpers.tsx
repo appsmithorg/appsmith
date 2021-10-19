@@ -21,6 +21,7 @@ import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
+import log from "loglevel";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -544,3 +545,42 @@ export const truncateString = (
  * @returns
  */
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+
+/**
+ * @returns the original string after trimming the string past `?`
+ */
+export const trimQueryString = (value = "") => {
+  const index = value.indexOf("?");
+  if (index === -1) return value;
+  return value.slice(0, index);
+};
+
+/**
+ * returns the value in the query string for a key
+ */
+export const getSearchQuery = (search = "", key: string) => {
+  const params = new URLSearchParams(search);
+  return decodeURIComponent(params.get(key) || "");
+};
+
+/**
+ * get query params object
+ * ref: https://stackoverflow.com/a/8649003/1543567
+ */
+export const getQueryParamsObject = () => {
+  const search = window.location.search.substring(1);
+  if (!search) return {};
+  try {
+    return JSON.parse(
+      '{"' +
+        decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"') +
+        '"}',
+    );
+  } catch (e) {
+    log.error(e, "error parsing search string");
+    return {};
+  }
+};

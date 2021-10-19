@@ -1,6 +1,10 @@
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
+import {
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+} from "./applicationSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -10,7 +14,10 @@ export const getIsGitSyncModalOpen = createSelector(
   (gitSync) => gitSync.isGitSyncModalOpen,
 );
 
-export const getIsGitRepoSetup = () => true;
+export const getIsGitRepoSetup = (state: AppState) => {
+  const gitMetadata = getCurrentAppGitMetaData(state);
+  return gitMetadata?.remoteUrl;
+};
 
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
@@ -54,3 +61,12 @@ export const getLocalGitConfig = createSelector(
 
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingGitConfig;
+
+export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
+export const getFetchingBranches = (state: AppState) =>
+  state.ui.gitSync.fetchingBranches;
+
+export const getCurrentGitBranch = (state: AppState) => {
+  const { gitApplicationMetadata } = getCurrentApplication(state) || {};
+  return gitApplicationMetadata?.branchName;
+};
