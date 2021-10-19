@@ -11,6 +11,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import CheckboxGroupComponent, { OptionProps } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { compact } from "lodash";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -226,10 +227,10 @@ class CheckboxGroupWidget extends BaseWidget<
       Array.isArray(this.props.options) &&
       this.props.options.length !== prevProps.options.length
     ) {
-      const prevOptions = prevProps.options.map(
+      const prevOptions = compact(prevProps.options).map(
         (prevOption) => prevOption.value,
       );
-      const options = this.props.options.map((option) => option.value);
+      const options = compact(this.props.options).map((option) => option.value);
 
       const diffOptions = prevOptions.filter(
         (prevOption) => !options.includes(prevOption),
@@ -258,7 +259,7 @@ class CheckboxGroupWidget extends BaseWidget<
         isValid={this.props.isValid}
         key={this.props.widgetId}
         onChange={this.handleCheckboxChange}
-        options={this.props.options}
+        options={compact(this.props.options)}
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
         widgetId={this.props.widgetId}
