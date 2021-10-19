@@ -1,5 +1,8 @@
 //check difference for after body change and parsing
 import { JSCollection, JSAction, Variable } from "entities/JSCollection";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 export type ParsedJSSubAction = {
   name: string;
@@ -18,7 +21,7 @@ export const getDifferenceInJSCollection = (
 ) => {
   const newActions: ParsedJSSubAction[] = [];
   const toBearchivedActions: JSAction[] = [];
-  const toBeupdatedActions: JSAction[] = [];
+  const toBeUpdatedActions: JSAction[] = [];
   const nameChangedActions = [];
   const toBeAddedActions: Partial<JSAction>[] = [];
   //check if body is changed and update if exists or
@@ -28,14 +31,16 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        toBeupdatedActions.push({
-          ...preExisted,
-          actionConfiguration: {
-            ...preExisted.actionConfiguration,
-            body: action.body,
-            jsArguments: action.arguments,
-          },
-        });
+        if (preExisted.actionConfiguration.body !== action.body) {
+          toBeUpdatedActions.push({
+            ...preExisted,
+            actionConfiguration: {
+              ...preExisted.actionConfiguration,
+              body: action.body,
+              jsArguments: action.arguments,
+            },
+          });
+        }
       } else {
         newActions.push(action);
       }
@@ -68,7 +73,7 @@ export const getDifferenceInJSCollection = (
             js.id === updateExisting.id;
           });
           //will be part of new nameChangedActions for now
-          toBeupdatedActions.push({
+          toBeUpdatedActions.push({
             ...updateExisting,
             name: newActions[i].name,
           });
@@ -116,8 +121,26 @@ export const getDifferenceInJSCollection = (
   }
   return {
     newActions: toBeAddedActions,
-    updateActions: toBeupdatedActions,
+    updateActions: toBeUpdatedActions,
     deletedActions: toBearchivedActions,
     nameChangedActions: nameChangedActions,
   };
+};
+
+export const pushLogsForObjectUpdate = (
+  actions: JSAction[],
+  jsCollection: JSCollection,
+  text: string,
+) => {
+  for (let i = 0; i < actions.length; i++) {
+    AppsmithConsole.info({
+      logType: LOG_TYPE.JS_ACTION_UPDATE,
+      text: text,
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: jsCollection.name + "." + actions[i].name,
+        id: jsCollection.id,
+      },
+    });
+  }
 };

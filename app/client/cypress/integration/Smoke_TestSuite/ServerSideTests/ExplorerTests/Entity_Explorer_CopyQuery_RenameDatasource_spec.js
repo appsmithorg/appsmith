@@ -46,13 +46,14 @@ describe("Entity explorer tests related to copy query", function() {
       .type("select * from users");
 
     cy.EvaluateCurrentValue("select * from users");
-
+    cy.get(".t--action-name-edit-field").click({ force: true });
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.get(`.t--entity.action:contains(Query1)`)
+        .scrollIntoView({ force: true })
         .find(explorer.collapse)
-        .click();
+        .click({ force: true });
       cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(5);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");

@@ -12,7 +12,7 @@ export const FORGOT_PASSWORD_FORM_NAME = "ForgotPasswordForm";
 export const RESET_PASSWORD_FORM_NAME = "ResetPasswordForm";
 export const CREATE_PASSWORD_FORM_NAME = "CreatePasswordForm";
 
-export const CREATE_ORGANIZATION_FORM_NAME = "Create Organization";
+export const CREATE_ORGANIZATION_FORM_NAME = "New Organization";
 export const CURL_IMPORT_FORM = "CurlImportForm";
 
 export const QUERY_EDITOR_FORM_NAME = "QueryEditorForm";
@@ -31,3 +31,5 @@ export const WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME = "verify_password";
 export const WELCOME_FORM_ROLE_FIELD_NAME = "role";
 export const WELCOME_FORM_ROLE_NAME_FIELD_NAME = "role_name";
 export const WELCOME_FORM_USECASE_FIELD_NAME = "useCase";
+
+export const SETTINGS_FORM_NAME = "SettingsForm";

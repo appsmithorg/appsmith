@@ -4,12 +4,13 @@ import EntityProperties from "../Entity/EntityProperties";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
-import { ExplorerURLParams } from "../helpers";
-import { useParams } from "react-router";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { getJSCollectionIdFromURL } from "../helpers";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+
+import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerJSCollectionEntityProps = {
   action: JSCollectionData;
@@ -25,11 +26,11 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
-    const params = useParams<ExplorerURLParams>();
+    const applicationId = useSelector(getCurrentApplicationId);
     const navigateToJSCollection = useCallback(() => {
       history.push(
         JS_COLLECTION_ID_URL(
-          params.applicationId,
+          applicationId,
           props.pageId,
           props.action.config.id,
           {},

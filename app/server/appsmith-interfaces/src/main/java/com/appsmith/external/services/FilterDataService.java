@@ -322,6 +322,7 @@ public class FilterDataService {
     private void executeDbQuery(String query) {
 
         Connection conn = checkAndGetConnection();
+        log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), query);
 
         try {
             conn.createStatement().execute(query);
@@ -537,11 +538,9 @@ public class FilterDataService {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
                     break;
                 }
-                case STRING: {
-                    preparedStatement.setString(index, value);
-                    break;
-                }
+                case STRING: 
                 default:
+                    preparedStatement.setString(index, value);
                     break;
             }
 

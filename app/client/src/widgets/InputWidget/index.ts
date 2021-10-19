@@ -10,7 +10,7 @@ export const CONFIG = {
   defaults: {
     inputType: "TEXT",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    label: "Label",
+    label: "",
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Input",
     version: 1,

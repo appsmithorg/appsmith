@@ -11,6 +11,7 @@ export enum TextType {
   H4 = "h4",
   H5 = "h5",
   H6 = "h6",
+  SIDE_HEAD = "sideHeading",
 }
 
 export enum Case {

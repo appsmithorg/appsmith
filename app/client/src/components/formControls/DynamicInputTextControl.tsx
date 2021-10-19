@@ -12,13 +12,23 @@ import {
   EditorModes,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
   TEXT = "TEXT",
   PASSWORD = "PASSWORD",
   JSON = "JSON",
 }
+
+const StyledDynamicTextField = styled(DynamicTextField)`
+  .CodeEditorTarget .CodeMirror.CodeMirror-wrap {
+    background-color: ${Colors.WHITE};
+  }
+  &&& .t--code-editor-wrapper {
+    border: none;
+  }
+`;
 
 // Functional component for the DYNAMIC_INPUT_TEXT_CONTROL
 export function InputText(props: {
@@ -46,7 +56,7 @@ export function InputText(props: {
       <FormLabel>
         {label} {isRequired && "*"}
       </FormLabel>
-      <DynamicTextField
+      <StyledDynamicTextField
         dataTreePath={dataTreePath}
         name={name}
         placeholder={placeholder}

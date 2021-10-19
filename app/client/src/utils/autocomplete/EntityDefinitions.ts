@@ -33,6 +33,13 @@ export const entityDefinitions: Record<string, unknown> = {
       clear: "fn() -> void",
     };
   },
+  AUDIO_WIDGET: {
+    "!doc":
+      "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",
+    "!url": "https://docs.appsmith.com/widget-reference/audio",
+    playState: "number",
+    autoPlay: "bool",
+  },
   CONTAINER_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
@@ -454,6 +461,14 @@ export const GLOBAL_FUNCTIONS = {
   resetWidget: {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
+  },
+  setInterval: {
+    "!doc": "Execute triggers at a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+  clearInterval: {
+    "!doc": "Stop executing a setInterval with id",
+    "!type": "fn(id: string) -> void",
   },
 };
 

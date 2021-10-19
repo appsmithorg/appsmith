@@ -59,7 +59,12 @@ import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
+import {
+  getFirstTimeUserOnboardingComplete,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
 
 //  ---------- Styles ----------
 
@@ -166,10 +171,9 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const {
-    applicationId: currentApplicationId,
-    pageId: currentPageId,
-  } = useParams<ExplorerURLParams>();
+  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
@@ -246,6 +250,9 @@ function GeneratePageForm() {
 
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
+  );
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
   );
 
   const onSelectDataSource = useCallback(
@@ -474,11 +481,13 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      `${INTEGRATION_EDITOR_URL(
-        currentApplicationId,
+      INTEGRATION_EDITOR_URL(
+        applicationId,
         currentPageId,
         INTEGRATION_TABS.NEW,
-      )}?isGeneratePageMode=generate-page`,
+        "",
+        { isGeneratePageMode: "generate-page" },
+      ),
     );
   };
 
@@ -491,7 +500,7 @@ function GeneratePageForm() {
     }
 
     const payload = {
-      applicationId: currentApplicationId || "",
+      applicationId: applicationId || "",
       pageId:
         currentMode.current === GENERATE_PAGE_MODE.NEW
           ? ""
@@ -512,6 +521,12 @@ function GeneratePageForm() {
         payload: "",
       });
     }
+    if (isFirstTimeUserOnboardingComplete) {
+      dispatch({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
+        payload: false,
+      });
+    }
   };
 
   const handleFormSubmit = () => {
@@ -528,7 +543,7 @@ function GeneratePageForm() {
       datasourceId: selectedDatasource.id,
     });
     const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
-      currentApplicationId,
+      applicationId,
       currentPageId,
       selectedDatasource.id,
       { isGeneratePageMode: "generate-page" },

@@ -1,0 +1,27 @@
+{{- if and .Values.persistence.enabled .Values.persistence.localStorage }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "appsmith.fullname" . }}
+  namespace: {{ include "appsmith.namespace" . }}
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size | quote }}
+  volumeMode: Filesystem # Mount volume into Pod as a directory.
+  accessModes:
+  {{- range .Values.persistence.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+  local:
+    path: {{ .Values.persistence.storagePath }} # Path to the directory this PV refers to.
+  nodeAffinity: # nodeAffinity is required when using local volumes.
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values: 
+            {{- toYaml .Values.persistence.localCluster | nindent 12 }}
+{{- end }}

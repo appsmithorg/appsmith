@@ -55,6 +55,7 @@ import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { ButtonVariantTypes } from "components/constants";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -334,7 +335,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <ActionButton
           // accent="error"
           buttonStyle="DANGER"
-          buttonVariant="SOLID"
+          buttonVariant={ButtonVariantTypes.PRIMARY}
           className="t--delete-datasource"
           loading={isDeleting}
           onClick={() => deleteDatasource(datasourceId)}

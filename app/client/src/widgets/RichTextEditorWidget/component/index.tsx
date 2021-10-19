@@ -19,6 +19,7 @@ export interface RichtextEditorComponentProps {
   widgetId: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  isToolbarHidden: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
@@ -28,6 +29,9 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   const [isEditorInitialised, setIsEditorInitialised] = useState(false);
   const [editorInstance, setEditorInstance] = useState(null as any);
+
+  const toolbarConfig =
+    "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help";
 
   /* Using editorContent as a variable to save editor content locally to verify against new content*/
   const editorContent = useRef("");
@@ -105,15 +109,14 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         "searchreplace visualblocks code fullscreen",
         "insertdatetime media table paste code help",
       ],
-      toolbar:
-        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help",
+      toolbar: props.isToolbarHidden ? false : toolbarConfig,
     });
 
     return () => {
       (window as any).tinyMCE.EditorManager.remove(selector);
       editorInstance !== null && editorInstance.remove();
     };
-  }, [status]);
+  }, [status, props.isToolbarHidden]);
 
   if (status !== ScriptStatus.READY) return null;
 

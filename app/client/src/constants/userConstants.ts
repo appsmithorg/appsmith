@@ -2,6 +2,11 @@ export const ANONYMOUS_USERNAME = "anonymousUser";
 
 type Gender = "MALE" | "FEMALE";
 
+export enum CommentsOnboardingState {
+  ONBOARDED = "ONBOARDED",
+  SKIPPED = "SKIPPED",
+}
+
 export type User = {
   email: string;
   organizationIds: string[];
@@ -9,6 +14,9 @@ export type User = {
   name: string;
   gender: Gender;
   emptyInstance?: boolean;
+  commentOnboardingState?: CommentsOnboardingState | null;
+  photoId?: string;
+  isSuperUser: boolean;
 };
 
 export interface UserApplication {
@@ -26,6 +34,7 @@ export const DefaultCurrentUserDetails: User = {
   organizationIds: [],
   username: ANONYMOUS_USERNAME,
   gender: "MALE",
+  isSuperUser: false,
 };
 
 // TODO keeping it here instead of the USER_API since it leads to cyclic deps errors during tests

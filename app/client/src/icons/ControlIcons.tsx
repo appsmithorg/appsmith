@@ -10,21 +10,17 @@ import { ReactComponent as JsToggleIcon } from "assets/icons/control/js-toggle.s
 import { ReactComponent as IncreaseIcon } from "assets/icons/control/increase.svg";
 import { ReactComponent as DecreaseIcon } from "assets/icons/control/decrease.svg";
 import { ReactComponent as DraggableIcon } from "assets/icons/control/draggable.svg";
-import { ReactComponent as CloseIcon } from "assets/icons/control/close.svg";
 import { ReactComponent as CloseCircleIcon } from "assets/icons/control/close-circle.svg";
 import { ReactComponent as AddCircleIcon } from "assets/icons/control/add-circle.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { ReactComponent as CollapseIcon } from "assets/icons/control/collapse.svg";
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
-import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as RemoveIcon } from "assets/icons/control/remove.svg";
 import { ReactComponent as DragIcon } from "assets/icons/control/drag.svg";
 import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
 import { ReactComponent as EditWhiteIcon } from "assets/icons/control/edit-white.svg";
 import { ReactComponent as LaunchIcon } from "assets/icons/control/launch.svg";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
-import { ReactComponent as ShowColumnIcon } from "assets/icons/control/hide-column.svg";
-import { ReactComponent as HideColumnIcon } from "assets/icons/control/columns-visibility.svg";
 import { ReactComponent as DeleteColumnIcon } from "assets/icons/control/delete-column.svg";
 import { ReactComponent as BoldFontIcon } from "assets/icons/control/bold.svg";
 import { ReactComponent as UnderlineIcon } from "assets/icons/control/underline.svg";
@@ -35,7 +31,6 @@ import { ReactComponent as RightAlignIcon } from "assets/icons/control/right-ali
 import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vertical_align_bottom.svg";
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
-import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
 import { ReactComponent as Copy2Icon } from "assets/icons/control/copy2.svg";
 import { ReactComponent as CutIcon } from "assets/icons/control/cut.svg";
 import { ReactComponent as GroupIcon } from "assets/icons/control/group.svg";
@@ -60,7 +55,14 @@ import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
+import IncreaseV2Icon from "remixicon-react/AddCircleLineIcon";
 import PlayIcon from "assets/icons/control/play-icon.png";
+import CopyIcon from "remixicon-react/FileCopyLineIcon";
+import QuestionIcon from "remixicon-react/QuestionLineIcon";
+import SettingsIcon from "remixicon-react/Settings5LineIcon";
+import EyeIcon from "remixicon-react/EyeLineIcon";
+import EyeOffIcon from "remixicon-react/EyeOffLineIcon";
+import CloseIcon from "remixicon-react/CloseLineIcon";
 
 /* eslint-disable react/display-name */
 
@@ -193,12 +195,12 @@ export const ControlIcons: {
   ),
   SHOW_COLUMN: (props: IconProps) => (
     <IconWrapper {...props}>
-      <ShowColumnIcon />
+      <EyeIcon />
     </IconWrapper>
   ),
   HIDE_COLUMN: (props: IconProps) => (
     <IconWrapper {...props}>
-      <HideColumnIcon />
+      <EyeOffIcon />
     </IconWrapper>
   ),
   DELETE_COLUMN: (props: IconProps) => (
@@ -374,6 +376,16 @@ export const ControlIcons: {
   BOX_SHADOW_VARIANT5: (props: IconProps) => (
     <IconWrapper {...props}>
       <BoxShadowVariant5Icon />
+    </IconWrapper>
+  ),
+  INCREASE_CONTROL_V2: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IncreaseV2Icon />
+    </IconWrapper>
+  ),
+  QUESTION: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <QuestionIcon />
     </IconWrapper>
   ),
 };

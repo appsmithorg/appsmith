@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -258,6 +259,38 @@ public class UserDataServiceTest {
         StepVerifier.create(userDataMono).assertNext(userData -> {
             assertThat(userData.getProfilePhotoAssetId()).isNotNull();
             Mockito.verify(userChangedHandler, Mockito.times(1)).publish(anyString(), anyString());
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setCommentState_WhenParamIsInvalid_ThrowsException() {
+        StepVerifier.create(userDataService.setCommentState(null))
+                .expectError(AppsmithException.class)
+                .verify();
+        StepVerifier.create(userDataService.setCommentState(CommentOnboardingState.COMMENTED))
+                .expectError(AppsmithException.class)
+                .verify();
+        StepVerifier.create(userDataService.setCommentState(CommentOnboardingState.RESOLVED))
+                .expectError(AppsmithException.class)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setCommentState_WhenParamIsValid_StateIsSet() {
+        Mono<UserData> userDataMono1 = userDataService.setCommentState(CommentOnboardingState.SKIPPED).flatMap(userData ->
+                userDataService.getForCurrentUser()
+        );
+        StepVerifier.create(userDataMono1).assertNext(userData -> {
+            assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.SKIPPED);
+        }).verifyComplete();
+
+        Mono<UserData> userDataMono2 = userDataService.setCommentState(CommentOnboardingState.ONBOARDED).flatMap(userData ->
+                userDataService.getForCurrentUser()
+        );
+        StepVerifier.create(userDataMono2).assertNext(userData -> {
+            assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.ONBOARDED);
         }).verifyComplete();
     }
 }

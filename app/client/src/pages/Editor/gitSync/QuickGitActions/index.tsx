@@ -27,6 +27,7 @@ import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-lin
 import Button, { Category, Size } from "components/ads/Button";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
+import getFeatureFlags from "utils/featureFlags";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -64,6 +65,10 @@ const QuickActionButtonContainer = styled.div`
   }
 `;
 
+const capitalizeFirstLetter = (string = " ") => {
+  return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
+};
+
 function QuickActionButton({
   count = 0,
   icon,
@@ -71,7 +76,7 @@ function QuickActionButton({
   tooltipText,
 }: QuickActionButtonProps) {
   return (
-    <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+    <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
       <QuickActionButtonContainer onClick={onClick}>
         {icon}
         {count > 0 && (
@@ -119,6 +124,24 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
+  margin-left: ${(props) => props.theme.spaces[10]}px;
+`;
+
+const StyledIcon = styled(GitCommitLine)`
+  & path {
+    fill: ${Colors.DARK_GRAY};
+  }
+  margin-right: ${(props) => props.theme.spaces[3]}px;
+`;
+
+const PlaceholderButton = styled.div`
+  padding: ${(props) =>
+    `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
+  border: solid 1px ${Colors.MERCURY};
+  ${(props) => getTypographyByKey(props, "btnSmall")};
+  text-transform: uppercase;
+  background-color: ${Colors.ALABASTER_ALT};
+  color: ${Colors.GRAY};
 `;
 
 function ConnectGitPlaceholder() {
@@ -126,15 +149,34 @@ function ConnectGitPlaceholder() {
 
   return (
     <Container>
-      <GitCommitLine />
-      <Button
-        category={Category.tertiary}
-        onClick={() => {
-          dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+      <Tooltip
+        content={
+          <>
+            <div>It&apos;s not live for you yet</div>
+            <div>Coming soon!</div>
+          </>
+        }
+        disabled={getFeatureFlags().GIT}
+        modifiers={{
+          preventOverflow: { enabled: true },
         }}
-        size={Size.small}
-        text={createMessage(CONNECT_GIT)}
-      />
+      >
+        <Container style={{ marginLeft: 0, cursor: "pointer" }}>
+          <StyledIcon />
+          {getFeatureFlags().GIT ? (
+            <Button
+              category={Category.tertiary}
+              onClick={() => {
+                dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+              }}
+              size={Size.small}
+              text={createMessage(CONNECT_GIT)}
+            />
+          ) : (
+            <PlaceholderButton>{createMessage(CONNECT_GIT)}</PlaceholderButton>
+          )}
+        </Container>
+      </Tooltip>
     </Container>
   );
 }
@@ -163,7 +205,7 @@ export default function QuickGitActions() {
       );
     },
   });
-  return isGitRepoSetup ? (
+  return getFeatureFlags().GIT && isGitRepoSetup ? (
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (

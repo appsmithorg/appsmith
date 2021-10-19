@@ -11,21 +11,28 @@ import { Page } from "constants/ReduxActionConstants";
 import Toggle from "components/ads/Toggle";
 import { Action } from "./PageListItem";
 import EditName from "./EditName";
+import { useSelector } from "react-redux";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Colors } from "constants/Colors";
+import TooltipComponent from "components/ads/Tooltip";
+import { createMessage, SETTINGS_TOOLTIP } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Position } from "@blueprintjs/core";
 
 // render over popover portals
 const Container = styled.div`
   padding: 12px;
   padding-top: 6px;
   width: 280px;
-  background-color: ${(props) => props.theme.colors.propertyPane.bg};
+  background-color: ${Colors.GREY_1};
 
   h4 {
     margin: 0;
     margin-top: 8px;
     margin-bottom: 10px;
     font-weight: normal;
-    font-size: 12px;
-    text-transform: uppercase;
+    font-size: 16px;
   }
 
   main {
@@ -36,8 +43,6 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: center;
-  border-bottom: 1px solid ${(props) => props.theme.borders[2].color};
-  padding-bottom: 8px;
 `;
 
 const MenuItem = styled.div`
@@ -47,21 +52,26 @@ const MenuItem = styled.div`
 
   & > div {
     flex-grow: 1;
-    font-size: 12px;
+    font-size: 14px;
   }
 `;
 
 const MenuItemToggle = styled(Toggle)`
   flex-basis: 48px;
   height: 23px;
+  transform: scale(0.85);
+
+  input:checked + .slider {
+    background-color: ${Colors.GREY_10};
+  }
 `;
 
 const Actions = styled.div`
   display: flex;
   align-items: center;
 
-  & > div {
-    margin-left: 4px;
+  & > button {
+    margin-left: 0px;
   }
 `;
 
@@ -86,7 +96,6 @@ const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 type Props = {
   page: Page;
-  applicationId: string;
   onSetPageHidden: () => void;
   onCopy: (pageId: string) => void;
   onDelete: (pageId: string, pageName: string) => void;
@@ -94,16 +103,11 @@ type Props = {
 };
 
 function ContextMenu(props: Props) {
-  const {
-    applicationId,
-    onCopy,
-    onDelete,
-    onSetPageDefault,
-    onSetPageHidden,
-    page,
-  } = props;
+  const { onCopy, onDelete, onSetPageDefault, onSetPageHidden, page } = props;
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   /**
    * opens the context menu on interaction ( on click )
@@ -118,12 +122,12 @@ function ContextMenu(props: Props) {
         <Container>
           <Header>
             <PageName>
-              <EditName applicationId={applicationId} page={page} />
+              <EditName page={page} />
             </PageName>
             <Actions>
               <Action>
                 <CopyIcon
-                  color={get(theme, "colors.propertyPane.iconColor")}
+                  color={Colors.GREY_9}
                   height={16}
                   onClick={() => onCopy(page.pageId)}
                   width={16}
@@ -134,7 +138,7 @@ function ContextMenu(props: Props) {
                   color={
                     page.isDefault
                       ? get(theme, "colors.propertyPane.deleteIconColor")
-                      : get(theme, "colors.propertyPane.iconColor")
+                      : Colors.GREY_9
                   }
                   disabled={page.isDefault}
                   height={16}
@@ -147,7 +151,7 @@ function ContextMenu(props: Props) {
                   color={
                     page.isDefault
                       ? get(theme, "colors.propertyPane.deleteIconColor")
-                      : get(theme, "colors.propertyPane.iconColor")
+                      : Colors.GREY_9
                   }
                   height={16}
                   onClick={() => setIsOpen(false)}
@@ -184,14 +188,20 @@ function ContextMenu(props: Props) {
       placement="bottom-start"
       portalClassName="pages-editor-context-menu"
     >
-      <Action className={isOpen ? "active" : ""} type="button">
-        <SettingsIcon
-          color={get(theme, "colors.propertyPane.iconColor")}
-          height={16}
-          onClick={noop}
-          width={16}
-        />
-      </Action>
+      <TooltipComponent
+        content={createMessage(SETTINGS_TOOLTIP)}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position={Position.BOTTOM}
+      >
+        <Action className={isOpen ? "active" : ""} type="button">
+          <SettingsIcon
+            color={Colors.GREY_8}
+            height={16}
+            onClick={noop}
+            width={16}
+          />
+        </Action>
+      </TooltipComponent>
     </Popover2>
   );
 }

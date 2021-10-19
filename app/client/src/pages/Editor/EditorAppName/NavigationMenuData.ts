@@ -1,4 +1,4 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
@@ -17,15 +17,21 @@ import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
 
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "../../Applications/permissionHelpers";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { Colors } from "constants/Colors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 type NavigationMenuDataProps = ThemeProp & {
-  applicationId: string | undefined;
   editMode: typeof noop;
   deploy: typeof noop;
   currentDeployLink: string;
 };
 
 export const GetNavigationMenuData = ({
-  applicationId,
   currentDeployLink,
   deploy,
   editMode,
@@ -35,8 +41,15 @@ export const GetNavigationMenuData = ({
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
 
+  const applicationId = useSelector(getCurrentApplicationId);
+
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
 
+  const currentApplication = useSelector(getCurrentApplication);
+  const hasExportPermission = isPermitted(
+    currentApplication?.userPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
+  );
   const openExternalLink = useCallback((link: string) => {
     if (link) {
       window.open(link, "_blank");
@@ -48,7 +61,7 @@ export const GetNavigationMenuData = ({
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
         payload: {
-          applicationId,
+          applicationId: applicationId,
         },
       });
       history.push(APPLICATIONS_URL);
@@ -70,7 +83,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
       },
       type: MenuTypes.MENU,
       isVisible: true,
@@ -158,7 +171,7 @@ export const GetNavigationMenuData = ({
       onClick: () =>
         applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
       type: MenuTypes.MENU,
-      isVisible: isApplicationIdPresent,
+      isVisible: isApplicationIdPresent && hasExportPermission,
     },
     {
       text: "Delete Application",
@@ -166,6 +179,7 @@ export const GetNavigationMenuData = ({
       onClick: deleteApplication,
       type: MenuTypes.RECONFIRM,
       isVisible: isApplicationIdPresent,
+      style: { color: Colors.ERROR_RED },
     },
   ];
 };
