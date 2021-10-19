@@ -41,6 +41,9 @@ import {
   FieldEntityInformation,
   Hinter,
   HintHelper,
+  isCloseKey,
+  isModifierKey,
+  isNavKey,
   MarkHelper,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -82,35 +85,6 @@ import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
-
-const AUTOCOMPLETE_CLOSE_KEY_CODES: Record<string, string> = {
-  Enter: "Enter",
-  Tab: "Tab",
-  Escape: "Escape",
-  Comma: "Comma",
-  Semicolon: "Semicolon",
-  Space: "Space",
-  Delete: "Delete",
-  Backspace: "Backspace",
-  "Ctrl+Backspace": "Ctrl+Backspace",
-  OSLeft: "OSLeft",
-  "(": "(",
-  ")": ")",
-} as const;
-
-const MODIFIERS: Record<string, string> = {
-  Control: "Control",
-  Meta: "Meta",
-  Alt: "Alt",
-  Shift: "Shift",
-} as const;
-
-const AUTOCOMPLETE_NAVIGATION: Record<string, string> = {
-  ArrowUp: "ArrowUp",
-  ArrowDown: "ArrowDown",
-  ArrowRight: "ArrowRight",
-  ArrowLeft: "ArrowLeft",
-} as const;
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -481,16 +455,13 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
-    if (MODIFIERS[key]) return;
+    if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
-    if (
-      AUTOCOMPLETE_CLOSE_KEY_CODES[code] ||
-      AUTOCOMPLETE_CLOSE_KEY_CODES[key]
-    ) {
+    if (isCloseKey(code) || isCloseKey(key)) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       cm.closeHint();
-    } else if (!AUTOCOMPLETE_NAVIGATION[event.code]) {
+    } else if (!isNavKey(event.code)) {
       this.handleAutocompleteVisibility(cm);
     }
   };
