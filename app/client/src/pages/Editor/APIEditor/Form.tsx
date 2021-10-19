@@ -530,7 +530,7 @@ function ApiEditorForm(props: Props) {
                 optionWidth={"100px"}
                 options={HTTP_METHOD_OPTIONS}
                 placeholder="Method"
-                width={"100px"}
+                width={"102px"}
               />
             </BoundaryContainer>
             <DatasourceWrapper className="t--dataSourceField">
