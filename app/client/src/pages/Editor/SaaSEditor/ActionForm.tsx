@@ -31,6 +31,7 @@ import { Datasource } from "entities/Datasource";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import * as Sentry from "@sentry/react";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -79,12 +80,19 @@ function ActionForm(props: Props) {
         // Calculate path from path[] in diff
         path = props.actionObjectDiff[i].path.reduce(
           (acc: string, item: number | string) => {
-            if (typeof item === "string" && acc) {
-              acc += `${path}.${item}`;
-            } else if (typeof item === "string" && !acc) {
-              acc += `${item}`;
-            } else acc += `${path}[${item}]`;
-            return acc;
+            try {
+              if (typeof item === "string" && acc) {
+                acc += `${path}.${item}`;
+              } else if (typeof item === "string" && !acc) {
+                acc += `${item}`;
+              } else acc += `${path}[${item}]`;
+              return acc;
+            } catch (error) {
+              Sentry.captureException({
+                message: `Adding key: where failed, cannot create path`,
+                oldData: props.actionObjectDiff,
+              });
+            }
           },
           "",
         );
