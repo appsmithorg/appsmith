@@ -2,7 +2,6 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -23,7 +22,6 @@ public class IndexController {
     private final SessionUserService service;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
-    private final ReleaseNotesService releaseNotesService;
 
     @GetMapping
     public Mono<String> index(Mono<Principal> principal) {
