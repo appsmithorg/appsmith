@@ -7,27 +7,27 @@ import { RadioOption } from "widgets/RadioGroupWidget/constants";
 
 type RadioGroupComponentOwnProps = {
   options: RadioOption[];
+  isDisabled: false;
 };
 
 type RadioGroupFieldProps = BaseFieldComponentProps<
   RadioGroupComponentOwnProps
 >;
 
-function RadioGroupField({ name, schemaItem }: RadioGroupFieldProps) {
+function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
   const { label, props } = schemaItem;
-  const { options = [] } = props;
 
   return (
     <Field
+      {...rest}
       label={label}
       name={name}
       render={({ field: { onChange, value } }) => (
         <RadioGroupComponent
-          isDisabled={false}
+          {...props}
           isLoading={false}
           label=""
           onRadioSelectionChange={onChange}
-          options={options}
           selectedOptionValue={value}
           widgetId=""
         />
@@ -36,6 +36,8 @@ function RadioGroupField({ name, schemaItem }: RadioGroupFieldProps) {
   );
 }
 
-RadioGroupField.componentDefaultValues = {};
+RadioGroupField.componentDefaultValues = {
+  isDisabled: false,
+};
 
 export default RadioGroupField;

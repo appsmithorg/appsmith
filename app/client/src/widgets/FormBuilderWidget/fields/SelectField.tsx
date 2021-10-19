@@ -26,12 +26,13 @@ type SelectComponentOwnProps = Pick<
 
 type SelectFieldProps = BaseFieldComponentProps<SelectComponentOwnProps>;
 
-function SelectField({ name, schemaItem }: SelectFieldProps) {
+function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
   const { label, props } = schemaItem;
-  const { options = [], isDisabled = false, ...rest } = props;
+  const { options = [], isDisabled = false, ...restSchemaItemProps } = props;
 
   return (
     <Field
+      {...rest}
       label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => {
@@ -47,7 +48,7 @@ function SelectField({ name, schemaItem }: SelectFieldProps) {
 
         return (
           <DropDownComponent
-            {...rest}
+            {...restSchemaItemProps}
             disabled={isDisabled}
             height={10}
             inputRef={ref}

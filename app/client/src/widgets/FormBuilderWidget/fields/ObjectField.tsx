@@ -4,11 +4,13 @@ import { ControllerRenderProps } from "react-hook-form";
 
 import fieldRenderer from "./fieldRenderer";
 import { SchemaItem } from "../constants";
+import FieldLabel from "../component/FieldLabel";
 
 // Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
   name: string;
   schemaItem: SchemaItem;
+  hideLabel?: boolean;
 };
 
 const WRAPPER_PADDING_Y = 10;
@@ -16,10 +18,12 @@ const WRAPPER_PADDING_X = 15;
 
 const StyledWrapper = styled.div`
   padding: ${WRAPPER_PADDING_Y}px ${WRAPPER_PADDING_X}px;
+  padding-top: 0;
   width: 100%;
 `;
 
-function ObjectField({ name, schemaItem }: ObjectFieldProps) {
+function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
+  const { label } = schemaItem;
   const children = Object.values(schemaItem.children);
   const renderFields = () => {
     return children.map((schemaItem) => {
@@ -32,7 +36,13 @@ function ObjectField({ name, schemaItem }: ObjectFieldProps) {
     });
   };
 
-  return <StyledWrapper>{renderFields()}</StyledWrapper>;
+  const renderedFields = <StyledWrapper>{renderFields()}</StyledWrapper>;
+
+  if (hideLabel) {
+    return renderedFields;
+  }
+
+  return <FieldLabel label={label}>{renderedFields}</FieldLabel>;
 }
 
 ObjectField.componentDefaultValues = {};

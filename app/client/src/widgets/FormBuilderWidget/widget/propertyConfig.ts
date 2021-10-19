@@ -126,6 +126,16 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             },
           },
           {
+            helpText: "Disables the field",
+            propertyName: "props.isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "children",
             label: "fieldConfiguration",
             controlType: "FIELD_CONFIGURATION",

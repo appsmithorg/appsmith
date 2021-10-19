@@ -4,17 +4,23 @@ import CheckboxComponent from "widgets/CheckboxWidget/component";
 import Field from "widgets/FormBuilderWidget/component/Field";
 import { BaseFieldComponentProps } from "./types";
 
-type CheckboxFieldProps = BaseFieldComponentProps;
+type CheckboxComponentProps = {
+  isDisabled: boolean;
+};
 
-function CheckboxField({ name, schemaItem }: CheckboxFieldProps) {
-  const { label } = schemaItem;
+type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
+
+function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
+  const { label, props } = schemaItem;
 
   return (
     <Field
+      {...rest}
       label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <CheckboxComponent
+          {...props}
           alignWidget="LEFT"
           inputRef={ref}
           isChecked={value}

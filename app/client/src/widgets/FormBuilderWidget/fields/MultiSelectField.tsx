@@ -16,20 +16,28 @@ const COMPONENT_DEFAULT_VALUES = {
 
 type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
 
-type DateComponentOwnProps = Pick<MultiSelectProps, PICKED_DEFAULT_PROPS>;
+type DateComponentOwnProps = Pick<MultiSelectProps, PICKED_DEFAULT_PROPS> & {
+  isDisabled: boolean;
+};
 
 type MultiSelectFieldProps = BaseFieldComponentProps<DateComponentOwnProps>;
-function MultiSelectField({ name, schemaItem }: MultiSelectFieldProps) {
+function MultiSelectField({
+  name,
+  schemaItem,
+  ...rest
+}: MultiSelectFieldProps) {
   const { label, props } = schemaItem;
+  const { isDisabled, ...restSchemaItemProps } = props;
 
   return (
     <Field
+      {...rest}
       label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <MultiSelect
-          {...props}
-          disabled={false}
+          {...restSchemaItemProps}
+          disabled={isDisabled}
           dropdownStyle={{
             zIndex: Layers.dropdownModalWidget,
           }}
@@ -46,6 +54,9 @@ function MultiSelectField({ name, schemaItem }: MultiSelectFieldProps) {
   );
 }
 
-MultiSelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+MultiSelectField.componentDefaultValues = {
+  ...COMPONENT_DEFAULT_VALUES,
+  isDisabled: false,
+};
 
 export default MultiSelectField;

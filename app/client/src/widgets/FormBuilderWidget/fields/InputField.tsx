@@ -17,13 +17,14 @@ type InputComponentOwnProps = Pick<InputComponentProps, PICKED_DEFAULT_PROPS>;
 
 type InputFieldProps = BaseFieldComponentProps<InputComponentOwnProps>;
 
-function InputField({ name, schemaItem }: InputFieldProps) {
+function InputField({ name, schemaItem, ...rest }: InputFieldProps) {
   const { fieldType, label, props } = schemaItem;
   const { isDisabled } = props;
   const inputType = INPUT_FIELD_TYPE[fieldType];
 
   return (
     <Field
+      {...rest}
       label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (

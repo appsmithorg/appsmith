@@ -2,32 +2,35 @@ import React from "react";
 import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
+import FieldLabel from "./FieldLabel";
+
 type FieldProps = {
   name: ControllerProps["name"];
   label: string;
+  hideLabel?: boolean;
   render: ControllerProps["render"];
 };
 
-const WRAPPER_MARGIN_Y = 14;
-const LABEL_TEXT_MARGIN_BOTTOM = 4;
+const WRAPPER_MARGIN_BOTTOM = 14;
 
 const StyledWrapper = styled.div`
-  margin: ${WRAPPER_MARGIN_Y}px 0;
+  margin-bottom: ${WRAPPER_MARGIN_BOTTOM}px;
 `;
 
-const StyledLabelText = styled.p`
-  margin-bottom: ${LABEL_TEXT_MARGIN_BOTTOM}px;
-`;
-
-function Field({ label, name, render }: FieldProps) {
+function Field({ hideLabel = false, label, name, render }: FieldProps) {
   const { control } = useFormContext();
+
+  const controller = (
+    <Controller control={control} name={name} render={render} />
+  );
 
   return (
     <StyledWrapper>
-      <label>
-        <StyledLabelText>{label}</StyledLabelText>
-        <Controller control={control} name={name} render={render} />
-      </label>
+      {hideLabel ? (
+        controller
+      ) : (
+        <FieldLabel label={label}>{controller}</FieldLabel>
+      )}
     </StyledWrapper>
   );
 }

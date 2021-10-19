@@ -3,5 +3,6 @@ import { SchemaItem } from "../constants";
 
 export type BaseFieldComponentProps<TProps = any> = {
   name: ControllerRenderProps["name"];
+  hideLabel?: boolean;
   schemaItem: SchemaItem<TProps>;
 };

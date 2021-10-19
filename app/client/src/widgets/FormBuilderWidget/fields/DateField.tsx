@@ -26,11 +26,12 @@ type DateComponentOwnProps = Pick<
 
 type DateFieldProps = BaseFieldComponentProps<DateComponentOwnProps>;
 
-function DateField({ name, schemaItem }: DateFieldProps) {
+function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
   const { label, props } = schemaItem;
 
   return (
     <Field
+      {...rest}
       label={label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
