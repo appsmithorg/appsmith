@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -13,6 +13,7 @@ import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _, { debounce } from "lodash";
 import { Category, Size } from "components/ads/Button";
+import { Colors } from "constants/Colors";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -73,20 +74,41 @@ type RenderComponentProps = {
 
 function GroupButtonComponent(props: RenderComponentProps) {
   const { deleteOption, index, item, updateOption } = props;
+
+  const [value, setValue] = useState(item.label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && item && item.label) setValue(item.label);
+  }, [item?.label, isEditing]);
+
   const debouncedUpdate = debounce(updateOption, 1000);
+  const onChange = useCallback(
+    (index: number, value: string) => {
+      setValue(value);
+      debouncedUpdate(index, value);
+    },
+    [updateOption],
+  );
   const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
     index,
   ]);
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
   return (
     <ButtonWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        defaultValue={item.label}
+        onBlur={onBlur}
         onChange={(value: string) => {
-          debouncedUpdate(index, value);
+          onChange(index, value);
         }}
+        onFocus={onFocus}
         placeholder="Button label"
+        value={value}
       />
       <StyledDeleteIcon
         className="t--delete-tab-btn"
@@ -231,8 +253,8 @@ class ButtonListControl extends BaseControl<ControlProps> {
         id: newGroupButtonId,
         label: newGroupButtonLabel,
         menuItems: {},
-        buttonVariant: "SOLID",
-        buttonStyle: "SECONDARY",
+        buttonType: "SIMPLE",
+        buttonColor: Colors.GREEN,
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
