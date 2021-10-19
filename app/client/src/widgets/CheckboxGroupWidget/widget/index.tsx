@@ -1,17 +1,19 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { compact } from "lodash";
+
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { WidgetType } from "constants/WidgetConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import CheckboxGroupComponent, { OptionProps } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { compact } from "lodash";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
+import CheckboxGroupComponent, { OptionProps } from "../component";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
