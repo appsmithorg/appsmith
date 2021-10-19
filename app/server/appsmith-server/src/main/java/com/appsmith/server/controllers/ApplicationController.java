@@ -40,7 +40,6 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(Url.APPLICATION_URL)
@@ -138,10 +137,9 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @GetMapping({"/view/{applicationId}", "/view/{applicationId}/branch/{branchName}"})
-    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String applicationId,
-                                                                   @PathVariable Optional<String> branchName) {
-        return service.getApplicationInViewMode(applicationId, branchName.orElse(null))
+    @GetMapping("/view/{applicationId}")
+    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String applicationId) {
+        return service.getApplicationInViewMode(applicationId)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 

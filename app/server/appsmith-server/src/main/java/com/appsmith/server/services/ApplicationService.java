@@ -4,7 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
-import io.sentry.protocol.App;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,8 +32,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Flux<Application> findAllApplicationsByOrganizationId(String organizationId);
 
     Mono<Application> getApplicationInViewMode(String applicationId);
-
-    Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName);
 
     Mono<Application> saveLastEditInformation(String applicationId);
 

@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
@@ -229,15 +228,6 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
-            return getApplicationInViewMode(defaultApplicationId);
-        }
-        return getChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
-            .flatMap(this::getApplicationInViewMode);
-    }
-
-    @Override
     public Mono<Application> getApplicationInViewMode(String applicationId) {
         return repository.findById(applicationId, READ_APPLICATIONS)
                 .map(application -> {
@@ -449,7 +439,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
                                                                              String defaultApplicationId,
                                                                              AclPermission aclPermission){
-        return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, aclPermission)
+        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
             );
@@ -473,11 +463,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         if (StringUtils.isEmpty(branchName)) {
             return Mono.just(defaultApplicationId);
         }
-        return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, permission)
+        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
             )
-            .map(BaseDomain::getId);
+            .map(Application::getId);
     }
 
     /**

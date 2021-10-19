@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -50,6 +51,8 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICAT
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+
+;
 
 @Service
 @Slf4j
@@ -301,20 +304,28 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .cache();
 
         /* As part of git sync feature a new application will be created for each branch with reference to main application
          * feat/new-branch ----> new application in Appsmith
          * Get all the applications which refer to the current application and archive those first one by one
          * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
          * */
-        return applicationService.findAllApplicationsByGitDefaultApplicationId(id)
+        return applicationMono
+                .flatMapMany(application -> {
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                        return applicationService
+                                .findAllApplicationsByGitDefaultApplicationId(gitData.getDefaultApplicationId());
+                    }
+                    return Flux.fromIterable(List.of(application));
+                })
                 .flatMap(application -> {
                     log.debug("Archiving application with id: {}", application.getId());
                     return deleteApplicationByResource(application);
                 })
-                .then(applicationMono)
-                .flatMap(application -> deleteApplicationByResource(application));
+                .then(applicationMono);
     }
 
     private Mono<Application> deleteApplicationByResource(Application application) {

@@ -98,7 +98,7 @@ public class GitServiceImpl implements GitService {
                     Map<String, GitProfile> gitProfiles = new HashMap<>();
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (!CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
-                        gitProfiles.put(FieldName.DEFAULT_GIT_PROFILE, userData.getDefaultOrAppSpecificGitProfiles(null));
+                        gitProfiles.put(FieldName.DEFAULT, userData.getDefaultOrAppSpecificGitProfiles(null));
                         gitProfiles.put(defaultApplicationId, userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId));
                     }
                     if (gitData == null) {
@@ -276,7 +276,7 @@ public class GitServiceImpl implements GitService {
                                     if (error instanceof EmptyCommitException) {
                                         return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
                                     }
-                                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage());
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage()));
                                 }),
                         Mono.just(childApplication)
                 );
@@ -744,14 +744,13 @@ public class GitServiceImpl implements GitService {
                             });
 
                     //3. Hydrate from file system to db
-                    ApplicationJson applicationJson;
                     try {
-                        applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                        Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
                                 application.getOrganizationId(),
                                 defaultApplicationId,
                                 application.getGitApplicationMetadata().getRepoName(),
                                 branchName);
-                        return Mono.zip(pullStatus, Mono.just(application), Mono.just(applicationJson));
+                        return Mono.zip(pullStatus, Mono.just(application), applicationJson);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
                     }
@@ -898,14 +897,13 @@ public class GitServiceImpl implements GitService {
                     String mergeStatus = mergeStatusTuple.getT1();
 
                     //3. rehydrate from file system to db
-                    ApplicationJson applicationJson;
                     try {
-                        applicationJson = fileUtils.reconstructApplicationFromGitRepo(
+                        Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
                                 application.getOrganizationId(),
                                 application.getGitApplicationMetadata().getDefaultApplicationId(),
                                 application.getGitApplicationMetadata().getRepoName(),
                                 destinationBranch);
-                        return Mono.zip(Mono.just(mergeStatus), Mono.just(application), Mono.just(applicationJson));
+                        return Mono.zip(Mono.just(mergeStatus), Mono.just(application), applicationJson);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge", e.getMessage()));
                     }

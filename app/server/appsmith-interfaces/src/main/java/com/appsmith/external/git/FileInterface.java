@@ -10,8 +10,8 @@ import java.nio.file.Path;
 public interface FileInterface {
     /**
      * This method is use to store the serialised application to git repo, directory path structure we are going to follow :
-     * ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
-     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
+     * @param baseRepoSuffix path suffix used to create a repo path
      * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @return Path to where the application is stored
      *
@@ -34,16 +34,17 @@ public interface FileInterface {
 
     /**
      * This method will reconstruct the application from the repo
+     *
      * @param organisationId To which organisation application needs to be rehydrated
-     * @param defaultApplicationId To which organisation application needs to be rehydrated
-     * @param branchName for which the application needs to be rehydrate
+     * @param defaultApplicationId Default application needs to be rehydrated
+     * @param branchName for which branch the application needs to be rehydrated
      * @param repoName git repo name to access file system
      * @return application reference from which entire application can be rehydrated
      */
-    ApplicationGitReference reconstructApplicationFromGitRepo(String organisationId,
-                                                              String defaultApplicationId,
-                                                              String repoName,
-                                                              String branchName) throws GitAPIException, IOException;
+    Mono<ApplicationGitReference> reconstructApplicationFromGitRepo(String organisationId,
+                                                                    String defaultApplicationId,
+                                                                    String repoName,
+                                                                    String branchName) throws GitAPIException, IOException;
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -
@@ -57,19 +58,19 @@ public interface FileInterface {
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
-    Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                 String viewModeUrl,
-                                 String editModeUrl) throws IOException;
+    Mono<Path> initializeGitRepo(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException;
 
     /**
      * When the user clicks on detach remote, we need to remove the repo from the file system
+     *
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success on remove of file system
      */
     Mono<Boolean> detachRemote(Path baseRepoSuffix);
 
     /**
-     * This will check if the cloned repo empty. The check excludes files like Readme files
+     * This will check if the cloned repo is empty. The check excludes files like Readme files
+     *
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @return success if the clone repo doesnt contain any files
      */

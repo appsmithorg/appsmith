@@ -46,8 +46,8 @@ public class GitFileUtils {
 
     /**
      * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
-     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/repoName/{application_data}
+     * @param baseRepoSuffix path suffix used to create a local repo path
      * @param applicationJson application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
@@ -132,40 +132,41 @@ public class GitFileUtils {
     }
 
     /**
-     * This will reconstruct the application from the repo
+     * Method to reconstruct the application from the local git repo
+     *
      * @param organisationId To which organisation application needs to be rehydrated
-     * @param defaultApplicationId To which organisation application needs to be rehydrated
-     * @param branchName for which the application needs to be rehydrate
+     * @param defaultApplicationId Root application for the current branched application
+     * @param branchName for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public ApplicationJson reconstructApplicationFromGitRepo(String organisationId,
+    public Mono<ApplicationJson> reconstructApplicationFromGitRepo(String organisationId,
                                                              String defaultApplicationId,
                                                              String repoName,
                                                              String branchName) throws GitAPIException, IOException {
 
         ApplicationJson applicationJson = new ApplicationJson();
 
-        ApplicationGitReference applicationReference =
-            fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName);
+        return fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, repoName, branchName)
+                .map(applicationReference -> {
 
-        // TODO test this during rehydration
-        // Extract application data from the json
-        applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
+                    // Extract application data from the json
+                    applicationJson.setExportedApplication(getApplicationResource(applicationReference.getApplication(), Application.class));
 
-        // Extract application metadata from the json
-        ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
-        BeanCopyUtils.copyNestedNonNullProperties(metadata, applicationJson);
+                    // Extract application metadata from the json
+                    ApplicationJson metadata = getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
+                    BeanCopyUtils.copyNestedNonNullProperties(metadata, applicationJson);
 
-        // Extract actions
-        applicationJson.setActionList(getApplicationResource(applicationReference.getActions(), NewAction.class));
+                    // Extract actions
+                    applicationJson.setActionList(getApplicationResource(applicationReference.getActions(), NewAction.class));
 
-        // Extract pages
-        applicationJson.setPageList(getApplicationResource(applicationReference.getPages(), NewPage.class));
+                    // Extract pages
+                    applicationJson.setPageList(getApplicationResource(applicationReference.getPages(), NewPage.class));
 
-        // Extract datasources
-        applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
+                    // Extract datasources
+                    applicationJson.setDatasourceList(getApplicationResource(applicationReference.getDatasources(), Datasource.class));
 
-        return applicationJson;
+                    return applicationJson;
+                });
     }
 
     private <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {
