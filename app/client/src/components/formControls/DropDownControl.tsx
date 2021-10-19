@@ -3,13 +3,21 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
-import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import { DropdownOption } from "components/constants";
+import Dropdown, {
+  DropdownProps,
+  DropdownOption,
+} from "components/ads/Dropdown";
+import FormLabel from "components/editorComponents/FormLabel";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
-import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
-
+import _ from "lodash";
+import {
+  Field,
+  WrappedFieldMetaProps,
+  WrappedFieldProps,
+  WrappedFieldInputProps,
+} from "redux-form";
 const DropdownSelect = styled.div`
   font-size: 14px;
   width: 50vh;
@@ -23,34 +31,21 @@ const StyledInfo = styled.span`
   margin-left: 1px;
 `;
 
-const customSelectStyles = {
-  option: (
-    styles: { [x: string]: any },
-    { isDisabled, isFocused, isSelected }: any,
-  ) => {
-    return {
-      ...styles,
-      color: Colors.CODE_GRAY,
-      backgroundColor: isDisabled
-        ? undefined
-        : isSelected
-        ? Colors.GREY_3
-        : isFocused
-        ? Colors.GREY_2
-        : undefined,
-      ":active": {
-        ...styles[":active"],
-        backgroundColor:
-          !isDisabled &&
-          (isSelected ? theme.colors.primaryOld : theme.colors.hover),
-      },
-    };
-  },
-};
-
+const StyledDropdown = styled(Dropdown)`
+  .dropdown-control {
+  }
+`;
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, isRequired, label, options, subtitle } = this.props;
+    const {
+      configProperty,
+      initialValue,
+      isRequired,
+      label,
+      options,
+      placeholderText,
+      subtitle,
+    } = this.props;
 
     return (
       <div>
@@ -64,12 +59,16 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           )}
         </FormLabel>
         <DropdownSelect data-cy={configProperty}>
-          <DropdownField
-            customSelectStyles={customSelectStyles}
+          <Field
+            component={renderDropdown}
             name={configProperty}
-            options={options}
-            placeholder=""
-            width={"50vh"}
+            props={{
+              options: options,
+              isRequired: isRequired,
+              initialValue: initialValue,
+              placeholder: placeholderText,
+            }}
+            {...this.props}
           />
         </DropdownSelect>
       </div>
@@ -99,6 +98,32 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   getControlType(): ControlType {
     return "DROP_DOWN";
   }
+}
+
+function renderDropdown(props: any): JSX.Element {
+  const selectedValue = props.input.value || props.initialValue;
+  const selectedOption = props.options.find(
+    (option: DropdownOption) => option.value === selectedValue,
+  );
+  /* eslint-disable no-console */
+  console.log("dropdown", props);
+
+  return (
+    <Dropdown
+      className="dropdown-control"
+      dontUsePortal={false}
+      errorMsg={props.errorMsg}
+      fillOptions
+      helperText={props.helperText}
+      onSelect={props.input.onChange}
+      options={props.options}
+      {...props}
+      {...props.input}
+      selected={selectedOption}
+      showLabelOnly
+      width="100%"
+    />
+  );
 }
 
 export interface DropDownControlProps extends ControlProps {

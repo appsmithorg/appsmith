@@ -48,6 +48,7 @@ export interface ControlData {
   validationMessage?: string;
   validationRegex?: string;
   dataType?: InputType;
+  initialValue?: string | boolean | number;
   isRequired?: boolean;
   conditionals: string;
   hidden?: HiddenType;
