@@ -118,6 +118,7 @@ class ImageComponent extends React.Component<
     if (zoomActive) {
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
+    if (this.props.onClick) cursor = "pointer";
     return (
       <Wrapper
         onMouseEnter={this.onMouseEnter}
@@ -193,7 +194,7 @@ class ImageComponent extends React.Component<
                   }}
                   // Checking if onClick event is associated, changing cursor to pointer.
                   style={{
-                    cursor: `${this.props.onClick ? "pointer" : "inherit"}`,
+                    cursor: cursor,
                     transform: `rotate(${imageRotation}deg)`,
                   }}
                 >
