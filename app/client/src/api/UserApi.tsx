@@ -91,6 +91,7 @@ class UserApi extends Api {
   static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
   static adminSettingsURL = "v1/admin/env";
   static restartServerURL = "v1/admin/restart";
+  static downloadConfigURL = "v1/admin/env/download";
 
   static createUser(
     request: CreateUserRequest,
@@ -185,6 +186,10 @@ class UserApi extends Api {
     return Api.patch(UserApi.commentsOnboardingStateURL, request);
   }
 
+  /*
+   * Super user endpoints
+   */
+
   static fetchAdminSettings(): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.adminSettingsURL);
   }
@@ -197,6 +202,10 @@ class UserApi extends Api {
 
   static restartServer(): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.restartServerURL);
+  }
+
+  static downloadConfigFiles(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.downloadConfigURL);
   }
 }
 

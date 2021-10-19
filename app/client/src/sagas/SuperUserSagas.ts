@@ -91,6 +91,10 @@ function* RestartServerPoll() {
   });
 }
 
+function* DownloadDockerComposeFile() {
+  yield call(UserApi.downloadConfigFiles);
+}
+
 function* InitSuperUserSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
@@ -102,6 +106,10 @@ function* InitSuperUserSaga(action: ReduxAction<User>) {
       ),
       takeLatest(ReduxActionTypes.SAVE_ADMIN_SETTINGS, SaveAdminSettingsSaga),
       takeLatest(ReduxActionTypes.RESTART_SERVER_POLL, RestartServerPoll),
+      takeLatest(
+        ReduxActionTypes.DOWNLOAD_DOCKER_COMPOSE_FILE,
+        DownloadDockerComposeFile,
+      ),
     ]);
   }
 }

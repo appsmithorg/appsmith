@@ -227,14 +227,13 @@ SettingsFactory.register("APPSMITH_ADMIN_EMAILS", {
   },
 });
 
-//To be uncommented when api is available
-// SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
-//   action: () => ({ type: ReduxActionTypes.DOWNLOAD_DOCKER_COMPOSE_FILE }),
-//   category: "general",
-//   controlType: SettingTypes.BUTTON,
-//   label: "Generated Docker Compose File",
-//   text: "Download",
-// });
+SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
+  action: () => ({ type: ReduxActionTypes.DOWNLOAD_DOCKER_COMPOSE_FILE }),
+  category: "general",
+  controlType: SettingTypes.BUTTON,
+  label: "Generated Docker Compose File",
+  text: "Download",
+});
 
 SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
   category: "general",
