@@ -350,9 +350,20 @@ export default class DataTreeEvaluator {
     });
     Object.keys(dependencyMap).forEach((key) => {
       dependencyMap[key] = _.flatten(
-        dependencyMap[key].map((path) =>
-          extractReferencesFromBinding(path, this.allKeys),
-        ),
+        dependencyMap[key].map((path) => {
+          try {
+            return extractReferencesFromBinding(path, this.allKeys);
+          } catch (e) {
+            this.errors.push({
+              type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+              message: e.message,
+              context: {
+                script: path,
+              },
+            });
+            return [];
+          }
+        }),
       );
     });
     dependencyMap = makeParentsDependOnChildren(dependencyMap);
@@ -1138,9 +1149,20 @@ export default class DataTreeEvaluator {
       Object.keys(this.dependencyMap).forEach((key) => {
         this.dependencyMap[key] = _.uniq(
           _.flatten(
-            this.dependencyMap[key].map((path) =>
-              extractReferencesFromBinding(path, this.allKeys),
-            ),
+            this.dependencyMap[key].map((path) => {
+              try {
+                return extractReferencesFromBinding(path, this.allKeys);
+              } catch (e) {
+                this.errors.push({
+                  type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+                  message: e.message,
+                  context: {
+                    script: path,
+                  },
+                });
+                return [];
+              }
+            }),
           ),
         );
       });
@@ -1279,9 +1301,22 @@ export default class DataTreeEvaluator {
         Object.keys(entityPropertyBindings).forEach((path) => {
           const propertyBindings = entityPropertyBindings[path];
           const references = _.flatten(
-            propertyBindings.map((binding) =>
-              extractReferencesFromBinding(binding, this.allKeys),
-            ),
+            propertyBindings.map((binding) => {
+              {
+                try {
+                  return extractReferencesFromBinding(binding, this.allKeys);
+                } catch (e) {
+                  this.errors.push({
+                    type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+                    message: e.message,
+                    context: {
+                      script: binding,
+                    },
+                  });
+                  return [];
+                }
+              }
+            }),
           );
           references.forEach((value) => {
             if (isChildPropertyPath(propertyPath, value)) {
@@ -1367,12 +1402,7 @@ export const extractReferencesFromBinding = (
   allPaths: Record<string, true>,
 ): string[] => {
   const references: Set<string> = new Set<string>();
-  let identifiers: string[] = [];
-  try {
-    identifiers = extractIdentifiersFromCode(script);
-  } catch (e) {
-    // pass for now and handle errors here
-  }
+  const identifiers = extractIdentifiersFromCode(script);
 
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return

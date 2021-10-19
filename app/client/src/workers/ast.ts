@@ -119,7 +119,14 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   const variableDeclarations = new Set<string>();
   // List of functionalParams found. This will be removed from the identifier list
   const functionalParams = new Set<string>();
-  const ast = getAST(code);
+  let ast: Node = { end: 0, start: 0, type: "" };
+  try {
+    ast = getAST(code);
+  } catch (e) {
+    // Syntax error. Ignore and return 0 identifiers
+    return [];
+  }
+
   /*
    * We do an ancestor walk on the AST to get all identifiers. Since we need to know
    * what surrounds the identifier, ancestor walk will give that information in the callback
