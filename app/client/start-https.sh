@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# run the following commands before the docker run command
+# run the following commands before the docker run command 
 # brew install mkcert (if you don't already have it installed)
 # run the following commented command from the project root directory
 # cd docker && mkcert -install && mkcert "*.appsmith.com" && cd ..
