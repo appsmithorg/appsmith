@@ -26,6 +26,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -269,7 +270,12 @@ public class EnvManagerTest {
         Mockito.when(policyUtils.isPermissionPresentForUser(
                 user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
         ).thenReturn(true);
-        Mockito.when(commonConfig.getEnvFilePath()).thenReturn("src/test/resources/test_assets/EnvManagerTest/docker.env");
+
+        // create a temp file for docker env
+        File file = File.createTempFile( "envmanager-test-docker-file", "env");
+        file.deleteOnExit();
+
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(file.getAbsolutePath());
         Mockito.when(fileUtils.createZip(any())).thenReturn(new byte[1024]);
 
         ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
@@ -283,6 +289,6 @@ public class EnvManagerTest {
                 .verifyComplete();
 
         assertThat(headers.getContentType().toString()).isEqualTo("application/zip");
-        assertThat(headers.getContentDisposition().toString()).containsIgnoringCase("config.zip");
+        assertThat(headers.getContentDisposition().toString()).containsIgnoringCase("appsmith-config.zip");
     }
 }
