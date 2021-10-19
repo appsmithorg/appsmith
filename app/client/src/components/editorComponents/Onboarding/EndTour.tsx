@@ -5,12 +5,18 @@ import { showWelcomeScreen } from "selectors/onboardingSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
 
 const EndTourText = styled.span`
   font-size: 12px;
-  color: #d8d8d8;
+  color: ${Colors.CHARCOAL};
   align-self: center;
   cursor: pointer;
+  margin-right: 4px;
+
+  &:hover {
+    color: ${Colors.GREY_10};
+  }
 `;
 
 function EndTour() {

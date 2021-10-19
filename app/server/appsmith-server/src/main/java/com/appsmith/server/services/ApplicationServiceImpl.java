@@ -6,6 +6,7 @@ import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
@@ -234,24 +235,28 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
-        AclPermission applicationPermission = READ_APPLICATIONS;
-        AclPermission datasourcePermission = EXECUTE_DATASOURCES;
 
         User user = new User();
         user.setName(FieldName.ANONYMOUS_USER);
         user.setEmail(FieldName.ANONYMOUS_USER);
         user.setIsAnonymous(true);
 
-        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(applicationPermission), user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(READ_APPLICATIONS), user);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
 
-        Flux<NewPage> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+        final Flux<NewPage> updatedPagesFlux = policyUtils
+                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+        // Use the same policy map as actions for action collections since action collections have the same kind of permissions
+        final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
+                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, isPublic);
 
-        Flux<NewAction> updatedActionsFlux = updatedPagesFlux
+        final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
-                .then(Mono.just(application.getId()))
+                .thenMany(updatedActionCollectionsFlux)
+                .collectList()
+                .then(Mono.justOrEmpty(application.getId()))
                 .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux

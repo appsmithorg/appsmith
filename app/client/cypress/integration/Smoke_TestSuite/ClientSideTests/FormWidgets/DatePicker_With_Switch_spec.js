@@ -34,7 +34,7 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Reset Widget")
+      .contains("Reset widget")
       .click();
     cy.get(widgetsPage.selectWidget).click({ force: true });
     cy.get(commonlocators.chooseAction)

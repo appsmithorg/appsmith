@@ -342,9 +342,15 @@ const TextInput = forwardRef(
           data-cy={props.cypressSelector}
           hasLeftIcon={hasLeftIcon}
           inputRef={ref}
-          onBlur={() => setIsFocused(false)}
+          onBlur={(e: React.FocusEvent<any>) => {
+            setIsFocused(false);
+            if (props.onBlur) props.onBlur(e);
+          }}
           onChange={memoizedChangeHandler}
-          onFocus={() => setIsFocused(true)}
+          onFocus={(e: React.FocusEvent<any>) => {
+            setIsFocused(true);
+            if (props.onFocus) props.onFocus(e);
+          }}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
           rightSideComponentWidth={rightSideComponentWidth}

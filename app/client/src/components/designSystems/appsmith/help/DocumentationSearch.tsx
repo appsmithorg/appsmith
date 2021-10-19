@@ -24,6 +24,7 @@ import { Icon } from "@blueprintjs/core";
 import moment from "moment";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
+import { Colors } from "constants/Colors";
 
 const { algolia, appVersion, intercomAppID } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
@@ -277,10 +278,10 @@ const HelpFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid ${Colors.ALTO};
   padding: 5px 10px;
   height: 30px;
-  color: rgba(255, 255, 255, 0.7);
+  color: ${Colors.DOVE_GRAY2};
   font-size: 6pt;
 `;
 

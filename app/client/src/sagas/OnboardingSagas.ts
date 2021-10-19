@@ -53,6 +53,7 @@ import {
 import {
   playOnboardingAnimation,
   playOnboardingStepCompletionAnimation,
+  trimQueryString,
 } from "utils/helpers";
 import {
   OnboardingConfig,
@@ -62,6 +63,7 @@ import {
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
+
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,
@@ -80,6 +82,7 @@ import {
   BUILDER_PAGE_URL,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
+  matchBuilderPath,
 } from "constants/routes";
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
@@ -175,8 +178,14 @@ function* listenForWidgetAdditions() {
               widgetName: "Standup_Table",
               tableData: [],
               columnSizeMap: {
-                avatar: 20,
-                name: 30,
+                avatar: 80,
+                name: 120,
+              },
+              columnTypeMap: {
+                avatar: {
+                  type: "image",
+                  format: "",
+                },
               },
               migrated: false,
               ...getStandupTableDimensions(),
@@ -211,16 +220,21 @@ function* listenForAddInputWidget() {
       (widget: any) => widget.type === "INPUT_WIDGET",
     );
 
+    const isOnBuilder = matchBuilderPath(window.location.pathname);
+
+    trimQueryString(
+      BUILDER_PAGE_URL({
+        applicationId,
+        pageId: currentPageId,
+      }),
+    );
+
     if (
       inputWidget &&
       inputWidget.type === "INPUT_WIDGET" &&
       canvasWidgets[inputWidget.widgetId]
     ) {
-      if (
-        !window.location.pathname.includes(
-          BUILDER_PAGE_URL(applicationId, currentPageId),
-        )
-      ) {
+      if (!isOnBuilder) {
         yield cancel();
       }
 
@@ -334,18 +348,6 @@ function* listenForSuccessfulBinding() {
           errors.length === 0;
 
         if (bindSuccessful) {
-          yield put(
-            batchUpdateWidgetProperty(selectedWidget.widgetId, {
-              modify: {
-                columnTypeMap: {
-                  avatar: {
-                    type: "image",
-                    format: "",
-                  },
-                },
-              },
-            }),
-          );
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.ADD_INPUT_WIDGET));
 
@@ -706,18 +708,15 @@ function* addWidget(widgetConfig: any) {
       payload: newWidget,
     });
 
-    const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
+    const applicationId = yield select(getCurrentApplicationId);
 
-    navigateToCanvas(
-      {
-        applicationId,
-        pageId,
-      },
-      window.location.pathname,
+    navigateToCanvas({
       pageId,
-      newWidget.newWidgetId,
-    );
+      widgetId: newWidget.newWidgetId,
+      applicationId,
+    });
+
     yield put({
       type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
@@ -824,18 +823,14 @@ function* addOnSubmitHandler() {
     if (inputWidget) {
       yield delay(1000);
 
-      const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
+      const applicationId = yield select(getCurrentApplicationId);
 
-      navigateToCanvas(
-        {
-          applicationId,
-          pageId,
-        },
-        window.location.pathname,
+      navigateToCanvas({
         pageId,
-        inputWidget.widgetId,
-      );
+        widgetId: inputWidget.widgetId,
+        applicationId,
+      });
       yield put({
         type: ReduxActionTypes.SELECT_WIDGET_INIT,
         payload: { widgetId: inputWidget.widgetId },

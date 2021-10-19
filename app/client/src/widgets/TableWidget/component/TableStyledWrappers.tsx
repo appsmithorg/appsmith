@@ -559,7 +559,7 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   width: 150px;
   position: relative;
   .title {
-    color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+    color: ${Colors.GREY_10};
     width: 120px;
     white-space: nowrap;
     overflow: hidden;
@@ -569,7 +569,7 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
     position: absolute;
     left: 135px;
     font-size: 12px !important;
-    color: ${(props) => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
+    color: ${Colors.GREY_10};
   }
 `;
 

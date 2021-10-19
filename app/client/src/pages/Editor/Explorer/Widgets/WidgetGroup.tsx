@@ -11,6 +11,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getSelectedWidgets } from "selectors/ui";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { ADD_WIDGET_TOOLTIP, createMessage } from "constants/messages";
 
 type ExplorerWidgetGroupProps = {
   pageId: string;
@@ -32,13 +34,19 @@ const StyledLink = styled(Link)`
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const selectedWidgets = useSelector(getSelectedWidgets);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
       Please{" "}
       {params.pageId !== props.pageId ? (
         <>
-          <StyledLink to={BUILDER_PAGE_URL(params.applicationId, props.pageId)}>
+          <StyledLink
+            to={BUILDER_PAGE_URL({
+              applicationId,
+              pageId: props.pageId,
+            })}
+          >
             switch to this page
           </StyledLink>
           ,&nbsp;then&nbsp;
@@ -56,6 +64,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   return (
     <Entity
+      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!props.widgets && !!props.searchKeyword}
       entityId={props.pageId + "_widgets"}

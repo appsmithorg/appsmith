@@ -16,22 +16,22 @@ import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
+
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
-  applicationId: string | undefined;
   editMode: typeof noop;
   deploy: typeof noop;
   currentDeployLink: string;
 };
 
 export const GetNavigationMenuData = ({
-  applicationId,
   currentDeployLink,
   deploy,
   editMode,
@@ -40,8 +40,12 @@ export const GetNavigationMenuData = ({
   const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
-  const currentApplication = useSelector(getCurrentApplication);
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
+
+  const currentApplication = useSelector(getCurrentApplication);
   const hasExportPermission = isPermitted(
     currentApplication?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
@@ -57,7 +61,7 @@ export const GetNavigationMenuData = ({
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
         payload: {
-          applicationId,
+          applicationId: applicationId,
         },
       });
       history.push(APPLICATIONS_URL);
@@ -79,7 +83,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
       },
       type: MenuTypes.MENU,
       isVisible: true,

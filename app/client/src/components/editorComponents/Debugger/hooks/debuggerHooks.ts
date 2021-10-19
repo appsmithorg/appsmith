@@ -14,8 +14,9 @@ import { getSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { isWidget, isAction } from "workers/evaluationUtils";
+import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
+import { JS_COLLECTION_ID_URL } from "constants/routes";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -62,15 +63,9 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
 };
 
 export const useSelectedEntity = () => {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const currentPageId = useSelector(getCurrentPageId);
-
   const params: any = useParams();
   const action = useSelector((state: AppState) => {
-    if (
-      onApiEditor(applicationId, currentPageId) ||
-      onQueryEditor(applicationId, currentPageId)
-    ) {
+    if (onApiEditor() || onQueryEditor()) {
       const id = params.apiId || params.queryId;
 
       return getAction(state, id);
@@ -81,23 +76,20 @@ export const useSelectedEntity = () => {
 
   const selectedWidget = useSelector(getSelectedWidget);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(applicationId, currentPageId)) {
+    if (onCanvas()) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
     return null;
   });
 
-  if (
-    onApiEditor(applicationId, currentPageId) ||
-    onQueryEditor(applicationId, currentPageId)
-  ) {
+  if (onApiEditor() || onQueryEditor()) {
     return {
       name: action?.name ?? "",
       type: ENTITY_TYPE.ACTION,
       id: action?.id ?? "",
     };
-  } else if (onCanvas(applicationId, currentPageId)) {
+  } else if (onCanvas()) {
     return {
       name: widget?.widgetName ?? "",
       type: ENTITY_TYPE.WIDGET,
@@ -110,8 +102,8 @@ export const useSelectedEntity = () => {
 
 export const useEntityLink = () => {
   const dataTree = useSelector(getDataTree);
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const { navigateToWidget } = useNavigateToWidget();
 
@@ -134,6 +126,10 @@ export const useEntityLink = () => {
         if (url) {
           history.push(url);
         }
+      } else if (isJSAction(entity)) {
+        history.push(
+          JS_COLLECTION_ID_URL(applicationId, pageId, entity.actionId),
+        );
       }
     },
     [dataTree],

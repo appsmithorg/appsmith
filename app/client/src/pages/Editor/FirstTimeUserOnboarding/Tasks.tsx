@@ -23,6 +23,7 @@ import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useDispatch } from "react-redux";
+
 import {
   getCurrentApplicationId,
   getCurrentPageId,
