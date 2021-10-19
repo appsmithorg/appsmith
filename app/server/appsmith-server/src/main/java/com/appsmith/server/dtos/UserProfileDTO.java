@@ -30,6 +30,8 @@ public class UserProfileDTO {
     @JsonProperty("isSuperUser")
     boolean isSuperUser = false;
 
+    boolean isConfigurable = false;
+
     CommentOnboardingState commentOnboardingState;
 
     String photoId;
