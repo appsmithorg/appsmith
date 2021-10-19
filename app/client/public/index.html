@@ -24,6 +24,33 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','%REACT_APP_GOOGLE_ANALYTICS_ID%');</script>
   <!-- End Google Tag Manager -->
+  <script>
+    // '' (empty strings), 'false' are falsy
+    // could return either boolean or string based on value
+    const parseConfig = (config) => {
+      if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
+        return "";
+
+      const result = config.trim();
+      if (result.toLowerCase() === "false" || result === "") {
+        return false;
+      } else if (result.toLowerCase() === "true") {
+        return true;
+      }
+
+      return result;
+    }
+    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+
+    // Initialize plausible
+    if (CLOUD_HOSTING) {
+      const script = document.createElement('script');
+      script.defer = true;
+      script.dataset.domain = location.hostname;
+      script.src = "https://plausible.io/js/plausible.js";
+      document.getElementsByTagName('head')[0].appendChild(script);
+    }
+  </script>
 </head>
 
 <body>
@@ -139,26 +166,10 @@
     registerPageServiceWorker();
   </script>
   <script type="text/javascript">
-    // '' (empty strings), 'false' are falsy
-    // could return either boolean or string based on value
-    const parseConfig = (config) => {
-      if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
-        return "";
-
-      const result = config.trim();
-      if (result.toLowerCase() === "false" || result === "") {
-        return false;
-      } else if (result.toLowerCase() === "true") {
-        return true;
-      }
-
-      return result;
-    }
     const LOG_LEVELS = ["debug", "error"];
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
 
     const INTERCOM_APP_ID = parseConfig("%REACT_APP_INTERCOM_APP_ID%") || parseConfig("__APPSMITH_INTERCOM_APP_ID__");
-    const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__");
     const DISABLE_INTERCOM = parseConfig("__APPSMITH_DISABLE_INTERCOM__");
 
@@ -208,7 +219,6 @@
       cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") || "https://cs.appsmith.com",
       googleRecaptchaSiteKey: parseConfig("__APPSMITH_RECAPTCHA_SITE_KEY__"),
     };
-
   </script>
 </body>
 

@@ -119,13 +119,13 @@ function DatasourceLink(props: EntityLinkProps) {
     getDatasource(state, props.id),
   );
   const pageId = useSelector(getCurrentPageId);
-  const appId = useSelector(getCurrentApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const onClick = () => {
     if (datasource) {
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          appId,
+          applicationId,
           pageId,
           datasource.id,
           getQueryParams(),
