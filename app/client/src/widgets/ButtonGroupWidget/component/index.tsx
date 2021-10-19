@@ -138,7 +138,25 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         : buttonVariant === ButtonVariantTypes.SECONDARY
         ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
         : "none"
-    } !important;
+    } ${buttonVariant === ButtonVariantTypes.PRIMARY ? "" : "!important"};
+
+    ${
+      isHorizontal
+        ? buttonVariant === ButtonVariantTypes.PRIMARY
+          ? borderRadOnEnd
+            ? ""
+            : `
+            border-right: 1px solid ${getCustomTextColor(theme, buttonColor)};
+          `
+          : ""
+        : buttonVariant === ButtonVariantTypes.PRIMARY
+        ? borderRadOnEnd
+          ? ""
+          : `
+          border-bottom: 1px solid ${getCustomTextColor(theme, buttonColor)};
+        `
+        : ""
+    }
 
     border-radius: ${
       borderRadius === ButtonBorderRadiusTypes.ROUNDED
