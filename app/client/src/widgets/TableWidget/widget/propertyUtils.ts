@@ -211,6 +211,7 @@ export function updateIconAlignment(
 // has changed and it is supposed to update the derivedColumns
 // For example, when we add a new column or update a derived column's name
 // The propertyPath will be of the type `primaryColumns.columnId`
+// Handling BindingProperty of derived columns
 export const updateDerivedColumnsHook = (
   props: TableWidgetProps,
   propertyPath: string,
