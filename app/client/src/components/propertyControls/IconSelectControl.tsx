@@ -19,7 +19,7 @@ const IconSelectContainerStyles = createGlobalStyle<{
     }
   }
   .bp3-popover-content div {
-    padding: 3px !important;
+    padding: 3px;
     box-shadow: 0px 0px 0px 1px #e1e1e;
   }
 `;

@@ -57,7 +57,7 @@ const StyledInputGroup = styled(InputGroup)`
 const ColorsWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
-  padding: 0 12px 12px 0;
+  padding: 0 12px 12px 0 !important;
   background: #ffffff;
   width: 232px;
   height: auto;
