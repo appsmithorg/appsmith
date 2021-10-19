@@ -485,6 +485,7 @@ jobs:
 
       # Upload the coverage as artifacts 
       - uses: actions/upload-artifact@v1
+        if: always()
         with:
           name: cypress-coverage-${{ matrix.job }}
           path: app/client/.nyc_output    
