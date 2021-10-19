@@ -86,6 +86,8 @@ import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 
+import { trimQueryString } from "utils/helpers";
+
 function* fetchDatasourcesSaga() {
   try {
     const orgId = yield select(getCurrentOrgId);
@@ -175,9 +177,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       );
       if (isGeneratePageInitiator) {
         history.push(
-          `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${
-            response.data.id
-          }`,
+          getGenerateTemplateFormURL(applicationId, pageId, {
+            datasourceId: response.data.id,
+          }),
         );
       } else {
         history.push(
@@ -209,15 +211,15 @@ export function* deleteDatasourceSaga(
     );
 
     const isValidResponse = yield validateResponse(response);
+    const applicationId = yield select(getCurrentApplicationId);
 
     if (isValidResponse) {
-      const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
 
-      if (
-        window.location.pathname ===
-        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id)
-      ) {
+      const datasourcePathWithoutQuery = trimQueryString(
+        DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, id),
+      );
+      if (window.location.pathname === datasourcePathWithoutQuery) {
         history.push(
           INTEGRATION_EDITOR_URL(
             applicationId,
@@ -656,10 +658,11 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
   // this redirects to the same route, so checking first.
-  if (
-    history.location.pathname !==
-    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id)
-  )
+  const datasourcePath = trimQueryString(
+    DATA_SOURCES_EDITOR_ID_URL(applicationId, pageId, datasource.id),
+  );
+
+  if (history.location.pathname !== datasourcePath)
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
         applicationId,
@@ -770,9 +773,9 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
     generateCRUDSupportedPlugin[updatedDatasource.pluginId]
   ) {
     history.push(
-      `${getGenerateTemplateFormURL(applicationId, pageId)}?datasourceId=${
-        updatedDatasource.id
-      }`,
+      getGenerateTemplateFormURL(applicationId, pageId, {
+        datasourceId: updatedDatasource.id,
+      }),
     );
   } else if (
     actionRouteInfo &&
@@ -781,7 +784,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       API_EDITOR_ID_URL(
-        actionRouteInfo.applicationId,
+        applicationId,
         actionRouteInfo.pageId,
         actionRouteInfo.apiId,
       ),

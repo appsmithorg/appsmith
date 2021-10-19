@@ -368,6 +368,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
+  const applicationId = props.application?.id;
+
   useEffect(() => {
     let colorCode;
     if (props.application.color) {
@@ -418,7 +420,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }, []);
 
   const appIcon = (props.application?.icon ||
-    getApplicationIcon(props.application.id)) as AppIconName;
+    getApplicationIcon(applicationId)) as AppIconName;
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.MANAGE_APPLICATION,
@@ -434,21 +436,21 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&
-      props.update(props.application.id, {
+      props.update(applicationId, {
         color: color,
       });
   };
   const updateIcon = (icon: AppIconName) => {
     props.update &&
-      props.update(props.application.id, {
+      props.update(applicationId, {
         icon: icon,
       });
   };
   const duplicateApp = () => {
-    props.duplicate && props.duplicate(props.application.id);
+    props.duplicate && props.duplicate(applicationId);
   };
   const shareApp = () => {
-    props.share && props.share(props.application.id);
+    props.share && props.share(applicationId);
   };
   const exportApplicationAsJSONFile = () => {
     // export api response comes with content-disposition header.
@@ -458,7 +460,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     existingLink && existingLink.remove();
     const link = document.createElement("a");
 
-    link.href = getExportAppAPIRoute(props.application.id);
+    link.href = getExportAppAPIRoute(applicationId);
     link.id = id;
     document.body.appendChild(link);
     // will fetch the file manually during cypress test run.
@@ -480,7 +482,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const deleteApp = () => {
     setShowOverlay(false);
-    props.delete && props.delete(props.application.id);
+    props.delete && props.delete(applicationId);
   };
   const askForConfirmation = () => {
     const updatedActionItems = [...moreActionItems];
@@ -514,14 +516,16 @@ export function ApplicationCard(props: ApplicationCardProps) {
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
   }
-  const viewApplicationURL = getApplicationViewerPageURL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
-  const editApplicationURL = BUILDER_PAGE_URL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
+
+  const viewApplicationURL = getApplicationViewerPageURL({
+    applicationId: applicationId,
+    pageId: props.application.defaultPageId,
+  });
+  const editApplicationURL = BUILDER_PAGE_URL({
+    applicationId: applicationId,
+    pageId: props.application.defaultPageId,
+  });
+
   const appNameText = (
     <Text cypressSelector="t--app-card-name" type={TextType.H3}>
       {props.application.name}
@@ -538,7 +542,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           addDeleteOption();
           if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
             props.update &&
-              props.update(props.application.id, {
+              props.update(applicationId, {
                 name: lastUpdatedValue,
               });
           }
@@ -575,7 +579,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             }}
             onBlur={(value: string) => {
               props.update &&
-                props.update(props.application.id, {
+                props.update(applicationId, {
                   name: value,
                 });
             }}
@@ -622,7 +626,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           );
         })}
         <ForkApplicationModal
-          applicationId={props.application.id}
+          applicationId={applicationId}
           isModalOpen={isForkApplicationModalopen}
           setModalClose={setForkApplicationModalOpen}
         />

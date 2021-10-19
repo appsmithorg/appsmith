@@ -1,9 +1,5 @@
 import { call, select } from "redux-saga/effects";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getPageList,
-} from "selectors/editorSelectors";
+import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
 import { Page } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -18,6 +14,7 @@ import history from "utils/history";
 import { setDataUrl } from "sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { NavigateActionDescription } from "entities/DataTree/actionTriggers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -58,10 +55,19 @@ export default function* navigateActionSaga(
       pageParams: params,
     });
     const appMode = yield select(getAppMode);
+    // uses query BUILDER_PAGE_URL
     const path =
       appMode === APP_MODE.EDIT
-        ? BUILDER_PAGE_URL(applicationId, page.pageId, params)
-        : getApplicationViewerPageURL(applicationId, page.pageId, params);
+        ? BUILDER_PAGE_URL({
+            applicationId,
+            pageId: page.pageId,
+            params,
+          })
+        : getApplicationViewerPageURL({
+            applicationId,
+            pageId: page.pageId,
+            params,
+          });
     if (target === NavigationTargetType.SAME_WINDOW) {
       history.push(path);
       if (currentPageId === page.pageId) {
