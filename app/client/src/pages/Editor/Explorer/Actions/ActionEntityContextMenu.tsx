@@ -15,6 +15,7 @@ import history from "utils/history";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { useNewActionName } from "./helpers";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type EntityContextMenuProps = {
   id: string;
@@ -25,6 +26,7 @@ type EntityContextMenuProps = {
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
@@ -109,7 +111,10 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           onSelect: () =>
             deleteActionFromPage(props.id, props.name, () => {
               history.push(
-                BUILDER_PAGE_URL(params.applicationId, params.pageId),
+                BUILDER_PAGE_URL({
+                  applicationId,
+                  pageId: params.pageId,
+                }),
               );
             }),
         },
