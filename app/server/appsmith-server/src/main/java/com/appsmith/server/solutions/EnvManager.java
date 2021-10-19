@@ -348,8 +348,7 @@ public class EnvManager {
                         return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(byteArray)));
                     } catch (IOException e) {
                         log.error("failed to generate zip file", e);
-                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST,
-                                "unable to read files while generating the zip file"));
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                     }
                 });
     }
