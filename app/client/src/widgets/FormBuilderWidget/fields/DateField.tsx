@@ -38,7 +38,7 @@ function DateField({ name, schemaItem }: DateFieldProps) {
           {...props}
           datePickerType="DATE_PICKER"
           isLoading={false}
-          label={label}
+          label=""
           onDateSelected={onChange}
           selectedDate={value}
           widgetId=""

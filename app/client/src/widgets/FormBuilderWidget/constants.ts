@@ -57,9 +57,9 @@ type FieldComponent = {
   componentDefaultValues: Record<string, any>;
 };
 
-export type Schema = SchemaItem[];
+export type Schema = Record<string, SchemaItem>;
 
-export const FIELD_MAP: Record<FieldType, any> = {
+export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.TEXT]: InputField,
   [FieldType.NUMBER]: InputField,
   [FieldType.EMAIL]: InputField,
@@ -86,6 +86,13 @@ export const INPUT_FIELD_TYPE = {
   [FieldType.PHONE_NUMBER]: "PHONE_NUMBER",
   [FieldType.EMAIL]: "EMAIL",
 } as Record<FieldType, InputType>;
+
+export const FIELD_EXPECTING_OPTIONS = [
+  FieldType.MULTI_SELECT,
+  FieldType.MULTI_SELECT,
+  FieldType.RADIO_GROUP,
+  FieldType.SELECT,
+];
 
 export const DATA_TYPE_POTENTIAL_FIELD = {
   [DataType.STRING]: {

@@ -1,8 +1,12 @@
 import React from "react";
+import { ControllerRenderProps } from "react-hook-form";
 
 import { FIELD_MAP, SchemaItem } from "../constants";
 
-const fieldRenderer = (fieldName: string, schemaItem: SchemaItem) => {
+const fieldRenderer = (
+  fieldName: ControllerRenderProps["name"],
+  schemaItem: SchemaItem,
+) => {
   const { fieldType } = schemaItem;
   const FieldComponent = FIELD_MAP[fieldType];
 
