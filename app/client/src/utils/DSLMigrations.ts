@@ -927,7 +927,6 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 39) {
-    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
     currentDSL = migrateTableWidgetSelectedRowBindings(currentDSL);
     currentDSL.version = 40;
   }
@@ -939,6 +938,11 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 41) {
     currentDSL = migrateButtonVariant(currentDSL);
+    currentDSL.version = 42;
+  }
+
+  if (currentDSL.version === 42) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

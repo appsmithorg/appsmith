@@ -6,7 +6,7 @@ export const migrateCheckboxGroupWidgetInlineProperty = (
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "CHECKBOX_GROUP_WIDGET") {
-      if (!("isInline" in child)) {
+      if (child.version === 1) {
         child.isInline = true;
         child.version = 2;
       }
