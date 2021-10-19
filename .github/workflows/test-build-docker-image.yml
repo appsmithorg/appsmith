@@ -477,11 +477,17 @@ jobs:
           install: false
           parallel: true
           group: "Electrons on Github Action"
-          spec: "cypress/integration/Smoke_TestSuite/**/*.js"
+          spec: "cypress/integration/Smoke_TestSuite/ClientSideTests/ApiPaneTests/*.js"
           working-directory: app/client
           # tag will be either "push" or "pull_request"
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
+
+      # Upload the coverage as artifacts 
+      - uses: actions/upload-artifact@v1
+        with:
+          name: cypress-coverage-${{ matrix.job }}
+          path: app/client/.nyc_output    
 
       # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
@@ -489,12 +495,7 @@ jobs:
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
-      
-      # Upload the coverage as artifacts 
-      - uses: actions/upload-artifact@v1
-        with:
-          name: cypress-coverage-${{ matrix.job }}
-          path: app/client/.nyc_output        
+             
 
   ui-test-result:
     needs: ui-test
