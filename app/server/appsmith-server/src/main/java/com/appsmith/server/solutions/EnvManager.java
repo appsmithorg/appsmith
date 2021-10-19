@@ -338,7 +338,7 @@ public class EnvManager {
                         FileInputStream envFileInputStream = new FileInputStream(envFile);
                         InputStream resourceFile = new ClassPathResource("docker-compose.yml").getInputStream();
                         byte[] byteArray = fileUtils.createZip(
-                                new FileUtils.ZipSourceFile(envFileInputStream, "docker.env"),
+                                new FileUtils.ZipSourceFile(envFileInputStream, "stacks/configuration/docker.env"),
                                 new FileUtils.ZipSourceFile(resourceFile, "docker-compose.yml")
                         );
                         final ServerHttpResponse response = exchange.getResponse();
