@@ -1,5 +1,4 @@
 import { getAllPaths } from "./evaluationUtils";
-import { extractReferencesFromBinding } from "workers/DataTreeEvaluator";
 
 describe("getAllPaths", () => {
   it("getsAllPaths", () => {

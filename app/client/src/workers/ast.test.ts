@@ -1,4 +1,4 @@
-import { getAllIdentifiers } from "workers/ast";
+import { extractIdentifiersFromCode } from "workers/ast";
 
 describe("getAllIdentifiers", () => {
   it("works properly", () => {
@@ -137,7 +137,7 @@ describe("getAllIdentifiers", () => {
     ];
 
     cases.forEach((perCase) => {
-      const references = getAllIdentifiers(perCase.script);
+      const references = extractIdentifiersFromCode(perCase.script);
       expect(references).toStrictEqual(perCase.expectedResults);
     });
   });
