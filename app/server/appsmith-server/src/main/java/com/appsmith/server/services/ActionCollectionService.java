@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
@@ -41,4 +42,5 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
 
+    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId);
 }

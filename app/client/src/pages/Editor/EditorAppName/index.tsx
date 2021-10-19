@@ -129,7 +129,6 @@ const StyledMenu = styled(Menu)`
 
 export function EditorAppName(props: EditorAppNameProps) {
   const {
-    applicationId,
     currentDeployLink,
     defaultSavingState,
     defaultValue,
@@ -188,7 +187,6 @@ export function EditorAppName(props: EditorAppNameProps) {
   }, []);
 
   const NavigationMenuData = GetNavigationMenuData({
-    applicationId,
     currentDeployLink,
     editMode,
     deploy,
