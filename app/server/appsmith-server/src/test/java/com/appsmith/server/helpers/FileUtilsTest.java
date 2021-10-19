@@ -6,8 +6,8 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -28,8 +28,8 @@ class FileUtilsTest {
     @Test
     public void createZip_WhenFileExists_ValidZipCreated() throws IOException {
         // create a zip with sample two files from resources
-        File file1 = new ClassPathResource("FileUtilsTest/sample-file1.txt").getFile();
-        File file2 = new ClassPathResource("FileUtilsTest/sample-file2.txt").getFile();
+        InputStream file1 = new ClassPathResource("FileUtilsTest/sample-file1.txt").getInputStream();
+        InputStream file2 = new ClassPathResource("FileUtilsTest/sample-file2.txt").getInputStream();
 
         byte[] zipBytes = fileUtils.createZip(
                 new FileUtils.ZipSourceFile(file1, "file_one.txt"),

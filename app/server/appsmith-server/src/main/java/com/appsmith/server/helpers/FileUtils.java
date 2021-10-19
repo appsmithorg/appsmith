@@ -5,9 +5,8 @@ import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -18,7 +17,7 @@ public class FileUtils {
         ZipOutputStream zipOut = new ZipOutputStream(baos);
 
         for (ZipSourceFile zipSourceFile : srcFiles) {
-            FileInputStream fis = new FileInputStream(zipSourceFile.fileToZip);
+            InputStream fis = zipSourceFile.fileToZip;
             ZipEntry zipEntry = new ZipEntry(zipSourceFile.getNameInZip());
             zipOut.putNextEntry(zipEntry);
 
@@ -39,7 +38,7 @@ public class FileUtils {
     @AllArgsConstructor
     @Getter
     public static class ZipSourceFile {
-        private File fileToZip; // file whose content will be zipped
+        private InputStream fileToZip; // file whose content will be zipped
         private String nameInZip; // name of the file that'll be used when unzip
     }
 }

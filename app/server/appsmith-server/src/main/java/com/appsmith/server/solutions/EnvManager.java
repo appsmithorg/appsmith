@@ -29,7 +29,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -333,9 +335,10 @@ public class EnvManager {
                 .flatMap(user -> {
                     try {
                         File envFile = Path.of(commonConfig.getEnvFilePath()).toFile();
-                        File resourceFile = new ClassPathResource("docker-compose.yml").getFile();
+                        FileInputStream envFileInputStream = new FileInputStream(envFile);
+                        InputStream resourceFile = new ClassPathResource("docker-compose.yml").getInputStream();
                         byte[] byteArray = fileUtils.createZip(
-                                new FileUtils.ZipSourceFile(envFile, "docker.env"),
+                                new FileUtils.ZipSourceFile(envFileInputStream, "docker.env"),
                                 new FileUtils.ZipSourceFile(resourceFile, "docker-compose.yml")
                         );
                         final ServerHttpResponse response = exchange.getResponse();
