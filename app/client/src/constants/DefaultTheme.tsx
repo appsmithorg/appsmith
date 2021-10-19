@@ -7,7 +7,7 @@ import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
 import { typography, Typography, TypographyKeys } from "./typography";
-import { ColorPalette, colorpalette } from "./colorpalette";
+import { ThemeColor, themeColor} from "./ThemeColor";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
@@ -347,7 +347,7 @@ export type Theme = {
   drawerWidth: string;
   spaces: Array<number>;
   fontWeights: Array<number>;
-  colors: ColorPalette;
+  colors: ThemeColor;
   typography: Typography;
   lineHeights: Array<number>;
   fonts: {
@@ -2770,7 +2770,7 @@ export const theme: Theme = {
     height: 500,
   },
   drawerWidth: "80%",
-  colors: colorpalette,
+  colors: themeColor,
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {

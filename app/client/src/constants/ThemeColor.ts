@@ -51,7 +51,7 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
   return `rgba(${r},${g},${b},${opacity})`;
 };
 
-export const colorpalette = {
+export const themeColor = {
   tooltip: {
     lightBg: lightShades[0],
     lightText: lightShades[10],
@@ -123,5 +123,4 @@ export const colorpalette = {
   dropdownGreyBg: Colors.Gallery,
 };
 
-export type ColorPaletteKeys = keyof typeof colorpalette;
-export type ColorPalette = typeof colorpalette;
+export type ThemeColor = typeof themeColor;
