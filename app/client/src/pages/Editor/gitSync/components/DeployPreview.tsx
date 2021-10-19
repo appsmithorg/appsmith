@@ -6,11 +6,13 @@ import {
 import styled from "styled-components";
 import Button, { Category, Size } from "components/ads/Button";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getApplicationViewerPageURL } from "constants/routes";
 import { useSelector } from "store";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import {
   CHECK_DP,
   LATEST_DP_TITLE,
@@ -41,7 +43,7 @@ export default function DeployPreview() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const showDeployPreview = () => {
-    const path = getApplicationViewerPageURL(applicationId, pageId);
+    const path = getApplicationViewerPageURL({ applicationId, pageId });
     window.open(path, "_blank");
   };
 

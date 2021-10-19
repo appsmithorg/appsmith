@@ -12,6 +12,7 @@ import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -46,6 +47,11 @@ const Wrapper = styled.div`
       position: absolute;
       right: 9px;
     }
+  }
+
+  .${BlueprintClasses.POPOVER_WRAPPER} {
+    display: flex;
+    align-items: center;
   }
 `;
 
