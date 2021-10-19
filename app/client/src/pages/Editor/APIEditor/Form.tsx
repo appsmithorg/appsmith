@@ -527,7 +527,7 @@ function ApiEditorForm(props: Props) {
                 className="t--apiFormHttpMethod"
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
-                optionWidth={"100px"}
+                optionWidth={"102px"}
                 options={HTTP_METHOD_OPTIONS}
                 placeholder="Method"
                 width={"102px"}
