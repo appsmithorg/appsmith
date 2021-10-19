@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { get, isEmpty } from "lodash";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { DropDownControlProps } from "components/propertyControls/DropDownControl";
@@ -71,6 +71,16 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             dependencies: ["schema"],
           },
           {
+            helpText: "Sets the label of the field",
+            propertyName: "label",
+            label: "Label",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "props.options",
             label: "Options",
             controlType: "INPUT_TEXT",
@@ -137,11 +147,15 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
           },
           {
             propertyName: "children",
-            label: "fieldConfiguration",
+            label: "Field Configuration",
             controlType: "FIELD_CONFIGURATION",
             isBindProperty: false,
             isTriggerProperty: false,
             panelConfig: generatePanelConfig(nestingLevel - 1) as PanelConfig,
+            hidden: (props: FormBuilderWidgetProps, propertyPath: string) => {
+              const children = get(props, propertyPath, {});
+              return isEmpty(children);
+            },
           },
         ],
       },

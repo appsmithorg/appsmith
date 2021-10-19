@@ -145,7 +145,7 @@ export const getAllPathsFromPropertyConfig = (
   );
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, ValidationConfig> = {};
-  if (widget.type === "FORM_BUILDER_WIDGET") debugger;
+
   widgetConfig.forEach((config) => {
     if (config.children) {
       config.children.forEach((controlConfig: any) => {
