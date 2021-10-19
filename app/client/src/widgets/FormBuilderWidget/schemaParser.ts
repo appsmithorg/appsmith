@@ -85,23 +85,24 @@ export const fieldTypeFor = (value: any) => {
   return fieldType;
 };
 
-// TODO: Rename this to SchemaParser
 class SchemaParser {
   static nameAndLabel = (key: string) => {
+    const name = key === "__array_item__" ? key : camelCase(key);
+
     return {
-      name: camelCase(key),
+      name,
       label: startCase(key),
     };
   };
 
-  // TODO: Rename to parse
-  static parse = (currFormData?: JSON, schema: Schema = []) => {
+  static parse = (currFormData?: JSON, schema: Schema = {}) => {
     if (!currFormData) return schema;
 
     const prevSchema = (() => {
-      if (schema[0]) return schema[0].children;
+      const rootSchemaItem = schema.__root_schema__;
+      if (rootSchemaItem) return rootSchemaItem.children;
 
-      return [];
+      return {};
     })();
 
     const rootSchemaItem = SchemaParser.getSchemaItemFor("", currFormData, {
@@ -109,7 +110,9 @@ class SchemaParser {
       prevSchema,
     });
 
-    return [rootSchemaItem];
+    return {
+      __root_schema__: rootSchemaItem,
+    };
   };
 
   // TODO: add eg
@@ -126,7 +129,7 @@ class SchemaParser {
       ...FieldComponent.componentDefaultValues,
     };
 
-    let children: SchemaItem[] = [];
+    let children: Schema = {};
     if (dataType === DataType.OBJECT) {
       children = SchemaParser.convertObjectToSchema(passedOptions);
     }
@@ -173,21 +176,28 @@ class SchemaParser {
 
   static convertArrayToSchema = ({
     currFormData = [],
-    prevSchema = [],
+    prevSchema = {},
   }: ObjectToSchemaProps): Schema => {
     const schema = cloneDeep(prevSchema);
     // TODO: FIX "as any"
     const currData = normalizeArrayValue(currFormData as any[]);
 
-    const prevDataType = schema?.[0]?.dataType;
+    const prevDataType = schema?.__array_item__?.dataType;
     const currDataType = typeof currData;
 
     if (currDataType !== prevDataType) {
-      schema[0] = SchemaParser.getSchemaItemFor("", currData, {
-        currFormData: currData,
-      });
+      schema.__array_item__ = SchemaParser.getSchemaItemFor(
+        "__array_item__",
+        currData,
+        {
+          currFormData: currData,
+        },
+      );
     } else {
-      schema[0] = SchemaParser.getModifiedSchemaItemFor(currData, schema[0]);
+      schema.__array_item__ = SchemaParser.getModifiedSchemaItemFor(
+        currData,
+        schema.__array_item__,
+      );
     }
 
     return schema;
@@ -195,72 +205,66 @@ class SchemaParser {
 
   static convertObjectToSchema = ({
     currFormData = {},
-    prevSchema = [],
+    prevSchema = {},
   }: ObjectToSchemaProps): Schema => {
     const schema = cloneDeep(prevSchema);
     const currObj = currFormData as Obj;
 
     const currKeys = Object.keys(currFormData);
-    const prevKeys = prevSchema.map(({ name }) => name);
+    const prevKeys = Object.keys(prevSchema);
 
     const newKeys = difference(currKeys, prevKeys);
     const removedKeys = difference(prevKeys, currKeys);
     const modifiedKeys = difference(currKeys, newKeys.concat(removedKeys));
 
-    // schema -> [{ name: 'name', props: {}, ... }, { name: 'age', props: {}, ... } ]
-    // returns -> { name: 0, age: 1 }
-    const schemaItemNameToIndexMap = schema.reduce<Record<string, number>>(
-      (idxMap, schemaItem, index) => {
-        idxMap[schemaItem.name] = index;
+    // // schema -> [{ name: 'name', props: {}, ... }, { name: 'age', props: {}, ... } ]
+    // // returns -> { name: 0, age: 1 }
+    // const schemaItemNameToIndexMap = schema.reduce<Record<string, number>>(
+    //   (idxMap, schemaItem, index) => {
+    //     idxMap[schemaItem.name] = index;
 
-        return idxMap;
-      },
-      {},
-    );
+    //     return idxMap;
+    //   },
+    //   {},
+    // );
 
     modifiedKeys.forEach((modifiedKey) => {
-      const index = schemaItemNameToIndexMap[modifiedKey];
-      const prevFieldSchemaItem = schema[index];
+      // const index = schemaItemNameToIndexMap[modifiedKey];
 
       const currDataType = typeof currObj[modifiedKey];
-      const prevDataType = prevFieldSchemaItem.dataType;
+      const prevDataType = schema[modifiedKey].dataType;
 
       // TODO: Fix nested object update, modified objects type would
       // be same so the following block won't run.
       if (currDataType !== prevDataType) {
-        schema[index] = SchemaParser.getSchemaItemFor(
+        schema[modifiedKey] = SchemaParser.getSchemaItemFor(
           modifiedKey,
           currObj[modifiedKey],
           {
             currFormData: currObj[modifiedKey],
-            prevSchema: prevFieldSchemaItem.children,
+            prevSchema: schema[modifiedKey].children,
           },
         );
         // TODO: CHECK FOR PRIMITIVE DATA TYPE
       } else {
-        schema[index] = SchemaParser.getModifiedSchemaItemFor(
+        schema[modifiedKey] = SchemaParser.getModifiedSchemaItemFor(
           currObj[modifiedKey],
-          schema[index],
+          schema[modifiedKey],
         );
       }
     });
 
     newKeys.forEach((newKey) => {
-      const schemaItem = SchemaParser.getSchemaItemFor(
-        newKey,
-        currObj[newKey],
-        {
-          currFormData: currObj[newKey],
-        },
-      );
-      schema.push(schemaItem);
+      schema[newKey] = SchemaParser.getSchemaItemFor(newKey, currObj[newKey], {
+        currFormData: currObj[newKey],
+      });
     });
 
     // schema -> [{ name: 'name', props: {}, ... }, { name: 'age', props: {}, ... } ]
     // removedKey = age
     // schema becomes -> [{ name: 'name', props: {}, ... }]
     removedKeys.forEach((removedKey) => {
-      remove(schema, (schemaItem) => schemaItem.name === removedKey);
+      delete schema[removedKey];
     });
 
     return schema;

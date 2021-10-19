@@ -1,10 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+import { ControllerRenderProps } from "react-hook-form";
 
 import fieldRenderer from "./fieldRenderer";
 import { SchemaItem } from "../constants";
 
-// Do not use BaseFieldComponent here, as it causes TS stack overflow
+// Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
   name: string;
   schemaItem: SchemaItem;
@@ -19,11 +20,15 @@ const StyledWrapper = styled.div`
 `;
 
 function ObjectField({ name, schemaItem }: ObjectFieldProps) {
+  const children = Object.values(schemaItem.children);
   const renderFields = () => {
-    return schemaItem.children.map((schemaItem) => {
+    return children.map((schemaItem) => {
       const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
 
-      return fieldRenderer(fieldName, schemaItem);
+      return fieldRenderer(
+        fieldName as ControllerRenderProps["name"],
+        schemaItem,
+      );
     });
   };
 

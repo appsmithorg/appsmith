@@ -296,15 +296,13 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const openPanel = useCallback(
-    (panelProps: any, passedPanelConfig?: PanelConfig) => {
-      const panelConfig = props.panelConfig || passedPanelConfig;
-
-      if (panelConfig) {
+    (panelProps: any) => {
+      if (props.panelConfig) {
         props.panel.openPanel({
           component: PanelPropertiesEditor,
           props: {
             panelProps,
-            panelConfig: panelConfig || props.panelConfig,
+            panelConfig: props.panelConfig,
             onPropertiesChange: onBatchUpdateProperties,
             panelParentPropertyPath: props.propertyName,
             panel: props.panel,

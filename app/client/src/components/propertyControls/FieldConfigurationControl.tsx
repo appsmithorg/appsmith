@@ -1,4 +1,5 @@
 import React from "react";
+import { noop } from "lodash";
 
 import styled from "constants/DefaultTheme";
 import BaseControl, { ControlProps } from "./BaseControl";
@@ -12,16 +13,7 @@ import {
   StyledEditIcon,
   StyledInputGroup,
 } from "./StyledControls";
-import {
-  DATA_TYPE_POTENTIAL_FIELD,
-  Schema,
-  SchemaItem,
-} from "widgets/FormBuilderWidget/constants";
-import { get, noop } from "lodash";
-import { PanelConfig } from "constants/PropertyControlConstants";
-import { FormBuilderWidgetProps } from "widgets/FormBuilderWidget/widget";
-import { DropDownControlProps } from "components/propertyControls/DropDownControl";
-import { DropdownOption } from "components/ads/Dropdown";
+import { Schema } from "widgets/FormBuilderWidget/constants";
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -56,86 +48,6 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   }
 `;
 
-const updateDerivedColumnsHook = (
-  props: FormBuilderWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  return;
-};
-
-/**
- * On change of type of a field
- * 1. update the type
- * 2. Reset the config for that field
- *
- * Note: The logic is, the properties that can be modified will be set
- * in the widget constant
- * Move the PANEL_CONFIG to constants?
- * Properties specific to the field components would reside in the *Field component
- * itself
- *
- * When a field is modified to a non-primitive type, it's children would be removed
- *
- * MAKE OPERATIONS ATOMIC!!!
- */
-
-// propertyPath -> "schema[0].children[0].fieldType"
-// returns parentPropertyPath -> "schema[0].children[0]"
-const getParentPropertyPath = (propertyPath: string) => {
-  const propertyPathChunks = propertyPath.split(".");
-
-  return propertyPathChunks.slice(0, -1).join(".");
-};
-
-const fieldTypeOptionsFn = (controlProps: DropDownControlProps) => {
-  const { propertyName, widgetProperties } = controlProps;
-  const parentPropertyPath = getParentPropertyPath(propertyName);
-  const schemaItem: SchemaItem = get(widgetProperties, parentPropertyPath, {});
-  const { dataType } = schemaItem;
-  const potentialField = DATA_TYPE_POTENTIAL_FIELD[dataType];
-
-  let options: DropdownOption[] = [];
-  if (potentialField) {
-    options = potentialField.options.map((option) => ({
-      label: option,
-      value: option,
-    }));
-  }
-
-  return options;
-};
-
-const PANEL_CONFIG = {
-  editableTitle: true,
-  titlePropertyName: "label",
-  panelIdPropertyName: "name",
-  updateHook: updateDerivedColumnsHook,
-  children: [
-    {
-      sectionName: "FieldControl",
-      children: [
-        {
-          propertyName: "fieldType",
-          label: "Field Type",
-          controlType: "DROP_DOWN",
-          isBindProperty: false,
-          isTriggerProperty: false,
-          optionsFn: fieldTypeOptionsFn,
-          dependencies: ["schema"],
-        },
-        {
-          propertyName: "children",
-          label: "fieldConfiguration",
-          controlType: "FIELD_CONFIGURATION",
-          isBindProperty: false,
-          isTriggerProperty: false,
-        },
-      ],
-    },
-  ],
-};
-
 function DroppableRenderComponent(props: RenderComponentProps) {
   const { index, item, onEdit } = props;
 
@@ -168,20 +80,18 @@ function DroppableRenderComponent(props: RenderComponentProps) {
 class FieldConfigurationControl extends BaseControl<ControlProps> {
   onEdit = (index: number) => {
     const schema: Schema = this.props.propertyValue || {};
+    const entries = Object.values(schema) || [];
 
-    this.props.openNextPanel(
-      {
-        ...schema[index],
-        propPaneId: this.props.widgetProperties.widgetId,
-      },
-      PANEL_CONFIG,
-    );
+    this.props.openNextPanel({
+      ...entries[index],
+      propPaneId: this.props.widgetProperties.widgetId,
+    });
   };
 
   render() {
-    const { propertyValue } = this.props;
-    const schema = propertyValue as Schema;
-    const entries = schema || [];
+    const { propertyValue = {} } = this.props;
+    const schema: Schema = propertyValue;
+    const entries = Object.values(schema) || [];
 
     const draggableComponentColumns = entries.map(({ label, name }, index) => ({
       index,

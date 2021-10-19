@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useFieldArray } from "react-hook-form";
+import { useFieldArray, ControllerRenderProps } from "react-hook-form";
 
 import fieldRenderer from "./fieldRenderer";
 import { BaseFieldComponentProps } from "./types";
@@ -33,7 +33,7 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
     name,
   });
 
-  const [arrayItemSchema] = schemaItem.children;
+  const arrayItemSchema = schemaItem.children.__array_item__;
 
   const onAddClick = () => {
     append({ firstName: "appendBill", lastName: "appendLuo" });
@@ -41,14 +41,17 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
 
   return (
     <StyledWrapper>
-      {fields.map((field, index) => (
-        <StyledItemWrapper key={field.id}>
-          {fieldRenderer(`${name}.${index}`, arrayItemSchema)}
-          <StyledDeleteButton onClick={() => remove(index)} type="button">
-            Delete
-          </StyledDeleteButton>
-        </StyledItemWrapper>
-      ))}
+      {fields.map((field, index) => {
+        const fieldName = `${name}.${index}` as ControllerRenderProps["name"];
+        return (
+          <StyledItemWrapper key={field.id}>
+            {fieldRenderer(fieldName, arrayItemSchema)}
+            <StyledDeleteButton onClick={() => remove(index)} type="button">
+              Delete
+            </StyledDeleteButton>
+          </StyledItemWrapper>
+        );
+      })}
       <StyledButton onClick={onAddClick} type="button">
         Add
       </StyledButton>

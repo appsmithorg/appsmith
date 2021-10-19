@@ -29,7 +29,7 @@ function FormBuilderComponent<TValues>({
 }: FormBuilderComponentProps<TValues>) {
   if (isEmpty(schema)) return null;
 
-  const rootSchemaItem = schema[0];
+  const rootSchemaItem = schema.__root_schema__;
 
   const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
 

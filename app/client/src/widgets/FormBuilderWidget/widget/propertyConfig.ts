@@ -1,6 +1,145 @@
+import { get } from "lodash";
+
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { DropDownControlProps } from "components/propertyControls/DropDownControl";
+import { DropdownOption } from "components/constants";
 import { FormBuilderWidgetProps } from ".";
+import {
+  SchemaItem,
+  DATA_TYPE_POTENTIAL_FIELD,
+  FIELD_EXPECTING_OPTIONS,
+} from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { PanelConfig } from "constants/PropertyControlConstants";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
+const MAX_NESTING_LEVEL = 5;
+
+// propertyPath -> "schema[0].children[0].fieldType"
+// returns parentPropertyPath -> "schema[0].children[0]"
+const getParentPropertyPath = (propertyPath: string) => {
+  const propertyPathChunks = propertyPath.split(".");
+
+  return propertyPathChunks.slice(0, -1).join(".");
+};
+
+// propertyPath -> "schema[0].children[0].props.options"
+// returns grandParentPropertyPath -> "schema[0].children[0]"
+const getGrandParentPropertyPath = (propertyPath: string) => {
+  const propertyPathChunks = propertyPath.split(".");
+
+  return propertyPathChunks.slice(0, -2).join(".");
+};
+
+const fieldTypeOptionsFn = (controlProps: DropDownControlProps) => {
+  const { propertyName, widgetProperties } = controlProps;
+  const parentPropertyPath = getParentPropertyPath(propertyName);
+  const schemaItem: SchemaItem = get(widgetProperties, parentPropertyPath, {});
+  const { dataType } = schemaItem;
+  const potentialField = DATA_TYPE_POTENTIAL_FIELD[dataType];
+
+  let options: DropdownOption[] = [];
+  if (potentialField) {
+    options = potentialField.options.map((option) => ({
+      label: option,
+      value: option,
+    }));
+  }
+
+  return options;
+};
+
+const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
+  if (nestingLevel === 0) return;
+
+  return {
+    editableTitle: true,
+    titlePropertyName: "label",
+    panelIdPropertyName: "name",
+    updateHook: updateDerivedColumnsHook,
+    children: [
+      {
+        sectionName: "FieldControl",
+        children: [
+          {
+            propertyName: "fieldType",
+            label: "Field Type",
+            controlType: "DROP_DOWN",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            optionsFn: fieldTypeOptionsFn,
+            dependencies: ["schema"],
+          },
+          {
+            propertyName: "props.options",
+            label: "Options",
+            controlType: "INPUT_TEXT",
+            placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
+            isBindProperty: true,
+            isTriggerProperty: false,
+            hidden: (props: FormBuilderWidgetProps, propertyPath: string) => {
+              const grandParentPropertyPath = getGrandParentPropertyPath(
+                propertyPath,
+              );
+              const schemaItem: SchemaItem = get(
+                props,
+                grandParentPropertyPath,
+                {},
+              );
+              const { fieldType } = schemaItem;
+
+              return !FIELD_EXPECTING_OPTIONS.includes(fieldType);
+            },
+            dependencies: ["schema"],
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                default: [],
+                unique: ["value"],
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          {
+            propertyName: "children",
+            label: "fieldConfiguration",
+            controlType: "FIELD_CONFIGURATION",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            panelConfig: generatePanelConfig(nestingLevel - 1) as PanelConfig,
+          },
+        ],
+      },
+    ],
+  } as PanelConfig;
+};
+
+const panelConfig = generatePanelConfig(MAX_NESTING_LEVEL);
 
 const formDataValidationFn = (
   value: any,
@@ -63,12 +202,13 @@ export default [
         },
       },
       {
-        propertyName: "schema[0].children",
+        propertyName: "schema.__root_schema__.children",
         helpText: "Field configuration",
         label: "Field Configuration",
         controlType: "FIELD_CONFIGURATION",
         isBindProperty: false,
         isTriggerProperty: false,
+        panelConfig,
       },
       {
         propertyName: "backgroundColor",
