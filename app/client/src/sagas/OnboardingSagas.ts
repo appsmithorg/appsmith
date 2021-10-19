@@ -972,7 +972,10 @@ function* firstTimeUserOnboardingInitSaga(
     payload: true,
   });
   history.replace(
-    BUILDER_PAGE_URL(action.payload.applicationId, action.payload.pageId),
+    BUILDER_PAGE_URL({
+      applicationId: action.payload.applicationId,
+      pageId: action.payload.pageId,
+    }),
   );
 }
 
