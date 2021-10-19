@@ -1,4 +1,4 @@
-FROM nginx:1.20-alpine
+FROM nginx:1.21.3-alpine
 
 COPY ./build /var/www/appsmith
 
