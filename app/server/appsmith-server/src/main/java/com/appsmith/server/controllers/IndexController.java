@@ -41,4 +41,5 @@ public class IndexController {
     public Mono<Long> pubRedisMessage() {
         return reactiveTemplate.convertAndSend(topic.getTopic(), "This is a test message");
     }
+
 }

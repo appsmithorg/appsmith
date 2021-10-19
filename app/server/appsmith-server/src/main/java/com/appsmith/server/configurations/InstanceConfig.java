@@ -27,6 +27,7 @@ import java.util.Objects;
 public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final ConfigService configService;
+
     private final CloudServicesConfig cloudServicesConfig;
 
     @Override
