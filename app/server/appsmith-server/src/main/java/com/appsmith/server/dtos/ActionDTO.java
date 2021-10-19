@@ -68,6 +68,10 @@ public class ActionDTO {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Set<String> invalids;
 
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Set<String> messages = new HashSet<>();
+
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API

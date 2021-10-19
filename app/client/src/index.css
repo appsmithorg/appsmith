@@ -107,11 +107,3 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
-
-/* Change the white to any color */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
-}

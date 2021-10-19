@@ -71,7 +71,7 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
   const isCommitSuccessful = useSelector(getIsCommitSuccessful);
   const isPushSuccessful = useSelector(getIsPushSuccessful);
 
-  const currentBranchName = gitMetaData?.branchName;
+  const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
 
   const handleCommit = () => {
@@ -109,7 +109,7 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
-            <span className="branch">&nbsp;{currentBranchName}</span>
+            <span className="branch">&nbsp;{currentBranch}</span>
           </SectionTitle>
         </Row>
         <Space size={3} />
@@ -126,11 +126,12 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
           isDefaultChecked
           label={`${createMessage(
             PUSH_CHANGES_IMMEDIATELY_TO,
-          )} ${DEFAULT_REMOTE}/${currentBranchName}`}
+          )} ${DEFAULT_REMOTE}/${currentBranch}`}
           onCheckChange={(checked: boolean) => setPushImmediately(checked)}
         />
         <Space size={11} />
         <Button
+          className="t--commit-button"
           disabled={isCommitSuccessful}
           isLoading={isCommittingInProgress}
           onClick={handleCommit}
@@ -153,7 +154,7 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
               }}
             >
               {createMessage(PUSH_TO)}
-              <span className="branch">&nbsp;{currentBranchName}</span>
+              <span className="branch">&nbsp;{currentBranch}</span>
             </SectionTitle>
           </Row>
           <Space size={3} />
