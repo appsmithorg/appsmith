@@ -816,7 +816,7 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void pullChanges_NoChangesInRemotePullException_ShowError() throws IOException, GitAPIException {
-        Application application = createApplicationConnectedToGit("NoChangesInRemotePullException");
+        Application application = createApplicationConnectedToGit("pullChanges_NoChangesInRemotePullException_ShowError");
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))

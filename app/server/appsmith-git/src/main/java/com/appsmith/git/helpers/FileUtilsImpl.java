@@ -268,7 +268,7 @@ public class FileUtilsImpl implements FileInterface {
                                         String viewModeUrl,
                                         String editModeUrl) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getInitialTemplatePath());
+        InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
 
         StringWriter stringWriter = new StringWriter();
         IOUtils.copy(inputStream, stringWriter, "UTF-8");
