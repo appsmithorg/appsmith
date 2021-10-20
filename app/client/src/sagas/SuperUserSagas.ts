@@ -14,7 +14,6 @@ import { validateResponse } from "./ErrorSagas";
 import { getAppsmithConfigs } from "configs";
 
 import { ApiResponse } from "api/ApiResponses";
-import { apiRequestConfig } from "api/Api";
 
 function* FetchAdminSettingsSaga() {
   const response = yield call(UserApi.fetchAdminSettings);
@@ -92,14 +91,6 @@ function* RestartServerPoll() {
   });
 }
 
-function* DownloadDockerComposeFile() {
-  const { host, protocol } = window.location;
-  window.open(
-    `${protocol}//${host}${apiRequestConfig.baseURL}${UserApi.downloadConfigURL}`,
-    "_blank",
-  );
-}
-
 function* InitSuperUserSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
@@ -111,10 +102,6 @@ function* InitSuperUserSaga(action: ReduxAction<User>) {
       ),
       takeLatest(ReduxActionTypes.SAVE_ADMIN_SETTINGS, SaveAdminSettingsSaga),
       takeLatest(ReduxActionTypes.RESTART_SERVER_POLL, RestartServerPoll),
-      takeLatest(
-        ReduxActionTypes.DOWNLOAD_DOCKER_COMPOSE_FILE,
-        DownloadDockerComposeFile,
-      ),
     ]);
   }
 }

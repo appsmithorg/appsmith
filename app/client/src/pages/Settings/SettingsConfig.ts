@@ -1,10 +1,13 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { apiRequestConfig } from "api/Api";
+import UserApi from "api/UserApi";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   EMAIL_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_MAPS_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
+import { Dispatch } from "react";
 import { isEmail } from "utils/formhelpers";
 
 export enum SettingTypes {
@@ -37,7 +40,7 @@ export type Setting = {
   subCategory?: string;
   value?: string;
   text?: string;
-  action?: () => Partial<ReduxAction<any>>;
+  action?: (dispatch?: Dispatch<any>) => void;
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
@@ -228,7 +231,13 @@ SettingsFactory.register("APPSMITH_ADMIN_EMAILS", {
 });
 
 SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
-  action: () => ({ type: ReduxActionTypes.DOWNLOAD_DOCKER_COMPOSE_FILE }),
+  action: () => {
+    const { host, protocol } = window.location;
+    window.open(
+      `${protocol}//${host}${apiRequestConfig.baseURL}${UserApi.downloadConfigURL}`,
+      "_blank",
+    );
+  },
   category: "general",
   controlType: SettingTypes.BUTTON,
   label: "Generated Docker Compose File",
