@@ -203,16 +203,6 @@ class UserApi extends Api {
   static restartServer(): AxiosPromise<ApiResponse> {
     return Api.post(UserApi.restartServerURL);
   }
-
-  static downloadConfigFiles(): AxiosPromise<ApiResponse> {
-    return Api.get(
-      UserApi.downloadConfigURL,
-      {},
-      {
-        responseType: "blob",
-      },
-    );
-  }
 }
 
 export default UserApi;
