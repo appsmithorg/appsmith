@@ -879,20 +879,20 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         entityId = currentEntity.entityId;
         entityType = currentEntity.entityType;
       }
-      if (entityType !== ENTITY_TYPE.JSACTION) {
-        const { fieldMeta, refinements } = yield buildMetaForSnippets(
-          entityId,
-          entityType,
-          expectedType,
-          propertyPath,
-        );
-        yield put(
-          setGlobalSearchFilterContext({
-            refinements,
-            fieldMeta,
-          }),
-        );
-      }
+
+      const { fieldMeta, refinements } = yield buildMetaForSnippets(
+        entityId,
+        entityType,
+        expectedType,
+        propertyPath,
+      );
+      yield put(
+        setGlobalSearchFilterContext({
+          refinements,
+          fieldMeta,
+        }),
+      );
+
       yield put(
         toggleShowGlobalSearchModal(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
