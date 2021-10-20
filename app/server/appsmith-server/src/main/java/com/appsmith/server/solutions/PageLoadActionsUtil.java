@@ -443,7 +443,7 @@ public class PageLoadActionsUtil {
             } catch (IllegalArgumentException e) {
                 // This error is also thrown when adding an edge which makes the graph cyclical
                 if (e.getMessage().contains("Edge would induce a cycle")) {
-                    throw new AppsmithException(AppsmithError.CYCLICAL_DEPENDENCY_ERROR, edge.toString(), actionSchedulingGraph.edgeSet());
+                    throw new AppsmithException(AppsmithError.CYCLICAL_DEPENDENCY_ERROR, edge.toString());
                 }
             }
         }

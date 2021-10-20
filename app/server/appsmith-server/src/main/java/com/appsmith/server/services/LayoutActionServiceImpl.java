@@ -49,12 +49,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static java.lang.Boolean.FALSE;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -745,13 +747,26 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         List<LayoutActionUpdateDTO> actionUpdates = new ArrayList<>();
         List<String> messages = new ArrayList<>();
 
+        AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
+
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL);
+                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
+                .onErrorResume(AppsmithException.class, error -> {
+                    log.info(error.getMessage());
+                    messages.add(error.getMessage());
+                    validOnPageLoadActions.set(FALSE);
+                    return Mono.just(new ArrayList<>());
+                });
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
         return allOnLoadActionsMono
                 .flatMap(allOnLoadActions -> {
+                    // If there has been an error (e.g. cyclical dependency), then dont update any actions.
+                    // This is so that unnecessary updates don't happen to actions while the page is in invalid state.
+                    if (validOnPageLoadActions.get()) {
+                        return Mono.just(allOnLoadActions);
+                    }
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
                     return newActionService
                             .updateActionsExecuteOnLoad(flatmapPageLoadActions, pageId, actionUpdates, messages)
@@ -775,6 +790,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             layout.setAllOnPageLoadActionNames(actionNames);
                             layout.setAllOnPageLoadActionEdges(edges);
                             layout.setActionsUsedInDynamicBindings(actionsUsedInDSL);
+                            // The below field is to ensure that we record if the page load actions computation was valid
+                            // when last stored in the database.
+                            layout.setValidOnPageLoadActions(validOnPageLoadActions.get());
 
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);

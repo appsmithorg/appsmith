@@ -12,6 +12,8 @@ import net.minidev.json.JSONObject;
 import java.util.List;
 import java.util.Set;
 
+import static java.lang.Boolean.TRUE;
+
 @Getter
 @Setter
 @ToString
@@ -54,6 +56,9 @@ public class Layout extends BaseDomain {
 
     @JsonIgnore
     Set<String> mongoEscapedWidgetNames;
+
+    @JsonIgnore
+    Boolean validOnPageLoadActions = TRUE;
 
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
