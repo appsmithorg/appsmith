@@ -14,8 +14,16 @@ import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -78,44 +86,44 @@ public class GitController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<String>> commit(@RequestBody GitCommitDTO commitDTO,
                                             @PathVariable String defaultApplicationId,
-                                            @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to commit application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.commitApplication(commitDTO, defaultApplicationId, params)
+                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to commit application {}, branch : {}", defaultApplicationId, branchName);
+        return service.commitApplication(commitDTO, defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @GetMapping("/commit-history/{defaultApplicationId}")
     public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String defaultApplicationId,
-                                                               @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Fetching commit-history for application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.getCommitHistory(defaultApplicationId, params)
+                                                               @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Fetching commit-history for application {}, branch : {}", defaultApplicationId, branchName);
+        return service.getCommitHistory(defaultApplicationId, branchName)
                 .map(logs -> new ResponseDTO<>(HttpStatus.OK.value(), logs, null));
     }
 
     @PostMapping("/push/{defaultApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<String>> push(@PathVariable String defaultApplicationId,
-                                          @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to push application application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.pushApplication(defaultApplicationId, params)
+                                          @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to push application application {}, branch : {}", defaultApplicationId, branchName);
+        return service.pushApplication(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @PostMapping("/create-branch/{defaultApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> createBranch(@PathVariable String defaultApplicationId,
-                                                       @RequestParam MultiValueMap<String, String> params,
+                                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String srcBranch,
                                                        @RequestBody GitBranchDTO branchDTO) {
-        log.debug("Going to create a branch from root application {}, branch {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.createBranch(defaultApplicationId, branchDTO, params)
+        log.debug("Going to create a branch from root application {}, srcBranch {}", defaultApplicationId, srcBranch);
+        return service.createBranch(defaultApplicationId, branchDTO, srcBranch)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @GetMapping("/checkout-branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
-                                                         @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to push application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.checkoutBranch(defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME))
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to checkout application {}, branch {}", defaultApplicationId, branchName);
+        return service.checkoutBranch(defaultApplicationId, branchName)
             .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -128,9 +136,9 @@ public class GitController {
 
     @GetMapping("/pull/{defaultApplicationId}")
     public Mono<ResponseDTO<Object>> pull(@PathVariable String defaultApplicationId,
-                                          @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to pull the latest for application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.pullApplication(defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME))
+                                          @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to pull the latest for application {}, branch {}", defaultApplicationId, branchName);
+        return service.pullApplication(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -143,9 +151,9 @@ public class GitController {
 
     @GetMapping("/status/{defaultApplicationId}")
     public Mono<ResponseDTO<Map<String, Object>>> getStatus(@PathVariable String defaultApplicationId,
-                                                            @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get status for default application {}, branch {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.getStatus(defaultApplicationId, params)
+                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to get status for default application {}, branch {}", defaultApplicationId, branchName);
+        return service.getStatus(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

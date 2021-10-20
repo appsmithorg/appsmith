@@ -31,7 +31,6 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -135,7 +134,7 @@ public class GitServiceImpl implements GitService {
      * @return success message
      */
     @Override
-    public Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, MultiValueMap<String, String> params) {
+    public Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName) {
 
         /*
         1. Check if application exists and user have sufficient permissions
@@ -143,7 +142,6 @@ public class GitServiceImpl implements GitService {
         3. Save application to the existing worktree (Directory for the specific branch)
         4. Commit application : git add, git commit (Also check if git init required)
          */
-        String branchName = params.getFirst(FieldName.BRANCH_NAME);
         String commitMessage = commitDTO.getCommitMessage();
         StringBuilder result = new StringBuilder();
 
@@ -254,9 +252,7 @@ public class GitServiceImpl implements GitService {
      * @return list of commits
      */
     @Override
-    public Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, MultiValueMap<String, String> params) {
-
-        String branchName = params.getFirst(FieldName.BRANCH_NAME);
+    public Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, String branchName) {
 
         return applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, READ_APPLICATIONS)
             .map(application -> {
@@ -403,8 +399,8 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<String> pushApplication(String defaultApplicationId, MultiValueMap<String, String> params) {
-        String branchName = params.getFirst(FieldName.BRANCH_NAME);
+    public Mono<String> pushApplication(String defaultApplicationId, String branchName) {
+
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
@@ -498,7 +494,7 @@ public class GitServiceImpl implements GitService {
                 .flatMap(applicationService::setTransientFields);
     }
 
-    public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params) {
+    public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
 
         /*
         1. Check if the src application is available and user have sufficient permissions
@@ -506,7 +502,6 @@ public class GitServiceImpl implements GitService {
         3. Rehydrate the application from source application reference
          */
 
-        final String srcBranch = params.getFirst(FieldName.BRANCH_NAME);
         if (StringUtils.isEmptyOrNull(srcBranch)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
@@ -737,16 +732,16 @@ public class GitServiceImpl implements GitService {
      * Get the status of the mentioned branch
      *
      * @param defaultApplicationId root/default application
-     * @param params contains the branch name
+     * @param branchName for which the status is required
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
-    public Mono<Map<String, Object>> getStatus(String defaultApplicationId, MultiValueMap<String, String> params) {
+    public Mono<Map<String, Object>> getStatus(String defaultApplicationId, String branchName) {
 
         /*
             1. Copy resources from DB to local repo
             2. Fetch the current status from local repo
          */
-        String branchName = params.getFirst(FieldName.BRANCH_NAME);
+
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
