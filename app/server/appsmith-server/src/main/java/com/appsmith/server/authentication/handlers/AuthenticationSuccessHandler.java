@@ -15,6 +15,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
@@ -124,16 +125,28 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                     monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
                     if (isFromSignupFinal) {
-                        final boolean isFromInvite = currentUser.getInviteToken() != null;
+                        final String inviteToken = currentUser.getInviteToken();
+                        final boolean isFromInvite = inviteToken != null;
+                        final String invitedAs = inviteToken == null ? "" : inviteToken.split(":", 2)[0];
+
+                        if (CollectionUtils.isNotEmpty(currentUser.getOrganizationIds())) {
+                            currentUser.getOrganizationIds().iterator().next();
+                        }
+
                         String modeOfLogin = "FormSignUp";
                         if(authentication instanceof OAuth2AuthenticationToken) {
                             modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
-                        // not sent for superuser
+
                         monos.add(analyticsService.sendObjectEvent(
                                 AnalyticsEvents.FIRST_LOGIN,
                                 currentUser,
-                                Map.of("isFromInvite", isFromInvite, "modeOfLogin", modeOfLogin)));
+                                Map.of(
+                                        "isFromInvite", isFromInvite,
+                                        "invitedAs", invitedAs,
+                                        "modeOfLogin", modeOfLogin
+                                )
+                        ));
                         monos.add(examplesOrganizationCloner.cloneExamplesOrganization());
                     }
 
