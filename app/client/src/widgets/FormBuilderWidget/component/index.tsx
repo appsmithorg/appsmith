@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { DefaultValues } from "react-hook-form";
 
 import Form from "./Form";
-import { FIELD_MAP, Schema } from "../constants";
+import { FIELD_MAP, ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { isEmpty } from "lodash";
 
 type StyledContainerProps = {
@@ -13,32 +13,36 @@ type StyledContainerProps = {
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type FormBuilderComponentProps<TValues> = {
   backgroundColor?: string;
-  inputData: TValues;
+  formData: TValues;
   schema: Schema;
+  useFormDataValues: boolean;
 };
 
 const StyledContainer = styled.div<StyledContainerProps>`
-  background: ${({ backgroundColor }) => backgroundColor};
+  background: ${({ backgroundColor }) => backgroundColor || "#fff"};
   overflow-y: auto;
 `;
 
 function FormBuilderComponent<TValues>({
   backgroundColor,
-  inputData,
+  formData,
   schema,
+  useFormDataValues,
 }: FormBuilderComponentProps<TValues>) {
-  if (isEmpty(schema)) return null;
+  if (isEmpty(schema))
+    return <StyledContainer backgroundColor={backgroundColor} />;
 
-  const rootSchemaItem = schema.__root_schema__;
+  const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
 
   const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
 
   return (
     <StyledContainer backgroundColor={backgroundColor}>
       <Form
-        defaultValues={inputData as DefaultValues<TValues>}
+        formData={formData as DefaultValues<TValues>}
         // eslint-disable-next-line no-console
         onSubmit={console.log}
+        useFormDataValues={useFormDataValues}
       >
         <RootField name="" schemaItem={rootSchemaItem} />
       </Form>

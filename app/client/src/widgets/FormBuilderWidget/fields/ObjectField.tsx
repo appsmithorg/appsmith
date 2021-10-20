@@ -43,16 +43,10 @@ function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
     });
   };
 
-  const renderedFields = <StyledWrapper>{renderFields()}</StyledWrapper>;
-
-  if (hideLabel) {
-    return renderedFields;
-  }
-
   return (
     <Disabler isDisabled={isDisabled}>
-      <FieldLabel label={label} tooltip={tooltip} />
-      {renderedFields}
+      {!hideLabel && <FieldLabel label={label} tooltip={tooltip} />}
+      <StyledWrapper>{renderFields()}</StyledWrapper>
     </Disabler>
   );
 }

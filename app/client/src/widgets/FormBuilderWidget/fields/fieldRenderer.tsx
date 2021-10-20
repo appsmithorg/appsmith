@@ -16,6 +16,8 @@ const fieldRenderer = (
 
   const FieldComponent = FIELD_MAP[fieldType];
 
+  if (!FieldComponent) return null;
+
   const fieldProps = {
     key: fieldName,
     name: fieldName,

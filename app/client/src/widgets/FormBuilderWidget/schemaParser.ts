@@ -1,11 +1,13 @@
-import { camelCase, cloneDeep, difference, remove, startCase } from "lodash";
+import { cloneDeep, difference, startCase } from "lodash";
 import {
   DATA_TYPE_POTENTIAL_FIELD,
   DataType,
   FIELD_MAP,
   FieldType,
+  ROOT_SCHEMA_KEY,
   Schema,
   SchemaItem,
+  ARRAY_ITEM_KEY,
 } from "./constants";
 
 type Obj = Record<string, any>;
@@ -48,7 +50,9 @@ export const constructPlausibleObjectFromArray = (arrayOfObj: Obj[]) => {
 
 export const dataTypeFor = (value: any) => {
   const typeOfValue = typeof value;
+
   if (Array.isArray(value)) return DataType.ARRAY;
+  if (value === null) return DataType.NULL;
 
   return typeOfValue as DataType;
 };
@@ -91,19 +95,18 @@ export const fieldTypeFor = (value: any) => {
 
 class SchemaParser {
   static nameAndLabel = (key: string) => {
-    const name = key === "__array_item__" ? key : camelCase(key);
-
     return {
-      name,
+      name: key,
       label: startCase(key),
     };
   };
 
   static parse = (currFormData?: JSON, schema: Schema = {}) => {
+    debugger;
     if (!currFormData) return schema;
 
     const prevSchema = (() => {
-      const rootSchemaItem = schema.__root_schema__;
+      const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
       if (rootSchemaItem) return rootSchemaItem.children;
 
       return {};
@@ -115,7 +118,7 @@ class SchemaParser {
     });
 
     return {
-      __root_schema__: rootSchemaItem,
+      [ROOT_SCHEMA_KEY]: rootSchemaItem,
     };
   };
 
@@ -187,21 +190,21 @@ class SchemaParser {
     // TODO: FIX "as any"
     const currData = normalizeArrayValue(currFormData as any[]);
 
-    const prevDataType = schema?.__array_item__?.dataType;
+    const prevDataType = schema[ARRAY_ITEM_KEY]?.dataType;
     const currDataType = dataTypeFor(currData);
 
     if (currDataType !== prevDataType) {
-      schema.__array_item__ = SchemaParser.getSchemaItemFor(
-        "__array_item__",
+      schema[ARRAY_ITEM_KEY] = SchemaParser.getSchemaItemFor(
+        ARRAY_ITEM_KEY,
         currData,
         {
           currFormData: currData,
         },
       );
     } else {
-      schema.__array_item__ = SchemaParser.getModifiedSchemaItemFor(
+      schema[ARRAY_ITEM_KEY] = SchemaParser.getModifiedSchemaItemFor(
         currData,
-        schema.__array_item__,
+        schema[ARRAY_ITEM_KEY],
       );
     }
 

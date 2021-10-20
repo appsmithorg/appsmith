@@ -5,6 +5,7 @@ import { useFieldArray, ControllerRenderProps } from "react-hook-form";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
+import { ARRAY_ITEM_KEY } from "../constants";
 import { BaseFieldComponentProps } from "./types";
 
 type ArrayComponentOwnProps = {
@@ -41,7 +42,7 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
 
   const { children, isVisible = true, label, props, tooltip } = schemaItem;
   const { isDisabled } = props;
-  const arrayItemSchema = children.__array_item__;
+  const arrayItemSchema = children[ARRAY_ITEM_KEY];
 
   const onAddClick = () => {
     append({ firstName: "appendBill", lastName: "appendLuo" });

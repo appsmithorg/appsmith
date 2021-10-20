@@ -5,9 +5,11 @@ import { DropDownControlProps } from "components/propertyControls/DropDownContro
 import { DropdownOption } from "components/constants";
 import { FormBuilderWidgetProps } from ".";
 import {
-  SchemaItem,
+  ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
   FIELD_EXPECTING_OPTIONS,
+  ROOT_SCHEMA_KEY,
+  SchemaItem,
 } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { PanelConfig } from "constants/PropertyControlConstants";
@@ -49,6 +51,21 @@ const fieldTypeOptionsFn = (controlProps: DropDownControlProps) => {
   return options;
 };
 
+const hiddenIfArrayItem = (
+  props: FormBuilderWidgetProps,
+  propertyPath: string,
+  options?: { checkGrandParentPath: boolean },
+) => {
+  const pathFinder = options?.checkGrandParentPath
+    ? getGrandParentPropertyPath
+    : getParentPropertyPath;
+  const path = pathFinder(propertyPath);
+
+  const schemaItem: SchemaItem = get(props, path, {});
+
+  return schemaItem.name === ARRAY_ITEM_KEY;
+};
+
 const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
   if (nestingLevel === 0) return;
 
@@ -79,6 +96,8 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+            dependencies: ["schema"],
+            hidden: hiddenIfArrayItem,
           },
           {
             propertyName: "props.options",
@@ -144,6 +163,9 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (...args) =>
+              hiddenIfArrayItem(...args, { checkGrandParentPath: true }),
+            dependencies: ["schema"],
           },
           {
             helpText: "Controls the visibility of the field",
@@ -155,6 +177,8 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+            hidden: hiddenIfArrayItem,
+            dependencies: ["schema"],
           },
           {
             helpText: "Show help text or details about current input",
@@ -165,6 +189,8 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+            hidden: hiddenIfArrayItem,
+            dependencies: ["schema"],
           },
           {
             propertyName: "children",
@@ -191,7 +217,7 @@ const formDataValidationFn = (
   props: FormBuilderWidgetProps,
   _?: any,
 ) => {
-  if (_.isObject(value)) {
+  if (_.isPlainObject(value)) {
     return {
       isValid: true,
       parsed: value,
@@ -232,7 +258,6 @@ export default [
         placeholderText: 'Enter { "firstName": "John" }',
         isBindProperty: true,
         isTriggerProperty: false,
-        // TODO: Add JSON validation type?
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
@@ -247,7 +272,7 @@ export default [
         },
       },
       {
-        propertyName: "schema.__root_schema__.children",
+        propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
         helpText: "Field configuration",
         label: "Field Configuration",
         controlType: "FIELD_CONFIGURATION",
@@ -261,6 +286,17 @@ export default [
         controlType: "COLOR_PICKER",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        propertyName: "useFormDataValues",
+        helpText:
+          "It will use the values of the form data as the initial values for the form fields. Disabling this would make the form fields empty.",
+        label: "Use Form Data Values",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         propertyName: "fixedFooter",

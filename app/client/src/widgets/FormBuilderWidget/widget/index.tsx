@@ -8,25 +8,20 @@ import propertyConfig from "./propertyConfig";
 import SchemaParser from "../schemaParser";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Schema } from "../constants";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 export type FormBuilderWidgetProps = WidgetProps & {
-  addFormBuilderWidgets: (widgetId: string, children: WidgetProps[]) => void;
-  children?: WidgetProps[];
-  isLatestSchemaRendered: boolean;
-  schema: Schema;
-  primaryFields: string[];
+  fixedFooter: boolean;
   formData?: Record<string, any>;
+  isVisible: boolean;
+  schema: Schema;
+  scrollContents: boolean;
+  useFormDataValues: boolean;
 };
 
 class FormBuilderWidget extends BaseWidget<
   FormBuilderWidgetProps,
   WidgetState
 > {
-  state = {
-    isSchemaRendered: false,
-  };
-
   static getPropertyPaneConfig() {
     return propertyConfig;
   }
@@ -64,7 +59,12 @@ class FormBuilderWidget extends BaseWidget<
       return;
     }
 
+    const start = performance.now();
     const schema = SchemaParser.parse(currFormData, this.props.schema);
+    const end = performance.now();
+
+    // eslint-disable-next-line
+    console.log("FORM BUILDER _ PERF", `${end - start} ms`);
 
     // eslint-disable-next-line
     console.log("FORM BUILDER - SCHEMA", schema);
@@ -75,8 +75,9 @@ class FormBuilderWidget extends BaseWidget<
     return (
       <FormBuilderComponent
         backgroundColor={this.props.backgroundColor}
-        inputData={this.props?.formData}
+        formData={this.props?.formData}
         schema={this.props.schema}
+        useFormDataValues={this.props.useFormDataValues}
       />
     );
   }

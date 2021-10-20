@@ -61,6 +61,9 @@ type FieldComponent = {
 
 export type Schema = Record<string, SchemaItem>;
 
+export const ARRAY_ITEM_KEY = "__array_item__";
+export const ROOT_SCHEMA_KEY = "__root_schema__";
+
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.TEXT]: InputField,
   [FieldType.NUMBER]: InputField,
