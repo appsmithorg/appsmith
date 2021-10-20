@@ -1,6 +1,6 @@
 import { apiRequestConfig } from "api/Api";
 import UserApi from "api/UserApi";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   EMAIL_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
@@ -40,7 +40,7 @@ export type Setting = {
   subCategory?: string;
   value?: string;
   text?: string;
-  action?: (dispatch?: Dispatch<any>) => void;
+  action?: (dispatch?: Dispatch<ReduxAction<any>>) => void;
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
@@ -344,10 +344,13 @@ SettingsFactory.register("APPSMITH_CURRENT_VERSION", {
 });
 
 SettingsFactory.register("APPSMITH_VERSION_READ_MORE", {
-  action: () => ({
-    type: ReduxActionTypes.TOGGLE_RELEASE_NOTES,
-    payload: true,
-  }),
+  action: (dispatch?: Dispatch<ReduxAction<boolean>>) => {
+    dispatch &&
+      dispatch({
+        type: ReduxActionTypes.TOGGLE_RELEASE_NOTES,
+        payload: true,
+      });
+  },
   category: "version",
   controlType: SettingTypes.LINK,
   label: "Release Notes",
