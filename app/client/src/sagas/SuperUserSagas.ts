@@ -14,7 +14,7 @@ import { validateResponse } from "./ErrorSagas";
 import { getAppsmithConfigs } from "configs";
 
 import { ApiResponse } from "api/ApiResponses";
-import { downloadFile } from "utils/AppsmithUtils";
+import downloadjs from "downloadjs";
 
 function* FetchAdminSettingsSaga() {
   const response = yield call(UserApi.fetchAdminSettings);
@@ -94,7 +94,7 @@ function* RestartServerPoll() {
 
 function* DownloadDockerComposeFile() {
   const response = yield call(UserApi.downloadConfigFiles);
-  downloadFile(response.data, "appsmith-config.zip");
+  downloadjs(response.data, "appsmith-config.zip", "application/zip");
 }
 
 function* InitSuperUserSaga(action: ReduxAction<User>) {

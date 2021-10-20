@@ -344,19 +344,3 @@ export const parseBlobUrl = (blobId: string) => {
   }/${blobId.substring(5)}`;
   return url.split("?type=");
 };
-
-/**
- *
- * @param blob
- * @param filename
- * Given a blob and filename, this function triggers download
- */
-export const downloadFile = (blob: Blob, filename: string): void => {
-  const url = window.URL.createObjectURL(new Blob([blob]));
-  const link = document.createElement("a");
-  link.href = url;
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-};
