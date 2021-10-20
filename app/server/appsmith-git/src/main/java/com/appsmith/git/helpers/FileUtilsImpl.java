@@ -292,7 +292,7 @@ public class FileUtilsImpl implements FileInterface {
     @Override
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
         return Mono.fromCallable(() -> {
-            /*File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
+            File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
             for(File file : files) {
                 if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
                     //Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
@@ -301,7 +301,7 @@ public class FileUtilsImpl implements FileInterface {
                     }
                     return false;
                 }
-            }*/
+            }
             return true;
         });
     }
