@@ -29,13 +29,9 @@ import {
   getDifferenceInJSCollection,
   pushLogsForObjectUpdate,
 } from "../utils/JSPaneUtils";
-import JSActionAPI from "../api/JSActionAPI";
-import ActionAPI from "api/ActionAPI";
+import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
 import {
   updateJSCollectionSuccess,
-  addJSObjectAction,
-  updateJSObjectAction,
-  deleteJSObjectAction,
   refactorJSCollectionAction,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -124,114 +120,98 @@ function* handleJSCollectionCreatedSaga(
   history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
-function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
-  const body = actionPayload.body;
+function* handleUpdateJSCollection(
+  actionPayload: ReduxAction<{ body: string }>,
+) {
+  const { body } = actionPayload.payload;
   const jsActionId = getJSCollectionIdFromURL();
   const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
-    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-    let newActions: Partial<JSAction>[] = [];
-    let updateActions: JSAction[] = [];
-    let deletedActions: JSAction[] = [];
-    jsActionTobeUpdated.body = body;
-
     const parsedBody = yield call(parseJSCollection, body, jsAction);
+    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
     if (parsedBody) {
+      jsActionTobeUpdated.body = body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
-      if (parsedBody.variables) {
-        jsActionTobeUpdated.variables = parsedBody.variables;
-      }
       if (data.nameChangedActions.length) {
         for (let i = 0; i < data.nameChangedActions.length; i++) {
           yield put(
             refactorJSCollectionAction({
-              actionId: data.nameChangedActions[i].id,
-              collectionName: jsAction.name,
-              pageId: data.nameChangedActions[i].pageId,
-              oldName: data.nameChangedActions[i].oldName,
-              newName: data.nameChangedActions[i].newName,
+              refactorAction: {
+                actionId: data.nameChangedActions[i].id,
+                collectionName: jsAction.name,
+                pageId: data.nameChangedActions[i].pageId,
+                oldName: data.nameChangedActions[i].oldName,
+                newName: data.nameChangedActions[i].newName,
+              },
+              actionCollection: jsActionTobeUpdated,
             }),
           );
         }
-      }
-      if (data.newActions.length) {
-        newActions = data.newActions;
-        for (let i = 0; i < data.newActions.length; i++) {
-          jsActionTobeUpdated.actions.push({
-            ...data.newActions[i],
-            organizationId: organizationId,
-          });
+      } else {
+        let newActions: Partial<JSAction>[] = [];
+        let updateActions: JSAction[] = [];
+        let deletedActions: JSAction[] = [];
+        if (parsedBody.variables) {
+          jsActionTobeUpdated.variables = parsedBody.variables;
         }
-        yield put(
-          addJSObjectAction({
-            jsAction: jsAction,
-            subActions: data.newActions,
-          }),
-        );
-      }
-      if (data.updateActions.length > 0) {
-        updateActions = data.updateActions;
-        let changedActions = [];
-        for (let i = 0; i < data.updateActions.length; i++) {
-          changedActions = jsActionTobeUpdated.actions.map(
-            (js: JSAction) =>
-              data.updateActions.find(
-                (update: JSAction) => update.id === js.id,
-              ) || js,
-          );
-        }
-        jsActionTobeUpdated.actions = changedActions;
-        yield put(
-          updateJSObjectAction({
-            jsAction: jsAction,
-            subActions: data.updateActions,
-          }),
-        );
-      }
-      if (data.deletedActions.length > 0) {
-        deletedActions = data.deletedActions;
-        const nonDeletedActions = jsActionTobeUpdated.actions.filter(
-          (js: JSAction) => {
-            return !data.deletedActions.find((deleted) => {
-              return deleted.id === js.id;
+        if (data.newActions.length) {
+          newActions = data.newActions;
+          for (let i = 0; i < data.newActions.length; i++) {
+            jsActionTobeUpdated.actions.push({
+              ...data.newActions[i],
+              organizationId: organizationId,
             });
-          },
-        );
-        jsActionTobeUpdated.actions = nonDeletedActions;
-        yield put(
-          deleteJSObjectAction({
-            jsAction: jsAction,
-            subActions: data.deletedActions,
-          }),
-        );
+          }
+        }
+        if (data.updateActions.length > 0) {
+          updateActions = data.updateActions;
+          let changedActions = [];
+          for (let i = 0; i < data.updateActions.length; i++) {
+            changedActions = jsActionTobeUpdated.actions.map(
+              (js: JSAction) =>
+                data.updateActions.find(
+                  (update: JSAction) => update.id === js.id,
+                ) || js,
+            );
+          }
+          jsActionTobeUpdated.actions = changedActions;
+        }
+        if (data.deletedActions.length > 0) {
+          deletedActions = data.deletedActions;
+          const nonDeletedActions = jsActionTobeUpdated.actions.filter(
+            (js: JSAction) => {
+              return !data.deletedActions.find((deleted) => {
+                return deleted.id === js.id;
+              });
+            },
+          );
+          jsActionTobeUpdated.actions = nonDeletedActions;
+        }
+        yield call(updateJSCollection, {
+          jsCollection: jsActionTobeUpdated,
+          newActions: newActions,
+          updatedActions: updateActions,
+          deletedActions: deletedActions,
+        });
       }
     }
-    return {
-      jsCollection: jsActionTobeUpdated,
-      newActions: newActions,
-      updatedActions: updateActions,
-      deletedActions: deletedActions,
-    };
   }
 }
 
-function* handleUpdateJSCollection(
-  actionPayload: ReduxAction<{ body: string }>,
-) {
+function* updateJSCollection(data: {
+  jsCollection: JSCollection;
+  newActions: Partial<JSAction>[];
+  updatedActions: JSAction[];
+  deletedActions: JSAction[];
+}) {
   let jsAction = {};
   const jsActionId = getJSCollectionIdFromURL();
   if (jsActionId) {
     jsAction = yield select(getJSCollection, jsActionId);
   }
   try {
-    const { body } = actionPayload.payload;
-    const {
-      deletedActions,
-      jsCollection,
-      newActions,
-      updatedActions,
-    } = yield call(handleParseUpdateJSCollection, { body: body });
+    const { deletedActions, jsCollection, newActions, updatedActions } = data;
     if (jsCollection) {
       const response = yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse = yield validateResponse(response);
@@ -366,40 +346,43 @@ function* handleExecuteJSFunctionSaga(
 
 function* handleRefactorJSActionNameSaga(
   data: ReduxAction<{
-    actionId: string;
-    collectionName: string;
-    pageId: string;
-    oldName: string;
-    newName: string;
+    refactorAction: RefactorAction;
+    actionCollection: JSCollection;
   }>,
 ) {
   const pageResponse = yield call(PageApi.fetchPage, {
-    id: data.payload.pageId,
+    id: data.payload.refactorAction.pageId,
   });
   const isPageRequestSuccessful = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
+    const requestData = {
+      refactorAction: {
+        ...data.payload.refactorAction,
+        layoutId: layoutId,
+      },
+      actionCollection: data.payload.actionCollection,
+    };
     // call to refactor action
     try {
-      const refactorResponse = yield ActionAPI.updateActionName({
-        layoutId,
-        collectionName: data.payload.collectionName,
-        pageId: data.payload.pageId,
-        oldName: data.payload.oldName,
-        newName: data.payload.newName,
-        actionId: data.payload.actionId,
-      });
+      const refactorResponse = yield JSActionAPI.updateJSCollectionActionRefactor(
+        requestData,
+      );
 
       const isRefactorSuccessful = yield validateResponse(refactorResponse);
 
       const currentPageId = yield select(getCurrentPageId);
 
       if (isRefactorSuccessful) {
-        if (currentPageId === data.payload.pageId) {
+        yield put({
+          type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
+          payload: { collectionId: data.payload.actionCollection.id },
+        });
+        if (currentPageId === data.payload.refactorAction.pageId) {
           yield updateCanvasWithDSL(
             refactorResponse.data,
-            data.payload.pageId,
+            data.payload.refactorAction.pageId,
             layoutId,
           );
         }
@@ -407,7 +390,7 @@ function* handleRefactorJSActionNameSaga(
     } catch (error) {
       yield put({
         type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
-        payload: { error },
+        payload: { collectionId: data.payload.actionCollection.id },
       });
     }
   }

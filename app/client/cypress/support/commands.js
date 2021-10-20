@@ -275,7 +275,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
-    .scrollIntoView({ force: true })
+    .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should(
@@ -417,6 +417,11 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
   initLocalstorage();
 });
 
@@ -2729,6 +2734,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
+
+  cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
+  cy.route("POST", "api/v1/git/commit/*").as("commit");
+
+  cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
+
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
   cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
 });

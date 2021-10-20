@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -31,6 +32,12 @@ public class InstanceAdminController {
         log.debug("Getting all env configuration");
         return envManager.getAll()
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+    }
+
+    @GetMapping("/env/download")
+    public Mono<Void> download(ServerWebExchange exchange) {
+        log.debug("Getting all env configuration");
+        return envManager.download(exchange);
     }
 
     @PutMapping("/env")

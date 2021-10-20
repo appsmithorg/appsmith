@@ -122,10 +122,10 @@ export const getCommentThreadURL = ({
   pageId,
   mode = APP_MODE.PUBLISHED,
 }: {
-  applicationId?: string;
+  applicationId: string;
   commentThreadId: string;
   isResolved?: boolean;
-  pageId?: string;
+  pageId: string;
   mode?: APP_MODE;
 }) => {
   const queryParams: Record<string, any> = {
@@ -143,11 +143,11 @@ export const getCommentThreadURL = ({
       : BUILDER_PAGE_URL;
 
   const url = new URL(
-    `${window.location.origin}${urlBuilder(
-      applicationId,
+    `${window.location.origin}${urlBuilder({
+      applicationId: applicationId,
       pageId,
-      queryParams,
-    )}`,
+      params: queryParams,
+    })}`,
   );
 
   return url;
