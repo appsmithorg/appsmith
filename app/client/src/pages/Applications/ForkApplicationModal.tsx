@@ -17,10 +17,9 @@ import {
 import Divider from "components/editorComponents/Divider";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
-import { getApplicationViewerPageURL } from "constants/routes";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import Spinner from "components/ads/Spinner";
 import { IconSize } from "components/ads/Icon";
+import { matchViewerForkPath } from "constants/routes";
 
 type ForkApplicationModalProps = {
   applicationId: string;
@@ -41,11 +40,9 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   );
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const currentPageId = useSelector(getCurrentPageId);
   const { pathname } = useLocation();
-  const showBasedOnURL =
-    pathname ===
-    `${getApplicationViewerPageURL(props.applicationId, currentPageId)}/fork`;
+
+  const showBasedOnURL = matchViewerForkPath(pathname);
 
   const forkApplication = () => {
     dispatch({
