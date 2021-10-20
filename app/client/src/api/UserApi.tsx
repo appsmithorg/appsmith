@@ -205,7 +205,13 @@ class UserApi extends Api {
   }
 
   static downloadConfigFiles(): AxiosPromise<ApiResponse> {
-    return Api.get(UserApi.downloadConfigURL);
+    return Api.get(
+      UserApi.downloadConfigURL,
+      {},
+      {
+        responseType: "blob",
+      },
+    );
   }
 }
 
