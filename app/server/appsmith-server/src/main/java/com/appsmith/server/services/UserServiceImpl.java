@@ -753,7 +753,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         // This is a new user. Till the user signs up, this user would be disabled.
         newUser.setIsEnabled(false);
 
-        // The invite token is not used today and don't need to be verified. We still save the invite token with the
+        // The invite token is not used today and doesn't need to be verified. We still save the invite token with the
         // role information to classify the user persona.
         newUser.setInviteToken(role + ":" + UUID.randomUUID());
 
