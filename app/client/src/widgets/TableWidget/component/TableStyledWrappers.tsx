@@ -32,8 +32,14 @@ export const TableWrapper = styled.div<{
       height: 4px !important;
       border-radius: ${(props) => props.theme.radii[3]}px;
       background: ${(props) => props.theme.colors.scrollbarLight} !important;
+      visibility: hidden;
       &:hover {
         height: 6px !important;
+      }
+    }
+    &:hover {
+      .thumb-horizontal {
+        visibility: visible;
       }
     }
   }
@@ -487,8 +493,14 @@ export const TableHeaderWrapper = styled.div<{
     height: 4px !important;
     border-radius: ${(props) => props.theme.radii[3]}px;
     background: ${(props) => props.theme.colors.scrollbarLight};
+    visibility: hidden;
     &:hover {
       height: 6px !important;
+    }
+  }
+  &:hover {
+    .thumb-horizontal {
+      visibility: visible;
     }
   }
 `;

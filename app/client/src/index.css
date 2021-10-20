@@ -107,3 +107,24 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
+
+/* To hide vertical scrollbar on deployed page */
+body::-webkit-scrollbar {
+  width: 0px;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(75,72,72,0.5);
+  border-radius: 10px;
+  visibility: hidden;
+}
+:hover::-webkit-scrollbar-thumb {
+    visibility: visible;
+}

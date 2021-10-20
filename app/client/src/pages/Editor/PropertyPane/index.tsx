@@ -1,4 +1,10 @@
-import React, { Component, ReactElement, useCallback, useMemo } from "react";
+import React, {
+  Component,
+  ReactElement,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -10,7 +16,7 @@ import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import styled from "constants/DefaultTheme";
+import styled, { hideScrollbar } from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -33,6 +39,7 @@ import { Layers } from "constants/Layers";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import { WidgetType } from "constants/WidgetConstants";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -90,6 +97,7 @@ export const PropertyPaneBodyWrapper = styled.div`
     (props.theme.propertyPane.titleHeight +
       props.theme.propertyPane.connectionsHeight)}px;
   overflow: auto;
+  ${hideScrollbar};
 `;
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
@@ -131,6 +139,7 @@ function PropertyPaneView(
     dispatch(deleteSelectedWidget(false));
   }, [dispatch]);
   const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+  const propertyPaneBodyRef = useRef<HTMLDivElement>(null);
 
   const actions = useMemo((): Array<{
     tooltipContent: any;
@@ -191,7 +200,7 @@ function PropertyPaneView(
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
       />
-      <PropertyPaneBodyWrapper>
+      <PropertyPaneBodyWrapper ref={propertyPaneBodyRef}>
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -207,6 +216,7 @@ function PropertyPaneView(
             type={widgetProperties.type}
           />
         </PropertyControlsWrapper>
+        <ScrollIndicator containerRef={propertyPaneBodyRef} top="65px" />
       </PropertyPaneBodyWrapper>
     </>
   );

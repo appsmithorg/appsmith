@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
@@ -24,13 +24,16 @@ import { setShouldShowResolvedComments } from "actions/commentActions";
 import { useSelectCommentThreadUsingQuery } from "../inlineComments/Comments";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 import { COMMENT_HAS_BEEN_DELETED, createMessage } from "constants/messages";
+import { hideScrollbar } from "constants/DefaultTheme";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow: auto;
+  ${hideScrollbar};
 `;
 
 export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
@@ -72,6 +75,7 @@ function AppCommentThreads() {
     applicationCommentsSelector(applicationId),
   );
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
 
@@ -100,7 +104,7 @@ function AppCommentThreads() {
   }, [commentThreadIdFromUrl, appCommentThreadsFetched]);
 
   return (
-    <Container>
+    <Container ref={containerRef}>
       {commentThreadIds.length > 0 && (
         <Virtuoso
           data={commentThreadIds}
@@ -121,6 +125,7 @@ function AppCommentThreads() {
         />
       )}
       {commentThreadIds.length === 0 && <AppCommentsPlaceholder />}
+      <ScrollIndicator containerRef={containerRef} />
     </Container>
   );
 }
