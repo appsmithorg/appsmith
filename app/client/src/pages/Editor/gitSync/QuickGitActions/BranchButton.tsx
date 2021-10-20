@@ -8,7 +8,6 @@ import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
-import BranchDropdown from "../components/BranchDropdown";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
 import {
@@ -17,6 +16,7 @@ import {
   SWITCH_BRANCHES,
 } from "constants/messages";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import BranchList from "../components/BranchList";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -37,7 +37,7 @@ const ButtonContainer = styled.div`
 `;
 
 const BranchDropdownContainer = styled.div`
-  min-height: 40vh;
+  height: 40vh;
   display: flex;
   flex-direction: column;
 
@@ -49,6 +49,10 @@ const BranchDropdownContainer = styled.div`
 const Container = styled.div`
   padding: ${(props) => props.theme.spaces[5]}px;
   padding-top: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 `;
 
 const CloseBtnContainer = styled.div`
@@ -60,7 +64,7 @@ const CloseBtnContainer = styled.div`
 
 function BranchButton() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const currentBranchName = gitMetaData?.branchName;
+  const currentBranch = gitMetaData?.branchName;
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateBranchForm, setShowCreateNewBranchForm] = useState(false);
   const title = showCreateBranchForm
@@ -84,7 +88,8 @@ function BranchButton() {
           <Container ref={dropdownContainerRef}>
             <span className="title">{title}</span>
             <Space size={4} />
-            <BranchDropdown
+            <BranchList
+              setIsPopupOpen={setIsOpen}
               setShowCreateNewBranchForm={setShowCreateNewBranchForm}
             />
           </Container>
@@ -103,11 +108,11 @@ function BranchButton() {
       }}
       placement="top-start"
     >
-      <ButtonContainer>
+      <ButtonContainer className="t--branch-button">
         <div className="icon">
           <GitMerge />
         </div>
-        <div className="label">{currentBranchName}</div>
+        <div className="label">{currentBranch}</div>
       </ButtonContainer>
     </Popover2>
   );

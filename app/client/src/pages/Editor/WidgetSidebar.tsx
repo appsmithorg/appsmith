@@ -2,11 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getWidgetCards,
-} from "selectors/editorSelectors";
+import { getWidgetCards } from "selectors/editorSelectors";
 import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
@@ -19,7 +15,7 @@ import {
   getCurrentSubStep,
   inOnboarding,
 } from "sagas/OnboardingSagas";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { matchBuilderPath } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
@@ -100,10 +96,7 @@ function WidgetSidebar(props: IPanelProps) {
   const isInOnboarding = useSelector(inOnboarding);
   const currentStep = useSelector(getCurrentStep);
   const currentSubStep = useSelector(getCurrentSubStep);
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
-  const onCanvas =
-    BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+  const onCanvas = matchBuilderPath(window.location.pathname);
 
   useEffect(() => {
     if (
