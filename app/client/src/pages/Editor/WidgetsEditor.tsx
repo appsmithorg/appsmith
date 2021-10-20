@@ -69,7 +69,7 @@ const CanvasContainer = styled.section`
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
-  const params = useParams<{ applicationId: string; pageId: string }>();
+  const params = useParams<{ pageId: string }>();
   const dispatch = useDispatch();
   const isPanning = useSelector(getIsPanning);
   const widgets = useSelector(getCanvasWidgetDsl);

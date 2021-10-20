@@ -93,6 +93,9 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Space",
 ];
 
+const AUTOCOMPLETE_CLOSE_KEYS = ["(", ")"];
+const CURLY_BRACKETS = ["{", "}"];
+
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -463,7 +466,21 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
-    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
+    if (
+      AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code) ||
+      AUTOCOMPLETE_CLOSE_KEYS.includes(event.key)
+    ) {
+      return cm.closeHint();
+    }
+
+    // Autocomplete Hint should not be open when curly bracket is pressed
+    // The only state in which it should be open is '{{}}'
+
+    // Bail out early if key isn't a curly bracket
+    if (!CURLY_BRACKETS.includes(event.key)) return;
+
+    const { ch, line } = cm.getCursor();
+    if (cm.getRange({ line, ch: ch - 2 }, { line, ch: ch + 2 }) !== "{{}}") {
       cm.closeHint();
     }
   };

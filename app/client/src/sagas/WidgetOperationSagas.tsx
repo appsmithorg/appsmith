@@ -1087,20 +1087,14 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       payload: newWidget,
     });
 
-    const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
+    const applicationId = yield select(getCurrentApplicationId);
 
-    navigateToCanvas(
-      {
-        applicationId,
-        pageId,
-      },
-      window.location.pathname,
+    navigateToCanvas({
       pageId,
-      newWidget.newWidgetId,
-    );
-    // TODO(pawan): check if this is required
-    // yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+      widgetId: newWidget.newWidgetId,
+      applicationId,
+    });
   } catch (error) {
     log.error(error);
   }

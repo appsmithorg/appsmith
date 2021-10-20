@@ -1,30 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import { Route, useParams } from "react-router";
+import { connect } from "react-redux";
+import { withRouter, RouteComponentProps, Route } from "react-router";
 import { Switch } from "react-router-dom";
 import { AppState } from "reducers";
 import {
+  AppViewerRouteParams,
   BuilderRouteParams,
-  getApplicationViewerPageURL,
+  GIT_BRANCH_QUERY_KEY,
+  VIEWER_FORK_PATH,
+  VIEWER_URL,
 } from "constants/routes";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  PageListPayload,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
+import { getIsInitialized } from "selectors/appViewSelectors";
+import { executeTrigger } from "actions/widgetActions";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { updateWidgetPropertyRequest } from "actions/controlActions";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
   resetChildrenMetaProperty,
   updateWidgetMetaProperty,
 } from "actions/metaActions";
-import { getIsInitialized } from "selectors/appViewSelectors";
-import { executeTrigger } from "actions/widgetActions";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import AppViewerPageContainer from "./AppViewerPageContainer";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
+
+import { getSearchQuery } from "utils/helpers";
 import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -40,117 +50,174 @@ const AppViewerBody = styled.section<{ hasPages: boolean }>`
   );
 `;
 
+const ContainerWithComments = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: ${(props) => props.theme.colors.artboard};
+`;
+
 const AppViewerBodyContainer = styled.div<{ width?: string }>`
   flex: 1;
   overflow: auto;
   margin: 0 auto;
 `;
 
-function AppViewer() {
-  const dispatch = useDispatch();
-  const { applicationId, pageId } = useParams<BuilderRouteParams>();
-  const [registered, setRegistered] = useState(false);
-  const pages = useSelector(getViewModePageList);
-  const lightTheme = useSelector((state: AppState) =>
-    getThemeDetails(state, ThemeMode.DARK),
-  );
-  const isInitialized = useSelector(getIsInitialized);
-
-  /**
-   * callback for execute action
-   */
-  const executeActionCb = (actionPayload: ExecuteTriggerPayload) => {
-    dispatch(executeTrigger(actionPayload));
-  };
-
-  /**
-   * update widget meta property
-   *
-   * @param widgetId
-   * @param propertyName
-   * @param propertyValue
-   */
-  const updateWidgetMetaPropertyCb = (
+export type AppViewerProps = {
+  initializeAppViewer: (params: {
+    applicationId: string;
+    pageId?: string;
+    branch?: string;
+  }) => void;
+  isInitialized: boolean;
+  isInitializeError: boolean;
+  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
+  updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
     propertyValue: any,
-  ) => {
-    dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue));
-  };
+  ) => void;
+  updateWidgetMetaProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
+  resetChildrenMetaProperty: (widgetId: string) => void;
+  pages: PageListPayload;
+  lightTheme: Theme;
+} & RouteComponentProps<BuilderRouteParams>;
 
-  /**
-   * reset children meta property
-   *
-   * @param widgetId
-   * @returns
-   */
-  const resetChildrenMetaPropertyCb = (widgetId: string) => {
-    dispatch(resetChildrenMetaProperty(widgetId));
-  };
+type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
 
-  /**
-   * initializer app viewer
-   *
-   * @param applicationId
-   * @param pageId
-   * @returns
-   */
-  const initializeAppViewer = (applicationId: string, pageId?: string) => {
-    dispatch({
-      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: { applicationId, pageId },
-    });
+class AppViewer extends Component<Props> {
+  public state = {
+    registered: false,
+    isSideNavOpen: true,
   };
-
-  /**
-   *
-   */
-  useEffect(() => {
+  componentDidMount() {
     editorInitializer().then(() => {
-      setRegistered(true);
+      this.setState({ registered: true });
     });
-    if (applicationId) {
-      initializeAppViewer(applicationId, pageId);
-    }
-  }, [applicationId, pageId]);
 
-  return (
-    <ThemeProvider theme={lightTheme}>
-      <GlobalHotKeys>
-        <EditorContext.Provider
-          value={{
-            executeAction: executeActionCb,
-            updateWidgetMetaProperty: updateWidgetMetaPropertyCb,
-            resetChildrenMetaProperty: resetChildrenMetaPropertyCb,
-          }}
-        >
-          <div className="flex items-stretch">
-            <AppViewerCommentsSidebar />
-            <AppViewerBodyContainer>
-              <AppViewerBody hasPages={pages.length > 1}>
-                {isInitialized && registered && (
-                  <Switch>
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={getApplicationViewerPageURL()}
-                    />
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={`${getApplicationViewerPageURL()}/fork`}
-                    />
-                  </Switch>
-                )}
-              </AppViewerBody>
-            </AppViewerBodyContainer>
-          </div>
-          <AddCommentTourComponent />
-          <CommentShowCaseCarousel />
-        </EditorContext.Provider>
-      </GlobalHotKeys>
-    </ThemeProvider>
-  );
+    const { applicationId, pageId } = this.props.match.params;
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+
+    if (applicationId) {
+      this.props.initializeAppViewer({
+        branch: branch,
+        applicationId,
+        pageId,
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { applicationId, pageId } = this.props.match.params;
+    const {
+      location: { search: prevSearch },
+    } = prevProps;
+    const {
+      location: { search },
+    } = this.props;
+
+    const prevBranch = getSearchQuery(prevSearch, GIT_BRANCH_QUERY_KEY);
+    const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+
+    if (branch && branch !== prevBranch && applicationId && pageId) {
+      this.props.initializeAppViewer({
+        applicationId,
+        pageId,
+        branch: branch,
+      });
+    }
+  }
+
+  toggleCollapse = (open: boolean) => {
+    this.setState({ isSideNavOpen: open });
+  };
+
+  public render() {
+    const { isInitialized } = this.props;
+    return (
+      <ThemeProvider theme={this.props.lightTheme}>
+        <GlobalHotKeys>
+          <EditorContext.Provider
+            value={{
+              executeAction: this.props.executeAction,
+              updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
+              resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+            }}
+          >
+            <ContainerWithComments>
+              <AppViewerCommentsSidebar />
+              <AppViewerBodyContainer>
+                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                  {isInitialized && this.state.registered && (
+                    <Switch>
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={VIEWER_URL}
+                      />
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={VIEWER_FORK_PATH}
+                      />
+                    </Switch>
+                  )}
+                </AppViewerBody>
+              </AppViewerBodyContainer>
+            </ContainerWithComments>
+            <AddCommentTourComponent />
+            <CommentShowCaseCarousel />
+          </EditorContext.Provider>
+        </GlobalHotKeys>
+      </ThemeProvider>
+    );
+  }
 }
 
-export default Sentry.withProfiler(AppViewer);
+const mapStateToProps = (state: AppState) => ({
+  isInitialized: getIsInitialized(state),
+  pages: getViewModePageList(state),
+  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  executeAction: (actionPayload: ExecuteTriggerPayload) =>
+    dispatch(executeTrigger(actionPayload)),
+  updateWidgetProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) =>
+    dispatch(
+      updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
+    ),
+  updateWidgetMetaProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) =>
+    dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
+  resetChildrenMetaProperty: (widgetId: string) =>
+    dispatch(resetChildrenMetaProperty(widgetId)),
+  initializeAppViewer: (params: {
+    applicationId: string;
+    pageId?: string;
+    branch?: string;
+  }) => {
+    dispatch({
+      type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+      payload: params,
+    });
+  },
+});
+
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(Sentry.withProfiler(AppViewer)),
+);

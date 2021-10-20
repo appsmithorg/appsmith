@@ -333,10 +333,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               <EditorAppName
                 applicationId={applicationId}
                 className="t--application-name editable-application-name"
-                currentDeployLink={getApplicationViewerPageURL(
-                  applicationId,
+                currentDeployLink={getApplicationViewerPageURL({
+                  applicationId: props.applicationId,
                   pageId,
-                )}
+                })}
                 defaultSavingState={
                   isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
                 }
@@ -426,7 +426,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
-                link={getApplicationViewerPageURL(applicationId, pageId)}
+                link={getApplicationViewerPageURL({
+                  applicationId: props.applicationId,
+                  pageId,
+                })}
                 trigger={
                   <StyledDeployIcon
                     fillColor="#fff"

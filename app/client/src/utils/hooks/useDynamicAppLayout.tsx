@@ -45,7 +45,7 @@ export const useDynamicAppLayout = () => {
    * calculates min height
    */
   const calculatedMinHeight = useMemo(() => {
-    return calculateDynamicHeight(canvasWidgets, mainContainer.minHeight);
+    return calculateDynamicHeight(canvasWidgets, mainContainer?.minHeight);
   }, [mainContainer]);
 
   /**
@@ -130,10 +130,10 @@ export const useDynamicAppLayout = () => {
    */
   const resizeToLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
-    const { rightColumn } = mainContainer;
+    const { rightColumn } = mainContainer || {};
 
     if (rightColumn !== calculatedWidth) {
-      dispatch(updateCanvasLayout(calculatedWidth, mainContainer.minHeight));
+      dispatch(updateCanvasLayout(calculatedWidth, mainContainer?.minHeight));
     }
   };
 
@@ -146,12 +146,12 @@ export const useDynamicAppLayout = () => {
    * when screen height is changed, update canvas layout
    */
   useEffect(() => {
-    if (calculatedMinHeight !== mainContainer.minHeight) {
+    if (calculatedMinHeight !== mainContainer?.minHeight) {
       dispatch(
-        updateCanvasLayout(mainContainer.rightColumn, calculatedMinHeight),
+        updateCanvasLayout(mainContainer?.rightColumn, calculatedMinHeight),
       );
     }
-  }, [screenHeight, mainContainer.minHeight]);
+  }, [screenHeight, mainContainer?.minHeight]);
 
   useEffect(() => {
     debouncedResize();
@@ -171,7 +171,7 @@ export const useDynamicAppLayout = () => {
   }, [
     appLayout,
     currentPageId,
-    mainContainer.rightColumn,
+    mainContainer?.rightColumn,
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,

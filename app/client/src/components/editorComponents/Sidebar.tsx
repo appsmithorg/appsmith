@@ -19,6 +19,7 @@ import {
 } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
 import Switcher from "components/ads/Switcher";
+import { trimQueryString } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import AppComments from "comments/AppComments/AppComments";
 import { getExplorerPinned } from "selectors/explorerSelector";
@@ -64,8 +65,19 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       text: "Widgets",
       action: () => {
         !(
-          BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname
-        ) && history.push(BUILDER_PAGE_URL(applicationId, pageId));
+          trimQueryString(
+            BUILDER_PAGE_URL({
+              applicationId,
+              pageId,
+            }),
+          ) === window.location.pathname
+        ) &&
+          history.push(
+            BUILDER_PAGE_URL({
+              applicationId,
+              pageId,
+            }),
+          );
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
         if (isFirstTimeUserOnboardingEnabled) {
           dispatch(toggleInOnboardingWidgetSelection(true));

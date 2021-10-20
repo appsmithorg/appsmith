@@ -14,9 +14,19 @@ import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
+
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import { APP_MODE } from "entities/App";
+
+import { trimQueryString } from "utils/helpers";
+
+const TabsContainer = styled.div`
+  width: 100%;
+  display: flex;
+  overflow: auto;
+  ${hideScrollbar}
+`;
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -155,9 +165,11 @@ export function PageTabs(props: Props) {
    */
   const getPageURL = (page: Page) => {
     if (appMode === APP_MODE.PUBLISHED) {
-      return getApplicationViewerPageURL(
-        currentApplicationDetails?.id,
-        page.pageId,
+      return trimQueryString(
+        getApplicationViewerPageURL({
+          applicationId: currentApplicationDetails?.id,
+          pageId: page.pageId,
+        }),
       );
     }
 
@@ -176,9 +188,11 @@ export function PageTabs(props: Props) {
         <PageTabContainer
           isTabActive={
             pathname ===
-            getApplicationViewerPageURL(
-              currentApplicationDetails?.id,
-              page.pageId,
+            trimQueryString(
+              getApplicationViewerPageURL({
+                applicationId: currentApplicationDetails?.id,
+                pageId: page.pageId,
+              }),
             )
           }
           key={page.pageId}
