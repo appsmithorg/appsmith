@@ -2,9 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { ControllerRenderProps } from "react-hook-form";
 
+import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
 import { SchemaItem } from "../constants";
-import FieldLabel from "../component/FieldLabel";
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
@@ -23,8 +23,12 @@ const StyledWrapper = styled.div`
 `;
 
 function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
-  const { label, tooltip } = schemaItem;
+  const { isVisible = true, label, tooltip } = schemaItem;
   const children = Object.values(schemaItem.children);
+
+  if (!isVisible) {
+    return null;
+  }
 
   const renderFields = () => {
     return children.map((schemaItem) => {

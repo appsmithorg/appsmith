@@ -45,6 +45,7 @@ export type SchemaItem<TProps = any> = {
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
+  isVisible?: boolean;
   label: string;
   name: string;
   props: TProps;
@@ -54,7 +55,7 @@ export type SchemaItem<TProps = any> = {
 
 // This defines a react component with componentDefaultValues property attached to it.
 type FieldComponent = {
-  (props: BaseFieldComponentProps): JSX.Element;
+  (props: BaseFieldComponentProps): JSX.Element | null;
   componentDefaultValues: Record<string, any>;
 };
 

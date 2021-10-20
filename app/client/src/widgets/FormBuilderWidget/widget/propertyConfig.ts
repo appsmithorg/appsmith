@@ -146,6 +146,17 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            helpText: "Controls the visibility of the field",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Show help text or details about current input",
             propertyName: "tooltip",
             label: "Tooltip",

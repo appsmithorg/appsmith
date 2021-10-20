@@ -34,7 +34,7 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
     name,
   });
 
-  const { children, label } = schemaItem;
+  const { children, isVisible = true, label, tooltip } = schemaItem;
   const arrayItemSchema = children.__array_item__;
 
   const onAddClick = () => {
@@ -45,8 +45,12 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
     hideLabel: true,
   };
 
+  if (!isVisible) {
+    return null;
+  }
+
   return (
-    <FieldLabel label={label}>
+    <FieldLabel label={label} tooltip={tooltip}>
       <StyledWrapper>
         {fields.map((field, index) => {
           const fieldName = `${name}.${index}` as ControllerRenderProps["name"];

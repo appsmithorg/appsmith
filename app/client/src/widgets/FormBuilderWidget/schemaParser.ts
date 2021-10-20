@@ -17,6 +17,10 @@ type ObjectToSchemaProps = {
   prevSchema?: Schema;
 };
 
+const DEFAULT_SCHEMA_ITEM = {
+  isVisible: true,
+};
+
 /**
  *
  * This method takes in array of object and squishes every object in the
@@ -139,12 +143,13 @@ class SchemaParser {
     }
 
     return {
-      props,
-      dataType,
-      name,
-      label,
-      fieldType,
+      ...DEFAULT_SCHEMA_ITEM,
       children,
+      dataType,
+      fieldType,
+      label,
+      name,
+      props,
     };
   };
 

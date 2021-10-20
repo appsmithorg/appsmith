@@ -8,7 +8,12 @@ const fieldRenderer = (
   schemaItem: SchemaItem,
   options?: Record<string, any>,
 ) => {
-  const { fieldType, tooltip } = schemaItem;
+  const { fieldType, isVisible = true, tooltip } = schemaItem;
+
+  if (!isVisible) {
+    return null;
+  }
+
   const FieldComponent = FIELD_MAP[fieldType];
 
   const fieldProps = {
