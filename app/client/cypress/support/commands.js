@@ -3062,7 +3062,6 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.getStarted).should("be.visible");
   cy.get(welcomePage.getStarted).should("not.be.disabled");
   cy.get(welcomePage.getStarted).click();
-  cy.wait(3000);
   cy.get(welcomePage.fullName).should("be.visible");
   cy.get(welcomePage.email).should("be.visible");
   cy.get(welcomePage.password).should("be.visible");
@@ -3094,9 +3093,28 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.dataCollection).should("be.visible");
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click();
-  cy.wait("@createSuperUser").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait(2000);
+  cy.get(".t--profile-menu-icon").should("be.visible");
+  cy.get(".t--profile-menu-icon").click();
+  cy.get(".t--logout-icon").click();
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
+  cy.request({
+    method: "POST",
+    url: "api/v1/users",
+    headers: {
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    followRedirect: false,
+    form: true,
+    body: {
+      username: uname,
+      password: pword,
+    },
+  }).then((response) => {
+    expect(response.status).equal(302);
+    cy.log(response.body);
+  });
 });
