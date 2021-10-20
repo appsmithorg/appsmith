@@ -137,7 +137,8 @@ const RedMenuItem = styled(MenuItem)`
   && .cs-text {
     color: ${Colors.DANGER_SOLID};
   }
-  && {
+  &&,
+  &&:hover {
     svg,
     svg path {
       fill: ${Colors.DANGER_SOLID};
