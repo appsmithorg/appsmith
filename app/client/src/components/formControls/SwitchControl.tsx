@@ -1,16 +1,31 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledSwitch } from "./StyledControls";
-import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
+import Toggle from "components/ads/Toggle";
+import { ControlType } from "constants/PropertyControlConstants";
 import { Field, WrappedFieldProps } from "redux-form";
 import styled from "styled-components";
 
-type Props = WrappedFieldProps & {
+type SwitchFieldProps = WrappedFieldProps & {
   label: string;
   isRequired: boolean;
   info: string;
 };
+
+const StyledToggle = styled(Toggle)`
+  .slider {
+    margin-left: 10px;
+    width: 40px;
+    height: 20px;
+  }
+  .slider::before {
+    height: 16px;
+    width: 16px;
+  }
+  input:checked + .slider::before {
+    transform: translateX(19px);
+  }
+`;
 
 const StyledFormLabel = styled(FormLabel)`
   margin-bottom: 0px;
@@ -33,7 +48,7 @@ const Info = styled.div`
   max-width: 60vw;
 `;
 
-export class SwitchField extends React.Component<Props, any> {
+export class SwitchField extends React.Component<SwitchFieldProps, any> {
   get value() {
     const { input } = this.props;
     if (typeof input.value !== "string") return !!input.value;
@@ -52,10 +67,13 @@ export class SwitchField extends React.Component<Props, any> {
           <StyledFormLabel>
             {label} {isRequired && "*"}
           </StyledFormLabel>
-          <StyledSwitch
-            checked={this.value}
-            large
-            onChange={(value) => input.onChange(value)}
+          <StyledToggle
+            className="switch-control"
+            name={input.name}
+            onToggle={(value: any) => {
+              input.onChange(value);
+            }}
+            value={this.value}
           />
         </SwitchWrapped>
         {info && <Info>{info}</Info>}
