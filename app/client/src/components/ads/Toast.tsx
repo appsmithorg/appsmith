@@ -23,6 +23,7 @@ export type ToastProps = ToastOptions &
     hideProgressBar?: boolean;
     hideActionElementSpace?: boolean;
     width?: string;
+    closeOnClick?: boolean;
   };
 
 const WrappedToastContainer = styled.div`
@@ -128,6 +129,7 @@ const StyledDebugButton = styled(DebugButton)`
 
 const StyledActionText = styled(Text)`
   color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
+  cursor: pointer;
 `;
 
 export function ToastComponent(
