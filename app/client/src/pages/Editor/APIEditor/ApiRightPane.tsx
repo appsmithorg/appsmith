@@ -12,7 +12,10 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
+import { useSelector } from "react-redux";
+
 import { Classes } from "components/ads/common";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -162,6 +165,9 @@ export default function ApiRightPane(props: any) {
   useEffect(() => {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
   return (
     <DatasourceContainer>
       <TabbedViewContainer>
@@ -194,7 +200,7 @@ export default function ApiRightPane(props: any) {
                                 e.stopPropagation();
                                 history.push(
                                   DATA_SOURCES_EDITOR_ID_URL(
-                                    props.applicationId,
+                                    applicationId,
                                     props.currentPageId,
                                     d.id,
                                     getQueryParams(),
