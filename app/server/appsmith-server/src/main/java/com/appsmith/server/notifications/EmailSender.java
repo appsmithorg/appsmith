@@ -40,6 +40,10 @@ public class EmailSender {
         REPLY_TO = makeReplyTo();
     }
 
+    public Mono<Boolean> sendMail(String to, String subject, String text) {
+        return sendMail(to, subject, text, null);
+    }
+
     public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
 
         /**
@@ -51,7 +55,7 @@ public class EmailSender {
          */
         Mono.fromCallable(() -> {
                     try {
-                        return TemplateUtils.parseTemplate(text, params);
+                        return params == null ? text : TemplateUtils.parseTemplate(text, params);
                     } catch (IOException e) {
                         throw Exceptions.propagate(e);
                     }

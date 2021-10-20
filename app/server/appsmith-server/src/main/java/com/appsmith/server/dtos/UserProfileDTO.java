@@ -32,6 +32,8 @@ public class UserProfileDTO {
 
     CommentOnboardingState commentOnboardingState;
 
+    String photoId;
+
     String role;
 
     String useCase;

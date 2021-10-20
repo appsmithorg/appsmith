@@ -93,6 +93,9 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Space",
 ];
 
+const AUTOCOMPLETE_CLOSE_KEYS = ["(", ")"];
+const CURLY_BRACKETS = ["{", "}"];
+
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -293,6 +296,7 @@ class CodeEditor extends Component<Props, State> {
         if (!!inputValue || inputValue === "") {
           if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
+            this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
           } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
             // Even if Editor is updated with new value, it cannot update without layour calcs.
             //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
@@ -462,7 +466,21 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
-    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
+    if (
+      AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code) ||
+      AUTOCOMPLETE_CLOSE_KEYS.includes(event.key)
+    ) {
+      return cm.closeHint();
+    }
+
+    // Autocomplete Hint should not be open when curly bracket is pressed
+    // The only state in which it should be open is '{{}}'
+
+    // Bail out early if key isn't a curly bracket
+    if (!CURLY_BRACKETS.includes(event.key)) return;
+
+    const { ch, line } = cm.getCursor();
+    if (cm.getRange({ line, ch: ch - 2 }, { line, ch: ch + 2 }) !== "{{}}") {
       cm.closeHint();
     }
   };
