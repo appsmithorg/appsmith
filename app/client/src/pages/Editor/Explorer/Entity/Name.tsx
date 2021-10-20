@@ -77,7 +77,6 @@ export interface EntityNameProps {
   exitEditMode: () => void;
   nameTransformFn?: (input: string, limit?: number) => string;
 }
-
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
