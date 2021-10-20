@@ -64,7 +64,10 @@ import {
 } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getPageList } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPageList,
+} from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, keyBy, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -113,8 +116,12 @@ const isModalOpenSelector = (state: AppState) =>
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
-const isMatching = (text = "", query = "") =>
-  text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
+const isMatching = (text = "", query = "") => {
+  if (typeof text === "string" && typeof query === "string") {
+    return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
+  }
+  return false;
+};
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   if (item.kind === SEARCH_ITEM_TYPES.document) {
@@ -166,6 +173,13 @@ function GlobalSearch() {
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
+  const [query, setQueryInState] = useState("");
+  const setQuery = useCallback(
+    (value: string) => {
+      setQueryInState(value);
+    },
+    [setQueryInState],
+  );
   const optionalFilterMeta = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.fieldMeta,
   );
@@ -189,6 +203,8 @@ function GlobalSearch() {
   );
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
+
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
@@ -197,10 +213,7 @@ function GlobalSearch() {
     dispatch(toggleShowGlobalSearchModal());
     dispatch(cancelSnippet());
   };
-  const [query, setQueryInState] = useState("");
-  const setQuery = useCallback((query: string) => {
-    setQueryInState(query);
-  }, []);
+
   const scrollPositionRef = useRef(0);
 
   const [
@@ -444,12 +457,7 @@ function GlobalSearch() {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(
-      params.applicationId,
-      pageId,
-      id,
-      pluginType,
-    );
+    const url = actionConfig?.getURL(applicationId, pageId, id, pluginType);
     toggleShow();
     url && history.push(url);
   };
@@ -457,7 +465,7 @@ function GlobalSearch() {
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
-    history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
+    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id));
     toggleShow();
   };
 
@@ -465,7 +473,7 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
-        params.applicationId,
+        applicationId,
         item.pageId,
         item.id,
         getQueryParams(),
@@ -475,7 +483,7 @@ function GlobalSearch() {
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId: item.pageId }));
   };
 
   const onEnterSnippet = useSelector(
