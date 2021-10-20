@@ -234,6 +234,9 @@ export const MultiSelectContainer = styled.div`
     }
     .rc-select-selector {
       background-color: ${Colors.GREY_1};
+      .rc-select-selection-item-content {
+        color: ${Colors.GREY_7};
+      }
     }
   }
   .rc-select-show-arrow.rc-select-loading {

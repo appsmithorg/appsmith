@@ -64,6 +64,9 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
   }
   &&&&& .${Classes.DISABLED} {
     background-color: ${Colors.GREY_1};
+    .${Classes.BUTTON_TEXT} {
+      color: ${Colors.GREY_7};
+    }
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;

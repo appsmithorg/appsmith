@@ -651,6 +651,9 @@ export const TreeSelectContainer = styled.div<{
     }
     .rc-tree-select-selector {
       background-color: ${Colors.GREY_1};
+      .rc-tree-select-selection-item-content {
+        color: ${Colors.GREY_7};
+      }
     }
   }
   .rc-tree-select-show-arrow.rc-tree-select-loading {

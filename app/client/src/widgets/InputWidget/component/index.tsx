@@ -142,6 +142,7 @@ const InputComponentWrapper = styled((props) => (
     }
     .${Classes.INPUT}:disabled {
       background: ${Colors.GREY_1};
+      color: ${Colors.GREY_7};
     }
     .${Classes.INPUT_GROUP} {
       display: block;
