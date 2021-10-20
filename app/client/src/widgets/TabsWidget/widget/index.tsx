@@ -201,9 +201,12 @@ class TabsWidget extends BaseWidget<
   }
 
   getPageView() {
+    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
+
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
+      width: (rightColumn - leftColumn) * parentColumnSpace,
     };
     return (
       <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>

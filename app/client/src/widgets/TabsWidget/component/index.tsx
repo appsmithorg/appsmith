@@ -1,9 +1,24 @@
-import React, { RefObject, ReactNode, useEffect, useRef } from "react";
+import React, {
+  RefObject,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import styled, { css } from "styled-components";
+import { Button, MaybeElement } from "@blueprintjs/core";
+
 import { ComponentProps } from "widgets/BaseComponent";
-import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
+import {
+  TabsWidgetProps,
+  TabContainerWidgetProps,
+  SCROLL_SIZE,
+  SCROLL_NAV_CONTROL_CONTAINER_WIDTH,
+} from "../constants";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { IconName } from "@blueprintjs/icons";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -17,6 +32,7 @@ interface TabsComponentProps extends ComponentProps {
     widgetId: string;
     isVisible?: boolean;
   }>;
+  width: number;
 }
 
 type ChildrenWrapperProps = Pick<TabsComponentProps, "shouldShowTabs">;
@@ -65,12 +81,29 @@ const ScrollableCanvasWrapper = styled.div<
   ${(props) => (props.shouldScrollContents ? scrollContents : "")}
 `;
 
-const TabsContainer = styled.div`
+export interface TabsContainerProps {
+  isScrollable: boolean;
+}
+
+const TabsContainer = styled.div<TabsContainerProps>`
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   background: ${(props) => props.theme.colors.builderBodyBG};
   overflow: hidden;
+
+  overflow-x: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  ${({ isScrollable }) =>
+    isScrollable
+      ? `padding-left: ${SCROLL_NAV_CONTROL_CONTAINER_WIDTH}px`
+      : `padding-left: 0`};
+
   && {
     height: ${TAB_CONTAINER_HEIGHT};
     width: 100%;
@@ -116,13 +149,36 @@ const StyledText = styled.div<TabProps>`
   }
 `;
 
+const ScrollNavControlContainer = styled.div`
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: white;
+`;
+
+export interface ScrollNavControlProps {
+  onClick: () => void;
+  icon: IconName | MaybeElement;
+  disabled?: boolean;
+}
+
+function ScrollNavControl(props: ScrollNavControlProps) {
+  const { disabled, icon, onClick } = props;
+  return <Button disabled={disabled} icon={icon} onClick={onClick} />;
+}
+
 function TabsComponent(props: TabsComponentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { onTabChange, ...remainingProps } = props;
+  const { onTabChange, tabs, width, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
   const tabsRef = useRef<HTMLDivElement>(null);
+
+  const [isScrollable, setIsScrollable] = useState(false);
+  const [isZeroScrolled, setIsZeroScrolled] = useState(true);
+  const [isMaxScrolled, setIsMaxScrolled] = useState(false);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -130,10 +186,76 @@ function TabsComponent(props: TabsComponentProps) {
     }
   }, [props.shouldScrollContents]);
 
+  useEffect(() => {
+    if (tabsRef.current) {
+      // Check if the current tabs container has scroll
+      const scrollWidth = tabsRef.current.scrollWidth;
+      if (scrollWidth > tabsRef.current.clientWidth) {
+        if (
+          !isScrollable ||
+          scrollWidth - SCROLL_NAV_CONTROL_CONTAINER_WIDTH > width
+        ) {
+          setIsScrollable(true);
+          return;
+        }
+      }
+      setIsScrollable(false);
+    }
+  }, [tabs, width]);
+
+  const handleScrollLeft = useCallback(() => {
+    if (tabsRef.current) {
+      tabsRef.current.scrollLeft -= SCROLL_SIZE;
+    }
+  }, []);
+
+  const handleScrollRight = useCallback(() => {
+    if (tabsRef.current) {
+      tabsRef.current.scrollLeft += SCROLL_SIZE;
+    }
+  }, []);
+
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const targetElement = e.currentTarget;
+    const scrollLeft = targetElement.scrollLeft;
+    if (scrollLeft === 0) {
+      setIsZeroScrolled(true);
+      return;
+    }
+
+    const isScrolledByMax =
+      targetElement.scrollWidth - targetElement.scrollLeft ===
+      targetElement.clientWidth;
+    if (isScrolledByMax) {
+      setIsMaxScrolled(true);
+      return;
+    }
+    setIsZeroScrolled(false);
+    setIsMaxScrolled(false);
+  }, []);
+
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
+      {isScrollable && (
+        <ScrollNavControlContainer>
+          <ScrollNavControl
+            disabled={isZeroScrolled}
+            icon="caret-left"
+            onClick={handleScrollLeft}
+          />
+          <ScrollNavControl
+            disabled={isMaxScrolled}
+            icon="caret-right"
+            onClick={handleScrollRight}
+          />
+        </ScrollNavControlContainer>
+      )}
       {props.shouldShowTabs ? (
-        <TabsContainer ref={tabsRef}>
+        <TabsContainer
+          isScrollable={isScrollable}
+          onScroll={handleScroll}
+          ref={tabsRef}
+        >
           {props.tabs.map((tab, index) => (
             <StyledText
               className={`t--tab-${tab.label}`}
