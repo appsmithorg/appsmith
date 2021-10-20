@@ -150,15 +150,16 @@ const StyledInput = styled((props) => {
   outline: 0;
   box-shadow: none;
   border: none;
-  padding: 0;
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
   padding-right: ${(props) =>
-    props.rightSideComponentWidth + props.theme.spaces[5]}px;
+    props.rightSideComponentWidth + props.theme.spaces[6]}px;
   background-color: transparent;
   font-size: ${(props) => props.theme.typography.p1.fontSize}px;
   font-weight: ${(props) => props.theme.typography.p1.fontWeight};
   line-height: ${(props) => props.theme.typography.p1.lineHeight}px;
   letter-spacing: ${(props) => props.theme.typography.p1.letterSpacing}px;
   text-overflow: ellipsis;
+  height: 100%;
 
   &::placeholder {
     color: ${(props) => props.theme.colors.textInput.placeholder};
@@ -181,8 +182,7 @@ const InputWrapper = styled.div<{
 }>`
   position: relative;
   display: flex;
-  align-items: center;
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
+  align-items: center;  
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
@@ -232,7 +232,7 @@ const MsgWrapper = styled.div`
 
 const RightSideContainer = styled.div`
   position: absolute;
-  right: 0;
+  right: ${(props) => props.theme.spaces[6]}px;
   bottom: 0;
   top: 0;
   display: flex;

@@ -55,6 +55,12 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
   }
+
+  &&:hover {
+    svg path {
+      fill: ${(props) => props.theme.colors.propertyPane.title};
+    }
+  }
 `;
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
@@ -189,11 +195,11 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               value={pair.value}
             />
             <StyledDeleteIcon
-              height={20}
+              height={24}
               onClick={() => {
                 deletePair(index);
               }}
-              width={20}
+              width={24}
             />
           </StyledOptionControlWrapper>
         );
