@@ -43,12 +43,13 @@ export enum DataType {
 
 export type SchemaItem<TProps = any> = {
   children: Schema;
-  props: TProps;
   dataType: DataType;
   fieldType: FieldType;
-  name: string;
-  subDataType?: DataType;
   label: string;
+  name: string;
+  props: TProps;
+  subDataType?: DataType;
+  tooltip?: string;
 };
 
 // This defines a react component with componentDefaultValues property attached to it.

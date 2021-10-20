@@ -6,7 +6,7 @@ import fieldRenderer from "./fieldRenderer";
 import { SchemaItem } from "../constants";
 import FieldLabel from "../component/FieldLabel";
 
-// Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
+// Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
   name: string;
   schemaItem: SchemaItem;
@@ -23,8 +23,9 @@ const StyledWrapper = styled.div`
 `;
 
 function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
-  const { label } = schemaItem;
+  const { label, tooltip } = schemaItem;
   const children = Object.values(schemaItem.children);
+
   const renderFields = () => {
     return children.map((schemaItem) => {
       const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
@@ -42,7 +43,11 @@ function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
     return renderedFields;
   }
 
-  return <FieldLabel label={label}>{renderedFields}</FieldLabel>;
+  return (
+    <FieldLabel label={label} tooltip={tooltip}>
+      {renderedFields}
+    </FieldLabel>
+  );
 }
 
 ObjectField.componentDefaultValues = {};

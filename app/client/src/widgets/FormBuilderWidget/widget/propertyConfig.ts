@@ -146,6 +146,16 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            helpText: "Show help text or details about current input",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Passwords must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "children",
             label: "Field Configuration",
             controlType: "FIELD_CONFIGURATION",
