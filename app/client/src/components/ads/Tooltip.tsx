@@ -23,6 +23,7 @@ export type TooltipProps = CommonComponentProps & {
   modifiers?: Modifiers;
   isOpen?: boolean;
   onOpening?: typeof noop;
+  donotUsePortal?: boolean;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
@@ -46,7 +47,7 @@ function TooltipComponent(props: TooltipProps) {
       popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
       portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
-      usePortal
+      usePortal={!props.donotUsePortal}
     >
       {props.children}
     </Tooltip>

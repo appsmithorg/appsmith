@@ -11,6 +11,7 @@ import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 import {
   getCanvasWidgetDsl,
+  getCurrentApplicationId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
@@ -39,6 +40,7 @@ type AppViewerPageContainerProps = {
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
+  applicationId: string;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -64,10 +66,10 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
         <p>
           Please add widgets to this page in the&nbsp;
           <Link
-            to={BUILDER_PAGE_URL(
-              this.props.match.params.applicationId,
-              this.props.match.params.pageId,
-            )}
+            to={BUILDER_PAGE_URL({
+              applicationId: this.props.applicationId,
+              pageId: this.props.match.params.pageId,
+            })}
           >
             Appsmith Editor
           </Link>
@@ -125,6 +127,7 @@ const mapStateToProps = (state: AppState) => {
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
