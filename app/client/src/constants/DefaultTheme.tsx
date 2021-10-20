@@ -115,8 +115,10 @@ export const BlueprintControlTransform = css`
       }
       &:hover .${Classes.CONTROL_INDICATOR} {
         box-shadow: none;
-        background: none;
         border: 2px solid ${Colors.SLATE_GRAY};
+      }
+      &.${Classes.RADIO} input:disabled ~ .${Classes.CONTROL_INDICATOR} {
+        opacity: 0.5;
       }
       &.${Classes.SWITCH}
         input:checked:disabled
@@ -147,8 +149,10 @@ export const BlueprintControlTransform = css`
         background: ${(props) => props.theme.colors.primaryOld};
       }
       &:hover .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
         border: 2px solid #d0d7dd;
+      }
+      &:hover input:not(:disabled) ~ .${Classes.CONTROL_INDICATOR} {
+        background: #d0d7dd;
       }
     }
 
