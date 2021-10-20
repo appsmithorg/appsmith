@@ -764,7 +764,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .flatMap(allOnLoadActions -> {
                     // If there has been an error (e.g. cyclical dependency), then dont update any actions.
                     // This is so that unnecessary updates don't happen to actions while the page is in invalid state.
-                    if (validOnPageLoadActions.get()) {
+                    if (!validOnPageLoadActions.get()) {
                         return Mono.just(allOnLoadActions);
                     }
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
