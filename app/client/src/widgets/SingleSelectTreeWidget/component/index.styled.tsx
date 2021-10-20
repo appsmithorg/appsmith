@@ -33,6 +33,7 @@ export const TextLabelWrapper = styled.div<{
 
 export const StyledLabel = styled(Label)<{
   $compactMode: boolean;
+  $disabled: boolean;
   $labelText?: string;
   $labelTextColor?: string;
   $labelTextSize?: TextSize;
@@ -42,7 +43,12 @@ export const StyledLabel = styled(Label)<{
   text-overflow: ellipsis;
   width: ${(props) => (props.$compactMode ? "auto" : "100%")};
   text-align: left;
-  color: ${(props) => props.$labelTextColor || "inherit"};
+  color: ${(props) =>
+    props.$labelTextColor
+      ? props.$labelTextColor
+      : props.$disabled
+      ? Colors.GREY_8
+      : "inherit"};
   font-size: ${(props) =>
     props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
   font-weight: ${(props) =>
@@ -639,6 +645,9 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
     .rc-tree-select-selector {
       border: 1.2px solid ${Colors.GREY_3} !important;
       background-color: ${Colors.GREY_1} !important;
+      .rc-tree-select-selection-item {
+        color: ${Colors.GREY_7} !important;
+      }
     }
   }
   .rc-tree-select-show-arrow.rc-tree-select-loading {

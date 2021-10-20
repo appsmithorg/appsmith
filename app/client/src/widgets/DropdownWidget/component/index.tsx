@@ -71,6 +71,9 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
   &&&&& .${Classes.DISABLED} {
     background-color: ${Colors.GREY_1};
     border: 1.2px solid ${Colors.GREY_3};
+    .${Classes.BUTTON_TEXT} {
+      color: ${Colors.GREY_7};
+    }
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
@@ -122,7 +125,7 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
 
 const DropdownStyles = createGlobalStyle<{ width: number }>`
   .select-popover-wrapper {
-    width: ${(props) => props.width - props.theme.spaces[3]}px;
+    width: 100%;
     box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0;
     background: white;
@@ -182,6 +185,9 @@ const DropdownStyles = createGlobalStyle<{ width: number }>`
       padding: 9px 12px;
       color: ${Colors.GREY_8};
       &:hover{
+        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      }
+      &.is-focused{
         background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
       &.${Classes.ACTIVE} {
@@ -256,7 +262,9 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               rightIcon={
                 <Icon
                   className="dropdown-icon"
-                  fillColor={Colors.GREY_10}
+                  fillColor={
+                    this.props.disabled ? Colors.GREY_7 : Colors.GREY_10
+                  }
                   name="dropdown"
                 />
               }
@@ -309,6 +317,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
         className={`single-select ${isFocused && "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
+        style={{ width: this.props.width - 7 }}
         tabIndex={0}
         text={option.label}
       />

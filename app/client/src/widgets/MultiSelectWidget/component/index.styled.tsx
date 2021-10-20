@@ -234,6 +234,11 @@ export const MultiSelectContainer = styled.div`
     & .rc-select-selector {
       background-color: ${Colors.GREY_1} !important;
       border: 1.2px solid ${Colors.GREY_3};
+      .rc-select-selection-item-content {
+        color: ${Colors.GREY_7};
+      }
+    }
+    & .rc-select-arrow {
     }
   }
   .rc-select-show-arrow.rc-select-loading {

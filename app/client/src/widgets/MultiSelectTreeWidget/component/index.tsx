@@ -133,6 +133,7 @@ function MultiTreeSelectComponent({
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
             $compactMode={compactMode}
+            $disabled={disabled}
             $labelStyle={labelStyle}
             $labelText={labelText}
             $labelTextColor={labelTextColor}
@@ -164,7 +165,7 @@ function MultiTreeSelectComponent({
         inputIcon={
           <Icon
             className="dropdown-icon"
-            fillColor={Colors.GREY_10}
+            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
             name="dropdown"
           />
         }
