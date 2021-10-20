@@ -156,6 +156,9 @@ const searchAction: Record<
     icon: "duplicate",
     text: createMessage(DEBUGGER_COPY_MESSAGE),
     onSelect: (error: Message) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.COPY,
+      });
       copy(error.message);
     },
   },
@@ -163,6 +166,9 @@ const searchAction: Record<
     icon: "share-2",
     text: createMessage(DEBUGGER_SEARCH_GOOGLE),
     onSelect: (error: Message) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.GOOGLE,
+      });
       window.open("http://google.com/search?q=" + error.message);
     },
   },
@@ -170,6 +176,9 @@ const searchAction: Record<
     icon: "book-line",
     text: createMessage(DEBUGGER_OPEN_DOCUMENTATION),
     onSelect: (error: Message, dispatch: Dispatch) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.DOCS,
+      });
       // Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
         source: "DEBUGGER",
@@ -186,6 +195,9 @@ const searchAction: Record<
     icon: "support",
     text: createMessage(DEBUGGER_APPSMITH_SUPPORT),
     onSelect: (error: Message) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.INTERCOM,
+      });
       // Search through the omnibar
       if (intercomAppID && window.Intercom) {
         window.Intercom(
@@ -199,6 +211,9 @@ const searchAction: Record<
     icon: "play",
     text: createMessage(DEBUGGER_SEARCH_SNIPPET),
     onSelect: (error: Message, dispatch: Dispatch, entity) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.SNIPPET,
+      });
       /// Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
         source: "DEBUGGER",

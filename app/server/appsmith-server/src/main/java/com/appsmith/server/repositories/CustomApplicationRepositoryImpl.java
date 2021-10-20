@@ -123,4 +123,23 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         updateObj.set(path, gitAuth);
         return this.updateById(applicationId, updateObj, aclPermission);
     }
+
+    @Override
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
+
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
+    }
+
+    @Override
+    public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId) {
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
+        return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
+    }
 }

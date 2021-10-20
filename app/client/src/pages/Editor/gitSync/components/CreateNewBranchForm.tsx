@@ -1,21 +1,37 @@
-import React, { useState } from "react";
+import React from "react";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
 import { Space } from "./StyledComponents";
 
 export default function CreateNewBranchForm({
+  defaultBranchValue,
+  isCreatingNewBranch,
+  isInputValid,
   onCancel,
+  onChange,
   onSubmit,
 }: {
-  onSubmit: (branchName: string) => void;
+  defaultBranchValue: string;
+  isCreatingNewBranch: boolean;
+  isInputValid: boolean;
+  onSubmit: () => void;
   onCancel: () => void;
+  onChange: (value: string) => void;
 }) {
-  const [branchName, setBranchName] = useState("");
+  const setBranch = (value: string) => {
+    if (typeof onChange === "function") onChange(value);
+  };
 
   return (
     <div>
-      <div style={{ width: 260 }}>
-        <TextInput autoFocus fill onChange={setBranchName} />
+      <div style={{ width: 300 }}>
+        <TextInput
+          autoFocus
+          defaultValue={defaultBranchValue}
+          fill
+          onChange={setBranch}
+          // validator={() => ({ isValid: isInputValid, message: "" })}
+        />
       </div>
       <Space size={6} />
       <div style={{ display: "flex" }}>
@@ -28,7 +44,10 @@ export default function CreateNewBranchForm({
         <Space horizontal size={3} />
         <Button
           category={Category.primary}
-          onClick={() => onSubmit(branchName)}
+          className="t--create-new-branch-submit-button"
+          disabled={!isInputValid}
+          isLoading={isCreatingNewBranch}
+          onClick={onSubmit}
           size={Size.small}
           text="Submit"
         />
