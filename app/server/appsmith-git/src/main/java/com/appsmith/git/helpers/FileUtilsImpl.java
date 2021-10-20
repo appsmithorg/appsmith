@@ -275,7 +275,7 @@ public class FileUtilsImpl implements FileInterface {
         String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
 
         File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
-        FileUtils.writeStringToFile(file, data, "UTF-8", false);
+        FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
         return Mono.just(baseRepoSuffix);
     }
@@ -292,7 +292,7 @@ public class FileUtilsImpl implements FileInterface {
     @Override
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
         return Mono.fromCallable(() -> {
-            File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
+            /*File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
             for(File file : files) {
                 if(!FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()) {
                     //Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
@@ -301,7 +301,7 @@ public class FileUtilsImpl implements FileInterface {
                     }
                     return false;
                 }
-            }
+            }*/
             return true;
         });
     }
