@@ -130,6 +130,7 @@ export enum IconSize {
   XL = "extraLarge",
   XXL = "extraExtraLarge",
   XXXL = "extraExtraExtraLarge",
+  XXXXL = "extraExtraExtraExtraLarge",
 }
 
 export const sizeHandler = (size?: IconSize) => {
@@ -158,6 +159,9 @@ export const sizeHandler = (size?: IconSize) => {
       break;
     case IconSize.XXXL:
       iconSize = theme.iconSizes.XXXL;
+      break;
+    case IconSize.XXXXL:
+      iconSize = theme.iconSizes.XXXXL;
       break;
     default:
       iconSize = theme.iconSizes.SMALL;
