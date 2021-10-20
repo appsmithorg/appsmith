@@ -40,10 +40,11 @@ before(function() {
 
   cy.visit("/setup/welcome");
   cy.wait("@getUser");
-  if (cy.url().contains("setup/welcome")) {
-    cy.wait(2000);
-    return;
-  }
+  cy.url().then((url) => {
+    if (url.indexOf("setup/welcome") > -1) {
+      cy.createSuperUser();
+    }
+  });
 
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
