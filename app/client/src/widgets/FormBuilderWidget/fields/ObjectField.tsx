@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { ControllerRenderProps } from "react-hook-form";
 
+import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
 import { SchemaItem } from "../constants";
@@ -23,7 +24,8 @@ const StyledWrapper = styled.div`
 `;
 
 function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
-  const { isVisible = true, label, tooltip } = schemaItem;
+  const { isVisible = true, label, props, tooltip } = schemaItem;
+  const { isDisabled } = props;
   const children = Object.values(schemaItem.children);
 
   if (!isVisible) {
@@ -48,9 +50,10 @@ function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
   }
 
   return (
-    <FieldLabel label={label} tooltip={tooltip}>
+    <Disabler isDisabled={isDisabled}>
+      <FieldLabel label={label} tooltip={tooltip} />
       {renderedFields}
-    </FieldLabel>
+    </Disabler>
   );
 }
 

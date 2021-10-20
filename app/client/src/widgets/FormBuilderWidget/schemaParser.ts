@@ -188,7 +188,7 @@ class SchemaParser {
     const currData = normalizeArrayValue(currFormData as any[]);
 
     const prevDataType = schema?.__array_item__?.dataType;
-    const currDataType = typeof currData;
+    const currDataType = dataTypeFor(currData);
 
     if (currDataType !== prevDataType) {
       schema.__array_item__ = SchemaParser.getSchemaItemFor(
@@ -222,21 +222,8 @@ class SchemaParser {
     const removedKeys = difference(prevKeys, currKeys);
     const modifiedKeys = difference(currKeys, newKeys.concat(removedKeys));
 
-    // // schema -> [{ name: 'name', props: {}, ... }, { name: 'age', props: {}, ... } ]
-    // // returns -> { name: 0, age: 1 }
-    // const schemaItemNameToIndexMap = schema.reduce<Record<string, number>>(
-    //   (idxMap, schemaItem, index) => {
-    //     idxMap[schemaItem.name] = index;
-
-    //     return idxMap;
-    //   },
-    //   {},
-    // );
-
     modifiedKeys.forEach((modifiedKey) => {
-      // const index = schemaItemNameToIndexMap[modifiedKey];
-
-      const currDataType = typeof currObj[modifiedKey];
+      const currDataType = dataTypeFor(currObj[modifiedKey]);
       const prevDataType = schema[modifiedKey].dataType;
 
       // TODO: Fix nested object update, modified objects type would
@@ -265,9 +252,6 @@ class SchemaParser {
       });
     });
 
-    // schema -> [{ name: 'name', props: {}, ... }, { name: 'age', props: {}, ... } ]
-    // removedKey = age
-    // schema becomes -> [{ name: 'name', props: {}, ... }]
     removedKeys.forEach((removedKey) => {
       delete schema[removedKey];
     });
