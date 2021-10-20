@@ -7,8 +7,13 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.converters.StringToInstantConverter;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver;
+import com.github.cloudyrock.spring.v5.MongockSpring5;
+import com.mongodb.ReadConcern;
+import com.mongodb.WriteConcern;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.convert.DefaultTypeMapper;
@@ -29,6 +34,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * This configures the JPA Mongo repositories. The default base implementation is defined in {@link BaseRepositoryImpl}.
@@ -55,6 +61,34 @@ public class MongoConfig {
 //                .setApplicationContext(springContext)
 //                .setLockQuickConfig()
 //                .build();
+//    }
+
+    @Bean
+    public MongockSpring5.MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+        SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
+        springDataMongoV3Driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
+        springDataMongoV3Driver.setReadConcern(ReadConcern.LOCAL);
+
+        return MongockSpring5.builder()
+                .setDriver(springDataMongoV3Driver)
+                .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
+                .setSpringContext(springContext)
+                // any extra configuration you need
+                .buildApplicationRunner();
+    }
+
+//    @Bean
+//    public MongockSpring5.MongockInitializingBeanRunner mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+//        SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
+//        springDataMongoV3Driver.setWriteConcern(WriteConcern.JOURNALED);
+//        springDataMongoV3Driver.setReadConcern(ReadConcern.LOCAL);
+//
+//        return MongockSpring5.builder()
+//                .setDriver(springDataMongoV3Driver)
+//                .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
+//                .setSpringContext(springContext)
+//                // any extra configuration you need
+//                .buildInitializingBeanRunner();
 //    }
 
     @Bean
