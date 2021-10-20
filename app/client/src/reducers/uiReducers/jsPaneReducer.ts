@@ -78,6 +78,21 @@ const jsPaneReducer = createReducer(initialState, {
       [action.payload.data.id]: false,
     },
   }),
+  [ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ collectionId: string }>,
+  ) => ({
+    ...state,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.collectionId]: false,
+    },
+    isDirty: {
+      ...state.isDirty,
+      [action.payload.collectionId]: false,
+    },
+  }),
+
   [ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ data: JSCollection }>,
@@ -86,6 +101,16 @@ const jsPaneReducer = createReducer(initialState, {
     isSaving: {
       ...state.isSaving,
       [action.payload.data.id]: false,
+    },
+  }),
+  [ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ collectionId: string }>,
+  ) => ({
+    ...state,
+    isSaving: {
+      ...state.isSaving,
+      [action.payload.collectionId]: false,
     },
   }),
   [ReduxActionTypes.DELETE_JS_ACTION_SUCCESS]: (

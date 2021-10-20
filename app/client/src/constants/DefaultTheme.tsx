@@ -285,6 +285,20 @@ export const BlueprintInputTransform = css`
   }
 `;
 
+const iconSizes = {
+  XXS: 8,
+  XS: 10,
+  SMALL: 12,
+  MEDIUM: 14,
+  LARGE: 15,
+  XL: 16,
+  XXL: 18,
+  XXXL: 20,
+  XXXXL: 22,
+};
+
+type IconSizeType = typeof iconSizes;
+
 export type ThemeBorder = {
   thickness: number;
   style: "dashed" | "solid";
@@ -424,17 +438,11 @@ export type Theme = {
   onboarding: {
     statusBarHeight: number;
   };
-};
-
-type IconSizeType = {
-  XXS: number;
-  XS: number;
-  SMALL: number;
-  MEDIUM: number;
-  LARGE: number;
-  XL: number;
-  XXL: number;
-  XXXL: number;
+  settings: {
+    footerHeight: number;
+    footerShadow: string;
+    linkBg: string;
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -1253,14 +1261,18 @@ type ColorType = {
   numberedStep: {
     line: string;
   };
-  gitSyncModal: {
-    menuBackgroundColor: string;
-    separator: string;
-  };
+  gitSyncModal: GitSyncModalColors;
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
     branchBtnText: string;
+  };
+  link: string;
+  welcomePage?: {
+    text: string;
+  };
+  settings: {
+    link: string;
   };
 };
 
@@ -1273,7 +1285,9 @@ const editorBottomBar = {
 const gitSyncModal = {
   menuBackgroundColor: Colors.ALABASTER_ALT,
   separator: Colors.ALTO2,
+  closeIcon: "rgba(29, 28, 29, 0.7);",
 };
+type GitSyncModalColors = typeof gitSyncModal;
 
 const tabItemBackgroundFill = {
   highlightBackground: Colors.Gallery,
@@ -1370,7 +1384,7 @@ const comments = {
   activeModeIconCircleStroke: "#090707",
 };
 
-const auth: any = {
+const auth = {
   background: lightShades[11],
   cardBackground: lightShades[0],
   btnPrimary: Colors.CRUSTA,
@@ -2080,6 +2094,13 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const light: ColorType = {
@@ -2711,6 +2732,13 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const theme: Theme = {
@@ -2719,16 +2747,7 @@ export const theme: Theme = {
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
   typography: typography,
-  iconSizes: {
-    XXS: 8,
-    XS: 10,
-    SMALL: 12,
-    MEDIUM: 14,
-    LARGE: 15,
-    XL: 16,
-    XXL: 18,
-    XXXL: 20,
-  },
+  iconSizes: iconSizes,
   propertyPane: {
     width: 270,
     titleHeight: 40,
@@ -2981,6 +3000,11 @@ export const theme: Theme = {
   },
   onboarding: {
     statusBarHeight: 83,
+  },
+  settings: {
+    footerHeight: 84,
+    footerShadow: "0px 0px 18px -6px rgb(0, 0, 0, 0.25)",
+    linkBg: lightShades[2],
   },
 };
 
