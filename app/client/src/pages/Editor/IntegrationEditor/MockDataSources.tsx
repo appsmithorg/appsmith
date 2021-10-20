@@ -128,7 +128,10 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
   };
 
   return (
-    <CardWrapper className="t--mock-datasource" onClick={addMockDataSource}>
+    <CardWrapper
+      className={`t--mock-datasource-${datasource.name}`}
+      onClick={addMockDataSource}
+    >
       <DatasourceCardHeader className="t--datasource-name">
         <div style={{ flex: 1 }}>
           <DatasourceNameWrapper>

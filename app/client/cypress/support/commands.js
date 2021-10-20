@@ -888,6 +888,20 @@ Cypress.Commands.add("selectDropdownValue", (element, value) => {
     .click();
 });
 
+Cypress.Commands.add("SnipeWidget", (widgetClassname) => {
+  cy.get(".t--select-in-canvas").click();
+  cy.get(".t--sniping-mode-banner").should("be.visible");
+  cy.get(widgetClassname).should("exist");
+  cy.get(widgetClassname).click({ force: true });
+  cy.get(".t--sniping-mode-banner").should("not.exist");
+  cy.get(".t--entity-name")
+    .contains("Widgets")
+    .click({ force: true });
+  cy.get(".t--entity-name")
+    .contains("Query1")
+    .click({ force: true });
+});
+
 Cypress.Commands.add("assertDateFormat", () => {
   cy.get(".t--draggable-datepickerwidget2 input")
     .first()

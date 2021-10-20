@@ -11,7 +11,6 @@ import { CONFIG as INPUT_WIDGET_CONFIG } from "widgets/InputWidget";
 import { CONFIG as MAP_WIDGET_CONFIG } from "widgets/MapWidget";
 import { CONFIG as RICH_TEXT_EDITOR_WIDGET_CONFIG } from "widgets/RichTextEditorWidget";
 import { CONFIG as DATE_PICKER_WIDGET_2_CONFIG } from "widgets/DatePickerWidget2";
-import { CONFIG as LIST_WIDGET_CONFIG } from "widgets/ListWidget";
 import { CONFIG as SWITCH_WIDGET_CONFIG } from "widgets/SwitchWidget";
 import { CONFIG as RATE_WIDGET_CONFIG } from "widgets/RateWidget";
 import { CONFIG as IFRAME_WIDGET_CONFIG } from "widgets/IframeWidget";
@@ -67,6 +66,7 @@ export const getPropertyValueFromType = (
       propertyValue: `{{${currentAction.config.name}.${
         widgetProps.type === SnippedPropertyValueType.DATA ? "data" : "run()"
       }}}`,
+      isJsMode: true,
     };
   }
 };
@@ -124,10 +124,10 @@ export const WIDGET_TO_SNIPPABLE_PROPERTY_MAP: SnippablePropertyMapType = {
     property: "defaultText",
     type: SnippedPropertyValueType.DATA,
   },
-  [LIST_WIDGET_CONFIG.type]: {
-    property: "items",
-    type: SnippedPropertyValueType.DATA,
-  },
+  // [LIST_WIDGET_CONFIG.type]: {
+  //   property: "items",
+  //   type: SnippedPropertyValueType.DATA,
+  // },
   [MAP_WIDGET_CONFIG.type]: {
     property: "defaultMarkers",
     type: SnippedPropertyValueType.DATA,
