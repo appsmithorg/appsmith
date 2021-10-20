@@ -31,7 +31,6 @@ export type ExplorerURLParams = {
   pageId: string;
 };
 
-// TODO [new_urls] verify
 export const getActionIdFromURL = () => {
   const apiMatch = matchPath<{ apiId: string }>(window.location.pathname, {
     path: API_EDITOR_ID_PATH,

@@ -59,7 +59,6 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -116,9 +115,9 @@ function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
   const { id } = actionPayload.payload;
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
-  history.push(JS_COLLECTION_ID_URL(defaultApplicationId, pageId, id, {}));
+  history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
 function* handleUpdateJSCollection(
@@ -269,11 +268,9 @@ function* handleJSObjectNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
-    history.push(
-      JS_COLLECTION_ID_URL(defaultApplicationId, pageId, actionId, params),
-    );
+    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, actionId, params));
   }
 }
 

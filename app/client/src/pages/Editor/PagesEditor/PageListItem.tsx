@@ -31,8 +31,6 @@ import { Position } from "@blueprintjs/core";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-
 export const Container = styled.div`
   display: flex;
   width: 100%;

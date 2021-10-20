@@ -25,8 +25,7 @@ export const setDefaultApplicationPageSuccess = (
 };
 
 export interface FetchApplicationPayload {
-  defaultApplicationId: string;
-  branchName?: string;
+  applicationId: string;
   mode: APP_MODE;
 }
 

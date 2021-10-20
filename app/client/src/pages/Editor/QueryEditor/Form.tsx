@@ -12,7 +12,6 @@ import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
 import { getFormValues } from "redux-form";
 import { QueryAction } from "entities/Action";
 import { getFormEvaluationState } from "selectors/formSelectors";
-import { debug } from "loglevel";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
 const mapStateToProps = (state: AppState) => {
@@ -32,8 +31,6 @@ const mapStateToProps = (state: AppState) => {
   if (!!formData) {
     formEvaluationState = getFormEvaluationState(state)[formData.id];
   }
-
-  debug(responseTypes, pluginId, state);
 
   return {
     actionName,
