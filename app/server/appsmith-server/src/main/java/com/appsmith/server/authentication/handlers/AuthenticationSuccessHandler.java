@@ -15,7 +15,6 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
@@ -127,11 +126,9 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
                         final boolean isFromInvite = inviteToken != null;
-                        final String invitedAs = inviteToken == null ? "" : inviteToken.split(":", 2)[0];
 
-                        if (CollectionUtils.isNotEmpty(currentUser.getOrganizationIds())) {
-                            currentUser.getOrganizationIds().iterator().next();
-                        }
+                        // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
+                        final String invitedAs = inviteToken == null ? "" : inviteToken.split(":", 2)[0];
 
                         String modeOfLogin = "FormSignUp";
                         if(authentication instanceof OAuth2AuthenticationToken) {
