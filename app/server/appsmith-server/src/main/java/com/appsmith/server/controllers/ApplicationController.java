@@ -112,8 +112,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
         log.debug("Going to delete application with id: {}", id);
-        return gitService.detachRemote(id)
-                .flatMap(application ->  applicationPageService.deleteApplication(id))
+        return applicationPageService.deleteApplication(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
