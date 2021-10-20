@@ -23,7 +23,6 @@ export type ToastProps = ToastOptions &
     hideProgressBar?: boolean;
     hideActionElementSpace?: boolean;
     width?: string;
-    closeOnClick?: boolean;
   };
 
 const WrappedToastContainer = styled.div`

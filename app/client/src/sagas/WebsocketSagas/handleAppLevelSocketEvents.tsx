@@ -93,6 +93,7 @@ export default function* handleAppLevelSocketEvents(event: any) {
           actionElement: (
             <span onClick={() => location.reload(true)}>REFRESH</span>
           ),
+          autoClose: false,
         });
       }
       return;
