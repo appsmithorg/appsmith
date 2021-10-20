@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 
 describe("Organization Import Application", function() {

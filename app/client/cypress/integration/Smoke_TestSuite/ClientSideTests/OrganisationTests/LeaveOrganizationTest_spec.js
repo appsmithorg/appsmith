@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 
 describe("Leave organization test spec", function() {
   let newOrgId;

@@ -7,7 +7,7 @@ const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
-const homePage = require("../locators/HomePage.json");
+import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");

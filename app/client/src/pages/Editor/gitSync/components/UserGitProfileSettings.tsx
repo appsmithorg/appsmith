@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from "react";
-import { Space } from "../StyledComponents";
+import { Space } from "./StyledComponents";
 import {
   createMessage,
   USER_PROFILE_SETTINGS_TITLE,
@@ -11,7 +11,7 @@ import TextInput, {
   emailValidator,
   notEmptyValidator,
 } from "components/ads/TextInput";
-import { Classes as GitSyncClasses } from "../../constants";
+import { Classes as GitSyncClasses } from "../constants";
 import Checkbox from "components/ads/Checkbox";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
 import history from "utils/history";
@@ -197,6 +197,7 @@ function UserGitProfileSettings({
 
         <InputContainer>
           <TextInput
+            className="t--git-config-name-input"
             dataType="text"
             defaultValue={authorInfo.authorName}
             disabled={disableInput}
@@ -221,6 +222,7 @@ function UserGitProfileSettings({
         </LabelContainer>
         <InputContainer>
           <TextInput
+            className="t--git-config-email-input"
             dataType="email"
             disabled={disableInput}
             errorMsg={

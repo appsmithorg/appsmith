@@ -93,7 +93,10 @@ export const DeployLinkButton = withTheme((props: Props) => {
       content={
         <DeployLinkDialog>
           {getFeatureFlags().GIT && !isGitConnected && (
-            <DeployLink onClick={goToGitConnectionPopup}>
+            <DeployLink
+              className="t--connect-to-git-btn"
+              onClick={goToGitConnectionPopup}
+            >
               <IconWrapper>
                 <GitBranchIcon />
               </IconWrapper>
@@ -101,7 +104,12 @@ export const DeployLinkButton = withTheme((props: Props) => {
             </DeployLink>
           )}
 
-          <DeployLink href={props.link} onClick={onClose} target="_blank">
+          <DeployLink
+            className="t--current-deployed-preview-btn"
+            href={props.link}
+            onClick={onClose}
+            target="_blank"
+          >
             <IconWrapper>
               <Icon
                 color={props.theme.colors.header.deployToolTipText}
@@ -117,7 +125,12 @@ export const DeployLinkButton = withTheme((props: Props) => {
       onClose={onClose}
       position={PopoverPosition.BOTTOM_RIGHT}
     >
-      <div onClick={() => setIsOpen(true)}>{props.trigger}</div>
+      <div
+        className="t--deploy-popup-option-trigger"
+        onClick={() => setIsOpen(true)}
+      >
+        {props.trigger}
+      </div>
     </Popover>
   );
 });

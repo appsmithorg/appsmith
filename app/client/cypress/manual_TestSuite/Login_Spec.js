@@ -1,6 +1,6 @@
 const onboarding = require("../../../locators/Onboarding.json");
 const explorer = require("../../../locators/explorerlocators.json");
-const homePage = require("../../../locators/HomePage.json");
+import homePage from "../../../locators/HomePage";
 const loginPage = require("../../../locators/LoginPage.json");
 
 describe("Onboarding flow", function() {

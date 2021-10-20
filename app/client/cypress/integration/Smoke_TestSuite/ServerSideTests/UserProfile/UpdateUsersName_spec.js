@@ -1,4 +1,4 @@
-const homePage = require("../../../../locators/HomePage.json");
+import homePage from "../../../../locators/HomePage";
 
 describe("Update a user's name", function() {
   let username;
