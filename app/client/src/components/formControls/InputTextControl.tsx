@@ -1,12 +1,17 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import TextField from "components/editorComponents/form/fields/TextField";
 import FormLabel from "components/editorComponents/FormLabel";
+import TextInput from "components/ads/TextInput";
 import { FormIcons } from "icons/FormIcons";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { InputType } from "components/constants";
+import {
+  Field,
+  WrappedFieldMetaProps,
+  WrappedFieldInputProps,
+} from "redux-form";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -57,17 +62,40 @@ export function InputText(props: {
           </>
         )}
       </FormLabel>
-      <TextField
-        disabled={disabled || false}
-        name={name}
+      <Field
+        component={renderComponent}
+        datatype={dataType}
+        disabled={disabled}
         placeholder={placeholder}
-        showError
-        type={dataType}
+        {...props}
+        asyncControl
       />
     </div>
   );
 }
 
+function renderComponent(
+  props: {
+    placeholder: string;
+    dataType?: InputType;
+    disabled?: boolean;
+  } & {
+    meta: Partial<WrappedFieldMetaProps>;
+    input: Partial<WrappedFieldInputProps>;
+  },
+) {
+  return (
+    <TextInput
+      dataType={props.dataType}
+      disabled={props.disabled || false}
+      onChange={props.input.onChange}
+      placeholder={props.placeholder}
+      value={props.input.value}
+      {...props.input}
+      width="100%"
+    />
+  );
+}
 class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
