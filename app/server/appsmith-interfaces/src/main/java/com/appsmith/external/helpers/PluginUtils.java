@@ -139,7 +139,14 @@ public class PluginUtils {
             return getValueSafelyFromFormDataOrDefault(nestedMap, nestedFieldName, defaultValue);
         } else {
             // This is a top level field. Return the value
-            return formData.getOrDefault(field, defaultValue);
+            Object value = formData.getOrDefault(field, defaultValue);
+
+            // In case the value stored for the key field is null, return default value instead.
+            if (value == null) {
+                value = defaultValue;
+            }
+
+            return value;
         }
 
     }

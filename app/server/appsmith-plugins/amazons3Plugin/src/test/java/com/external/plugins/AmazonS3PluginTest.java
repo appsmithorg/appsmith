@@ -35,6 +35,15 @@ import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.external.plugins.constants.FieldName.BUCKET;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
+import static com.external.plugins.constants.FieldName.CREATE_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
+import static com.external.plugins.constants.FieldName.LIST_PREFIX;
+import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
+import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -237,9 +246,9 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "LIST");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "list.signedUrl", "NO");
+        setValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -303,10 +312,10 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "create.dataType", "NO");
-        setValueSafelyInFormData(configMap, "create.expiry", "100000");
+        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -346,9 +355,9 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "create.dataType", "NO");
+        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -383,10 +392,10 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "create.dataType", "YES");
-        setValueSafelyInFormData(configMap, "create.expiry", "100000");
+        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -433,9 +442,9 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "READ_FILE");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "read.usingBase64Encoding", "NO");
+        setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, READ_USING_BASE64_ENCODING, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -475,9 +484,9 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "READ_FILE");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "read.usingBase64Encoding", "YES");
+        setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, READ_USING_BASE64_ENCODING, "YES");
 
         actionConfiguration.setFormData(configMap);
 
@@ -531,8 +540,8 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "DELETE_FILE");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
+        setValueSafelyInFormData(configMap, COMMAND, "DELETE_FILE");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
 
         actionConfiguration.setFormData(configMap);
 
@@ -579,9 +588,9 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "LIST");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "list.prefix", "Hel");
+        setValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "Hel");
 
         actionConfiguration.setFormData(configMap);
 
@@ -639,11 +648,11 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "LIST");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "list.signedUrl", "NO");
-        setValueSafelyInFormData(configMap, "list.unSignedUrl", "YES");
-        setValueSafelyInFormData(configMap, "list.prefix", "");
+        setValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
+        setValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -716,11 +725,11 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "LIST");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "list.signedUrl", "YES");
-        setValueSafelyInFormData(configMap, "list.expiry", "1000");
-        setValueSafelyInFormData(configMap, "list.prefix", "");
+        setValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, LIST_EXPIRY, "1000");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -796,10 +805,10 @@ public class AmazonS3PluginTest {
         actionConfiguration.setPath(dummyPath);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "LIST");
-        setValueSafelyInFormData(configMap, "bucket", "bucket_name");
-        setValueSafelyInFormData(configMap, "list.signedUrl", "YES");
-        setValueSafelyInFormData(configMap, "list.prefix", "");
+        setValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
+        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -894,7 +903,7 @@ public class AmazonS3PluginTest {
         actionConfiguration.setBody(dummyBody);
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, "command", "LIST_BUCKETS");
+        setValueSafelyInFormData(configMap, COMMAND, "LIST_BUCKETS");
 
         actionConfiguration.setFormData(configMap);
 
