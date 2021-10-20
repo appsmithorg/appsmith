@@ -197,6 +197,12 @@ class ChartDataControl extends BaseControl<ControlProps> {
       ? {}
       : this.props.propertyValue;
 
+    // eslint-disable-next-line no-console
+    console.log({
+      val: this.props.propertyValue,
+      type: typeof this.props.propertyValue,
+    });
+
     const dataLength = Object.keys(chartData).length;
 
     const evaluatedValue = this.props.evaluatedValue;

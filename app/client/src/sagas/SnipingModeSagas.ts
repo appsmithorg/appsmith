@@ -1,5 +1,5 @@
-import { takeLeading, all, put, select } from "redux-saga/effects";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import { all, put, select, takeLeading } from "redux-saga/effects";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import history from "../utils/history";
 import { BUILDER_PAGE_URL } from "../constants/routes";
 import {
@@ -17,6 +17,7 @@ import { Variant } from "../components/ads/common";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 
 import {
+  SNIPING_FOR_CHART_FAILED,
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
 } from "../constants/messages";
@@ -55,6 +56,8 @@ export function* bindDataToWidgetSaga(
   let propertyPath = "";
   let propertyValue: any = "";
   let isValidProperty = true;
+  let isSetJsMode = true;
+  let errorMessage;
 
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:
@@ -122,6 +125,25 @@ export function* bindDataToWidgetSaga(
       propertyPath = "url";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
+    case WidgetTypes.CHART_WIDGET:
+      isSetJsMode = false;
+      propertyPath = "chartData";
+      const suggestedQuery = currentAction?.data?.suggestedWidgets?.find(
+        (eachWidget: any) => eachWidget.type === WidgetTypes.CHART_WIDGET,
+      )?.bindingQuery;
+      isValidProperty = !!suggestedQuery;
+      if (!isValidProperty) {
+        errorMessage = SNIPING_FOR_CHART_FAILED();
+      } else {
+        const primarySequenceKey = Object.keys(selectedWidget.chartData)[0];
+        propertyValue = {
+          [primarySequenceKey]: {
+            data: `{{${currentAction.config.name}.${suggestedQuery}}}`,
+            seriesName: "Demo",
+          },
+        };
+      }
+      break;
     default:
       isValidProperty = false;
       break;
@@ -135,7 +157,8 @@ export function* bindDataToWidgetSaga(
   });
   if (queryId && isValidProperty) {
     // set the property path to dynamic, i.e. enable JS mode
-    yield put(setWidgetDynamicProperty(widgetId, propertyPath, true));
+    if (isSetJsMode)
+      yield put(setWidgetDynamicProperty(widgetId, propertyPath, true));
     yield put(
       updateWidgetPropertyRequest(widgetId, propertyPath, propertyValue),
     );
@@ -157,8 +180,8 @@ export function* bindDataToWidgetSaga(
   } else {
     queryId &&
       Toaster.show({
-        text: SNIPING_NOT_SUPPORTED(),
-        variant: Variant.warning,
+        text: errorMessage || SNIPING_NOT_SUPPORTED(),
+        variant: errorMessage ? Variant.danger : Variant.warning,
       });
   }
 }
