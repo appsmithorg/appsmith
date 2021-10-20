@@ -119,6 +119,7 @@ function renderDropdown(props: any): JSX.Element {
       options={props.options}
       {...props}
       {...props.input}
+      boundary={"window"}
       selected={selectedOption}
       showLabelOnly
       width="100%"

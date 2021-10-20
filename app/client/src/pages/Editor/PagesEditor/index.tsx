@@ -11,7 +11,10 @@ import { BUILDER_PAGE_URL } from "constants/routes";
 import Button, { Size } from "components/ads/Button";
 import PageListItem, { Action } from "./PageListItem";
 import { Page } from "constants/ReduxActionConstants";
-import { getPageList } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPageList,
+} from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import DraggableList from "components/ads/DraggableList";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -66,6 +69,7 @@ function PagesEditor() {
   const pages = useSelector(getPageList);
   const params = useParams<ExplorerURLParams>();
   const currentApp = useSelector(getCurrentApplication);
+  const applicationId = useSelector(getCurrentApplicationId) as string;
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -88,8 +92,8 @@ function PagesEditor() {
     const defaultPageLayouts = [
       { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
     ];
-    dispatch(createPage(params.applicationId, name, defaultPageLayouts, true));
-  }, [dispatch, pages, params.applicationId]);
+    dispatch(createPage(applicationId, name, defaultPageLayouts, true));
+  }, [dispatch, pages, applicationId]);
 
   /**
    * updates the order of page
@@ -98,9 +102,9 @@ function PagesEditor() {
    */
   const setPageOrderCallback = useCallback(
     (pageId: string, newOrder: number) => {
-      dispatch(setPageOrder(params.applicationId, pageId, newOrder));
+      dispatch(setPageOrder(applicationId, pageId, newOrder));
     },
-    [dispatch, params.applicationId],
+    [dispatch, applicationId],
   );
 
   /**
@@ -109,7 +113,7 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(params.applicationId, params.pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId: params.pageId }));
   }, []);
 
   return (
@@ -137,9 +141,7 @@ function PagesEditor() {
       </Header>
 
       <DraggableList
-        ItemRenderer={({ item }: any) => (
-          <PageListItem applicationId={params.applicationId} item={item} />
-        )}
+        ItemRenderer={({ item }: any) => <PageListItem item={item} />}
         itemHeight={70}
         items={pages}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {

@@ -57,10 +57,10 @@ function AppInviteUsersForm(props: any) {
   );
 
   const getViewApplicationURL = () => {
-    const appViewEndPoint = getApplicationViewerPageURL(
-      applicationId,
-      defaultPageId,
-    );
+    const appViewEndPoint = getApplicationViewerPageURL({
+      applicationId: applicationId,
+      pageId: defaultPageId,
+    });
     return window.location.origin.toString() + appViewEndPoint;
   };
 
