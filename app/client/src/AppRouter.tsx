@@ -3,14 +3,12 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
-  APP_VIEW_URL,
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_URL,
-  getApplicationViewerPageURL,
   ORG_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
@@ -19,6 +17,7 @@ import {
   PROFILE,
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
+  VIEWER_URL,
   ADMIN_SETTINGS_URL,
   ADMIN_SETTINGS_CATEGORY_URL,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_URL,
@@ -127,18 +126,14 @@ class AppRouter extends React.Component<any, any> {
                   exact
                   path={SIGNUP_SUCCESS_URL}
                 />
-                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
-                <SentryRoute
-                  component={AppViewerLoader}
-                  path={getApplicationViewerPageURL()}
-                />
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
-                <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
                 <SentryRoute
                   component={UnsubscribeEmail}
                   path={UNSUBSCRIBE_EMAIL_URL}
                 />
                 <SentryRoute component={Setup} exact path={SETUP} />
+                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
+                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <Redirect
                   exact
                   from={ADMIN_SETTINGS_URL}

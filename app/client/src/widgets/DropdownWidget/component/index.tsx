@@ -200,6 +200,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             }
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
+            noResults={<MenuItem disabled text="No Results Found" />}
             onItemSelect={this.onItemSelect}
             onQueryChange={
               this.props.serverSideFiltering ? this.serverSideSearch : undefined

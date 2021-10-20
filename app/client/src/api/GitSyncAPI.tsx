@@ -53,6 +53,22 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/config/save`, payload);
   }
 
+  static fetchBranches(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
+  }
+
+  static checkoutBranch(applicationId: string, branch: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
+      branch,
+    });
+  }
+
+  static createNewBranch(applicationId: string, branch: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/create-branch/${applicationId}`, {
+      branch,
+    });
+  }
+
   static getLocalConfig(applicationId: string) {
     return Api.get(`${GitSyncAPI.baseURL}/config/${applicationId}`);
   }
