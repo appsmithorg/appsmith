@@ -93,7 +93,7 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("NUMBER_INPUT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
-        return <InputNumberControl {...controlProps} />;
+        return <InputTextControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("ARRAY_FIELD", {

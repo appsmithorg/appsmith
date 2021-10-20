@@ -7,7 +7,6 @@ import Dropdown, {
   DropdownProps,
   DropdownOption,
 } from "components/ads/Dropdown";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -23,41 +22,18 @@ const DropdownSelect = styled.div`
   width: 50vh;
 `;
 
-const StyledInfo = styled.span`
-  font-weight: normal;
-  line-height: normal;
-  color: ${Colors.DOVE_GRAY};
-  font-size: 12px;
-  margin-left: 1px;
-`;
-
-const StyledDropdown = styled(Dropdown)`
-  .dropdown-control {
-  }
-`;
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
     const {
       configProperty,
       initialValue,
       isRequired,
-      label,
       options,
       placeholderText,
-      subtitle,
     } = this.props;
 
     return (
       <div>
-        <FormLabel>
-          {label} {isRequired && "*"}
-          {subtitle && (
-            <>
-              <br />
-              <StyledInfo>{subtitle}</StyledInfo>
-            </>
-          )}
-        </FormLabel>
         <DropdownSelect data-cy={configProperty}>
           <Field
             component={renderDropdown}

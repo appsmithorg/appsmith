@@ -126,6 +126,7 @@ class AppRouter extends React.Component<any, any> {
                   exact
                   path={SIGNUP_SUCCESS_URL}
                 />
+
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
                 <SentryRoute
                   component={UnsubscribeEmail}

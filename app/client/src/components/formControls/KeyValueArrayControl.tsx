@@ -92,11 +92,11 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
           );
         }
         return (
-          <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
+          <FormRowWithLabel
+            key={index}
+            style={{ marginTop: index > 0 ? "16px" : "0px" }}
+          >
             <div style={{ width: "50vh" }}>
-              <FormLabel>
-                {extraData && extraData[0].label} {isRequired && "*"}
-              </FormLabel>
               <TextField
                 name={`${field}.${keyName[1]}`}
                 placeholder={(extraData && extraData[0].placeholderText) || ""}
@@ -106,9 +106,6 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
             </div>
             {!props.actionConfig && (
               <div style={{ marginLeft: 16 }}>
-                <FormLabel>
-                  {extraData && extraData[1].label} {isRequired && "*"}
-                </FormLabel>
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div style={{ marginRight: 14, width: 72 }}>
                     <StyledTextField
@@ -124,7 +121,9 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
                       color={Colors["CADET_BLUE"]}
                       icon="plus"
                       iconSize={20}
-                      onClick={() => props.fields.push({ key: "", value: "" })}
+                      onClick={() => {
+                        props.fields.push({ key: "", value: "" });
+                      }}
                       style={{ alignSelf: "center" }}
                     />
                   ) : (

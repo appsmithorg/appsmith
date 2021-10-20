@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
 import { formValueSelector } from "redux-form";
@@ -24,6 +23,9 @@ export enum INPUT_TEXT_INPUT_TYPES {
 const StyledDynamicTextField = styled(DynamicTextField)`
   .CodeEditorTarget .CodeMirror.CodeMirror-wrap {
     background-color: ${Colors.WHITE};
+  }
+  .CodeEditorTarget .CodeMirror.CodeMirror-wrap:hover {
+    background-color: inherit;
   }
   &&& .t--code-editor-wrapper {
     border: none;
@@ -52,10 +54,7 @@ export function InputText(props: {
   }
 
   return (
-    <div style={{ width: "50vh", minHeight: "55px" }}>
-      <FormLabel>
-        {label} {isRequired && "*"}
-      </FormLabel>
+    <div style={{ width: "50vh", minHeight: "34px" }}>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         name={name}

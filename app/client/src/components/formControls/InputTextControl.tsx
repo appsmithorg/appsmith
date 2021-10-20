@@ -1,9 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import TextInput from "components/ads/TextInput";
-import { FormIcons } from "icons/FormIcons";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { InputType } from "components/constants";
@@ -34,38 +32,14 @@ export function InputText(props: {
   encrypted?: boolean;
   disabled?: boolean;
 }) {
-  const {
-    dataType,
-    disabled,
-    encrypted,
-    isRequired,
-    label,
-    name,
-    placeholder,
-    subtitle,
-  } = props;
+  const { dataType, disabled, name, placeholder } = props;
 
   return (
     <div data-cy={name} style={{ width: "50vh" }}>
-      <FormLabel>
-        {label} {isRequired && "*"}{" "}
-        {encrypted && (
-          <>
-            <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-            <StyledInfo>Encrypted</StyledInfo>
-          </>
-        )}
-        {subtitle && (
-          <>
-            <br />
-            <StyledInfo>{subtitle}</StyledInfo>
-          </>
-        )}
-      </FormLabel>
       <Field
         component={renderComponent}
         datatype={dataType}
-        disabled={disabled}
+        disabled={disabled || false}
         placeholder={placeholder}
         {...props}
         asyncControl
@@ -102,6 +76,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       configProperty,
       dataType,
       disabled,
+      encrypted,
       isValid,
       label,
       placeholderText,
@@ -114,7 +89,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       <InputText
         dataType={this.getType(dataType)}
         disabled={disabled}
-        encrypted={this.props.encrypted}
+        encrypted={encrypted}
         isValid={isValid}
         label={label}
         name={configProperty}
