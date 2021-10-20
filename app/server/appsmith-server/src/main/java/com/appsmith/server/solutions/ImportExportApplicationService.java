@@ -238,7 +238,6 @@ public class ImportExportApplicationService {
                                     newAction.setOrganizationId(null);
                                     newAction.setPolicies(null);
                                     newAction.setApplicationId(null);
-                            newAction.setApplicationId(null);
                                     concernedDBNames.add(
                                             sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null)
                                     );
@@ -279,12 +278,12 @@ public class ImportExportApplicationService {
                                     }
                                 });
 
-                        // Caution : Please don't serialise the credentials if we are serialising for git version control
-                        if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
-                            applicationJson.setDecryptedFields(null);
-                        } else {
-                            applicationJson.setDecryptedFields(decryptedFields);
-                        }
+                                // Caution : Please don't serialise the credentials if we are serialising for git version control
+                                if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
+                                    applicationJson.setDecryptedFields(null);
+                                } else {
+                                    applicationJson.setDecryptedFields(decryptedFields);
+                                }
                                 return actionCollectionRepository
                                         .findByApplicationId(applicationId, AclPermission.MANAGE_ACTIONS, null);
                             })
@@ -511,9 +510,9 @@ public class ImportExportApplicationService {
                                 .flatMap(application -> {
                                     // Application Id will be present for GIT sync
                                     if (applicationId != null) {
-                            return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
-                                                .switchIfEmpty(
-                                    Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                                        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+                                                .switchIfEmpty(Mono.error(
+                                                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
@@ -522,8 +521,9 @@ public class ImportExportApplicationService {
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
                                                     // the changes from remote
-
-                                    return applicationService.save(existingApplication);
+                                                    // We are using the save instead of update as we are using @Encrypted
+                                                    // for GitAuth
+                                                    return applicationService.save(existingApplication);
                                                 });
                                     }
                                     return applicationService

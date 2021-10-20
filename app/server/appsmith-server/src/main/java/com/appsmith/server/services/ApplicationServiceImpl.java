@@ -98,15 +98,6 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
-    @Override
-    public Mono<Application> getByIdAndBranchName(String id, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
-            return this.getById(id);
-        }
-        return this.getChildApplicationId(branchName, id, READ_APPLICATIONS)
-            .flatMap(this::getById);
-    }
-
     private Mono<Application> setUnreadCommentCount(Application application, User user) {
         if(!user.isAnonymous()) {
             return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
@@ -176,7 +167,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             .onErrorResume(error -> {
                 if (error instanceof DuplicateKeyException) {
                     // Error message : E11000 duplicate key error collection: appsmith.application index:
-                    // organization_application_deleted_gitRepo_gitBranch_compound_index dup key:
+                    // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
                     // { organizationId: "******", name: "AppName", deletedAt: null }
                     if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
                         return Mono.error(
@@ -439,6 +430,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
                                                                              String defaultApplicationId,
                                                                              AclPermission aclPermission){
+        if (StringUtils.isEmpty(branchName)) {
+            return repository.findById(defaultApplicationId, aclPermission)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
+                    );
+        }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
