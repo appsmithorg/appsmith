@@ -71,10 +71,14 @@ public class PageLoadActionsUtil {
      * and the same are used by the caller function for further processing.
      *
      * @param pageId : Argument used for fetching actions in this page
-     * @param widgetNames : Set of widget names which have been set before calling this function
+     * @param widgetNames : Set of widget names which SHOULD have been populated before calling this function.
      * @param edges : Set where this function adds all the relationships (dependencies) between actions
      * @param widgetDynamicBindingsMap : A map of widget path and the set of dynamic binding words in the mustache at the
-     *                                 path in the widget
+     *                                 path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
+     *
+     *     Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
+     *                                 Map.entry("Table1.tableData", Set.of("Api1.data"))
+     *
      * @param flatPageLoadActions : A flat list of on page load actions (Not in the sequence in which these actions
      *                            would be called on page load)
      * @param actionsUsedInDSL : Set where this function adds all the actions directly used in the DSL
@@ -93,10 +97,20 @@ public class PageLoadActionsUtil {
         Set<String> onPageLoadActionSet = new HashSet<>();
         Set<String> explicitUserSetOnLoadActions = new HashSet<>();
         Set<String> bindingsFromActions = new HashSet<>();
+
+        // Function `extractAndSetActionBindingsInGraphEdges` updates this set to keep a track of all the actions which
+        // have been discovered while walking the actions to ensure that we don't end up in a recursive infinite loop
+        // in case of a cyclical relationship between actions (and not specific paths) and helps us exit at the appropriate
+        // junction.
+        // e.g : Consider the following relationships :
+        // Api1.actionConfiguration.body <- Api2.data.users[0].name
+        // Api2.actionConfiguration.url <- Api1.actionConfiguration.url
+        // In the above case, the two actions depend on each other without there being a real cyclical dependency.
         Set<String> actionsFoundDuringWalk = new HashSet<>();
+
         Set<String> bindingsInWidgets = new HashSet<>();
 
-        // Create a set of all the bindings found in the widget.
+        // Create a global set of bindings found in ALL the widgets.
         widgetDynamicBindingsMap.values().forEach(bindings -> bindingsInWidgets.addAll(bindings));
 
         Flux<ActionDTO> allActionsByPageIdMono = newActionService.findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
@@ -206,8 +220,14 @@ public class PageLoadActionsUtil {
     }
 
     /**
-     * This function takes the schedule order of action names.
-     * First it trims the order to remove any unwanted actions which shouldnt be run.
+     * This function takes the page load schedule consisting of only action names.
+     *
+     * First it trims the order to remove any unwanted actions which shouldn't be run.
+     * Following actions are filtered out :
+     * 1. Any JS Action since they are not supported to run on page load currently. TODO : Remove this check once the
+     *    client implements execution of JS functions.
+     * 2. Any action which has been marked to not run on page load by the user.
+     *
      * Next it creates a new schedule order consisting of DslActionDTO instead of just action names.
      * @param onPageLoadActionSet
      * @param actionNameToActionMapMono
@@ -334,7 +354,13 @@ public class PageLoadActionsUtil {
      * widgets, global variables provided by appsmith). If any/all the vertices of the edge are unknown, the edge
      * is removed.
      * 2. Add implicit relationship between property paths and their immediate parents. This is to ensure that in the
-     * DAG, all the relationships are considered
+     * DAG, all the relationships are considered.
+     * e.g following are the implicit relationships generated for property path `Dropdown1.options[1].value`:
+     *
+     * Dropdown1.options[1].value -> Dropdown1.options[1]
+     * Dropdown1.options[1] -> Dropdown1.options
+     * Dropdown1.options -> Dropdown1
+     *
      * 3. Now create the DAG using the edges after the two steps.
      * @param actionNames
      * @param widgetNames
@@ -592,7 +618,7 @@ public class PageLoadActionsUtil {
         if (!allBindings.containsAll(action.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(action.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
-            log.error("Invalid dynamic binding pathlist for action id {}. Not taking the following bindings in " +
+            log.error("Invalid dynamic binding path list for action id {}. Not taking the following bindings in " +
                             "consideration for computing on page load actions : {}",
                     action.getId(),
                     invalidBindings);

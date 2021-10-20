@@ -5,7 +5,6 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
@@ -53,7 +52,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.external.helpers.MustacheHelper.extractActionNamesAndAddValidActionBindingsToSet;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -725,7 +723,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         Set<String> widgetNames = new HashSet<>();
-        Set<String> jsSnippetsInDynamicBindings = new HashSet<>();
         Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
@@ -735,24 +732,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     .then(Mono.error(t));
         }
 
-        // Add all the bindings to the global jsSnippets set.
-        widgetDynamicBindingsMap.values()
-                .stream().forEach(bindings -> jsSnippetsInDynamicBindings.addAll(bindings));
-
         layout.setWidgetNames(widgetNames);
 
         if (!escapedWidgetNames.isEmpty()) {
             layout.setMongoEscapedWidgetNames(escapedWidgetNames);
-        }
-
-        // dynamicBindingNames is a set of all words extracted from js snippets which could also contain the names
-        // of the actions 
-        Map<String, DynamicBinding> dynamicBindingNames = new HashMap<>();
-        if (!CollectionUtils.isEmpty(jsSnippetsInDynamicBindings)) {
-            for (String mustacheKey : jsSnippetsInDynamicBindings) {
-                // Extract all the words in the dynamic bindings
-                extractActionNamesAndAddValidActionBindingsToSet(dynamicBindingNames, mustacheKey);
-            }
         }
 
         Set<String> actionNames = new HashSet<>();
