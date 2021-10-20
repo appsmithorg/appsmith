@@ -42,7 +42,6 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const { pathname } = useLocation();
 
-  // TODO [new_urls] verify
   const showBasedOnURL = matchViewerForkPath(pathname);
 
   const forkApplication = () => {

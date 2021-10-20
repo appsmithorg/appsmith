@@ -1,11 +1,19 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Endpoint;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -130,5 +138,52 @@ public class PluginUtils {
             // This is a top level field. Set the value
             formData.put(field, value);
         }
+    }
+
+    public static boolean endpointContainsLocalhost(Endpoint endpoint) {
+        if (endpoint == null || StringUtils.isEmpty(endpoint.getHost())) {
+            return false;
+        }
+
+        List<String> localhostUrlIdentifiers = new ArrayList<>();
+        localhostUrlIdentifiers.add("localhost");
+        localhostUrlIdentifiers.add("host.docker.internal");
+        localhostUrlIdentifiers.add("127.0.0.1");
+
+        String host = endpoint.getHost().toLowerCase();
+        return localhostUrlIdentifiers.stream()
+                .anyMatch(identifier -> host.contains(identifier));
+    }
+
+    /**
+     * Check if the URL supplied by user is pointing to localhost. If so, then return a hint message.
+     *
+     * @param datasourceConfiguration
+     * @return a set containing a hint message.
+     */
+    public static Set<String> getHintMessageForLocalhostUrl(DatasourceConfiguration datasourceConfiguration) {
+        Set<String> message = new HashSet<>();
+        if (datasourceConfiguration != null) {
+            boolean usingLocalhostUrl = false;
+
+            if(!StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
+                usingLocalhostUrl = datasourceConfiguration.getUrl().contains("localhost");
+            }
+            else if(!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
+                usingLocalhostUrl = datasourceConfiguration
+                        .getEndpoints()
+                        .stream()
+                        .anyMatch(endpoint -> endpointContainsLocalhost(endpoint));
+            }
+
+            if(usingLocalhostUrl) {
+                message.add("You may not be able to access your localhost if Appsmith is running inside a docker " +
+                        "container or on the cloud. To enable access to your localhost you may use ngrok to expose " +
+                        "your local endpoint to the internet. Please check out Appsmith's documentation to understand more" +
+                        ".");
+            }
+        }
+
+        return message;
     }
 }

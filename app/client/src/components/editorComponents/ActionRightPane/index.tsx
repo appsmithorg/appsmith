@@ -32,7 +32,6 @@ import {
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -169,7 +168,7 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon keepColors name="downArrow" size={IconSize.XS} />
+        <Icon keepColors name="down-arrow" size={IconSize.XXXL} />
         <span className="label">{label}</span>
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
@@ -218,7 +217,6 @@ function ActionSidebar({
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
   const { pageId } = useParams<ExplorerURLParams>();
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const handleBindData = () => {
@@ -246,7 +244,7 @@ function ActionSidebar({
   }
 
   const navigeteToCanvas = () => {
-    history.push(BUILDER_PAGE_URL({ defaultApplicationId, pageId }));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
   };
 
   return (

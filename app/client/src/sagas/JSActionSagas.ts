@@ -31,7 +31,10 @@ import {
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
 import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
@@ -56,17 +59,13 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { branchName, defaultApplicationId } = action.payload;
+  const { applicationId } = action.payload;
   try {
-    const response = yield JSActionAPI.fetchJSCollections(
-      defaultApplicationId,
-      branchName,
-    );
+    const response = yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data,
@@ -170,9 +169,9 @@ function* copyJSCollectionSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const jsAction: JSCollection = yield select(getJSCollection, id);
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   history.push(
-    JS_COLLECTION_ID_URL(defaultApplicationId, jsAction.pageId, jsAction.id),
+    JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
   );
 }
 
@@ -249,7 +248,7 @@ export function* deleteJSCollectionSaga(
 
     const response = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse = yield validateResponse(response);
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
     if (isValidResponse) {
       Toaster.show({
@@ -264,16 +263,12 @@ export function* deleteJSCollectionSaga(
         if (getIndex) {
           const jsAction = jsActions[getIndex];
           history.push(
-            JS_COLLECTION_ID_URL(
-              defaultApplicationId,
-              pageId,
-              jsAction.config.id,
-            ),
+            JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
           );
         } else {
           history.push(
             BUILDER_PAGE_URL({
-              defaultApplicationId,
+              applicationId,
               pageId,
             }),
           );
@@ -393,11 +388,10 @@ export function* fetchJSCollectionsForPageSaga(
 export function* fetchJSCollectionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { branchName, defaultApplicationId } = action.payload;
+  const { applicationId } = action.payload;
   try {
     const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
-      defaultApplicationId,
-      branchName,
+      applicationId,
     );
     const resultJSCollections = response.data;
     const isValidResponse = yield validateResponse(response);

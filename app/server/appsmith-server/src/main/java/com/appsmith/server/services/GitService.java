@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -7,6 +8,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitPullDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -28,7 +30,7 @@ public interface GitService {
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName);
 
-    Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, String params);
+    Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, String branchName);
 
     Mono<String> pushApplication(String defaultApplicationId, String branchName);
 
@@ -38,13 +40,13 @@ public interface GitService {
 
     Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
 
-    Mono<Object> pullApplication(String defaultApplicationId, String branchName);
+    Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
-    Mono<List<String>> listBranchForApplication(String defaultApplicationId);
+    Mono<List<GitBranchListDTO>> listBranchForApplication(String defaultApplicationId);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
     Mono<Map<String, Object>> getStatus(String defaultApplicationId, String branchName);
 
-    Mono<String> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
+    Mono<GitPullDTO> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
 }

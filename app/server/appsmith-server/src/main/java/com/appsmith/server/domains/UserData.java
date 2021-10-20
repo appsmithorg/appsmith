@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.constants.FieldName.DEFAULT_GIT_PROFILE;
+import static com.appsmith.server.constants.FieldName.DEFAULT;
 
 /**
  * This model is intended to hold any user-specific information that is not directly about the user's authentication.
@@ -53,21 +53,21 @@ public class UserData extends BaseDomain {
     Map<String, GitProfile> gitProfiles;
 
     public GitProfile getDefaultOrAppSpecificGitProfiles(String defaultApplicationId) {
-
+        // Always use DEFAULT_GIT_PROFILE as fallback
         if (CollectionUtils.isNullOrEmpty(this.gitProfiles)) {
             return null;
         } else if (!StringUtils.isEmpty(defaultApplicationId) && this.gitProfiles.containsKey(defaultApplicationId)) {
             return this.getGitProfiles().get(defaultApplicationId);
         }
-        return this.getGitProfiles().get(DEFAULT_GIT_PROFILE);
+        return this.getGitProfiles().get(DEFAULT);
     }
 
     public void setDefaultGitProfile(GitProfile gitProfile){
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
-            this.setGitProfiles(Map.of(DEFAULT_GIT_PROFILE, gitProfile));
+            this.setGitProfiles(Map.of(DEFAULT, gitProfile));
             return;
         }
-        this.gitProfiles.put(DEFAULT_GIT_PROFILE, gitProfile);
+        this.gitProfiles.put(DEFAULT, gitProfile);
     }
 
     public UserData(String userId) {

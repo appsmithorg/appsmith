@@ -403,15 +403,17 @@ const applicationsReducer = createReducer(initialState, {
       },
     };
   },
-  // TEMPORARY IMPLEMENTATION
-  [ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_BRANCH_LOCALLY]: (
     state: ApplicationsReduxState,
+    action: ReduxAction<string>,
   ) => ({
     ...state,
     currentApplication: {
       ...state.currentApplication,
-      SSHKeyPair: "",
-      gitApplicationMetadata: null,
+      gitApplicationMetadata: {
+        ...(state.currentApplication?.gitApplicationMetadata || {}),
+        branchName: action.payload,
+      },
     },
   }),
 });

@@ -23,7 +23,7 @@ const StyledDialog = styled(Dialog)<{
     & .${Classes.DIALOG_HEADER} {
       position: relative;
       padding: 0px;
-      padding-bottom: 40px;
+      padding-bottom: 0;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
       .${Classes.ICON} {

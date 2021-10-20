@@ -25,34 +25,28 @@ export const createActionSuccess = (payload: Action) => {
 };
 
 export type FetchActionsPayload = {
-  defaultApplicationId: string;
-  branchName?: string;
+  applicationId: string;
 };
 
 export const fetchActions = (
-  {
-    branchName,
-    defaultApplicationId,
-  }: { defaultApplicationId: string; branchName?: string },
+  { applicationId }: { applicationId: string },
   postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload: { defaultApplicationId, branchName },
+    payload: { applicationId },
     postEvalActions,
   };
 };
 
 export const fetchActionsForView = ({
-  branchName,
-  defaultApplicationId,
+  applicationId,
 }: {
-  defaultApplicationId: string;
-  branchName?: string;
+  applicationId: string;
 }): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
-    payload: { defaultApplicationId, branchName },
+    payload: { applicationId },
   };
 };
 
@@ -75,13 +69,6 @@ export const fetchActionsForPageSuccess = (
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
     postEvalActions,
-  };
-};
-
-export const setActionTabsInitialIndex = (index: number) => {
-  return {
-    type: ReduxActionTypes.SET_ACTION_TABS_INITIAL_INDEX,
-    payload: index,
   };
 };
 

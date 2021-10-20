@@ -20,8 +20,7 @@ import {
 } from "../constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
-  defaultApplicationId: string;
-  branchName?: string;
+  applicationId: string;
   mode: APP_MODE;
 }
 
@@ -39,19 +38,16 @@ export interface CreatePageActionPayload {
 
 export const fetchPageList = (
   {
-    branchName,
-    defaultApplicationId,
+    applicationId,
   }: {
-    defaultApplicationId: string;
-    branchName?: string;
+    applicationId: string;
   },
   mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
     payload: {
-      defaultApplicationId,
-      branchName,
+      applicationId,
       mode,
     },
   };

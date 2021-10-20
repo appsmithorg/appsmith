@@ -23,8 +23,8 @@ describe("Binding the Table and input Widget", function() {
   it("validation of data displayed in input widgets based on sorting", function() {
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("defaultselectedrow", "0");
-    cy.get(".draggable-header ")
-      .first()
+    cy.get(".draggable-header")
+      .contains("id")
       .click({ force: true });
     cy.wait(1000);
     cy.readTabledataPublish("0", "0").then((tabData) => {
@@ -36,8 +36,8 @@ describe("Binding the Table and input Widget", function() {
         .invoke("attr", "value")
         .should("contain", tabValue);
     });
-    cy.get(".draggable-header ")
-      .first()
+    cy.get(".draggable-header")
+      .contains("id")
       .click({ force: true });
     cy.wait(1000);
     cy.readTabledataPublish("0", "0").then((tabData) => {

@@ -34,6 +34,8 @@ describe("Add functions", () => {
       "resetWidget",
       "action1.run",
       "action1.clear",
+      "setInterval",
+      "clearInterval",
     ]);
 
     // Action run

@@ -20,10 +20,10 @@ import {
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
 import moment from "moment";
+import log from "loglevel";
 
-const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -469,7 +469,7 @@ export function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
     let { email, username } = user || {};
     let name;
-    if (!isAppsmithCloud) {
+    if (!cloudHosting) {
       username = sha256(username || "");
       email = sha256(email || "");
     } else {
@@ -555,27 +555,12 @@ export const trimQueryString = (value = "") => {
   return value.slice(0, index);
 };
 
-/*
- * fetch default vs branch specific id based on flag
- */
-export const getApplicationIdFromPayload = (
-  application: ApplicationPayload,
-  useBranchSpecificId = false,
-) => {
-  if (useBranchSpecificId) {
-    return application.id;
-  }
-  return (
-    application?.gitApplicationMetadata?.defaultApplicationId || application?.id
-  );
-};
-
 /**
  * returns the value in the query string for a key
  */
 export const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
-  return params.get(key) || "";
+  return decodeURIComponent(params.get(key) || "");
 };
 
 /**
@@ -585,12 +570,17 @@ export const getSearchQuery = (search = "", key: string) => {
 export const getQueryParamsObject = () => {
   const search = window.location.search.substring(1);
   if (!search) return {};
-  return JSON.parse(
-    '{"' +
-      decodeURI(search)
-        .replace(/"/g, '\\"')
-        .replace(/&/g, '","')
-        .replace(/=/g, '":"') +
-      '"}',
-  );
+  try {
+    return JSON.parse(
+      '{"' +
+        decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"') +
+        '"}',
+    );
+  } catch (e) {
+    log.error(e, "error parsing search string");
+    return {};
+  }
 };

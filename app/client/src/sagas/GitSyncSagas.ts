@@ -35,10 +35,6 @@ import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "constants/messages";
-import history from "utils/history";
-import { getDefaultPathForBranch } from "constants/routes";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
   fetchGitStatusInit,
   disconnectToGitSuccess,
@@ -46,6 +42,8 @@ import {
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 import { fetchApplication } from "../actions/applicationActions";
 import { APP_MODE } from "entities/App";
+import history from "utils/history";
+import { addBranchParam } from "constants/routes";
 
 function* commitToGitRepoSaga(
   action: ReduxAction<{
@@ -55,11 +53,13 @@ function* commitToGitRepoSaga(
 ) {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
-    const branch = yield select(getCurrentGitBranch);
+    const gitMetaData: GitApplicationMetadata = yield select(
+      getCurrentAppGitMetaData,
+    );
     const response: ApiResponse = yield GitSyncAPI.commit({
       ...action.payload,
+      branch: gitMetaData?.branchName || "",
       applicationId,
-      branch,
     });
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -95,18 +95,10 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       if (action.onSuccessCallback) {
         action.onSuccessCallback(response.data);
       }
-      const currentBranchName = yield select(getCurrentGitBranch);
-      const branchName = response?.data?.gitApplicationMetadata?.branchName;
+      const branch = response?.data?.gitApplicationMetadata?.branchName;
 
-      if (currentBranchName !== branchName) {
-        // TODO add page id here
-        // stay at the current page while connecting for the first time
-        const updatedPath = getDefaultPathForBranch({
-          applicationId,
-          branchName,
-        });
-        history.push(updatedPath);
-      }
+      const updatedPath = addBranchParam(branch);
+      history.replace(updatedPath);
     }
   } catch (error) {
     if (action.onErrorCallback) {
@@ -121,18 +113,15 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
 function* disconnectToGitSaga() {
   try {
-    const defaultApplicationId = yield select(getDefaultApplicationId);
-    const response: ApiResponse = yield GitSyncAPI.disconnect(
-      defaultApplicationId,
-    );
+    const applicationId: string = yield select(getCurrentApplicationId);
+
+    const response: ApiResponse = yield GitSyncAPI.disconnect(applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put(disconnectToGitSuccess(response.data));
       yield put(
-        fetchApplication({
-          payload: { defaultApplicationId, mode: APP_MODE.EDIT },
-        }),
+        fetchApplication({ payload: { applicationId, mode: APP_MODE.EDIT } }),
       );
     }
   } catch (error) {
@@ -183,19 +172,16 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
 
 function* switchBranch(action: ReduxAction<string>) {
   try {
-    const branchName = action.payload;
-    const defaultApplicationId: string = yield select(getDefaultApplicationId);
+    const branch = action.payload;
+    const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield GitSyncAPI.checkoutBranch(
-      defaultApplicationId,
-      branchName,
+      applicationId,
+      branch,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const updatedPath = getDefaultPathForBranch({
-        branchName,
-        applicationId: defaultApplicationId,
-      });
+      const updatedPath = addBranchParam(branch);
       history.push(updatedPath);
     }
   } catch (e) {
@@ -247,12 +233,10 @@ function* createNewBranch(
 ) {
   const { onErrorCallback, onSuccessCallback, payload } = action;
   try {
-    const defaultApplicationId: string = yield select(getDefaultApplicationId);
-    const parentBranch = yield select(getCurrentGitBranch);
+    const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield GitSyncAPI.createNewBranch(
-      defaultApplicationId,
+      applicationId,
       payload,
-      parentBranch,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -300,12 +284,14 @@ function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
 function* pushToGitRepoSaga() {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
+
     const response: ApiResponse = yield GitSyncAPI.push({
       applicationId,
-      branchName: gitMetaData?.branchName || "",
+      branch: gitMetaData?.branchName || "",
     });
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -327,10 +313,11 @@ function* pushToGitRepoSaga() {
 
 function* fetchGitStatusSaga() {
   try {
+    const applicationId: string = yield select(getCurrentApplicationId);
     const gitMetaData = yield select(getCurrentAppGitMetaData);
     const response: ApiResponse = yield GitSyncAPI.getGitStatus({
-      defaultApplicationId: gitMetaData.defaultApplicationId,
-      branchName: gitMetaData?.branchName || "",
+      applicationId,
+      branch: gitMetaData?.branchName || "",
     });
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {

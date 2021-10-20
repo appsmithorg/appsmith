@@ -159,7 +159,7 @@ export function PageTabs(props: Props) {
             pathname ===
             trimQueryString(
               getApplicationViewerPageURL({
-                defaultApplicationId: currentApplicationDetails?.id,
+                applicationId: currentApplicationDetails?.id,
                 pageId: page.pageId,
               }),
             )
@@ -174,7 +174,7 @@ export function PageTabs(props: Props) {
             to={{
               pathname: trimQueryString(
                 getApplicationViewerPageURL({
-                  defaultApplicationId: currentApplicationDetails?.id,
+                  applicationId: currentApplicationDetails?.id,
                   pageId: page.pageId,
                 }),
               ),

@@ -246,7 +246,7 @@ export type GitStatusData = {
 };
 
 export type GitSyncReducerState = {
-  isGitSyncModalOpen?: boolean;
+  isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
   isCommitSuccessful: boolean;
   isPushSuccessful: boolean;
@@ -263,6 +263,10 @@ export type GitSyncReducerState = {
 
   isDisconnectingGit: boolean;
 
+  isDisconnectingGit: boolean;
+
+  branches: string[];
+  fetchingBranches: boolean;
   isFetchingLocalGitConfig?: boolean;
   isFetchingGitStatus: boolean;
   localGitConfig: GitConfig;

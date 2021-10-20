@@ -6,12 +6,14 @@ import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
-import { getCurrentPageId } from "../../../selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "../../../selectors/editorSelectors";
 import {
   BUILDER_PAGE_URL,
   getGenerateTemplateFormURL,
 } from "../../../constants/routes";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const Back = styled.span`
   height: 30px;
@@ -23,13 +25,13 @@ const Back = styled.span`
 
 function BackButton() {
   const history = useHistory();
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
-      ? getGenerateTemplateFormURL(defaultApplicationId, pageId)
-      : BUILDER_PAGE_URL({ defaultApplicationId, pageId });
+      ? getGenerateTemplateFormURL(applicationId, pageId)
+      : BUILDER_PAGE_URL({ applicationId, pageId });
     history.push(redirectURL);
   };
   return (

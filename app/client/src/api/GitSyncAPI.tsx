@@ -5,14 +5,14 @@ import { GitConfig } from "entities/GitSync";
 
 export type CommitPayload = {
   applicationId: string;
-  branch: string;
   commitMessage: string;
   doPush: boolean;
+  branch: string;
 };
 
 export type PushToGitPayload = {
   applicationId: string;
-  branchName: string;
+  branch: string;
 };
 
 export type ConnectToGitPayload = {
@@ -26,8 +26,8 @@ export type ConnectToGitPayload = {
 };
 
 type GitStatusParam = {
-  defaultApplicationId: string;
-  branchName: string;
+  applicationId: string;
+  branch: string;
 };
 
 class GitSyncAPI extends Api {
@@ -40,21 +40,20 @@ class GitSyncAPI extends Api {
     doPush,
   }: CommitPayload): AxiosPromise<ApiResponse> {
     return Api.post(
-      `${GitSyncAPI.baseURL}/commit/${applicationId}`,
+      `${GitSyncAPI.baseURL}/commit/${applicationId}?branchName=${branch}`,
       {
         commitMessage,
         doPush,
       },
-      { branchName: branch },
     );
   }
 
   static push({
     applicationId,
-    branchName,
+    branch,
   }: PushToGitPayload): AxiosPromise<ApiResponse> {
     return Api.post(
-      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/push/${applicationId}?branchName=${branch}`,
     );
   }
 
@@ -62,8 +61,8 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
 
-  static disconnect(defaultApplicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${defaultApplicationId}`);
+  static disconnect(applicationId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
   }
 
   static getGlobalConfig() {
@@ -74,44 +73,33 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/profile/default`, payload);
   }
 
-  static getLocalConfig(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/profile/${applicationId}`);
-  }
-
-  static setLocalConfig(payload: GitConfig, defaultApplicationId: string) {
-    return Api.put(
-      `${GitSyncAPI.baseURL}/profile/${defaultApplicationId}`,
-      payload,
-    );
-  }
-
   static fetchBranches(applicationId: string) {
     return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
   }
 
-  static checkoutBranch(applicationId: string, branchName: string) {
+  static checkoutBranch(applicationId: string, branch: string) {
     return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
-      branchName,
+      branch,
     });
   }
 
-  static createNewBranch(
-    applicationId: string,
-    branchName: string,
-    parentBranch: string,
-  ) {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/create-branch/${applicationId}`,
-      {
-        branchName,
-      },
-      { branchName: parentBranch },
-    );
+  static createNewBranch(applicationId: string, branch: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/create-branch/${applicationId}`, {
+      branch,
+    });
   }
 
-  static getGitStatus({ branchName, defaultApplicationId }: GitStatusParam) {
+  static getLocalConfig(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/profile/${applicationId}`);
+  }
+
+  static setLocalConfig(payload: GitConfig, applicationId: string) {
+    return Api.put(`${GitSyncAPI.baseURL}/profile/${applicationId}`, payload);
+  }
+
+  static getGitStatus({ applicationId, branch }: GitStatusParam) {
     return Api.get(
-      `${GitSyncAPI.baseURL}/status/${defaultApplicationId}?branchName=${branchName}`,
+      `${GitSyncAPI.baseURL}/status/${applicationId}?branchName=${branch}`,
     );
   }
 }

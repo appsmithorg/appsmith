@@ -16,13 +16,24 @@ import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
+import getFeatureFlags from "utils/featureFlags";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  createMessage,
+  DEPLOY_MENU_OPTION,
+  CONNECT_TO_GIT_OPTION,
+  CURRENT_DEPLOY_PREVIEW_OPTION,
+} from "constants/messages";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -36,18 +47,26 @@ export const GetNavigationMenuData = ({
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
+
   const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
 
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const isGitConnected = useSelector(getIsGitConnected);
 
-  const isApplicationIdPresent = !!(
-    defaultApplicationId && defaultApplicationId.length > 0
-  );
+  const openGitConnectionPopup = () =>
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
+  const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
 
   const currentApplication = useSelector(getCurrentApplication);
-
   const hasExportPermission = isPermitted(
     currentApplication?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
@@ -59,11 +78,11 @@ export const GetNavigationMenuData = ({
   }, []);
 
   const deleteApplication = () => {
-    if (defaultApplicationId && defaultApplicationId.length > 0) {
+    if (applicationId && applicationId.length > 0) {
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
         payload: {
-          applicationId: defaultApplicationId,
+          applicationId: applicationId,
         },
       });
       history.push(APPLICATIONS_URL);
@@ -75,6 +94,33 @@ export const GetNavigationMenuData = ({
     }
   };
 
+  const deployOptions = [
+    {
+      text: createMessage(DEPLOY_MENU_OPTION),
+      onClick: deploy,
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+    },
+    {
+      text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
+      onClick: () => openExternalLink(currentDeployLink),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+    },
+  ];
+
+  if (getFeatureFlags().GIT && !isGitConnected) {
+    deployOptions.push({
+      text: createMessage(CONNECT_TO_GIT_OPTION),
+      onClick: () => openGitConnectionPopup(),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: false,
+    });
+  }
+
   return [
     {
       text: "Rename",
@@ -85,7 +131,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(defaultApplicationId, params.pageId));
+        history.push(PAGE_LIST_EDITOR_URL(applicationId, params.pageId));
       },
       type: MenuTypes.MENU,
       isVisible: true,
@@ -115,22 +161,7 @@ export const GetNavigationMenuData = ({
       text: "Deploy",
       type: MenuTypes.PARENT,
       isVisible: true,
-      children: [
-        {
-          text: "Deploy",
-          onClick: deploy,
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-        {
-          text: "Current Deployed Version",
-          onClick: () => openExternalLink(currentDeployLink),
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-      ],
+      children: deployOptions,
     },
     {
       text: "Help",
@@ -171,8 +202,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Export Application",
       onClick: () =>
-        defaultApplicationId &&
-        openExternalLink(getExportAppAPIRoute(defaultApplicationId)),
+        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },

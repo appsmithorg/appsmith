@@ -18,11 +18,15 @@ import Switcher from "components/ads/Switcher";
 import { useDispatch } from "react-redux";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { AppState } from "reducers";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { trimQueryString } from "utils/helpers";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
   background-color: ${Colors.WHITE};
@@ -51,8 +55,11 @@ const initialPanel = { component: ExplorerSidebar };
 
 export const Sidebar = memo(() => {
   const dispatch = useDispatch();
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
   const switches = [
     {
       id: "explorer",
@@ -66,18 +73,21 @@ export const Sidebar = memo(() => {
         !(
           trimQueryString(
             BUILDER_PAGE_URL({
-              defaultApplicationId,
+              applicationId,
               pageId,
             }),
           ) === window.location.pathname
         ) &&
           history.push(
             BUILDER_PAGE_URL({
-              defaultApplicationId,
+              applicationId,
               pageId,
             }),
           );
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
+        if (isFirstTimeUserOnboardingEnabled) {
+          dispatch(toggleInOnboardingWidgetSelection(true));
+        }
       },
     },
   ];

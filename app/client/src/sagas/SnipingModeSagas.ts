@@ -2,7 +2,10 @@ import { takeLeading, all, put, select } from "redux-saga/effects";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import history from "../utils/history";
 import { BUILDER_PAGE_URL } from "../constants/routes";
-import { getCurrentPageId } from "../selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "../selectors/editorSelectors";
 import { ActionData } from "../reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "../selectors/entitiesSelector";
 import {
@@ -19,8 +22,6 @@ import {
 } from "../constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
-
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -146,10 +147,10 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
     history.replace(
       BUILDER_PAGE_URL({
-        defaultApplicationId,
+        applicationId,
         pageId,
       }),
     );

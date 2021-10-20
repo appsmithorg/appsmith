@@ -8,20 +8,17 @@ import { JSCollection } from "entities/JSCollection";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
 
 export type FetchJSCollectionsPayload = {
-  defaultApplicationId: string;
-  branchName?: string;
+  applicationId: string;
 };
 
 export const fetchJSCollections = ({
-  branchName,
-  defaultApplicationId,
+  applicationId,
 }: {
-  defaultApplicationId: string;
-  branchName?: string;
+  applicationId: string;
 }): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_INIT,
-    payload: { defaultApplicationId, branchName },
+    payload: { applicationId },
   };
 };
 
@@ -137,15 +134,13 @@ export const fetchJSCollectionsForPageSuccess = (actions: JSCollection[]) => {
 };
 
 export const fetchJSCollectionsForView = ({
-  branchName,
-  defaultApplicationId,
+  applicationId,
 }: {
-  defaultApplicationId: string;
-  branchName?: string;
+  applicationId: string;
 }): ReduxAction<FetchJSCollectionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
-    payload: { defaultApplicationId, branchName },
+    payload: { applicationId },
   };
 };
 

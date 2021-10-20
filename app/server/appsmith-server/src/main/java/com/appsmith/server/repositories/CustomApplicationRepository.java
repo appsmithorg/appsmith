@@ -31,7 +31,7 @@ public interface CustomApplicationRepository extends AppsmithRepository<Applicat
 
     Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission);
 
-    Mono<Application> getApplicationByGitBranchAndDefaultApp(String defaultApplicationId, String branchName, AclPermission aclPermission);
+    Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission);
 
     Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId);
 

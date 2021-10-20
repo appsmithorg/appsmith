@@ -125,7 +125,7 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<Application> getApplicationByGitBranchAndDefaultApp(String defaultApplicationId, String branchName, AclPermission aclPermission) {
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
 
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
@@ -138,7 +138,8 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     public Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId) {
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
 
-        Criteria applicationIdCriteria = where(gitApplicationMetadata + "." +fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
-        return queryAll(List.of(applicationIdCriteria), AclPermission.MANAGE_APPLICATIONS);
+        Criteria applicationIdCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        Criteria deletionCriteria = where(fieldName(QApplication.application.deleted)).ne(true);
+        return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
     }
 }

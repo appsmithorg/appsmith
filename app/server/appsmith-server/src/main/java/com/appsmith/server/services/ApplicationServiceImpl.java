@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -179,7 +180,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             .onErrorResume(error -> {
                 if (error instanceof DuplicateKeyException) {
                     // Error message : E11000 duplicate key error collection: appsmith.application index:
-                    // organization_application_deleted_gitRepo_gitBranch_compound_index dup key:
+                    // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
                     // { organizationId: "******", name: "AppName", deletedAt: null }
                     if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
                         return Mono.error(
@@ -262,24 +263,28 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     private Mono<? extends Application> generateAndSetPoliciesForPublicView(Application application, Boolean isPublic) {
-        AclPermission applicationPermission = READ_APPLICATIONS;
-        AclPermission datasourcePermission = EXECUTE_DATASOURCES;
 
         User user = new User();
         user.setName(FieldName.ANONYMOUS_USER);
         user.setEmail(FieldName.ANONYMOUS_USER);
         user.setIsAnonymous(true);
 
-        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(applicationPermission), user);
+        Map<String, Policy> applicationPolicyMap = policyUtils.generatePolicyFromPermission(Set.of(READ_APPLICATIONS), user);
         Map<String, Policy> pagePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
+        Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(EXECUTE_DATASOURCES), user);
 
-        Flux<NewPage> updatedPagesFlux = policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+        final Flux<NewPage> updatedPagesFlux = policyUtils
+                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, isPublic);
+        // Use the same policy map as actions for action collections since action collections have the same kind of permissions
+        final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
+                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, isPublic);
 
-        Flux<NewAction> updatedActionsFlux = updatedPagesFlux
+        final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
-                .then(Mono.just(application.getId()))
+                .thenMany(updatedActionCollectionsFlux)
+                .collectList()
+                .then(Mono.justOrEmpty(application.getId()))
                 .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, isPublic));
 
         return updatedActionsFlux
@@ -460,7 +465,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                             new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );
         }
-        return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, aclPermission)
+        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
             );
@@ -485,7 +490,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         if (StringUtils.isEmpty(branchName)) {
             return Mono.just(defaultApplicationId);
         }
-        return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, permission)
+        return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
             )

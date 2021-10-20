@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Title } from "../components/StyledComponents";
 import {
   DEPLOY_YOUR_APPLICATION,
   COMMIT_TO,
   COMMIT,
-  PUSH_CHANGES_IMMEDIATELY_TO,
-  PUSH_CHANGES,
-  PUSH_TO,
+  // PUSH_CHANGES_IMMEDIATELY_TO,
+  // PUSH_CHANGES,
+  // PUSH_TO,
   createMessage,
   COMMIT_AND_PUSH,
   // COMMITTED_SUCCESSFULLY,
@@ -14,16 +14,17 @@ import {
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
-import Checkbox, { LabelContainer } from "components/ads/Checkbox";
+import Button, { Size } from "components/ads/Button";
+import { LabelContainer } from "components/ads/Checkbox";
 
-import { DEFAULT_REMOTE } from "../constants";
+// import { DEFAULT_REMOTE } from "../constants";
 
 import {
   getGitStatus,
+  getIsFetchingGitStatus,
   // getIsCommitSuccessful,
   getIsCommittingInProgress,
-  getIsPushingToGit,
+  // getIsPushingToGit,
   // getIsPushSuccessful,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,11 +32,10 @@ import { commitToRepoInit } from "actions/gitSyncActions";
 
 import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
-import { withTheme } from "styled-components";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { pushToRepoInit } from "actions/gitSyncActions";
+// import { pushToRepoInit } from "actions/gitSyncActions";
 import DeployPreview from "../components/DeployPreview";
 import { fetchGitStatusInit } from "actions/gitSyncActions";
 import { getGitPushError } from "selectors/gitSyncSelectors";
@@ -93,44 +93,45 @@ const ErrorMsgWrapper = styled.div<{ $hide: boolean }>`
   }
 `;
 
-function Deploy({ theme }: { theme: Theme }) {
-  const [pushImmediately, setPushImmediately] = useState(true);
+function Deploy() {
+  // const [pushImmediately, setPushImmediately] = useState(true);
   const [commitMessage, setCommitMessage] = useState("Initial Commit");
   const [showCompleteError, setShowCompleteError] = useState(false);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
-  const isPushingToGit = useSelector(getIsPushingToGit);
+  // const isPushingToGit = useSelector(getIsPushingToGit);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
+  const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const gitPushError = useSelector(getGitPushError);
   const errorMsgRef = useRef<HTMLDivElement>(null);
 
-  const hasChangesToCommit =
-    (gitStatus && gitStatus?.uncommitted?.length > 0) ||
-    (gitStatus && gitStatus?.untracked?.length > 0);
+  const hasChangesToCommit = !gitStatus?.isClean;
+  // (gitStatus && gitStatus?.uncommitted?.length > 0) ||
+  // (gitStatus && gitStatus?.untracked?.length > 0);
 
-  const hasCommitsToPush = gitStatus?.isClean;
+  // const hasCommitsToPush = gitStatus?.isClean;
 
   // const isCommitSuccessful = useSelector(getIsCommitSuccessful);
   // const isPushSuccessful = useSelector(getIsPushSuccessful);
 
-  const currentBranchName = gitMetaData?.branchName;
-
+  const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
 
   const handleCommit = () => {
-    if (currentBranchName) {
+    if (currentBranch) {
       dispatch(
         commitToRepoInit({
           commitMessage,
-          doPush: pushImmediately,
+          doPush: true,
+          // pushImmediately
         }),
       );
     }
   };
 
-  const handlePushToGit = () => {
-    dispatch(pushToRepoInit());
-  };
+  // const handlePushToGit = () => {
+  //   dispatch(pushToRepoInit());
+  // };
 
   let commitButtonText = "";
 
@@ -141,32 +142,32 @@ function Deploy({ theme }: { theme: Theme }) {
   //   commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
   // }
   // } else {
-  if (pushImmediately) {
+  if (true) {
     commitButtonText = createMessage(COMMIT_AND_PUSH);
   } else {
     commitButtonText = createMessage(COMMIT);
   }
   // }
 
-  const pushButtonText =
-    // isPushSuccessful
-    //   ? createMessage(PUSHED_SUCCESSFULLY) :
-    createMessage(PUSH_CHANGES);
+  // const pushButtonText = createMessage(PUSH_CHANGES);
 
   useEffect(() => {
     dispatch(fetchGitStatusInit());
   }, []);
 
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
-  const pushButtonDisabled = !hasCommitsToPush;
-
-  let errorMsgShowMoreEnabled = false;
-  if (errorMsgRef && errorMsgRef.current) {
-    const element = errorMsgRef.current;
-    if (element && element?.offsetHeight && element?.scrollHeight) {
-      errorMsgShowMoreEnabled = element?.offsetHeight < element?.scrollHeight;
+  const commitButtonLoading = isCommittingInProgress || isFetchingGitStatus;
+  // const pushButtonDisabled = !hasCommitsToPush;
+  const errorMsgShowMoreEnabled = useMemo(() => {
+    let showMoreEnabled = false;
+    if (errorMsgRef && errorMsgRef.current) {
+      const element = errorMsgRef.current;
+      if (element && element?.offsetHeight && element?.scrollHeight) {
+        showMoreEnabled = element?.offsetHeight < element?.scrollHeight;
+      }
     }
-  }
+    return showMoreEnabled;
+  }, [errorMsgRef.current, gitPushError]);
 
   return (
     <Container>
@@ -175,30 +176,31 @@ function Deploy({ theme }: { theme: Theme }) {
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
-            <span className="branch">&nbsp;{currentBranchName}</span>
+            <span className="branch">&nbsp;{currentBranch}</span>
           </SectionTitle>
         </Row>
         <Space size={3} />
         <TextInput
           autoFocus
           defaultValue={commitMessage}
-          disabled={hasCommitsToPush}
+          disabled={!hasChangesToCommit}
           fill
           onChange={setCommitMessage}
         />
-        <Space size={3} />
+        {/* <Space size={3} />
         <Checkbox
           disabled={hasCommitsToPush}
           isDefaultChecked
           label={`${createMessage(
             PUSH_CHANGES_IMMEDIATELY_TO,
-          )} ${DEFAULT_REMOTE}/${currentBranchName}`}
+          )} ${DEFAULT_REMOTE}/${currentBranch}`}
           onCheckChange={(checked: boolean) => setPushImmediately(checked)}
-        />
+        /> */}
         <Space size={11} />
         <Button
+          className="t--commit-button"
           disabled={commitButtonDisabled}
-          isLoading={isCommittingInProgress}
+          isLoading={commitButtonLoading}
           onClick={handleCommit}
           size={Size.medium}
           tag="button"
@@ -207,11 +209,10 @@ function Deploy({ theme }: { theme: Theme }) {
         />
       </Section>
       {/** TODO: handle error cases and create new branch for push */}
-      {!pushImmediately ? (
+      {/* {!pushImmediately ? (
         <Section>
           <Space size={10} />
           <Row>
-            {/** TODO: refactor dropdown component to avoid negative margins */}
             <SectionTitle
               style={{
                 marginRight: -1 * theme.spaces[2],
@@ -220,7 +221,7 @@ function Deploy({ theme }: { theme: Theme }) {
               }}
             >
               {createMessage(PUSH_TO)}
-              <span className="branch">&nbsp;{currentBranchName}</span>
+              <span className="branch">&nbsp;{currentBranch}</span>
             </SectionTitle>
           </Row>
           <Space size={3} />
@@ -235,9 +236,9 @@ function Deploy({ theme }: { theme: Theme }) {
             width="max-content"
           />
         </Section>
-      ) : null}
+      ) : null} */}
 
-      {!hasChangesToCommit && !hasCommitsToPush && <DeployPreview />}
+      {!hasChangesToCommit && <DeployPreview />}
       {/* Disabled currently */}
       {gitPushError && false && (
         <ErrorContainer>
@@ -262,4 +263,4 @@ function Deploy({ theme }: { theme: Theme }) {
   );
 }
 
-export default withTheme(Deploy);
+export default Deploy;

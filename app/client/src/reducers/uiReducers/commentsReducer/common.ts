@@ -18,12 +18,14 @@ export const deleteCommentThreadFromState = (
     );
   }
 
+  // Delete the thread from store
   delete state.commentThreadsMap[commentThreadId];
 
   state.commentThreadsMap = { ...state.commentThreadsMap };
 
   state.applicationCommentThreadsByRef[applicationId as string] = {
     ...state.applicationCommentThreadsByRef[applicationId as string],
+    [refId]: [...refComments], // Delete the threadId from the ref to thread mapping
   };
 
   return state;

@@ -45,7 +45,6 @@ import {
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
 import {
-  getApplicationIdFromPayload,
   isEllipsisActive,
   truncateString,
   howMuchTimeBeforeText,
@@ -98,9 +97,21 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 z-index: 1;
 
                 & .t--application-view-link {
-                  border: none;
-                  background-color: #000;
-                  color: #fff;
+                  border: 2px solid ${Colors.BLACK};
+                  background-color: ${Colors.BLACK};
+                  color: ${Colors.WHITE};
+                }
+
+                & .t--application-view-link:hover {
+                  background-color: transparent;
+                  border: 2px solid ${Colors.BLACK};
+                  color: ${Colors.BLACK};
+
+                  svg {
+                    path {
+                      fill: ${Colors.BLACK};
+                    }
+                  }
                 }
 
                 & .t--application-edit-link, & .t--application-view-link {
@@ -111,7 +122,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                       width: 16px;
                       height: 16px;
                       path {
-                        fill: #fff;
+                        fill: ${Colors.WHITE};
                       }
                     }
                   }
@@ -369,7 +380,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
-  const applicationId = getApplicationIdFromPayload(props.application);
+  const applicationId = props.application?.id;
 
   useEffect(() => {
     let colorCode;
@@ -519,11 +530,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   const viewApplicationURL = getApplicationViewerPageURL({
-    defaultApplicationId: applicationId,
+    applicationId: applicationId,
     pageId: props.application.defaultPageId,
   });
   const editApplicationURL = BUILDER_PAGE_URL({
-    defaultApplicationId: applicationId,
+    applicationId: applicationId,
     pageId: props.application.defaultPageId,
   });
 

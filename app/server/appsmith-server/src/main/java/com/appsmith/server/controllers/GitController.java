@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -9,6 +10,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
@@ -143,7 +145,7 @@ public class GitController {
     }
 
     @GetMapping("/branch/{defaultApplicationId}")
-    public Mono<ResponseDTO<List<String>>> branch(@PathVariable String defaultApplicationId) {
+    public Mono<ResponseDTO<List<GitBranchListDTO>>> branch(@PathVariable String defaultApplicationId) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
         return service.listBranchForApplication(defaultApplicationId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
@@ -158,9 +160,9 @@ public class GitController {
     }
 
     @PostMapping("/merge/{defaultApplicationId}")
-    public Mono<ResponseDTO<String>> merge(@PathVariable String defaultApplicationId,
-                                           @RequestParam String sourceBranch,
-                                           @RequestParam String destinationBranch) {
+    public Mono<ResponseDTO<GitPullDTO>> merge(@PathVariable String defaultApplicationId,
+                                               @RequestParam String sourceBranch,
+                                               @RequestParam String destinationBranch) {
         log.debug("Going to get merge branch {} with branch {} for application {}", sourceBranch, destinationBranch, defaultApplicationId);
         return service.mergeBranch(defaultApplicationId, sourceBranch, destinationBranch)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));

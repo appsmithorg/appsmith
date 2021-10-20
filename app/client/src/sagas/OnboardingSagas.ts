@@ -63,7 +63,7 @@ import {
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,
@@ -178,8 +178,14 @@ function* listenForWidgetAdditions() {
               widgetName: "Standup_Table",
               tableData: [],
               columnSizeMap: {
-                avatar: 20,
-                name: 30,
+                avatar: 80,
+                name: 120,
+              },
+              columnTypeMap: {
+                avatar: {
+                  type: "image",
+                  format: "",
+                },
               },
               migrated: false,
               ...getStandupTableDimensions(),
@@ -207,7 +213,7 @@ function* listenForAddInputWidget() {
     yield take();
     const canvasWidgets = yield select(getCanvasWidgets);
     const currentPageId = yield select(getCurrentPageId);
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
     const widgets = yield select(getWidgets);
 
     const inputWidget: any = Object.values(widgets).find(
@@ -218,7 +224,7 @@ function* listenForAddInputWidget() {
 
     trimQueryString(
       BUILDER_PAGE_URL({
-        defaultApplicationId,
+        applicationId,
         pageId: currentPageId,
       }),
     );
@@ -342,18 +348,6 @@ function* listenForSuccessfulBinding() {
           errors.length === 0;
 
         if (bindSuccessful) {
-          yield put(
-            batchUpdateWidgetProperty(selectedWidget.widgetId, {
-              modify: {
-                columnTypeMap: {
-                  avatar: {
-                    type: "image",
-                    format: "",
-                  },
-                },
-              },
-            }),
-          );
           AnalyticsUtil.logEvent("ONBOARDING_SUCCESSFUL_BINDING");
           yield put(setCurrentStep(OnboardingStep.ADD_INPUT_WIDGET));
 
@@ -628,7 +622,7 @@ function* createApplication() {
 
 function* createQuery() {
   const currentPageId = yield select(getCurrentPageId);
-  const defaultApplicationId = yield select(getDefaultApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   const currentSubstep = yield select(getCurrentSubStep);
   const datasources: Datasource[] = yield select(getDatasources);
   const onboardingDatasource = datasources.find((datasource) => {
@@ -669,7 +663,7 @@ function* createQuery() {
     yield put(createActionRequest(payload));
     history.push(
       INTEGRATION_EDITOR_URL(
-        defaultApplicationId,
+        applicationId,
         currentPageId,
         INTEGRATION_TABS.ACTIVE,
       ),
@@ -715,14 +709,14 @@ function* addWidget(widgetConfig: any) {
     });
 
     const pageId = yield select(getCurrentPageId);
-    const defaultApplicationId = yield select(getDefaultApplicationId);
+    const applicationId = yield select(getCurrentApplicationId);
 
-    navigateToCanvas(
-      window.location.pathname,
+    navigateToCanvas({
       pageId,
-      newWidget.newWidgetId,
-      defaultApplicationId,
-    );
+      widgetId: newWidget.newWidgetId,
+      applicationId,
+    });
+
     yield put({
       type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
@@ -830,14 +824,13 @@ function* addOnSubmitHandler() {
       yield delay(1000);
 
       const pageId = yield select(getCurrentPageId);
-      const defaultApplicationId = yield select(getDefaultApplicationId);
+      const applicationId = yield select(getCurrentApplicationId);
 
-      navigateToCanvas(
-        window.location.pathname,
+      navigateToCanvas({
         pageId,
-        inputWidget.widgetId,
-        defaultApplicationId,
-      );
+        widgetId: inputWidget.widgetId,
+        applicationId,
+      });
       yield put({
         type: ReduxActionTypes.SELECT_WIDGET_INIT,
         payload: { widgetId: inputWidget.widgetId },

@@ -13,8 +13,9 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { useSelector } from "react-redux";
-import { getDefaultApplicationId } from "selectors/applicationSelectors";
+
 import { Classes } from "components/ads/common";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -165,7 +166,7 @@ export default function ApiRightPane(props: any) {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
 
-  const defaultApplicationId = useSelector(getDefaultApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   return (
     <DatasourceContainer>
@@ -199,7 +200,7 @@ export default function ApiRightPane(props: any) {
                                 e.stopPropagation();
                                 history.push(
                                   DATA_SOURCES_EDITOR_ID_URL(
-                                    defaultApplicationId,
+                                    applicationId,
                                     props.currentPageId,
                                     d.id,
                                     getQueryParams(),

@@ -62,11 +62,11 @@ const Checkmark = styled.span<{
 
 const StyledCheckbox = styled.label<{
   disabled?: boolean;
-  $fill: boolean;
+  $fill?: boolean;
 }>`
   position: relative;
   display: block;
-  width: ${(props) => (props.$fill ? "100%" : "auto")};
+  width: ${(props) => (props.$fill ? "100%" : "unset")};
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   color: ${(props) => props.theme.colors.checkbox.labelColor};
   padding-left: ${(props) => props.theme.spaces[12] - 2}px;
@@ -115,6 +115,7 @@ const useUpdate = (intitialValue?: boolean) => {
 };
 
 function Checkbox(props: CheckboxProps) {
+  const { fill = true } = props;
   const [checked, setChecked] = useUpdate(props.isDefaultChecked);
 
   const onChangeHandler = (checked: boolean) => {
@@ -124,7 +125,7 @@ function Checkbox(props: CheckboxProps) {
 
   return (
     <StyledCheckbox
-      $fill={props.fill !== undefined ? props.fill : true}
+      $fill={fill}
       data-cy={props.cypressSelector}
       disabled={props.disabled}
     >
