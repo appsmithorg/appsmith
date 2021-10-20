@@ -2,6 +2,7 @@ import { Alignment } from "@blueprintjs/core";
 import { ColumnProperties } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
+import { ButtonVariantTypes } from "components/constants";
 
 export enum ColumnTypes {
   TEXT = "text",
@@ -177,8 +178,8 @@ export const updateColumnStyles = (
   }
   return;
 };
-// Select a default Icon Alignment when an icon is chosen
-export function updateIconAlignment(
+// Select default Icon Alignment and button variant when an icon is chosen
+export function updateIconAlignmentAndButtonVariant(
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: string,
@@ -204,6 +205,16 @@ export function updateIconAlignment(
       propertyValue: Alignment.LEFT,
     });
   }
+
+  // Set button variant to primary by default
+  const buttonVariant = get(props, `${property}.buttonVariant`, "");
+  if (!buttonVariant) {
+    propertiesToUpdate.push({
+      propertyPath: `${property}.buttonVariant`,
+      propertyValue: ButtonVariantTypes.PRIMARY,
+    });
+  }
+
   return propertiesToUpdate;
 }
 

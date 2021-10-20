@@ -15,7 +15,7 @@ import {
   defaultSelectedRowValidation,
   totalRecordsCountValidation,
   updateColumnStyles,
-  updateIconAlignment,
+  updateIconAlignmentAndButtonVariant,
   getBasePropertyPath,
   hideByColumnType,
 } from "./propertyUtils";
@@ -669,7 +669,7 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-                  updateHook: updateIconAlignment,
+                  updateHook: updateIconAlignmentAndButtonVariant,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
