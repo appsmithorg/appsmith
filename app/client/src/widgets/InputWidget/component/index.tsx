@@ -162,7 +162,8 @@ const InputComponentWrapper = styled((props) => (
       margin-right: 5px;
       text-align: right;
       align-self: flex-start;
-      color: ${(props) => props.labelTextColor || "inherit"};
+      color: ${(props) =>
+        props.disabled ? Colors.GREY_8 : props.labelTextColor || "inherit"};
       font-size: ${(props) => props.labelTextSize};
       font-weight: ${(props) =>
         props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};

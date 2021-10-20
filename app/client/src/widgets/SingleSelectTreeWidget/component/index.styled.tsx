@@ -27,12 +27,14 @@ export const StyledLabel = styled(Label)<{
   $labelTextColor?: string;
   $labelTextSize?: TextSize;
   $labelStyle?: string;
+  disabled?: boolean;
 }>`
   overflow-y: hidden;
   text-overflow: ellipsis;
   width: ${(props) => (props.$compactMode ? "auto" : "100%")};
   text-align: left;
-  color: ${(props) => props.$labelTextColor || "inherit"};
+  color: ${(props) =>
+    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
   font-size: ${(props) =>
     props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
   font-weight: ${(props) =>
