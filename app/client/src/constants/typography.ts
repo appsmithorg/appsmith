@@ -35,6 +35,12 @@ export const typography = {
     letterSpacing: 0.8,
     fontWeight: 500,
   },
+  p0: {
+    fontSize: 16,
+    lineHeight: 20,
+    letterSpacing: -0.24,
+    fontWeight: 500,
+  },
   p1: {
     fontSize: 14,
     lineHeight: 19,

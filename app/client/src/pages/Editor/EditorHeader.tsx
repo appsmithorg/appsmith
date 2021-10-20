@@ -61,6 +61,9 @@ import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
+
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
@@ -252,6 +255,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
+  const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
@@ -291,11 +295,13 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+    dispatch(
+      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    );
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const handleClickDeploy = useCallback(() => {
-    if (getFeatureFlags().GIT) {
+    if (getFeatureFlags().GIT && isGitConnected) {
       showGitSyncModal();
     } else {
       handlePublish();
