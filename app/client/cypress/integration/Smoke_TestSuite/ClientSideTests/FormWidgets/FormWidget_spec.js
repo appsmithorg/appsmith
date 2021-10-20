@@ -71,7 +71,7 @@ describe("Form Widget Functionality", function() {
     // Verify the form background color
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(3, 179, 101)");
+      .and("eq", "rgb(128, 128, 128)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
