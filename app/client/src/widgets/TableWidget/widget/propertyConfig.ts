@@ -137,6 +137,8 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  helpText:
+                    "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
                   propertyName: "computedValue",
                   label: "Computed Value",
                   controlType: "COMPUTE_VALUE",
