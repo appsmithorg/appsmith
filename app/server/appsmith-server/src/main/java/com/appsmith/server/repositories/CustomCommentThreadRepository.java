@@ -16,4 +16,5 @@ public interface CustomCommentThreadRepository extends AppsmithRepository<Commen
     Mono<UpdateResult> removeSubscriber(String threadId, String username);
     Mono<CommentThread> findPrivateThread(String applicationId);
     Mono<Long> countUnreadThreads(String applicationId, String userEmail);
+    Mono<UpdateResult> archiveByPageId(String pageId);
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -63,6 +64,18 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
     public Mono<UpdateResult> removeSubscriber(String threadId, String username) {
         Update update = new Update().pull(fieldName(QCommentThread.commentThread.subscribers), username);
         return this.updateById(threadId, update, AclPermission.READ_THREAD);
+    }
+
+    @Override
+    public Mono<UpdateResult> archiveByPageId(String pageId) {
+        // create an update object that'll be applied
+        Update update = new Update();
+        update.set(fieldName(QCommentThread.commentThread.deleted), true);
+        update.set(fieldName(QCommentThread.commentThread.deletedAt), Instant.now());
+
+        // create a criteria for pageId. The permission criteria will be added by updateByCriteria method
+        Criteria criteria = where(fieldName(QCommentThread.commentThread.pageId)).is(pageId);
+        return this.updateByCriteria(criteria, update, AclPermission.MANAGE_THREAD);
     }
 
     @Override

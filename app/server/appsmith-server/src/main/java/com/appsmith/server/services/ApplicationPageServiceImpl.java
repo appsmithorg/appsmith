@@ -26,6 +26,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
@@ -74,6 +75,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
+    private final CommentThreadRepository commentThreadRepository;
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -589,6 +591,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
+                    Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(id);
+
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.
                      */
@@ -598,7 +602,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
                             }).collectList();
 
-                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono)
+                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
                             .map(tuple -> {
                                 PageDTO page1 = tuple.getT1();
                                 List<ActionDTO> actions = tuple.getT2();
