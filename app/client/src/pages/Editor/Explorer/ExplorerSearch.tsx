@@ -48,6 +48,9 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
       color: ${Colors.DOVE_GRAY2};
       &::placeholder {
         color: ${Colors.DOVE_GRAY2};
+        // normalize.css adds a line-height which clips the placeholder text on windows
+        // so setting it back to normal
+        line-height: normal;
       }
       &:focus {
         & ~ div.underline {
