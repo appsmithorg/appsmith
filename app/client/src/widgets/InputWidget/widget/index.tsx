@@ -136,21 +136,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           {
-            propertyName: "isSpellCheck",
-            label: "Spellcheck",
-            helpText:
-              "Defines whether the text input may be checked for spelling errors",
-            controlType: "SWITCH",
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-            hidden: (props: InputWidgetProps) => {
-              return props.inputType !== InputTypes.TEXT;
-            },
-            dependencies: ["inputType"],
-          },
-          {
             propertyName: "allowCurrencyChange",
             label: "Allow currency change",
             helpText: "Search by currency or country",
@@ -368,6 +353,21 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isSpellCheck",
+            label: "Spellcheck",
+            helpText:
+              "Defines whether the text input may be checked for spelling errors",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.TEXT;
+            },
+            dependencies: ["inputType"],
           },
         ],
       },
