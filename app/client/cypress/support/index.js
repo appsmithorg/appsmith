@@ -38,6 +38,13 @@ before(function() {
     window.indexedDB.deleteDatabase("Appsmith");
   });
 
+  cy.visit("/setup/welcome");
+  cy.wait("@getUser");
+  if (cy.url().contains("setup/welcome")) {
+    cy.wait(2000);
+    return;
+  }
+
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
