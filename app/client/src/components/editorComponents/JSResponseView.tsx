@@ -71,6 +71,7 @@ const ResponseTabActionsList = styled.ul`
   scrollbar-width: thin;
   overflow: auto;
   padding-bottom: 40px;
+  margin-top: 0;
 `;
 
 const ResponseTabAction = styled.li`

@@ -130,8 +130,8 @@ function* handleUpdateJSCollection(
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = yield call(parseJSCollection, body, jsAction);
     const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
+    jsActionTobeUpdated.body = body;
     if (parsedBody) {
-      jsActionTobeUpdated.body = body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
       if (data.nameChangedActions.length) {
         for (let i = 0; i < data.nameChangedActions.length; i++) {
@@ -195,15 +195,19 @@ function* handleUpdateJSCollection(
           deletedActions: deletedActions,
         });
       }
+    } else {
+      yield call(updateJSCollection, {
+        jsCollection: jsActionTobeUpdated,
+      });
     }
   }
 }
 
 function* updateJSCollection(data: {
   jsCollection: JSCollection;
-  newActions: Partial<JSAction>[];
-  updatedActions: JSAction[];
-  deletedActions: JSAction[];
+  newActions?: Partial<JSAction>[];
+  updatedActions?: JSAction[];
+  deletedActions?: JSAction[];
 }) {
   let jsAction = {};
   const jsActionId = getJSCollectionIdFromURL();
@@ -216,21 +220,21 @@ function* updateJSCollection(data: {
       const response = yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
-        if (newActions.length) {
+        if (newActions && newActions.length) {
           pushLogsForObjectUpdate(
             newActions,
             jsCollection,
             createMessage(JS_FUNCTION_CREATE_SUCCESS),
           );
         }
-        if (updatedActions.length) {
+        if (updatedActions && updatedActions.length) {
           pushLogsForObjectUpdate(
             updatedActions,
             jsCollection,
             createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
         }
-        if (deletedActions.length) {
+        if (deletedActions && deletedActions.length) {
           pushLogsForObjectUpdate(
             deletedActions,
             jsCollection,
