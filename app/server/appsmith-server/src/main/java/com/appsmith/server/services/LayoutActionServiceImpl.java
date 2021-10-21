@@ -1002,8 +1002,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         newAction.setPublishedAction(new ActionDTO());
         newAction.getPublishedAction().setDatasource(new Datasource());
 
-        newAction.setDefaultResources(action.getDefaultResources());
-
         Mono<NewPage> pageMono = newPageService
                 .findById(action.getPageId(), READ_PAGES)
                 .switchIfEmpty(Mono.error(

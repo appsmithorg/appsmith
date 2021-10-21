@@ -6,6 +6,7 @@ import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -223,21 +224,33 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         ActionDTO action = newAction.getUnpublishedAction();
 
-        if (newAction.getDefaultResources() == null && action.getDefaultResources() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DEFAULT_RESOURCE_IDS));
-        }
-
-        newAction.setDefaultResources(action.getDefaultResources());
-        // Only store defaultApplicationId and defaultActionId for action level resource
-        newAction.getDefaultResources().setDefaultPageId(null);
-        newAction.getDefaultResources().setDefaultActionCollectionId(null);
-
-        // Only store defaultPageId and defaultCollectionId for actionDTO level resource
-        action.getDefaultResources().setDefaultApplicationId(null);
-        newAction.getDefaultResources().setDefaultActionId(null);
 
         // Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
+        // Only store defaultPageId and defaultCollectionId for actionDTO level resource
+        DefaultResources defaultActionResource =  new DefaultResources();
+        BeanCopyUtils.copyNewFieldValuesIntoOldObject(action.getDefaultResources(), defaultActionResource);
+
+        defaultActionResource.setDefaultApplicationId(null);
+        defaultActionResource.setDefaultActionId(null);
+        if(StringUtils.isEmpty(defaultActionResource.getDefaultPageId())) {
+            defaultActionResource.setDefaultPageId(action.getPageId());
+        }
+        if(StringUtils.isEmpty(defaultActionResource.getDefaultActionCollectionId())) {
+            defaultActionResource.setDefaultActionCollectionId(action.getCollectionId());
+        }
+        action.setDefaultResources(defaultActionResource);
+
+        // Only store defaultApplicationId and defaultActionId for NewAction level resource
+        DefaultResources defaults = new DefaultResources();
+        BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction.getDefaultResources(), defaults);
+        defaults.setDefaultPageId(null);
+        defaults.setDefaultActionCollectionId(null);
+        if(StringUtils.isEmpty(defaults.getDefaultApplicationId())) {
+            defaults.setDefaultApplicationId(action.getApplicationId());
+        }
+        newAction.setDefaultResources(defaults);
+
         action.setIsValid(true);
 
         if (action.getName() == null || action.getName().trim().isEmpty()) {
@@ -350,13 +363,16 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                         unpublishedAction.setDatasource(datasource);
                         updatedAction.setUnpublishedAction(unpublishedAction);
                     }
-                    // If the default action is not set then current action will be the default one
-                    if (StringUtils.isEmpty(updatedAction.getDefaultResources().getDefaultActionId())) {
-                        updatedAction.getDefaultResources().setDefaultActionId(updatedAction.getId());
-                    }
                     return updatedAction;
                 })
                 .flatMap(repository::save)
+                .flatMap(savedAction -> {
+                    // If the default action is not set then current action will be the default one
+                    if (StringUtils.isEmpty(savedAction.getDefaultResources().getDefaultActionId())) {
+                        savedAction.getDefaultResources().setDefaultActionId(savedAction.getId());
+                    }
+                    return repository.save(savedAction);
+                })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
@@ -1022,7 +1038,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionViewDTO.setName(action.getPublishedAction().getValidName());
                     actionViewDTO.setPageId(action.getPublishedAction().getPageId());
                     actionViewDTO.setConfirmBeforeExecute(action.getPublishedAction().getConfirmBeforeExecute());
-                    actionViewDTO.setDefaultResources(action.getDefaultResources());
+                    // Update defaultResources
+                    DefaultResources defaults = action.getDefaultResources();
+                    defaults.setDefaultPageId(action.getPublishedAction().getDefaultResources().getDefaultPageId());
+                    defaults.setDefaultActionCollectionId(action.getPublishedAction().getDefaultResources().getDefaultActionCollectionId());
+                    actionViewDTO.setDefaultResources(defaults);
                     if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
                         Set<String> jsonPathKeys;
                         jsonPathKeys = new HashSet<>();

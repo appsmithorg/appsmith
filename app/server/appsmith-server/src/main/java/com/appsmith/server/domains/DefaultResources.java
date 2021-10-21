@@ -18,4 +18,7 @@ public class DefaultResources {
     String defaultActionCollectionId;
 
     String branchName;
+
+    public DefaultResources() {
+    }
 }
