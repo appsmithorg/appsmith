@@ -23,6 +23,7 @@ export default function ButtonComponent({ setting }: SettingComponentProps) {
       <ButtonWrapper>
         <StyledButton
           category={Category.tertiary}
+          data-testid="admin-settings-button"
           onClick={() => {
             if (setting.action) {
               setting.action(dispatch);

@@ -143,7 +143,7 @@ export default function ProfileDropdown(props: TagProps) {
       />
       {user?.isSuperUser && user?.isConfigurable && isAdminSettingsEnabled && (
         <StyledMenuItem
-          className={`t--settings ${BlueprintClasses.POPOVER_DISMISS}`}
+          className={`t--admin-settings-menu ${BlueprintClasses.POPOVER_DISMISS}`}
           icon="setting"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
