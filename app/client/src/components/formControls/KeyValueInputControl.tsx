@@ -6,8 +6,27 @@ import { FormIcons } from "icons/FormIcons";
 import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
+
+//TODO: combine it with KeyValueArrayControl and deprecate KeyValueInputControl
+
+type KeyValueRowProps = {
+  name: string;
+  label: string;
+  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
+  description?: string;
+  actionConfig?: any;
+  extraData?: ControlData[];
+  isRequired?: boolean;
+};
+
+export interface KeyValueInputControlProps extends ControlProps {
+  name: string;
+  label: string;
+  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
+  description?: string;
+  actionConfig?: any;
+}
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -18,7 +37,7 @@ const FormRowWithLabel = styled.div`
   }
 `;
 
-function KeyValueRow(props: Props & WrappedFieldArrayProps) {
+function KeyValueRow(props: KeyValueRowProps & WrappedFieldArrayProps) {
   useEffect(() => {
     // Always maintain 1 row
     if (props.fields.length < 1) {
@@ -35,12 +54,10 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
           {props.fields.map((field: any, index: number) => (
             <FormRowWithLabel key={index} style={{ marginTop: index ? 13 : 0 }}>
               <div style={{ width: "50vh" }}>
-                {/* <FormLabel></FormLabel> */}
                 <TextField name={`${field}.key`} placeholder="Key" />
               </div>
 
               <div style={{ marginLeft: 16 }}>
-                {/* <FormLabel></FormLabel> */}
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div style={{ marginRight: 14, width: "50vh" }}>
                     <TextField name={`${field}.value`} placeholder="Value" />
@@ -74,17 +91,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   );
 }
 
-type Props = {
-  name: string;
-  label: string;
-  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
-  description?: string;
-  actionConfig?: any;
-  extraData?: ControlData[];
-  isRequired?: boolean;
-};
-
-class KeyValueFieldInput extends BaseControl<KeyValueInputProps> {
+class KeyValueFieldInputControl extends BaseControl<KeyValueInputControlProps> {
   render() {
     return (
       <FieldArray
@@ -101,12 +108,4 @@ class KeyValueFieldInput extends BaseControl<KeyValueInputProps> {
   }
 }
 
-export interface KeyValueInputProps extends ControlProps {
-  name: string;
-  label: string;
-  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
-  description?: string;
-  actionConfig?: any;
-}
-
-export default KeyValueFieldInput;
+export default KeyValueFieldInputControl;

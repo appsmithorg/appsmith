@@ -5,7 +5,6 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
-import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 
 const CenteredIcon = styled(Icon)`

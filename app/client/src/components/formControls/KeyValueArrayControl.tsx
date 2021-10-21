@@ -15,6 +15,13 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import HelperTooltip from "components/editorComponents/HelperTooltip";
 import { Colors } from "constants/Colors";
 import TextInput, { TextInputProps } from "components/ads/TextInput";
+export interface KeyValueArrayControlProps extends ControlProps {
+  name: string;
+  label: string;
+  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
+  description?: string;
+  actionConfig?: any;
+}
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -34,7 +41,9 @@ const StyledTextInput = styled(TextInput)`
   }
 `;
 
-function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
+function KeyValueRow(
+  props: KeyValueArrayControlProps & WrappedFieldArrayProps,
+) {
   const { extraData = [] } = props;
   const keyName = getFieldName(extraData[0].configProperty);
   const valueName = getFieldName(extraData[1].configProperty);
@@ -180,7 +189,7 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
   ) : null;
 }
 
-class KeyValueFieldArray extends BaseControl<KeyValueArrayProps> {
+class KeyValueArrayControl extends BaseControl<KeyValueArrayControlProps> {
   render() {
     const name = getFieldName(this.props.configProperty);
 
@@ -242,12 +251,5 @@ function renderTextInput(
     />
   );
 }
-export interface KeyValueArrayProps extends ControlProps {
-  name: string;
-  label: string;
-  rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
-  description?: string;
-  actionConfig?: any;
-}
 
-export default KeyValueFieldArray;
+export default KeyValueArrayControl;

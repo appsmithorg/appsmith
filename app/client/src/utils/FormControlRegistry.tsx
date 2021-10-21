@@ -13,10 +13,10 @@ import SwitchControl, {
   SwitchControlProps,
 } from "components/formControls/SwitchControl";
 import KeyValueArrayControl, {
-  KeyValueArrayProps,
+  KeyValueArrayControlProps,
 } from "components/formControls/KeyValueArrayControl";
 import KeyValueInputControl, {
-  KeyValueInputProps,
+  KeyValueInputControlProps,
 } from "components/formControls/KeyValueInputControl";
 import FilePickerControl, {
   FilePickerControlProps,
@@ -59,7 +59,9 @@ class FormControlRegistry {
       },
     });
     FormControlFactory.registerControlBuilder("KEYVALUE_ARRAY", {
-      buildPropertyControl(controlProps: KeyValueArrayProps): JSX.Element {
+      buildPropertyControl(
+        controlProps: KeyValueArrayControlProps,
+      ): JSX.Element {
         return <KeyValueArrayControl {...controlProps} />;
       },
     });
@@ -69,7 +71,10 @@ class FormControlRegistry {
       },
     });
     FormControlFactory.registerControlBuilder("KEY_VAL_INPUT", {
-      buildPropertyControl(controlProps: KeyValueInputProps): JSX.Element {
+      //TODO: replace it with KeyValueArrayControl
+      buildPropertyControl(
+        controlProps: KeyValueInputControlProps,
+      ): JSX.Element {
         return <KeyValueInputControl {...controlProps} />;
       },
     });
