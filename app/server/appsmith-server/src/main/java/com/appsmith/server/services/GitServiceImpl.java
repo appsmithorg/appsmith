@@ -961,6 +961,7 @@ public class GitServiceImpl implements GitService {
                     GitCommitDTO gitCommitDTO = new GitCommitDTO();
                     gitCommitDTO.setDoPush(true);
                     gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
+                    // TODO delete the branches created as part of conflicts handling
                     return commitApplication(gitCommitDTO, defaultApplicationId, branchName)
                             .flatMap(status -> pushApplication(defaultApplicationId, true));
                 });

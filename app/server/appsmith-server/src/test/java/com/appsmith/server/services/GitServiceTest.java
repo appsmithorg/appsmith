@@ -861,6 +861,40 @@ public class GitServiceTest {
     * getGitApplicationMetadata
     *
     * merge
-    *
-    * getStatus*/
+    * */
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isMergeBranch_ConflictingChanges_Success() throws IOException, GitAPIException {
+        Application application = createApplicationConnectedToGit("isMergeBranch_ConflictingChanges_Success");
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("CONFLICT"));
+
+        Mono<String> applicationMono = gitDataService.isMergeBranch(application.getId(), "branch1","branch2");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(s -> assertThat(s.contains("CONFLICT")));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isMergeBranch_NonConflictingChanges_Success() throws IOException, GitAPIException {
+        Application application = createApplicationConnectedToGit("isMergeBranch_NonConflictingChanges_Success");
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just("SUCCESS"));
+
+        Mono<String> applicationMono = gitDataService.isMergeBranch(application.getId(), "branch1","branch2");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(s -> assertThat(s.contains("SUCCESS")));
+    }
 }
