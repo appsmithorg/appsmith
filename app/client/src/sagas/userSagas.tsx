@@ -65,6 +65,7 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
+import { AxiosPromise, AxiosResponse } from "axios";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -405,11 +406,14 @@ function* removePhoto(action: ReduxAction<{ callback: () => void }>) {
 }
 
 function* updatePhoto(
-  action: ReduxAction<{ file: File; callback: () => void }>,
+  action: ReduxAction<{ file: File; callback: (id: string) => void }>,
 ) {
   try {
-    yield call(UserApi.uploadPhoto, { file: action.payload.file });
-    if (action.payload.callback) action.payload.callback();
+    const response: ApiResponse = yield call(UserApi.uploadPhoto, {
+      file: action.payload.file,
+    });
+    const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+    if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
   }

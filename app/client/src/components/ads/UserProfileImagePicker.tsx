@@ -13,22 +13,10 @@ function FormDisplayImage() {
   const dispatch = useDispatch();
   const dispatchActionRef = useRef<(uppy: Uppy.Uppy) => void | null>();
 
-  const onUploadComplete = (uppy: Uppy.Uppy, file: File) => {
+  const onUploadComplete = (uppy: Uppy.Uppy, photoId: string) => {
     uppy.reset();
-    const getUpdatedPhotoId = async (file: File) => {
-      if (file) {
-        try {
-          const response = await UserApi.uploadPhoto({ file });
-          const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
-          setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
-          dispatch(updatePhotoId({ photoId })); //change global state to the updated photoId
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    };
-
-    getUpdatedPhotoId(file);
+    dispatch(updatePhotoId({ photoId }));
+    setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
   };
 
   const onSelectFile = (file: any) => {
@@ -38,7 +26,10 @@ function FormDisplayImage() {
   useEffect(() => {
     dispatchActionRef.current = (uppy: Uppy.Uppy) => {
       dispatch(
-        updatePhoto({ file, callback: () => onUploadComplete(uppy, file) }),
+        updatePhoto({
+          file,
+          callback: (photoId: string) => onUploadComplete(uppy, photoId),
+        }),
       );
     };
   }, [file]);

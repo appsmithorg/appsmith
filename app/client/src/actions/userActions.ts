@@ -79,7 +79,7 @@ export const updateUsersCommentOnboardingState = (
 
 export const updatePhoto = (payload: {
   file: File;
-  callback?: () => void;
+  callback?: (id: string) => void;
 }) => ({
   type: ReduxActionTypes.UPLOAD_PROFILE_PHOTO,
   payload,
