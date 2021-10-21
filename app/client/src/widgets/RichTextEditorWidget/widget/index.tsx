@@ -87,6 +87,16 @@ class RichTextEditorWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "isToolbarHidden",
+            label: "Hide toolbar",
+            helpText: "Controls the visibility of the toolbar",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
@@ -146,6 +156,7 @@ class RichTextEditorWidget extends BaseWidget<
         <RichTextEditorComponent
           defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
+          isToolbarHidden={!!this.props.isToolbarHidden}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           onValueChange={this.onValueChange}
@@ -170,6 +181,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isRequired?: boolean;
+  isToolbarHidden?: boolean;
 }
 
 export default RichTextEditorWidget;
