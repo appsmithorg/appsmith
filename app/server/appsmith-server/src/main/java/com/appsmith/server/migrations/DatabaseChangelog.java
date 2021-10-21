@@ -3466,28 +3466,31 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "093", id = "migrate-s3-to-uqi", author = "")
-    public void migrateS3PluginToUqi(MongoTemplate mongoTemplate) {
+    public void migrateS3PluginToUqi(MongockTemplate mongockTemplate) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         // First update the UI component for the s3 plugin to UQI
-        Plugin s3Plugin = mongoTemplate.findOne(
+        Plugin s3Plugin = mongockTemplate.findOne(
                 query(where("packageName").is("amazons3-plugin")),
                 Plugin.class
         );
         s3Plugin.setUiComponent("UQIDbEditorForm");
-        mongoTemplate.save(s3Plugin);
+
 
         // Now migrate all the existing actions to the new UQI structure.
 
-        List<NewAction> s3Actions = mongoTemplate.find(
+        List<NewAction> s3Actions = mongockTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
                 NewAction.class
         );
 
+        List<NewAction> actionsToSave = new ArrayList<>();
+
         for (NewAction s3Action : s3Actions) {
             // First migrate the plugin specified templates to form data
             ActionDTO unpublishedAction = s3Action.getUnpublishedAction();
+
             if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
                 // No migrations required
                 continue;
@@ -3501,7 +3504,7 @@ public class DatabaseChangelog {
             unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
 
             ActionDTO publishedAction = s3Action.getPublishedAction();
-            if (publishedAction.getActionConfiguration() != null &&
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
                     publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
                 pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
                 publishedAction.getActionConfiguration().setFormData(
@@ -3512,7 +3515,8 @@ public class DatabaseChangelog {
 
             // Now migrate the dynamic binding pathlist
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-            if (dynamicBindingPathList != null && !dynamicBindingPathList.isEmpty()) {
+
+            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
                 List<Property> newDynamicBindingPathList = new ArrayList<>();
                 for (Property path : dynamicBindingPathList) {
                     String pathKey = path.getKey();
@@ -3566,7 +3570,14 @@ public class DatabaseChangelog {
                 unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
             }
 
-            mongoTemplate.save(s3Action);
+            actionsToSave.add(s3Action);
         }
+
+        // Now save the actions which have been migrated.
+        for (NewAction s3Action : actionsToSave) {
+            mongockTemplate.save(s3Action);
+        }
+        // Now that the actions have completed the migrations, update the plugin to use the new UI form.
+        mongockTemplate.save(s3Plugin);
     }
 }

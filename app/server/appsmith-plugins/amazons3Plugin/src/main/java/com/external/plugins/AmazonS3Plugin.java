@@ -77,15 +77,6 @@ import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODIN
 public class AmazonS3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
-    private static final int ACTION_PROPERTY_INDEX = 0;
-    private static final int BUCKET_NAME_PROPERTY_INDEX = 1;
-    private static final int GET_SIGNED_URL_PROPERTY_INDEX = 2;
-    private static final int URL_EXPIRY_DURATION_PROPERTY_INDEX = 3;
-    private static final int PREFIX_PROPERTY_INDEX = 4;
-    private static final int READ_WITH_BASE64_ENCODING_PROPERTY_INDEX = 5;
-    private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
-    private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
-    private static final int GET_UNSIGNED_URL_PROPERTY_INDEX = 8;
     private static final int AWS_S3_REGION_PROPERTY_INDEX = 0;
     private static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     private static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
