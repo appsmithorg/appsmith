@@ -224,6 +224,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         ActionDTO action = newAction.getUnpublishedAction();
 
+        if (action.getDefaultResources() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getName()));
+        }
 
         // Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
@@ -460,7 +463,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .map(actionDTO -> {
                     DefaultResources defaults = newAction.getDefaultResources();
                     if (defaults == null) {
-                        throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, NewAction.class, newAction.getId());
+                        throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", newAction.getId());
                     }
                     actionDTO.getDefaultResources().setDefaultActionId(defaults.getDefaultActionId());
                     actionDTO.getDefaultResources().setDefaultApplicationId(defaults.getDefaultApplicationId());

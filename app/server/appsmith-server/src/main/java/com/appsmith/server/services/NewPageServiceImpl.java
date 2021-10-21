@@ -110,7 +110,6 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     @Override
     public Mono<PageDTO> findPageById(String pageId, AclPermission aclPermission, Boolean view) {
         return this.findById(pageId, aclPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 

@@ -998,6 +998,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
+        if (action.getDefaultResources() == null) {
+            DefaultResources defaultResources = new DefaultResources();
+            defaultResources.setDefaultPageId(action.getPageId());
+            defaultResources.setDefaultActionCollectionId(action.getCollectionId());
+            action.setDefaultResources(defaultResources);
+        }
+
         NewAction newAction = new NewAction();
         newAction.setPublishedAction(new ActionDTO());
         newAction.getPublishedAction().setDatasource(new Datasource());

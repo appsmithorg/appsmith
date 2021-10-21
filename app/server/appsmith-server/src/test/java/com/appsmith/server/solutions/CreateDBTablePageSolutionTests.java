@@ -8,6 +8,8 @@ import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DatasourceStructure.TableType;
+import com.appsmith.external.models.Property;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -15,6 +17,10 @@ import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
+import com.appsmith.server.dtos.CRUDPageResponseDTO;
+import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
@@ -25,6 +31,7 @@ import com.appsmith.server.services.OrganizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +41,15 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -169,12 +181,12 @@ public class CreateDBTablePageSolutionTests {
         return newActionService.findByPageId(pageId).collectList();
     }
 
-    /*
+
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithInvalidApplicationIdTest() {
         
-        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource, "");
 
         StepVerifier
             .create(resultMono)
@@ -198,7 +210,7 @@ public class CreateDBTablePageSolutionTests {
             .flatMap(datasource -> {
                 resource.setApplicationId(testApp.getId());
                 resource.setDatasourceId(datasource.getId());
-                return solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+                return solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource, null);
             });
 
         StepVerifier
@@ -212,7 +224,7 @@ public class CreateDBTablePageSolutionTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithInvalidRequestBodyTest() {
-        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO());
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO(), "");
 
         StepVerifier
             .create(resultMono)
@@ -226,7 +238,7 @@ public class CreateDBTablePageSolutionTests {
     public void createPageWithNullPageId() {
 
         resource.setApplicationId(testApp.getId());
-        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(null, resource);
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(null, resource, null);
 
         StepVerifier
             .create(resultMono)
@@ -258,7 +270,7 @@ public class CreateDBTablePageSolutionTests {
         newPage.setName("crud-admin-page");
 
         Mono<PageDTO> resultMono = applicationPageService.createPage(newPage)
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, ""))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
@@ -322,7 +334,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource));
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, null));
 
         StepVerifier
             .create(resultMono.zipWhen(crudPageResponseDTO -> getActions(crudPageResponseDTO.getPage().getId())))
@@ -386,7 +398,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, ""))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
@@ -439,7 +451,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<PageDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
-                return solution.createPageFromDBTable(null, resource);
+                return solution.createPageFromDBTable(null, resource, null);
             })
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
@@ -493,7 +505,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<PageDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
-                return solution.createPageFromDBTable(null, resource);
+                return solution.createPageFromDBTable(null, resource, "");
             })
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
@@ -547,7 +559,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<CRUDPageResponseDTO> resultMono = datasourceMono
             .flatMap(datasource1 -> {
                 resource.setDatasourceId(datasource1.getId());
-                return solution.createPageFromDBTable(null, resource);
+                return solution.createPageFromDBTable(null, resource, "");
             });
 
         StepVerifier
@@ -611,7 +623,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, null))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
@@ -672,7 +684,7 @@ public class CreateDBTablePageSolutionTests {
                 resource.setDatasourceId(datasource1.getId());
                 return applicationPageService.createPage(newPage);
             })
-            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource))
+            .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, null))
             .map(crudPageResponseDTO -> crudPageResponseDTO.getPage());
 
         StepVerifier
@@ -744,7 +756,5 @@ public class CreateDBTablePageSolutionTests {
             })
             .verifyComplete();
     }
-
-     */
 
 }
