@@ -1,8 +1,10 @@
 const pages = require("../../../../locators/Pages.json");
 const jsActions = require("../../../../locators/jsActionLocators.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
+const commonLocators = require("../../../../locators/commonlocators.json");
+const commentsLocators = require("../../../../locators/commentsLocators.json");
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import homePage from "../../../../locators/HomePage";
+const { typeIntoDraftEditor } = require("../Comments/utils");
 
 const GITHUB_API_BASE = "https://api.github.com";
 
@@ -10,6 +12,7 @@ let generatedKey;
 
 const testEmail = "test@test.com";
 const testUsername = "testusername";
+const newCommentText1 = "new comment text 1";
 
 describe("Git sync connect to repo", function() {
   // create a new repo
@@ -27,14 +30,12 @@ describe("Git sync connect to repo", function() {
   });
 
   it("connects successfully", function() {
-    // open gitSync modal
+    // // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click();
-
-    //   // todo: check for the initial state: init git connection button, regular deploy button
-    //   // add the test repo and click on submit btn
-    //   // intercept just the connect api
-
+    // //   // todo: check for the initial state: init git connection button, regular deploy button
+    // //   // add the test repo and click on submit btn
+    // //   // intercept just the connect api
     cy.intercept(
       {
         url: "*",
@@ -44,21 +45,16 @@ describe("Git sync connect to repo", function() {
         req.headers["origin"] = "Cypress";
       },
     );
-
     cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
       "generateKey",
     );
-
     cy.get(gitSyncLocators.gitRepoInput).type(
       Cypress.env("GITSYNC_TEST_REPO_URL"),
     );
-
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
-
     cy.wait("@generateKey").then((result) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-
       // fetch the generated key and post to the github repo
       cy.request({
         method: "POST",
@@ -73,7 +69,6 @@ describe("Git sync connect to repo", function() {
           key: generatedKey,
         },
       });
-
       cy.get(gitSyncLocators.gitConfigNameInput).type(
         `{selectall}${testUsername}`,
       );
@@ -83,10 +78,8 @@ describe("Git sync connect to repo", function() {
       // click on the connect button and verify
       cy.get(gitSyncLocators.connectSubmitBtn).click();
       cy.wait("@connectGitRepo");
-
       cy.get(gitSyncLocators.commitButton).click();
       cy.wait("@commit");
-
       cy.get("body").type("{esc}");
     });
   });
@@ -165,6 +158,31 @@ describe("Git sync connect to repo", function() {
     // cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
     // cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
     // cy.get(`.t--entity-name:contains("ChildJsAction1")`).should("not.exist");
+  });
+
+  // test comments across branches
+  it("has branch specific comments", function() {
+    // signing up with a new user for a predictable behaviour,so that even if the comments spec
+    // is run along with this spec the onboarding is always triggered
+    // cy.generateUUID().then((uid) => {
+    //   cy.Signup(`${uid}@appsmith.com`, uid);
+    // });
+    // cy.NavigateToHome();
+    // cy.createOrg();
+    // cy.wait("@createOrg").then((interception) => {
+    //   const newOrganizationName = interception.response.body.data.name;
+    //   cy.CreateAppForOrg(newOrganizationName, newOrganizationName);
+    // });
+    // cy.skipCommentsOnboarding();
+    // wait for comment mode to be set
+    // cy.wait(1000);
+    // cy.get(gitSyncLocators.branchButton).click();
+    // cy.get(gitSyncLocators.branchSearchInput).type("ChildBranch");
+    // cy.get(gitSyncLocators.branchListItem)
+    //   .contains("ChildBranch")
+    //   .click();
+    // cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
+    // cy.get(newCommentText1).should("not.exist");
   });
 
   // rename entities

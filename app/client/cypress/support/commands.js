@@ -25,6 +25,8 @@ const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
+const commonLocators = require("../locators/commonlocators.json");
+const commentsLocators = require("../locators/commentsLocators.json");
 
 let pageidcopy = " ";
 
@@ -2938,4 +2940,12 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
     .type(JSCode);
   cy.wait(1000);
   cy.get(jsEditorLocators.runButton).click();
+});
+
+Cypress.Commands.add("skipCommentsOnboarding", () => {
+  cy.get(commonLocators.canvas);
+  cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
+  cy.contains("SKIP").click({ force: true });
+  cy.get("input[name='displayName']").type("Skip User");
+  cy.get("button[type='submit']").click();
 });
