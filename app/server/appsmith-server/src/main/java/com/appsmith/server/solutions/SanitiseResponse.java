@@ -8,6 +8,8 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -20,6 +22,11 @@ public class SanitiseResponse {
 
     public PageDTO sanitisePageDTO(PageDTO page) {
         DefaultResources defaults = page.getDefaultResources();
+        if (defaults == null
+                || StringUtils.isEmpty(defaults.getDefaultApplicationId())
+                || StringUtils.isEmpty(defaults.getDefaultPageId())) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", page.getId());
+        }
         page.setApplicationId(defaults.getDefaultApplicationId());
         page.setId(defaults.getDefaultPageId());
         return page;
@@ -27,12 +34,23 @@ public class SanitiseResponse {
 
     public ApplicationPagesDTO sanitiseApplicationPagesDTO(ApplicationPagesDTO applicationPages) {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
-        pageNameIdList.forEach(page -> page.setId(page.getGitDefaultPageId()));
+        pageNameIdList.forEach(page -> {
+            if (StringUtils.isEmpty(page.getGitDefaultPageId())) {
+                throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "applicationPage", page.getId());
+            }
+            page.setId(page.getGitDefaultPageId());
+        });
         return applicationPages;
     }
 
     public ActionDTO sanitiseActionDTO(ActionDTO action) {
         DefaultResources defaults = action.getDefaultResources();
+        if (defaults == null
+                || StringUtils.isEmpty(defaults.getDefaultApplicationId())
+                || StringUtils.isEmpty(defaults.getDefaultPageId())
+                || StringUtils.isEmpty(defaults.getDefaultActionId())) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getId());
+        }
         action.setApplicationId(defaults.getDefaultApplicationId());
         action.setPageId(defaults.getDefaultPageId());
         action.setId(defaults.getDefaultActionId());
@@ -50,6 +68,11 @@ public class SanitiseResponse {
 
     public ActionViewDTO sanitiseActionViewDTO(ActionViewDTO viewDTO) {
         DefaultResources defaults = viewDTO.getDefaultResources();
+        if (defaults == null
+                || StringUtils.isEmpty(defaults.getDefaultPageId())
+                || StringUtils.isEmpty(defaults.getDefaultActionId())) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionView", viewDTO.getId());
+        }
         viewDTO.setId(defaults.getDefaultActionId());
         viewDTO.setPageId(defaults.getDefaultPageId());
         return viewDTO;

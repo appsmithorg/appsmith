@@ -109,6 +109,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         Mono<PageDTO> pageMono = applicationMono
                 .map(application -> {
                     generateAndSetPagePolicies(application, page);
+                    if (page.getDefaultResources() == null) {
+                        DefaultResources defaults = new DefaultResources();
+                        defaults.setDefaultApplicationId(page.getApplicationId());
+                        page.setDefaultResources(defaults);
+                    }
                     return page;
                 });
 
@@ -306,6 +311,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     layoutList.add(newPageService.createDefaultLayout());
                     page.setLayouts(layoutList);
 
+                    if (page.getDefaultResources() == null) {
+                        DefaultResources defaults = new DefaultResources();
+                        defaults.setDefaultApplicationId(page.getApplicationId());
+                        page.setDefaultResources(defaults);
+                    }
                     //Set the page policies
                     generateAndSetPagePolicies(savedApplication, page);
 

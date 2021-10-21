@@ -151,6 +151,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         // Save page and update the defaultPageId after insertion
         return super.create(newPage)
                 .flatMap(savedPage -> {
+                    if (defaultResources == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", savedPage.getId()));
+                    }
                     if (StringUtils.isEmpty(defaultResources.getDefaultPageId())) {
                         NewPage updatePage = new NewPage();
                         defaultResources.setDefaultPageId(savedPage.getId());
