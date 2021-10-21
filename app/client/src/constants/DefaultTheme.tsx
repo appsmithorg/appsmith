@@ -63,7 +63,7 @@ export const getTypographyByKey = (
 export const BlueprintControlTransform = css`
   && {
     .${Classes.CONTROL}.${Classes.DISABLED} {
-      color: ${Colors.GREY_7};
+      color: ${Colors.GREY_8};
     }
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
