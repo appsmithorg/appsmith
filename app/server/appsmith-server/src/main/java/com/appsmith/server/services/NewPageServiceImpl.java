@@ -93,6 +93,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
             page.setApplicationId(newPage.getApplicationId());
             page.setUserPermissions(newPage.getUserPermissions());
             page.setPolicies(newPage.getPolicies());
+            page.setDefaultResources(newPage.getDefaultResources());
             return Mono.just(page);
         }
 
@@ -276,6 +277,11 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
 
                         pageNameIdDTO.setId(pageFromDb.getId());
+
+                        if (pageFromDb.getDefaultResources() == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", pageFromDb.getId()));
+                        }
+                        pageNameIdDTO.setGitDefaultPageId(pageFromDb.getDefaultResources().getDefaultPageId());
 
                         if (Boolean.TRUE.equals(view)) {
                             if (pageFromDb.getPublishedPage() == null) {
@@ -469,7 +475,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         if (StringUtils.isEmpty(defaultPageId)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
         } else if (StringUtils.isEmpty(branchName)) {
-            return repository.findById(defaultPageId, permission)
+            return this.findById(defaultPageId, permission)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                     );
@@ -477,7 +483,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.defer(() -> {
                     // No matching existing page found, fetch with defaultPageId
-                    return repository.findById(defaultPageId, permission)
+                    return this.findById(defaultPageId, permission)
                             .switchIfEmpty(Mono.error(
                                     new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                             );

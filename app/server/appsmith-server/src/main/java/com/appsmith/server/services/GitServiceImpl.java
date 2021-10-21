@@ -86,7 +86,8 @@ public class GitServiceImpl implements GitService {
                     application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.save(application);
                 })
-                .flatMap(applicationService::setTransientFields);
+                .flatMap(applicationService::setTransientFields)
+                .map(sanitiseResponse::sanitiseApplication);
     }
 
     @Override
@@ -412,7 +413,7 @@ public class GitServiceImpl implements GitService {
                         return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                     }
                 })
-                .flatMap(application -> {
+                .map(application -> {
                     String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                     String defaultPageId = "";
                     if(!application.getPages().isEmpty()) {
@@ -438,9 +439,9 @@ public class GitServiceImpl implements GitService {
                         );
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                        throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
                     }
-                    return Mono.just(application);
+                    return sanitiseResponse.sanitiseApplication(application);
                 });
     }
 
@@ -542,7 +543,8 @@ public class GitServiceImpl implements GitService {
                     return fileUtils.detachRemote(repoPath)
                             .then(Mono.just(application));
                 })
-                .flatMap(application -> applicationService.save(application));
+                .flatMap(applicationService::save)
+                .map(sanitiseResponse::sanitiseApplication);
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {

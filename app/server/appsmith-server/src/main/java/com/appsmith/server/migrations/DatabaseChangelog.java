@@ -3477,7 +3477,6 @@ public class DatabaseChangelog {
 
             String applicationId = page.getApplicationId();
             final Update defaultResourceUpdates = new Update();
-            defaultResourceUpdates.set(fieldName(QNewPage.newPage.defaultResources), defaults);
 
             // Update gitSyncId
             if (StringUtils.isEmpty(page.getGitSyncId())) {
@@ -3485,6 +3484,7 @@ public class DatabaseChangelog {
                 defaultResourceUpdates.set(fieldName(QNewPage.newPage.gitSyncId), gitSyncId);
             }
 
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.defaultResources), defaults);
             if (!StringUtils.isEmpty(applicationId) ) {
                 mongockTemplate.updateFirst(
                         query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),

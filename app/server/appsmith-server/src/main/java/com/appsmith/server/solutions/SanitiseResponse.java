@@ -27,7 +27,7 @@ public class SanitiseResponse {
 
     public ApplicationPagesDTO sanitiseApplicationPagesDTO(ApplicationPagesDTO applicationPages) {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
-        pageNameIdList.forEach(page -> page.setId(page.getDefaultPageId()));
+        pageNameIdList.forEach(page -> page.setId(page.getGitDefaultPageId()));
         return applicationPages;
     }
 

@@ -25,6 +25,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -53,6 +54,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -440,6 +442,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         return providerUpdateMono
                 .map(actionDTO -> {
+                    DefaultResources defaults = newAction.getDefaultResources();
+                    if (defaults == null) {
+                        throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, NewAction.class, newAction.getId());
+                    }
+                    actionDTO.getDefaultResources().setDefaultActionId(defaults.getDefaultActionId());
+                    actionDTO.getDefaultResources().setDefaultApplicationId(defaults.getDefaultApplicationId());
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
@@ -1155,6 +1163,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
+
+        MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
         // Get branched applicationId and pageId
         Mono<NewPage> branchedPageMono = StringUtils.isEmpty(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
@@ -1167,9 +1177,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMapMany(tuple -> {
                     String applicationId = tuple.getT1().getId();
                     String pageId = tuple.getT2().getId();
-                    params.set(FieldName.PAGE_ID, pageId);
-                    params.set(FieldName.APPLICATION_ID, applicationId);
-                    return getUnpublishedActions(params);
+                    if (!CollectionUtils.isEmpty(params.get(FieldName.PAGE_ID)) && !StringUtils.isEmpty(pageId)) {
+                        updatedParams.set(FieldName.PAGE_ID, pageId);
+                    }
+                    if (!CollectionUtils.isEmpty(params.get(FieldName.APPLICATION_ID)) && !StringUtils.isEmpty(applicationId)) {
+                        updatedParams.set(FieldName.APPLICATION_ID, applicationId);
+                    }
+                    return getUnpublishedActions(updatedParams);
                 })
                 .map(sanitiseResponse::sanitiseActionDTO);
     }
