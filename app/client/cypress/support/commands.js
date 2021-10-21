@@ -3110,6 +3110,7 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     followRedirect: false,
     form: true,
     body: {
+      name: uname,
       email: uname,
       password: pword,
     },
