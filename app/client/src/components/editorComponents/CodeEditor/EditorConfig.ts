@@ -61,7 +61,7 @@ export type Hinter = {
     additionalData?: any,
   ) => boolean;
   update?: (data: DataTree) => void;
-  trigger?: (editor: CodeMirror.Editor) => void;
+  fireOnFocus?: boolean;
 };
 
 export type MarkHelper = (editor: CodeMirror.Editor) => void;
@@ -71,3 +71,44 @@ export enum CodeEditorBorder {
   ALL_SIDE = "all-side",
   BOTTOM_SIDE = "bottom-side",
 }
+
+export enum AUTOCOMPLETE_CLOSE_KEY {
+  Enter,
+  Tab,
+  Escape,
+  Comma,
+  Semicolon,
+  Space,
+  Delete,
+  Backspace,
+  "Ctrl+Backspace",
+  OSLeft,
+  "(",
+  ")",
+}
+
+export const isCloseKey = (key: any): key is AUTOCOMPLETE_CLOSE_KEY => {
+  return AUTOCOMPLETE_CLOSE_KEY.hasOwnProperty(key);
+};
+
+export enum MODIFIER {
+  Control,
+  Meta,
+  Alt,
+  Shift,
+}
+
+export const isModifierKey = (key: any): key is MODIFIER => {
+  return MODIFIER.hasOwnProperty(key);
+};
+
+export enum AUTOCOMPLETE_NAVIGATION {
+  ArrowUp,
+  ArrowDown,
+  ArrowRight,
+  ArrowLeft,
+}
+
+export const isNavKey = (key: any): key is AUTOCOMPLETE_NAVIGATION => {
+  return AUTOCOMPLETE_NAVIGATION.hasOwnProperty(key);
+};
