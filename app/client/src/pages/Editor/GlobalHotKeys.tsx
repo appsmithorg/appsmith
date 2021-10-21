@@ -246,14 +246,14 @@ class GlobalHotKeys extends React.Component<Props> {
                 source: "HOTKEY",
                 combo: "esc",
               });
+              setCommentModeInUrl(false);
             }
-            setCommentModeInUrl(false);
-            this.props.setPreviewMode(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
             this.props.closeTableFilterProppane();
             e.preventDefault();
+            this.props.setPreviewMode(false);
           }}
         />
         <Hotkey

@@ -169,7 +169,7 @@ function WidgetsEditor() {
           {...panZoomHandlers}
         >
           <PageTabs />
-          <Toolbar />
+          {isPreviewMode === false && <Toolbar />}
           <CanvasContainer transform={transform} zoom={zoom} />
           <CrudInfoModal />
           <Debugger />

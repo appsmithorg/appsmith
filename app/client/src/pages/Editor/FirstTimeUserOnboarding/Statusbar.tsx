@@ -36,6 +36,7 @@ import {
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
+
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div<{ active: boolean }>`

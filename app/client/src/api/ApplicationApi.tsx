@@ -28,7 +28,7 @@ export type GitApplicationMetadata = {
   branchName?: string;
   remoteUrl?: string;
   repoName?: string;
-  defaultApplicationId: string;
+  applicationId: string;
 };
 
 export interface ApplicationResponsePayload {

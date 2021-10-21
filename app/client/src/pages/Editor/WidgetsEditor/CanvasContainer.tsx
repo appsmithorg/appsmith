@@ -18,7 +18,6 @@ const Container = styled.section`
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
-  padding-top: 1px;
   &:before {
     position: absolute;
     top: 0;

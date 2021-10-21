@@ -79,5 +79,4 @@ export type AppsmithUIConfigs = {
     apiKey: string;
   };
   appsmithSupportEmail: string;
-  isAppsmithCloud: boolean;
 };
