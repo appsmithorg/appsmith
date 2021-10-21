@@ -12,6 +12,7 @@ const useHorizontalResize = (
   ref: MutableRefObject<HTMLElement | null>,
   onWidthChange?: (newWidth: number) => void,
   onDragEnd?: () => void,
+  inverse = false,
 ) => {
   let MIN_WIDTH = 0;
   let MAX_WIDTH = 0;
@@ -114,7 +115,7 @@ const useHorizontalResize = (
         const width = ref.current.getBoundingClientRect().width;
         const current = event.touches[0].clientX;
         const positionDelta = position - current;
-        const widthDelta = positionDelta;
+        const widthDelta = inverse ? -positionDelta : positionDelta;
         let newWidth = width - widthDelta;
         const newPosition = position - positionDelta;
 

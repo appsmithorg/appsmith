@@ -26,6 +26,7 @@ function MainContainer() {
   const dispatch = useDispatch();
   const location = useLocation();
   const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [propertyPaneWidth, setPropertyPaneWidth] = useState(256);
 
   /**
    * on entity explorer sidebar width change
@@ -44,6 +45,13 @@ function MainContainer() {
   const onLeftSidebarDragEnd = useCallback(() => {
     dispatch(updateExplorerWidth(sidebarWidth));
   }, [sidebarWidth]);
+
+  /**
+   * on property pane sidebar width change
+   */
+  const onRightSidebarWidthChange = useCallback((newWidth) => {
+    setPropertyPaneWidth(newWidth);
+  }, []);
 
   /**
    * checks if property pane should be rendered or not
@@ -81,7 +89,12 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        {shouldRenderPropertyPane && <PropertyPaneSidebar />}
+        {shouldRenderPropertyPane && (
+          <PropertyPaneSidebar
+            onWidthChange={onRightSidebarWidthChange}
+            width={propertyPaneWidth}
+          />
+        )}
       </Container>
       <BottomBar />
     </>

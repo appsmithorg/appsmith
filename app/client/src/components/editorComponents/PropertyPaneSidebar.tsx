@@ -10,10 +10,22 @@ import { getSelectedWidgets } from "selectors/ui";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 
-export const PropertyPaneSidebar = memo(() => {
+type Props = {
+  width: number;
+  onWidthChange: (width: number) => void;
+};
+
+export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const {
+    onMouseDown,
+    onMouseUp,
+    onTouchStart,
+    resizing,
+  } = useHorizontalResize(sidebarRef, props.onWidthChange, undefined, true);
   const isPreviewMode = useSelector(previewModeSelector);
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
   const isAnyWidgetSelected =
@@ -26,16 +38,39 @@ export const PropertyPaneSidebar = memo(() => {
   });
 
   return (
-    <div
-      className={classNames({
-        "js-property-pane-sidebar bg-white flex h-full t--property-pane-sidebar z-3 border-l border-gray-200 transform transition duration-300": true,
-        "relative ": !isPreviewMode,
-        "fixed translate-x-full right-0": isPreviewMode,
-      })}
-      ref={sidebarRef}
-    >
-      <div className="h-full p-0 overflow-y-auto w-72">
-        {isAnyWidgetSelected ? <WidgetPropertyPane /> : <CanvasPropertyPane />}
+    <div className="relative">
+      {/* RESIZOR */}
+      <div
+        className="w-2 -ml-2 group z-4 cursor-ew-resize absolute left-0 top-0 h-full"
+        onMouseDown={onMouseDown}
+        onTouchEnd={onMouseUp}
+        onTouchStart={onTouchStart}
+      >
+        <div
+          className={classNames({
+            "w-1 h-full ml-1 bg-transparent group-hover:bg-blue-500 transform transition": true,
+            "bg-blue-500": resizing,
+          })}
+        />
+      </div>
+      <div
+        className={classNames({
+          "js-property-pane-sidebar bg-white flex h-full t--property-pane-sidebar z-3 border-l border-gray-200 transform transition duration-300": true,
+          "relative ": !isPreviewMode,
+          "fixed translate-x-full right-0": isPreviewMode,
+        })}
+        ref={sidebarRef}
+      >
+        <div
+          className="h-full p-0 overflow-y-auto min-w-72 max-w-96"
+          style={{ width: props.width }}
+        >
+          {isAnyWidgetSelected ? (
+            <WidgetPropertyPane />
+          ) : (
+            <CanvasPropertyPane />
+          )}
+        </div>
       </div>
     </div>
   );

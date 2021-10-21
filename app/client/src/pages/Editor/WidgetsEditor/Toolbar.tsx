@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Dropdown from "components/ads/Dropdown";
@@ -11,12 +11,12 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 
 const ZOOM_OPTIONS = [
   {
-    label: "100%",
+    label: "Zoom to 100%",
     value: "1",
   },
-  { label: "90%", value: "0.90" },
-  { label: "80%", value: "0.80" },
-  { label: "70%", value: "0.70" },
+  { label: "Zoom to 90%", value: "0.90" },
+  { label: "Zoom to 80%", value: "0.80" },
+  { label: "Zoom to 70%", value: "0.70" },
 ];
 
 function Toolbar() {
@@ -41,8 +41,15 @@ function Toolbar() {
     dispatch(setExplorerActive(true));
   }, [setExplorerActive]);
 
+  const selectedOption = useMemo(() => {
+    return (
+      ZOOM_OPTIONS.find((option) => parseFloat(option.value) === zoomLevel) ||
+      ZOOM_OPTIONS[0]
+    );
+  }, [zoomLevel]);
+
   return (
-    <div className="border-b flex items-center justify-between px-2 py-2 z-1">
+    <div className="border-b flex items-center justify-between px-3 py-2 z-1">
       <div>
         {explorerPinned === false && (
           <MenuIcon
@@ -56,8 +63,10 @@ function Toolbar() {
           className="zoom-dropdown "
           containerClassName=""
           dropdownTriggerIcon={
-            <div className="flex py-1 px-2 w-20 items-center justify-between hover:bg-trueGray-100">
-              <span className="text-sm">{(zoomLevel * 100).toFixed(0)}%</span>
+            <div className="flex py-1 px-2  items-center justify-between hover:bg-trueGray-100">
+              <span className="text-sm inline-block px-0.5">
+                {(zoomLevel * 100).toFixed(0)}%
+              </span>
               <DropdownIcon className="w-5 h-5 text-trueGray-400" />
             </div>
           }
@@ -65,7 +74,7 @@ function Toolbar() {
           onSelect={onSelectZoom}
           optionWidth="115px"
           options={ZOOM_OPTIONS}
-          selected={ZOOM_OPTIONS[0]}
+          selected={selectedOption}
           showLabelOnly
           width="auto"
         />
