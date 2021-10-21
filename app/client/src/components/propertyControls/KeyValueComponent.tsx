@@ -63,10 +63,6 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   }
 `;
 
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 5px;
-`;
-
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
   justify-content: flex-start;
@@ -173,7 +169,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
           <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledOptionControlInputGroup
+            <StyledInputGroup
               dataType={"text"}
               onBlur={onInputBlur}
               onChange={(value: string) => {
