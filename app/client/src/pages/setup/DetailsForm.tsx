@@ -1,18 +1,14 @@
 import React from "react";
 import styled from "styled-components";
+import { Field, InjectedFormProps } from "redux-form";
 import {
-  Field,
-  InjectedFormProps,
-  WrappedFieldInputProps,
-  WrappedFieldMetaProps,
-} from "redux-form";
-import {
+  DropdownWrapper,
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
   FormHeaderWrapper,
+  withDropdown,
 } from "./common";
-import Dropdown from "components/ads/Dropdown";
 import StyledFormGroup from "components/ads/formFields/FormGroup";
 import {
   createMessage,
@@ -25,13 +21,11 @@ import {
   WELCOME_FORM_USE_CASE,
   WELCOME_FORM_HEADER,
 } from "constants/messages";
-import FormTextField, {
-  FormTextFieldProps,
-} from "components/ads/formFields/TextField";
+import FormTextField from "components/ads/formFields/TextField";
 import { DetailsFormValues } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import Button, { Category, Size } from "components/ads/Button";
-import { OptionType, roleOptions, useCaseOptions } from "./constants";
+import { roleOptions, useCaseOptions } from "./constants";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -43,53 +37,6 @@ const DetailsFormWrapper = styled.div`
 const StyledFormBodyWrapper = styled(FormBodyWrapper)`
   width: 260px;
 `;
-
-const DROPDOWN_CLASSNAME = "setup-dropdown";
-const DropdownWrapper = styled(StyledFormGroup)`
-  && {
-    margin-bottom: 33px;
-  }
-  && .cs-text {
-    width: 100%;
-  }
-
-  .${DROPDOWN_CLASSNAME} {
-    .ads-dropdown-options-wrapper {
-      padding: 0;
-      border: 1px solid rgba(0, 0, 0, 8%);
-    }
-  }
-`;
-
-function withDropdown(options: OptionType[]) {
-  return function Fieldropdown(
-    ComponentProps: FormTextFieldProps & {
-      meta: Partial<WrappedFieldMetaProps>;
-      input: Partial<WrappedFieldInputProps>;
-    },
-  ) {
-    function onSelect(value?: string) {
-      ComponentProps.input.onChange && ComponentProps.input.onChange(value);
-      ComponentProps.input.onBlur && ComponentProps.input.onBlur(value);
-    }
-
-    const selected =
-      options.find((option) => option.value == ComponentProps.input.value) ||
-      {};
-
-    return (
-      <Dropdown
-        className={DROPDOWN_CLASSNAME}
-        dontUsePortal
-        onSelect={onSelect}
-        options={options}
-        selected={selected}
-        showLabelOnly
-        width="260px"
-      />
-    );
-  };
-}
 
 export default function DetailsForm(
   props: InjectedFormProps & DetailsFormValues & { onNext?: () => void },
@@ -135,7 +82,7 @@ export default function DetailsForm(
         <DropdownWrapper label={createMessage(WELCOME_FORM_ROLE_DROPDOWN)}>
           <Field
             asyncControl
-            component={withDropdown(roleOptions)}
+            component={withDropdown(roleOptions, "260px")}
             name="role"
             placeholder=""
             type="text"
@@ -149,7 +96,7 @@ export default function DetailsForm(
         <DropdownWrapper label={createMessage(WELCOME_FORM_USE_CASE)}>
           <Field
             asyncControl
-            component={withDropdown(useCaseOptions)}
+            component={withDropdown(useCaseOptions, "260px")}
             name="useCase"
             placeholder=""
             type="text"
