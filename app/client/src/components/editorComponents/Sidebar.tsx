@@ -24,6 +24,8 @@ import {
 } from "selectors/editorSelectors";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
+
+import { trimQueryString } from "utils/helpers";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
@@ -69,8 +71,19 @@ export const Sidebar = memo(() => {
       text: "Widgets",
       action: () => {
         !(
-          BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname
-        ) && history.push(BUILDER_PAGE_URL(applicationId, pageId));
+          trimQueryString(
+            BUILDER_PAGE_URL({
+              applicationId,
+              pageId,
+            }),
+          ) === window.location.pathname
+        ) &&
+          history.push(
+            BUILDER_PAGE_URL({
+              applicationId,
+              pageId,
+            }),
+          );
         setTimeout(() => dispatch(forceOpenWidgetPanel(true)), 0);
         if (isFirstTimeUserOnboardingEnabled) {
           dispatch(toggleInOnboardingWidgetSelection(true));

@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -23,6 +24,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
@@ -36,6 +38,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Nullable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +54,8 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICAT
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+
+;
 
 @Service
 @Slf4j
@@ -67,6 +73,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
+    private final GitFileUtils gitFileUtils;
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -300,18 +307,42 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
 
-        Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationRepository.findById(id, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .flatMap(application -> {
-                    log.debug("Archiving pages for applicationId: {}", id);
-                    return Mono.when(
-                            newPageService.archivePagesByApplicationId(id, MANAGE_PAGES),
-                            newActionService.archiveActionsByApplicationId(id, MANAGE_ACTIONS)
-                    ).thenReturn(application);
-                })
-                .flatMap(applicationService::archive);
+                .cache();
 
+        /* As part of git sync feature a new application will be created for each branch with reference to main application
+         * feat/new-branch ----> new application in Appsmith
+         * Get all the applications which refer to the current application and archive those first one by one
+         * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+         * */
         return applicationMono
+                .flatMapMany(application -> {
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                        String repoName = gitApplicationMetadata.getRepoName();
+                        Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                        // Delete git repo from local and delete the applications from DB
+                        return gitFileUtils.detachRemote(repoPath)
+                                .flatMapMany(isCleared -> applicationService
+                                        .findAllApplicationsByGitDefaultApplicationId(gitData.getDefaultApplicationId()));
+                    }
+                    return Flux.fromIterable(List.of(application));
+                })
+                .flatMap(application -> {
+                    log.debug("Archiving application with id: {}", application.getId());
+                    return deleteApplicationByResource(application);
+                })
+                .then(applicationMono);
+    }
+
+    private Mono<Application> deleteApplicationByResource(Application application) {
+        log.debug("Archiving pages for applicationId: {}", application.getId());
+        return Mono.when(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES),
+                newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+                .thenReturn(application)
+                .flatMap(applicationService::archive)
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 

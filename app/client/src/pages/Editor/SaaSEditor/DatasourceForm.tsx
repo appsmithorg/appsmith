@@ -44,7 +44,10 @@ import { Colors } from "constants/Colors";
 import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
 import { ButtonVariantTypes } from "components/constants";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 interface StateProps extends JSONtoFormProps {
+  applicationId: string;
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
@@ -67,7 +70,6 @@ type DatasourceSaaSEditorProps = StateProps &
   DispatchFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    applicationId: string;
     pageId: string;
     pluginPackageName: string;
   }>;
@@ -127,7 +129,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
       AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
-        applicationId: _.get(this.props, "match.params.applicationId"),
+        applicationId: _.get(this.props, "applicationId"),
         datasourceId: _.get(this.props, "match.params.datasourceId"),
         pageId: _.get(this.props, "match.params.pageId"),
       });
@@ -147,12 +149,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      applicationId,
       datasource,
       deleteDatasource,
       isDeleting,
       isSaving,
       match: {
-        params: { applicationId, datasourceId, pageId, pluginPackageName },
+        params: { datasourceId, pageId, pluginPackageName },
       },
     } = this.props;
 
@@ -286,6 +289,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
