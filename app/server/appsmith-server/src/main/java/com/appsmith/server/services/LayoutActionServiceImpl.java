@@ -753,7 +753,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
-                    messages.add(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
                     return Mono.just(new ArrayList<>());
                 });
