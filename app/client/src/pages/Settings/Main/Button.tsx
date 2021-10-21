@@ -29,6 +29,7 @@ export default function ButtonComponent({ setting }: SettingComponentProps) {
       <ButtonWrapper>
         <StyledButton
           category={Category.tertiary}
+          data-testid="admin-settings-button"
           disabled={setting.isDisabled && setting.isDisabled(settings)}
           onClick={() => {
             if (setting.action) {
