@@ -201,4 +201,4 @@ We love our contributors! We're committed to fostering an open and welcoming env
 
 ## License
 
-Appsmith is available under the [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE). Use it wisely.
+<a href="https://github.com/appsmithorg/appsmith/blob/release/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/appsmithorg/appsmith?style=for-the-badge"></a>
