@@ -152,5 +152,8 @@
     "filterCloseBtn":".t--close-filter-btn",
     "header":"#header-root",
     "explorerSwitchId": "#switcher--explorer",
-    "widgetSwitchId":"#switcher--widgets"
+    "widgetSwitchId":"#switcher--widgets",
+    "modalWidget": ".t--modal-widget",
+    "tableFilterPaneToggle": ".t--table-filter-toggle-btn",
+    "tableFilterRow": ".t--table-filter"
 }
