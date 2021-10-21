@@ -20,6 +20,8 @@ export const ExplorerSearch = forwardRef(
     const [focussed, setFocussed] = useState(false);
 
     const onChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
+      e.persist();
+
       if (isFunction(props.onChange)) {
         props.onChange(e);
       }
