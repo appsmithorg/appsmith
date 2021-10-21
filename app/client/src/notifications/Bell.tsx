@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 import NotificationsList from "./NotificationsList";
-import { ReactComponent as BellIcon } from "assets/icons/ads/bell.svg";
+import BellIcon from "remixicon-react/Notification3LineIcon";
 import { Popover2 } from "@blueprintjs/popover2";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
@@ -14,17 +14,21 @@ import {
   setIsNotificationsListVisible,
 } from "actions/notificationActions";
 import styled from "styled-components";
+import { Colors } from "constants/Colors";
 
 import {
   unreadCountSelector,
   isNotificationsListVisibleSelector,
 } from "selectors/notificationSelectors";
+import TooltipComponent from "components/ads/Tooltip";
+import { createMessage, NOTIFICATIONS_TOOLTIP } from "constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Position } from "@blueprintjs/core";
 
 const Container = styled.div`
   position: relative;
   padding: ${(props) => props.theme.spaces[1]}px;
   margin-right: ${(props) => props.theme.spaces[9]}px;
-  top: 3px;
   cursor: pointer;
 `;
 
@@ -89,7 +93,14 @@ function Bell() {
       placement={"bottom-end"}
     >
       <Container>
-        <StyledBellIcon />
+        <TooltipComponent
+          boundary="viewport"
+          content={createMessage(NOTIFICATIONS_TOOLTIP)}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position={Position.BOTTOM}
+        >
+          <StyledBellIcon color={Colors.GRAY} />
+        </TooltipComponent>
         {showIndicator && (
           <BellIndicatorContainer>
             {/** Not using overflow ellipsis here for UI specs */}

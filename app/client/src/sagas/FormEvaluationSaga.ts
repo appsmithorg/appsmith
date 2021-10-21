@@ -75,33 +75,47 @@ function* evaluate(
   return currentEvalState;
 }
 
+// Fetches current evaluation and runs a new one based on the new data
 function* getFormEvaluation(formId: string, actionConfiguration: any): any {
   const currentEvalState: any = yield select(getFormEvaluationState);
 
-  if (currentEvalState.hasOwnProperty(formId)) {
+  // Only change the form evaluation state if the form ID is same or the evaluation state is present
+  if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
     currentEvalState[formId] = yield call(
       evaluate,
       actionConfiguration,
       currentEvalState[formId],
     );
-  }
 
-  yield put({
-    type: ReduxActionTypes.SET_FORM_EVALUATION,
-    payload: currentEvalState,
-  });
+    yield put({
+      type: ReduxActionTypes.SET_FORM_EVALUATION,
+      payload: currentEvalState,
+    });
+  }
 }
 
 // Filter function to assign a function to the Action dispatched
 function* setFormEvaluationSaga(type: string, payload: any) {
   if (type === ReduxActionTypes.INIT_FORM_EVALUATION) {
     finalEvalObj = {};
-    payload.editorConfig.forEach((config: any) => {
-      generateInitialEvalState(config);
-    });
-    payload.settingConfig.forEach((config: any) => {
-      generateInitialEvalState(config);
-    });
+    if (
+      "editorConfig" in payload &&
+      !!payload.editorConfig &&
+      payload.editorConfig.length > 0
+    ) {
+      payload.editorConfig.forEach((config: any) => {
+        generateInitialEvalState(config);
+      });
+    }
+    if (
+      "settingConfig" in payload &&
+      !!payload.settingConfig &&
+      payload.settingConfig.length > 0
+    ) {
+      payload.settingConfig.forEach((config: any) => {
+        generateInitialEvalState(config);
+      });
+    }
     yield put({
       type: ReduxActionTypes.SET_FORM_EVALUATION,
       payload: {

@@ -6,7 +6,7 @@ import React, {
   forwardRef,
   useCallback,
 } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
 import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
@@ -14,11 +14,13 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
-import { Classes } from "@blueprintjs/core";
+import { Classes, Position } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import TooltipComponent from "components/ads/Tooltip";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -28,10 +30,19 @@ export enum EntityClassNames {
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
   WRAPPER = "t--entity",
   PROPERTY = "t--entity-property",
+  TOOLTIP = "t--entity-tooltp",
 }
 
 const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+`;
+
+export const entityTooltipCSS = css`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const EntityItem = styled.div<{
@@ -43,32 +54,39 @@ export const EntityItem = styled.div<{
   alwaysShowRightIcon?: boolean;
 }>`
   position: relative;
-  border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
-  border-bottom: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
-  font-size: 12px;
+  font-size: 14px;
   user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
-  background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
+  background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: ${(props) =>
     props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
   border-radius: 0;
-  color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
+  color: ${Colors.CODE_GRAY};
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.TUNDORA};
+    background: ${Colors.GREY_2};
   }
-  & .${Classes.POPOVER_TARGET}, & .${Classes.POPOVER_WRAPPER} {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+  & .${EntityClassNames.TOOLTIP} {
+    ${entityTooltipCSS}
+    .${Classes.POPOVER_TARGET} {
+      ${entityTooltipCSS}
+    }
   }
+
+  & .${EntityClassNames.COLLAPSE_TOGGLE} {
+    svg {
+      path {
+        fill: ${Colors.GRAY};
+      }
+    }
+  }
+
   &&&& .${EntityClassNames.CONTEXT_MENU} {
     display: block;
     width: 100%;
@@ -95,6 +113,12 @@ export const EntityItem = styled.div<{
   & .${EntityClassNames.RIGHT_ICON}:hover {
     background: ${(props) =>
       props.rightIconClickable ? Colors.SHARK2 : "initial"};
+    svg {
+      path {
+        fill: ${(props) =>
+          props.rightIconClickable ? Colors.WHITE : "initial"};
+      }
+    }
   }
 
   & .${EntityClassNames.RIGHT_ICON} svg {
@@ -108,6 +132,11 @@ export const EntityItem = styled.div<{
 
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
+  color: ${Colors.CHARCOAL};
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 export type EntityProps = {
@@ -132,6 +161,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
+  addButtonHelptext?: string;
 };
 
 export const Entity = forwardRef(
@@ -215,6 +245,7 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           }`}
           highlight={!!props.highlight}
+          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
@@ -245,10 +276,25 @@ export const Entity = forwardRef(
           >
             {props.rightIcon}
           </IconWrapper>
-          <AddButton
-            className={`${EntityClassNames.ADD_BUTTON}`}
-            onClick={props.onCreate}
-          />
+          {props.addButtonHelptext ? (
+            <TooltipComponent
+              boundary="viewport"
+              className={EntityClassNames.TOOLTIP}
+              content={props.addButtonHelptext}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position={Position.RIGHT}
+            >
+              <AddButton
+                className={`${EntityClassNames.ADD_BUTTON}`}
+                onClick={props.onCreate}
+              />
+            </TooltipComponent>
+          ) : (
+            <AddButton
+              className={`${EntityClassNames.ADD_BUTTON}`}
+              onClick={props.onCreate}
+            />
+          )}
           {props.contextMenu}
           <Loader isVisible={isUpdating} />
         </EntityItem>

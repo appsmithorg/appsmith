@@ -14,6 +14,8 @@ import { hexToRgb, ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
 
 export enum RecorderStatusTypes {
+  PERMISSION_PROMPT = "PERMISSION_PROMPT",
+  PERMISSION_DENIED = "PERMISSION_DENIED",
   DEFAULT = "DEFAULT",
   RECORDING = "RECORDING",
   PAUSE = "PAUSE",
@@ -68,6 +70,7 @@ interface RecorderLeftButtonStyleProps {
   dimension: number;
   disabled: boolean;
   iconColor: string;
+  permissionDenied: boolean;
   status: RecorderStatus;
 }
 
@@ -133,12 +136,22 @@ const StyledRecorderLeftButton = styled(Button)<
     }
   }
 
-  ${({ backgroundColor, theme }) => `
+  ${({ backgroundColor, permissionDenied, theme }) => `
     &:enabled {
-      background: ${backgroundColor ? backgroundColor : "none"} !important;
+      background: ${
+        backgroundColor
+          ? permissionDenied
+            ? theme.colors.button.disabled.bgColor
+            : backgroundColor
+          : "none"
+      } !important;
     }
     &:hover:enabled, &:active:enabled {
-      background: ${darkenHover(backgroundColor || "#f6f6f6")} !important;
+      background: ${darkenHover(
+        permissionDenied
+          ? theme.colors.button.disabled.bgColor
+          : backgroundColor || "#f6f6f6",
+      )} !important;
       animation: none;
     }
     &:disabled {
@@ -204,6 +217,7 @@ function RecorderLeft(props: RecorderLeftProps) {
       icon={renderRecorderIcon(denied, status)}
       iconColor={iconColor}
       onClick={handleClick}
+      permissionDenied={denied}
       status={status}
     />
   );
@@ -311,6 +325,7 @@ function RecorderRight(props: RecorderRightProps) {
     onClearRecording,
     onPlayerEnded,
     playerStatus,
+    recorderStatus,
     seconds,
     statusMessage,
   } = props;
@@ -491,17 +506,27 @@ function RecorderRight(props: RecorderRightProps) {
   return (
     <RightContainer>
       <div className="status">{statusMessage}</div>
-      <div className="controls">
-        {isReadyPlayerTimer
-          ? renderTimer(
-              currentDays,
-              currentHours,
-              currentMinutes,
-              currentSeconds,
-            )
-          : renderTimer(days, hours, minutes, seconds)}
-        {renderPlayerControls(props)}
-      </div>
+      {recorderStatus === RecorderStatusTypes.PERMISSION_DENIED ? (
+        <a
+          href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Know more
+        </a>
+      ) : (
+        <div className="controls">
+          {isReadyPlayerTimer
+            ? renderTimer(
+                currentDays,
+                currentHours,
+                currentMinutes,
+                currentSeconds,
+              )
+            : renderTimer(days, hours, minutes, seconds)}
+          {renderPlayerControls(props)}
+        </div>
+      )}
     </RightContainer>
   );
 }
@@ -535,17 +560,14 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     width - WIDGET_PADDING * 2,
   );
   const [recorderStatus, setRecorderStatus] = useState(
-    RecorderStatusTypes.DEFAULT,
+    RecorderStatusTypes.PERMISSION_PROMPT,
   );
   const [playerStatus, setPlayerStatus] = useState(PlayerStatusTypes.DEFAULT);
-  const [statusMessage, setStatusMessage] = useState(
-    "Press to start recording",
-  );
+  const [statusMessage, setStatusMessage] = useState("Press to get permission");
 
   const [isReadyPlayerTimer, setIsReadyPlayerTimer] = useState(false);
   const [isClear, setIsClear] = useState(false);
   const [isPermissionDenied, setIsPermissionDenied] = useState(false);
-
   const {
     clearBlobUrl,
     error,
@@ -555,7 +577,6 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     startRecording,
     stopRecording,
   } = useReactMediaRecorder({
-    askPermissionOnMount: true,
     onStop: (blobUrl: string, blob: Blob) => onRecordingComplete(blobUrl, blob),
   });
 
@@ -573,7 +594,8 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
   useEffect(() => {
     if (error === "permission_denied") {
       setIsPermissionDenied(true);
-      setStatusMessage("Permission not given");
+      setRecorderStatus(RecorderStatusTypes.PERMISSION_DENIED);
+      setStatusMessage("Permission denied");
     }
   }, [error]);
 
@@ -599,8 +621,33 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     reset(0, false);
   };
 
+  const handlePermissionPrompt = () => {
+    navigator.mediaDevices
+      .getUserMedia({ video: false, audio: true })
+      .then(() => {
+        setIsPermissionDenied(false);
+        setRecorderStatus(RecorderStatusTypes.DEFAULT);
+        setStatusMessage("Press to start recording");
+      })
+      .catch((err) => {
+        if (err.code === 0) {
+          setIsPermissionDenied(true);
+          setRecorderStatus(RecorderStatusTypes.PERMISSION_DENIED);
+          setStatusMessage("Permission denied");
+        }
+      });
+  };
+
   const handleRecorderClick = () => {
     switch (recorderStatus) {
+      case RecorderStatusTypes.DEFAULT:
+        startRecording();
+        start();
+        setRecorderStatus(RecorderStatusTypes.RECORDING);
+        setStatusMessage("Recording...");
+        setIsClear(false);
+        onRecordingStart();
+        break;
       case RecorderStatusTypes.RECORDING:
         pauseRecording();
         pause();
@@ -622,12 +669,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
         break;
 
       default:
-        startRecording();
-        start();
-        setRecorderStatus(RecorderStatusTypes.RECORDING);
-        setStatusMessage("Recording...");
-        setIsClear(false);
-        onRecordingStart();
+        handlePermissionPrompt();
         break;
     }
   };

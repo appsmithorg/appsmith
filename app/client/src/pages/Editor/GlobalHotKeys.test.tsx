@@ -578,6 +578,32 @@ describe("Undo/Redo hotkey", () => {
     expect(dispatchSpy).toBeCalledTimes(1);
     expect(dispatchSpy).toBeCalledWith(redoAction());
   });
+  it("should dispatch redo Action on ctrl + y", () => {
+    const dispatchSpy = jest.spyOn(store, "dispatch");
+    const component = render(
+      <MockPageDSL>
+        <GlobalHotKeys>
+          <MockCanvas />
+        </GlobalHotKeys>
+      </MockPageDSL>,
+    );
+
+    dispatchSpy.mockClear();
+
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "Y",
+        89,
+        false,
+        true,
+      );
+    });
+
+    expect(dispatchSpy).toBeCalledTimes(1);
+    expect(dispatchSpy).toBeCalledWith(redoAction());
+  });
 });
 
 describe("cmd + s hotkey", () => {

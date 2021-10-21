@@ -3284,4 +3284,142 @@ public class DatabaseChangelog {
         }
     }
 
+    @ChangeSet(order = "091", id = "migrate-old-app-color-to-new-colors", author = "")
+    public void migrateOldAppColorsToNewColors(MongockTemplate mongoTemplate) {
+        String[] oldColors = {
+                "#FF6786", "#FFAD5E", "#FCD43E", "#B0E968", "#5CE7EF", "#69B5FF", "#9177FF", "#FF76FE",
+                "#61DF48", "#FF597B", "#6698FF", "#F8C356", "#6C4CF1", "#C5CD90", "#6272C8", "#4F70FD",
+                "#6CD0CF", "#A8D76C", "#5EDA82", "#6C9DD0", "#F56AF4", "#5ED3DA", "#B94CF1", "#BC6DB2",
+                "#EA6179", "#FE9F44", "#E9C951", "#ED86A1", "#54A9FB", "#F36380", "#C03C3C"
+        };
+        String[] newColors = {
+                "#FFDEDE", "#FFEFDB", "#F3F1C7", "#F4FFDE", "#C7F3F0", "#D9E7FF", "#E3DEFF", "#F1DEFF",
+                "#C7F3E3", "#F5D1D1", "#ECECEC", "#FBF4ED", "#D6D1F2", "#FFEBFB", "#EAEDFB", "#D6D1F2",
+                "#C7F3F0", "#F4FFDE", "#C7F3E3", "#D9E7FF", "#F1DEFF", "#C7F3F0", "#D6D1F2", "#F1DEFF",
+                "#F5D1D1", "#FFEFDB", "#F3F1C7", "#FFEBFB", "#D9E7FF", "#FFDEDE", "#F5D1D1"
+        };
+
+        for(int i = 0; i < oldColors.length; i++) {
+            String oldColor = oldColors[i], newColor = newColors[i];
+
+            // Migrate old color to new color
+            String colorFieldName = fieldName(QApplication.application.color);
+            mongoTemplate.updateMulti(
+                    query(where(colorFieldName).is(oldColor).and(fieldName(QApplication.application.deleted)).is(false)),
+                    new Update().set(colorFieldName, newColor),
+                    Application.class
+            );
+        }
+    }
+
+    /**
+     * Recently a change was introduced to modify the default value of s3 plugin's permanent URL toggle from NO to YES.
+     * This created an issue with the older actions where the toggle didn't exist and hence no value was saved against its
+     * property. Hence, since the default is now ON and the older actions don't have any value saved, the action
+     * editor shows the toggle value as ON but behaves like the value is OFF. To fix this issue, this method adds
+     * URL toggle as `NO` where no toggle value exists.
+     *
+     * @param mongockTemplate : Mongo client
+     */
+    @ChangeSet(order = "092", id = "update-s3-permanent-url-toggle-default-value", author = "")
+    public void updateS3PermanentUrlToggleDefaultValue(MongockTemplate mongockTemplate) {
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        /**
+         * Query to find all S3 actions such that:
+         *   o action type is LIST
+         *   o permanent url property either does not exist or the property is null or the property's value is null -
+         *   indicating that the property has not been set.
+         */
+        Query missingToggleQuery = query(new Criteria().andOperator(
+                where("pluginId").is(s3Plugin.getId()),
+                where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value").is("LIST"),
+                new Criteria().orOperator(
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").exists(false),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").is(null),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8.value").is(null)
+                )
+        ));
+        List<NewAction> s3ListActionObjectsWithNoToggleValue = mongockTemplate.find(missingToggleQuery, NewAction.class);
+
+        // Replace old pluginSpecifiedTemplates with updated pluginSpecifiedTemplates.
+        s3ListActionObjectsWithNoToggleValue.stream()
+                .forEach(action -> {
+                    List<Property> oldPluginSpecifiedTemplates =
+                            action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    List<Property> newPluginSpecifiedTemplates = setS3ListActionDefaults(oldPluginSpecifiedTemplates);
+                    action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(newPluginSpecifiedTemplates);
+                });
+
+        /**
+         * Save changes only after all the processing is done so that in case any data manipulation fails, no data
+         * write occurs.
+         * Write data back to db only if all data manipulations done above have succeeded.
+         */
+        s3ListActionObjectsWithNoToggleValue.stream()
+                .forEach(action -> mongockTemplate.save(action));
+    }
+
+    /**
+     * This method fills `pluginSpecifiedTemplates` list with default values until the 7th index (i.e size = 8) for
+     * LIST action type. The 8th index is mapped against the toggle for generating a permanent url for s3 resource.
+     * However, a value cannot be set against this toggle if the value for previous keys in the list are missing.
+     * Hence, this method populates the values for all the keys that appear before the permanent url toggle key. To
+     * check out the indexes for each key / property please look into the `editor.json` file for s3 plugin.
+     *
+     * The keys are saved as `null` for properties where editor.json does not define any value for the property keys.
+     *
+     * @param oldPluginSpecifiedTemplates : current config saved in db.
+     * @return newPluginSpecifiedTemplates : new config with default values against missing keys.
+     */
+    private List<Property> setS3ListActionDefaults(List<Property> oldPluginSpecifiedTemplates) {
+        List<Property> newPluginSpecifiedTemplates = new ArrayList<>(oldPluginSpecifiedTemplates);
+        switch(newPluginSpecifiedTemplates.size()) {
+            case 0:
+                /**
+                 * This case is never expected to be hit. However, I am still adding the handling here for the sake
+                 * of completeness and comprehension.
+                 */
+                newPluginSpecifiedTemplates.add(new Property(null, "LIST")); // action type
+            case 1:
+                newPluginSpecifiedTemplates.add(new Property(null, "")); // bucket name
+            case 2:
+                newPluginSpecifiedTemplates.add(new Property(null, "NO")); // generate signed url
+            case 3:
+                newPluginSpecifiedTemplates.add(new Property(null, "5")); // expiry duration
+            case 4:
+                newPluginSpecifiedTemplates.add(new Property(null, "")); // prefix
+            case 5:
+                newPluginSpecifiedTemplates.add(new Property(null, "YES")); // base64 encode file
+            case 6:
+                newPluginSpecifiedTemplates.add(new Property(null, "YES")); // base64 data
+            case 7:
+                newPluginSpecifiedTemplates.add(new Property(null, "5")); // expiry duration for url with upload
+            case 8:
+                newPluginSpecifiedTemplates.add(new Property("generateUnsignedUrl", "NO")); // generate unsigned url
+            default:
+                if (newPluginSpecifiedTemplates.get(8) == null
+                        || newPluginSpecifiedTemplates.get(8).getValue() == null) {
+                    newPluginSpecifiedTemplates.set(8, new Property("generateUnsignedUrl", "NO"));
+                }
+        }
+
+        return newPluginSpecifiedTemplates;
+    }
+
+    @ChangeSet(order = "093", id = "application-git-metadata-index", author = "")
+    public void updateGitApplicationMetadataIndex(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitRepo_gitBranch_compound_index");
+
+        ensureIndexes(mongoTemplate, Application.class,
+                makeIndex("organizationId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
+                        .unique().named("organization_application_deleted_gitApplicationMetadata_compound_index")
+        );
+    }
 }

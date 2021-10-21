@@ -14,7 +14,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Navigate To")
+      .contains("Navigate to")
       .click();
     cy.enterNavigatePageName(testdata.externalPage);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });

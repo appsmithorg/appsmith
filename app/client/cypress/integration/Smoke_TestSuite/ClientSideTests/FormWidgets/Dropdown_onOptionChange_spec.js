@@ -160,7 +160,7 @@ describe("Dropdown Widget Functionality", function() {
       .click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("No Action")
+      .contains("No action")
       .click();
   });
 

@@ -38,7 +38,7 @@ const Wrapper = styled.div`
 `;
 
 function Connected() {
-  const params = useParams<{ datasourceId: string; applicationId: string }>();
+  const params = useParams<{ datasourceId: string }>();
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
@@ -64,7 +64,7 @@ function Connected() {
             width={30}
           />
 
-          <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
+          <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
         </ConnectedText>
 
         <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
