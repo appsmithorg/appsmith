@@ -214,24 +214,6 @@ const editorReducer = createReducer(initialState, {
       isPanning: action.payload,
     };
   },
-  [ReduxActionTypes.UPDATE_CANVAS_PANNING_ENABLED]: (
-    state: EditorReduxState,
-    action: ReduxAction<number>,
-  ) => {
-    return {
-      ...state,
-      panningEnabled: action.payload,
-    };
-  },
-  [ReduxActionTypes.UPDATE_CANVAS_PANNING_ALLOWED]: (
-    state: EditorReduxState,
-    action: ReduxAction<number>,
-  ) => {
-    return {
-      ...state,
-      panningAllowed: action.payload,
-    };
-  },
 });
 
 export interface EditorReduxState {

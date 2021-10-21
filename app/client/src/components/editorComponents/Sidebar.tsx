@@ -21,10 +21,16 @@ import Explorer from "pages/Editor/Explorer";
 import Switcher from "components/ads/Switcher";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import AppComments from "comments/AppComments/AppComments";
-import { getExplorerPinned } from "selectors/explorerSelector";
+import { setExplorerActive, setExplorerPinned } from "actions/explorerActions";
+import {
+  getExplorerActive,
+  getExplorerPinned,
+} from "selectors/explorerSelector";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 
@@ -36,7 +42,7 @@ type Props = {
 
 export const EntityExplorerSidebar = memo((props: Props) => {
   const dispatch = useDispatch();
-  const [active, setActive] = useState(true);
+  const active = useSelector(getExplorerActive);
   const pageId = useSelector(getCurrentPageId);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
@@ -127,8 +133,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     if (!pinned && !active) {
       const current = event.touches[0].clientX;
 
-      if (current <= 10) {
-        setActive(true);
+      if (current <= 5) {
+        dispatch(setExplorerActive(true));
       }
     }
   };
@@ -139,16 +145,24 @@ export const EntityExplorerSidebar = memo((props: Props) => {
    */
   const onMouseLeave = useCallback(() => {
     if (!pinned && !resizer.resizing) {
-      setActive(false);
+      dispatch(setExplorerActive(false));
     }
-  }, [active, setActive, pinned, resizer.resizing]);
+  }, [active, setExplorerActive, pinned, resizer.resizing]);
+
+  /**
+   * toggles the pinned state of sidebar
+   */
+  const onPin = useCallback(() => {
+    dispatch(setExplorerPinned(!pinned));
+  }, [pinned, dispatch, setExplorerPinned]);
 
   return (
     <div
       className={classNames({
-        "js-entity-explorer transform transition flex h-full z-3 duration-300 border-r border-gray-200": true,
+        "js-entity-explorer transform transition-all flex h-full z-3 duration-400 border-r border-gray-200": true,
         "relative ": pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
+        "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
       onMouseLeave={onMouseLeave}
@@ -161,7 +175,26 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
-        <div className="p-2">
+        {/* ENTITY EXPLORE HEADER */}
+        <div className="sticky top-0 flex items-center justify-between py-3 px-3 z-1">
+          <h3 className="text-sm text-gray-800 font-medium uppercase">
+            Navigation
+          </h3>
+          <div className="flex items-center">
+            <button
+              className=" p-2 hover:bg-warmGray-100 group"
+              onClick={onPin}
+              type="button"
+            >
+              {pinned ? (
+                <PinIcon className="w-3 h-3 text-trueGray-400" />
+              ) : (
+                <UnpinIcon className="w-3 h-3 text-trueGray-400" />
+              )}
+            </button>
+          </div>
+        </div>
+        <div className="px-3 mt-1 mb-3">
           <Switcher activeObj={activeSwitch} switches={switches} />
         </div>
         <PanelStack

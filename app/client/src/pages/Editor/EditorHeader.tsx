@@ -332,7 +332,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             >
               <EditorAppName
                 applicationId={applicationId}
-                className="t--application-name editable-application-name"
+                className="t--application-name editable-application-name max-w-48"
                 currentDeployLink={getApplicationViewerPageURL(
                   applicationId,
                   pageId,

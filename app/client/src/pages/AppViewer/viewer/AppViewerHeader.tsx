@@ -101,24 +101,20 @@ const HeaderRow = styled.div<{ justify: string }>`
     ${(props) => props.theme.colors.header.tabsHorizontalSeparator};
 `;
 
-const HeaderSection = styled.div<{ justify: string }>`
+const HeaderSection = styled.div`
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: ${(props) => props.justify};
 `;
 
 const AppsmithLogoImg = styled(AppsmithLogo)`
   max-width: 110px;
   width: 110px;
-  margin-right: 40px;
-  margin-left: 16px;
 `;
 
 const HeaderRightItemContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-right: ${(props) => props.theme.spaces[7]}px;
   height: 100%;
 `;
 
@@ -177,7 +173,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
       <HeaderWrapper hasPages={pages.length > 1}>
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
-          <HeaderSection justify={"flex-start"}>
+          <HeaderSection className="space-x-2 justify-start">
             <div>
               <PrimaryLogoLink to={APPLICATIONS_URL}>
                 <AppsmithLogoImg />
@@ -187,12 +183,12 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
               <ToggleCommentModeButton />
             </div>
           </HeaderSection>
-          <HeaderSection className="current-app-name" justify={"center"}>
+          <HeaderSection className="current-app-name justify-center">
             {currentApplicationDetails && (
               <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
             )}
           </HeaderSection>
-          <HeaderSection justify={"flex-end"}>
+          <HeaderSection className="justify-end">
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent

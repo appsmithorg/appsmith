@@ -19,3 +19,13 @@ export const getExplorerPinned = (state: AppState) => {
 export const getExplorerWidth = (state: AppState) => {
   return state.ui.explorer.width;
 };
+
+/**
+ * returns the active state  of explorer
+ *
+ * @param state
+ * @returns
+ */
+export const getExplorerActive = (state: AppState) => {
+  return state.ui.explorer.active;
+};

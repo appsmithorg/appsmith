@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
-import styled from "styled-components";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -25,13 +24,6 @@ import { AppState } from "reducers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 
-const CardsWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-gap: ${(props) => props.theme.spaces[1]}px;
-  justify-items: stretch;
-  align-items: stretch;
-`;
 function WidgetSidebar(props: IPanelProps) {
   const location = useLocation();
   const cards = useSelector(getWidgetCards);
@@ -104,12 +96,11 @@ function WidgetSidebar(props: IPanelProps) {
           ref={searchInputRef}
         />
       </Boxed>
-
-      <div className="flex-grow px-3 overflow-y-scroll scrollbar-sm text-white">
+      <div className="flex-grow px-3 overflow-y-scroll text-white">
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>
-        <CardsWrapper>
+        <div className="grid grid-cols-3 items-stretch justify-items-stretch gap-3">
           {filteredCards.map((card) => (
             <Boxed
               key={card.key}
@@ -139,7 +130,7 @@ function WidgetSidebar(props: IPanelProps) {
               </OnboardingIndicator>
             </Boxed>
           ))}
-        </CardsWrapper>
+        </div>
       </div>
     </div>
   );

@@ -338,7 +338,7 @@ export default function usePanZoom({
   return {
     container: containerRef.current,
     setContainer,
-    transform: `translate3D(${state.transform.x}px, ${state.transform.y}px, 0) scale(${state.transform.zoom})`,
+    transform: `scale(${state.transform.zoom})`,
     center: state.center,
     pan: { x: state.transform.x, y: state.transform.y },
     zoom: state.transform.zoom,

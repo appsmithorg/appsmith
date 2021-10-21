@@ -32,11 +32,6 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
 
-import classNames from "classnames";
-import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
-import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
-import { getExplorerPinned } from "selectors/explorerSelector";
-import { setExplorerPinned } from "actions/explorerActions";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
@@ -97,7 +92,6 @@ function EntityExplorer(props: IPanelProps) {
   const plugins = useSelector(getPlugins);
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
-  const pinned = useSelector(getExplorerPinned);
   const jsActions = useJSCollections(searchKeyword);
   const datasources = useFilteredDatasources(searchKeyword);
   const isFirstTimeUserOnboardingEnabled = useSelector(
@@ -134,13 +128,6 @@ function EntityExplorer(props: IPanelProps) {
   );
 
   /**
-   * toggles the pinned state of sidebar
-   */
-  const onPin = useCallback(() => {
-    dispatch(setExplorerPinned(!pinned));
-  }, [pinned, dispatch, setExplorerPinned]);
-
-  /**
    * filter entitites
    */
   const search = (e: any) => {
@@ -156,30 +143,7 @@ function EntityExplorer(props: IPanelProps) {
   };
 
   return (
-    <Wrapper
-      className={classNames({
-        "relative space-y-2": true,
-      })}
-      ref={explorerRef}
-    >
-      {/* ENTITY EXPLORE HEADER */}
-      <div className="sticky top-0 flex items-center justify-between hidden px-3 py-3 z-1">
-        <h3 className="text-lg font-semibold text-gray-800 ">Explorer</h3>
-        <div className="flex items-center">
-          <button
-            className="p-1 hover:bg-warmGray-700 group"
-            onClick={onPin}
-            type="button"
-          >
-            {pinned ? (
-              <PinIcon className="w-4 h-4 text-trueGray-400" />
-            ) : (
-              <UnPinIcon className="w-4 h-4 text-trueGray-400" />
-            )}
-          </button>
-        </div>
-      </div>
-
+    <Wrapper className={"relative"} ref={explorerRef}>
       {/* SEARCH */}
       <Search
         clear={clearSearchInput}

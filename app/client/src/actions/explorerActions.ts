@@ -25,6 +25,19 @@ export const setExplorerPinned = (shouldPin: boolean) => {
 };
 
 /**
+ * action that make explorer pin/unpin
+ *
+ * @param shouldPin
+ * @returns
+ */
+export const setExplorerActive = (active: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_EXPLORER_ACTIVE,
+    payload: active,
+  };
+};
+
+/**
  * action that updates explorer width
  *
  * @param shouldPin

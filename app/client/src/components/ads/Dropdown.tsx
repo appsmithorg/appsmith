@@ -116,7 +116,6 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid #80bdff;
     `
       : null};
   .${Classes.TEXT} {

@@ -6,6 +6,7 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     screens: {
+      xs: "320px",
       sm: "640px",
       md: "768px",
       lg: "1024px",
@@ -679,7 +680,11 @@ module.exports = {
       0: "0px",
       1: "1px",
       2: "2px",
+      3: "3px",
       4: "4px",
+      5: "5px",
+      6: "6px",
+      7: "7px",
       8: "8px",
     },
     ringOpacity: (theme) => ({
@@ -691,7 +696,11 @@ module.exports = {
       0: "0px",
       1: "1px",
       2: "2px",
+      3: "3px",
       4: "4px",
+      5: "5px",
+      6: "6px",
+      7: "7px",
       8: "8px",
     },
     rotate: {
@@ -1033,11 +1042,11 @@ module.exports = {
     pointerEvents: ["responsive"],
     position: ["responsive"],
     resize: ["responsive"],
-    ringColor: ["responsive", "dark", "focus-within", "focus"],
-    ringOffsetColor: ["responsive", "dark", "focus-within", "focus"],
-    ringOffsetWidth: ["responsive", "focus-within", "focus"],
-    ringOpacity: ["responsive", "dark", "focus-within", "focus"],
-    ringWidth: ["responsive", "focus-within", "focus"],
+    ringColor: ["responsive", "dark", "focus-within", "focus", "hover"],
+    ringOffsetColor: ["responsive", "dark", "focus-within", "focus", "hover"],
+    ringOffsetWidth: ["responsive", "focus-within", "focus", "hover"],
+    ringOpacity: ["responsive", "dark", "focus-within", "focus", "hover"],
+    ringWidth: ["responsive", "focus-within", "focus", "hover"],
     rotate: ["responsive", "hover", "focus"],
     saturate: ["responsive"],
     scale: ["responsive", "hover", "focus"],

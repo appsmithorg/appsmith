@@ -89,15 +89,17 @@ export function MainContainerLayoutControl() {
 
   // eslint-disable-next-line
   return (
-    <div className="px-3 space-y-1 t--layout-control-wrapper">
+    <div className="px-3 space-y-2 t--layout-control-wrapper">
       <p className="text-sm text-gray-700">Canvas Size</p>
       <div className="flex justify-around">
         {AppsmithLayouts.map((layoutOption: any) => {
           return (
             <button
               className={classNames({
-                "bg-gray-100 hover:bg-gray-200 flex items-center justify-center p-2 flex-grow": true,
-                "bg-gray-200": selectedLayout?.name === layoutOption.name,
+                "border-transparent border hover:bg-gray-200 flex items-center justify-center p-2 flex-grow": true,
+                "bg-white border-gray-300":
+                  selectedLayout?.name === layoutOption.name,
+                "bg-gray-100": selectedLayout?.name !== layoutOption.name,
               })}
               key={layoutOption.name}
               onClick={() => updateAppLayout(layoutOption)}

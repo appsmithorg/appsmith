@@ -14,12 +14,14 @@ export interface ExplorerReduxState {
   };
   pinned: boolean;
   width: number | undefined;
+  active: boolean;
 }
 
 const initialState: ExplorerReduxState = {
   pinned: true,
   entity: {},
   width: undefined,
+  active: true,
 };
 
 const setUpdatingEntity = (
@@ -141,6 +143,15 @@ const explorerReducer = createReducer(initialState, {
     action: ReduxAction<{ width: number | undefined }>,
   ) => {
     return { ...state, width: action.payload.width };
+  },
+  [ReduxActionTypes.SET_EXPLORER_ACTIVE]: (
+    state: ExplorerReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      active: action.payload,
+    };
   },
 });
 
