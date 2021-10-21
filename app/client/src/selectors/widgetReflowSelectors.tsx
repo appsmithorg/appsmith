@@ -6,7 +6,7 @@ const getReflow = (state: AppState): widgetReflowState => state.ui.widgetReflow;
 
 export const getReflowSelector = (widgetId: string) => {
   return createSelector(getReflow, (reflowState: widgetReflowState) => {
-    if (reflowState.reflow?.reflowingWidgets) {
+    if (reflowState?.reflow?.reflowingWidgets) {
       return reflowState.reflow.reflowingWidgets[widgetId];
     }
     return;

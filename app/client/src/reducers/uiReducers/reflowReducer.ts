@@ -61,7 +61,11 @@ export type reflowWidgets = {
     dimensionXBeforeCollision?: number;
     dimensionYBeforeCollision?: number;
     maxOccupiedSpace?: number;
+    whiteSpaces?: number;
     X?: number;
     Y?: number;
+    width?: number;
+    height?: number;
+    depth?: number;
   };
 };

@@ -7,6 +7,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { WidgetExtendedPosition } from "components/editorComponents/ResizableUtils";
 import { useReflow } from "./useReflow";
+import { getReflowSelector } from "selectors/widgetReflowSelectors";
+import { useSelector } from "react-redux";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
@@ -133,6 +135,15 @@ export function Resizable(props: ResizableProps) {
     true,
     sentryPerfTags,
   );
+  const reflowSelector = getReflowSelector(props.widgetId);
+
+  const equal = (reflowA: any, reflowB: any) => {
+    if (reflowA || reflowB) return false;
+
+    return true;
+  };
+
+  const reflowedPosition = useSelector(reflowSelector, equal);
 
   const widgetOccupiedSpace = {
     top: props.widgetPosition.topRow,
@@ -386,7 +397,7 @@ export function Resizable(props: ResizableProps) {
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
-        width: newDimensions.width,
+        width: reflowedPosition?.width || newDimensions.width,
         height: newDimensions.height,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}

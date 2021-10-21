@@ -67,6 +67,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
 
   const reflowX = reflowedPosition?.X || 0;
   const reflowY = reflowedPosition?.Y || 0;
+  const reflowWidth = reflowedPosition?.width;
 
   const containerStyle: CSSProperties = useMemo(() => {
     const styles: CSSProperties = {
@@ -74,7 +75,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
       left: x,
       top: y,
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
-      width: props.style.componentWidth + (props.style.widthUnit || "px"),
+      width:
+        reflowWidth ||
+        props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",
@@ -85,7 +88,15 @@ export function PositionedContainer(props: PositionedContainerProps) {
       styles.border = "4px solid cadetblue";
     }
     return styles;
-  }, [props.style, onHoverZIndex, zIndex, reflowX, reflowY, reflowedPosition]);
+  }, [
+    props.style,
+    onHoverZIndex,
+    zIndex,
+    reflowX,
+    reflowY,
+    reflowWidth,
+    reflowedPosition,
+  ]);
 
   const onClickFn = useCallback(
     (e) => {
