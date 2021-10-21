@@ -31,7 +31,7 @@ function BackButton() {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
       ? getGenerateTemplateFormURL(applicationId, pageId)
-      : BUILDER_PAGE_URL(applicationId, pageId);
+      : BUILDER_PAGE_URL({ applicationId, pageId });
     history.push(redirectURL);
   };
   return (

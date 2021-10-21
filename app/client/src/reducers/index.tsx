@@ -55,12 +55,14 @@ import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 import { widgetReflowState } from "./uiReducers/reflowReducer";
+import SettingsReducer, { SettingsReduxState } from "./settingsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
   evaluations: evaluationsReducer,
   form: formReducer,
+  settings: SettingsReducer,
 });
 
 export default appReducer;
@@ -124,4 +126,5 @@ export interface AppState {
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
   };
+  settings: SettingsReduxState;
 }
