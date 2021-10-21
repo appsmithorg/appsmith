@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import React, { memo, useEffect, useRef } from "react";
+import React, { memo, useEffect, useRef, useMemo } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -12,6 +12,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
+import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 
 type Props = {
   width: number;
@@ -27,15 +28,33 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     resizing,
   } = useHorizontalResize(sidebarRef, props.onWidthChange, undefined, true);
   const isPreviewMode = useSelector(previewModeSelector);
+  const selectedWidgets = useSelector(getSelectedWidgets);
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
-  const isAnyWidgetSelected =
-    useSelector(getSelectedWidgets).length > 0 &&
-    isDraggingForSelection === false;
 
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
+
+  /**
+   * renders the property pane:
+   * 1. if no widget is selected -> CanvasPropertyPane
+   * 2. if more than one widget is selected -> MultiWidgetPropertyPane
+   * 3. if user is dragging for selection -> CanvasPropertyPane
+   * 4. if only one widget is selected -> WidgetPropertyPane
+   */
+  const propertyPane = useMemo(() => {
+    switch (true) {
+      case selectedWidgets.length == 0:
+        return <CanvasPropertyPane />;
+      case selectedWidgets.length > 1:
+        return <MultiSelectPropertyPane />;
+      case isDraggingForSelection === true:
+        return <CanvasPropertyPane />;
+      case selectedWidgets.length === 1:
+        return <WidgetPropertyPane />;
+    }
+  }, [selectedWidgets, isDraggingForSelection]);
 
   return (
     <div className="relative">
@@ -65,11 +84,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
           className="h-full p-0 overflow-y-auto min-w-72 max-w-96"
           style={{ width: props.width }}
         >
-          {isAnyWidgetSelected ? (
-            <WidgetPropertyPane />
-          ) : (
-            <CanvasPropertyPane />
-          )}
+          {propertyPane}
         </div>
       </div>
     </div>

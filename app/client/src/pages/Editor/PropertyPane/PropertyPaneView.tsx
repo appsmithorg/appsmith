@@ -12,7 +12,6 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
-import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -38,7 +37,6 @@ function PropertyPaneView(
 ) {
   const dispatch = useDispatch();
   const { ...panel } = props;
-  const isDraggingForSelection = useSelector(getIsDraggingForSelection);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);
   const hideConnectDataCTA = useMemo(() => {
@@ -94,7 +92,7 @@ function PropertyPaneView(
     ];
   }, [onCopy, onDelete]);
 
-  if (!widgetProperties || isDraggingForSelection) return null;
+  if (!widgetProperties) return null;
 
   return (
     <div
