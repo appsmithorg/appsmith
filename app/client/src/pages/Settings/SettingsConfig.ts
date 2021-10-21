@@ -1,3 +1,5 @@
+import { apiRequestConfig } from "api/Api";
+import UserApi from "api/UserApi";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   EMAIL_SETUP_DOC,
@@ -5,6 +7,7 @@ import {
   GOOGLE_MAPS_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
+import { Dispatch } from "react";
 import { isEmail } from "utils/formhelpers";
 
 export enum SettingTypes {
@@ -37,7 +40,7 @@ export type Setting = {
   subCategory?: string;
   value?: string;
   text?: string;
-  action?: () => Partial<ReduxAction<any>>;
+  action?: (dispatch?: Dispatch<ReduxAction<any>>) => void;
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
@@ -227,14 +230,19 @@ SettingsFactory.register("APPSMITH_ADMIN_EMAILS", {
   },
 });
 
-//To be uncommented when api is available
-// SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
-//   action: () => ({ type: ReduxActionTypes.DOWNLOAD_DOCKER_COMPOSE_FILE }),
-//   category: "general",
-//   controlType: SettingTypes.BUTTON,
-//   label: "Generated Docker Compose File",
-//   text: "Download",
-// });
+SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
+  action: () => {
+    const { host, protocol } = window.location;
+    window.open(
+      `${protocol}//${host}${apiRequestConfig.baseURL}${UserApi.downloadConfigURL}`,
+      "_blank",
+    );
+  },
+  category: "general",
+  controlType: SettingTypes.BUTTON,
+  label: "Generated Docker Compose File",
+  text: "Download",
+});
 
 SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
   category: "general",
@@ -336,10 +344,13 @@ SettingsFactory.register("APPSMITH_CURRENT_VERSION", {
 });
 
 SettingsFactory.register("APPSMITH_VERSION_READ_MORE", {
-  action: () => ({
-    type: ReduxActionTypes.TOGGLE_RELEASE_NOTES,
-    payload: true,
-  }),
+  action: (dispatch?: Dispatch<ReduxAction<boolean>>) => {
+    dispatch &&
+      dispatch({
+        type: ReduxActionTypes.TOGGLE_RELEASE_NOTES,
+        payload: true,
+      });
+  },
   category: "version",
   controlType: SettingTypes.LINK,
   label: "Release Notes",
