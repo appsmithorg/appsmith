@@ -69,6 +69,7 @@ import {
   SET_INTERVAL,
   CLEAR_INTERVAL,
 } from "constants/messages";
+
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
@@ -548,7 +549,7 @@ function getIntegrationOptionsWithChildren(
 
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
-  const applicationId = useSelector(getCurrentApplicationId) || "";
+  const applicationId = useSelector(getCurrentApplicationId) as string;
   const datasources: Datasource[] = useSelector(getDBDatasources);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
