@@ -131,6 +131,7 @@ function WidgetsEditor() {
     enablePan: false,
     enableZoom: isPreviewMode === false,
     maxZoom: 1,
+    minZoom: 0.7,
   });
 
   /**
