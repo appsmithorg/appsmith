@@ -97,7 +97,7 @@ export const getLintAnnotations = (
       for (const bindingLocation of bindingPositions) {
         const currentLine = bindingLocation.line + line;
         const lineContent = lines[currentLine] || "";
-        const currentCh = originalBinding.includes("\n")
+        const currentCh = originalBinding.startsWith("\n")
           ? ch
           : bindingLocation.ch + ch;
         // Jshint counts \t as two characters and codemirror counts it as 1.
