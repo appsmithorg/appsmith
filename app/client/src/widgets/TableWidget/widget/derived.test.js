@@ -16,13 +16,12 @@ describe("Validates Derived Properties", () => {
 
     let result = getTableColumns(input);
     expect(result).toStrictEqual(expected);
-    result = getTableColumns(
-      {
-        sortOrder: {
-          column: "",
-          order: null,
-        },
-      });
+    result = getTableColumns({
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+    });
     expect(result).toStrictEqual(expected);
   });
 
