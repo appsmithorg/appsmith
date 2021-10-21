@@ -131,6 +131,8 @@ export const Colors = {
   INPUT_TEXT_DISABLED: "rgba(92, 112, 128, 0.6)",
   INPUT_DISABLED: "rgba(206, 217, 224, 0.5)",
 
+  SWITCH_BACKGROUND: "#d0d7dd",
+
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
