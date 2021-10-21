@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,18 @@ public class CustomCommentThreadRepositoryImplTest {
 
     private CommentThread createThreadWithPolicies(String userEmail) {
         CommentThread thread = new CommentThread();
+        User user = new User();
+        user.setEmail(userEmail);
+
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_THREAD), user);
+        thread.setPolicies(Set.copyOf(policyMap.values()));
+        return thread;
+    }
+
+    private CommentThread createThreadWithPolicies(String userEmail, String applicationId, String pageId) {
+        CommentThread thread = new CommentThread();
+        thread.setPageId(pageId);
+        thread.setApplicationId(applicationId);
         User user = new User();
         user.setEmail(userEmail);
 
@@ -212,5 +225,36 @@ public class CustomCommentThreadRepositoryImplTest {
                     assertThat(unreadCount).isEqualTo(1);
                 }
         ).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void archiveByPageId_WhenCriteriaMatches_ThreadsDeleted() {
+        String pageOneId = "archive-by-page-id-test-page1", // we'll delete by this id
+                pageTwoId = "archive-by-page-id-test-page2", // this page id will not be deleted
+                applicationId = "archive-by-page-id-test-appid"; // same for all three so that we can fetch by application id
+
+        // create few comment threads with pageId and permission that'll be deleted
+        CommentThread threadOne = createThreadWithPolicies("api_user", applicationId, pageOneId);
+        CommentThread threadTwo = createThreadWithPolicies("api_user", applicationId, pageOneId);
+
+        // we'll not delete this
+        CommentThread threadThree = createThreadWithPolicies("api_user", applicationId, pageTwoId);
+
+        List<CommentThread> threads = List.of(threadOne, threadTwo, threadThree);
+
+        Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.saveAll(threads)
+                .collectList()
+                .then(commentThreadRepository.archiveByPageId(pageOneId))
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .collectMultimap(CommentThread::getPageId);
+
+        StepVerifier.create(pageIdThreadMono)
+                .assertNext(pageIdThreadMap -> {
+                    // check that page one has no comment
+                    assertThat(pageIdThreadMap.get(pageOneId)).isNull();
+                    // check that page two has one comment
+                    assertThat(pageIdThreadMap.get(pageTwoId).size()).isEqualTo(1);
+                });
     }
 }
