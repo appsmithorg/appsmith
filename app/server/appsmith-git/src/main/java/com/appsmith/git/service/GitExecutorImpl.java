@@ -58,6 +58,8 @@ public class GitExecutorImpl implements GitExecutor {
 
     private final Scheduler scheduler = Schedulers.elastic();
 
+    private static final String MERGE_STATUS_BRANCH = "_merge";
+
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
@@ -462,5 +464,21 @@ public class GitExecutorImpl implements GitExecutor {
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
         return Mono.fromCallable(() -> git.reset().setMode(ResetCommand.ResetType.HARD).call()).subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<String> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
+        String tempBranchName = destinationBranch + MERGE_STATUS_BRANCH;
+        log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
+
+        // Checkout to destinationBranch
+        return checkoutToBranch(repoPath, destinationBranch)
+                // Create temp branch from destinationBranch to check the merge status
+                .flatMap(aBoolean -> createAndCheckoutToBranch(repoPath, tempBranchName))
+                // Merge the sourceBranch on temp branch
+                .flatMap(status -> mergeBranch(repoPath, sourceBranch, tempBranchName))
+                // Delete the temp branch and return the merge status
+                .flatMap(mergeStatus -> checkoutToBranch(repoPath, destinationBranch)
+                        .flatMap(isChecked -> deleteBranch(repoPath, tempBranchName).thenReturn(mergeStatus)));
     }
 }

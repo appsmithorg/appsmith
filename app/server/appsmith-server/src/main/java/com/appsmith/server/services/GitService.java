@@ -50,4 +50,6 @@ public interface GitService {
     Mono<Map<String, Object>> getStatus(String defaultApplicationId, MultiValueMap<String, String> params);
 
     Mono<GitPullDTO> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
+
+    Mono<String> isMergeBranch(String applicationId, String sourceBranch, String destinationBranch);
 }

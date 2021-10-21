@@ -920,6 +920,26 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
+    @Override
+    public Mono<String> isMergeBranch(String defaultApplicationId, String sourceBranch, String destinationBranch) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                    }
+                    Path repoPath = Paths.get(application.getOrganizationId(),
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
+
+                    //1. Hydrate from db to file system for both branch Applications
+                    return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, sourceBranch, repoPath)
+                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, destinationBranch, repoPath))
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)));
+                })
+                .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch));
+    }
+
     private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String sourceBranch, String destinationBranch, Path repoPath) {
         return applicationService.getApplicationByBranchNameAndDefaultApplication(destinationBranch, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))

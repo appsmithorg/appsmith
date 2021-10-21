@@ -129,4 +129,14 @@ public interface GitExecutor {
      * @return messages received after the remote is fetched
      */
     Mono<String> fetchRemote(Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath);
+
+
+    /**
+     *
+     * @param repoPath Path to actual repo or only the repoSuffix
+     * @param sourceBranch name of the branch whose commits will be referred amd merged to destinationBranch
+     * @param destinationBranch Merge operation is performed on this branch
+     * @return Whether the two branches can be merged or not
+     */
+    Mono<String> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
 }
