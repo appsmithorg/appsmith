@@ -347,7 +347,7 @@ export type Theme = {
   drawerWidth: string;
   spaces: Array<number>;
   fontWeights: Array<number>;
-  colors: ThemeColor;
+  colors: any;
   typography: Typography;
   lineHeights: Array<number>;
   fonts: {
