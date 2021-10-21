@@ -9,7 +9,6 @@ import Uppy from "@uppy/core";
 import Dashboard from "@uppy/dashboard";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
@@ -132,7 +131,7 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   }
 
   render() {
-    const { configProperty, isRequired, label } = this.props;
+    const { configProperty } = this.props;
 
     return <Field component={FieldFileInput} name={configProperty} />;
   }

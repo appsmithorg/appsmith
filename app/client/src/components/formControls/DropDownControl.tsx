@@ -81,12 +81,9 @@ function renderDropdown(props: any): JSX.Element {
   const selectedOption = props.options.find(
     (option: DropdownOption) => option.value === selectedValue,
   );
-  /* eslint-disable no-console */
-  console.log("dropdown", props);
 
   return (
     <Dropdown
-      className="dropdown-control"
       dontUsePortal={false}
       errorMsg={props.errorMsg}
       fillOptions

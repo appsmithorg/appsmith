@@ -1,15 +1,20 @@
 import React, { useEffect, useCallback, JSXElementConstructor } from "react";
-import { FieldArray, WrappedFieldArrayProps } from "redux-form";
+import {
+  Field,
+  FieldArray,
+  WrappedFieldArrayProps,
+  WrappedFieldMetaProps,
+  WrappedFieldInputProps,
+} from "redux-form";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
 import { FormIcons } from "icons/FormIcons";
 import BaseControl, { ControlProps } from "./BaseControl";
-import TextField from "components/editorComponents/form/fields/TextField";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import FormLabel from "components/editorComponents/FormLabel";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
 import { Colors } from "constants/Colors";
+import TextInput, { TextInputProps } from "components/ads/TextInput";
 
 const FormRowWithLabel = styled.div`
   display: flex;
@@ -20,11 +25,12 @@ const FormRowWithLabel = styled.div`
   }
 `;
 
-const StyledTextField = styled(TextField)`
+const StyledTextInput = styled(TextInput)`
+  min-width: 66px;
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
-    margin: 0;
+    margin: 0px;
   }
 `;
 
@@ -32,7 +38,6 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
   const { extraData = [] } = props;
   const keyName = getFieldName(extraData[0].configProperty);
   const valueName = getFieldName(extraData[1].configProperty);
-  const valueDataType = getType(extraData[1].dataType);
   const keyFieldProps = extraData[0];
 
   let isRequired: boolean | undefined;
@@ -73,6 +78,9 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
     isRequired = extraData[0].isRequired || extraData[1].isRequired;
   }
 
+  /* eslint-disable no-console */
+  console.log(props);
+
   return typeof props.fields.getAll() === "object" ? (
     <>
       {props.fields.map((field: any, index: number) => {
@@ -97,23 +105,37 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
             style={{ marginTop: index > 0 ? "16px" : "0px" }}
           >
             <div style={{ width: "50vh" }}>
-              <TextField
+              <Field
+                component={renderTextInput}
                 name={`${field}.${keyName[1]}`}
-                placeholder={(extraData && extraData[0].placeholderText) || ""}
-                showError
-                validate={keyFieldValidate}
+                props={{
+                  dataType: getType(extraData[0].dataType),
+                  defaultValue: props.initialValue,
+                  keyFieldValidate,
+                  placeholder: props.extraData
+                    ? props.extraData[1]?.placeholderText
+                    : "",
+                  isRequired: extraData[0].isRequired,
+                  //TODO: pass helperText, errorMsg
+                }}
               />
             </div>
             {!props.actionConfig && (
               <div style={{ marginLeft: 16 }}>
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div style={{ marginRight: 14, width: 72 }}>
-                    <StyledTextField
+                    <Field
+                      component={renderTextInput}
                       name={`${field}.${valueName[1]}`}
-                      placeholder={
-                        (extraData && extraData[1].placeholderText) || ""
-                      }
-                      type={valueDataType}
+                      props={{
+                        dataType: getType(extraData[1].dataType),
+                        defaultValue: props.initialValue,
+                        placeholder: props.extraData
+                          ? props.extraData[1]?.placeholderText
+                          : "",
+                        isRequired: extraData[1].isRequired,
+                        //TODO: pass helperText, errorMsg
+                      }}
                     />
                   </div>
                   {index === props.fields.length - 1 ? (
@@ -192,6 +214,34 @@ const getType = (dataType: string | undefined) => {
   }
 };
 
+function renderTextInput(
+  props: TextInputProps & {
+    dataType?: "text" | "number" | "password";
+    placeholder?: string;
+    defaultValue: string | number;
+    isRequired: boolean;
+    keyFieldValidate?: (value: string) => { isValid: boolean; message: string };
+    errorMsg?: string;
+    helperText?: string;
+  } & {
+    meta: Partial<WrappedFieldMetaProps>;
+    input: Partial<WrappedFieldInputProps>;
+  },
+): JSX.Element {
+  return (
+    <StyledTextInput
+      dataType={props.dataType}
+      defaultValue={props.defaultValue}
+      errorMsg={props.errorMsg}
+      helperText={props.helperText}
+      onChange={props.input.onChange}
+      placeholder={props.placeholder}
+      validator={props.keyFieldValidate}
+      value={props.input.value}
+      width="100%"
+    />
+  );
+}
 export interface KeyValueArrayProps extends ControlProps {
   name: string;
   label: string;

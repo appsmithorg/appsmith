@@ -30,7 +30,6 @@ import CheckboxControl, {
 import DynamicInputTextControl, {
   DynamicInputControlProps,
 } from "components/formControls/DynamicInputTextControl";
-import InputNumberControl from "components/formControls/InputNumberControl";
 import FieldArrayControl, {
   FieldArrayControlProps,
 } from "components/formControls/FieldArrayControl";
