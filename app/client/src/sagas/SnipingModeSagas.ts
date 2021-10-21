@@ -23,7 +23,7 @@ import {
 
 import log from "loglevel";
 import {
-  WIDGET_TO_SNIPPABLE_PROPERTY_MAP,
+  getWidgetSnappableProps,
   getPropertyValueFromType,
 } from "./SnipingModeUtils";
 
@@ -57,7 +57,7 @@ export function* bindDataToWidgetSaga(
   try {
     const { widgetId } = action.payload;
 
-    const widgetProps = WIDGET_TO_SNIPPABLE_PROPERTY_MAP[selectedWidget.type];
+    const widgetProps = getWidgetSnappableProps(selectedWidget.type);
     if (!widgetProps) {
       queryId &&
         Toaster.show({
