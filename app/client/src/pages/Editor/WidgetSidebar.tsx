@@ -19,19 +19,20 @@ import { matchBuilderPath } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
+import { hideScrollbar } from "constants/DefaultTheme";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
-  padding: 10px 10px 20px 10px;
   height: 100%;
   overflow: hidden;
-
+  padding: 0px 10px 20px 10px;
   &:active,
   &:focus,
   &:hover {
     overflow: auto;
+    ${hideScrollbar}
   }
-
   &::-webkit-scrollbar-track {
     background-color: transparent;
   }
@@ -46,6 +47,7 @@ const CardsWrapper = styled.div`
 `;
 
 const Header = styled.div`
+  padding: 10px 10px 0px 10px;
   display: grid;
   grid-template-columns: 7fr 1fr;
 `;
@@ -70,6 +72,7 @@ function WidgetSidebar(props: IPanelProps) {
   const isForceOpenWidgetPanel = useSelector(
     (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
   );
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {
@@ -136,13 +139,12 @@ function WidgetSidebar(props: IPanelProps) {
           ref={searchInputRef}
         />
       </Boxed>
-
-      <MainWrapper>
-        <Header>
-          <Info>
-            <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
-          </Info>
-        </Header>
+      <Header>
+        <Info>
+          <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
+        </Info>
+      </Header>
+      <MainWrapper ref={sidebarRef}>
         <CardsWrapper>
           {filteredCards.map((card) => (
             <Boxed
@@ -174,6 +176,7 @@ function WidgetSidebar(props: IPanelProps) {
             </Boxed>
           ))}
         </CardsWrapper>
+        <ScrollIndicator containerRef={sidebarRef} top={"90px"} />
       </MainWrapper>
     </>
   );
