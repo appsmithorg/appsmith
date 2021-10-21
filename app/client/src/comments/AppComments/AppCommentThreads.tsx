@@ -11,7 +11,6 @@ import {
   getSortedAndFilteredAppCommentThreadIds,
   shouldShowResolved as shouldShowResolvedSelector,
   getLastUpdatedCommentThreadId,
-  getUnreadCommentsCount,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -36,15 +35,19 @@ const Container = styled.div`
   ${hideScrollbar};
 `;
 
-export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
+export const useSortedCommentThreadIds = (
+  applicationId: string,
+  commentThreadIds: string[],
+) => {
   const commentThreadsMap = useSelector(allCommentThreadsMap);
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
   const appCommentsFilter = useSelector(appCommentsFilterSelector);
 
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
-  const unreadCommentsCount = useSelector(getUnreadCommentsCount);
-  const lastUpdatedCommentThreadId = useSelector(getLastUpdatedCommentThreadId);
+  const lastUpdatedCommentThreadId = useSelector(
+    getLastUpdatedCommentThreadId(applicationId),
+  );
 
   return useMemo(
     () =>
@@ -62,7 +65,6 @@ export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
       appCommentsFilter,
       currentUsername,
       lastUpdatedCommentThreadId,
-      unreadCommentsCount,
     ],
   );
 };
@@ -77,7 +79,10 @@ function AppCommentThreads() {
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
+  const commentThreadIds = useSortedCommentThreadIds(
+    applicationId,
+    appCommentThreadIds,
+  );
 
   const commentThreadsMap = useSelector(allCommentThreadsMap);
 

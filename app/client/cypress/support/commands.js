@@ -760,9 +760,11 @@ Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .last()
-    .dblclick({ force: true });
+  return cy
+    .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .dblclick()
+    .get("input")
+    .last();
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
