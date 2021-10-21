@@ -202,9 +202,8 @@ export const DropdownWrapper = styled.div<{
   width: ${(props) => props.width};
   height: fit-content;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.dropdown.menuBg};
-  box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
-  margin-top: ${(props) => -props.theme.spaces[3]}px;
+  background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
+  border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
   .dropdown-search {
     margin: 4px 12px 8px;
@@ -683,7 +682,7 @@ export default function Dropdown(props: DropdownProps) {
         minimal
         modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => !disabled && setIsOpen(state)}
-        popoverClassName={props.className}
+        popoverClassName={`${props.className} none-shadow-popover`}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
       >
