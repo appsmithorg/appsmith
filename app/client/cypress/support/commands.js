@@ -436,6 +436,13 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.username).type(uname);
   cy.get(signupPage.password).type(pword);
   cy.get(signupPage.submitBtn).click();
+  cy.wait(1000);
+  cy.get(signupPage.roleDropdown).click();
+  cy.get(signupPage.dropdownOption).click();
+  cy.get(signupPage.useCaseDropdown).click();
+  cy.get(signupPage.dropdownOption).click();
+  cy.get(signupPage.roleUsecaseSubmit).click();
+
   cy.wait("@getUser");
   cy.wait("@applications").should(
     "have.nested.property",
@@ -760,9 +767,11 @@ Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .last()
-    .dblclick({ force: true });
+  return cy
+    .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .dblclick()
+    .get("input")
+    .last();
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
