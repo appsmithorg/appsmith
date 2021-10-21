@@ -398,10 +398,11 @@ export function* waitForFetchUserSuccess() {
   }
 }
 
-function* removePhoto(action: ReduxAction<{ callback: () => void }>) {
+function* removePhoto(action: ReduxAction<{ callback: (id: string) => void }>) {
   try {
-    yield call(UserApi.deletePhoto);
-    if (action.payload.callback) action.payload.callback();
+    const response: ApiResponse = yield call(UserApi.deletePhoto);
+    const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+    if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
   }

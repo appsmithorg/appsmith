@@ -41,11 +41,11 @@ function FormDisplayImage() {
 
   const removeProfileImage = () => {
     dispatch(
-      removePhoto(() => {
+      removePhoto((photoId: string) => {
         setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
+        dispatch(updatePhotoId({ photoId }));
       }),
     );
-    dispatch(updatePhotoId({ photoId: "" }));
   };
 
   return (

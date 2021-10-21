@@ -85,7 +85,7 @@ export const updatePhoto = (payload: {
   payload,
 });
 
-export const removePhoto = (callback: () => void) => ({
+export const removePhoto = (callback: (id: string) => void) => ({
   type: ReduxActionTypes.REMOVE_PROFILE_PHOTO,
   payload: { callback },
 });
