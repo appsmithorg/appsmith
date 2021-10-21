@@ -3094,9 +3094,8 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.createButton).should("be.visible");
   cy.get(welcomePage.createButton).click();
   cy.wait(2000);
-  cy.get(".t--profile-menu-icon").should("be.visible");
-  cy.get(".t--profile-menu-icon").click();
-  cy.get(".t--logout-icon").click();
+  cy.get(".t--how-appsmith-works-modal-header").should("be.visible");
+  cy.LogOut();
   cy.wait(2000);
 });
 
