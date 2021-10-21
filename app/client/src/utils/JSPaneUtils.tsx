@@ -128,7 +128,7 @@ export const getDifferenceInJSCollection = (
 };
 
 export const pushLogsForObjectUpdate = (
-  actions: JSAction[],
+  actions: Partial<JSAction>[],
   jsCollection: JSCollection,
   text: string,
 ) => {
