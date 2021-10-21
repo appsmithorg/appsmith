@@ -698,16 +698,21 @@ public class ApplicationServiceTest {
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
+                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest Clone Source TestApp Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-                    assertThat(application.getOrganizationId().equals(orgId));
+                    assertThat(application.getOrganizationId()).isEqualTo(orgId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
-                    Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
-                    Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());
+                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    Set<String> pageIdsFromApplication = pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
+                    Set<String> publishedPageIdsFromApplication = pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
+                    Set<String> pageIdsFromDb = pageList.stream().map(PageDTO::getId).collect(Collectors.toSet());
 
-                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb));
+                    assertThat(pageIdsFromApplication.containsAll(pageIdsFromDb)).isTrue();
+                    assertThat(publishedPageIdsFromApplication.containsAll(pageIdsFromDb)).isTrue();
+                    assertThat(publishedPages).isNotEmpty();
+                    assertThat(publishedPages.equals(pages)).isTrue();
 
                     assertThat(pageList).isNotEmpty();
                     for (PageDTO page : pageList) {

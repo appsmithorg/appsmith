@@ -528,6 +528,11 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                         savedApplication.setPages(clonedPages);
                                         return applicationService.save(savedApplication);
                                     })
+                                    // Publish is required so that user can open cloned app in view mode without
+                                    // manually deploying it.
+                                    // Here we are assuming user will have the control on edit version only so it's safe
+                                    // to assume that published version will be a replica of unpublished version.
+                                    .flatMap(clonedApplication -> this.publish(clonedApplication.getId(), false))
                             );
                 });
 
