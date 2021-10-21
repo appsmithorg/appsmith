@@ -17,16 +17,8 @@ import CheckboxGroupComponent, { OptionProps } from "../component";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
-  props: CheckboxGroupWidgetProps,
 ): ValidationResponse {
-  let isValid = true;
   let values: string[] = [];
-  const messages: string[] = [];
-  let { options } = props;
-
-  if (!Array.isArray(options)) options = [];
-
-  const optionValues = options.map((option) => option.value);
 
   if (typeof value === "string") {
     try {
@@ -46,24 +38,9 @@ export function defaultSelectedValuesValidation(
     values = Array.from(new Set(value));
   }
 
-  values.forEach((value, index) => {
-    if (!optionValues.includes(value)) {
-      isValid = false;
-      messages.push(`Mismatching value: ${value} at: ${index}`);
-    }
-  });
-
-  if (isValid) {
-    return {
-      isValid: true,
-      parsed: values,
-    };
-  }
-
   return {
-    isValid: false,
+    isValid: true,
     parsed: values,
-    messages,
   };
 }
 
