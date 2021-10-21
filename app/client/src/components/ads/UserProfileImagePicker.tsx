@@ -1,22 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
-import { updatePhoto, removePhoto, updatePhotoId } from "actions/userActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
+import { updatePhoto, removePhoto, updatePhotoId } from "actions/userActions";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import DisplayImageUpload from "components/ads/DisplayImageUpload";
 
-import UserApi from "api/UserApi";
 import Uppy from "@uppy/core";
 
 function FormDisplayImage() {
   const [file, setFile] = useState<any>();
-  const [imageURL, setImageURL] = useState(`/api/${UserApi.photoURL}`);
   const dispatch = useDispatch();
+  const user = useSelector(getCurrentUser);
   const dispatchActionRef = useRef<(uppy: Uppy.Uppy) => void | null>();
+
+  const imageURL = user?.photoId
+    ? `/api/${USER_PHOTO_ASSET_URL}/${user?.photoId}`
+    : "";
 
   const onUploadComplete = (uppy: Uppy.Uppy, photoId: string) => {
     uppy.reset();
     dispatch(updatePhotoId({ photoId }));
-    setImageURL(`/api/${UserApi.photoURL}?${photoId}`);
   };
 
   const onSelectFile = (file: any) => {
@@ -43,7 +47,6 @@ function FormDisplayImage() {
     dispatch(
       removePhoto((photoId: string) => {
         dispatch(updatePhotoId({ photoId }));
-        setImageURL("");
       }),
     );
   };
