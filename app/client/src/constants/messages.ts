@@ -797,3 +797,9 @@ export const RESTART_BANNER_HEADER = () => "Restarting Server";
 export const RESTART_ERROR_BODY = () =>
   "Something went wrong. Please contact your administrator.";
 export const RESTART_ERROR_HEADER = () => "Restart failed";
+
+export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
+  "Tell us more about what you do at work?";
+export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
+export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
+  "What are you planning to use Appsmith for?";
