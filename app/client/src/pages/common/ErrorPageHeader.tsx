@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import AppsmithLogo from "assets/images/appsmith_logo_white.png";
+import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import { AppState } from "reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
@@ -15,7 +15,7 @@ import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
 
 const StyledPageHeader = styled(StyledHeader)`
-  background: ${Colors.BALTIC_SEA};
+  background: ${Colors.ALABASTER_ALT};
   height: 48px;
   color: white;
   flex-direction: row;
@@ -33,8 +33,9 @@ const HeaderSection = styled.div`
 
 const StyledDropDownContainer = styled.div``;
 
-const AppsmithLogoImg = styled.img`
+const AppsmithLogoImg = styled(AppsmithLogo)`
   max-width: 110px;
+  width: 110px;
 `;
 
 type ErrorPageHeaderProps = {
@@ -64,7 +65,7 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
           }}
           to={APPLICATIONS_URL}
         >
-          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
+          <AppsmithLogoImg />
         </Link>
       </HeaderSection>
       {user && (

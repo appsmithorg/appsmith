@@ -25,6 +25,9 @@ const StyledDynamicTextField = styled(DynamicTextField)`
   .CodeEditorTarget .CodeMirror.CodeMirror-wrap {
     background-color: ${Colors.WHITE};
   }
+  .CodeEditorTarget .CodeMirror.CodeMirror-wrap:hover {
+    background-color: inherit;
+  }
   &&& .t--code-editor-wrapper {
     border: none;
   }

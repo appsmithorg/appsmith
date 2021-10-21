@@ -24,12 +24,13 @@ export interface ApplicationPagePayload {
   isDefault: boolean;
 }
 
-export type GitApplicationMetadata = {
-  branchName?: string;
-  remoteUrl?: string;
-  repoName?: string;
-  applicationId: string;
-};
+export type GitApplicationMetadata =
+  | {
+      branchName: string;
+      remoteUrl: string;
+      repoName: string;
+    }
+  | undefined;
 
 export interface ApplicationResponsePayload {
   id: string;
@@ -39,7 +40,7 @@ export interface ApplicationResponsePayload {
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
-  gitApplicationMetadata?: GitApplicationMetadata;
+  gitApplicationMetadata: GitApplicationMetadata;
 }
 
 export interface FetchApplicationResponse extends ApiResponse {

@@ -82,6 +82,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -1094,10 +1095,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
-            return repository
-                    .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, READ_ACTIONS)
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                    .flatMap(this::setTransientFieldsInUnpublishedAction);
+            return applicationService
+                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .flatMapMany(applicationId -> repository.findByApplicationIdAndViewMode(applicationId, false, READ_ACTIONS))
+                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
+                .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
