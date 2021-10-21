@@ -1,6 +1,6 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse, GenericApiResponse } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 import { CommentsOnboardingState } from "../constants/userConstants";
 
 export interface LoginUserRequest {

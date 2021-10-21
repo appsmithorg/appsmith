@@ -16,7 +16,7 @@ function FormDisplayImage() {
   const onUploadComplete = (uppy: Uppy.Uppy, photoId: string) => {
     uppy.reset();
     dispatch(updatePhotoId({ photoId }));
-    setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
+    setImageURL(`/api/${UserApi.photoURL}?${photoId}`);
   };
 
   const onSelectFile = (file: any) => {
@@ -42,8 +42,8 @@ function FormDisplayImage() {
   const removeProfileImage = () => {
     dispatch(
       removePhoto((photoId: string) => {
-        setImageURL(`/api/${UserApi.photoURL}?${new Date().getTime()}`);
         dispatch(updatePhotoId({ photoId }));
+        setImageURL("");
       }),
     );
   };

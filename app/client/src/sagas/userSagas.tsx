@@ -65,7 +65,6 @@ import {
   getFirstTimeUserOnboardingApplicationId,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { AxiosPromise, AxiosResponse } from "axios";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
