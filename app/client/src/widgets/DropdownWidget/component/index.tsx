@@ -75,8 +75,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) =>
-      props.isSelected ? Colors.SELECT_COLOR : Colors.SELECT_PLACEHOLDER};
+    color: ${(props) => (props.isSelected ? Colors.GREY_10 : Colors.GREY_6)};
   }
   && {
     .${Classes.ICON} {
