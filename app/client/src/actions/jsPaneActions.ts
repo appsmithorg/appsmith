@@ -16,6 +16,14 @@ export const updateJSCollection = (
   payload: { body, id },
 });
 
+export const updateJSCollectionBody = (
+  body: string,
+  id: string,
+): ReduxAction<{ body: string; id: string }> => ({
+  type: ReduxActionTypes.UPDATE_JS_ACTION_BODY,
+  payload: { body, id },
+});
+
 export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,

@@ -107,6 +107,7 @@ function* evaluateTreeSaga(
     dependencies,
     errors,
     evaluationOrder,
+    jsUpdates,
     logs,
     unEvalUpdates,
   } = workerResponse;
@@ -124,7 +125,7 @@ function* evaluateTreeSaga(
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-
+  log.debug({ jsUpdates: jsUpdates });
   const updatedDataTree = yield select(getDataTree);
 
   log.debug({ dataTree: updatedDataTree });

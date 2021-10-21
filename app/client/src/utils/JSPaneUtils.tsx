@@ -3,6 +3,8 @@ import { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
 
 export type ParsedJSSubAction = {
   name: string;
@@ -142,5 +144,43 @@ export const pushLogsForObjectUpdate = (
         id: jsCollection.id,
       },
     });
+  }
+};
+
+export const updateJSCollectionInDataTree = (
+  parsedBody: ParsedBody,
+  jsAction: DataTreeJSAction,
+  dataTree: DataTree,
+) => {
+  //check if body is changed and update if exists or
+  // add to new array so it can be added to main collection
+  const varFunctionsList = [...jsAction.listVariables];
+  Object.keys(jsAction.meta).forEach((action) => {
+    varFunctionsList.push(action);
+  });
+  if (parsedBody.actions && parsedBody.actions.length > 0) {
+    for (let i = 0; i < parsedBody.actions.length; i++) {
+      const action = parsedBody.actions[i];
+      // const preExisted = jsAction.actions.find((js) => js.name === action.name);
+      if (jsAction.hasOwnProperty(action.name)) {
+        if (jsAction[action.name] !== action.body) {
+          _.set(dataTree, `${jsAction.name}.${action.name}`, action.body);
+        }
+      } else {
+        _.set(dataTree, `${jsAction.name}.${action.name}`, action.body);
+      }
+    }
+  }
+  //create deleted action list
+  if (varFunctionsList && varFunctionsList.length > 0 && parsedBody.actions) {
+    for (let i = 0; i < varFunctionsList.length; i++) {
+      const preAction = varFunctionsList[i];
+      const existed = parsedBody.actions.find(
+        (js: ParsedJSSubAction) => js.name === preAction,
+      );
+      if (!existed) {
+        delete dataTree[`${jsAction}.${preAction}`];
+      }
+    }
   }
 };

@@ -85,6 +85,7 @@ ctx.addEventListener(
         let dependencies: DependencyMap = {};
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
+        let jsUpdates: Record<string, any> = {};
         try {
           if (!dataTreeEvaluator) {
             replayDSL = new ReplayDSL(widgets);
@@ -100,6 +101,7 @@ ctx.addEventListener(
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
+            jsUpdates = updateResponse.jsUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
@@ -131,6 +133,7 @@ ctx.addEventListener(
           evaluationOrder,
           logs,
           unEvalUpdates,
+          jsUpdates,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {

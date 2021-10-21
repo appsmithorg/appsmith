@@ -81,6 +81,24 @@ const jsActionsReducer = createReducer(initialState, {
         return { isLoading: false, config: action.payload.data };
       return a;
     }),
+  [ReduxActionTypes.UPDATE_JS_ACTION_BODY]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      id: string;
+      body: string;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.id)
+        return {
+          isLoading: false,
+          config: {
+            ...a.config,
+            body: action.payload.body,
+          },
+        };
+      return a;
+    }),
   [ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR]: (
     state: JSCollectionDataState,
     action: ReduxAction<{ data: JSCollection }>,

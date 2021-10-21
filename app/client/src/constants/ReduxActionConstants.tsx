@@ -615,6 +615,7 @@ export const ReduxActionTypes = {
   TOGGLE_RELEASE_NOTES: "TOGGLE_RELEASE_NOTES",
   FETCH_RELEASES: "FETCH_RELEASES",
   RESTART_SERVER_POLL: "RESTART_SERVER_POLL",
+  UPDATE_JS_ACTION_BODY: "UPDATE_JS_ACTION_BODY",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
