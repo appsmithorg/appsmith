@@ -44,15 +44,20 @@ public class CustomCommentThreadRepositoryImplTest {
         return thread;
     }
 
-    private CommentThread createThreadWithPolicies(String userEmail, String applicationId, String pageId) {
+    private CommentThread createThreadWithManagePermission(String userEmail, String applicationId, String pageId) {
         CommentThread thread = new CommentThread();
         thread.setPageId(pageId);
         thread.setApplicationId(applicationId);
         User user = new User();
         user.setEmail(userEmail);
 
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_THREAD), user);
-        thread.setPolicies(Set.copyOf(policyMap.values()));
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.MANAGE_THREAD, AclPermission.READ_THREAD), user);
+        HashSet<Policy> policySet = new HashSet<>();
+
+        // not using Set.of here because the caller function may need to add more policies
+        policySet.addAll(policyMap.values());
+        thread.setPolicies(policySet);
         return thread;
     }
 
@@ -230,16 +235,18 @@ public class CustomCommentThreadRepositoryImplTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void archiveByPageId_WhenCriteriaMatches_ThreadsDeleted() {
-        String pageOneId = "archive-by-page-id-test-page1", // we'll delete by this id
-                pageTwoId = "archive-by-page-id-test-page2", // this page id will not be deleted
-                applicationId = "archive-by-page-id-test-appid"; // same for all three so that we can fetch by application id
+        String uniqueRandomString = UUID.randomUUID().toString();
+
+        String pageOneId = "test-page1-"+uniqueRandomString, // we'll delete by this id
+                pageTwoId = "test-page2-" + uniqueRandomString, // this page id will not be deleted
+                applicationId = "test-app-" + uniqueRandomString; // same for all three so that we can fetch by application id
 
         // create few comment threads with pageId and permission that'll be deleted
-        CommentThread threadOne = createThreadWithPolicies("api_user", applicationId, pageOneId);
-        CommentThread threadTwo = createThreadWithPolicies("api_user", applicationId, pageOneId);
+        CommentThread threadOne = createThreadWithManagePermission("api_user", applicationId, pageOneId);
+        CommentThread threadTwo = createThreadWithManagePermission("api_user", applicationId, pageOneId);
 
         // we'll not delete this
-        CommentThread threadThree = createThreadWithPolicies("api_user", applicationId, pageTwoId);
+        CommentThread threadThree = createThreadWithManagePermission("api_user", applicationId, pageTwoId);
 
         List<CommentThread> threads = List.of(threadOne, threadTwo, threadThree);
 
@@ -255,6 +262,38 @@ public class CustomCommentThreadRepositoryImplTest {
                     assertThat(pageIdThreadMap.get(pageOneId)).isNull();
                     // check that page two has one comment
                     assertThat(pageIdThreadMap.get(pageTwoId).size()).isEqualTo(1);
-                });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void archiveByPageId_PermissionDoesNotMatch_ThreadsNotDeleted() {
+        String uniqueRandomString = UUID.randomUUID().toString();
+        String testPageId = "test-page-" + uniqueRandomString, // we'll delete by this id
+                threadUser = "test_user_" + uniqueRandomString,
+                applicationId = "test-app-" + uniqueRandomString;
+
+        // create few comment threads with pageId and permission that'll be deleted
+        CommentThread thread = createThreadWithManagePermission(threadUser, applicationId, testPageId);
+
+        // add policy so that the current user can read the thread but can not manage
+        Policy policyForCurrentUser = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.READ_THREAD), "api_user"
+        ).get(AclPermission.READ_THREAD.getValue());
+
+        thread.getPolicies().add(policyForCurrentUser);
+
+        Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
+                .then(commentThreadRepository.archiveByPageId(testPageId))
+                .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
+                .collectMultimap(CommentThread::getPageId);
+
+        StepVerifier.create(pageIdThreadMono)
+                .assertNext(pageIdThreadMap -> {
+                    // current user has no manage permission on this thread so threads will not be deleted
+                    assertThat(pageIdThreadMap.get(testPageId).size()).isEqualTo(1);
+                })
+                .verifyComplete();
     }
 }
