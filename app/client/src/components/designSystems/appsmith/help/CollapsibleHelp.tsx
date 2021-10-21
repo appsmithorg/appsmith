@@ -18,7 +18,7 @@ const HelpIcon = styled(Icon)`
 
 const Container = styled.div`
   background-color: rgba(239, 123, 99, 0.15);
-  border-radius: 4px;
+  border-radius: 0px 4px 4px 0px;
   padding: 10px 10px;
   width: 100%;
   position: relative;
@@ -32,12 +32,11 @@ const Container = styled.div`
 `;
 
 const LeftBar = styled.div`
-  border: 1px solid #ef7541;
-  border-radius: 4px;
+  width: 2px;
+  background-color: #ef7541;
   position: absolute;
-  top: 1px;
   left: 0;
-  height: 96%;
+  height: 100%;
 `;
 
 export default function CollapsibleHelp(props: CollapsibleHelpProps) {
