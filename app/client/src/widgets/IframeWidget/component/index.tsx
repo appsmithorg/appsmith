@@ -49,8 +49,10 @@ const OverlayDiv = styled.div`
 export interface IframeComponentProps extends ComponentProps {
   renderMode: RenderMode;
   source: string;
+  srcDoc?: string;
   title?: string;
   onURLChanged: (url: string) => void;
+  onSrcDocChanged: (srcDoc?: string) => void;
   onMessageReceived: (message: MessageEvent) => void;
   borderColor?: string;
   borderOpacity?: number;
@@ -63,9 +65,11 @@ function IframeComponent(props: IframeComponentProps) {
     borderOpacity,
     borderWidth,
     onMessageReceived,
+    onSrcDocChanged,
     onURLChanged,
     renderMode,
     source,
+    srcDoc,
     title,
     widgetId,
   } = props;
@@ -95,6 +99,14 @@ function IframeComponent(props: IframeComponentProps) {
     }
   }, [source]);
 
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    onSrcDocChanged(srcDoc);
+  }, [srcDoc]);
+
   const isPropertyPaneVisible = useSelector(
     (state: AppState) => state.ui.propertyPane.isVisible,
   );
@@ -113,7 +125,13 @@ function IframeComponent(props: IframeComponentProps) {
           <OverlayDiv />
         )}
 
-      {message ? message : <iframe src={source} title={title} />}
+      {message ? (
+        message
+      ) : srcDoc ? (
+        <iframe src={source} srcDoc={srcDoc} title={title} />
+      ) : (
+        <iframe src={source} title={title} />
+      )}
     </IframeContainer>
   );
 }
