@@ -1,26 +1,24 @@
-import { cloneDeep, difference, startCase } from "lodash";
+import { cloneDeep, difference, rest, startCase } from "lodash";
 import {
+  ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
   DataType,
   FIELD_MAP,
+  FIELD_TYPE_TO_POTENTIAL_DATA,
   FieldType,
   ROOT_SCHEMA_KEY,
   Schema,
   SchemaItem,
-  ARRAY_ITEM_KEY,
 } from "./constants";
 
 type Obj = Record<string, any>;
 type JSON = Obj | Obj[];
 
-// TODO: CHANGE NAME
-type ObjectToSchemaProps = {
-  currFormData?: JSON;
+type ParserOptions = {
+  currFormData?: JSON | string;
   prevSchema?: Schema;
-};
-
-const DEFAULT_SCHEMA_ITEM = {
-  isVisible: true,
+  fieldType?: FieldType;
+  isCustomField?: boolean;
 };
 
 /**
@@ -93,6 +91,16 @@ export const fieldTypeFor = (value: any) => {
   return fieldType;
 };
 
+const getKeysFromSchema = (schema: Schema) => {
+  return Object.entries(schema).reduce<string[]>((keys, [key, schemaItem]) => {
+    if (!schemaItem.isCustomField) {
+      keys.push(key);
+    }
+
+    return keys;
+  }, []);
+};
+
 class SchemaParser {
   static nameAndLabel = (key: string) => {
     return {
@@ -102,7 +110,6 @@ class SchemaParser {
   };
 
   static parse = (currFormData?: JSON, schema: Schema = {}) => {
-    debugger;
     if (!currFormData) return schema;
 
     const prevSchema = (() => {
@@ -112,7 +119,7 @@ class SchemaParser {
       return {};
     })();
 
-    const rootSchemaItem = SchemaParser.getSchemaItemFor("", currFormData, {
+    const rootSchemaItem = SchemaParser.getSchemaItemFor("", {
       currFormData,
       prevSchema,
     });
@@ -122,14 +129,28 @@ class SchemaParser {
     };
   };
 
+  static getSchemaItemByFieldType = (
+    key: string,
+    fieldType: FieldType,
+    options: ParserOptions = {},
+  ) => {
+    const possibleValue = FIELD_TYPE_TO_POTENTIAL_DATA[fieldType];
+
+    return SchemaParser.getSchemaItemFor(key, {
+      ...options,
+      currFormData: possibleValue,
+      fieldType,
+    });
+  };
+
   // TODO: add eg
   static getSchemaItemFor = (
     key: string,
-    value: any,
-    passedOptions: ObjectToSchemaProps = {},
+    options: ParserOptions,
   ): SchemaItem => {
-    const dataType = dataTypeFor(value);
-    const fieldType = fieldTypeFor(value);
+    const { currFormData, isCustomField = false } = options || {};
+    const dataType = dataTypeFor(currFormData);
+    const fieldType = options.fieldType || fieldTypeFor(currFormData);
     const FieldComponent = FIELD_MAP[fieldType];
     const { label, name } = SchemaParser.nameAndLabel(key);
     const props = {
@@ -138,18 +159,19 @@ class SchemaParser {
 
     let children: Schema = {};
     if (dataType === DataType.OBJECT) {
-      children = SchemaParser.convertObjectToSchema(passedOptions);
+      children = SchemaParser.convertObjectToSchema(options);
     }
 
     if (dataType === DataType.ARRAY) {
-      children = SchemaParser.convertArrayToSchema(passedOptions);
+      children = SchemaParser.convertArrayToSchema(options);
     }
 
     return {
-      ...DEFAULT_SCHEMA_ITEM,
       children,
       dataType,
       fieldType,
+      isCustomField,
+      isVisible: true,
       label,
       name,
       props,
@@ -185,22 +207,19 @@ class SchemaParser {
   static convertArrayToSchema = ({
     currFormData = [],
     prevSchema = {},
-  }: ObjectToSchemaProps): Schema => {
+    ...rest
+  }: ParserOptions): Schema => {
     const schema = cloneDeep(prevSchema);
-    // TODO: FIX "as any"
     const currData = normalizeArrayValue(currFormData as any[]);
 
     const prevDataType = schema[ARRAY_ITEM_KEY]?.dataType;
     const currDataType = dataTypeFor(currData);
 
     if (currDataType !== prevDataType) {
-      schema[ARRAY_ITEM_KEY] = SchemaParser.getSchemaItemFor(
-        ARRAY_ITEM_KEY,
-        currData,
-        {
-          currFormData: currData,
-        },
-      );
+      schema[ARRAY_ITEM_KEY] = SchemaParser.getSchemaItemFor(ARRAY_ITEM_KEY, {
+        currFormData: currData,
+        ...rest,
+      });
     } else {
       schema[ARRAY_ITEM_KEY] = SchemaParser.getModifiedSchemaItemFor(
         currData,
@@ -214,12 +233,12 @@ class SchemaParser {
   static convertObjectToSchema = ({
     currFormData = {},
     prevSchema = {},
-  }: ObjectToSchemaProps): Schema => {
+  }: ParserOptions): Schema => {
     const schema = cloneDeep(prevSchema);
     const currObj = currFormData as Obj;
 
     const currKeys = Object.keys(currFormData);
-    const prevKeys = Object.keys(prevSchema);
+    const prevKeys = getKeysFromSchema(prevSchema);
 
     const newKeys = difference(currKeys, prevKeys);
     const removedKeys = difference(prevKeys, currKeys);
@@ -229,18 +248,11 @@ class SchemaParser {
       const currDataType = dataTypeFor(currObj[modifiedKey]);
       const prevDataType = schema[modifiedKey].dataType;
 
-      // TODO: Fix nested object update, modified objects type would
-      // be same so the following block won't run.
       if (currDataType !== prevDataType) {
-        schema[modifiedKey] = SchemaParser.getSchemaItemFor(
-          modifiedKey,
-          currObj[modifiedKey],
-          {
-            currFormData: currObj[modifiedKey],
-            prevSchema: schema[modifiedKey].children,
-          },
-        );
-        // TODO: CHECK FOR PRIMITIVE DATA TYPE
+        schema[modifiedKey] = SchemaParser.getSchemaItemFor(modifiedKey, {
+          currFormData: currObj[modifiedKey],
+          prevSchema: schema[modifiedKey].children,
+        });
       } else {
         schema[modifiedKey] = SchemaParser.getModifiedSchemaItemFor(
           currObj[modifiedKey],
@@ -250,7 +262,7 @@ class SchemaParser {
     });
 
     newKeys.forEach((newKey) => {
-      schema[newKey] = SchemaParser.getSchemaItemFor(newKey, currObj[newKey], {
+      schema[newKey] = SchemaParser.getSchemaItemFor(newKey, {
         currFormData: currObj[newKey],
       });
     });

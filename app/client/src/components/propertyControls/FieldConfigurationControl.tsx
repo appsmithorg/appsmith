@@ -3,7 +3,15 @@ import { noop } from "lodash";
 
 import styled from "constants/DefaultTheme";
 import BaseControl, { ControlProps } from "./BaseControl";
+import SchemaParser from "widgets/FormBuilderWidget/schemaParser";
 import {
+  ARRAY_ITEM_KEY,
+  Schema,
+  SchemaItem,
+} from "widgets/FormBuilderWidget/constants";
+import { Category, Size } from "components/ads/Button";
+import {
+  BaseItemProps,
   DroppableComponent,
   RenderComponentProps,
 } from "components/ads/DraggableListComponent";
@@ -11,9 +19,17 @@ import {
   StyledDeleteIcon,
   StyledDragIcon,
   StyledEditIcon,
+  StyledHiddenIcon,
   StyledInputGroup,
+  StyledPropertyPaneButton,
+  StyledVisibleIcon,
 } from "./StyledControls";
-import { Schema } from "widgets/FormBuilderWidget/constants";
+import { getNextEntityName } from "utils/AppsmithUtils";
+
+type DroppableItem = BaseItemProps & {
+  index: number;
+  isCustomField: boolean;
+};
 
 const TabsWrapper = styled.div`
   width: 100%;
@@ -48,8 +64,58 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   }
 `;
 
-function DroppableRenderComponent(props: RenderComponentProps) {
-  const { index, item, onEdit } = props;
+const AddColumnButton = styled(StyledPropertyPaneButton)`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  &&&& {
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+`;
+
+function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
+  const { deleteOption, index, item, onEdit, toggleVisibility } = props;
+  const { id, isCustomField, isVisible } = item;
+
+  const deleteIcon = (() => {
+    if (!isCustomField || id === ARRAY_ITEM_KEY) return null;
+
+    return (
+      <StyledDeleteIcon
+        className="t--delete-column-btn"
+        height={20}
+        onClick={() => {
+          deleteOption?.(index);
+        }}
+        width={20}
+      />
+    );
+  })();
+
+  const hideShowIcon = (() => {
+    if (isCustomField || id === ARRAY_ITEM_KEY) return null;
+
+    return isVisible ? (
+      <StyledVisibleIcon
+        className="t--show-column-btn"
+        height={20}
+        onClick={() => {
+          toggleVisibility?.(index);
+        }}
+        width={20}
+      />
+    ) : (
+      <StyledHiddenIcon
+        className="t--show-column-btn"
+        height={20}
+        onClick={() => {
+          toggleVisibility?.(index);
+        }}
+        width={20}
+      />
+    );
+  })();
 
   return (
     <ItemWrapper>
@@ -65,19 +131,18 @@ function DroppableRenderComponent(props: RenderComponentProps) {
         onClick={() => onEdit?.(index)}
         width={20}
       />
-      <StyledDeleteIcon
-        className="t--delete-column-btn"
-        height={20}
-        onClick={() => {
-          // deleteOption && deleteOption(index);
-        }}
-        width={20}
-      />
+      {deleteIcon}
+      {hideShowIcon}
     </ItemWrapper>
   );
 }
 
 class FieldConfigurationControl extends BaseControl<ControlProps> {
+  isArrayItem = () => {
+    const schema: Schema = this.props.propertyValue;
+    return Boolean(schema[ARRAY_ITEM_KEY]);
+  };
+
   onEdit = (index: number) => {
     const schema: Schema = this.props.propertyValue || {};
     const entries = Object.values(schema) || [];
@@ -88,28 +153,84 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     });
   };
 
+  onDelete = (index: number) => {
+    const { propertyName, propertyValue } = this.props;
+    const schema: Schema = propertyValue || {};
+    const entries = Object.values(schema) || [];
+
+    const schemaItem: SchemaItem = entries[index];
+
+    if (schemaItem) {
+      const itemToDeletePath = `${propertyName}.${schemaItem.name}`;
+
+      this.deleteProperties([itemToDeletePath]);
+    }
+  };
+
+  addNewColumn = () => {
+    if (this.isArrayItem()) return;
+
+    const { propertyValue = {}, propertyName } = this.props;
+    const schema: Schema = propertyValue;
+    const existingKeys = Object.keys(schema);
+    const nextFieldKey = getNextEntityName("customField", existingKeys);
+    const schemaItem = SchemaParser.getSchemaItemFor(nextFieldKey, {
+      currFormData: "",
+    });
+
+    schemaItem.isCustomField = true;
+
+    this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
+  };
+
+  toggleVisibility = (index: number) => {
+    const { propertyName, propertyValue } = this.props;
+    const schema: Schema = propertyValue;
+    const entries = Object.values(schema);
+    const { isVisible, name } = entries[index];
+
+    this.updateProperty(`${propertyName}.${name}.isVisible`, !isVisible);
+  };
+
   render() {
     const { propertyValue = {} } = this.props;
     const schema: Schema = propertyValue;
     const entries = Object.values(schema) || [];
 
-    const draggableComponentColumns = entries.map(({ label, name }, index) => ({
-      index,
-      id: name,
-      label,
-    }));
+    const draggableComponentColumns: DroppableItem[] = entries.map(
+      ({ isCustomField, isVisible, label, name }, index) => ({
+        id: name,
+        index,
+        isCustomField,
+        isVisible,
+        label,
+      }),
+    );
 
     return (
       <TabsWrapper>
         <DroppableComponent
-          deleteOption={noop}
+          deleteOption={this.onDelete}
           itemHeight={45}
           items={draggableComponentColumns}
           onEdit={this.onEdit}
           renderComponent={DroppableRenderComponent}
+          toggleVisibility={this.toggleVisibility}
           updateItems={noop}
           updateOption={noop}
         />
+        {!this.isArrayItem() && (
+          <AddColumnButton
+            category={Category.tertiary}
+            className="t--add-column-btn"
+            icon="plus"
+            onClick={this.addNewColumn}
+            size={Size.medium}
+            tag="button"
+            text="Add a new field"
+            type="button"
+          />
+        )}
       </TabsWrapper>
     );
   }

@@ -9,7 +9,11 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _, { debounce, orderBy } from "lodash";
 import { Category, Size } from "components/ads/Button";
@@ -59,19 +63,9 @@ const AddMenuItemButton = styled(StyledPropertyPaneButton)`
   flex-grow: 1;
 `;
 
-type RenderComponentProps = {
-  index: number;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
-};
+type DroppableItem = BaseItemProps;
 
-function MenuItemComponent(props: RenderComponentProps) {
+function MenuItemComponent(props: RenderComponentProps<DroppableItem>) {
   const { deleteOption, index, item, updateOption } = props;
 
   const [value, setValue] = useState(item.label);
@@ -129,7 +123,7 @@ function MenuItemComponent(props: RenderComponentProps) {
 }
 
 class MenuItemsControl extends BaseControl<ControlProps> {
-  updateItems = (items: Array<Record<string, any>>) => {
+  updateItems = (items: DroppableItem[]) => {
     const menuItems = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
         ...each,
@@ -154,10 +148,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-    }> =
+    const menuItems: DroppableItem[] =
       _.isString(this.props.propertyValue) ||
       _.isUndefined(this.props.propertyValue)
         ? []

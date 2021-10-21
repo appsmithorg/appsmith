@@ -23,7 +23,6 @@ export enum FieldType {
   SELECT = "Select",
   SWITCH = "Switch",
   TEXT = "Text",
-  TIME = "Time",
   ARRAY = "Array",
   OBJECT = "Object",
 }
@@ -45,11 +44,11 @@ export type SchemaItem<TProps = any> = {
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
-  isVisible?: boolean;
+  isCustomField: boolean;
+  isVisible: boolean;
   label: string;
   name: string;
   props: TProps;
-  subDataType?: DataType;
   tooltip?: string;
 };
 
@@ -75,7 +74,6 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.MULTI_SELECT]: MultiSelectField,
   [FieldType.SELECT]: SelectField,
   [FieldType.SWITCH]: SwitchField,
-  [FieldType.TIME]: InputField,
   [FieldType.ARRAY]: ArrayField,
   [FieldType.OBJECT]: ObjectField,
 };
@@ -147,4 +145,22 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
     default: FieldType.TEXT,
     options: [FieldType.TEXT],
   },
+};
+
+// The potential value here is just for representation i.e it won't be used to set default value anywhere.
+// This will just help to transform a field type (when modified in custom field) to appropriate schemaItem
+// using schemaParser.
+export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
+  [FieldType.TEXT]: "",
+  [FieldType.NUMBER]: 0,
+  [FieldType.EMAIL]: "",
+  [FieldType.PHONE_NUMBER]: 0,
+  [FieldType.CHECKBOX]: true,
+  [FieldType.DATE]: "",
+  [FieldType.RADIO_GROUP]: "",
+  [FieldType.MULTI_SELECT]: [""],
+  [FieldType.SELECT]: "",
+  [FieldType.SWITCH]: true,
+  [FieldType.ARRAY]: [{}],
+  [FieldType.OBJECT]: {},
 };

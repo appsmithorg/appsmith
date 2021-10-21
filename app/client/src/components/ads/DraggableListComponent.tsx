@@ -2,37 +2,40 @@ import { isEqual } from "lodash";
 import React from "react";
 import DraggableList from "./DraggableList";
 
-export type RenderComponentProps = {
+export type BaseItemProps = {
+  id: string;
+  isVisible?: boolean;
+  label?: string;
+};
+
+export type RenderComponentProps<TItem extends BaseItemProps> = {
   index: number;
-  item: {
-    label: string;
-    isDerived?: boolean;
-  };
+  item: TItem;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (index: number) => void;
 };
 
-interface DroppableComponentProps {
-  items: Array<Record<string, unknown>>;
+type DroppableComponentProps<TItem extends BaseItemProps> = {
+  items: TItem[];
   itemHeight: number;
-  renderComponent: (props: RenderComponentProps) => JSX.Element;
+  renderComponent: (props: RenderComponentProps<TItem>) => JSX.Element;
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
-  updateItems: (items: Array<Record<string, unknown>>) => void;
+  updateItems: (items: TItem[]) => void;
   onEdit?: (index: number) => void;
-}
+};
 
-export class DroppableComponent extends React.Component<
-  DroppableComponentProps
-> {
-  constructor(props: DroppableComponentProps) {
+export class DroppableComponent<
+  TItem extends BaseItemProps
+> extends React.Component<DroppableComponentProps<TItem>> {
+  constructor(props: DroppableComponentProps<TItem>) {
     super(props);
   }
 
-  shouldComponentUpdate(prevProps: DroppableComponentProps) {
+  shouldComponentUpdate(prevProps: DroppableComponentProps<TItem>) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
 

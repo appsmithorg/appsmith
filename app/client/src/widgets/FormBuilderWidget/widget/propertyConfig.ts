@@ -7,6 +7,7 @@ import { FormBuilderWidgetProps } from ".";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
+  FieldType,
   FIELD_EXPECTING_OPTIONS,
   ROOT_SCHEMA_KEY,
   SchemaItem,
@@ -14,6 +15,7 @@ import {
 import { ValidationTypes } from "constants/WidgetValidation";
 import { PanelConfig } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import SchemaParser from "../schemaParser";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -37,12 +39,14 @@ const fieldTypeOptionsFn = (controlProps: DropDownControlProps) => {
   const { propertyName, widgetProperties } = controlProps;
   const parentPropertyPath = getParentPropertyPath(propertyName);
   const schemaItem: SchemaItem = get(widgetProperties, parentPropertyPath, {});
-  const { dataType } = schemaItem;
-  const potentialField = DATA_TYPE_POTENTIAL_FIELD[dataType];
+  const { dataType, isCustomField } = schemaItem;
+  const potentialField = isCustomField
+    ? Object.values(FieldType)
+    : DATA_TYPE_POTENTIAL_FIELD[dataType]?.options || [];
 
   let options: DropdownOption[] = [];
   if (potentialField) {
-    options = potentialField.options.map((option) => ({
+    options = potentialField.map((option) => ({
       label: option,
       value: option,
     }));
@@ -66,6 +70,25 @@ const hiddenIfArrayItem = (
   return schemaItem.name === ARRAY_ITEM_KEY;
 };
 
+const fieldTypeUpdateHook = (
+  props: FormBuilderWidgetProps,
+  propertyPath: string,
+  fieldType: FieldType,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const schemaItemPath = getParentPropertyPath(propertyPath);
+  const schemaItem: SchemaItem = get(props, schemaItemPath, {});
+
+  const newSchemaItem = SchemaParser.getSchemaItemByFieldType(
+    schemaItem.name,
+    fieldType,
+    {
+      isCustomField: schemaItem.isCustomField,
+    },
+  );
+
+  return [{ propertyPath: schemaItemPath, propertyValue: newSchemaItem }];
+};
+
 const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
   if (nestingLevel === 0) return;
 
@@ -73,7 +96,6 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
     editableTitle: true,
     titlePropertyName: "label",
     panelIdPropertyName: "name",
-    updateHook: updateDerivedColumnsHook,
     children: [
       {
         sectionName: "FieldControl",
@@ -86,18 +108,7 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isTriggerProperty: false,
             optionsFn: fieldTypeOptionsFn,
             dependencies: ["schema"],
-          },
-          {
-            helpText: "Sets the label of the field",
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Name:",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-            dependencies: ["schema"],
-            hidden: hiddenIfArrayItem,
+            updateHook: fieldTypeUpdateHook,
           },
           {
             propertyName: "props.options",
@@ -200,9 +211,15 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isTriggerProperty: false,
             panelConfig: generatePanelConfig(nestingLevel - 1) as PanelConfig,
             hidden: (props: FormBuilderWidgetProps, propertyPath: string) => {
-              const children = get(props, propertyPath, {});
-              return isEmpty(children);
+              const schemaItemPath = getParentPropertyPath(propertyPath);
+              const schemaItem: SchemaItem = get(props, schemaItemPath, {});
+
+              return (
+                schemaItem.fieldType !== FieldType.OBJECT &&
+                isEmpty(schemaItem.children)
+              );
             },
+            dependencies: ["schema"],
           },
         ],
       },
@@ -235,14 +252,6 @@ const formDataValidationFn = (
       parsed: {},
     };
   }
-};
-
-const updateDerivedColumnsHook = (
-  props: FormBuilderWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
-  return;
 };
 
 export default [

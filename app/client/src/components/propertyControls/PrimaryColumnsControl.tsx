@@ -10,7 +10,11 @@ import {
   StyledPropertyPaneButton,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -65,17 +69,9 @@ const AddColumnButton = styled(StyledPropertyPaneButton)`
   }
 `;
 
-type RenderComponentProps = {
+type DroppableItem = BaseItemProps & {
   index: number;
-  item: {
-    label: string;
-    isDerived?: boolean;
-    isVisible?: boolean;
-  };
-  updateOption: (index: number, value: string) => void;
-  onEdit?: (index: number) => void;
-  deleteOption: (index: number) => void;
-  toggleVisibility?: (index: number) => void;
+  isDerived?: boolean;
 };
 
 const getOriginalColumn = (
@@ -90,7 +86,7 @@ const getOriginalColumn = (
   return column;
 };
 
-function ColumnControlComponent(props: RenderComponentProps) {
+function ColumnControlComponent(props: RenderComponentProps<DroppableItem>) {
   const [value, setValue] = useState(props.item.label);
   const [isEditing, setEditing] = useState(false);
 
