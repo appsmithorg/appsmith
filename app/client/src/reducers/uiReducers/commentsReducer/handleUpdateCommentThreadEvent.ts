@@ -1,4 +1,3 @@
-import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { get, uniqBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
@@ -6,42 +5,41 @@ import { CommentsReduxState } from "./interfaces";
 // TODO verify cases where commentThread can be undefined for update event
 const handleUpdateCommentThreadEvent = (
   state: CommentsReduxState,
-  action: ReduxAction<Partial<CommentThread & { _id: string }>>,
+  action: ReduxAction<any>,
 ) => {
-  const id = action.payload._id as string;
+  const thread = action.payload;
+  const id = thread._id as string;
   const commentThreadInStore = state.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
   const newComments = get(action.payload, "comments", []);
 
-  const pinnedStateChanged =
-    commentThreadInStore?.pinnedState?.active !==
-    action.payload?.pinnedState?.active;
-
-  const resolvedStateUpdated =
-    commentThreadInStore?.resolvedState?.active !==
-    action.payload?.resolvedState?.active;
-
-  const shouldRefreshList = resolvedStateUpdated || pinnedStateChanged;
-
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
-    ...action.payload,
+    ...thread,
+    id,
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 
-  if (shouldRefreshList) {
-    state.applicationCommentThreadsByRef[
-      action.payload.applicationId as string
-    ] = {
-      ...state.applicationCommentThreadsByRef[
-        action.payload.applicationId as string
-      ],
+  if (!commentThreadInStore) {
+    const applicationCommentIdsByRefId = get(
+      state.applicationCommentThreadsByRef,
+      thread.applicationId,
+      {},
+    ) as Record<string, Array<string>>;
+    const threadsForRefId = get(applicationCommentIdsByRefId, thread.refId, []);
+    state.applicationCommentThreadsByRef[thread.applicationId] = {
+      ...(state.applicationCommentThreadsByRef[thread.applicationId] || {}),
+      [thread.refId]: Array.from(new Set([thread._id, ...threadsForRefId])),
     };
   }
 
-  const showUnreadIndicator = !state.isCommentMode;
-
-  return { ...state, showUnreadIndicator, lastUpdatedCommentThreadId: id };
+  return {
+    ...state,
+    lastUpdatedCommentThreadByAppId: {
+      ...state.lastUpdatedCommentThreadByAppId,
+      [thread.applicationId]: id,
+    },
+  };
 };
 
 export default handleUpdateCommentThreadEvent;

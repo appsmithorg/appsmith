@@ -40,6 +40,8 @@ function GetAppViewerHeaderCTA(props: any) {
   let CTA = null;
   const dispatch = useDispatch();
 
+  const applicationId = currentApplicationDetails?.id;
+
   if (url && canEdit) {
     CTA = (
       <Cta
@@ -67,7 +69,7 @@ function GetAppViewerHeaderCTA(props: any) {
       CTA = (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
           <ForkApplicationModal
-            applicationId={currentApplicationDetails.id}
+            applicationId={applicationId}
             trigger={
               <TriggerButton
                 className="t--fork-app"

@@ -48,6 +48,9 @@ public class ApplicationForkingService {
                     final Organization targetOrganization = tuple.getT2();
                     final User user = tuple.getT3();
 
+                    //If the forking application is connected to git, do not copy those data to the new forked application
+                    application.setGitApplicationMetadata(null);
+
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?
                             !user.isAnonymous()

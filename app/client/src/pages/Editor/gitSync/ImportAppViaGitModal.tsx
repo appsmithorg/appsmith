@@ -1,6 +1,5 @@
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import DialogComponent from "components/ads/DialogComponent";
-import { debug } from "loglevel";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsImportAppViaGitModalOpen } from "selectors/gitSyncSelectors";
@@ -20,12 +19,7 @@ export default function ImportAppViaGitModal() {
       showHeaderUnderline
       width={"580px"}
     >
-      <GitConnection
-        isImport
-        onSuccess={() => {
-          debug("on success");
-        }}
-      />
+      <GitConnection isImport />
     </DialogComponent>
   );
 }

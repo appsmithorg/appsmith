@@ -1,5 +1,4 @@
 import { put, select } from "redux-saga/effects";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getAppStoreName } from "constants/AppConstants";
 import localStorage from "utils/localStorage";
 import {
@@ -9,13 +8,16 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
 import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
 ) {
   if (action.persist) {
-    const appId = yield select(getCurrentApplicationId);
-    const appStoreName = getAppStoreName(appId);
+    const applicationId = yield select(getCurrentApplicationId);
+    const branch = yield select(getCurrentGitBranch);
+    const appStoreName = getAppStoreName(applicationId, branch);
     const existingStore = localStorage.getItem(appStoreName) || "{}";
     const parsedStore = JSON.parse(existingStore);
     parsedStore[action.key] = action.value;
