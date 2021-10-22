@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.mongodb.client.result.UpdateResult;
@@ -16,5 +17,5 @@ public interface CustomCommentThreadRepository extends AppsmithRepository<Commen
     Mono<UpdateResult> removeSubscriber(String threadId, String username);
     Mono<CommentThread> findPrivateThread(String applicationId);
     Mono<Long> countUnreadThreads(String applicationId, String userEmail);
-    Mono<UpdateResult> archiveByPageId(String pageId);
+    Mono<UpdateResult> archiveByPageId(String pageId, CommentMode commentMode);
 }

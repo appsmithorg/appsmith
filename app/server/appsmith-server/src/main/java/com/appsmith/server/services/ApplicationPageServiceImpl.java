@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -591,7 +592,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
-                    Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(id);
+                    Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(
+                            id, CommentMode.EDIT
+                    );
 
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.

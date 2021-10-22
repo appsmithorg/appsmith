@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
@@ -48,6 +49,7 @@ public class CustomCommentThreadRepositoryImplTest {
         CommentThread thread = new CommentThread();
         thread.setPageId(pageId);
         thread.setApplicationId(applicationId);
+        thread.setMode(CommentMode.EDIT);
         User user = new User();
         user.setEmail(userEmail);
 
@@ -252,7 +254,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.saveAll(threads)
                 .collectList()
-                .then(commentThreadRepository.archiveByPageId(pageOneId))
+                .then(commentThreadRepository.archiveByPageId(pageOneId, CommentMode.EDIT))
                 .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
                 .collectMultimap(CommentThread::getPageId);
 
@@ -285,7 +287,7 @@ public class CustomCommentThreadRepositoryImplTest {
         thread.getPolicies().add(policyForCurrentUser);
 
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
-                .then(commentThreadRepository.archiveByPageId(testPageId))
+                .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT))
                 .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
                 .collectMultimap(CommentThread::getPageId);
 
