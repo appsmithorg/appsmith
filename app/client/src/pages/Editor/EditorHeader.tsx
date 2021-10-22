@@ -337,7 +337,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             >
               <MenuIcon className="w-4 h-4 fill-current absolute opacity-100 group-hover:opacity-0 transition-opacity" />
               <UnpinIcon
-                className="w-4 h-4 cursor-pointer hover:bg-warmGray-200 ring-transparent hover:ring-warmGray-200 ring-6 fill-current absolute opacity-0 group-hover:opacity-100 transition-opacity"
+                className="w-4 h-4 cursor-pointer hover:bg-warmGray-200 ring-transparent hover:ring-warmGray-200 ring-5 fill-current absolute opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={onPin}
               />
             </div>
