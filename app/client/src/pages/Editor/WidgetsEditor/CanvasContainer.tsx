@@ -15,6 +15,7 @@ import { useParams } from "react-router";
 
 const Container = styled.section`
   width: 100%;
+  height: 100%;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;

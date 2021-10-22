@@ -16,6 +16,7 @@ import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 
 type Props = {
   width: number;
+  onDragEnd?: () => void;
   onWidthChange: (width: number) => void;
 };
 
@@ -26,7 +27,12 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     onMouseUp,
     onTouchStart,
     resizing,
-  } = useHorizontalResize(sidebarRef, props.onWidthChange, undefined, true);
+  } = useHorizontalResize(
+    sidebarRef,
+    props.onWidthChange,
+    props.onDragEnd,
+    true,
+  );
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
@@ -72,16 +78,17 @@ export const PropertyPaneSidebar = memo((props: Props) => {
           })}
         />
       </div>
+      {/* PROPERTY PANE */}
       <div
         className={classNames({
-          "js-property-pane-sidebar bg-white flex h-full t--property-pane-sidebar z-3 border-l border-gray-200 transform transition duration-300": true,
+          "js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full z-3 border-l border-gray-200 transform transition duration-300": true,
           "relative ": !isPreviewMode,
           "fixed translate-x-full right-0": isPreviewMode,
         })}
         ref={sidebarRef}
       >
         <div
-          className="h-full p-0 overflow-y-auto min-w-72 max-w-96"
+          className="h-full p-0 overflow-y-auto min-w-72 max-w-104"
           style={{ width: props.width }}
         >
           {propertyPane}
