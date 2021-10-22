@@ -382,7 +382,6 @@ public class LayoutServiceTest {
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
                     action.setPluginType(PluginType.JS);
-                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
@@ -402,7 +401,6 @@ public class LayoutServiceTest {
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
                     action.setPluginType(PluginType.JS);
-                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
@@ -442,7 +440,6 @@ public class LayoutServiceTest {
                     action.setDatasource(d2);
                     action.setPageId(page1.getId());
                     action.setPluginType(PluginType.JS);
-                    action.setDynamicBindingPathList(List.of(new Property("body", null)));
                     monos.add(layoutActionService.createSingleAction(action));
 
                     return Mono.zip(monos, objects -> page1);
