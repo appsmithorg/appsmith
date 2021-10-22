@@ -184,9 +184,10 @@ const StyledNumericInput = styled(NumericInput)`
       > {
         &:first-child:not(input) {
           position: static;
+          background: ${Colors.WHITE};
           color: ${(props) =>
             props.disabled ? Colors.GREY_7 : Colors.GREY_10};
-          border: 1px solid #e7e7e7;
+          border: 1px solid ${Colors.GEYSER_LIGHT};
           border-right: 0;
         }
         input:not(:first-child) {
@@ -202,6 +203,25 @@ const StyledNumericInput = styled(NumericInput)`
         &:first-child:not(input) {
           background: ${Colors.GREY_1};
         }
+      }
+    }
+    .${Classes.BUTTON_GROUP} {
+      background-color: transparent;
+      border: 1px solid ${Colors.GEYSER_LIGHT};
+      border-left-width: 0;
+
+      .${Classes.BUTTON} {
+        background-color: ${Colors.WHITE};
+        border-width: 0;
+        box-shadow: none;
+      }
+      .${Classes.BUTTON}:active, .${Classes.BUTTON}:hover {
+        background-color: ${Colors.GREY_2};
+        color: ${Colors.GREY_10};
+      }
+      .${Classes.BUTTON}.${Classes.DISABLED} {
+        background-color: ${Colors.GREY_1};
+        color: ${Colors.GREY_6};
       }
     }
   }
