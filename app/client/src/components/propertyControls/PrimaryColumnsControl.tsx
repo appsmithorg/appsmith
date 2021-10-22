@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, Component } from "react";
+import { AppState } from "reducers";
+import { connect } from "react-redux";
+import { Placement } from "popper.js";
+import * as Sentry from "@sentry/react";
+import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -10,17 +15,28 @@ import {
   StyledPropertyPaneButton,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
+import { Indices } from "constants/Layers";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import { Size, Category } from "components/ads/Button";
 import EmptyDataState from "components/utils/EmptyDataState";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getDefaultColumnProperties,
   getTableStyles,
 } from "widgets/TableWidget/component/TableUtilities";
-import { debounce } from "lodash";
-import { Size, Category } from "components/ads/Button";
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
+import {
+  EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -65,6 +81,24 @@ const AddColumnButton = styled(StyledPropertyPaneButton)`
   }
 `;
 
+interface ReduxStateProps {
+  dynamicData: DataTree;
+  datasources: any;
+}
+
+type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
+  isFocused: boolean;
+  theme: EditorTheme;
+  popperPlacement?: Placement;
+  popperZIndex?: Indices;
+  dataTreePath?: string;
+  evaluatedValue?: any;
+  expected?: CodeEditorExpected;
+  hideEvaluatedValue?: boolean;
+  useValidationMessage?: boolean;
+  children: JSX.Element;
+};
+
 type RenderComponentProps = {
   index: number;
   item: {
@@ -72,6 +106,7 @@ type RenderComponentProps = {
     isDerived?: boolean;
     isVisible?: boolean;
   };
+  updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
   onEdit?: (index: number) => void;
   deleteOption: (index: number) => void;
@@ -108,7 +143,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
     updateOption,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
-  const debouncedUpdate = debounce(updateOption, 1000);
+  const debouncedUpdate = _.debounce(updateOption, 1000);
   const onChange = useCallback(
     (index: number, value: string) => {
       setValue(value);
@@ -117,8 +152,14 @@ function ColumnControlComponent(props: RenderComponentProps) {
     [updateOption],
   );
 
-  const onFocus = () => setEditing(true);
-  const onBlur = () => setEditing(false);
+  const onFocus = () => {
+    setEditing(true);
+    if (props.updateFocus) props.updateFocus(index, true);
+  };
+  const onBlur = () => {
+    setEditing(false);
+    if (props.updateFocus) props.updateFocus(index, false);
+  };
 
   return (
     <ItemWrapper>
@@ -176,6 +217,11 @@ function ColumnControlComponent(props: RenderComponentProps) {
 }
 
 class PrimaryColumnsControl extends BaseControl<ControlProps> {
+  // handle column name input is focused or not
+  state = {
+    isFocused: false,
+  };
+
   render() {
     // Get columns from widget properties
     const columns: Record<string, ColumnProperties> =
@@ -210,16 +256,22 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
 
     return (
       <TabsWrapper>
-        <DroppableComponent
-          deleteOption={this.deleteOption}
-          itemHeight={45}
-          items={draggableComponentColumns}
-          onEdit={this.onEdit}
-          renderComponent={ColumnControlComponent}
-          toggleVisibility={this.toggleVisibility}
-          updateItems={this.updateItems}
-          updateOption={this.updateOption}
-        />
+        <EvaluatedValuePopupWrapper
+          {...this.props}
+          isFocused={this.state.isFocused}
+        >
+          <DroppableComponent
+            deleteOption={this.deleteOption}
+            itemHeight={45}
+            items={draggableComponentColumns}
+            onEdit={this.onEdit}
+            renderComponent={ColumnControlComponent}
+            toggleVisibility={this.toggleVisibility}
+            updateFocus={this.updateFocus}
+            updateItems={this.updateItems}
+            updateOption={this.updateOption}
+          />
+        </EvaluatedValuePopupWrapper>
 
         <AddColumnButton
           category={Category.tertiary}
@@ -341,9 +393,102 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
     }
   };
 
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ isFocused });
+  };
+
   static getControlType() {
     return "PRIMARY_COLUMNS";
   }
 }
 
 export default PrimaryColumnsControl;
+
+/**
+ * wrapper component on dragable primary columns
+ * render popup if primary column labels are not unique
+ * show unique name error in PRIMARY_COLUMNS
+ */
+class EvaluatedValuePopupWrapperClass extends Component<
+  EvaluatedValuePopupWrapperProps
+> {
+  getPropertyValidation = (
+    dataTree: DataTree,
+    dataTreePath?: string,
+  ): {
+    isInvalid: boolean;
+    errors: EvaluationError[];
+    pathEvaluatedValue: unknown;
+  } => {
+    if (!dataTreePath) {
+      return {
+        isInvalid: false,
+        errors: [],
+        pathEvaluatedValue: undefined,
+      };
+    }
+
+    const errors = _.get(
+      dataTree,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+
+    const filteredLintErrors = errors.filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+
+    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+
+    return {
+      isInvalid: filteredLintErrors.length > 0,
+      errors: filteredLintErrors,
+      pathEvaluatedValue,
+    };
+  };
+
+  render = () => {
+    const {
+      dataTreePath,
+      dynamicData,
+      evaluatedValue,
+      expected,
+      hideEvaluatedValue,
+      useValidationMessage,
+    } = this.props;
+    const {
+      errors,
+      isInvalid,
+      pathEvaluatedValue,
+    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    let evaluated = evaluatedValue;
+    if (dataTreePath) {
+      evaluated = pathEvaluatedValue;
+    }
+
+    return (
+      <EvaluatedValuePopup
+        errors={errors}
+        evaluatedValue={evaluated}
+        expected={expected}
+        hasError={isInvalid}
+        hideEvaluatedValue={hideEvaluatedValue}
+        isOpen={this.props.isFocused && isInvalid}
+        popperPlacement={this.props.popperPlacement}
+        popperZIndex={this.props.popperZIndex}
+        theme={this.props.theme || EditorTheme.LIGHT}
+        useValidationMessage={useValidationMessage}
+      >
+        {this.props.children}
+      </EvaluatedValuePopup>
+    );
+  };
+}
+const mapStateToProps = (state: AppState): ReduxStateProps => ({
+  dynamicData: getDataTreeForAutocomplete(state),
+  datasources: state.entities.datasources,
+});
+
+const EvaluatedValuePopupWrapper = Sentry.withProfiler(
+  connect(mapStateToProps)(EvaluatedValuePopupWrapperClass),
+);
