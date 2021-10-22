@@ -135,10 +135,12 @@ export const Colors = {
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
   GREY_5: "#E0DEDE",
+  GREY_6: "#A9A7A7",
   GREY_7: "#858282",
   GREY_8: "#716E6E",
   GREY_9: "#4B4848",
   GREY_10: "#090707",
+  GREY_11: "#9F9F9F",
 
   PRIMARY_ORANGE: "#F86A2B",
   MIRAGE: "#182026",

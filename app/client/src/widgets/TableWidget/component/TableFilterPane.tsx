@@ -21,10 +21,10 @@ import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/dra
 const DragBlock = styled.div`
   height: 41px;
   width: 83px;
-  background: ${Colors.ATHENS_GRAY_DARKER};
+  background: ${Colors.WHITE_SNOW};
   box-sizing: border-box;
   font-size: 12px;
-  color: ${Colors.SLATE_GRAY};
+  color: ${Colors.GREY_11};
   letter-spacing: 0.04em;
   font-weight: 500;
   display: flex;
@@ -33,7 +33,7 @@ const DragBlock = styled.div`
   cursor: pointer;
   span {
     padding-left: 8px;
-    color: ${Colors.GRAY};
+    color: ${Colors.GREY_11};
   }
 `;
 
