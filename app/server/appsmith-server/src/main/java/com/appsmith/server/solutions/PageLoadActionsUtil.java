@@ -199,7 +199,7 @@ public class PageLoadActionsUtil {
         // Transform the schedule order into client feasible DTO
         Mono<List<Set<DslActionDTO>>> computeCompletePageLoadActionScheduleMono =
                 filterAndTransformSchedulingOrderToDTO(onPageLoadActionSet, actionNameToActionMapMono, computeOnPageLoadScheduleNamesMono)
-                .cache();
+                        .cache();
 
 
         // With the final on page load scheduling order, also set the on page load actions which would be updated
@@ -239,34 +239,34 @@ public class PageLoadActionsUtil {
                                                                                  Mono<List<Set<String>>> computeOnPageLoadScheduleNamesMono) {
 
         return Mono.zip(computeOnPageLoadScheduleNamesMono, actionNameToActionMapMono)
-        .map(tuple -> {
-            List<Set<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
-            Map<String, ActionDTO> actionMap = tuple.getT2();
+                .map(tuple -> {
+                    List<Set<String>> onPageLoadActionsSchedulingOrder = tuple.getT1();
+                    Map<String, ActionDTO> actionMap = tuple.getT2();
 
-            List<Set<DslActionDTO>> onPageLoadActions = new ArrayList<>();
+                    List<Set<DslActionDTO>> onPageLoadActions = new ArrayList<>();
 
-            for (Set<String> names : onPageLoadActionsSchedulingOrder) {
-                Set<DslActionDTO> actionsInLevel = new HashSet<>();
+                    for (Set<String> names : onPageLoadActionsSchedulingOrder) {
+                        Set<DslActionDTO> actionsInLevel = new HashSet<>();
 
-                for (String name : names) {
-                    ActionDTO action = actionMap.get(name);
-                    // TODO : Remove this check once JS actions on page load functionality has been
-                    //  implemented on the client side
-                    if (PluginType.JS.equals(action.getPluginType())) {
-                        // trim out the JS actions in the on page load schedule
-                        onPageLoadActionSet.remove(name);
-                    } else if (hasUserSetActionToNotRunOnPageLoad(action)) {
-                        onPageLoadActionSet.remove(name);
-                    } else {
-                        actionsInLevel.add(getDslAction(action));
+                        for (String name : names) {
+                            ActionDTO action = actionMap.get(name);
+                            // TODO : Remove this check once JS actions on page load functionality has been
+                            //  implemented on the client side
+                            if (PluginType.JS.equals(action.getPluginType())) {
+                                // trim out the JS actions in the on page load schedule
+                                onPageLoadActionSet.remove(name);
+                            } else if (hasUserSetActionToNotRunOnPageLoad(action)) {
+                                onPageLoadActionSet.remove(name);
+                            } else {
+                                actionsInLevel.add(getDslAction(action));
+                            }
+                        }
+
+                        onPageLoadActions.add(actionsInLevel);
                     }
-                }
 
-                onPageLoadActions.add(actionsInLevel);
-            }
-
-            return onPageLoadActions.stream().filter(setOfActions -> !setOfActions.isEmpty()).collect(Collectors.toList());
-        });
+                    return onPageLoadActions.stream().filter(setOfActions -> !setOfActions.isEmpty()).collect(Collectors.toList());
+                });
     }
 
     /**
@@ -501,6 +501,7 @@ public class PageLoadActionsUtil {
      * found actions' bindings in the set, adds the new actions and their bindings to actionNames and edges and
      * recursively calls itself with the new set of dynamicBindingNames.
      * This ensures that the DAG that we create is complete and contains all possible actions and their dependencies
+     *
      * @return
      */
     private Mono<Set<ActionDependencyEdge>> recursivelyAddActionsAndTheirDependentsToGraphFromBindings(String pageId,
@@ -523,7 +524,7 @@ public class PageLoadActionsUtil {
         Mono<List<ActionDTO>> findAndAddActionsInBindingsMono = newActionService.findUnpublishedActionsInPageByNames(possibleActionNames, pageId)
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .map(action -> {
-                    
+
                     extractAndSetActionBindingsInGraphEdges(edges, action, newBindings, actionsFoundDuringWalk);
 
                     return action;
@@ -557,10 +558,10 @@ public class PageLoadActionsUtil {
      * @return
      */
     private Mono<Set<ActionDependencyEdge>> addExplicitUserSetOnLoadActionsToGraph(String pageId,
-                                                                Set<ActionDependencyEdge> edges,
-                                                                Set<String> explicitUserSetOnLoadActions,
-                                                                Set<String> actionsFoundDuringWalk,
-                                                                Set<String> bindingsFromActions) {
+                                                                                   Set<ActionDependencyEdge> edges,
+                                                                                   Set<String> explicitUserSetOnLoadActions,
+                                                                                   Set<String> actionsFoundDuringWalk,
+                                                                                   Set<String> bindingsFromActions) {
 
         //First fetch all the actions which have been tagged as on load by the user explicitly.
         return newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(pageId)
@@ -644,6 +645,7 @@ public class PageLoadActionsUtil {
      * This function walks the widget bindings and adds all the relationships which have been discovered earlier while
      * walking the DSL and extracting all the relationships into edges between the widget path where there is a dynamic
      * binding and the entities in the bindings.
+     *
      * @param edges
      * @param widgetBindingMap
      * @return
@@ -831,19 +833,15 @@ public class PageLoadActionsUtil {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
-                if (PluginType.JS.equals(action.getPluginType())) {
+                if (PluginType.JS.equals(action.getPluginType()) &&
+                        TRUE.equals(action.getActionConfiguration().getIsAsync())) {
 
-                    // If this is a sync function, it should not be added to on page load since they would be executed
-                    // during evaluation.
-                    if (FALSE.equals(action.getActionConfiguration().getIsAsync())) {
-                        isCandidateForPageLoad= FALSE;
-                    } else {
-                        // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
-                        // of this async call is being referred in the binding.
-                        String validBinding = entity + "." + "data";
-                        if (!dynamicBinding.contains(validBinding)) {
-                            isCandidateForPageLoad = FALSE;
-                        }
+                    // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
+                    // of this async call is being referred to in the binding.
+
+                    String validBinding = entity + "." + "data";
+                    if (!dynamicBinding.contains(validBinding)) {
+                        isCandidateForPageLoad = FALSE;
                     }
                 }
 
