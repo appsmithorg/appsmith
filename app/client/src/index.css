@@ -82,6 +82,7 @@ div.bp3-popover-arrow {
 
 .bp3-popover.none-shadow-popover {
   box-shadow: none;
+  border: 0px;
 }
 
 .bp3-datepicker {
