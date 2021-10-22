@@ -334,9 +334,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         final JsonNode actionConfigurationNode = objectMapper.convertValue(actionConfiguration, JsonNode.class);
                         final JsonNode actionConfigurationNodeAfterReplacement = replaceStringInJsonNode(actionConfigurationNode, oldNamePattern, newName);
 
-//                            String actionConfigurationAsString = objectMapper.writeValueAsString(actionConfiguration);
-//                            Matcher matcher = oldNamePattern.matcher(actionConfigurationAsString);
-//                            String newActionConfigurationAsString = matcher.replaceAll(newName);
                         ActionConfiguration newActionConfiguration = objectMapper.convertValue(actionConfigurationNodeAfterReplacement, ActionConfiguration.class);
                         action.setActionConfiguration(newActionConfiguration);
                         NewAction newAction2 = newActionService.extractAndSetJsonPathKeys(newAction);
