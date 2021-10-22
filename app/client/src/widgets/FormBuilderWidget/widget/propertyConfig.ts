@@ -55,7 +55,7 @@ const fieldTypeOptionsFn = (controlProps: DropDownControlProps) => {
   return options;
 };
 
-const hiddenIfArrayItem = (
+const hiddenIfArrayItemIsObject = (
   props: FormBuilderWidgetProps,
   propertyPath: string,
   options?: { checkGrandParentPath: boolean },
@@ -67,7 +67,11 @@ const hiddenIfArrayItem = (
 
   const schemaItem: SchemaItem = get(props, path, {});
 
-  return schemaItem.name === ARRAY_ITEM_KEY;
+  return (
+    schemaItem.name === ARRAY_ITEM_KEY &&
+    (schemaItem.fieldType === FieldType.OBJECT ||
+      schemaItem.fieldType === FieldType.ARRAY)
+  );
 };
 
 const fieldTypeUpdateHook = (
@@ -175,7 +179,9 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
             hidden: (...args) =>
-              hiddenIfArrayItem(...args, { checkGrandParentPath: true }),
+              hiddenIfArrayItemIsObject(...args, {
+                checkGrandParentPath: true,
+              }),
             dependencies: ["schema"],
           },
           {
@@ -188,7 +194,7 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-            hidden: hiddenIfArrayItem,
+            hidden: hiddenIfArrayItemIsObject,
             dependencies: ["schema"],
           },
           {
@@ -200,7 +206,7 @@ const generatePanelConfig = (nestingLevel: number): PanelConfig | undefined => {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: hiddenIfArrayItem,
+            hidden: hiddenIfArrayItemIsObject,
             dependencies: ["schema"],
           },
           {

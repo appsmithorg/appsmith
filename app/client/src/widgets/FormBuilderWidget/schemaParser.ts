@@ -1,4 +1,4 @@
-import { cloneDeep, difference, startCase } from "lodash";
+import { cloneDeep, difference, omit, startCase } from "lodash";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
@@ -157,13 +157,17 @@ class SchemaParser {
       ...FieldComponent.componentDefaultValues,
     };
 
+    // Removing fieldType (which might have been passed by getSchemaItemByFieldType)
+    // as it might bleed into subsequent schema item and force assign fieldType
+    const sanitizedOptions = omit(options, ["fieldType"]);
+
     let children: Schema = {};
     if (dataType === DataType.OBJECT) {
-      children = SchemaParser.convertObjectToSchema(options);
+      children = SchemaParser.convertObjectToSchema(sanitizedOptions);
     }
 
     if (dataType === DataType.ARRAY) {
-      children = SchemaParser.convertArrayToSchema(options);
+      children = SchemaParser.convertArrayToSchema(sanitizedOptions);
     }
 
     return {
@@ -261,14 +265,14 @@ class SchemaParser {
       }
     });
 
+    removedKeys.forEach((removedKey) => {
+      delete schema[removedKey];
+    });
+
     newKeys.forEach((newKey) => {
       schema[newKey] = SchemaParser.getSchemaItemFor(newKey, {
         currFormData: currObj[newKey],
       });
-    });
-
-    removedKeys.forEach((removedKey) => {
-      delete schema[removedKey];
     });
 
     return schema;

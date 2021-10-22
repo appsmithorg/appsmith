@@ -48,6 +48,7 @@ export type SchemaItem<TProps = any> = {
   isVisible: boolean;
   label: string;
   name: string;
+  // position: number;
   props: TProps;
   tooltip?: string;
 };

@@ -25,6 +25,7 @@ import {
   StyledVisibleIcon,
 } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { InputText } from "./InputTextControl";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -217,10 +218,26 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
   };
 
+  onInputChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
+    let value = event;
+    if (typeof event !== "string") {
+      value = event.target.value;
+    }
+
+    try {
+      const parsedValue = JSON.parse(value as string);
+      this.updateProperty(this.props.propertyName, parsedValue);
+    } catch {
+      // TODO: Try to throw some error
+    }
+  };
+
   render() {
-    const { propertyValue = {} } = this.props;
+    const { propertyValue = {}, panelConfig } = this.props;
     const schema: Schema = propertyValue;
     const entries = Object.values(schema) || [];
+
+    const isMaxLevelReached = Boolean(!panelConfig);
 
     const draggableComponentColumns: DroppableItem[] = entries.map(
       ({ isCustomField, isVisible, label, name }, index) => ({
@@ -231,6 +248,32 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
         label,
       }),
     );
+
+    if (isMaxLevelReached) {
+      const {
+        additionalAutoComplete,
+        dataTreePath,
+        expected,
+        hideEvaluatedValue,
+        label,
+        theme,
+      } = this.props;
+      const value = JSON.stringify(schema, null, 2);
+
+      return (
+        <InputText
+          additionalAutocomplete={additionalAutoComplete}
+          dataTreePath={dataTreePath}
+          expected={expected}
+          hideEvaluatedValue={hideEvaluatedValue}
+          label={label}
+          onChange={this.onInputChange}
+          placeholder="{ name: 'John', dataType: 'string' }"
+          theme={theme}
+          value={value || "{}"}
+        />
+      );
+    }
 
     return (
       <TabsWrapper>

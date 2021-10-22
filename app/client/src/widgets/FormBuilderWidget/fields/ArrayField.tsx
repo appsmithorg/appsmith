@@ -5,7 +5,7 @@ import { useFieldArray, ControllerRenderProps } from "react-hook-form";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import { ARRAY_ITEM_KEY } from "../constants";
+import { ARRAY_ITEM_KEY, FieldType, SchemaItem } from "../constants";
 import { BaseFieldComponentProps } from "./types";
 
 type ArrayComponentOwnProps = {
@@ -34,7 +34,6 @@ const StyledButton = styled.button`
 const StyledDeleteButton = styled(StyledButton)`
   align-self: center;
 `;
-
 function ArrayField({ name, schemaItem }: ArrayFieldProps) {
   const { append, fields, remove } = useFieldArray({
     name,
