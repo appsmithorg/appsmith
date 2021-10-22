@@ -76,7 +76,11 @@ export const redirectToNewIntegrations = (
   applicationId: string,
   pageId: string,
   params?: any,
-): ReduxAction<{ applicationId: string; pageId: string; params: any }> => ({
+): ReduxAction<{
+  applicationId: string;
+  pageId: string;
+  params: any;
+}> => ({
   type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
   payload: { applicationId, pageId, params },
 });

@@ -1,15 +1,14 @@
 import React, { memo, useState } from "react";
 import styled from "styled-components";
-import Button from "components/ads/Button";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { useEffect } from "react";
 import { playWelcomeAnimation } from "utils/helpers";
 import {
   createMessage,
-  WELCOME_ACTION,
   WELCOME_BODY,
   WELCOME_HEADER,
 } from "constants/messages";
+import NonSuperUserForm, { SuperUserForm } from "./GetStarted";
 
 const LandingPageWrapper = styled.div<{ hide: boolean }>`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -51,23 +50,13 @@ const StyledImageBanner = styled.div`
   min-width: ${(props) => props.theme.pageContentWidth * 0.45}px;
 `;
 
-const ActionContainer = styled.div`
-  margin-top: ${(props) => props.theme.spaces[15]}px;
-`;
-
-const StyledButton = styled(Button)`
-  width: 136px;
-  height: 38px;
-  font-size: 13px;
-  margin-top: ${(props) => props.theme.spaces[3]}px;
-`;
-
 const StyledImage = styled.img``;
 
 const getWelcomeImage = () => `${ASSETS_CDN_URL}/welcome-banner.svg`;
 
 type LandingPageProps = {
-  onGetStarted: () => void;
+  onGetStarted?: (role?: string, useCase?: string) => void;
+  forSuperUser: boolean;
 };
 
 const WELCOME_PAGE_ANIMATION_CONTAINER = "welcome-page-animation-container";
@@ -91,6 +80,15 @@ const includeFonts = () => {
   document.head.appendChild(fonts);
 };
 
+function Banner() {
+  return (
+    <>
+      <StyledBannerHeader>{createMessage(WELCOME_HEADER)}</StyledBannerHeader>
+      <StyledBannerBody>{createMessage(WELCOME_BODY)}</StyledBannerBody>
+    </>
+  );
+}
+
 export default memo(function LandingPage(props: LandingPageProps) {
   const [fontsInjected, setFontsInjected] = useState(false);
   useEffect(() => {
@@ -108,16 +106,12 @@ export default memo(function LandingPage(props: LandingPageProps) {
     >
       <LandingPageContent>
         <StyledTextBanner>
-          <StyledBannerHeader>
-            {createMessage(WELCOME_HEADER)}
-          </StyledBannerHeader>
-          <StyledBannerBody>{createMessage(WELCOME_BODY)}</StyledBannerBody>
-          <ActionContainer>
-            <StyledButton
-              onClick={props.onGetStarted}
-              text={createMessage(WELCOME_ACTION)}
-            />
-          </ActionContainer>
+          <Banner />
+          {props.forSuperUser ? (
+            <SuperUserForm onGetStarted={props.onGetStarted} />
+          ) : (
+            <NonSuperUserForm onGetStarted={props.onGetStarted} />
+          )}
         </StyledTextBanner>
         <StyledImageBanner>
           <StyledImage src={getWelcomeImage()} />

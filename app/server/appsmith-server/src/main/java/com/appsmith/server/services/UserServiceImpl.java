@@ -892,14 +892,14 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     final UserProfileDTO profile = new UserProfileDTO();
 
-                    profile.setEmail(user.getEmail());
-                    profile.setOrganizationIds(user.getOrganizationIds());
-                    profile.setUsername(user.getUsername());
-                    profile.setName(user.getName());
-                    profile.setGender(user.getGender());
+                    profile.setEmail(userFromDb.getEmail());
+                    profile.setOrganizationIds(userFromDb.getOrganizationIds());
+                    profile.setUsername(userFromDb.getUsername());
+                    profile.setName(userFromDb.getName());
+                    profile.setGender(userFromDb.getGender());
                     profile.setEmptyInstance(isUsersEmpty);
-                    profile.setAnonymous(user.isAnonymous());
-                    profile.setEnabled(user.isEnabled());
+                    profile.setAnonymous(userFromDb.isAnonymous());
+                    profile.setEnabled(userFromDb.isEnabled());
                     profile.setCommentOnboardingState(userData.getCommentOnboardingState());
                     profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());

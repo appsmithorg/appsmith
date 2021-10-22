@@ -46,6 +46,8 @@ import { getQueryParams } from "../../../../utils/AppsmithUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 type ReduxStateProps = {
   orgId: string;
   datasource: Datasource | EmbeddedRestDatasource;
@@ -252,7 +254,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const { datasourceList } = this.props;
     return () => {
       return {
-        trigger: (editor: CodeMirror.Editor) => {
+        showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
           if (
@@ -297,11 +299,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                 return hints;
               },
             });
+            return true;
           }
-        },
-        showHint: () => {
           return false;
         },
+        fireOnFocus: true,
       };
     };
   };
@@ -393,7 +395,7 @@ const mapStateToProps = (
       (d) => d.pluginId === ownProps.pluginId,
     ),
     currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
