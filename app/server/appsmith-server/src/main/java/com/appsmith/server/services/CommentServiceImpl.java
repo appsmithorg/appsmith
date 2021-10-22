@@ -7,6 +7,7 @@ import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
+import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
@@ -442,32 +443,42 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
 
     @Override
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
-        return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREAD)
-                .collectList()
-                .flatMap(threads -> Mono.zip(
-                        Mono.just(threads),
-                        sessionUserService.getCurrentUser()
-                ))
-                .flatMap(tuple -> {
-                    List<CommentThread> threads = tuple.getT1();
-                    User user = tuple.getT2();
-                    final Map<String, CommentThread> threadsByThreadId = new HashMap<>();
+        return applicationService.findById(commentThreadFilterDTO.getApplicationId(), AclPermission.READ_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND)))
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    User currentUser = objects.getT2();
 
-                    for (CommentThread thread : threads) {
-                        thread.setComments(new LinkedList<>());
-                        thread.setIsViewed((thread.getViewedByUsers() != null && thread.getViewedByUsers().contains(user.getUsername()))
-                                || thread.getResolvedState().getActive());
-                        threadsByThreadId.put(thread.getId(), thread);
+                    // if user is app viewer, return the comments in published mode only
+                    Boolean permissionPresentForUser = policyUtils.isPermissionPresentForUser(
+                            application.getPolicies(), MANAGE_APPLICATIONS.getValue(), currentUser.getUsername()
+                    );
+                    if(!permissionPresentForUser) {
+                        // user is app viewer, show only PUBLISHED comment threads
+                        commentThreadFilterDTO.setMode(CommentMode.PUBLISHED);
                     }
+                    return threadRepository.find(commentThreadFilterDTO, AclPermission.READ_THREAD)
+                            .collectList()
+                            .flatMap(threads -> {
+                                final Map<String, CommentThread> threadsByThreadId = new HashMap<>();
 
-                    return repository.findByThreadIdInOrderByCreatedAt(new ArrayList<>(threadsByThreadId.keySet()))
-                            // TODO: Can we use `doOnSuccess` here?
-                            .map(comment -> {
-                                threadsByThreadId.get(comment.getThreadId()).getComments().add(comment);
-                                return comment;
-                            })
-                            .then()
-                            .thenReturn(threads);
+                                for (CommentThread thread : threads) {
+                                    thread.setComments(new LinkedList<>());
+                                    thread.setIsViewed((thread.getViewedByUsers() != null && thread.getViewedByUsers().contains(currentUser.getUsername()))
+                                            || thread.getResolvedState().getActive());
+                                    threadsByThreadId.put(thread.getId(), thread);
+                                }
+
+                                return repository.findByThreadIdInOrderByCreatedAt(new ArrayList<>(threadsByThreadId.keySet()))
+                                        // TODO: Can we use `doOnSuccess` here?
+                                        .map(comment -> {
+                                            threadsByThreadId.get(comment.getThreadId()).getComments().add(comment);
+                                            return comment;
+                                        })
+                                        .then()
+                                        .thenReturn(threads);
+                            });
                 });
     }
 

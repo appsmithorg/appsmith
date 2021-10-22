@@ -107,6 +107,9 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
             );
             criteriaList.add(where(fieldKey).is(commentThreadFilterDTO.getResolved()));
         }
+        if(commentThreadFilterDTO.getMode() != null) {
+            criteriaList.add(where(fieldName(QCommentThread.commentThread.mode)).is(commentThreadFilterDTO.getMode()));
+        }
         return queryAll(criteriaList, permission);
     }
 }
