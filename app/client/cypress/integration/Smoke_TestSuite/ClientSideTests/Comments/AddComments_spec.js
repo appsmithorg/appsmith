@@ -53,11 +53,7 @@ describe("Comments", function() {
       cy.CreateAppForOrg(orgName, appName);
       cy.addDsl(dsl);
     });
-    cy.get(commonLocators.canvas);
-    cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
-    cy.contains("SKIP").click({ force: true });
-    cy.get("input[name='displayName']").type("Skip User");
-    cy.get("button[type='submit']").click();
+    cy.skipCommentsOnboarding();
 
     // wait for comment mode to be set
     cy.wait(1000);
