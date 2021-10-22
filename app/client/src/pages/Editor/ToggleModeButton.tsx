@@ -159,7 +159,8 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
   // Need to fetch the comments on app edit for the first time.
   useEffect(() => {
-    dispatch(fetchApplicationCommentsRequest());
+    if (currentUser && currentUser.username !== ANONYMOUS_USERNAME)
+      dispatch(fetchApplicationCommentsRequest());
   }, []);
 };
 
