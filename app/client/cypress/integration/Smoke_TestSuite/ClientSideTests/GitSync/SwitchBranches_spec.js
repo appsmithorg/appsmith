@@ -31,9 +31,9 @@ describe("Git sync connect to repo", function() {
     cy.get(homePage.deployPopupOptionTrigger).click();
     cy.get(homePage.connectToGitBtn).click();
 
-    //   // todo: check for the initial state: init git connection button, regular deploy button
-    //   // add the test repo and click on submit btn
-    //   // intercept just the connect api
+    // todo: check for the initial state: init git connection button, regular deploy button
+    // add the test repo and click on submit btn
+    // intercept just the connect api
 
     cy.intercept(
       {
@@ -82,10 +82,20 @@ describe("Git sync connect to repo", function() {
       );
       // click on the connect button and verify
       cy.get(gitSyncLocators.connectSubmitBtn).click();
-      cy.wait("@connectGitRepo");
-
+      // check for connect success
+      cy.wait("@connectGitRepo").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      // click commit button
       cy.get(gitSyncLocators.commitButton).click();
-      cy.wait("@commit");
+      // check for commit success
+      cy.wait("@commit").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
 
       cy.get("body").type("{esc}");
     });
