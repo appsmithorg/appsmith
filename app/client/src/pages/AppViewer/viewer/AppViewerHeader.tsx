@@ -157,7 +157,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const hideHeader = !!isEmbed;
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
-  const isHideComments = useHideComments();
+  const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
@@ -201,7 +201,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                 <AppsmithLogoImg />
               </PrimaryLogoLink>
             </div>
-            {!isHideComments && (
+            {!shouldHideComments && (
               <div>
                 <ToggleCommentModeButton />
               </div>

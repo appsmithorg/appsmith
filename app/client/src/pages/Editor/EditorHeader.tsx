@@ -261,7 +261,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
-  const isHideComments = useHideComments();
+  const shouldHideComments = useHideComments();
   useEffect(() => {
     if (window.location.href) {
       const searchParams = new URL(window.location.href).searchParams;
@@ -375,7 +375,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 setIsPopoverOpen={setIsPopoverOpen}
               />
             </TooltipComponent>
-            {!isHideComments && (
+            {!shouldHideComments && (
               <ToggleModeButton showSelectedMode={!isPopoverOpen} />
             )}
           </Boxed>
