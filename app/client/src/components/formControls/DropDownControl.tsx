@@ -44,7 +44,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
               initialValue: initialValue,
               placeholder: placeholderText,
             }}
-            {...this.props}
           />
         </DropdownSelect>
       </div>
