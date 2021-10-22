@@ -9,8 +9,9 @@ import {
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import CheckboxGroupComponent, { OptionProps } from "../component";
+import CheckboxGroupComponent from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
 function defaultSelectedValuesValidation(
   value: unknown,
@@ -140,6 +141,19 @@ class CheckboxGroupWidget extends BaseWidget<
             },
           },
           {
+            propertyName: "isSelectAll",
+            label: "Select All Options",
+            controlType: "SWITCH",
+            helpText:
+              "Controls whether select all control will be shown or not",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -247,9 +261,11 @@ class CheckboxGroupWidget extends BaseWidget<
         isDisabled={this.props.isDisabled}
         isInline={this.props.isInline}
         isRequired={this.props.isRequired}
+        isSelectAll={this.props.isSelectAll}
         isValid={this.props.isValid}
         key={this.props.widgetId}
         onChange={this.handleCheckboxChange}
+        onSelectAllChange={this.handleSelectAllChange}
         options={this.props.options}
         rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues}
@@ -283,11 +299,44 @@ class CheckboxGroupWidget extends BaseWidget<
       });
     };
   };
+
+  private handleSelectAllChange = (state: SelectAllState) => {
+    return () => {
+      let { selectedValues } = this.props;
+      // const isChecked = (event.target as HTMLInputElement).checked;
+      // if (isChecked) {
+      //   selectedValues = [...selectedValues, value];
+      // } else {
+      //   selectedValues = selectedValues.filter(
+      //     (item: string) => item !== value,
+      //   );
+      // }
+
+      switch (state) {
+        case SelectAllStates.UNCHECKED:
+          selectedValues = this.props.options.map((option) => option.value);
+          break;
+
+        default:
+          selectedValues = [];
+          break;
+      }
+
+      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+        triggerPropertyName: "onSelectionChange",
+        dynamicString: this.props.onSelectionChange,
+        event: {
+          type: EventType.ON_CHECKBOX_GROUP_SELECTION_CHANGE,
+        },
+      });
+    };
+  };
 }
 
 export interface CheckboxGroupWidgetProps extends WidgetProps {
   options: OptionProps[];
   isInline: boolean;
+  isSelectAll?: boolean;
   isRequired?: boolean;
   isDisabled?: boolean;
   isValid?: boolean;

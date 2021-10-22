@@ -8,6 +8,7 @@ import { generateReactKey } from "utils/generators";
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
+import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
@@ -36,20 +37,47 @@ const CheckboxGroupContainer = styled.div<
   padding: 2px 4px;
 `;
 
-export interface OptionProps {
-  /** Label text for this option. If omitted, `value` is used as the label. */
-  label?: string;
+export interface SelectAllProps {
+  checked: boolean;
+  disabled?: boolean;
+  indeterminate?: boolean;
+  inline?: boolean;
+  onChange: React.FormEventHandler<HTMLInputElement>;
+  rowSpace: number;
+}
 
-  /** Value of this option. */
-  value: string;
+function SelectAll(props: SelectAllProps) {
+  const {
+    checked,
+    disabled,
+    indeterminate,
+    inline,
+    onChange,
+    rowSpace,
+  } = props;
+  return (
+    <StyledCheckbox
+      checked={checked}
+      disabled={disabled}
+      indeterminate={indeterminate}
+      inline={inline}
+      label="Select All"
+      onChange={onChange}
+      rowSpace={rowSpace}
+    />
+  );
 }
 
 export interface CheckboxGroupComponentProps extends ComponentProps {
   isDisabled?: boolean;
   isInline?: boolean;
+  isSelectAll?: boolean;
   isRequired?: boolean;
   isValid?: boolean;
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
+  onSelectAllChange: (
+    state: SelectAllState,
+  ) => React.FormEventHandler<HTMLInputElement>;
   options: OptionProps[];
   rowSpace: number;
   selectedValues: string[];
@@ -58,15 +86,36 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
     isDisabled,
     isInline,
+    isSelectAll,
     isValid,
     onChange,
+    onSelectAllChange,
     options,
     rowSpace,
     selectedValues,
   } = props;
 
+  const selectAllChecked = selectedValues.length === options.length;
+  const selectAllIndeterminate =
+    !selectAllChecked && selectedValues.length >= 1;
+  const selectAllState = selectAllChecked
+    ? SelectAllStates.CHECKED
+    : selectAllIndeterminate
+    ? SelectAllStates.INDETERMINATE
+    : SelectAllStates.UNCHECKED;
+
   return (
     <CheckboxGroupContainer inline={isInline} valid={isValid}>
+      {isSelectAll && (
+        <SelectAll
+          checked={selectAllChecked}
+          disabled={isDisabled}
+          indeterminate={selectAllIndeterminate}
+          inline={isInline}
+          onChange={onSelectAllChange(selectAllState)}
+          rowSpace={rowSpace}
+        />
+      )}
       {options &&
         options.length > 0 &&
         [...options].map((option: OptionProps) => (

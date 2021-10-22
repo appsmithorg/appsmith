@@ -33,13 +33,18 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
 export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
   height: ${({ rowSpace }) => rowSpace}px;
 
-  &.bp3-control input:checked ~ .bp3-control-indicator {
+  &.bp3-control input:checked ~ .bp3-control-indicator,
+  &.bp3-control input:indeterminate ~ .bp3-control-indicator,
+  &.bp3-control input:indeterminate ~ .bp3-control-indicator:hover,
+  &.bp3-control input:active:indeterminate ~ .bp3-control-indicator,
+  &.bp3-control input:disabled:indeterminate ~ .bp3-control-indicator {
     background-color: #03b365;
     background-image: none;
     box-shadow: none;
   }
 
-  &.bp3-control input:disabled ~ .bp3-control-indicator {
+  &.bp3-control input:disabled ~ .bp3-control-indicator,
+  &.bp3-control input:disabled:indeterminate ~ .bp3-control-indicator {
     opacity: 0.5;
   }
 
