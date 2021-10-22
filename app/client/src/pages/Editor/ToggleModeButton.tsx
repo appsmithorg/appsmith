@@ -159,8 +159,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
   // Need to fetch the comments on app edit for the first time.
   useEffect(() => {
-    if (currentUser && currentUser.username !== ANONYMOUS_USERNAME)
-      dispatch(fetchApplicationCommentsRequest());
+    dispatch(fetchApplicationCommentsRequest());
   }, []);
 };
 
@@ -291,7 +290,7 @@ function CommentModeBtn({
 }
 
 export const useHideComments = () => {
-  const [shouldHide, setShouldHide] = useState(false);
+  const [shouldHide, setShouldHide] = useState(true);
   const location = useLocation();
   const currentUser = useSelector(getCurrentUser);
   useEffect(() => {
@@ -363,13 +362,8 @@ function ToggleCommentModeButton({
     proceedToNextTourStep();
   }, [proceedToNextTourStep]);
 
-  // Show comment mode button only on the canvas editor and viewer
-  const isHideComments = useHideComments();
-
-  if (isHideComments) return null;
-
   return (
-    <Container>
+    <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
