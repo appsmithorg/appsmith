@@ -12,9 +12,8 @@ import {
   reduxForm,
 } from "redux-form";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import InputTextControl, {
-  StyledInfo,
-} from "components/formControls/InputTextControl";
+import FormControl from "pages/Editor/FormControl";
+import { StyledInfo } from "components/formControls/InputTextControl";
 import KeyValueInputControl from "components/formControls/KeyValueInputControl";
 import DropDownControl from "components/formControls/DropDownControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -366,13 +365,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             <Callout fill key={i} text={msg} variant={Variant.warning} />
           ))}
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="url"
-            isRequired
-            label="URL"
-            placeholderText="https://example.com"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "url",
+            "URL",
+            "https://example.com",
+            "TEXT",
+            false,
+            true,
+          )}
         </FormInputContainer>
         <FormInputContainer>
           <KeyValueInputControl
@@ -404,12 +404,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
           <FormInputContainer>
-            <InputTextControl
-              {...COMMON_INPUT_PROPS}
-              configProperty="sessionSignatureKey"
-              label="Session Details Signature Key"
-              placeholderText=""
-            />
+            {this.renderInputTextControlViaFormControl(
+              "sessionSignatureKey",
+              "Session Details Signature Key",
+              "",
+              "TEXT",
+              false,
+              false,
+            )}
           </FormInputContainer>
         )}
         <FormInputContainer>
@@ -475,21 +477,24 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.label"
-            label="Key"
-            placeholderText="api_key"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.label",
+            "Key",
+            "api_key",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.value"
-            encrypted
-            label="Value"
-            placeholderText="value"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.value",
+            "Value",
+            "value",
+            "TEXT",
+            true,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
           <DropDownControl
@@ -512,12 +517,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         {_.get(authentication, "addTo") == "header" && (
           <FormInputContainer>
-            <InputTextControl
-              {...COMMON_INPUT_PROPS}
-              configProperty="authentication.headerPrefix"
-              label="Header Prefix"
-              placeholderText="eg: Bearer "
-            />
+            {this.renderInputTextControlViaFormControl(
+              "authentication.headerPrefix",
+              "Header Prefix",
+              "eg: Bearer ",
+              "TEXT",
+              false,
+              false,
+            )}
           </FormInputContainer>
         )}
       </>
@@ -527,13 +534,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderBearerToken = () => {
     return (
       <FormInputContainer>
-        <InputTextControl
-          {...COMMON_INPUT_PROPS}
-          configProperty="authentication.bearerToken"
-          encrypted
-          label="Bearer Token"
-          placeholderText="Bearer Token"
-        />
+        {this.renderInputTextControlViaFormControl(
+          "authentication.bearerToken",
+          "Bearer Token",
+          "Bearer Token",
+          "TEXT",
+          true,
+          false,
+        )}
       </FormInputContainer>
     );
   };
@@ -542,22 +550,24 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.username"
-            label="Username"
-            placeholderText="Username"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.username",
+            "Username",
+            "Username",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.password"
-            dataType="PASSWORD"
-            encrypted
-            label="Password"
-            placeholderText="Password"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.password",
+            "Password",
+            "Password",
+            "PASSWORD",
+            true,
+            false,
+          )}
         </FormInputContainer>
       </>
     );
@@ -625,47 +635,55 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
           <FormInputContainer>
-            <InputTextControl
-              {...COMMON_INPUT_PROPS}
-              configProperty="authentication.headerPrefix"
-              label="Header Prefix"
-              placeholderText="eg: Bearer "
-            />
+            {this.renderInputTextControlViaFormControl(
+              "authentication.headerPrefix",
+              "Header Prefix",
+              "eg: Bearer ",
+              "TEXT",
+              false,
+              false,
+            )}
           </FormInputContainer>
         )}
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.accessTokenUrl"
-            label="Access Token URL"
-            placeholderText="https://example.com/login/oauth/access_token"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.accessTokenUrl",
+            "Access Token URL",
+            "https://example.com/login/oauth/access_token",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.clientId"
-            label="Client ID"
-            placeholderText="Client ID"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.clientId",
+            "Client ID",
+            "Client ID",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.clientSecret"
-            dataType="PASSWORD"
-            encrypted
-            label="Client Secret"
-            placeholderText="Client Secret"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.clientSecret",
+            "Client Secret",
+            "Client Secret",
+            "PASSWORD",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.scopeString"
-            label="Scope(s)"
-            placeholderText="e.g. read, write"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.scopeString",
+            "Scope(s)",
+            "e.g. read, write",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
       </>
     );
@@ -675,20 +693,24 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.audience"
-            label="Audience"
-            placeholderText="https://example.com/oauth/audience"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.audience",
+            "Audience",
+            "https://example.com/oauth/audience",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.resource"
-            label="Resource"
-            placeholderText="https://example.com/oauth/resource"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.resource",
+            "Resource",
+            "https://example.com/oauth/resource",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
       </>
     );
@@ -716,12 +738,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       <>
         {this.renderOauth2Common()}
         <FormInputContainer>
-          <InputTextControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.authorizationUrl"
-            label="Authorization URL"
-            placeholderText="https://example.com/login/oauth/authorize"
-          />
+          {this.renderInputTextControlViaFormControl(
+            "authentication.authorizationUrl",
+            "Authorization URL",
+            "https://example.com/login/oauth/authorize",
+            "TEXT",
+            false,
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
           <div style={{ width: "50vh" }}>
@@ -779,6 +803,37 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       </>
     );
   };
+
+  // All components in formControls must be rendered via FormControl as it FormControl is the common wrapper for all
+  // and contains common functionalities
+  renderInputTextControlViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    dataType: "TEXT" | "PASSWORD" | "NUMBER",
+    encrypted: boolean,
+    isRequired: boolean,
+  ) {
+    return (
+      <FormControl
+        config={{
+          id: "",
+          isValid: false,
+          isRequired: isRequired,
+          controlType: "INPUT_TEXT",
+          dataType: dataType,
+          configProperty: configProperty,
+          encrypted: encrypted,
+          label: label,
+          conditionals: "",
+          placeholderText: placeholderText,
+          formName: DATASOURCE_REST_API_FORM,
+        }}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
