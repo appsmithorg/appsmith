@@ -18,7 +18,6 @@ const HelpIcon = styled(Icon)`
 
 const Container = styled.div`
   background-color: rgba(239, 123, 99, 0.15);
-  border-radius: 0px 4px 4px 0px;
   padding: 10px 10px;
   width: 100%;
   position: relative;
