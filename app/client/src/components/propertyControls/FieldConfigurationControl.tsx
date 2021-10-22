@@ -1,5 +1,5 @@
-import React from "react";
-import { noop } from "lodash";
+import React, { useEffect, useState, useMemo } from "react";
+import { debounce, noop } from "lodash";
 
 import styled from "constants/DefaultTheme";
 import BaseControl, { ControlProps } from "./BaseControl";
@@ -75,8 +75,23 @@ const AddColumnButton = styled(StyledPropertyPaneButton)`
 `;
 
 function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
-  const { deleteOption, index, item, onEdit, toggleVisibility } = props;
-  const { id, isCustomField, isVisible } = item;
+  const {
+    deleteOption,
+    index,
+    item,
+    onEdit,
+    toggleVisibility,
+    updateOption,
+  } = props;
+  const { id, isCustomField, isVisible, label = "" } = item;
+
+  const [value, setValue] = useState(label);
+
+  const debouncedUpdate = useMemo(() => debounce(updateOption, 1000), []);
+
+  useEffect(() => {
+    debouncedUpdate(index, value);
+  }, [value]);
 
   const deleteIcon = (() => {
     if (!isCustomField || id === ARRAY_ITEM_KEY) return null;
@@ -122,8 +137,9 @@ function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
+        onChange={setValue}
         placeholder="Column Title"
-        value={item.label}
+        value={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
@@ -153,7 +169,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     });
   };
 
-  onDelete = (index: number) => {
+  onDeleteOption = (index: number) => {
     const { propertyName, propertyValue } = this.props;
     const schema: Schema = propertyValue || {};
     const entries = Object.values(schema) || [];
@@ -165,6 +181,24 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
 
       this.deleteProperties([itemToDeletePath]);
     }
+  };
+
+  updateOption = (index: number, updatedLabel: string) => {
+    const { propertyName, propertyValue } = this.props;
+    const schema: Schema = propertyValue;
+    const entries = Object.values(schema);
+    const { name } = entries[index];
+
+    this.updateProperty(`${propertyName}.${name}.label`, updatedLabel);
+  };
+
+  toggleVisibility = (index: number) => {
+    const { propertyName, propertyValue } = this.props;
+    const schema: Schema = propertyValue;
+    const entries = Object.values(schema);
+    const { isVisible, name } = entries[index];
+
+    this.updateProperty(`${propertyName}.${name}.isVisible`, !isVisible);
   };
 
   addNewColumn = () => {
@@ -181,15 +215,6 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     schemaItem.isCustomField = true;
 
     this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
-  };
-
-  toggleVisibility = (index: number) => {
-    const { propertyName, propertyValue } = this.props;
-    const schema: Schema = propertyValue;
-    const entries = Object.values(schema);
-    const { isVisible, name } = entries[index];
-
-    this.updateProperty(`${propertyName}.${name}.isVisible`, !isVisible);
   };
 
   render() {
@@ -210,14 +235,14 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
-          deleteOption={this.onDelete}
+          deleteOption={this.onDeleteOption}
           itemHeight={45}
           items={draggableComponentColumns}
           onEdit={this.onEdit}
           renderComponent={DroppableRenderComponent}
           toggleVisibility={this.toggleVisibility}
           updateItems={noop}
-          updateOption={noop}
+          updateOption={this.updateOption}
         />
         {!this.isArrayItem() && (
           <AddColumnButton

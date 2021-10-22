@@ -5,10 +5,7 @@
 import { Component } from "react";
 import _ from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  PanelConfig,
-  PropertyPaneControlConfig,
-} from "constants/PropertyControlConstants";
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 
 // eslint-disable-next-line @typescript-eslint/ban-types

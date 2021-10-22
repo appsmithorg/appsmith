@@ -19,7 +19,7 @@ function Form<TValues = any>({
   useFormDataValues,
 }: FormProps<TValues>) {
   const methods = useForm();
-  const { getValues, reset, watch } = methods;
+  const { reset, watch } = methods;
 
   // TODO: Using watch here would lead to re-rendering of every field component.
   // Find alternative
