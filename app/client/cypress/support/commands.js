@@ -1,5 +1,4 @@
 /// <reference types="Cypress" />
-
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
