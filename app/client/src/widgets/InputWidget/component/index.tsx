@@ -178,28 +178,32 @@ const InputComponentWrapper = styled((props) => (
 `;
 
 const StyledNumericInput = styled(NumericInput)`
-  &&&& .${Classes.INPUT_GROUP} {
-    display: flex;
-    > {
-      &:first-child:not(input) {
-        position: static;
-        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
-        border: 1px solid #e7e7e7;
-        border-right: 0;
-      }
-      input:not(:first-child) {
-        padding-left: 5px;
-        border-left: 0;
-        z-index: 16;
-        line-height: 16px;
+  &&&& {
+    .${Classes.INPUT_GROUP} {
+      display: flex;
+      > {
+        &:first-child:not(input) {
+          position: static;
+          color: ${(props) =>
+            props.disabled ? Colors.GREY_7 : Colors.GREY_10};
+          border: 1px solid #e7e7e7;
+          border-right: 0;
+        }
+        input:not(:first-child) {
+          padding-left: 5px;
+          border-left: 0;
+          z-index: 16;
+          line-height: 16px;
+        }
       }
     }
-  }
-  &&&& .${Classes.INPUT_GROUP}.${Classes.DISABLED} {
-    > {
-      &:first-child:not(input) {
-        background: ${Colors.GREY_1};
+    .${Classes.INPUT_GROUP}.${Classes.DISABLED} {
+      > {
+        &:first-child:not(input) {
+          background: ${Colors.GREY_1};
+        }
       }
+    }
   }
 `;
 
