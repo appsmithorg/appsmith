@@ -78,7 +78,6 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   background-color: ${(props) => props.theme.colors.header.background};
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
   box-shadow: none;
@@ -306,8 +305,8 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper>
-        <HeaderSection className="space-x-2">
+      <HeaderWrapper className="px-3">
+        <HeaderSection className="space-x-3">
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}

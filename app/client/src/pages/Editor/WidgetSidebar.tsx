@@ -62,8 +62,6 @@ function WidgetSidebar(props: IPanelProps) {
    * filter widgets
    */
   const search = debounce((e: any) => {
-    // eslint-disable-next-line
-    // console.log({ e });
     filterCards(e.target.value.toLowerCase());
   }, 300);
 

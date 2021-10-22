@@ -188,8 +188,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
     <ThemeProvider theme={props.lightTheme}>
       <HeaderWrapper hasPages={pages.length > 1}>
         <HtmlTitle />
-        <HeaderRow justify={"space-between"}>
-          <HeaderSection className="space-x-2 justify-start">
+        <HeaderRow className="px-3" justify={"space-between"}>
+          <HeaderSection className="space-x-3 justify-start">
             <div>
               <PrimaryLogoLink to={APPLICATIONS_URL}>
                 <AppsmithLogoImg />
@@ -204,7 +204,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
               <Text type={TextType.H4}>{currentApplicationDetails.name}</Text>
             )}
           </HeaderSection>
-          <HeaderSection className="justify-end">
+          <HeaderSection className="justify-end space-x-3">
             {currentApplicationDetails && (
               <>
                 <FormDialogComponent
