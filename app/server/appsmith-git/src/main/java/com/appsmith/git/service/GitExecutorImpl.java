@@ -2,6 +2,7 @@ package com.appsmith.git.service;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.Constraint;
@@ -22,6 +23,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -430,7 +432,6 @@ public class GitExecutorImpl implements GitExecutor {
                 git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
                 MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
-                git.close();
                 return mergeResult.getMergeStatus().name();
             } catch (GitAPIException e) {
                 //On merge conflicts abort the merge => git merge --abort
@@ -467,18 +468,33 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<String> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
-        String tempBranchName = destinationBranch + MERGE_STATUS_BRANCH;
-        log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
+    public Mono<MergeStatus> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
+        return Mono.fromCallable(() -> {
+            log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
 
-        // Checkout to destinationBranch
-        return checkoutToBranch(repoPath, destinationBranch)
-                // Create temp branch from destinationBranch to check the merge status
-                .flatMap(aBoolean -> createAndCheckoutToBranch(repoPath, tempBranchName))
-                // Merge the sourceBranch on temp branch
-                .flatMap(status -> mergeBranch(repoPath, sourceBranch, tempBranchName))
-                // Delete the temp branch and return the merge status
-                .flatMap(mergeStatus -> checkoutToBranch(repoPath, destinationBranch)
-                        .flatMap(isChecked -> deleteBranch(repoPath, tempBranchName).thenReturn(mergeStatus)));
+            Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+            //checkout the branch on which the merge command is run
+            git.checkout().setName(destinationBranch).setCreateBranch(false).call();
+
+            MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).setCommit(false).call();
+
+            //On merge conflicts abort the merge => git merge --abort
+            git.getRepository().writeMergeCommitMsg(null);
+            git.getRepository().writeMergeHeads(null);
+            Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
+            git.close();
+
+            MergeStatus mergeStatus = new MergeStatus();
+            if(mergeResult.getMergeStatus().isSuccessful()) {
+                mergeStatus.setMerge(true);
+            } else {
+                //If there aer conflicts add the conflicting file names to the response structure
+                mergeStatus.setMerge(false);
+                List<String> mergeConflictFiles = new ArrayList<>();
+                mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                mergeStatus.setConflictingFiles(mergeConflictFiles);
+            }
+            return mergeStatus;
+        }).subscribeOn(scheduler);
     }
 }

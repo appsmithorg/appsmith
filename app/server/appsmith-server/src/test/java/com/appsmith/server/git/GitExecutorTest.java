@@ -1,6 +1,7 @@
 package com.appsmith.server.git;
 
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -123,7 +124,7 @@ public class GitExecutorTest {
     }
 
     @Test
-    public void isMergeBranch_NoChanges_CanBeMerged() throws IOException {
+    public void isMergeBranch_NoChanges_CanBeMerged() throws IOException, GitAPIException {
         createFileInThePath("isMergeBranch_NoChanges_CanBeMerged");
         commitToRepo();
 
@@ -132,20 +133,19 @@ public class GitExecutorTest {
         //Create branch f2 from f1
         gitExecutor.createAndCheckoutToBranch(path, "f2").block();
 
-        Mono<String> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
+        Mono<MergeStatus> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
 
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s).isNotEmpty();
-                    assertThat(s).contains("ALREADY_UP_TO_DATE");
+                    assertThat(s.isMerge());
                 })
                 .verifyComplete();
 
     }
 
     @Test
-    public void isMergeBranch_NonConflictingChanges_CanBeMerged() throws IOException {
+    public void isMergeBranch_NonConflictingChanges_CanBeMerged() throws IOException, GitAPIException {
         createFileInThePath("isMergeBranch_NonConflictingChanges_CanBeMerged");
         commitToRepo();
 
@@ -158,13 +158,12 @@ public class GitExecutorTest {
         gitExecutor.createAndCheckoutToBranch(path, "f2").block();
         createFileInThePath("isMergeBranch_NonConflictingChanges_f2");
 
-        Mono<String> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
+        Mono<MergeStatus> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
 
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s).isNotEmpty();
-                    assertThat(s).contains("ALREADY_UP_TO_DATE");
+                    assertThat(s.isMerge());
                 })
                 .verifyComplete();
 

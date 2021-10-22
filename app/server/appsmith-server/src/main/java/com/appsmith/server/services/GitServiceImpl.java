@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -921,7 +922,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<String> isMergeBranch(String defaultApplicationId, String sourceBranch, String destinationBranch) {
+    public Mono<MergeStatus> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -935,7 +936,7 @@ public class GitServiceImpl implements GitService {
                     //1. Hydrate from db to file system for both branch Applications
                     return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, sourceBranch, repoPath)
                             .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, destinationBranch, repoPath))
-                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)));
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge status", error.getMessage())));
                 })
                 .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch));
     }

@@ -2,6 +2,7 @@ package com.appsmith.external.git;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Component;
@@ -133,10 +134,10 @@ public interface GitExecutor {
 
     /**
      *
-     * @param repoPath Path to actual repo or only the repoSuffix
+     * @param repoPath Path of the repoSuffix
      * @param sourceBranch name of the branch whose commits will be referred amd merged to destinationBranch
      * @param destinationBranch Merge operation is performed on this branch
-     * @return Whether the two branches can be merged or not
+     * @return Whether the two branches can be merged or not with list of files where the conflicts are present
      */
-    Mono<String> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
+    Mono<MergeStatus> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
 }
