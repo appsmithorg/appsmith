@@ -13,13 +13,21 @@ interface SearchProps {
 
 const SearchInputWrapper = styled(InputGroup)`
   &&& input {
+    border-radius: 0;
     box-shadow: none;
     font-size: 12px;
-    color: ${Colors.SILVER_CHALICE};
+    color: ${Colors.GREY_10};
+  }
+  &&& input:focus {
+    border: 1.2px solid ${Colors.FERN_GREEN};
+    box-sizing: border-box;
+  }
+  &&& input:active {
+    box-shadow: 0px 0px 0px 3px ${Colors.JAGGED_ICE};
   }
   &&& svg {
     path {
-      fill: ${Colors.SILVER_CHALICE};
+      fill: ${Colors.GREY_7};
     }
   }
   margin: 5px 16px;
