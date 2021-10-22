@@ -331,7 +331,13 @@ public class LayoutActionServiceTest {
         JSONArray temp = new JSONArray();
         temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
         dsl.put("dynamicBindingPathList", temp);
-        dsl.put("testField", "{{ beforeNameChange.data }}");
+        dsl.put("testField", "{{ \tbeforeNameChange.data }}");
+        final JSONObject innerObjectReference = new JSONObject();
+        innerObjectReference.put("k", "{{\tbeforeNameChange.data}}");
+        dsl.put("innerObjectReference", innerObjectReference);
+        final JSONArray innerArrayReference = new JSONArray();
+        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tbeforeNameChange.data}}")));
+        dsl.put("innerArrayReference", innerArrayReference);
 
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
@@ -362,7 +368,10 @@ public class LayoutActionServiceTest {
                     DslActionDTO actionDTO = postNameChangeLayout.getLayoutOnLoadActions().get(0).iterator().next();
                     assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
 
-                    dsl.put("testField", "{{ PostNameChange.data }}");
+                    dsl.put("testField", "{{ \tPostNameChange.data }}");
+                    innerObjectReference.put("k", "{{\tPostNameChange.data}}");
+                    innerArrayReference.clear();
+                    innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
                 })
                 .verifyComplete();
@@ -853,8 +862,8 @@ public class LayoutActionServiceTest {
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("Table1");
-        actionCollectionDTO1.setBody("Table1");
+        action1.getActionConfiguration().setBody("\tTable1");
+        actionCollectionDTO1.setBody("\tTable1");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
@@ -879,13 +888,13 @@ public class LayoutActionServiceTest {
                 .assertNext(tuple -> {
                     final ActionCollection actionCollection = tuple.getT1();
                     final NewAction action = tuple.getT2();
-                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("NewNameTable1");
+                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("\tNewNameTable1");
                     final ActionDTO unpublishedAction = action.getUnpublishedAction();
                     assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
                     final Optional<String> first = unpublishedAction.getJsonPathKeys().stream().findFirst();
                     assert first.isPresent();
-                    assertThat(first.get()).isEqualTo("NewNameTable1");
-                    assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("NewNameTable1");
+                    assertThat(first.get()).isEqualTo("\tNewNameTable1");
+                    assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("\tNewNameTable1");
                 })
                 .verifyComplete();
     }
