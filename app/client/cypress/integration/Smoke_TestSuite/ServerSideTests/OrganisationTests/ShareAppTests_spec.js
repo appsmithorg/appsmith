@@ -88,6 +88,10 @@ describe("Create new org and share with a user", function() {
         const someText = text;
         expect(someText).to.equal("This page seems to be blank");
       });
+
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(5000);
+    cy.url({ timeout: 0 }).should("not.include", "login");
   });
 
   it("login as uninvited user and then validate public access of Application", function() {
