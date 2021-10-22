@@ -332,6 +332,12 @@ public class LayoutActionServiceTest {
         temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ \tbeforeNameChange.data }}");
+        final JSONObject innerObjectReference = new JSONObject();
+        innerObjectReference.put("k", "{{\tbeforeNameChange.data}}");
+        dsl.put("innerObjectReference", innerObjectReference);
+        final JSONArray innerArrayReference = new JSONArray();
+        innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tbeforeNameChange.data}}")));
+        dsl.put("innerArrayReference", innerArrayReference);
 
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
@@ -363,6 +369,9 @@ public class LayoutActionServiceTest {
                     assertThat(actionDTO.getName()).isEqualTo("PostNameChange");
 
                     dsl.put("testField", "{{ \tPostNameChange.data }}");
+                    innerObjectReference.put("k", "{{\tPostNameChange.data}}");
+                    innerArrayReference.clear();
+                    innerArrayReference.add(new JSONObject(Map.of("innerK", "{{\tPostNameChange.data}}")));
                     assertThat(postNameChangeLayout.getDsl()).isEqualTo(dsl);
                 })
                 .verifyComplete();
