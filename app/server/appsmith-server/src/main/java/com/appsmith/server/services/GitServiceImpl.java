@@ -41,6 +41,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -518,7 +519,12 @@ public class GitServiceImpl implements GitService {
                                     gitAuth.getPublicKey(),
                                     gitAuth.getPrivateKey(),
                                     gitData.getBranchName()))
-                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage())));
+                            .onErrorResume(error -> {
+                                if(error instanceof TransportException) {
+
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
+                            });
                 });
     }
 
@@ -544,7 +550,7 @@ public class GitServiceImpl implements GitService {
                     return fileUtils.detachRemote(repoPath)
                             .then(Mono.just(application));
                 })
-                .flatMap(application -> applicationService.save(application));
+                .flatMap(application -> applicationService.delete(application.getId()));
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params) {
