@@ -206,7 +206,6 @@ const StyledNumericInput = styled(NumericInput)`
       }
     }
     .${Classes.BUTTON_GROUP} {
-      background-color: transparent;
       border: 1px solid ${Colors.GEYSER_LIGHT};
       border-left-width: 0;
 
@@ -214,6 +213,7 @@ const StyledNumericInput = styled(NumericInput)`
         background-color: ${Colors.WHITE};
         border-width: 0;
         box-shadow: none;
+        flex: 1 1 16px; // sizing fix for mozilla
       }
       .${Classes.BUTTON}:active, .${Classes.BUTTON}:hover {
         background-color: ${Colors.GREY_2};

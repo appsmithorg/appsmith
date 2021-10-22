@@ -650,6 +650,10 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
     }
     .rc-tree-select-selector {
       background-color: ${Colors.GREY_1};
+
+      .rc-tree-select-selection-search input {
+        background-color: ${Colors.GREY_1}; // color fix for mozilla
+      }
       .rc-tree-select-selection-item {
         color: ${Colors.GREY_7};
       }
