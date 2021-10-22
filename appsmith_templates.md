@@ -9,10 +9,10 @@ You can use the applications for yourself following the simple steps below:
 4. Click on `fork` application 
 5. Log in to Appsmith, if not already
 6. Select the organization to which the application should be forked
-7. Change datasource credentials to connect to your backend
+7. Change data source credentials to connect to your backend
 8. You now have a fully functional app to use or build on top of
 
-Would you like to contribute your app? Just write in to akshay@appsmith.com.
+Would you like to contribute your app? Just write into akshay@appsmith.com.
 
 ### List of forkable applications on Appsmith
 
@@ -27,7 +27,7 @@ Would you like to contribute your app? Just write in to akshay@appsmith.com.
 
 3. [Founder/Investor CRM](https://app.appsmith.com/applications/6098bdc65864501cc39c3d2f/pages/6098bdc65864501cc39c3d31)
 
-> A pragmatic CRM that helps founders keep track of the investor conversations they have had, and details about the investor, fund and files shared. You can use it to mark the next steps and prioritize conversations. We have found this system very useful personally for our fundraises. We chose to use a Google Sheets backend as that's where founders end up keeping these notes usually. You can just [authorize a sheet](https://docs.appsmith.com/how-to-guides/oauth2-authorization-for-google-sheets) to get it working.
+> A pragmatic CRM that helps founders keep track of the investor conversations they have had, and details about the investor, fund, and files shared. You can use it to mark the next steps and prioritize conversations. We have found this system very useful personally for our fundraises. We chose to use a Google Sheets backend as that's where founders end up keeping these notes usually. You can just [authorize a sheet](https://docs.appsmith.com/how-to-guides/oauth2-authorization-for-google-sheets) to get it working.
 > 
 
-Watch out for more! If you'd like to contribute a template, please write in to akshay@appsmith.com! 
+Watch out for more! If you'd like to contribute a template, please write to akshay@appsmith.com! 
