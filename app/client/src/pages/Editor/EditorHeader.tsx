@@ -124,7 +124,6 @@ const AppsmithLink = styled((props) => {
 })`
   height: 20px;
   width: 20px;
-  transform: translate(0px, 2px);
   display: inline-block;
   img {
     width: 20px;
@@ -185,7 +184,6 @@ const StyledDeployIcon = styled(Icon)`
 `;
 
 const ShareButton = styled.div`
-  display: inline-block;
   cursor: pointer;
 `;
 
@@ -197,7 +195,6 @@ const StyledShareText = styled.span`
 
 const StyledSharedIcon = styled(Icon)`
   display: inline-block;
-  vertical-align: middle;
 `;
 
 type EditorHeaderProps = {
@@ -223,7 +220,7 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <ShareButton className="t--application-share-btn header__application-share-btn">
+    <ShareButton className="t--application-share-btn header__application-share-btn flex items-center">
       <StyledSharedIcon name="share-line" />
       <StyledShareText>SHARE</StyledShareText>
     </ShareButton>

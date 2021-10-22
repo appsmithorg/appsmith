@@ -28,7 +28,7 @@ div.bp3-select-popover .bp3-popover-content {
 }
 
 span.bp3-popover-target {
-  display: block;
+  display: flex;
 }
 
 div.bp3-popover-arrow {
