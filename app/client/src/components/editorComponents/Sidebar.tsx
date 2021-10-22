@@ -31,7 +31,6 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 
@@ -142,24 +141,19 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       | TouchEvent
       | (MouseEvent & { touches: { clientX: number; clientY: number }[] }),
   ) => {
-    if (!pinned && !active) {
-      const current = event.touches[0].clientX;
+    const currentX = event.touches[0].clientX;
+    if (!pinned) {
+      if (!active) {
+        if (currentX <= 5) {
+          dispatch(setExplorerActive(true));
+        }
+      }
 
-      if (current <= 5) {
-        dispatch(setExplorerActive(true));
+      if (currentX >= props.width) {
+        dispatch(setExplorerActive(false));
       }
     }
   };
-
-  /**
-   * if the sidebar is not pinned and we are not resizing,
-   * sets the active
-   */
-  const onMouseLeave = useCallback(() => {
-    if (!pinned && !resizer.resizing) {
-      dispatch(setExplorerActive(false));
-    }
-  }, [active, setExplorerActive, pinned, resizer.resizing]);
 
   /**
    * toggles the pinned state of sidebar
@@ -177,7 +171,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
-      onMouseLeave={onMouseLeave}
     >
       {/* SIDEBAR */}
       <div
@@ -192,17 +185,19 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           <h3 className="text-sm text-gray-800 font-medium uppercase">
             Navigation
           </h3>
-          <div className="flex items-center">
+          <div
+            className={classNames({
+              "flex items-center transition-opacity duration-300": true,
+              "opacity-0 pointer-events-none": pinned === false,
+              "opacity-100": pinned,
+            })}
+          >
             <button
               className=" p-2 hover:bg-warmGray-100 group"
               onClick={onPin}
               type="button"
             >
-              {pinned ? (
-                <PinIcon className="w-3 h-3 text-trueGray-400" />
-              ) : (
-                <UnpinIcon className="w-3 h-3 text-trueGray-400" />
-              )}
+              <PinIcon className="w-3 h-3 text-trueGray-400" />
             </button>
           </div>
         </div>

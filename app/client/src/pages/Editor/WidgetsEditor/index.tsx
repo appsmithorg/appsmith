@@ -6,26 +6,20 @@ import {
   getIsFetchingPage,
   getCurrentPageId,
   getCurrentPageName,
-  previewModeSelector,
-  getZoomLevel,
 } from "selectors/editorSelectors";
-import Toolbar from "./Toolbar";
 import PageTabs from "./PageTabs";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import usePanZoom from "utils/hooks/useZoom";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CanvasContainer from "./CanvasContainer";
 import { flashElementsById } from "utils/helpers";
-import { transform } from "utils/hooks/useZoom/utils";
 import Debugger from "components/editorComponents/Debugger";
 import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
 import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { updateZoomLevel } from "actions/editorActions";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import {
@@ -40,11 +34,9 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 function WidgetsEditor() {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const dispatch = useDispatch();
-  const zoomLevel = useSelector(getZoomLevel);
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const isPreviewMode = useSelector(previewModeSelector);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const enableFirstTimeUserOnboarding = useSelector(
@@ -110,48 +102,6 @@ function WidgetsEditor() {
 
   log.debug("Canvas rendered");
 
-  /**
-   * dispatches an action that updates zoom level
-   */
-  const onZoom = useCallback(
-    (transform: transform) => {
-      dispatch(updateZoomLevel(transform.zoom));
-    },
-    [dispatch],
-  );
-
-  const {
-    panZoomHandlers,
-    setContainer,
-    setZoom,
-    transform,
-    zoom,
-  } = usePanZoom({
-    onZoom,
-    enablePan: false,
-    enableZoom: isPreviewMode === false,
-    maxZoom: 1,
-    minZoom: 0.7,
-  });
-
-  /**
-   * resetting panning and zoom when preview mode is on
-   */
-  useEffect(() => {
-    if (isPreviewMode === true) {
-      setZoom(1);
-    }
-  }, [isPreviewMode]);
-
-  /**
-   * if zoom level is changed from somewhere else and is not equal to state zoom update it
-   */
-  useEffect(() => {
-    if (zoomLevel !== zoom) {
-      setZoom(zoomLevel);
-    }
-  }, [zoomLevel]);
-
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
@@ -161,17 +111,14 @@ function WidgetsEditor() {
         <OnboardingTasks />
       ) : (
         <div
-          className="relative overflow-hidden"
+          className="relative overflow-hidden flex flex-col"
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
-          ref={(el) => setContainer(el)}
-          {...panZoomHandlers}
         >
           <PageTabs />
-          {isPreviewMode === false && <Toolbar />}
-          <CanvasContainer transform={transform} zoom={zoom} />
+          <CanvasContainer />
           <CrudInfoModal />
           <Debugger />
         </div>

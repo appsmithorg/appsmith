@@ -29,6 +29,7 @@ div.bp3-select-popover .bp3-popover-content {
 
 span.bp3-popover-target {
   display: flex;
+  width: 100%;
 }
 
 div.bp3-popover-arrow {

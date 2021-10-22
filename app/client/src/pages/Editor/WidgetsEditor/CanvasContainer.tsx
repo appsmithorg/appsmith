@@ -15,7 +15,7 @@ import { useParams } from "react-router";
 
 const Container = styled.section`
   width: 100%;
-  height: 100%;
+  height: calc(100% - 2.25rem);
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
@@ -29,13 +29,7 @@ const Container = styled.section`
   }
 `;
 
-interface Props {
-  zoom: number;
-  transform: string;
-}
-
-function CanvasContainer(props: Props) {
-  const { transform, zoom } = props;
+function CanvasContainer() {
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgets = useSelector(getCanvasWidgetDsl);
@@ -57,12 +51,8 @@ function CanvasContainer(props: Props) {
 
   return (
     <Container
-      className={`${getCanvasClassName()} text-white scrollbar-thin origin-top mt-9 `}
+      className={`${getCanvasClassName()} text-white scrollbar-thin mt-9`}
       key={currentPageId}
-      style={{
-        transform,
-        height: `calc(100% + 100% * ${zoom < 1 ? (1 - zoom) * 2 : 0})`,
-      }}
     >
       {node}
     </Container>

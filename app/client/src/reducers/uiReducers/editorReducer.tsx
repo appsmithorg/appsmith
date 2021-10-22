@@ -196,15 +196,6 @@ const editorReducer = createReducer(initialState, {
       isPreviewMode: action.payload,
     };
   },
-  [ReduxActionTypes.UPDATE_CANVAS_ZOOM_LEVEL]: (
-    state: EditorReduxState,
-    action: ReduxAction<number>,
-  ) => {
-    return {
-      ...state,
-      zoomLevel: action.payload,
-    };
-  },
   [ReduxActionTypes.UPDATE_CANVAS_IS_PANNING]: (
     state: EditorReduxState,
     action: ReduxAction<number>,

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
+import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   CurrentApplicationData,
@@ -72,6 +73,10 @@ import {
   SHARE_BUTTON_TOOLTIP_WITH_USER,
 } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+import { setExplorerActive, setExplorerPinned } from "actions/explorerActions";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -240,6 +245,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
+  const pinned = useSelector(getExplorerPinned);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
@@ -290,6 +296,20 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
 
+  /**
+   * on hovering the menu, make the explorer active
+   */
+  const onMenuHover = useCallback(() => {
+    dispatch(setExplorerActive(true));
+  }, [setExplorerActive]);
+
+  /**
+   * toggles the pinned state of sidebar
+   */
+  const onPin = useCallback(() => {
+    dispatch(setExplorerPinned(!pinned));
+  }, [pinned, dispatch, setExplorerPinned]);
+
   //Fetch all users for the application to show the share button tooltip
   useEffect(() => {
     if (orgId) {
@@ -302,8 +322,26 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper className="px-3">
+      <HeaderWrapper className="pr-3">
         <HeaderSection className="space-x-3">
+          <div
+            className={classNames({
+              "text-gray-800 transform transition-all duration-400 pl-3 relative": true,
+              "ml-0": !pinned,
+              "-ml-7": pinned,
+            })}
+          >
+            <div
+              className="w-4 h-4 relative group text-gray-700"
+              onMouseEnter={onMenuHover}
+            >
+              <MenuIcon className="w-4 h-4 fill-current absolute opacity-100 group-hover:opacity-0 transition-opacity" />
+              <UnpinIcon
+                className="w-4 h-4 cursor-pointer hover:bg-warmGray-200 ring-transparent hover:ring-warmGray-200 ring-6 fill-current absolute opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={onPin}
+              />
+            </div>
+          </div>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}

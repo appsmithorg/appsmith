@@ -31,17 +31,3 @@ export const updateCanvasLayout = (
     },
   };
 };
-
-/**
- * action that update editor zoom level
- *
- * @param width
- * @param height
- * @returns
- */
-export const updateZoomLevel = (zoomLevel: number) => {
-  return {
-    type: ReduxActionTypes.UPDATE_CANVAS_ZOOM_LEVEL,
-    payload: zoomLevel,
-  };
-};
