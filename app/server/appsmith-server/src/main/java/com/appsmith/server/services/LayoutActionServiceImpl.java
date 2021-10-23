@@ -27,12 +27,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -73,7 +74,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final ActionCollectionService actionCollectionService;
     private final CollectionService collectionService;
     private final ApplicationService applicationService;
-    private JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
     /*
@@ -273,21 +273,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     List<Layout> layouts = page.getLayouts();
                     for (Layout layout : layouts) {
                         if (layoutId.equals(layout.getId()) && layout.getDsl() != null) {
-                            String dslString = "";
-                            try {
-                                dslString = objectMapper.writeValueAsString(layout.getDsl());
-                            } catch (JsonProcessingException e) {
-                                log.debug("Exception caught during conversion of DSL Json object to String. ", e);
-                            }
-                            Matcher matcher = oldNamePattern.matcher(dslString);
-                            String newDslString = matcher.replaceAll(newName);
-                            try {
-                                JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                                JSONObject json = (JSONObject) parser.parse(newDslString);
-                                layout.setDsl(json);
-                            } catch (ParseException e) {
-                                log.debug("Exception caught during DSL conversion from string to Json object. ", e);
-                            }
+                            final JsonNode dslNode = objectMapper.convertValue(layout.getDsl(), JsonNode.class);
+                            final JsonNode dslNodeAfterReplacement = this.replaceStringInJsonNode(dslNode, oldNamePattern, newName);
+                            layout.setDsl(objectMapper.convertValue(dslNodeAfterReplacement, JSONObject.class));
+
                             // DSL has removed all the old names and replaced it with new name. If the change of name
                             // was one of the mongoEscaped widgets, then update the names in the set as well
                             Set<String> mongoEscapedWidgetNames = layout.getMongoEscapedWidgetNames();
@@ -328,7 +317,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             // name, we can not simply use the set.contains(obj) function. We need to iterate over all the keys
                             // in the set and see if the old name is a substring of the json path key.
                             for (String key : jsonPathKeys) {
-                                if (key.contains(oldName)) {
+                                if (oldNamePattern.matcher(key).find()) {
                                     actionUpdateRequired = true;
                                     break;
                                 }
@@ -342,18 +331,13 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         if (action.getCollectionId() != null) {
                             updatableCollectionIds.add(action.getCollectionId());
                         }
-                        try {
-                            String actionConfigurationAsString = objectMapper.writeValueAsString(actionConfiguration);
-                            Matcher matcher = oldNamePattern.matcher(actionConfigurationAsString);
-                            String newActionConfigurationAsString = matcher.replaceAll(newName);
-                            ActionConfiguration newActionConfiguration = objectMapper.readValue(newActionConfigurationAsString, ActionConfiguration.class);
-                            action.setActionConfiguration(newActionConfiguration);
-                            NewAction newAction2 = newActionService.extractAndSetJsonPathKeys(newAction);
-                            return newActionService.save(newAction2);
-                        } catch (JsonProcessingException e) {
-                            log.debug("Exception caught during conversion between string and action configuration object ", e);
-                            return Mono.just(newAction);
-                        }
+                        final JsonNode actionConfigurationNode = objectMapper.convertValue(actionConfiguration, JsonNode.class);
+                        final JsonNode actionConfigurationNodeAfterReplacement = replaceStringInJsonNode(actionConfigurationNode, oldNamePattern, newName);
+
+                        ActionConfiguration newActionConfiguration = objectMapper.convertValue(actionConfigurationNodeAfterReplacement, ActionConfiguration.class);
+                        action.setActionConfiguration(newActionConfiguration);
+                        NewAction newAction2 = newActionService.extractAndSetJsonPathKeys(newAction);
+                        return newActionService.save(newAction2);
                     });
 
                 })
@@ -390,6 +374,34 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
+    private JsonNode replaceStringInJsonNode(JsonNode jsonNode, Pattern oldNamePattern, String newName) {
+        // Is this is a text node, perform replacement directly
+        if (jsonNode.isTextual()) {
+            Matcher matcher = oldNamePattern.matcher(jsonNode.asText());
+            String valueAfterReplacement = matcher.replaceAll(newName);
+            return new TextNode(valueAfterReplacement);
+        }
+        final Iterator<Map.Entry<String, JsonNode>> iterator = jsonNode.fields();
+        // Go through each field to recursively operate on it
+        while (iterator.hasNext()) {
+            final Map.Entry<String, JsonNode> next = iterator.next();
+            final JsonNode value = next.getValue();
+            if (value.isArray()) {
+                // If this field is an array type, iterate through each element and perform replacement
+                final ArrayNode arrayNode = (ArrayNode) value;
+                final ArrayNode newArrayNode = objectMapper.createArrayNode();
+                arrayNode.forEach(x -> newArrayNode.add(replaceStringInJsonNode(x, oldNamePattern, newName)));
+                // Make this array node created from replaced values the new value
+                next.setValue(newArrayNode);
+            } else {
+                // This is either directly a text node or another json node
+                // In either case, recurse over the entire value to get the replaced value
+                next.setValue(replaceStringInJsonNode(value, oldNamePattern, newName));
+            }
+        }
+        return jsonNode;
+    }
+
     /**
      * Walks the DSL and extracts all the widget names from it.
      * A widget is expected to have a few properties defining its own behaviour, with any mustache bindings present
@@ -412,7 +424,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                                                       String layoutId,
                                                                       Set<String> escapedWidgetNames) throws AppsmithException {
         if (dsl.get(FieldName.WIDGET_NAME) == null) {
-            // This isnt a valid widget configuration. No need to traverse this.
+            // This isn't a valid widget configuration. No need to traverse this.
             return dsl;
         }
 

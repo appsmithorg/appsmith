@@ -23,6 +23,16 @@ import {
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
+import getFeatureFlags from "utils/featureFlags";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  createMessage,
+  DEPLOY_MENU_OPTION,
+  CONNECT_TO_GIT_OPTION,
+  CURRENT_DEPLOY_PREVIEW_OPTION,
+} from "constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
@@ -37,9 +47,20 @@ export const GetNavigationMenuData = ({
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
+
   const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
+
+  const isGitConnected = useSelector(getIsGitConnected);
+
+  const openGitConnectionPopup = () =>
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -72,6 +93,33 @@ export const GetNavigationMenuData = ({
       });
     }
   };
+
+  const deployOptions = [
+    {
+      text: createMessage(DEPLOY_MENU_OPTION),
+      onClick: deploy,
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+    },
+    {
+      text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
+      onClick: () => openExternalLink(currentDeployLink),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+    },
+  ];
+
+  if (getFeatureFlags().GIT && !isGitConnected) {
+    deployOptions.push({
+      text: createMessage(CONNECT_TO_GIT_OPTION),
+      onClick: () => openGitConnectionPopup(),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: false,
+    });
+  }
 
   return [
     {
@@ -113,22 +161,7 @@ export const GetNavigationMenuData = ({
       text: "Deploy",
       type: MenuTypes.PARENT,
       isVisible: true,
-      children: [
-        {
-          text: "Deploy",
-          onClick: deploy,
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-        {
-          text: "Current Deployed Version",
-          onClick: () => openExternalLink(currentDeployLink),
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-      ],
+      children: deployOptions,
     },
     {
       text: "Help",

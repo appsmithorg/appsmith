@@ -14,17 +14,18 @@ import com.appsmith.server.services.SessionUserServiceImpl;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
-import java.util.Collection;
-import java.util.Map;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -91,6 +92,9 @@ public class ApplicationFetcher {
                     // Collect all the applications as a map with organization id as a key
                     Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
+                            // TODO only fetch the latest application branch instead of default one
+                            .filter(application -> application.getGitApplicationMetadata() == null
+                                || (StringUtils.equals(application.getId(),application.getGitApplicationMetadata().getDefaultApplicationId())))
                             .collectMultimap(Application::getOrganizationId, Function.identity());
 
                     return organizationService

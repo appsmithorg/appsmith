@@ -48,6 +48,7 @@ import { getCurrentUser } from "actions/authActions";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "pages/Settings";
+import SignupSuccess from "pages/setup/SignupSuccess";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -122,10 +123,11 @@ class AppRouter extends React.Component<any, any> {
                   path={APPLICATIONS_URL}
                 />
                 <SentryRoute
-                  component={ApplicationListLoader}
+                  component={SignupSuccess}
                   exact
                   path={SIGNUP_SUCCESS_URL}
                 />
+
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
                 <SentryRoute
                   component={UnsubscribeEmail}
