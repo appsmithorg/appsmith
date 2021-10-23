@@ -66,6 +66,7 @@ import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
+import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -128,6 +129,7 @@ export enum IconSize {
   XL = "extraLarge",
   XXL = "extraExtraLarge",
   XXXL = "extraExtraExtraLarge",
+  XXXXL = "extraExtraExtraExtraLarge",
 }
 
 export const sizeHandler = (size?: IconSize) => {
@@ -156,6 +158,9 @@ export const sizeHandler = (size?: IconSize) => {
       break;
     case IconSize.XXXL:
       iconSize = theme.iconSizes.XXXL;
+      break;
+    case IconSize.XXXXL:
+      iconSize = theme.iconSizes.XXXXL;
       break;
     default:
       iconSize = theme.iconSizes.SMALL;
@@ -273,6 +278,7 @@ export const IconCollection = [
   "edit-underline",
   "down-arrow",
   "loader",
+  "setting",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -627,6 +633,12 @@ const Icon = forwardRef(
         break;
       case "warning-triangle":
         returnIcon = <WarningTriangleIcon />;
+        break;
+      case "setting":
+        returnIcon = <SettingIcon />;
+        break;
+      case "support":
+        returnIcon = <SupportIcon />;
         break;
       case "workspace":
         returnIcon = <WorkspaceIcon />;

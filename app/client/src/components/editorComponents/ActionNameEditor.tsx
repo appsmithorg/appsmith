@@ -170,7 +170,6 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
           editInteractionKind={NewEditInteractionKind.SINGLE}
           fill
           forceDefault={forceUpdate}
-          hideEditIcon
           isEditingDefault={isNew && !hideEditIcon}
           isInvalid={isInvalidActionName}
           onBlur={handleAPINameChange}

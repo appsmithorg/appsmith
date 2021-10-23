@@ -1,19 +1,19 @@
 import React from "react";
-import Text, { TextType } from "../../../components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import { HelpIcons } from "icons/HelpIcons";
 import { withTheme } from "styled-components";
 import styled from "styled-components";
-import { Color } from "../../../constants/Colors";
+import { Color } from "constants/Colors";
 import Dialog from "components/ads/DialogComponent";
 import Icon, { IconSize } from "components/ads/Icon";
-import { IconProps } from "../../../constants/IconConstants";
+import { IconProps } from "constants/IconConstants";
 import Button, { Category, Size } from "components/ads/Button";
-import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "../../../constants/messages";
+import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
-} from "../../../constants/messages";
+} from "constants/messages";
 
 type Props = {
   isModalOpen: boolean;

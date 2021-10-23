@@ -7,6 +7,7 @@ import { BlankState } from "./helpers";
 import { createMessage, NO_ERRORS } from "constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { bootIntercom } from "utils/helpers";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;
@@ -15,6 +16,7 @@ const ContainerWrapper = styled.div`
 
 const ListWrapper = styled.div`
   overflow: auto;
+  ${thinScrollbar};
   height: 100%;
 `;
 
