@@ -39,6 +39,7 @@ import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
+import { DSLWidget } from "widgets/constants";
 
 /**
  * adds logBlackList key for all list widget children
@@ -295,12 +296,16 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 const mapAllowHorizontalScrollMigration = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
-  currentDSL.children = currentDSL.children?.map((children: WidgetProps) => {
-    if (children.type === "CHART_WIDGET") {
-      children.allowScroll = children.allowHorizontalScroll;
-      delete children.allowHorizontalScroll;
+  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+    if (child.type === "CHART_WIDGET") {
+      child.allowScroll = child.allowHorizontalScroll;
+      delete child.allowHorizontalScroll;
     }
-    return children;
+
+    if (Array.isArray(child.children) && child.children.length > 0)
+      child = mapAllowHorizontalScrollMigration(child);
+
+    return child;
   });
 
   return currentDSL;
