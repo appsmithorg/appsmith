@@ -51,6 +51,7 @@ public class PolicyUtils {
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
+        // TODO: Do we need to return the domain object?
         final Map<String, Policy> policyMap1 = new HashMap<>();
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
             Policy entryValue = entry.getValue();
@@ -80,6 +81,16 @@ public class PolicyUtils {
 
         obj.getPolicies().addAll(policyMap1.values());
         return obj;
+    }
+
+    public void addPolicyToExistingSet(Set<Policy> policySet, Policy newPolicy) {
+        // Append the user to the existing permission policy if it already exists.
+        for (Policy policy : policySet) {
+            String permission = policy.getPermission();
+            if (permission.equals(newPolicy.getPermission())) {
+                policy.getUsers().addAll(newPolicy.getUsers());
+            }
+        }
     }
 
     public <T extends BaseDomain> T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {

@@ -663,7 +663,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Mono<List<Boolean>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> newPageService.archiveById(id))
+                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, CommentMode.PUBLISHED)
+                                        .then(newPageService.archiveById(id))
+                                )
                                 .collectList();
                     } else {
                         archivePageListMono = Mono.just(new ArrayList<>());

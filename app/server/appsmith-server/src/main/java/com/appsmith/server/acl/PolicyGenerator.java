@@ -30,6 +30,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THREAD;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_MANAGE_APPLICATIONS;
@@ -148,6 +149,7 @@ public class PolicyGenerator {
         lateralGraph.addEdge(COMMENT_ON_THREAD, READ_THREAD);
 
         hierarchyGraph.addEdge(COMMENT_ON_THREAD, READ_COMMENT);
+        hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THREAD);
     }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> userNames, Class<? extends BaseDomain> destinationEntity) {
