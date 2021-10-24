@@ -63,7 +63,7 @@ _Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elast
   <img src="static/animations/javascript.gif" width="100%">
 </p>
 
-We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
+We'll run JS anywhere! Code interactions between elements, update data sources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
 
 <p>
   <img src="static/animations/invite.gif" width="100%">
