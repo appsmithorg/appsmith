@@ -98,8 +98,9 @@ const Icon = styled.span<{
   }
 `;
 
-const DeployedKeyContainer = styled.div`
-  margin: 8px 0px;
+const DeployedKeyContainer = styled.div<{ $marginTop: number }>`
+  margin-top: ${(props) => `${props.theme.spaces[props.$marginTop]}px`};
+  margin-bottom: 8px;
   height: 50px;
   width: calc(100% - 30px);
   background-color: ${Colors.Gallery};
@@ -275,7 +276,7 @@ function GitConnection({ isImport }: Props) {
       stopShowingCopiedAfterDelay();
 
       Toaster.show({
-        text: "Copied SSH Key",
+        text: createMessage(() => "Copied SSH Key"),
         variant: Variant.success,
       });
     }
@@ -331,7 +332,7 @@ function GitConnection({ isImport }: Props) {
       }
     } else {
       Toaster.show({
-        text: "Please enter valid user details",
+        text: createMessage(() => "Please enter valid user details"),
       });
     }
   }, [
@@ -423,7 +424,9 @@ function GitConnection({ isImport }: Props) {
               disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
               errorMsg={
                 isInvalidRemoteUrl
-                  ? "Please paste SSH URL of your repository"
+                  ? createMessage(
+                      () => "Please paste SSH URL of your repository",
+                    )
                   : ""
               }
               fill
@@ -444,23 +447,23 @@ function GitConnection({ isImport }: Props) {
 
         {!SSHKeyPair ? (
           remoteUrl && (
-            <ButtonContainer topMargin={!isInvalidRemoteUrl ? 10 : 14}>
+            <ButtonContainer topMargin={10}>
               <Button
-                category={Category.secondary}
+                category={Category.primary}
                 className="t--submit-repo-url-button"
                 disabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => generateSSHKey()}
-                size={Size.medium}
+                size={Size.large}
                 tag="button"
-                text="Generate SSH Key"
+                text={createMessage(() => "Generate Key")}
               />
             </ButtonContainer>
           )
         ) : (
           <>
             <FlexRow>
-              <DeployedKeyContainer>
+              <DeployedKeyContainer $marginTop={8}>
                 <FlexRow>
                   <Flex>
                     <KeySvg />
@@ -521,13 +524,18 @@ function GitConnection({ isImport }: Props) {
           />
           <ButtonContainer topMargin={11}>
             <Button
+              category={isGitConnected ? Category.secondary : Category.primary}
               className="t--connect-submit-btn"
               disabled={submitButtonDisabled}
               isLoading={submitButtonIsLoading}
               onClick={onSubmit}
               size={Size.large}
               tag="button"
-              text={isGitConnected ? "UPDATE CONFIG" : "CONNECT"}
+              text={
+                isGitConnected
+                  ? createMessage(() => "UPDATE CONFIG")
+                  : createMessage(() => "CONNECT")
+              }
             />
           </ButtonContainer>
         </>

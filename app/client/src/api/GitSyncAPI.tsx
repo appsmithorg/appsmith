@@ -79,13 +79,13 @@ class GitSyncAPI extends Api {
 
   static checkoutBranch(applicationId: string, branch: string) {
     return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
-      branch,
+      branchName: branch,
     });
   }
 
   static createNewBranch(applicationId: string, branch: string) {
     return Api.post(`${GitSyncAPI.baseURL}/create-branch/${applicationId}`, {
-      branch,
+      branchName: branch,
     });
   }
 

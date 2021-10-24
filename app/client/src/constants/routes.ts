@@ -151,7 +151,7 @@ export const BUILDER_PAGE_URL = (props: {
   }
 
   // test param to make sure a query param is present in the URL during dev and tests
-  if ((window as any).Cypress || process.env?.NODE_ENV === "development") {
+  if ((window as any).Cypress) {
     modifiedParams = { a: "b", ...modifiedParams };
   }
 
