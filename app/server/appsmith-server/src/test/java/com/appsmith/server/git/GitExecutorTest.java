@@ -1,6 +1,7 @@
 package com.appsmith.server.git;
 
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -122,47 +123,59 @@ public class GitExecutorTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void isMergeBranch_NoChanges_CanBeMerged() throws IOException, GitAPIException {
+        createFileInThePath("isMergeBranch_NoChanges_CanBeMerged");
+        commitToRepo();
 
+        //create branch f1
+        gitExecutor.createAndCheckoutToBranch(path, "f1").block();
+        //Create branch f2 from f1
+        gitExecutor.createAndCheckoutToBranch(path, "f2").block();
+
+        Mono<MergeStatus> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
+
+        StepVerifier
+                .create(mergeableStatus)
+                .assertNext( s -> {
+                    assertThat(s.isMerge());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void isMergeBranch_NonConflictingChanges_CanBeMerged() throws IOException, GitAPIException {
+        createFileInThePath("isMergeBranch_NonConflictingChanges_CanBeMerged");
+        commitToRepo();
+
+        //create branch f1 and commit changes
+        String branch = gitExecutor.createAndCheckoutToBranch(path, "f1").block();
+        createFileInThePath("isMergeBranch_NonConflictingChanges_f1");
+
+        //Create branch f2 from f1
+        gitExecutor.checkoutToBranch(path, "main");
+        gitExecutor.createAndCheckoutToBranch(path, "f2").block();
+        createFileInThePath("isMergeBranch_NonConflictingChanges_f2");
+
+        Mono<MergeStatus> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
+
+        StepVerifier
+                .create(mergeableStatus)
+                .assertNext( s -> {
+                    assertThat(s.isMerge());
+                })
+                .verifyComplete();
+
+    }
+
+
+    // TODO cover the below mentioned test cases
     /*
      * Merge conflicts
      * Merge invalid branch
      * Merge with no changes
      * Merge with valid data
-     * */
-
-
-
-    /*@Autowired
-    private GitExecutor gitExecutor;
-
-    @Autowired
-    private GitServiceConfig gitServiceConfig;
-
-    private Git git;
-
-    private Path path;
-
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
-
-    @BeforeClass
-    public void setUp() throws GitAPIException {
-        path = Paths.get(gitServiceConfig.getGitRootPath(), "orgId", "applicationId", "repoName");
-
-        git = Git.init().setDirectory(Paths.get( gitServiceConfig.getGitRootPath(), "orgId", "applicationId", "repoName").toFile()).call();
-    }
-
-    @After
-    public void tearDown() {
-        git.getRepository().close();
-        File file = Paths.get( gitServiceConfig.getGitRootPath(), "orgId").toFile();
-        while (file.exists()) {
-            FileSystemUtils.deleteRecursively(file);
-        }
-    }*/
-
-    // TODO cover the below mentioned test cases
-    /*
      * Clone with invalid keys
      * Clone with invalid remote
      * Clone with valid data
