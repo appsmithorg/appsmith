@@ -18,7 +18,7 @@ export type DropdownProps = {
   isDisabled?: boolean;
   customSelectStyles?: any;
   maxMenuHeight: number;
-  components?: SelectComponentsConfig<any>;
+  components?: SelectComponentsConfig<any, any>;
 };
 
 const selectStyles = {

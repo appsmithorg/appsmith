@@ -86,7 +86,7 @@ function TableDropdown(props: DropdownProps) {
   const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
-    props.options[props.selectedIndex] || {},
+    props.options[props.selectedIndex],
   );
 
   const optionSelector = (index: number) => {

@@ -127,7 +127,7 @@ function NotificationsList() {
           data={notifications}
           endReached={(index: number) => {
             const last = notifications[index];
-            const { createdAt, creationTime } = last || {};
+            const { createdAt, creationTime } = last;
             const _createdTime = createdAt || creationTime;
             dispatch(fetchNotificationsRequest(_createdTime));
           }}

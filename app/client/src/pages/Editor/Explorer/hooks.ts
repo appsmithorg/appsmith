@@ -117,7 +117,7 @@ export const useJSCollections = (searchKeyword?: string) => {
               }
             });
           }
-          draft[key] = draft[key].filter(Boolean);
+          draft[key] = draft[key].filter(Boolean) as any;
         }
       });
       log.debug("Filtered actions in:", performance.now() - start, "ms");
@@ -157,7 +157,7 @@ export const useActions = (searchKeyword?: string) => {
               }
             });
           }
-          draft[key] = draft[key].filter(Boolean);
+          draft[key] = draft[key].filter(Boolean) as any;
         }
       });
       log.debug("Filtered actions in:", performance.now() - start, "ms");
