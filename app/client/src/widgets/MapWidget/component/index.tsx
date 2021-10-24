@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import { MarkerProps } from "../constants";
@@ -87,7 +87,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
     lng: props.center.long,
   });
   const searchBox = React.createRef<SearchBox>();
-  const onPlacesChanged = () => {
+  const onPlacesChanged = useCallback(() => {
     const node: any = searchBox.current;
     if (node) {
       const places: any = node.getPlaces();
@@ -105,7 +105,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
         props.unselectMarker();
       }
     }
-  };
+  }, []);
   useEffect(() => {
     if (!props.selectedMarker) {
       setMapCenter({
@@ -117,11 +117,11 @@ const MyMapComponent = withGoogleMap((props: any) => {
   return (
     <GoogleMap
       center={mapCenter}
-      onClick={(e) => {
+      onClick={useCallback((e) => {
         if (props.enableCreateMarker) {
           props.saveMarker(e.latLng.lat(), e.latLng.lng());
         }
-      }}
+      }, [])}
       options={{
         zoomControl: props.allowZoom,
         fullscreenControl: false,
@@ -151,7 +151,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
               props.selectedMarker.long === marker.long
             }
             key={index}
-            onClick={() => {
+            onClick={useCallback(() => {
               if (props.clickedMarkerCentered) {
                 setMapCenter({
                   ...marker,
@@ -160,10 +160,10 @@ const MyMapComponent = withGoogleMap((props: any) => {
               }
 
               props.selectMarker(marker.lat, marker.long, marker.title);
-            }}
-            onDragEnd={(de) => {
+            }, [])}
+            onDragEnd={useCallback((de) => {
               props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-            }}
+            }, [])}
             position={{ lat: marker.lat, lng: marker.long }}
             title={marker.title}
           />

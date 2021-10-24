@@ -369,13 +369,13 @@ function ToggleCommentModeButton({
           <ModeButton
             active={!isCommentMode}
             className="t--switch-comment-mode-off"
-            onClick={() => {
+            onClick={useCallback(() => {
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
                 mode,
                 source: "CLICK",
               });
               setCommentModeInUrl(false);
-            }}
+            }, [])}
             showSelectedMode={showSelectedMode}
             type="fill"
           >

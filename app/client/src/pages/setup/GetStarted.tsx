@@ -14,7 +14,7 @@ import {
   WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_ROLE,
 } from "constants/messages";
-import React from "react";
+import React, { useCallback } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 import {
@@ -122,13 +122,15 @@ function NonSuperUser(
         <StyledButton
           className="t--get-started-button"
           disabled={props.invalid}
-          onClick={() =>
-            props.onGetStarted &&
-            props.onGetStarted(
-              props.role !== "other" ? props.role : props.role_name,
-              props.useCase,
-            )
-          }
+          onClick={useCallback(
+            () =>
+              props.onGetStarted &&
+              props.onGetStarted(
+                props.role !== "other" ? props.role : props.role_name,
+                props.useCase,
+              ),
+            [],
+          )}
           text={createMessage(WELCOME_ACTION)}
         />
       </ActionContainer>

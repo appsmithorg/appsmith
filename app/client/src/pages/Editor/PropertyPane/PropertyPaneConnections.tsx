@@ -222,7 +222,7 @@ function OptionNode(props: any) {
   const dispatch = useDispatch();
   const { navigateToEntity } = useEntityLink();
 
-  const onClick = () => {
+  const onClick = useCallback(() => {
     if (entityInfo?.hasError) {
       if (entityInfo?.type === ENTITY_TYPE.WIDGET) {
         dispatch(showDebugger(true));
@@ -235,7 +235,7 @@ function OptionNode(props: any) {
       source: "PROPERTY_PANE",
       entityType: entityInfo?.entityType,
     });
-  };
+  }, []);
 
   return (
     <OptionWrapper
@@ -265,9 +265,9 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
     : `No ${props.connectionType.toLowerCase()} connections`;
   const iconColor = props.hasError ? "#f22b2b" : "";
 
-  const onClick = () => {
+  const onClick = useCallback(() => {
     AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_DROPDOWN_CLICK");
-  };
+  }, []);
 
   return (
     <SelectedNodeWrapper

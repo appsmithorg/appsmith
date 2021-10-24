@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import LandingPage from "./Welcome";
 import SetupForm from "./SetupForm";
 import { requiresUnauth } from "pages/UserAuth/requiresAuthHOC";
