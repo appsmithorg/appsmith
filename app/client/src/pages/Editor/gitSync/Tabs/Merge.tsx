@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { Title, Caption, Space } from "../components/StyledComponents";
 import Dropdown from "components/ads/Dropdown";
 
@@ -13,10 +13,11 @@ import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 import styled from "styled-components";
 // import * as log from "loglevel";
 import Button, { Size } from "components/ads/Button";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { getGitBranches } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
+import { mergeBranchInit } from "../../../../actions/gitSyncActions";
 
 const Row = styled.div`
   display: flex;
@@ -46,6 +47,7 @@ const listOfBranchesExceptCurrentBranch = [
 export default function Merge() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitBranches = useSelector(getGitBranches);
+  const dispatch = useDispatch();
   const currentBranch = gitMetaData?.branchName;
 
   const [selectedBranch, setSelectedBranch] = useState(currentBranch);
@@ -74,6 +76,17 @@ export default function Merge() {
     label: currentBranch || "",
     value: currentBranch || "",
   };
+
+  const mergeHandler = useCallback(() => {
+    if (currentBranch && selectedBranch) {
+      dispatch(
+        mergeBranchInit({
+          sourceBranch: currentBranch,
+          destinationBranch: selectedBranch,
+        }),
+      );
+    }
+  }, [currentBranch, selectedBranch, dispatch]);
 
   return (
     <>
@@ -108,6 +121,7 @@ export default function Merge() {
       </Row>
       <Space size={10} />
       <Button
+        onClick={mergeHandler}
         size={Size.medium}
         text={createMessage(MERGE_CHANGES)}
         width="max-content"

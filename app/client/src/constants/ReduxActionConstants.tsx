@@ -11,6 +11,8 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  MERGE_BRANCH_INIT: "MERGE_BRANCH_INIT",
+  MERGE_BRANCH_SUCCESS: "MERGE_BRANCH_SUCCESS",
   FETCH_GIT_STATUS_INIT: "FETCH_GIT_STATUS_INIT",
   FETCH_GIT_STATUS_SUCCESS: "FETCH_GIT_STATUS_SUCCESS",
   UPDATE_BRANCH_LOCALLY: "UPDATE_BRANCH_LOCALLY",
@@ -622,6 +624,7 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  MERGE_BRANCH_ERROR: "MERGE_BRANCH_ERROR",
   FETCH_GIT_STATUS_ERROR: "FETCH_GIT_STATUS_ERROR",
   CREATE_NEW_BRANCH_ERROR: "CREATE_NEW_BRANCH_ERROR",
   CHECKOUT_BRANCH_ERROR: "CHECKOUT_BRANCH_ERROR",
