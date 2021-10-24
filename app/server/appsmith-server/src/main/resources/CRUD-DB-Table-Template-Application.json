@@ -2793,32 +2793,27 @@
           "timeoutInMillisecond": 100000,
           "encodeParamsToggle": true,
           "body": "{{FilePicker.files[this.params.fileIndex].data}}",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "UPLOAD_FILE_FROM_BODY"
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "read" : {
+              "usingBase64Encoding" : "YES",
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "assets-test.appsmith.com"
+            "create" : {
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "NO"
+            "list" : {
+              "prefix" : "",
+              "expiry" : "5",
+              "signedUrl" : "NO"
             },
-            {
-              "value": "5"
+            "delete" : {
+              "expiry" : "5"
             },
-            {
-              "value": ""
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "5"
-            }
-          ]
+            "command" : "UPLOAD_FILE_FROM_BODY"
+          }
         },
         "userPermissions": [
 
@@ -2867,32 +2862,27 @@
           "timeoutInMillisecond": 100000,
           "encodeParamsToggle": true,
           "body": "{{FilePicker.files[this.params.fileIndex].data}}",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "UPLOAD_FILE_FROM_BODY"
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "read" : {
+              "usingBase64Encoding" : "YES",
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "assets-test.appsmith.com"
+            "create" : {
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "NO"
+            "list" : {
+              "prefix" : "",
+              "expiry" : "5",
+              "signedUrl" : "NO"
             },
-            {
-              "value": "5"
+            "delete" : {
+              "expiry" : "5"
             },
-            {
-              "value": ""
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "5"
-            }
-          ]
+            "command" : "UPLOAD_FILE_FROM_BODY"
+          }
         },
         "userPermissions": [
 
@@ -2910,10 +2900,10 @@
         ],
         "dynamicBindingPathList": [
           {
-            "key": "pluginSpecifiedTemplates[4].value"
+            "key" : "formData.list.expiry"
           },
           {
-            "key": "pluginSpecifiedTemplates[3].value"
+            "key" : "formData.list.prefix"
           }
         ],
         "confirmBeforeExecute": false,
@@ -2939,35 +2929,28 @@
           "timeoutInMillisecond": 10000,
           "encodeParamsToggle": true,
           "body": "",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "LIST"
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "read" : {
+              "usingBase64Encoding" : "YES",
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "assets-test.appsmith.com"
+            "create" : {
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "YES"
+            "list" : {
+              "prefix" : "{{search_input.text}}",
+              "expiry" : "{{ 60 * 24 }}",
+              "signedUrl" : "YES",
+              "unSignedUrl" : "YES"
             },
-            {
-              "value": "{{ 60 * 24 }}"
+            "delete" : {
+              "expiry" : "5"
             },
-            {
-              "value": "{{search_input.text}}"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "5"
-            },
-            {
-              "value": "YES"
-            }
-          ]
+            "command" : "LIST"
+          }
         },
         "userPermissions": [
 
@@ -2987,10 +2970,10 @@
         ],
         "dynamicBindingPathList": [
           {
-            "key": "pluginSpecifiedTemplates[4].value"
+            "key" : "formData.list.expiry"
           },
           {
-            "key": "pluginSpecifiedTemplates[3].value"
+            "key" : "formData.list.prefix"
           }
         ],
         "confirmBeforeExecute": false,
@@ -3016,35 +2999,28 @@
           "timeoutInMillisecond": 10000,
           "encodeParamsToggle": true,
           "body": "",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "LIST"
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "read" : {
+              "usingBase64Encoding" : "YES",
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "assets-test.appsmith.com"
+            "create" : {
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "YES"
+            "list" : {
+              "prefix" : "{{search_input.text}}",
+              "expiry" : "{{ 60 * 24 }}",
+              "signedUrl" : "YES",
+              "unSignedUrl" : "YES"
             },
-            {
-              "value": "{{ 60 * 24 }}"
+            "delete" : {
+              "expiry" : "5"
             },
-            {
-              "value": "{{search_input.text}}"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "5"
-            },
-            {
-              "value": "YES"
-            }
-          ]
+            "command" : "LIST"
+          }
         },
         "userPermissions": [
 
@@ -4344,14 +4320,10 @@
           "paginationType": "NONE",
           "timeoutInMillisecond": 10000,
           "encodeParamsToggle": true,
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "DELETE_FILE"
-            },
-            {
-              "value": "assets-test.appsmith.com"
-            }
-          ]
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "command" : "DELETE_FILE"
+          }
         },
         "userPermissions": [
 
@@ -4395,14 +4367,10 @@
           "paginationType": "NONE",
           "timeoutInMillisecond": 10000,
           "encodeParamsToggle": true,
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "DELETE_FILE"
-            },
-            {
-              "value": "assets-test.appsmith.com"
-            }
-          ]
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "command" : "DELETE_FILE"
+          }
         },
         "userPermissions": [
 
@@ -4445,32 +4413,27 @@
           "timeoutInMillisecond": 10000,
           "encodeParamsToggle": true,
           "body": "",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "READ_FILE"
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "read" : {
+              "usingBase64Encoding" : "YES",
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "assets-test.appsmith.com"
+            "create" : {
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "NO"
+            "list" : {
+              "prefix" : "",
+              "expiry" : "5",
+              "signedUrl" : "NO"
             },
-            {
-              "value": "5"
+            "delete" : {
+              "expiry" : "5"
             },
-            {
-              "value": ""
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "5"
-            }
-          ]
+            "command" : "READ_FILE"
+          }
         },
         "userPermissions": [
 
@@ -4515,32 +4478,27 @@
           "timeoutInMillisecond": 10000,
           "encodeParamsToggle": true,
           "body": "",
-          "pluginSpecifiedTemplates": [
-            {
-              "value": "READ_FILE"
+          "formData" : {
+            "bucket" : "assets-test.appsmith.com",
+            "read" : {
+              "usingBase64Encoding" : "YES",
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "assets-test.appsmith.com"
+            "create" : {
+              "dataType" : "YES",
+              "expiry" : "5"
             },
-            {
-              "value": "NO"
+            "list" : {
+              "prefix" : "",
+              "expiry" : "5",
+              "signedUrl" : "NO"
             },
-            {
-              "value": "5"
+            "delete" : {
+              "expiry" : "5"
             },
-            {
-              "value": ""
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "YES"
-            },
-            {
-              "value": "5"
-            }
-          ]
+            "command" : "READ_FILE"
+          }
         },
         "userPermissions": [
 
