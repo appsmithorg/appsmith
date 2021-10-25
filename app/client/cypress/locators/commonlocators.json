@@ -132,7 +132,7 @@
   "lintWarningMsg": ".CodeMirror-lint-message-warning",
   "labelSectionTxt": ".CodeMirror-code .cm-variable",
   "lintError": ".CodeMirror-lint-mark-error",
-  "debugger": ".t--debugger",
+  "debugger": ".t--debugger svg",
   "errorTab": "[data-cy=t--tab-ERROR]",
   "debugErrorMsg": ".t--debugger-message"
 }

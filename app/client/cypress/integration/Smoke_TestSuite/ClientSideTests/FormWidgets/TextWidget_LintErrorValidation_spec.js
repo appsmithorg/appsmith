@@ -60,18 +60,10 @@ describe("Linting warning validation with text widget", function() {
 
     cy.get(commonlocators.debugErrorMsg)
       .eq(0)
-      .contains("'error' is not defined.");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(1)
       .contains("ReferenceError: error is not defined");
 
     cy.get(commonlocators.debugErrorMsg)
-      .eq(2)
-      .contains("'lintErrror' is not defined.");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(3)
+      .eq(1)
       .contains("ReferenceError: lintErrror is not defined");
   });
 });

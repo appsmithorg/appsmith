@@ -59,18 +59,10 @@ describe("Linting warning validation with list widget", function() {
 
     cy.get(commonlocators.debugErrorMsg)
       .eq(0)
-      .contains("'ERROR' is not defined.");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(1)
       .contains("ReferenceError: ERROR is not defined");
 
     cy.get(commonlocators.debugErrorMsg)
-      .eq(4)
-      .contains("'LIST' is not defined.");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(6)
+      .eq(1)
       .contains("SyntaxError: Unexpected identifier");
   });
 });
