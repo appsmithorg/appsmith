@@ -58,6 +58,8 @@ function useSettingsCategory() {
     .sort((a, b) => {
       if (a.label == "general") return -1;
       else if (b.label == "general") return 1;
+      if (a.label == "advanced") return 1;
+      else if (b.label == "advanced") return -1;
       return a.label < b.label ? -1 : 1;
     });
 }
