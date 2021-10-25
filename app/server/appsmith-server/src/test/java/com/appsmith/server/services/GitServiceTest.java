@@ -565,7 +565,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(application -> {
-                    assertThat(application.getGitApplicationMetadata()).isNull();
+                    assertThat(application.getGitApplicationMetadata().getGitAuth()).isNotNull();
                 })
                 .verifyComplete();
     }

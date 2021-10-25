@@ -557,7 +557,7 @@ public class GitServiceImpl implements GitService {
                     return fileUtils.detachRemote(repoPath)
                             .then(Mono.just(application));
                 })
-                .flatMap(application -> applicationService.delete(application.getId()));
+                .flatMap(application -> applicationPageService.deleteApplication(application.getId()));
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params) {
