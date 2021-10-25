@@ -23,6 +23,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { PHONE_NUMBER_REGEX } from "../component/utilities";
 
 export function defaultValueValidation(
   value: any,
@@ -33,8 +34,7 @@ export function defaultValueValidation(
   if (
     inputType === "INTEGER" ||
     inputType === "NUMBER" ||
-    inputType === "CURRENCY" ||
-    inputType === "PHONE_NUMBER"
+    inputType === "CURRENCY"
   ) {
     const parsed = Number(value);
 
@@ -62,6 +62,26 @@ export function defaultValueValidation(
       messages: [""],
     };
   }
+
+  if (inputType === "PHONE_NUMBER") {
+    if (typeof value === "string") {
+      if (value.trim() === "") {
+        return {
+          isValid: true,
+          parsed: value,
+          messages: [""],
+        };
+      }
+    }
+    if (!PHONE_NUMBER_REGEX.test(value)) {
+      return {
+        isValid: false,
+        parsed: undefined,
+        messages: ["This value must be a valid phone number format"],
+      };
+    }
+  }
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -534,7 +554,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             this.inputType === "NUMBER" ||
             this.inputType === "INTEGER" ||
             this.inputType === "CURRENCY" ||
-            this.inputType === "PHONE_NUMBER"
           ) {
             let value = this.text.split(",").join("");
             if (parsedRegex) {
@@ -545,6 +564,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             }
 
             return (value === '' || !isNaN(value || ''));
+          }
+          else if (
+            this.inputType === "PHONE_NUMBER"
+          ) {
+            const phoneNumberRegex = new RegExp(/^(?:[0-9 ]+$)/);
+            return phoneNumberRegex.test(this.text);
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {

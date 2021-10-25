@@ -48,6 +48,7 @@ import ISDCodeDropdown, {
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { PHONE_NUMBER_REGEX } from "./utilities";
 
 /**
  * All design system component specific logic goes here.
@@ -285,6 +286,12 @@ class InputComponent extends React.Component<
       } else {
         this.props.onValueChange(valueAsString);
       }
+    } else if (this.props.inputType === InputTypes.PHONE_NUMBER) {
+      // phone number will valid for number and space, e.g "123 123"
+      if (!PHONE_NUMBER_REGEX.test(valueAsString)) {
+        return;
+      }
+      this.props.onValueChange(valueAsString);
     } else {
       this.props.onValueChange(valueAsString);
     }
@@ -371,8 +378,13 @@ class InputComponent extends React.Component<
         : 0;
     return (
       <StyledNumericInput
-        allowNumericCharactersOnly
+        allowNumericCharactersOnly={
+          this.props.inputType !== InputTypes.PHONE_NUMBER
+        }
         autoFocus={this.props.autoFocus}
+        buttonPosition={
+          this.props.inputType === InputTypes.PHONE_NUMBER ? "none" : "right"
+        }
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         intent={this.props.intent}

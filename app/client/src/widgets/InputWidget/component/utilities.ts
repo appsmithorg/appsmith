@@ -7,3 +7,5 @@ export const countryToFlag = (isoCode: string) => {
         )
     : isoCode;
 };
+
+export const PHONE_NUMBER_REGEX = /^(?:[0-9 ]+$)/;
