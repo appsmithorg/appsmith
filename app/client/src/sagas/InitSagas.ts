@@ -303,14 +303,6 @@ export function* initializeAppViewerSaga(
     ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
   ];
 
-  if (pageId) {
-    initCalls.push(put(fetchPublishedPage(pageId, true)) as any);
-    initSuccessEffects.push(
-      take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
-    );
-    initFailureEffects.push(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR);
-  }
-
   yield all(initCalls);
 
   const resultOfPrimaryCalls = yield race({
@@ -332,32 +324,29 @@ export function* initializeAppViewerSaga(
     return;
   }
 
-  // if pageId is not provided use the default page id
-  if (!pageId) {
-    const defaultPageId = yield select(getDefaultPageId);
-    const toLoadPageId = pageId || defaultPageId;
+  const defaultPageId = yield select(getDefaultPageId);
+  const toLoadPageId = pageId || defaultPageId;
 
-    if (toLoadPageId) {
-      yield put(fetchPublishedPage(toLoadPageId, true));
+  if (toLoadPageId) {
+    yield put(fetchPublishedPage(toLoadPageId, true));
 
-      const resultOfFetchPage = yield race({
-        success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
-        failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
+    const resultOfFetchPage = yield race({
+      success: take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS),
+      failure: take(ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR),
+    });
+
+    if (resultOfFetchPage.failure) {
+      yield put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: get(
+            resultOfFetchPage,
+            "failure.payload.error.code",
+            ERROR_CODES.SERVER_ERROR,
+          ),
+        },
       });
-
-      if (resultOfFetchPage.failure) {
-        yield put({
-          type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-          payload: {
-            code: get(
-              resultOfFetchPage,
-              "failure.payload.error.code",
-              ERROR_CODES.SERVER_ERROR,
-            ),
-          },
-        });
-        return;
-      }
+      return;
     }
   }
 
