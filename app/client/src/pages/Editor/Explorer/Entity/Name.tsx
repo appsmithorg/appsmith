@@ -1,6 +1,7 @@
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
+import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
 
@@ -10,8 +11,10 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Classes, Position } from "@blueprintjs/core";
 import { AppState } from "reducers";
 import {
   getExistingActionNames,
@@ -19,15 +22,26 @@ import {
   getExistingWidgetNames,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { removeSpecialChars } from "utils/helpers";
+import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
 
+const Container = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
+  overflow: hidden;
+`;
+
 const Wrapper = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -37,6 +51,13 @@ const Wrapper = styled.div`
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }
+`;
+
+const EditableWrapper = styled.div`
+  overflow: hidden;
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[3] + 1}px 0;
+  line-height: 13px;
 `;
 
 export const replace = (
@@ -78,7 +99,6 @@ export interface EntityNameProps {
   exitEditMode: () => void;
   nameTransformFn?: (input: string, limit?: number) => string;
 }
-
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
     const { name, searchKeyword, updateEntityName } = props;
@@ -106,6 +126,7 @@ export const EntityName = forwardRef(
         get(state, "ui.explorer.entity.updateEntityError") === props.entityId
       );
     });
+    const targetRef = useRef<HTMLDivElement | null>(null);
 
     const [updatedName, setUpdatedName] = useState(name);
 
@@ -193,16 +214,27 @@ export const EntityName = forwardRef(
 
     if (!props.isEditing)
       return (
-        <Wrapper
-          className={props.className}
-          onDoubleClick={props.enterEditMode}
-          ref={ref}
-        >
-          {searchHighlightedName}
-        </Wrapper>
+        <Container ref={ref}>
+          <TooltipComponent
+            boundary={"viewport"}
+            content={updatedName}
+            disabled={!isEllipsisActive(targetRef.current)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            modifiers={{ arrow: { enabled: false } }}
+            position={Position.TOP_LEFT}
+          >
+            <Wrapper
+              className={props.className}
+              onDoubleClick={props.enterEditMode}
+              ref={targetRef}
+            >
+              {searchHighlightedName}
+            </Wrapper>
+          </TooltipComponent>
+        </Container>
       );
     return (
-      <Wrapper>
+      <EditableWrapper>
         <EditableText
           className={`${props.className} editing`}
           defaultValue={updatedName}
@@ -216,7 +248,7 @@ export const EntityName = forwardRef(
           type="text"
           valueTransform={props.nameTransformFn || removeSpecialChars}
         />
-      </Wrapper>
+      </EditableWrapper>
     );
   },
 );

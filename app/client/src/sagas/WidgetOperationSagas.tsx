@@ -92,6 +92,7 @@ import {
   getBoundaryWidgetsFromCopiedGroups,
   createWidgetCopy,
   getNextWidgetName,
+  getParentWidgetIdForGrouping,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -724,7 +725,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
-  const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
+  let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
     selectedWidget,
   );
@@ -738,6 +739,11 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
     copiedWidgetGroups = yield createSelectedWidgetsAsCopiedWidgets();
+    pastingIntoWidgetId = yield getParentWidgetIdForGrouping(
+      widgets,
+      copiedWidgetGroups,
+      pastingIntoWidgetId,
+    );
     widgets = yield filterOutSelectedWidgets(
       copiedWidgetGroups[0].parentId,
       copiedWidgetGroups,

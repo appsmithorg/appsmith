@@ -291,7 +291,7 @@ function CommentModeBtn({
 }
 
 export const useHideComments = () => {
-  const [shouldHide, setShouldHide] = useState(false);
+  const [shouldHide, setShouldHide] = useState(true);
   const location = useLocation();
   const currentUser = useSelector(getCurrentUser);
   useEffect(() => {
@@ -377,7 +377,7 @@ function ToggleCommentModeButton({
   if (isHideComments) return null;
 
   return (
-    <Container>
+    <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton

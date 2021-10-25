@@ -10,6 +10,8 @@ export const APPLICATIONS_URL = `/applications`;
 
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
+
+export const GIT_PROFILE_ROUTE = `${PROFILE}/git`;
 export const USERS_URL = "/users";
 export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";
 export const SETUP = "/setup/welcome";

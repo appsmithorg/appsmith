@@ -25,7 +25,7 @@ export default function ButtonComponent({ setting }: SettingComponentProps) {
           category={Category.tertiary}
           onClick={() => {
             if (setting.action) {
-              dispatch(setting.action());
+              setting.action(dispatch);
             }
           }}
           text={setting.text}
