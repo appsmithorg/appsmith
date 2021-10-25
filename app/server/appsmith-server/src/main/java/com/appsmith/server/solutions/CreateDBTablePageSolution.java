@@ -312,7 +312,7 @@ public class CreateDBTablePageSolution {
 
                 if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
                     mappedColumnsAndTableName.put(
-                        templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().get(1).getValue().toString(),
+                            (String) templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getFormData().get("bucket"),
                         tableName
                     );
                 }
