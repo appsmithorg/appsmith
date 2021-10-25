@@ -19,7 +19,7 @@ import { selectWidgetAction } from "actions/widgetSelectionActions";
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 
 const DragBlock = styled.div`
-  height: 41px;
+  height: 40px;
   width: 83px;
   background: ${Colors.WHITE_SNOW};
   box-sizing: border-box;
