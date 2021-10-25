@@ -573,7 +573,17 @@ public class CreateDBTablePageSolution {
                 } else {
                     // Recursively replace the column names from template table with user provided table using mappedColumns
                     if (property.getValue() instanceof String) {
-                        final Matcher matcher = WORD_PATTERN.matcher(property.getValue().toString());
+
+                        // In case the entire value finds a match in the mappedColumns, replace it
+                        Pattern replacePattern = Pattern.compile(Pattern.quote(property.getValue().toString()));
+                        Matcher matcher = replacePattern.matcher(property.getValue().toString());
+                        property.setValue(matcher.replaceAll(key ->
+                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
+                        );
+
+                        // If the column name is present inside a string (like json), then find all the words and replace
+                        // the column name with user one.
+                        matcher = WORD_PATTERN.matcher(property.getValue().toString());
                         property.setValue(matcher.replaceAll(key ->
                             mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                         );
