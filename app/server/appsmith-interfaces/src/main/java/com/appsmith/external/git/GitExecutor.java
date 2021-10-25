@@ -102,7 +102,12 @@ public interface GitExecutor {
      * @param repoSuffix repo suffix path in local repo
      * @return List of branches for the application
      */
-    Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey);
+    Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix,
+                                              ListBranchCommand.ListMode listMode,
+                                              String remoteUrl,
+                                              String privateKey,
+                                              String publicKey,
+                                              Boolean isDefaultBranchNeeded);
 
     /**
      * This method will handle the git-status functionality

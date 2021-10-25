@@ -342,7 +342,12 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey) {
+    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix,
+                                                     ListBranchCommand.ListMode listMode,
+                                                     String remoteUrl,
+                                                     String privateKey,
+                                                     String publicKey,
+                                                     Boolean isDefaultBranchNeeded) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
@@ -365,11 +370,14 @@ public class GitExecutorImpl implements GitExecutor {
                 branchList.add(gitBranchListDTO);
             } else {
                 // Get default branch name from the remote
-                String defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
+                String defaultBranch = null;
                 GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
-                gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
-                gitBranchListDTO.setDefault(true);
-                branchList.add(gitBranchListDTO);
+                if (Boolean.TRUE.equals(isDefaultBranchNeeded)) {
+                    defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
+                    gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
+                    gitBranchListDTO.setDefault(true);
+                    branchList.add(gitBranchListDTO);
+                }
 
                 for(Ref ref : refList) {
                     if(!ref.getName().equals(defaultBranch)) {

@@ -147,7 +147,7 @@ public class ImportExportApplicationServiceTests {
                 // fetch the unpublished pages
                 .findByApplicationId(application.getId(), READ_PAGES, false)
                 .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
-                        Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
+                        Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), ""));
     }
 
     @Before

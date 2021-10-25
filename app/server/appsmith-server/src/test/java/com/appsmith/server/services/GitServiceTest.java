@@ -597,7 +597,7 @@ public class GitServiceTest {
         branchList.add(gitBranchListDTO);
 
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
@@ -645,7 +645,7 @@ public class GitServiceTest {
         branchList.add(gitBranchListDTO);
 
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), eq(true)))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));

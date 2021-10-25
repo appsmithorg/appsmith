@@ -1175,8 +1175,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                .findChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
-                .flatMapMany(applicationId -> repository.findByApplicationIdAndViewMode(applicationId, false, READ_ACTIONS))
+                .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
         }

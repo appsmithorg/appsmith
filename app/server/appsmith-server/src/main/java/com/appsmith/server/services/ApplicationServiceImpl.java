@@ -488,6 +488,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     public Mono<String> findChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
         if (StringUtils.isEmpty(branchName)) {
+            if (StringUtils.isEmpty(defaultApplicationId)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
+            }
             return Mono.just(defaultApplicationId);
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
