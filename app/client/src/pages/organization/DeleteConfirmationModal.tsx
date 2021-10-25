@@ -17,7 +17,7 @@ const StyledDialog = styled(Dialog)`
 `;
 
 const CenteredContainer = styled.div`
-  text-align: center;
+  text-align: left;
 `;
 
 const ImportButton = styled(Button)<{ disabled?: boolean }>`
@@ -28,7 +28,7 @@ const ImportButton = styled(Button)<{ disabled?: boolean }>`
 
 const ButtonWrapper = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: end;
   margin-top: 20px;
 
   & > a {
@@ -52,10 +52,12 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
     <StyledDialog
       canOutsideClickClose
       className={"t--member-delete-confirmation-modal"}
+      icon="delete"
       isOpen={isOpen}
       maxHeight={"540px"}
       setModalClose={onClose}
       title={DELETE_CONFIRMATION_MODAL_TITLE()}
+      width="592px"
     >
       <CenteredContainer>
         <Text textAlign="center" type={TextType.P1}>
