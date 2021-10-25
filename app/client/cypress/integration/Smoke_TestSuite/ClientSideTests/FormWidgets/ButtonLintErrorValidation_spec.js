@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/lintErrorDsl.json");
+const dsl = require("../../../../fixtures/buttonLintErrorDsl.json");
 const formWidgetDsl = require("../../../../fixtures/formWidgetdsl.json");
 const pages = require("../../../../locators/Pages.json");
 
@@ -38,7 +38,7 @@ describe("Linting warning validation with button widget", function() {
     //lint warning message
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
-      .contains("'nodata' is not defined.");
+      .contains("'Nodata' is not defined.");
 
     cy.get(commonlocators.lintError)
       .last()
@@ -47,7 +47,7 @@ describe("Linting warning validation with button widget", function() {
     //lint warning message
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
-      .contains("'error' is not defined.");
+      .contains("'lintError' is not defined.");
 
     cy.get(commonlocators.debugger)
       .should("be.visible")
@@ -59,18 +59,10 @@ describe("Linting warning validation with button widget", function() {
 
     cy.get(commonlocators.debugErrorMsg)
       .eq(0)
-      .contains("'nodata' is not defined.");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(1)
-      .contains("ReferenceError: nodata is not defined");
+      .contains("ReferenceError: Nodata is not defined");
 
     cy.get(commonlocators.debugErrorMsg)
       .eq(2)
-      .contains("'error' is not defined.");
-
-    cy.get(commonlocators.debugErrorMsg)
-      .eq(3)
-      .contains("ReferenceError: error is not defined");
+      .contains("ReferenceError: lintError is not defined");
   });
 });
