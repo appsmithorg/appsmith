@@ -44,6 +44,12 @@ export const entityTooltipCSS = css`
   justify-content: center;
   align-items: center;
 `;
+export const entityNameTooltipCSS = css`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+`;
 
 export const EntityItem = styled.div<{
   active: boolean;
@@ -73,9 +79,9 @@ export const EntityItem = styled.div<{
   }
 
   & .${EntityClassNames.TOOLTIP} {
-    ${entityTooltipCSS}
+    ${entityNameTooltipCSS}
     .${Classes.POPOVER_TARGET} {
-      ${entityTooltipCSS}
+      ${entityNameTooltipCSS}
     }
   }
 
@@ -89,8 +95,8 @@ export const EntityItem = styled.div<{
 
   &&&& .${EntityClassNames.CONTEXT_MENU} {
     display: block;
-    width: 100%;
-    height: 100%;
+    height: 30px;
+    width: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -136,6 +142,12 @@ const IconWrapper = styled.span`
   svg {
     width: 16px;
     height: 16px;
+  }
+  & .${EntityClassNames.TOOLTIP} {
+    ${entityTooltipCSS}
+    .${Classes.POPOVER_TARGET} {
+      ${entityTooltipCSS}
+    }
   }
 `;
 
@@ -258,18 +270,26 @@ export const Entity = forwardRef(
             onClick={toggleChildren}
           />
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
-          <EntityName
-            className={`${EntityClassNames.NAME}`}
-            enterEditMode={enterEditMode}
-            entityId={props.entityId}
-            exitEditMode={exitEditMode}
-            isEditing={!!props.updateEntityName && isEditing}
-            name={props.name}
-            nameTransformFn={props.onNameEdit}
-            ref={itemRef}
-            searchKeyword={props.searchKeyword}
-            updateEntityName={updateNameCallback}
-          />
+          <TooltipComponent
+            boundary="viewport"
+            className={EntityClassNames.TOOLTIP}
+            content={props.name}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            position={Position.BOTTOM}
+          >
+            <EntityName
+              className={`${EntityClassNames.NAME}`}
+              enterEditMode={enterEditMode}
+              entityId={props.entityId}
+              exitEditMode={exitEditMode}
+              isEditing={!!props.updateEntityName && isEditing}
+              name={props.name}
+              nameTransformFn={props.onNameEdit}
+              ref={itemRef}
+              searchKeyword={props.searchKeyword}
+              updateEntityName={updateNameCallback}
+            />
+          </TooltipComponent>
           <IconWrapper
             className={EntityClassNames.RIGHT_ICON}
             onClick={props.onClickRightIcon}
@@ -295,7 +315,7 @@ export const Entity = forwardRef(
               onClick={props.onCreate}
             />
           )}
-          {props.contextMenu}
+          <IconWrapper onClick={handleClick}>{props.contextMenu}</IconWrapper>
           <Loader isVisible={isUpdating} />
         </EntityItem>
         <Collapse active={props.active} isOpen={isOpen} step={props.step}>
