@@ -218,8 +218,8 @@ public class UserSignup {
                                         analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
                                     }),
                             envManager.applyChanges(Map.of(
-                                    "APPSMITH_DISABLE_TELEMETRY",
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                    "APPSMITH_ENABLE_TELEMETRY",
+                                    String.valueOf(userFromRequest.isAllowCollectingAnonymousData()),
                                     "APPSMITH_INSTANCE_NAME",
                                     "Appsmith"
                             )),

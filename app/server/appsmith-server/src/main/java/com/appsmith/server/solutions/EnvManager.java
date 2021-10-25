@@ -89,7 +89,7 @@ public class EnvManager {
         APPSMITH_RECAPTCHA_SITE_KEY,
         APPSMITH_RECAPTCHA_SECRET_KEY,
         APPSMITH_GOOGLE_MAPS_API_KEY,
-        APPSMITH_DISABLE_TELEMETRY,
+        APPSMITH_ENABLE_TELEMETRY,
         APPSMITH_OAUTH2_GOOGLE_CLIENT_ID,
         APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET,
         APPSMITH_OAUTH2_GITHUB_CLIENT_ID,
@@ -241,8 +241,8 @@ public class EnvManager {
                         googleRecaptchaConfig.setSecretKey(changesCopy.remove(Vars.APPSMITH_RECAPTCHA_SECRET_KEY.name()));
                     }
 
-                    if (changesCopy.containsKey(Vars.APPSMITH_DISABLE_TELEMETRY.name())) {
-                        commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove(Vars.APPSMITH_DISABLE_TELEMETRY.name())));
+                    if (changesCopy.containsKey(Vars.APPSMITH_ENABLE_TELEMETRY.name())) {
+                        commonConfig.setTelemetryDisabled("false".equals(changesCopy.remove(Vars.APPSMITH_ENABLE_TELEMETRY.name())));
                     }
 
                     // Ideally, we should only need a restart here if `changesCopy` is not empty. However, some of these

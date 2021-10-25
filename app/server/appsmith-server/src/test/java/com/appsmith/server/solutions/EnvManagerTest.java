@@ -231,14 +231,14 @@ public class EnvManagerTest {
                 content,
                 Map.of(
                         "APPSMITH_MONGODB_URI", "new first value",
-                        "APPSMITH_DISABLE_TELEMETRY", "false"
+                        "APPSMITH_ENABLE_TELEMETRY", "true"
                 )
         )).containsExactly(
                 "APPSMITH_MONGODB_URI=new first value",
                 "APPSMITH_REDIS_URL=\"quoted value\"",
                 "",
                 "APPSMITH_INSTANCE_NAME=third value",
-                "APPSMITH_DISABLE_TELEMETRY=false"
+                "APPSMITH_ENABLE_TELEMETRY=true"
         );
     }
 
