@@ -155,13 +155,6 @@ const OptionContentWrapper = styled.div<{
   &:hover {
     background-color: ${(props) =>
       !props.hasError && props.theme.colors.dropdown.hovered.bg};
-
-    .${Classes.TEXT} {
-      color: ${(props) =>
-        props.hasError
-          ? props.theme.colors.propertyPane.connections.error
-          : props.theme.colors.textOnDarkBG};
-    }
   }
 `;
 

@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
@@ -861,6 +862,43 @@ public class GitServiceTest {
     * getGitApplicationMetadata
     *
     * merge
-    *
-    * getStatus*/
+    * */
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isMergeBranch_ConflictingChanges_Success() throws IOException, GitAPIException {
+        Application application = createApplicationConnectedToGit("isMergeBranch_ConflictingChanges_Success");
+        MergeStatus mergeStatus = new MergeStatus();
+        mergeStatus.setMerge(true);
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(mergeStatus));
+
+        Mono<MergeStatus> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1","branch2");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(s -> assertThat(s.isMerge()));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isMergeBranch_NonConflictingChanges_Success() throws IOException, GitAPIException {
+        Application application = createApplicationConnectedToGit("isMergeBranch_NonConflictingChanges_Success");
+        MergeStatus mergeStatus = new MergeStatus();
+        mergeStatus.setMerge(true);
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(mergeStatus));
+
+        Mono<MergeStatus> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1","branch2");
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(s -> assertThat(s.isMerge()));
+    }
 }
