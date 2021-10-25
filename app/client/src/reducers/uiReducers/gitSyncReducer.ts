@@ -14,15 +14,24 @@ const initialState: GitSyncReducerState = {
   isPushSuccessful: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
-  gitError: `
-    README.md app/client/cypress/support/commands.js
+  gitPushError: `
+    README.md 
+    app/client/cypress/support/commands.js
+    app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
+    README.md 
+    app/client/cypress/support/commands.js
+    app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
+    README.md 
+    app/client/cypress/support/commands.js
     app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
   `,
   isImportAppViaGitModalOpen: false,
+  isFetchingGitStatus: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
+  isDisconnectingGit: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -69,9 +78,13 @@ const gitSyncReducer = createReducer(initialState, {
     isPushingToGit: false,
     isPushSuccessful: true,
   }),
-  [ReduxActionErrorTypes.PUSH_TO_GIT_ERROR]: (state: GitSyncReducerState) => ({
+  [ReduxActionErrorTypes.PUSH_TO_GIT_ERROR]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<string>,
+  ) => ({
     ...state,
     isPushingToGit: false,
+    gitPushError: action.payload,
   }),
   [ReduxActionTypes.SHOW_ERROR_POPUP]: (
     state: GitSyncReducerState,
@@ -186,10 +199,54 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingLocalGitConfig: false,
   }),
+  [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isFetchingGitStatus: true,
+  }),
+  [ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GitStatusData | undefined>,
+  ) => ({
+    ...state,
+    gitStatus: action.payload,
+    isFetchingGitStatus: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_GIT_STATUS_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingGitStatus: false,
+  }),
+  [ReduxActionTypes.DISCONNECT_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isDisconnectingGit: true,
+  }),
+  [ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isDisconnectingGit: false,
+  }),
+  [ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isDisconnectingGit: false,
+  }),
 });
 
+export type GitStatusData = {
+  conflicting: Array<string>;
+  uncommitted: Array<string>;
+  isClean: boolean;
+  removed: Array<string>;
+  added: Array<string>;
+  modified: Array<string>;
+  untracked: Array<string>;
+};
+
 export type GitSyncReducerState = {
-  isGitSyncModalOpen?: boolean;
+  isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
   isCommitSuccessful: boolean;
   isPushSuccessful: boolean;
@@ -198,13 +255,18 @@ export type GitSyncReducerState = {
   isImportAppViaGitModalOpen: boolean;
   organizationIdForImport?: string;
   isErrorPopupVisible?: boolean;
-  gitError?: string;
+  gitPushError?: string;
   globalGitConfig: GitConfig;
   isFetchingGitConfig?: boolean;
+
+  isDisconnectingGit: boolean;
+
   branches: string[];
   fetchingBranches: boolean;
   isFetchingLocalGitConfig?: boolean;
+  isFetchingGitStatus: boolean;
   localGitConfig: GitConfig;
+  gitStatus?: GitStatusData;
 };
 
 export default gitSyncReducer;

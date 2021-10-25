@@ -158,11 +158,9 @@ async function tryAuth(socket:Socket) {
 	// we should be able to derive the API_BASE_URL from the host header. This will make configuration simpler
 	// for the user. The problem with this implementation is that Axios doesn't work for https endpoints currently.
 	// This needs to be debugged.
-	const host = socket.handshake.headers.host
-	const protocol = socket.handshake.headers.referer.startsWith("https") ? "https" : "http"
-	const apiUrl = "http://" + host + "/api/v1/users/me"
 	/* ********************************************************* */
 
+	// const host = socket.handshake.headers.host;
 	const connectionCookie = socket.handshake.headers.cookie;
 	if (connectionCookie !== null && connectionCookie !== "") {
 		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
@@ -235,11 +233,6 @@ async function watchMongoDB(io) {
 		if(comment.deleted) {
 			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
 		}
-		
-		const { applicationId }: CommentThread = await threadCollection.findOne(
-			{ _id: new ObjectId(comment.threadId) },
-			{ projection: { applicationId: 1 } },
-		)
 
 		comment.creationTime = comment.createdAt
 		comment.updationTime = comment.updatedAt

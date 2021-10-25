@@ -210,6 +210,7 @@
     "@babel/core": "^7.7.4",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.2.6",
+    "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.1.1",
     "@types/codemirror": "^0.0.96",
     "@types/deep-diff": "^1.0.0",
