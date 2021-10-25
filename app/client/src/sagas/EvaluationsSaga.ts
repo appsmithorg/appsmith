@@ -11,6 +11,7 @@ import {
 import {
   EvaluationReduxAction,
   ReduxAction,
+  ReduxActionType,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
@@ -77,6 +78,7 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { AppVersion } from "api/ApplicationApi";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -489,6 +491,14 @@ export function* evaluateArgumentSaga(action: any) {
     log.error(e);
     Sentry.captureException(e);
   }
+}
+
+export function* setAppVersionOnWorkerSaga(action: {
+  type: ReduxActionType;
+  payload: AppVersion;
+}) {
+  const version: AppVersion = action.payload;
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SET_APP_VERSION, { version });
 }
 
 export default function* evaluationSagaListeners() {

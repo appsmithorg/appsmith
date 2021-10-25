@@ -304,6 +304,10 @@ ctx.addEventListener(
         return isTrigger
           ? evaluate(expression, evalTree, {}, [], true)
           : evaluate(expression, evalTree, {});
+      case EVAL_WORKER_ACTIONS.SET_APP_VERSION:
+        const { version } = requestData;
+        self.appVersion = version || "v1";
+        break;
       default: {
         console.error("Action not registered on worker", method);
       }
