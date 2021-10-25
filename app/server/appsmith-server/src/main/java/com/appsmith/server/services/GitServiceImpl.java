@@ -7,6 +7,7 @@ import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -111,6 +112,7 @@ public class GitServiceImpl implements GitService {
                     if (gitData.getGitAuth() != null) {
                         gitData.setPublicKey(gitData.getGitAuth().getPublicKey());
                     }
+                    gitData.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
                     return gitData;
                 });
     }
@@ -581,14 +583,14 @@ public class GitServiceImpl implements GitService {
                     }
                     Path repoSuffix = Paths.get(srcApplication.getOrganizationId(), srcBranchGitData.getDefaultApplicationId(), srcBranchGitData.getRepoName());
                     // Create a new branch from the parent checked out branch
-                    return Mono.zip(
-                            gitExecutor.checkoutToBranch(repoSuffix, srcBranch)
-                                    .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch))),
-                            gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false))
-                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, ListBranchCommand.ListMode.REMOTE, srcBranchGitData.getRemoteUrl(), defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey())
+                    return gitExecutor.checkoutToBranch(repoSuffix, srcBranch)
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch)))
+                            .zipWhen(isCheckedOut -> gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false)
+                                    .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", error))))
+                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, ListBranchCommand.ListMode.REMOTE, srcBranchGitData.getRemoteUrl(), defaultGitAuth.getPrivateKey(), defaultGitAuth.getPublicKey())
                                     .flatMap(branchList -> {
                                         boolean isDuplicateName = branchList.stream()
-                                                // TODO We are only supporting origin as the remote name so this is safe
+                                                // We are only supporting origin as the remote name so this is safe
                                                 //  but needs to be altered if we starts supporting user defined remote names
                                                 .anyMatch(branch -> branch.getBranchName().replace("refs/remotes/origin/", "")
                                                         .equals(branchDTO.getBranchName()));
@@ -623,7 +625,8 @@ public class GitServiceImpl implements GitService {
                     return importExportApplicationService.importApplicationInOrganization(
                             savedApplication.getOrganizationId(),
                             tuple.getT2(),
-                            savedApplication.getId()
+                            savedApplication.getId(),
+                            branchDTO.getBranchName()
                     );
                 })
                 .map(sanitiseResponse::sanitiseApplication);
@@ -761,7 +764,7 @@ public class GitServiceImpl implements GitService {
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
-                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId())
+                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), branchName)
                             .map(application1 -> setStatusAndApplication(application1, status));
                 });
     }
@@ -912,7 +915,7 @@ public class GitServiceImpl implements GitService {
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
-                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId())
+                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), destinationBranch)
                             .map(application1 -> setStatusAndApplication(application1, status));
                 });
     }

@@ -32,4 +32,8 @@ public class GitApplicationMetadata implements AppsmithDomain {
 
     @Transient
     String publicKey;
+
+    // Deploy key documentation url
+    @Transient
+    String docUrl;
 }

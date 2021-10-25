@@ -62,6 +62,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -172,7 +174,6 @@ public class ImportExportApplicationService {
                                 Map<String, Set<String>> publishedMongoEscapedWidgetsNames = new HashMap<>();
                                 Map<String, Set<String>> unpublishedMongoEscapedWidgetsNames = new HashMap<>();
                                 newPageList.forEach(newPage -> {
-
                                     if (newPage.getUnpublishedPage() != null) {
                                         pageIdToNameMap.put(
                                                 newPage.getId() + PublishType.UNPUBLISHED, newPage.getUnpublishedPage().getName()
@@ -374,7 +375,7 @@ public class ImportExportApplicationService {
      * @return saved application in DB
      */
     public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
-        return importApplicationInOrganization(organizationId, importedDoc, null);
+        return importApplicationInOrganization(organizationId, importedDoc, null, null);
     }
 
     /**
@@ -387,7 +388,8 @@ public class ImportExportApplicationService {
      */
     public Mono<Application> importApplicationInOrganization(String organizationId,
                                                              ApplicationJson importedDoc,
-                                                             String applicationId) {
+                                                             String applicationId,
+                                                             String branchName) {
 
         /*
             1. Fetch organization by id
@@ -511,7 +513,7 @@ public class ImportExportApplicationService {
                                 .flatMap(application -> {
                                     // Application Id will be present for GIT sync
                                     if (applicationId != null) {
-                                        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+                                        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                                                 .switchIfEmpty(
                                                         Mono.error(new AppsmithException(
                                                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
@@ -531,7 +533,7 @@ public class ImportExportApplicationService {
                                                 });
                                     }
                                     return applicationService
-                                            .findByOrganizationId(organizationId, AclPermission.MANAGE_APPLICATIONS)
+                                            .findByOrganizationId(organizationId, MANAGE_APPLICATIONS)
                                             .collectList()
                                             .flatMap(applicationList -> {
 
@@ -576,6 +578,9 @@ public class ImportExportApplicationService {
                                             )
                                     );
                                     unpublishedAppPage.setId(newPage.getId());
+                                    if (newPage.getDefaultResources() != null) {
+                                        unpublishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                    }
                                     pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
                                 }
 
@@ -586,6 +591,9 @@ public class ImportExportApplicationService {
                                             )
                                     );
                                     publishedAppPage.setId(newPage.getId());
+                                    if (newPage.getDefaultResources() != null) {
+                                        publishedAppPage.setDefaultPageId(newPage.getDefaultResources().getPageId());
+                                    }
                                     pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                 }
                                 if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
@@ -620,6 +628,9 @@ public class ImportExportApplicationService {
                     return Flux.fromIterable(importedNewActionList)
                             .flatMap(newAction -> {
                                 NewPage parentPage = new NewPage();
+                                if (newAction.getDefaultResources() != null) {
+                                    newAction.getDefaultResources().setBranchName(branchName);
+                                }
                                 if (newAction.getUnpublishedAction() != null && newAction.getUnpublishedAction().getName() != null) {
                                     parentPage = pageNameMap.get(newAction.getUnpublishedAction().getPageId());
                                     actionIdMap.put(newAction.getUnpublishedAction().getName() + parentPage.getId(), newAction.getId());
@@ -653,7 +664,7 @@ public class ImportExportApplicationService {
                                 return newActionService.save(newAction);
                             })
                             .map(newAction -> {
-                                // Populate actionIdsMap to associate the appropriate actions to be run on page load
+                                // Populate actionIdsMap to associate the appropriate actions to run on page load
                                 if (newAction.getUnpublishedAction() != null) {
                                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                                     actionIdMap.put(
@@ -694,6 +705,9 @@ public class ImportExportApplicationService {
 
                     return Flux.fromIterable(importedActionCollectionList)
                             .flatMap(actionCollection -> {
+                                if (actionCollection.getDefaultResources() != null) {
+                                    actionCollection.getDefaultResources().setBranchName(branchName);
+                                }
                                 final String actionCollectionId = actionCollection.getId();
                                 NewPage parentPage = new NewPage();
                                 final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
@@ -751,7 +765,12 @@ public class ImportExportApplicationService {
                 .flatMap(ignored -> {
                     // Map layoutOnLoadActions ids with relevant actions
                     assert importedNewPageList != null;
-                    importedNewPageList.forEach(page -> mapActionIdWithPageLayout(page, actionIdMap));
+                    importedNewPageList.forEach(page -> {
+                        if (page.getDefaultResources() != null) {
+                            page.getDefaultResources().setBranchName(branchName);
+                        }
+                        mapActionIdWithPageLayout(page, actionIdMap);
+                    });
                     return Flux.fromIterable(importedNewPageList)
                             .flatMap(newPageService::save)
                             .then(applicationService.update(importedApplication.getId(), importedApplication));
