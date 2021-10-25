@@ -3,7 +3,7 @@ import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
 import { SAAS_EDITOR_FORM } from "constants/forms";
 import { Action, SaaSAction } from "entities/Action";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import {
   getPluginResponseTypes,
@@ -27,13 +27,14 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
+
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
 } & RouteComponentProps<{
-    applicationId: string;
     pageId: string;
     pluginPackageName: string;
     apiId: string;
@@ -45,7 +46,7 @@ function ActionForm(props: Props) {
   const {
     actionName,
     match: {
-      params: { apiId, applicationId, pageId },
+      params: { apiId, pageId },
     },
   } = props;
 
@@ -53,6 +54,8 @@ function ActionForm(props: Props) {
   const onDeleteClick = () => {
     dispatch(deleteAction({ id: apiId, name: actionName }));
   };
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   //Following if block is the fix for the missing where key
   /**
