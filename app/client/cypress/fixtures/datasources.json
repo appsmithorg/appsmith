@@ -5,7 +5,7 @@
     "mongo-username": "cypress-test",
     "mongo-password": "RaopEmky505xYV4p",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
-    "mongo-uri": "mongodb+srv://mockdb-admin:oIvmxhw67hEmatML@mockdb.swrsq.mongodb.net/movie-store?retryWrites=true&w=majority",
+    "mongo-uri": "",
 
     "postgres-host": "host.docker.internal",
     "postgres-port": 5432,
@@ -38,7 +38,7 @@
     "redshift-password": "Redshift$123",
 
     "s3-accessKey": "AKIAVWHAAGIQGRDDDVGL",
-    "s3-secretKey": "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",
+    "s3-secretKey": "",
 
     "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
     "mongo-defaultDatabaseName": "sample_airbnb",
