@@ -565,10 +565,10 @@ function ApiEditorForm(props: Props) {
                 className="t--apiFormHttpMethod"
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
-                optionWidth={"102px"}
+                optionWidth={"110px"}
                 options={HTTP_METHOD_OPTIONS}
                 placeholder="Method"
-                width={"102px"}
+                width={"110px"}
               />
             </BoundaryContainer>
             <DatasourceWrapper className="t--dataSourceField">
