@@ -575,15 +575,10 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     Application.class,
                     CommentThread.class
             ));
-
-            // generate manage permission policy for the author
-            Policy managePolicyForCreator = policyUtils.generatePolicyFromPermission(
+            policies.add(policyUtils.generatePolicyFromPermission(
                     Set.of(AclPermission.MANAGE_THREAD),
                     user
-            ).get(AclPermission.MANAGE_THREAD.getValue());
-
-            // merge the policy with existing ones
-            policies.add(managePolicyForCreator);
+            ).get(AclPermission.MANAGE_THREAD.getValue()));
 
             commentSeq = sequenceService.getNext(CommentThread.class, application.getId());
         }
