@@ -685,7 +685,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 return emailMono
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, organization, currentUser));
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, organization, currentUser, inviteUsersDTO.getRoleName()));
                 })
                 .cache();
 
@@ -746,16 +746,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         );
     }
 
-    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter) {
+    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
         // This is a new user. Till the user signs up, this user would be disabled.
         newUser.setIsEnabled(false);
 
-        // Create an invite token for the user. This token is linked to the email ID and the organization to which the
-        // user was invited.
-        newUser.setInviteToken(UUID.randomUUID().toString());
+        // The invite token is not used today and doesn't need to be verified. We still save the invite token with the
+        // role information to classify the user persona.
+        newUser.setInviteToken(role + ":" + UUID.randomUUID());
 
         // Call user service's userCreate function so that the default organization, etc are also created along with assigning basic permissions.
         return userCreate(newUser)
