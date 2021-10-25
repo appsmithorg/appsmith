@@ -1,6 +1,6 @@
 import { debounce, get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getWidgetByID, getWidgets } from "sagas/selectors";
 
 import {
@@ -29,6 +29,7 @@ const GUTTER_WIDTH = 72;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
+  const [initialized, setInitialized] = useState(false);
   const explorerWidth = useSelector(getExplorerWidth);
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
@@ -175,5 +176,13 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,
+    initialized,
   ]);
+
+  /**
+   * calling the setInitialized here so that property pane width is initialized
+   */
+  useEffect(() => {
+    setInitialized(true);
+  });
 };

@@ -10,6 +10,9 @@ function MultiSelectPropertyPane() {
   const selectedWidgets = useSelector(getSelectedWidgets);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
+  // eslint-disable-next-line
+  console.log({ canvasWidgets, selectedWidgets });
+
   return (
     <div className="relative space-y-3">
       <div className="px-3 py-3">
@@ -21,18 +24,22 @@ function MultiSelectPropertyPane() {
           Select a widget to see it&apos;s propertyies
         </p>
         <div className="flex flex-col space-y-3">
-          {selectedWidgets.map((selectedWidgetId) => (
-            <button
-              className="border border-gray-300 hover:border-gray-500 py-1"
-              key={selectedWidgetId}
-              onClick={() => {
-                selectWidget(selectedWidgetId);
-                focusWidget(selectedWidgetId);
-              }}
-            >
-              {canvasWidgets[selectedWidgetId].widgetName}
-            </button>
-          ))}
+          {selectedWidgets.map((selectedWidgetId) => {
+            if (!canvasWidgets[selectedWidgetId]) return;
+
+            return (
+              <button
+                className="py-1 border border-gray-300 hover:border-gray-500"
+                key={selectedWidgetId}
+                onClick={() => {
+                  selectWidget(selectedWidgetId);
+                  focusWidget(selectedWidgetId);
+                }}
+              >
+                {canvasWidgets[selectedWidgetId].widgetName}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

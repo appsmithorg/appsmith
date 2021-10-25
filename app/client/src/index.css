@@ -32,6 +32,10 @@ span.bp3-popover-target {
   width: 100%;
 }
 
+span.bp3-popover-target > * {
+  flex-grow: 1;
+}
+
 div.bp3-popover-arrow {
   display:none;
 }

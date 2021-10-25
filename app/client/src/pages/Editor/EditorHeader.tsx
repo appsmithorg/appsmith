@@ -225,7 +225,7 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <ShareButton className="t--application-share-btn header__application-share-btn flex items-center">
+    <ShareButton className="flex items-center t--application-share-btn header__application-share-btn">
       <StyledSharedIcon name="share-line" />
       <StyledShareText>SHARE</StyledShareText>
     </ShareButton>
@@ -332,12 +332,12 @@ export function EditorHeader(props: EditorHeaderProps) {
             })}
           >
             <div
-              className="w-4 h-4 relative group text-gray-700"
+              className="relative w-4 h-4 text-gray-700 group"
               onMouseEnter={onMenuHover}
             >
-              <MenuIcon className="w-4 h-4 fill-current absolute opacity-100 group-hover:opacity-0 transition-opacity" />
+              <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
               <UnpinIcon
-                className="w-4 h-4 cursor-pointer hover:bg-warmGray-200 ring-transparent hover:ring-warmGray-200 ring-5 fill-current absolute opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
                 onClick={onPin}
               />
             </div>
