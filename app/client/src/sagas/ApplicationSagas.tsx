@@ -45,7 +45,6 @@ import {
   GetSSHKeyPairReduxAction,
   FetchApplicationReduxAction,
 } from "actions/applicationActions";
-import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   APPLICATION_NAME_UPDATE,
@@ -66,7 +65,10 @@ import {
 import { showCompletionDialog } from "./OnboardingSagas";
 
 import { deleteRecentAppEntities } from "utils/storage";
-import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
+import {
+  reconnectAppLevelWebsocket,
+  reconnectPageLevelWebsocket,
+} from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 
@@ -108,10 +110,10 @@ export function* publishApplicationSaga(
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
 
-      let appicationViewPageUrl = getApplicationViewerPageURL(
+      let appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
-        currentPageId,
-      );
+        pageId: currentPageId,
+      });
 
       const showOnboardingCompletionDialog = yield select(showCompletionDialog);
       if (showOnboardingCompletionDialog) {
@@ -203,12 +205,6 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       payload: response.data,
     });
-
-    yield put(
-      fetchUnreadCommentThreadsCountSuccess(
-        response.data?.unreadCommentThreads,
-      ),
-    );
 
     if (action.onSuccessCallback) {
       action.onSuccessCallback(response);
@@ -367,10 +363,10 @@ export function* duplicateApplicationSaga(
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+      const pageURL = BUILDER_PAGE_URL({
+        applicationId: application.id,
+        pageId: application.defaultPageId,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -496,7 +492,10 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);
+          pageURL = BUILDER_PAGE_URL({
+            applicationId: application.id,
+            pageId: application.defaultPageId,
+          });
         } else {
           pageURL = getGenerateTemplateURL(
             application.id,
@@ -508,7 +507,8 @@ export function* createApplicationSaga(
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting
         // ensures user receives the updates in the app just created
-        yield put(reconnectWebsocketAction());
+        yield put(reconnectAppLevelWebsocket());
+        yield put(reconnectPageLevelWebsocket());
       }
     }
   } catch (error) {
@@ -545,10 +545,10 @@ export function* forkApplicationSaga(
           application,
         },
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+      const pageURL = BUILDER_PAGE_URL({
+        applicationId: application.id,
+        pageId: application.defaultPageId,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -590,7 +590,10 @@ export function* importApplicationSaga(
           },
         });
         const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL(appId, defaultPage[0].id);
+        const pageURL = BUILDER_PAGE_URL({
+          applicationId: appId,
+          pageId: defaultPage[0].id,
+        });
         history.push(pageURL);
         Toaster.show({
           text: "Application imported successfully",
@@ -652,6 +655,29 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   }
 }
 
+function* fetchReleases() {
+  try {
+    const response: FetchUsersApplicationsOrgsResponse = yield call(
+      ApplicationApi.getAllApplication,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      const { newReleasesCount, releaseItems } = response.data || {};
+      yield put({
+        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
+        payload: { newReleasesCount, releaseItems },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_RELEASES_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -686,5 +712,6 @@ export default function* applicationSagas() {
       generateSSHKeyPairSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
+    takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
   ]);
 }

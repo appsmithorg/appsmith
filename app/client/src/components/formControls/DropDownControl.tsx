@@ -30,12 +30,13 @@ const customSelectStyles = {
   ) => {
     return {
       ...styles,
+      color: Colors.CODE_GRAY,
       backgroundColor: isDisabled
         ? undefined
         : isSelected
-        ? theme.colors.primaryOld
+        ? Colors.GREY_3
         : isFocused
-        ? theme.colors.hover
+        ? Colors.GREY_2
         : undefined,
       ":active": {
         ...styles[":active"],

@@ -162,7 +162,7 @@ public class ImportExportApplicationService {
                     application.setGitApplicationMetadata(null);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);
-                    // TODO @Abhijeet please take a look at the ACL permissions
+
                     return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
                             .collectList()
                             .flatMap(newPageList -> {
@@ -261,6 +261,7 @@ public class ImportExportApplicationService {
 
                                 applicationJson.setActionList(newActionList);
 
+
                                 Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                 applicationJson.getDatasourceList().forEach(datasource -> {
                                     decryptedFields.put(datasource.getName(), getDecryptedFields(datasource));
@@ -276,7 +277,13 @@ public class ImportExportApplicationService {
                                         datasource.getDatasourceConfiguration().setAuthentication(null);
                                     }
                                 });
-                                applicationJson.setDecryptedFields(decryptedFields);
+
+                                // Caution : Please don't serialise the credentials if we are serialising for git version control
+                                if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
+                                    applicationJson.setDecryptedFields(null);
+                                } else {
+                                    applicationJson.setDecryptedFields(decryptedFields);
+                                }
                                 return actionCollectionRepository
                                         .findByApplicationId(applicationId, AclPermission.MANAGE_ACTIONS, null);
                             })
@@ -418,8 +425,6 @@ public class ImportExportApplicationService {
             errorField = FieldName.ACTIONS;
         } else if (importedDatasourceList == null) {
             errorField = FieldName.DATASOURCE;
-        } else if (importedActionCollectionList == null) {
-            errorField = FieldName.ACTION_COLLECTION;
         }
 
         if (!errorField.isEmpty()) {
@@ -461,12 +466,14 @@ public class ImportExportApplicationService {
 
                                     // Since the resource is already present in DB, just update resource
                                     Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId());
-                                    datasource.setId(savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId()).getId());
+                                    datasource.setId(null);
                                     // Don't update datasource config as the saved datasource is already configured as per user
                                     // for this instance
                                     datasource.setDatasourceConfiguration(null);
+                                    datasource.setPluginId(null);
                                     BeanCopyUtils.copyNewFieldValuesIntoOldObject(datasource, existingDatasource);
-                                    return datasourceService.update(datasource.getId(), existingDatasource);
+                                    existingDatasource.setStructure(null);
+                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -504,8 +511,8 @@ public class ImportExportApplicationService {
                                     // Application Id will be present for GIT sync
                                     if (applicationId != null) {
                                         return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
-                                                .switchIfEmpty(
-                                                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                                                .switchIfEmpty(Mono.error(
+                                                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
@@ -514,8 +521,9 @@ public class ImportExportApplicationService {
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
                                                     // the changes from remote
-
-                                                    return applicationService.update(applicationId, existingApplication);
+                                                    // We are using the save instead of update as we are using @Encrypted
+                                                    // for GitAuth
+                                                    return applicationService.save(existingApplication);
                                                 });
                                     }
                                     return applicationService
@@ -576,10 +584,10 @@ public class ImportExportApplicationService {
                                     publishedAppPage.setId(newPage.getId());
                                     pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                 }
-                                if (unpublishedAppPage.getId() != null) {
+                                if (unpublishedAppPage.getId() != null && newPage.getUnpublishedPage().getDeletedAt() == null) {
                                     applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
                                 }
-                                if (publishedAppPage.getId() != null) {
+                                if (publishedAppPage.getId() != null && newPage.getPublishedPage().getDeletedAt() == null) {
                                     applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                                 }
                                 return applicationPages;
@@ -676,7 +684,9 @@ public class ImportExportApplicationService {
                                     .collectList());
                 })
                 .flatMap(existingActionCollections -> {
-                    assert importedActionCollectionList != null;
+                    if (importedActionCollectionList == null) {
+                        return Mono.just(true);
+                    }
 
                     return Flux.fromIterable(importedActionCollectionList)
                             .flatMap(actionCollection -> {
@@ -702,7 +712,6 @@ public class ImportExportApplicationService {
                                 actionCollection.setOrganizationId(organizationId);
                                 actionCollection.setApplicationId(importedApplication.getId());
                                 actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
-
                                 return actionCollectionService.save(actionCollection)
                                         .flatMapMany(createdActionCollection -> {
                                             unpublishedActionCollectionIdMap

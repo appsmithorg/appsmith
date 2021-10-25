@@ -60,8 +60,8 @@ export enum ButtonStyleTypes {
 export type ButtonStyleType = keyof typeof ButtonStyleTypes;
 
 export enum ButtonVariantTypes {
-  SOLID = "SOLID",
-  OUTLINE = "OUTLINE",
-  GHOST = "GHOST",
+  PRIMARY = "PRIMARY",
+  SECONDARY = "SECONDARY",
+  TERTIARY = "TERTIARY",
 }
 export type ButtonVariant = keyof typeof ButtonVariantTypes;

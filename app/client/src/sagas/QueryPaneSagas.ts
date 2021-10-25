@@ -170,7 +170,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     const showTemplate = !(
       !!actionConfiguration.body || isEmpty(queryTemplate)
     );
-    history.push(
+    history.replace(
       QUERIES_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",
         showTemplate,
@@ -186,8 +186,8 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   if (plugin.type !== PluginType.DB && plugin.type !== PluginType.REMOTE)
     return;
 
-  const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
 
   yield put(
     initialize(DATASOURCE_DB_FORM, _.omit(actionPayload.payload, "name")),

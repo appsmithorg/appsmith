@@ -13,11 +13,7 @@ describe("Divider Widget Functionality", function() {
   });
 
   it("Open Existing Divider from created Widgets list", () => {
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Widgets)").click({
-      multiple: true,
-    });
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Divider1)").click({
-      multiple: true,
-    });
+    cy.get(".widgets").click();
+    cy.get(".t--entity-name:contains(Divider1)").click();
   });
 });

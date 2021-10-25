@@ -9,9 +9,6 @@ describe("Entity explorer tests related to widgets and validation", function() {
 
   it("Widget edit/delete/copy to clipboard validation", function() {
     cy.SearchEntityandOpen("Text1");
-    cy.get(".widgets " + explorer.collapse)
-      .last()
-      .click({ force: true });
     cy.get(explorer.property)
       .last()
       .click({ force: true });

@@ -22,10 +22,11 @@ import {
   INTEGRATION_EDITOR_MODES,
 } from "constants/routes";
 import { thinScrollbar } from "constants/DefaultTheme";
+import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import CloseEditor from "components/editorComponents/CloseEditor";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const HeaderFlex = styled.div`
   display: flex;
@@ -86,7 +87,6 @@ const NewIntegrationsContainer = styled.div`
 
 type IntegrationsHomeScreenProps = {
   pageId: string;
-  applicationId: string;
   selectedTab: string;
   location: {
     search: string;
@@ -99,6 +99,7 @@ type IntegrationsHomeScreenProps = {
   isCreating: boolean;
   dataSources: Datasource[];
   mockDatasources: MockDatasource[];
+  applicationId: string;
 };
 
 type IntegrationsHomeScreenState = {
@@ -211,7 +212,6 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
 
 function CreateNewAPI({
   active,
-  applicationId,
   history,
   isCreating,
   pageId,
@@ -236,7 +236,6 @@ function CreateNewAPI({
     <div id="new-api" ref={newAPIRef}>
       <Text type={TextType.H2}>APIs</Text>
       <NewApiScreen
-        applicationId={applicationId}
         history={history}
         isCreating={isCreating}
         location={location}
@@ -249,7 +248,6 @@ function CreateNewAPI({
 
 function CreateNewDatasource({
   active,
-  applicationId,
   history,
   isCreating,
   pageId,
@@ -270,7 +268,6 @@ function CreateNewDatasource({
     <div id="new-datasources" ref={newDatasourceRef}>
       <Text type={TextType.H2}>Databases</Text>
       <NewQueryScreen
-        applicationId={applicationId}
         history={history}
         isCreating={isCreating}
         location={location}
@@ -405,14 +402,7 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   render() {
-    const {
-      applicationId,
-      dataSources,
-      history,
-      isCreating,
-      location,
-      pageId,
-    } = this.props;
+    const { dataSources, history, isCreating, location, pageId } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
@@ -443,7 +433,6 @@ class IntegrationsHomeScreen extends React.Component<
               activeSecondaryMenuId ===
               getSecondaryMenuIds(dataSources.length > 0).API
             }
-            applicationId={applicationId}
             history={history}
             isCreating={isCreating}
             location={location}
@@ -455,7 +444,6 @@ class IntegrationsHomeScreen extends React.Component<
               activeSecondaryMenuId ===
               getSecondaryMenuIds(dataSources.length > 0).DATABASE
             }
-            applicationId={applicationId}
             history={history}
             isCreating={isCreating}
             location={location}
@@ -470,7 +458,6 @@ class IntegrationsHomeScreen extends React.Component<
     } else {
       currentScreen = (
         <ActiveDataSources
-          applicationId={applicationId}
           dataSources={dataSources}
           history={this.props.history}
           location={location}
@@ -483,7 +470,7 @@ class IntegrationsHomeScreen extends React.Component<
     }
     return (
       <>
-        <CloseEditor />
+        <BackButton />
         <UnsupportedPluginDialog
           isModalOpen={unsupportedPluginDialogVisible}
           onClose={() =>
@@ -513,6 +500,7 @@ class IntegrationsHomeScreen extends React.Component<
             {currentScreen}
             {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
               <TabComponent
+                className="t--vertical-menu"
                 onSelect={this.onSelectSecondaryMenu}
                 selectedIndex={this.state.activeSecondaryMenuId}
                 tabs={
@@ -535,6 +523,7 @@ const mapStateToProps = (state: AppState) => {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
     isCreating: state.ui.apiPane.isCreating,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

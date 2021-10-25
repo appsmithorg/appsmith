@@ -34,7 +34,7 @@ public class ApplicationForkingService {
     private final AnalyticsService analyticsService;
 
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId, String targetOrganizationId) {
-        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.MANAGE_APPLICATIONS)
+        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "application", srcApplicationId)));
 
         final Mono<Organization> targetOrganizationMono = organizationService.findById(targetOrganizationId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
@@ -47,6 +47,9 @@ public class ApplicationForkingService {
                     final Application application = tuple.getT1();
                     final Organization targetOrganization = tuple.getT2();
                     final User user = tuple.getT3();
+
+                    //If the forking application is connected to git, do not copy those data to the new forked application
+                    application.setGitApplicationMetadata(null);
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?

@@ -131,6 +131,7 @@ export type EventName =
   | "DEBUGGER_RESOLVED_ERROR"
   | "DEBUGGER_NEW_ERROR_MESSAGE"
   | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
+  | "DEBUGGER_CONTEXT_MENU_CLICK"
   | "ADD_MOCK_DATASOURCE_CLICK"
   | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
@@ -172,7 +173,7 @@ export type EventName =
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"
   | "SNIPPET_COPIED"
-  | "SNIPPET_CATEGORY_CLICK"
+  | "SNIPPET_LOOKUP"
   | "SIGNPOSTING_SKIP"
   | "SIGNPOSTING_CREATE_DATASOURCE_CLICK"
   | "SIGNPOSTING_CREATE_QUERY_CLICK"
@@ -324,7 +325,7 @@ class AnalyticsUtil {
           AnalyticsUtil.cachedUserId = userId;
         }
         const userProperties = {
-          userId: AnalyticsUtil.cachedUserId,
+          userId: AnalyticsUtil.cachedAnonymoustId,
           source: "ce",
         };
         log.debug(

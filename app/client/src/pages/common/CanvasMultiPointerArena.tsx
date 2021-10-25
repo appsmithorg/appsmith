@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Socket } from "socket.io-client";
 import { Colors } from "constants/Colors";
-import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
 import { useRef } from "react";
+import store from "store";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  collabResetEditorsPointersData,
+  collabStartSharingPointerEvent,
+  collabStopSharingPointerEvent,
+} from "actions/appCollabActions";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 
 export const POINTERS_CANVAS_ID = "collab-pointer-sharing-canvas";
 
@@ -68,24 +74,10 @@ type PointerDataType = {
   [s: string]: any;
 };
 
-type PointerEventDataType = {
-  data: { x: number; y: number };
-  socketId: string;
-  user: any;
-};
-
-function CanvasMultiPointerArena({
-  pageEditSocket,
-  pageId,
-}: {
-  pageEditSocket: Socket;
-  pageId: string;
-}) {
-  let pointerData: PointerDataType = {};
+function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
+  const dispatch = useDispatch();
   const animationStepIdRef = useRef<number>(0);
-  const [isPageEditSocketConnected, setIsPageEditSocketConnected] = useState<
-    boolean
-  >(pageEditSocket.connected);
+  const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   let selectionCanvas: any;
 
   // Setup for painting on canvas
@@ -94,7 +86,7 @@ function CanvasMultiPointerArena({
 
     animationStepIdRef.current = window.requestAnimationFrame(drawPointers);
     const clearPointerDataInterval = setInterval(() => {
-      pointerData = {};
+      dispatch(collabResetEditorsPointersData());
     }, TWO_MINS);
     return () => {
       window.cancelAnimationFrame(animationStepIdRef.current);
@@ -104,53 +96,19 @@ function CanvasMultiPointerArena({
 
   // Initialize the page editing events to share pointer.
   useEffect(() => {
-    if (isPageEditSocketConnected) {
-      pageEditSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
-    } else {
-      pageEditSocket.connect(); // try to connect manually
+    if (isWebsocketConnected) {
+      dispatch(collabStartSharingPointerEvent(pageId));
     }
     return () => {
-      pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
+      dispatch(collabStopSharingPointerEvent());
     };
-  }, [isPageEditSocketConnected, pageId]);
-
-  // Subscribe to RTS events
-  useEffect(() => {
-    pageEditSocket.on(APP_COLLAB_EVENTS.CONNECT, () => {
-      setIsPageEditSocketConnected(true);
-    });
-    pageEditSocket.on(APP_COLLAB_EVENTS.DISCONNECT, () => {
-      setIsPageEditSocketConnected(false);
-    });
-    pageEditSocket.on(
-      APP_COLLAB_EVENTS.SHARE_USER_POINTER,
-      (eventData: PointerEventDataType) => {
-        if (
-          eventData &&
-          selectionCanvas &&
-          pageEditSocket.id !== eventData.socketId
-        ) {
-          pointerData[eventData.socketId] = eventData;
-        }
-      },
-    );
-
-    pageEditSocket.on(
-      APP_COLLAB_EVENTS.STOP_EDITING_APP,
-      (socketId: string) => {
-        // hide pointer of users that leave the page
-        delete pointerData[socketId];
-      },
-    );
-
-    return () => {
-      pageEditSocket.disconnect();
-    };
-  }, []);
+  }, [isWebsocketConnected, pageId]);
 
   const previousAnimationStep = useRef<number>();
 
   const drawPointers = (animationStep: number) => {
+    const pointerData: PointerDataType = store.getState().ui.appCollab
+      .pointerData;
     if (previousAnimationStep.current === animationStep) return;
     const ctx = selectionCanvas.getContext("2d");
     const rect = selectionCanvas.getBoundingClientRect();

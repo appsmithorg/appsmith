@@ -17,7 +17,7 @@ export const Wrapper = styled.div`
   border-radius: 0px;
   border: none;
   position: relative;
-  color: ${Colors.ALTO};
+  color: ${Colors.CHARCOAL};
   height: 72px;
   display: flex;
   align-items: center;
@@ -29,15 +29,8 @@ export const Wrapper = styled.div`
     justify-content: center;
   }
   &:hover {
-    color: ${Colors.WHITE};
-    background: ${Colors.TUNDORA};
+    background: ${Colors.Gallery};
     cursor: grab;
-    color: ${Colors.WHITE};
-    svg {
-      path {
-        fill: ${Colors.WHITE};
-      }
-    }
   }
   & i {
     font-family: ${(props) => props.theme.fonts.text};
@@ -57,6 +50,7 @@ export const BetaLabel = styled.div`
 `;
 
 export const IconLabel = styled.h5`
+  min-height: 32px;
   text-align: center;
   margin: 0;
   text-transform: uppercase;

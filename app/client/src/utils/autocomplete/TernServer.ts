@@ -51,6 +51,7 @@ export type Completion = Hint & {
 export type CommandsCompletion = Completion & {
   action?: () => void;
   shortcut: string;
+  triggerCompletionsPostPick?: boolean;
 };
 
 type TernDocs = Record<string, TernDoc>;
@@ -273,6 +274,7 @@ class TernServer {
           origins: true,
           caseInsensitive: true,
           guess: false,
+          inLiteral: false,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -377,11 +379,16 @@ class TernServer {
         if (!entityInfo) return c.text;
         return c.text.replace(name, entityInfo.subType);
       });
-      SortRules[expectedType].forEach((rule) => {
-        if (Array.isArray(groupedMatches[rule])) {
-          sortedMatches.push(...groupedMatches[rule]);
+
+      const expectedRules = SortRules[expectedType];
+      for (const [key, value] of Object.entries(groupedMatches)) {
+        const name = key.split(".")[0];
+        if (name === "JSACTION") {
+          sortedMatches.push(...value);
+        } else if (expectedRules.indexOf(key) !== -1) {
+          sortedMatches.push(...value);
         }
-      });
+      }
 
       sortedMatches.sort((a, b) => {
         let aRank = 0;
@@ -480,6 +487,7 @@ class TernServer {
       preferFunction?: boolean;
       end?: CodeMirror.Position;
       guess?: boolean;
+      inLiteral?: boolean;
     },
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
@@ -529,6 +537,7 @@ class TernServer {
       start?: any;
       file?: any;
       includeKeywords?: boolean;
+      inLiteral?: boolean;
     },
     pos?: CodeMirror.Position,
   ) {

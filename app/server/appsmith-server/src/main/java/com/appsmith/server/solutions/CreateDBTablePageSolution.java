@@ -11,7 +11,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.Resources;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
@@ -312,7 +312,7 @@ public class CreateDBTablePageSolution {
 
                 if (Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) && !CollectionUtils.isEmpty(templateActionList)) {
                     mappedColumnsAndTableName.put(
-                        templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates().get(1).getValue().toString(),
+                            (String) templateActionList.get(0).getUnpublishedAction().getActionConfiguration().getFormData().get("bucket"),
                         tableName
                     );
                 }
@@ -354,9 +354,7 @@ public class CreateDBTablePageSolution {
                         .flatMap(pageDTO -> {
                             CRUDPageResponseDTO crudPage = new CRUDPageResponseDTO();
                             crudPage.setPage(pageDTO);
-                            crudPage.setSuccessMessage(createSuccessMessage(plugin));
-                            // Update the S3 image once received
-                            crudPage.setSuccessImageUrl(Resources.GENERATE_CRUD_PAGE_SUCCESS_URL_TABULAR);
+                            createSuccessMessageAndSetAsset(plugin, crudPage);
                             return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName());
                         })
                     );
@@ -575,7 +573,17 @@ public class CreateDBTablePageSolution {
                 } else {
                     // Recursively replace the column names from template table with user provided table using mappedColumns
                     if (property.getValue() instanceof String) {
-                        final Matcher matcher = WORD_PATTERN.matcher(property.getValue().toString());
+
+                        // In case the entire value finds a match in the mappedColumns, replace it
+                        Pattern replacePattern = Pattern.compile(Pattern.quote(property.getValue().toString()));
+                        Matcher matcher = replacePattern.matcher(property.getValue().toString());
+                        property.setValue(matcher.replaceAll(key ->
+                                mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
+                        );
+
+                        // If the column name is present inside a string (like json), then find all the words and replace
+                        // the column name with user one.
+                        matcher = WORD_PATTERN.matcher(property.getValue().toString());
                         property.setValue(matcher.replaceAll(key ->
                             mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
                         );
@@ -957,17 +965,22 @@ public class CreateDBTablePageSolution {
         }
     }
 
-    private String createSuccessMessage(Plugin plugin) {
+    private void createSuccessMessageAndSetAsset(Plugin plugin, CRUDPageResponseDTO crudPage) {
 
         String displayWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "LIST" : "TABLE";
         String updateWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "FILEPICKER" : "FORM";
+
+        String successUrl = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ?
+            Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_S3 : Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_TABULAR;
+        crudPage.setSuccessImageUrl(successUrl);
+
 
         // Field used to send success message after the successful page creation
         String successMessage = "We have generated the <b>" + displayWidget + "</b> from the <b>" + plugin.getName()
             + " Datasource</b>. You can use the <b>" + updateWidget + "</b> to modify it. Since all your " +
             "data is already connected you can add more queries and modify the bindings";
 
-        return successMessage;
+        crudPage.setSuccessMessage(successMessage);
     }
 
     private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, Datasource datasource, String pluginName) {

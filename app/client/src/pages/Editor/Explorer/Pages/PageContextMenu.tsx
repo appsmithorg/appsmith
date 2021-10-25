@@ -131,7 +131,7 @@ export function PageContextMenu(props: {
       onSelect={noop}
       optionTree={optionTree}
       selectedValue=""
-      toggle={<ContextMenuTrigger />}
+      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   );
 }

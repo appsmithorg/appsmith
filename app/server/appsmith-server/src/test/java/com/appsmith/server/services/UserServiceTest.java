@@ -11,9 +11,11 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
+import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -39,6 +41,7 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -82,6 +85,9 @@ public class UserServiceTest {
 
     @Autowired
     EncryptionService encryptionService;
+
+    @Autowired
+    UserDataService userDataService;
 
     @MockBean
     PasswordResetTokenRepository passwordResetTokenRepository;
@@ -457,15 +463,53 @@ public class UserServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateNameOfUser() {
-        User updateUser = new User();
-        updateUser.setEmail("api_user");
+        UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of api_user");
-
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
                 .assertNext(user -> {
                     assertNotNull(user);
                     assertThat(user.getEmail()).isEqualTo("api_user");
                     assertThat(user.getName()).isEqualTo("New name of api_user");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateRoleOfUser() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setRole("New role of user");
+        final Mono<UserData> resultMono = userService.updateCurrentUser(updateUser, null)
+                .then(userDataService.getForUserEmail("api_user"));
+        StepVerifier.create(resultMono)
+                .assertNext(userData -> {
+                    assertNotNull(userData);
+                    assertThat(userData.getRole()).isEqualTo("New role of user");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameRoleAndUseCaseOfUser() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("New name of user here");
+        updateUser.setRole("New role of user");
+        updateUser.setUseCase("New use case");
+        final Mono<Tuple2<User, UserData>> resultMono = userService.updateCurrentUser(updateUser, null)
+                .flatMap(user -> Mono.zip(
+                        Mono.just(user),
+                        userDataService.getForUserEmail("api_user")
+                ));
+        StepVerifier.create(resultMono)
+                .assertNext(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    assertNotNull(user);
+                    assertNotNull(userData);
+                    assertThat(user.getName()).isEqualTo("New name of user here");
+                    assertThat(userData.getRole()).isEqualTo("New role of user");
+                    assertThat(userData.getUseCase()).isEqualTo("New use case");
                 })
                 .verifyComplete();
     }

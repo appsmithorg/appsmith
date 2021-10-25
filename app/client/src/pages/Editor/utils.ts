@@ -2,7 +2,6 @@ import { getDependenciesFromInverseDependencies } from "components/editorCompone
 import _, { debounce } from "lodash";
 import ReactDOM from "react-dom";
 import ResizeObserver from "resize-observer-polyfill";
-import getFeatureFlags from "utils/featureFlags";
 
 export const draggableElement = (
   id: string,
@@ -41,7 +40,7 @@ export const draggableElement = (
     calculatedLeft: number,
     calculatedTop: number,
   ) => {
-    const bottomBarOffset = getFeatureFlags().GIT ? 34 : 0;
+    const bottomBarOffset = 34;
 
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;
