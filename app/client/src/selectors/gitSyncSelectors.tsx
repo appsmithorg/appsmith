@@ -71,7 +71,7 @@ export const getIsGitConnected = createSelector(
 export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
 
 export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
-  branches.map((branchObj) => branchObj.branch),
+  branches.map((branchObj) => branchObj.branchName),
 );
 
 export const getFetchingBranches = (state: AppState) =>

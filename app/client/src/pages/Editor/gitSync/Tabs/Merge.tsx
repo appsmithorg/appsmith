@@ -55,15 +55,15 @@ export default function Merge() {
   const branchList = useMemo(() => {
     const listOfBranches: DropdownOptions = [];
     gitBranches.map((branchObj) => {
-      if (currentBranch !== branchObj.branch) {
+      if (currentBranch !== branchObj.branchName) {
         if (!branchObj.default) {
           listOfBranches.push({
-            label: branchObj.branch,
+            label: branchObj.branchName,
             data: { idDefault: branchObj.default },
           });
         } else {
           listOfBranches.unshift({
-            label: branchObj.branch,
+            label: branchObj.branchName,
             data: { idDefault: branchObj.default },
           });
         }
