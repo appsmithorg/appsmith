@@ -1,43 +1,56 @@
 const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage.json";
+const datasource = require("../../../../locators/DatasourcesEditor.json");
 
-describe("Generate New CRUD Page Inside from entity explorer", function() {
+describe("Generate New CRUD Page Inside from Ms SQL as Data Source", function() {
   let datasourceName;
 
-  this.beforeEach(() => {
+  before(() => {
     cy.startRoutesForDatasource();
-    cy.startInterceptRoutesForS3();
+    //cy.startInterceptRoutesForDatasource(); //if used in before - 2nd testcase failing with no aliasing found error
   });
 
   it("Add new Page and generate CRUD template using existing supported datasource", function() {
+    cy.startInterceptRoutesForDatasource();
+
     cy.NavigateToDatasourceEditor();
-    cy.get(datasourceEditor.AmazonS3)
-      .click({ force: true })
-      .wait(1000);
+
+    cy.get(datasource.MsSQL).click();
+    cy.fillMsSQLDatasourceForm();
 
     cy.generateUUID().then((uid) => {
-      datasourceName = `Amazon S3 MOCKDS ${uid}`;
+      datasourceName = `MsSQL MOCKDS ${uid}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
     });
 
-    cy.fillAmazonS3DatasourceForm();
-
     //TestData source
+
     cy.get(".t--test-datasource").click();
     cy.wait("@testDatasource");
 
     //Save source
     cy.get(".t--save-datasource").click();
-    cy.wait("@createDatasource");
+
+    //Not using hence commented
+    // cy.intercept("PUT", "/api/v1/datasources/*", {
+    //   fixture: "mySQL_PUT_saveDataSource1.json",
+    // }).as("saveDataSourceStub");
+
+    //If uncommented - then tc fails
+    // cy.wait("@saveDataSourceStub").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
 
     //Verify page after save clicked
-    // cy.get("@createDatasource").then((httpResponse) => {
-    //   datasourceName = httpResponse.response.body.data.name;
-    // });
+    cy.get("@createDatasource").then((httpResponse) => {
+      datasourceName = httpResponse.response.body.data.name;
+    });
 
+    //Create New page
     cy.get(pages.AddPage)
       .first()
       .click();
@@ -47,6 +60,8 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       201,
     );
 
+    //Generate New CRUD in new page
+
     cy.get("@dSName").then((dbName) => {
       cy.get(generatePage.generateCRUDPageActionCard).click();
       cy.get(generatePage.selectDatasourceDropdown).click();
@@ -55,8 +70,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
         .click();
     });
 
-    // fetch bucket
-    cy.wait("@put_datasources").should(
+    cy.wait("@selectTableDropdownStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -64,32 +78,34 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     cy.get(generatePage.selectTableDropdown).click();
     cy.get(generatePage.dropdownOption)
-      .contains("assets-test.appsmith.com")
-      .scrollIntoView()
-      .should("be.visible")
+      .first()
       .click();
-    //  skip optional search column selection.
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUD").should(
+    cy.wait("@put_replaceLayoutCRUDStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@get_Actions").should(
+    cy.wait("@getActionsStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@postExecuteStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
 
-    //Post Execute call not happening.. hence commenting it for this case
-    //cy.wait("@post_Execute").should("have.nested.property", "response.body.responseMeta.status", 200,);
-
     cy.get("span:contains('GOT IT')").click();
   });
 
   it("Create new app and Generate CRUD page using a new datasource", function() {
+    cy.startInterceptRoutesForDatasource();
+
     cy.NavigateToHome();
+
     cy.get(homePage.createNew)
       .first()
       .click({ force: true });
@@ -105,11 +121,11 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     cy.contains("Connect New Datasource").click();
 
-    cy.get(datasourceEditor.AmazonS3).click();
-    cy.fillAmazonS3DatasourceForm();
+    cy.get(datasource.MsSQL).click();
+    cy.fillMsSQLDatasourceForm();
 
     cy.generateUUID().then((uid) => {
-      datasourceName = `Amazon S3 MOCKDS ${uid}`;
+      datasourceName = `MsSQL MOCKDS ${uid}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
     });
@@ -121,8 +137,20 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //Save source
     cy.get(".t--save-datasource").click();
 
-    // fetch bucket
-    cy.wait("@put_datasources").should(
+    //Since not being used - commenting it
+    // cy.intercept("PUT", "/api/v1/datasources/*", {
+    //   fixture: "mySQL_PUT_saveDataSource1.json",
+    // }).as("saveDataSourceStub");
+
+    //This below stub is for populating actual dropdown values - hence not needed in intercept cases
+    // cy.wait("@getDatasourceStructure").should(
+    //   "have.nested.property",
+    //   "response.body.responseMeta.status",
+    //   200,
+    // );
+
+    //Generate Stud for tables dropdown values also
+    cy.wait("@selectTableDropdownStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -130,23 +158,21 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     cy.get(generatePage.selectTableDropdown).click();
     cy.get(generatePage.dropdownOption)
-      .contains("assets-test.appsmith.com")
-      .scrollIntoView()
-      .should("be.visible")
+      .first()
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUD").should(
+    cy.wait("@put_replaceLayoutCRUDStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@get_Actions").should(
+    cy.wait("@getActionsStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@post_Execute").should(
+    cy.wait("@postExecuteStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -156,23 +182,25 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
   });
 
   it("Generate CRUD page from datasource ACTIVE section", function() {
+    cy.startInterceptRoutesForDatasource();
+
     cy.NavigateToQueryEditor();
     cy.get(pages.integrationActiveTab)
       .should("be.visible")
       .click({ force: true });
     cy.wait(1000);
 
-    cy.get(datasourceEditor.datasourceCard)
+    cy.get(datasource.datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
       .should("be.visible")
-      .closest(datasourceEditor.datasourceCard)
+      .closest(datasource.datasourceCard)
       .within(() => {
-        cy.get(datasourceEditor.datasourceCardGeneratePageBtn).click();
+        cy.get(datasource.datasourceCardGeneratePageBtn).click();
       });
 
-    // fetch bucket
-    cy.wait("@put_datasources").should(
+    //Generate Stub for tables dropdown values also
+    cy.wait("@selectTableDropdownStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -180,23 +208,21 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     cy.get(generatePage.selectTableDropdown).click();
     cy.get(generatePage.dropdownOption)
-      .contains("assets-test.appsmith.com")
-      .scrollIntoView()
-      .should("be.visible")
+      .first()
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@post_replaceLayoutCRUD").should(
+    cy.wait("@post_replaceLayoutCRUDStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@get_Actions").should(
+    cy.wait("@getActionsStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@post_Execute").should(
+    cy.wait("@postExecuteStub").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,

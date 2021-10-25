@@ -3,7 +3,7 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 import homePage from "../../../../locators/HomePage.json";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
-describe("Generate New CRUD Page Inside from My SQL as Data Source", function () {
+describe("Generate New CRUD Page Inside from My SQL as Data Source", function() {
   let datasourceName;
 
   before(() => {
@@ -11,10 +11,11 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function ()
     //cy.startInterceptRoutesForMySQL(); //if used in before - 2nd testcase failing with no aliasing found error
   });
 
-  it("Add new Page and generate CRUD template using existing supported datasource", function () {
-
+  beforeEach(function() {
     cy.startInterceptRoutesForMySQL();
+  });
 
+  it("Add new Page and generate CRUD template using existing supported datasource", function() {
     cy.NavigateToDatasourceEditor();
 
     cy.get(datasource.MySQL).click();
@@ -23,7 +24,7 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function ()
     cy.generateUUID().then((uid) => {
       datasourceName = `MySQL MOCKDS ${uid}`;
       cy.renameDatasource(datasourceName);
-      cy.wrap(datasourceName).as('dSName')
+      cy.wrap(datasourceName).as("dSName");
     });
 
     //TestData source
@@ -52,12 +53,18 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function ()
     });
 
     //Create New page
-    cy.get(pages.AddPage).first().click();
-    cy.wait("@createPage").should("have.nested.property", "response.body.responseMeta.status", 201,);
+    cy.get(pages.AddPage)
+      .first()
+      .click();
+    cy.wait("@createPage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
 
     //Generate New CRUD in new page
 
-    cy.get('@dSName').then(dbName => {
+    cy.get("@dSName").then((dbName) => {
       cy.get(generatePage.generateCRUDPageActionCard).click();
       cy.get(generatePage.selectDatasourceDropdown).click();
       cy.get(generatePage.datasourceDropdownOption)
@@ -65,30 +72,49 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function ()
         .click();
     });
 
-    cy.wait("@selectTableDropdownStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
+    cy.wait("@selectTableDropdownStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
     cy.get(generatePage.selectTableDropdown).click();
-    cy.get(generatePage.dropdownOption).first().click();
+    cy.get(generatePage.dropdownOption)
+      .first()
+      .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUDStub").should("have.nested.property", "response.body.responseMeta.status", 201,);
-    cy.wait("@getActionsStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
-    cy.wait("@postExecuteStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
+    cy.wait("@put_replaceLayoutCRUDStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.wait("@getActionsStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@postExecuteStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-    cy.get("span:contains('GOT IT')").click()
+    cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Create new app and Generate CRUD page using a new datasource", function () {
-
-    cy.startInterceptRoutesForMySQL();
-
+  it.only("Create new app and Generate CRUD page using a new datasource", function() {
     cy.NavigateToHome();
 
     cy.get(homePage.createNew)
       .first()
       .click({ force: true });
 
-    cy.wait("@createNewApplication").should("have.nested.property", "response.body.responseMeta.status", 201,);
+    cy.wait("@createNewApplication").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
 
     cy.get(generatePage.generateCRUDPageActionCard).click();
     cy.get(generatePage.selectDatasourceDropdown).click();
@@ -101,7 +127,7 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function ()
     cy.generateUUID().then((uid) => {
       datasourceName = `MySQL MOCKDS ${uid}`;
       cy.renameDatasource(datasourceName);
-      cy.wrap(datasourceName).as('dSName')
+      cy.wrap(datasourceName).as("dSName");
     });
 
     //TestData source
@@ -124,23 +150,38 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function ()
     // );
 
     //Generate Stud for tables dropdown values also
-    cy.wait("@selectTableDropdownStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
+    cy.wait("@selectTableDropdownStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
     cy.get(generatePage.selectTableDropdown).click();
-    cy.get(generatePage.dropdownOption).first().click();
+    cy.get(generatePage.dropdownOption)
+      .first()
+      .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUDStub").should("have.nested.property", "response.body.responseMeta.status", 201,);
-    cy.wait("@getActionsStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
-    cy.wait("@postExecuteStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
+    cy.wait("@put_replaceLayoutCRUDStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.wait("@getActionsStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@postExecuteStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-    cy.get("span:contains('GOT IT')").click()
+    cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Generate CRUD page from datasource ACTIVE section", function () {
-
-    cy.startInterceptRoutesForMySQL();
-
+  it("Generate CRUD page from datasource ACTIVE section", function() {
     cy.NavigateToQueryEditor();
     cy.get(pages.integrationActiveTab)
       .should("be.visible")
@@ -157,16 +198,34 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function ()
       });
 
     //Generate Stub for tables dropdown values also
-    cy.wait("@selectTableDropdownStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
+    cy.wait("@selectTableDropdownStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
     cy.get(generatePage.selectTableDropdown).click();
-    cy.get(generatePage.dropdownOption).first().click();
+    cy.get(generatePage.dropdownOption)
+      .first()
+      .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@post_replaceLayoutCRUDStub").should("have.nested.property", "response.body.responseMeta.status", 201,);
-    cy.wait("@getActionsStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
-    cy.wait("@postExecuteStub").should("have.nested.property", "response.body.responseMeta.status", 200,);
+    cy.wait("@post_replaceLayoutCRUDStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.wait("@getActionsStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@postExecuteStub").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
 
-    cy.get("span:contains('GOT IT')").click()
+    cy.get("span:contains('GOT IT')").click();
   });
 });

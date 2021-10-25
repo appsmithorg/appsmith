@@ -5,31 +5,41 @@
     "mongo-username": "cypress-test",
     "mongo-password": "RaopEmky505xYV4p",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
-    "postgres-host": "localhost",
+    "mongo-uri": "mongodb+srv://mockdb-admin:oIvmxhw67hEmatML@mockdb.swrsq.mongodb.net/movie-store?retryWrites=true&w=majority",
+
+    "postgres-host": "host.docker.internal",
     "postgres-port": 5432,
     "postgres-databaseName": "fakeapi",
     "postgres-username": "postgres",
     "postgres-password": "postgres",
+
     "mysql-host": "localhost",
     "mysql-port": 3306,
     "mysql-databaseName": "fakeapi",
     "mysql-username": "root",
     "mysql-password": "root123",
-    "mssql-host": "localhost",
+
+    "mssql-host": "host.docker.internal",
     "mssql-port": 1433,
     "mssql-databaseName": "fakeapi",
     "mssql-username": "SA",
     "mssql-password": "Root$123",
+
     "arango-host": "localhost",
     "arango-port": 8529,
     "arango-databaseName": "fakeapi",
     "arango-username": "root",
     "arango-password": "Arango$123",
+
     "redshift-host": "localhost",
     "redshift-port": 5439,
     "redshift-databaseName": "fakeapi",
     "redshift-username": "root",
     "redshift-password": "Redshift$123",
+
+    "s3-accessKey": "AKIAVWHAAGIQGRDDDVGL",
+    "s3-secretKey": "T+wEgJ3GP8TqJuqy6rzUU0LHtcmZVvVwnT/tV3yl",
+
     "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
     "mongo-defaultDatabaseName": "sample_airbnb",
     "connection-type": "Replica set",
