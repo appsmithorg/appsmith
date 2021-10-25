@@ -35,6 +35,7 @@ describe("#defaultValueValidation", () => {
     100,
     "&*()(",
     "abcd",
+    "123 123",
   ];
   const expectedOutputs = [
     { isValid: true, parsed: undefined, messages: [""] },
@@ -46,6 +47,11 @@ describe("#defaultValueValidation", () => {
     { isValid: true, parsed: -23, messages: [""] },
     { isValid: true, parsed: 0, messages: [""] },
     { isValid: true, parsed: 100, messages: [""] },
+    {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be a number"],
+    },
     {
       isValid: false,
       parsed: undefined,
@@ -102,10 +108,44 @@ describe("#defaultValueValidation", () => {
       inputType: "PHONE_NUMBER",
     };
 
+    const expectedPhoneNumberOutputs = [
+      { isValid: true, parsed: "", messages: [""] },
+      { isValid: true, parsed: "   ", messages: [""] },
+      { isValid: true, parsed: "0", messages: [""] },
+      { isValid: true, parsed: "123", messages: [""] },
+      {
+        isValid: false,
+        parsed: undefined,
+        messages: ["This value must be a valid phone number format"],
+      },
+      {
+        isValid: false,
+        parsed: undefined,
+        messages: ["This value must be a valid phone number format"],
+      },
+      {
+        isValid: false,
+        parsed: undefined,
+        messages: ["This value must be a valid phone number format"],
+      },
+      { isValid: false, parsed: "0", messages: [""] }, // input is number
+      { isValid: false, parsed: "100", messages: [""] }, // input is number
+      {
+        isValid: false,
+        parsed: undefined,
+        messages: ["This value must be a valid phone number format"],
+      },
+      {
+        isValid: false,
+        parsed: undefined,
+        messages: ["This value must be a valid phone number format"],
+      },
+      { isValid: true, parsed: "123 123", messages: [""] },
+    ];
+
     inputs.forEach((input, index) => {
       const response = defaultValueValidation(input, props, _);
-
-      expect(response).toStrictEqual(expectedOutputs[index]);
+      expect(response).toStrictEqual(expectedPhoneNumberOutputs[index]);
     });
   });
 });
