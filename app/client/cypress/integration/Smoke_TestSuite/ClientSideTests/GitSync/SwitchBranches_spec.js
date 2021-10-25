@@ -40,7 +40,7 @@ describe("Git sync connect to repo", function() {
 
     cy.intercept(
       {
-        url: "*",
+        url: "api/v1/git/commit/*",
         hostname: window.location.host,
       },
       (req) => {
