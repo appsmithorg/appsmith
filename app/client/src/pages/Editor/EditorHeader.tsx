@@ -48,7 +48,9 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import ToggleModeButton, {
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
@@ -61,6 +63,9 @@ import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
 import { OrgUser } from "constants/orgConstants";
+
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsGitConnected } from "../../selectors/gitSyncSelectors";
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
@@ -252,10 +257,11 @@ export function EditorHeader(props: EditorHeaderProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
+  const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
-
+  const shouldHideComments = useHideComments();
   useEffect(() => {
     if (window.location.href) {
       const searchParams = new URL(window.location.href).searchParams;
@@ -291,11 +297,13 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
+    dispatch(
+      setIsGitSyncModalOpen({ isOpen: true, tab: GitSyncModalTab.DEPLOY }),
+    );
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const handleClickDeploy = useCallback(() => {
-    if (getFeatureFlags().GIT) {
+    if (getFeatureFlags().GIT && isGitConnected) {
       showGitSyncModal();
     } else {
       handlePublish();
@@ -367,7 +375,9 @@ export function EditorHeader(props: EditorHeaderProps) {
                 setIsPopoverOpen={setIsPopoverOpen}
               />
             </TooltipComponent>
-            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
+            {!shouldHideComments && (
+              <ToggleModeButton showSelectedMode={!isPopoverOpen} />
+            )}
           </Boxed>
         </HeaderSection>
         <HeaderSection>

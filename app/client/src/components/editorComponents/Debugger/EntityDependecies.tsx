@@ -18,7 +18,7 @@ import {
 import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, thinScrollbar } from "constants/DefaultTheme";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -90,6 +90,7 @@ const ConnectionFlow = styled.div`
 const Wrapper = styled.div`
   display: flex;
   height: 100%;
+  ${thinScrollbar};
   align-items: center;
   justify-content: center;
   padding: 0px 100px;

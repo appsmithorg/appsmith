@@ -15,16 +15,8 @@ describe("Modal Widget Functionality", function() {
   });
 
   it("Open Existing Modal from created Widgets list", () => {
-    cy.get(
-      ".t--entity-collapse-toggle ~ .t--entity-name:contains(Widgets)",
-    ).click({
-      multiple: true,
-    });
-    cy.get(
-      ".t--entity-collapse-toggle ~ .t--entity-name:contains(Modal1)",
-    ).click({
-      multiple: true,
-    });
+    cy.get(".widgets").click();
+    cy.get(".t--entity-name:contains(Modal1)").click();
     cy.get(".t--modal-widget").should("exist");
   });
 
