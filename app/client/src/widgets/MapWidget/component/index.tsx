@@ -29,6 +29,7 @@ interface MapComponentProps {
     title?: string;
   };
   enableCreateMarker: boolean;
+  clickedMarkerCentered?: boolean;
   updateCenter: (lat: number, long: number) => void;
   updateMarker: (lat: number, long: number, index: number) => void;
   saveMarker: (lat: number, long: number) => void;
@@ -166,10 +167,13 @@ const MyMapComponent = withGoogleMap((props: any) => {
             }
             key={index}
             onClick={() => {
-              setMapCenter({
-                ...marker,
-                lng: marker.long,
-              });
+              if (props.clickedMarkerCentered) {
+                setMapCenter({
+                  ...marker,
+                  lng: marker.long,
+                });
+              }
+
               props.selectMarker(marker.lat, marker.long, marker.title);
             }}
             onDragEnd={(de) => {

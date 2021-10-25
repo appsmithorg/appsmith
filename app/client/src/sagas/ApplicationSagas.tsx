@@ -45,7 +45,6 @@ import {
   GetSSHKeyPairReduxAction,
   FetchApplicationReduxAction,
 } from "actions/applicationActions";
-import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   APPLICATION_NAME_UPDATE,
@@ -206,12 +205,6 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       payload: response.data,
     });
-
-    yield put(
-      fetchUnreadCommentThreadsCountSuccess(
-        response.data?.unreadCommentThreads,
-      ),
-    );
 
     if (action.onSuccessCallback) {
       action.onSuccessCallback(response);
