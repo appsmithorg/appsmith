@@ -522,10 +522,16 @@ public class GitServiceImpl implements GitService {
                                     gitData.getBranchName()))
                             .onErrorResume(error -> {
                                 if(error instanceof TransportException) {
-
+                                    return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Please give the write access to the SSH Key"));
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                             });
+                })
+                .flatMap(push -> {
+                    if(push.contains("REJECTED")) {
+                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Remote has changes. Please pull them before pushing to remote branch."));
+                    }
+                    return Mono.just(push);
                 });
     }
 
