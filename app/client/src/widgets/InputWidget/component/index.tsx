@@ -163,8 +163,8 @@ const InputComponentWrapper = styled((props) => (
 
         &:focus {
           outline: 0;
-          border: 1px solid ${Colors.GREEN_SOLID};
-          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER} !important;
+          border: 1px solid ${Colors.GREEN_1};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2} !important;
         }
       }
       &:disabled {
@@ -252,8 +252,8 @@ const StyledNumericInput = styled(NumericInput)`
         }
       }
       &:focus {
-        border: 1px solid ${Colors.GREEN_SOLID};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+        border: 1px solid ${Colors.GREEN_1};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
       }
       span {
         color: ${Colors.GREY_6};

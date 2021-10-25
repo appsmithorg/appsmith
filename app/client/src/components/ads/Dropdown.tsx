@@ -116,8 +116,8 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid ${Colors.GREEN_SOLID};
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+      border: 1px solid ${Colors.GREEN_1};
+      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
     `
       : null};
   .${Classes.TEXT} {
@@ -217,8 +217,8 @@ export const DropdownWrapper = styled.div<{
       padding-left: 36px !important;
 
       &:focus {
-        border: 1.2px solid ${Colors.GREEN_SOLID};
-        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+        border: 1.2px solid ${Colors.GREEN_1};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
       }
     }
 
@@ -258,8 +258,7 @@ const OptionWrapper = styled.div<{
   display: flex;
   align-items: center;
   min-height: 36px;
-  background-color: ${(props) =>
-    props.selected ? Colors.GREEN_SOLID_HOVER_2 : null};
+  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
 
   &&& svg {
     rect {
@@ -287,7 +286,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${Colors.GREEN_SOLID_HOVER_2};
+    background-color: ${Colors.GREEN_3};
 
     &&& svg {
       rect {
