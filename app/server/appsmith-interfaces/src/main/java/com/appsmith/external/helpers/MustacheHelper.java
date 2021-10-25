@@ -342,15 +342,43 @@ public class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
-    public static void extractWordsAndAddToSet(Map<String, DynamicBinding> bindingNames, String mustacheKey) {
+    public static void extractActionNamesAndAddValidActionBindingsToSet(Map<String, DynamicBinding> bindingNames, String mustacheKey) {
         String key = mustacheKey.trim();
 
         /* Extract all action names in the dynamic bindings */
         Matcher matcher = pattern.matcher(key);
         while (matcher.find()) {
-            // Fore each match, check what combination of action bindings could be calculated
+            // For each match, check what combination of action bindings could be calculated
             bindingNames.putAll(DynamicBinding.create(matcher.group()));
         }
+    }
+
+    public static Set<String> getPossibleParents(String mustacheKey) {
+        Set<String> bindingNames = new HashSet<>();
+        String key = mustacheKey.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            String word = matcher.group();
+
+            String[] subStrings = word.split(Pattern.quote("."));
+
+            if (subStrings.length < 1) {
+                continue;
+            }
+            // First add the first word since that's the entity name for widgets and non js actions
+            bindingNames.add(subStrings[0]);
+
+            if (subStrings.length >= 2) {
+                // For JS actions, the first two words are the action name since action name consists of the collection name
+                // and the individual action name
+                bindingNames.add(subStrings[0] + "." + subStrings[1]);
+            }
+
+        }
+        return bindingNames;
     }
 
     public static String replaceMustacheWithPlaceholder(String query, List<String> mustacheBindings) {
@@ -388,5 +416,20 @@ public class MustacheHelper {
 
     public static Boolean laxIsBindingPresentInString(String input) {
         return laxMustacheBindingPattern.matcher(input).find();
+    }
+
+    public static Set<String> getWordsFromMustache(String mustache) {
+        Set<String> words = new HashSet<>();
+        String key = mustache.trim();
+
+        // Extract all the words in the dynamic bindings
+        Matcher matcher = pattern.matcher(key);
+
+        while (matcher.find()) {
+            words.add(matcher.group());
+        }
+
+        return words;
+
     }
 }
