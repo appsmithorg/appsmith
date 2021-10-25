@@ -219,7 +219,9 @@ public class UserSignup {
                                     }),
                             envManager.applyChanges(Map.of(
                                     "APPSMITH_DISABLE_TELEMETRY",
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
+                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                    "APPSMITH_INSTANCE_NAME",
+                                    "Appsmith"
                             )),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
