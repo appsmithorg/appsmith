@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
@@ -14,8 +15,10 @@ const Wrapper = styled.div`
 const HeaderContainer = styled.div``;
 
 const StyledHeader = styled.div`
-  text-transform: uppercase;
-  margin: 40px 16px 8px;
+  font-size: 20px;
+  text-transform: capitalize;
+  margin: 40px 16px 16px;
+  color: ${Colors.MASALA};
 `;
 
 const CategoryList = styled.ul`

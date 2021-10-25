@@ -236,7 +236,7 @@ SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
   text: "Download",
 });
 
-SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
+SettingsFactory.register("APPSMITH_ENABLE_TELEMETRY", {
   category: "general",
   controlType: SettingTypes.TOGGLE,
   label: "Share Anonymous Usage Data",
@@ -273,9 +273,9 @@ SettingsFactory.register("APPSMITH_SIGNUP_DISABLED", {
   label: "Signup",
   toggleText: (value: boolean) => {
     if (value) {
-      return " Allow all users to signup";
-    } else {
       return "Allow invited users to signup";
+    } else {
+      return " Allow all users to signup";
     }
   },
 });
