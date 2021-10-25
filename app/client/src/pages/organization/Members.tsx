@@ -350,7 +350,7 @@ export default function MemberSettings(props: PageProps) {
                       className="avatar"
                       side={71}
                       source={`/api/${USER_PHOTO_URL}/${user.username}`}
-                      userName={"Test User"}
+                      userName={user.name}
                     />
                     <Text type={TextType.P1}>{user.name || user.username}</Text>
                     <Text className="email" type={TextType.P1}>
