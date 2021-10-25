@@ -142,14 +142,7 @@ export const BUILDER_PAGE_URL = (props: {
   params?: Record<string, string>;
   suffix?: string;
 }): string => {
-  const {
-    branch,
-    applicationId,
-    hash = "",
-    pageId,
-    params = {},
-    suffix,
-  } = props;
+  const { applicationId, hash = "", pageId, params = {}, suffix } = props;
 
   // todo (rishabh s) check when this is applicable
   if (!pageId) return APPLICATIONS_URL;
