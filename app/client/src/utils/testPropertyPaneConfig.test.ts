@@ -5,8 +5,8 @@ import {
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isError } from "lodash";
-import AudioWidget from "widgets/AudioWidget";
-import VideoWidget from "widgets/VideoWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { ALL_WDIGETS_AND_CONFIG } from "./WidgetRegistry";
 
 function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
@@ -69,7 +69,8 @@ function validateValidationStructure(
 }
 
 describe("Tests all widget's propertyPane config", () => {
-  [VideoWidget, AudioWidget].forEach((widget) => {
+  ALL_WDIGETS_AND_CONFIG.forEach((widgetAndConfig) => {
+    const widget: any = widgetAndConfig[0];
     it(`Checks ${widget.getWidgetType()}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
       const validatedPropertyPaneConfig = validatePropertyPaneConfig(
