@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Button } from "@blueprintjs/core";
+import { Button as RefreshButton } from "@blueprintjs/core";
 import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 
@@ -86,8 +86,6 @@ const ErrorInfoContainer = styled.div`
     text-align: center;
   }
 `;
-
-const RefreshButton = styled(Button)``;
 
 const MyMapComponent = withGoogleMap((props: any) => {
   const [mapCenter, setMapCenter] = React.useState<
