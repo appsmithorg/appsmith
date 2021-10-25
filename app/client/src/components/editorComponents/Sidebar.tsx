@@ -117,7 +117,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     return () => {
       document.removeEventListener("mousemove", onMouseMove);
     };
-  }, [active, pinned]);
+  }, [active, pinned, resizer.resizing]);
 
   /**
    * passing the event to touch move on mouse move
@@ -142,6 +142,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       | (MouseEvent & { touches: { clientX: number; clientY: number }[] }),
   ) => {
     const currentX = event.touches[0].clientX;
+
     if (!pinned) {
       if (!active) {
         if (currentX <= 5) {
@@ -149,7 +150,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         }
       }
 
-      if (currentX >= props.width) {
+      if (currentX >= props.width + 20 && !resizer.resizing) {
         dispatch(setExplorerActive(false));
       }
     }
@@ -181,8 +182,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         {/* ENTITY EXPLORE HEADER */}
-        <div className="sticky top-0 flex items-center justify-between py-3 px-3 z-1">
-          <h3 className="text-sm text-gray-800 font-medium uppercase">
+        <div className="sticky top-0 flex items-center justify-between px-3 py-3 z-1">
+          <h3 className="text-sm font-medium text-gray-800 uppercase">
             Navigation
           </h3>
           <div
@@ -193,7 +194,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
             })}
           >
             <button
-              className=" p-2 hover:bg-warmGray-100 group"
+              className="p-2 hover:bg-warmGray-100 group"
               onClick={onPin}
               type="button"
             >
