@@ -579,7 +579,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     Set.of(AclPermission.MANAGE_THREAD),
                     user
             ).get(AclPermission.MANAGE_THREAD.getValue()));
-
             commentSeq = sequenceService.getNext(CommentThread.class, application.getId());
         }
         commentThread.setPolicies(policies);
