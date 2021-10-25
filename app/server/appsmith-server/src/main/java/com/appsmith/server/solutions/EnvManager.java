@@ -8,6 +8,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.SessionUserService;
@@ -15,13 +16,22 @@ import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -49,6 +59,7 @@ public class EnvManager {
     private final EmailConfig emailConfig;
     private final JavaMailSender javaMailSender;
     private final GoogleRecaptchaConfig googleRecaptchaConfig;
+    private final FileUtils fileUtils;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -317,6 +328,29 @@ public class EnvManager {
                         "Test email from Appsmith",
                         "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n"
                 ));
+    }
+
+    public Mono<Void> download(ServerWebExchange exchange) {
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> {
+                    try {
+                        File envFile = Path.of(commonConfig.getEnvFilePath()).toFile();
+                        FileInputStream envFileInputStream = new FileInputStream(envFile);
+                        InputStream resourceFile = new ClassPathResource("docker-compose.yml").getInputStream();
+                        byte[] byteArray = fileUtils.createZip(
+                                new FileUtils.ZipSourceFile(envFileInputStream, "stacks/configuration/docker.env"),
+                                new FileUtils.ZipSourceFile(resourceFile, "docker-compose.yml")
+                        );
+                        final ServerHttpResponse response = exchange.getResponse();
+                        response.setStatusCode(HttpStatus.OK);
+                        response.getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/zip");
+                        response.getHeaders().set("Content-Disposition", "attachment; filename=\"appsmith-config.zip\"");
+                        return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(byteArray)));
+                    } catch (IOException e) {
+                        log.error("failed to generate zip file", e);
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    }
+                });
     }
 
 }
