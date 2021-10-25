@@ -75,10 +75,10 @@ public class AnalyticsService {
                     }
 
                     analytics.enqueue(IdentifyMessage.builder()
-                            .userId(username)
+                            .userId(ObjectUtils.defaultIfNull(username, ""))
                             .traits(Map.of(
-                                    "name", name,
-                                    "email", email,
+                                    "name", ObjectUtils.defaultIfNull(name, ""),
+                                    "email", ObjectUtils.defaultIfNull(email, ""),
                                     "isSuperUser", isSuperUser != null && isSuperUser,
                                     "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
                                     "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
