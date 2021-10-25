@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { debounce, noop } from "lodash";
 
 import styled from "constants/DefaultTheme";
@@ -88,11 +88,14 @@ function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
 
   const [value, setValue] = useState(label);
 
-  const debouncedUpdate = useMemo(() => debounce(updateOption, 1000), []);
-
-  useEffect(() => {
-    debouncedUpdate(index, value);
-  }, [value]);
+  const onLabelChange = useCallback(
+    (index: number, value: string) => {
+      const debouncedUpdate = debounce(updateOption, 1000);
+      setValue(value);
+      debouncedUpdate(index, value);
+    },
+    [updateOption],
+  );
 
   const deleteIcon = (() => {
     if (!isCustomField || id === ARRAY_ITEM_KEY) return null;
@@ -138,7 +141,9 @@ function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        onChange={setValue}
+        onChange={(value: string) => {
+          onLabelChange(index, value);
+        }}
         placeholder="Column Title"
         value={value}
       />
@@ -157,7 +162,7 @@ function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
 class FieldConfigurationControl extends BaseControl<ControlProps> {
   isArrayItem = () => {
     const schema: Schema = this.props.propertyValue;
-    return Boolean(schema[ARRAY_ITEM_KEY]);
+    return Boolean(schema?.[ARRAY_ITEM_KEY]);
   };
 
   onEdit = (index: number) => {

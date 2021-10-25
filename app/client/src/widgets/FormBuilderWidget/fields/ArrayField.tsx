@@ -5,7 +5,7 @@ import { useFieldArray, ControllerRenderProps } from "react-hook-form";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import { ARRAY_ITEM_KEY, FieldType, SchemaItem } from "../constants";
+import { ARRAY_ITEM_KEY } from "../constants";
 import { BaseFieldComponentProps } from "./types";
 
 type ArrayComponentOwnProps = {

@@ -270,7 +270,7 @@ export default [
         helpText: "Input JSON sample for default form layout",
         label: "Form Data",
         controlType: "INPUT_TEXT",
-        placeholderText: 'Enter { "firstName": "John" }',
+        placeholderText: 'Enter { "name": "John", "age": 24 }',
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
