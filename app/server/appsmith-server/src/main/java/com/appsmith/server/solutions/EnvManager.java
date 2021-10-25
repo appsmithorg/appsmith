@@ -70,7 +70,7 @@ public class EnvManager {
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
 
-    private enum Vars {
+    public enum Vars {
         APPSMITH_INSTANCE_NAME,
         APPSMITH_MONGODB_URI,
         APPSMITH_REDIS_URL,
