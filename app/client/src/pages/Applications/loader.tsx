@@ -16,7 +16,6 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
   }
 
   componentDidMount() {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     AnalyticsUtil.logEvent("APPLICATIONS_PAGE_LOAD");
     retryPromise(() =>
