@@ -88,6 +88,8 @@ describe("Create new org and share with a user", function() {
         const someText = text;
         expect(someText).to.equal("This page seems to be blank");
       });
+    // comment toggle should not exist for anonymous users
+    cy.get(".t--comment-mode-switch-toggle").should("not.exist");
   });
 
   it("login as uninvited user and then validate public access of Application", function() {

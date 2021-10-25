@@ -40,7 +40,7 @@
   "TableRow": ".t--draggable-tablewidget .tbody",
   "Disablejs": ".t--property-control-disabled",
   "requiredjs": ".t--property-control-required",
-  "horizontalScroll": ".t--property-control-allowhorizontalscroll input",
+  "allowScroll": ".t--property-control-allowscroll input",
   "tableInner": ".t--draggable-tablewidget span.t--widget-name",
   "pdfSupport": ".t--property-control-pdfexport input",
   "ExcelSupport": ".t--property-control-excelexport input",
