@@ -1,13 +1,13 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
@@ -81,16 +81,6 @@ public class PolicyUtils {
 
         obj.getPolicies().addAll(policyMap1.values());
         return obj;
-    }
-
-    public void addPolicyToExistingSet(Set<Policy> policySet, Policy newPolicy) {
-        // Append the user to the existing permission policy if it already exists.
-        for (Policy policy : policySet) {
-            String permission = policy.getPermission();
-            if (permission.equals(newPolicy.getPermission())) {
-                policy.getUsers().addAll(newPolicy.getUsers());
-            }
-        }
     }
 
     public <T extends BaseDomain> T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {

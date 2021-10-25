@@ -583,7 +583,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             ).get(AclPermission.MANAGE_THREAD.getValue());
 
             // merge the policy with existing ones
-            policyUtils.addPolicyToExistingSet(policies, managePolicyForCreator);
+            policies.add(managePolicyForCreator);
 
             commentSeq = sequenceService.getNext(CommentThread.class, application.getId());
         }

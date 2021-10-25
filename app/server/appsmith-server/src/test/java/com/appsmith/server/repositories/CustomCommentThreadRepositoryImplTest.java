@@ -45,7 +45,7 @@ public class CustomCommentThreadRepositoryImplTest {
         return thread;
     }
 
-    private CommentThread createThreadWithManagePermission(String userEmail, String applicationId, String pageId) {
+    private CommentThread createThreadWithAllPermission(String userEmail, String applicationId, String pageId) {
         CommentThread thread = new CommentThread();
         thread.setPageId(pageId);
         thread.setApplicationId(applicationId);
@@ -54,7 +54,7 @@ public class CustomCommentThreadRepositoryImplTest {
         user.setEmail(userEmail);
 
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_THREAD, AclPermission.READ_THREAD), user);
+                Set.of(AclPermission.MANAGE_THREAD, AclPermission.COMMENT_ON_THREAD), user);
         HashSet<Policy> policySet = new HashSet<>();
 
         // not using Set.of here because the caller function may need to add more policies
@@ -244,11 +244,11 @@ public class CustomCommentThreadRepositoryImplTest {
                 applicationId = "test-app-" + uniqueRandomString; // same for all three so that we can fetch by application id
 
         // create few comment threads with pageId and permission that'll be deleted
-        CommentThread threadOne = createThreadWithManagePermission("api_user", applicationId, pageOneId);
-        CommentThread threadTwo = createThreadWithManagePermission("api_user", applicationId, pageOneId);
+        CommentThread threadOne = createThreadWithAllPermission("api_user", applicationId, pageOneId);
+        CommentThread threadTwo = createThreadWithAllPermission("api_user", applicationId, pageOneId);
 
         // we'll not delete this
-        CommentThread threadThree = createThreadWithManagePermission("api_user", applicationId, pageTwoId);
+        CommentThread threadThree = createThreadWithAllPermission("api_user", applicationId, pageTwoId);
 
         List<CommentThread> threads = List.of(threadOne, threadTwo, threadThree);
 
@@ -277,17 +277,26 @@ public class CustomCommentThreadRepositoryImplTest {
                 applicationId = "test-app-" + uniqueRandomString;
 
         // create few comment threads with pageId and permission that'll be deleted
-        CommentThread thread = createThreadWithManagePermission(threadUser, applicationId, testPageId);
+        CommentThread thread = createThreadWithAllPermission(threadUser, applicationId, testPageId);
 
-        // add policy so that the current user can read the thread but can not manage
+        // add policy so that the current user can read the thread but does not have permission to add comment
         Policy policyForCurrentUser = policyUtils.generatePolicyFromPermission(
                 Set.of(AclPermission.READ_THREAD), "api_user"
         ).get(AclPermission.READ_THREAD.getValue());
 
-        thread.getPolicies().add(policyForCurrentUser);
+        // add api_user to thread policy with read thread permission
+        for(Policy policy: thread.getPolicies()) {
+            if(policy.getPermission().equals(AclPermission.READ_THREAD.getValue())) {
+                Set<String> users = new HashSet<>();
+                users.addAll(policy.getUsers());
+                users.add("api_user");
+                policy.setUsers(users);
+            }
+        }
 
+        // api_user has no permission to comment on thread so can not archive the thread
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
-                .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT))
+                .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT)) // this will do nothing
                 .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
                 .collectMultimap(CommentThread::getPageId);
 
