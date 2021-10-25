@@ -14,8 +14,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
-import KeyValueInputControl from "components/formControls/KeyValueInputControl";
-import DropDownControl from "components/formControls/DropDownControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -358,6 +356,29 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderEditor = () => {
     const { formData, messages } = this.props;
     if (!formData) return;
+    const config = {
+      id: "",
+      isValid: false,
+      isRequired: true,
+      controlType: "DROP_DOWN",
+      configProperty: "isSendSessionEnabled",
+      encrypted: false,
+      label: "Send Appsmith signature header",
+      options: [
+        {
+          label: "Yes",
+          value: true,
+        },
+        {
+          label: "No",
+          value: false,
+        },
+      ],
+      conditionals: "",
+      placeholderText: "",
+      subtitle: "Header key: X-APPSMITH-SIGNATURE",
+      formName: DATASOURCE_REST_API_FORM,
+    };
     return (
       <>
         {messages &&
@@ -375,19 +396,17 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         <FormInputContainer>
-          <KeyValueInputControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="headers"
-            label="Headers"
-          />
+          {this.renderKeyValueControlViaFormControl(
+            "headers",
+            "Headers",
+            "",
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="isSendSessionEnabled"
-            isRequired
-            label="Send Appsmith signature header"
-            options={[
+          {this.renderDropdownControlViaFormControl(
+            "isSendSessionEnabled",
+            [
               {
                 label: "Yes",
                 value: true,
@@ -396,11 +415,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "No",
                 value: false,
               },
-            ]}
-            placeholderText=""
-            propertyValue=""
-            subtitle="Header key: X-APPSMITH-SIGNATURE"
-          />
+            ],
+            "Send Appsmith signature header",
+            "",
+            true,
+            "Header key: X-APPSMITH-SIGNATURE",
+          )}
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
           <FormInputContainer>
@@ -415,11 +435,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           </FormInputContainer>
         )}
         <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authType"
-            label="Authentication Type"
-            options={[
+          {this.renderDropdownControlViaFormControl(
+            "authType",
+            [
               {
                 label: "None",
                 value: AuthType.NONE,
@@ -440,10 +458,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Bearer Token",
                 value: AuthType.bearerToken,
               },
-            ]}
-            placeholderText=""
-            propertyValue=""
-          />
+            ],
+            "Authentication Type",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {this.renderAuthFields()}
       </>
@@ -497,11 +517,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.addTo"
-            label="Add To"
-            options={[
+          {this.renderDropdownControlViaFormControl(
+            "authentication.addTo",
+            [
               {
                 label: "Query Params",
                 value: ApiKeyAuthType.QueryParams,
@@ -510,10 +528,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Header",
                 value: ApiKeyAuthType.Header,
               },
-            ]}
-            placeholderText=""
-            propertyValue=""
-          />
+            ],
+            "Add To",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {_.get(authentication, "addTo") == "header" && (
           <FormInputContainer>
@@ -589,11 +609,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.grantType"
-            label="Grant Type"
-            options={[
+          {this.renderDropdownControlViaFormControl(
+            "authentication.grantType",
+            [
               {
                 label: "Client Credentials",
                 value: GrantType.ClientCredentials,
@@ -602,10 +620,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Authorization Code",
                 value: GrantType.AuthorizationCode,
               },
-            ]}
-            placeholderText=""
-            propertyValue=""
-          />
+            ],
+            "Grant Type",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {content}
       </>
@@ -617,11 +637,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.isTokenHeader"
-            label="Add Access Token To"
-            options={[
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isTokenHeader",
+            [
               {
                 label: "Request Header",
                 value: true,
@@ -630,8 +648,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Request URL",
                 value: false,
               },
-            ]}
-          />
+            ],
+            "Add Access Token To",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
           <FormInputContainer>
@@ -671,7 +693,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "Client Secret",
             "Client Secret",
             "PASSWORD",
-            false,
+            true,
             false,
           )}
         </FormInputContainer>
@@ -760,18 +782,17 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           </div>
         </FormInputContainer>
         <FormInputContainer>
-          <KeyValueInputControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.customAuthenticationParameters"
-            label="Custom Authentication Parameters"
-          />
+          {this.renderKeyValueControlViaFormControl(
+            "authentication.customAuthenticationParameters",
+            "Custom Authentication Parameters",
+            "",
+            false,
+          )}
         </FormInputContainer>
         <FormInputContainer>
-          <DropDownControl
-            {...COMMON_INPUT_PROPS}
-            configProperty="authentication.isAuthorizationHeader"
-            label="Client Authentication"
-            options={[
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isAuthorizationHeader",
+            [
               {
                 label: "Send as Basic Auth header",
                 value: true,
@@ -780,8 +801,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
                 label: "Send client credentials in body",
                 value: false,
               },
-            ]}
-          />
+            ],
+            "Client Authentication",
+            "",
+            false,
+            "",
+          )}
         </FormInputContainer>
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
@@ -829,6 +854,62 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           placeholderText: placeholderText,
           formName: DATASOURCE_REST_API_FORM,
         }}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
+
+  renderDropdownControlViaFormControl(
+    configProperty: string,
+    options: { label: string; value: string | boolean }[],
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+    subtitle?: string,
+  ) {
+    const config = {
+      id: "",
+      isValid: false,
+      isRequired: isRequired,
+      controlType: "DROP_DOWN",
+      configProperty: configProperty,
+      options: options,
+      subtitle: subtitle,
+      label: label,
+      conditionals: "",
+      placeholderText: placeholderText,
+      formName: DATASOURCE_REST_API_FORM,
+    };
+    return (
+      <FormControl
+        config={config}
+        formName={DATASOURCE_REST_API_FORM}
+        multipleConfig={[]}
+      />
+    );
+  }
+
+  renderKeyValueControlViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+  ) {
+    const config = {
+      id: "",
+      configProperty: configProperty,
+      isValid: false,
+      controlType: "KEY_VAL_INPUT",
+      placeholderText: placeholderText,
+      label: label,
+      conditionals: "",
+      formName: DATASOURCE_REST_API_FORM,
+      isRequired: isRequired,
+    };
+    return (
+      <FormControl
+        config={config}
         formName={DATASOURCE_REST_API_FORM}
         multipleConfig={[]}
       />

@@ -3,20 +3,10 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
-import Dropdown, {
-  DropdownProps,
-  DropdownOption,
-} from "components/ads/Dropdown";
+import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
-import { theme } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
 import _ from "lodash";
-import {
-  Field,
-  WrappedFieldMetaProps,
-  WrappedFieldProps,
-  WrappedFieldInputProps,
-} from "redux-form";
+import { Field } from "redux-form";
 const DropdownSelect = styled.div`
   font-size: 14px;
   width: 50vh;
@@ -76,7 +66,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 function renderDropdown(props: any): JSX.Element {
-  const selectedValue = props.input.value || props.initialValue;
+  const selectedValue = props.input.value;
   const selectedOption = props.options.find(
     (option: DropdownOption) => option.value === selectedValue,
   );

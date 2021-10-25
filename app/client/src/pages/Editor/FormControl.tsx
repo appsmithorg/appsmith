@@ -125,7 +125,9 @@ function renderFormConfigTop(props: { config: ControlProps }) {
           )}
         </p>
       </FormLabel>
-      {subtitle && <FormInfoText>{subtitle}</FormInfoText>}
+      {subtitle && (
+        <FormInfoText config={props.config}>{subtitle}</FormInfoText>
+      )}
       {urlText && (
         <FormInputAnchor href={url} target="_blank">
           {urlText}

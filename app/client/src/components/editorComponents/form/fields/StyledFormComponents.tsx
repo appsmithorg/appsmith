@@ -4,11 +4,17 @@ import { Colors } from "constants/Colors";
 import { ControlProps } from "components/formControls/BaseControl";
 
 //Styled help text, intended to be used with Form Fields
-export const StyledFormInfo = styled.span`
+export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
+  display: ${(props) =>
+    props?.config?.controlType !== "SWITCH" &&
+    props?.config?.controlType !== "CHECKBOX"
+      ? "block;"
+      : "inline;"}
   font-weight: normal;
   color: ${Colors.DOVE_GRAY};
   font-size: 12px;
   margin-left: 1px;
+  margin-bottom: 8px;
 `;
 
 //Styled help text, intended to be used with Form Fields
@@ -108,7 +114,9 @@ function FormLabel(props: FormLabelProps) {
 
 //Wrapper on styled <span/>
 function FormInfoText(props: FormLabelProps) {
-  return <StyledFormInfo>{props.children}</StyledFormInfo>;
+  return (
+    <StyledFormInfo config={props.config}>{props.children}</StyledFormInfo>
+  );
 }
 
 export {
