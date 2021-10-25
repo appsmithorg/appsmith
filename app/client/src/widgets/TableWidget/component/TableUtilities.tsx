@@ -38,6 +38,9 @@ import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
+import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
+import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
+
 import {
   ButtonVariant,
   ButtonBoxShadow,
@@ -437,42 +440,15 @@ function TableAction(props: {
   );
 }
 
-function CheckBoxLineIcon() {
-  return (
-    <svg
-      className="th-svg t--table-multiselect-header-half-check-svg"
-      fill="none"
-      height="0.83"
-      width="5.83"
-    >
-      <path
-        d="M0.0820312 0.583313L5.91537 0.583313L5.91537 1.41665L0.0820312 1.41665L0.0820312 0.583313Z"
-        fill="white"
-        transform="translate(2.08,4.58)"
-      />
-    </svg>
-  );
-}
-
-function CheckBoxCheckIcon() {
-  return (
-    <svg className="th-svg" fill="none" height="6.5" width="8.5">
-      <path
-        d="M8.10387 0.500001L9 1.40822L3.48269 7L0.5 3.97705L1.39613 3.06883L3.48269 5.18305L8.10387 0.500001Z"
-        fill="white"
-        transform="translate(0.5,1.5)"
-      />
-    </svg>
-  );
-}
-
 export const renderCheckBoxCell = (isChecked: boolean) => (
   <CellCheckboxWrapper
     className="td t--table-multiselect"
     isCellVisible
     isChecked={isChecked}
   >
-    <CellCheckbox>{isChecked && <CheckBoxCheckIcon />}</CellCheckbox>
+    <CellCheckbox>
+      {isChecked && <CheckBoxCheckIcon className="th-svg" />}
+    </CellCheckbox>
   </CellCheckboxWrapper>
 );
 
@@ -488,8 +464,10 @@ export const renderCheckBoxHeaderCell = (
     style={{ padding: "0px", justifyContent: "center" }}
   >
     <CellCheckbox>
-      {checkState === 1 && <CheckBoxCheckIcon />}
-      {checkState === 2 && <CheckBoxLineIcon />}
+      {checkState === 1 && <CheckBoxCheckIcon className="th-svg" />}
+      {checkState === 2 && (
+        <CheckBoxLineIcon className="th-svg t--table-multiselect-header-half-check-svg" />
+      )}
     </CellCheckbox>
   </CellCheckboxWrapper>
 );

@@ -457,8 +457,6 @@ export const CellCheckbox = styled.div`
     position: absolute;
     left: 2px;
     top: 2px;
-    height: 10px;
-    width: 10px;
   }
 `;
 
