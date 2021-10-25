@@ -34,7 +34,7 @@ describe("evaluate", () => {
     setupEvaluationEnvironment();
   });
   it("unescapes string before evaluation", () => {
-    const js = '\\"Hello!\\"';
+    const js = '"Hello!"';
     const response = evaluate(js, {}, {});
     expect(response.result).toBe("Hello!");
   });
