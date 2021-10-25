@@ -43,6 +43,14 @@ import { getLocalGitConfig } from "selectors/gitSyncSelectors";
 import { emailValidator } from "components/ads/TextInput";
 import { isEqual } from "lodash";
 import {
+  UPDATE_CONFIG,
+  CONNECT_BTN_LABEL,
+  PASTE_SSH_URL_INFO,
+  GENERATE_KEY,
+  COPIED_SSH_KEY,
+  INVALID_USER_DETAILS_MSG,
+} from "constants/messages";
+import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
@@ -276,7 +284,7 @@ function GitConnection({ isImport }: Props) {
       stopShowingCopiedAfterDelay();
 
       Toaster.show({
-        text: createMessage(() => "Copied SSH Key"),
+        text: createMessage(COPIED_SSH_KEY),
         variant: Variant.success,
       });
     }
@@ -332,7 +340,7 @@ function GitConnection({ isImport }: Props) {
       }
     } else {
       Toaster.show({
-        text: createMessage(() => "Please enter valid user details"),
+        text: createMessage(INVALID_USER_DETAILS_MSG),
       });
     }
   }, [
@@ -423,11 +431,7 @@ function GitConnection({ isImport }: Props) {
               className="t--git-repo-input"
               disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
               errorMsg={
-                isInvalidRemoteUrl
-                  ? createMessage(
-                      () => "Please paste SSH URL of your repository",
-                    )
-                  : ""
+                isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
               }
               fill
               onChange={remoteUrlChangeHandler}
@@ -456,7 +460,7 @@ function GitConnection({ isImport }: Props) {
                 onClick={() => generateSSHKey()}
                 size={Size.large}
                 tag="button"
-                text={createMessage(() => "Generate Key")}
+                text={createMessage(GENERATE_KEY)}
               />
             </ButtonContainer>
           )
@@ -533,8 +537,8 @@ function GitConnection({ isImport }: Props) {
               tag="button"
               text={
                 isGitConnected
-                  ? createMessage(() => "UPDATE CONFIG")
-                  : createMessage(() => "CONNECT")
+                  ? createMessage(UPDATE_CONFIG)
+                  : createMessage(CONNECT_BTN_LABEL)
               }
             />
           </ButtonContainer>
