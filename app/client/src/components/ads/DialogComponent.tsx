@@ -103,6 +103,8 @@ type DialogComponentProps = {
   canOutsideClickClose?: boolean;
   title?: string;
   icon?: IconName;
+  iconColor?: string;
+  iconHoverColor?: string;
   trigger?: ReactNode;
   setMaxWidth?: boolean;
   children: ReactNode;
@@ -137,8 +139,8 @@ export function DialogComponent(props: DialogComponentProps) {
   const headerIcon = props.icon ? (
     <IconWrapper>
       <Icon
-        fillColor={Colors.DANGER_SOLID}
-        hoverFillColor={Colors.DANGER_SOLID_HOVER}
+        fillColor={props.iconColor}
+        hoverFillColor={props.iconHoverColor}
         name={props.icon}
         size={IconSize.XL}
       />

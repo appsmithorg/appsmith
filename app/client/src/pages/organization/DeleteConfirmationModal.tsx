@@ -9,6 +9,7 @@ import {
 } from "constants/messages";
 import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_BODY} {
@@ -53,6 +54,8 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
       canOutsideClickClose
       className={"t--member-delete-confirmation-modal"}
       icon="delete"
+      iconColor={Colors.DANGER_SOLID}
+      iconHoverColor={Colors.DANGER_SOLID_HOVER}
       isOpen={isOpen}
       maxHeight={"540px"}
       setModalClose={onClose}
