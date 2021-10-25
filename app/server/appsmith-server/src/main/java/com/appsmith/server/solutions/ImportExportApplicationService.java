@@ -83,6 +83,7 @@ public class ImportExportApplicationService {
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
+    private final SanitiseResponse sanitiseResponse;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -565,7 +566,8 @@ public class ImportExportApplicationService {
                             importedNewPageList,
                             importedApplication,
                             importedDoc.getPublishedLayoutmongoEscapedWidgets(),
-                            importedDoc.getUnpublishedLayoutmongoEscapedWidgets()
+                            importedDoc.getUnpublishedLayoutmongoEscapedWidgets(),
+                            branchName
                     )
                             .map(newPage -> {
                                 ApplicationPage unpublishedAppPage = new ApplicationPage();
@@ -661,7 +663,35 @@ public class ImportExportApplicationService {
                                     BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction, existingAction);
                                     return newActionService.update(newAction.getId(), existingAction);
                                 }
-                                return newActionService.save(newAction);
+                                return newActionService.save(newAction)
+                                        .flatMap(action -> {
+                                            if (action.getDefaultResources() == null) {
+                                                NewAction update = new NewAction();
+                                                update.setDefaultResources(
+                                                        sanitiseResponse
+                                                                .updateDefaultResources(action, branchName).getDefaultResources());
+                                                if (action.getUnpublishedAction() != null) {
+                                                    update.setUnpublishedAction(action.getUnpublishedAction());
+                                                    update.getUnpublishedAction()
+                                                            .setDefaultResources(
+                                                                    sanitiseResponse
+                                                                            .updateDefaultResources(action.getUnpublishedAction(), branchName)
+                                                                            .getDefaultResources()
+                                                            );
+                                                }
+                                                if (action.getPublishedAction() != null) {
+                                                    update.setPublishedAction(action.getPublishedAction());
+                                                    update.getPublishedAction()
+                                                            .setDefaultResources(
+                                                                    sanitiseResponse
+                                                                            .updateDefaultResources(action.getPublishedAction(), branchName)
+                                                                            .getDefaultResources()
+                                                            );
+                                                }
+                                                return newActionService.update(action.getId(), update);
+                                            }
+                                            return Mono.just(action);
+                                        });
                             })
                             .map(newAction -> {
                                 // Populate actionIdsMap to associate the appropriate actions to run on page load
@@ -731,6 +761,36 @@ public class ImportExportApplicationService {
                                 actionCollection.setApplicationId(importedApplication.getId());
                                 actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
                                 return actionCollectionService.save(actionCollection)
+                                        .flatMap(actionCollection1 -> {
+                                            if (actionCollection1.getDefaultResources() == null) {
+                                                ActionCollection update = new ActionCollection();
+                                                update.setDefaultResources(
+                                                        sanitiseResponse
+                                                                .updateDefaultResources(actionCollection1, branchName)
+                                                                .getDefaultResources()
+                                                );
+                                                if (actionCollection1.getUnpublishedCollection() != null) {
+                                                    update.setUnpublishedCollection(actionCollection1.getUnpublishedCollection());
+                                                    update.getUnpublishedCollection()
+                                                            .setDefaultResources(
+                                                                    sanitiseResponse
+                                                                            .updateDefaultResources(actionCollection1.getUnpublishedCollection(), branchName)
+                                                                            .getDefaultResources()
+                                                            );
+                                                }
+                                                if (actionCollection1.getPublishedCollection() != null) {
+                                                    update.setPublishedCollection(actionCollection1.getPublishedCollection());
+                                                    update.getPublishedCollection()
+                                                            .setDefaultResources(
+                                                                    sanitiseResponse
+                                                                            .updateDefaultResources(actionCollection1.getPublishedCollection(), branchName)
+                                                                            .getDefaultResources()
+                                                            );
+                                                }
+                                                return actionCollectionService.update(actionCollection1.getId(), update);
+                                            }
+                                            return Mono.just(actionCollection1);
+                                        })
                                         .flatMapMany(createdActionCollection -> {
                                             unpublishedActionCollectionIdMap
                                                     .getOrDefault(actionCollectionId, Set.of())
@@ -808,13 +868,17 @@ public class ImportExportApplicationService {
     private Flux<NewPage> importAndSavePages(List<NewPage> pages,
                                              Application application,
                                              Map<String, Set<String>> publishedMongoEscapedWidget,
-                                             Map<String, Set<String>> unpublishedMongoEscapedWidget) {
+                                             Map<String, Set<String>> unpublishedMongoEscapedWidget,
+                                             String branchName) {
 
         Mono<List<NewPage>> existingPages = newPageService
                 .findNewPagesByApplicationId(application.getId(), AclPermission.MANAGE_PAGES)
                 .collectList();
 
         pages.forEach(newPage -> {
+            if (newPage.getDefaultResources() != null) {
+                newPage.getDefaultResources().setBranchName(branchName);
+            }
             String layoutId = new ObjectId().toString();
             newPage.setApplicationId(application.getId());
             if (newPage.getUnpublishedPage() != null) {
@@ -856,7 +920,15 @@ public class ImportExportApplicationService {
                             BeanCopyUtils.copyNewFieldValuesIntoOldObject(newPage, existingPage);
                             return newPageService.update(newPage.getId(), existingPage);
                         }
-                        return newPageService.save(newPage);
+                        return newPageService.save(newPage)
+                                .flatMap(page -> {
+                                    if (page.getDefaultResources() == null) {
+                                        NewPage update = new NewPage();
+                                        update.setDefaultResources(sanitiseResponse.updateDefaultResources(page, branchName).getDefaultResources());
+                                        return newPageService.update(page.getId(), update);
+                                    }
+                                    return Mono.just(page);
+                                });
                     });
         });
     }
