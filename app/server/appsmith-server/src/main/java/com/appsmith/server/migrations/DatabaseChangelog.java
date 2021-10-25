@@ -20,6 +20,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Group;
@@ -36,6 +37,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
@@ -3431,6 +3433,8 @@ public class DatabaseChangelog {
     @ChangeSet(order = "094", id = "insert-default-resources", author = "")
     public void insertDefaultResources(MongockTemplate mongockTemplate) {
 
+        // We are not updating all the resources at once using db.updateALl is to avoid the out of memory issue which
+        // first occurred during deleteOrphanActions
         // Update datasources
         final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.gitSyncId)).exists(false))
                 .addCriteria(where(fieldName(QDatasource.datasource.deleted)).ne(true));
@@ -3472,8 +3476,8 @@ public class DatabaseChangelog {
 
         for (NewPage page : pages) {
             DefaultResources defaults = new DefaultResources();
-            defaults.setDefaultPageId(page.getId());
-            defaults.setDefaultApplicationId(page.getApplicationId());
+            defaults.setPageId(page.getId());
+            defaults.setApplicationId(page.getApplicationId());
 
             String applicationId = page.getApplicationId();
             final Update defaultResourceUpdates = new Update();
@@ -3501,8 +3505,8 @@ public class DatabaseChangelog {
 
         for (NewAction action : actions) {
             DefaultResources defaults = new DefaultResources();
-            defaults.setDefaultActionId(action.getId());
-            defaults.setDefaultApplicationId(action.getApplicationId());
+            defaults.setActionId(action.getId());
+            defaults.setApplicationId(action.getApplicationId());
 
             String applicationId = action.getApplicationId();
             action.setDefaultResources(defaults);
@@ -3510,16 +3514,16 @@ public class DatabaseChangelog {
             ActionDTO unpublishedAction = action.getUnpublishedAction();
             if (unpublishedAction != null) {
                 DefaultResources unpubDefaults = new DefaultResources();
-                unpubDefaults.setDefaultPageId(unpublishedAction.getPageId());
-                unpubDefaults.setDefaultActionCollectionId(unpublishedAction.getCollectionId());
+                unpubDefaults.setPageId(unpublishedAction.getPageId());
+                unpubDefaults.setActionCollectionId(unpublishedAction.getCollectionId());
                 unpublishedAction.setDefaultResources(unpubDefaults);
             }
 
             ActionDTO publishedAction = action.getPublishedAction();
             if (publishedAction != null) {
                 DefaultResources pubDefaults = new DefaultResources();
-                pubDefaults.setDefaultPageId(publishedAction.getPageId());
-                pubDefaults.setDefaultActionCollectionId(publishedAction.getCollectionId());
+                pubDefaults.setPageId(publishedAction.getPageId());
+                pubDefaults.setActionCollectionId(publishedAction.getCollectionId());
                 publishedAction.setDefaultResources(pubDefaults);
             }
 
@@ -3540,8 +3544,8 @@ public class DatabaseChangelog {
 
         for (ActionCollection collection : collections) {
             DefaultResources defaults = new DefaultResources();
-            defaults.setDefaultActionCollectionId(collection.getId());
-            defaults.setDefaultApplicationId(collection.getApplicationId());
+            defaults.setActionCollectionId(collection.getId());
+            defaults.setApplicationId(collection.getApplicationId());
 
             String applicationId = collection.getApplicationId();
             collection.setDefaultResources(defaults);
@@ -3549,14 +3553,14 @@ public class DatabaseChangelog {
             ActionCollectionDTO unpublishedCollection = collection.getUnpublishedCollection();
             if (unpublishedCollection != null) {
                 DefaultResources unpubDefaults = new DefaultResources();
-                unpubDefaults.setDefaultPageId(unpublishedCollection.getPageId());
+                unpubDefaults.setPageId(unpublishedCollection.getPageId());
                 unpublishedCollection.setDefaultResources(unpubDefaults);
             }
 
             ActionCollectionDTO publishedCollection = collection.getPublishedCollection();
             if (publishedCollection != null) {
                 DefaultResources pubDefaults = new DefaultResources();
-                pubDefaults.setDefaultPageId(publishedCollection.getPageId());
+                pubDefaults.setPageId(publishedCollection.getPageId());
                 publishedCollection.setDefaultResources(pubDefaults);
             }
 
@@ -3568,6 +3572,26 @@ public class DatabaseChangelog {
             if (!StringUtils.isEmpty(applicationId)) {
                 mongockTemplate.save(collection);
             }
+        }
+
+        // Update comment threads
+        final Query threadQuery = query(where(fieldName(QCommentThread.commentThread.deleted)).ne(true));
+
+        List<CommentThread> threads = mongockTemplate.find(threadQuery, CommentThread.class);
+
+        for (CommentThread thread : threads) {
+            DefaultResources defaults = new DefaultResources();
+            defaults.setPageId(thread.getPageId());
+            defaults.setApplicationId(thread.getApplicationId());
+
+            final Update defaultResourceUpdates = new Update();
+
+            defaultResourceUpdates.set(fieldName(QCommentThread.commentThread.defaultResources), defaults);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QCommentThread.commentThread.id)).is(thread.getId())),
+                    defaultResourceUpdates,
+                    CommentThread.class
+            );
         }
 
     }

@@ -4,21 +4,18 @@ import lombok.Data;
 
 /**
  * This class will be used for connecting resources across branches for git connected application
- * e.g. Page1 in branch1 will have the same defaultApplicationId as of Page1 of branch2
+ * e.g. Page1 in branch1 will have the same defaultResources.pageId as of Page1 of branch2
  */
 
 @Data
 public class DefaultResources {
-    String defaultActionId;
+    String actionId;
 
-    String defaultApplicationId;
+    String applicationId;
 
-    String defaultPageId;
+    String pageId;
 
-    String defaultActionCollectionId;
+    String actionCollectionId;
 
     String branchName;
-
-    public DefaultResources() {
-    }
 }

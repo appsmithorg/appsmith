@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -22,6 +23,7 @@ import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
+import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +48,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THREAD;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
@@ -67,11 +72,13 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
     private final NotificationService notificationService;
+    private final NewPageService newPageService;
 
     private final PolicyGenerator policyGenerator;
     private final PolicyUtils policyUtils;
     private final EmailEventHandler emailEventHandler;
     private final SequenceService sequenceService;
+    private final SanitiseResponse sanitiseResponse;
 
     public CommentServiceImpl(
             Scheduler scheduler,
@@ -84,22 +91,27 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             UserService userService,
             SessionUserService sessionUserService,
             ApplicationService applicationService,
+            NewPageService newPageService,
             NotificationService notificationService,
             PolicyGenerator policyGenerator,
             PolicyUtils policyUtils,
             EmailEventHandler emailEventHandler,
-            UserDataRepository userDataRepository, SequenceService sequenceService) {
+            UserDataRepository userDataRepository,
+            SequenceService sequenceService,
+            SanitiseResponse sanitiseResponse) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
         this.userService = userService;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
+        this.newPageService = newPageService;
         this.notificationService = notificationService;
         this.policyGenerator = policyGenerator;
         this.policyUtils = policyUtils;
         this.emailEventHandler = emailEventHandler;
         this.userDataRepository = userDataRepository;
         this.sequenceService = sequenceService;
+        this.sanitiseResponse = sanitiseResponse;
     }
 
     @Override
@@ -260,7 +272,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         return userMono.flatMap(user ->
                 userDataRepository.findByUserId(user.getId())
                 .defaultIfEmpty(new UserData(user.getId()))
-                .zipWith(applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS))
+                .zipWith(applicationService.findById(applicationId, COMMENT_ON_APPLICATIONS))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)
                 ))
@@ -320,6 +332,30 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     commentThread.setIsViewed(true);
                     return commentThread;
                 }));
+    }
+
+    public Mono<CommentThread> createThread(CommentThread commentThread, String originHeader, String branchName) {
+        final String defaultAppId = commentThread.getApplicationId();
+        final String defaultPageId = commentThread.getPageId();
+        return Mono.zip(
+                applicationService.findChildApplicationId(branchName, defaultAppId, COMMENT_ON_APPLICATIONS),
+                newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES))
+                .flatMap(tuple -> {
+                    String branchedApplicationId = tuple.getT1();
+                    String branchedPageId = tuple.getT2().getId();
+                    if (commentThread.getDefaultResources() == null) {
+                        DefaultResources defaultResources = new DefaultResources();
+                        defaultResources.setPageId(commentThread.getPageId());
+                        defaultResources.setApplicationId(commentThread.getApplicationId());
+                        commentThread.setDefaultResources(defaultResources);
+                    }
+
+                    commentThread.setApplicationId(branchedApplicationId);
+                    commentThread.setPageId(branchedPageId);
+                    return createThread(commentThread, originHeader);
+                })
+                .map(sanitiseResponse::sanitiseCommentThreadDTO);
+
     }
 
     @Override
@@ -468,6 +504,20 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             })
                             .then()
                             .thenReturn(threads);
+                });
+    }
+
+    public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO,
+                                                               String branchName) {
+        final String defaultApplicationId = commentThreadFilterDTO.getApplicationId();
+        return applicationService.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+                .flatMap(branchAppId -> {
+                    commentThreadFilterDTO.setApplicationId(branchAppId);
+                    return getThreadsByApplicationId(commentThreadFilterDTO);
+                })
+                .map(commentThreads -> {
+                    commentThreads.forEach(sanitiseResponse::sanitiseCommentThreadDTO);
+                    return commentThreads;
                 });
     }
 
@@ -639,10 +689,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     @Override
-    public Mono<Long> getUnreadCount(String applicationId) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user ->
-                        threadRepository.countUnreadThreads(applicationId, user.getUsername())
+    public Mono<Long> getUnreadCount(String applicationId, String branchName) {
+        return Mono.zip(
+                sessionUserService.getCurrentUser(),
+                applicationService.findChildApplicationId(branchName, applicationId, READ_APPLICATIONS))
+                .flatMap(tuple ->
+                        threadRepository.countUnreadThreads(tuple.getT2(), tuple.getT1().getUsername())
                 );
     }
 

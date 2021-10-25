@@ -956,17 +956,17 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
         DefaultResources defaultResources = action.getDefaultResources() == null ? new DefaultResources(): action.getDefaultResources();
         defaultResources.setBranchName(branchName);
-        if (StringUtils.isEmpty(defaultResources.getDefaultPageId())) {
-            defaultResources.setDefaultPageId(action.getPageId());
+        if (StringUtils.isEmpty(defaultResources.getPageId())) {
+            defaultResources.setPageId(action.getPageId());
         }
-        if (StringUtils.isEmpty(defaultResources.getDefaultApplicationId())) {
-            defaultResources.setDefaultApplicationId(action.getApplicationId());
+        if (StringUtils.isEmpty(defaultResources.getApplicationId())) {
+            defaultResources.setApplicationId(action.getApplicationId());
         }
-        if (StringUtils.isEmpty(defaultResources.getDefaultActionCollectionId())) {
-            defaultResources.setDefaultApplicationId(action.getCollectionId());
+        if (StringUtils.isEmpty(defaultResources.getActionCollectionId())) {
+            defaultResources.setApplicationId(action.getCollectionId());
         }
 
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultResources.getDefaultPageId(), MANAGE_PAGES)
+        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), MANAGE_PAGES)
                 .flatMap(newPage -> {
                     // Update the page and application id with branched resource
                     action.setPageId(newPage.getId());
@@ -1000,8 +1000,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         if (action.getDefaultResources() == null) {
             DefaultResources defaultResources = new DefaultResources();
-            defaultResources.setDefaultPageId(action.getPageId());
-            defaultResources.setDefaultActionCollectionId(action.getCollectionId());
+            defaultResources.setPageId(action.getPageId());
+            defaultResources.setActionCollectionId(action.getCollectionId());
             action.setDefaultResources(defaultResources);
         }
 

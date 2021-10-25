@@ -341,7 +341,7 @@ public class CommentServiceTest {
         Mono<Long> unreadCountMono = commentThreadRepository
                 .saveAll(List.of(c1, c2, c3)) // save all the threads
                 .collectList()
-                .then(commentService.getUnreadCount("test-application-1")); // count unread in first app
+                .then(commentService.getUnreadCount("test-application-1", null)); // count unread in first app
 
         StepVerifier.create(unreadCountMono).assertNext(aLong -> {
             assertThat(aLong).isEqualTo(1);

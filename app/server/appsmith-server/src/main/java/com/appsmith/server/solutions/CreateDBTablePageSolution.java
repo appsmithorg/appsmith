@@ -433,7 +433,7 @@ public class CreateDBTablePageSolution {
                     page.setName(pageName);
                     DefaultResources defaultResources = new DefaultResources();
                     defaultResources.setBranchName(branchName);
-                    defaultResources.setDefaultApplicationId(defaultApplicationId);
+                    defaultResources.setApplicationId(defaultApplicationId);
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), MANAGE_PAGES));

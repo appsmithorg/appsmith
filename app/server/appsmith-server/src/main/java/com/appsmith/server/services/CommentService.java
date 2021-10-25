@@ -13,9 +13,13 @@ public interface CommentService extends CrudService<Comment, String> {
 
     Mono<CommentThread> createThread(CommentThread commentThread, String originHeader);
 
+    Mono<CommentThread> createThread(CommentThread commentThread, String originHeader, String branchName);
+
     Mono<CommentThread> updateThread(String threadId, CommentThread commentThread, String originHeader);
 
     Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO);
+
+    Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO, String branchName);
 
     Mono<Comment> deleteComment(String id);
 
@@ -27,5 +31,5 @@ public interface CommentService extends CrudService<Comment, String> {
 
     Mono<Boolean> unsubscribeThread(String threadId);
 
-    Mono<Long> getUnreadCount(String applicationId);
+    Mono<Long> getUnreadCount(String applicationId, String branchName);
 }

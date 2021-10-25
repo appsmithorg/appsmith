@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.DefaultResources;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -23,12 +24,12 @@ public class SanitiseResponse {
     public PageDTO sanitisePageDTO(PageDTO page) {
         DefaultResources defaults = page.getDefaultResources();
         if (defaults == null
-                || StringUtils.isEmpty(defaults.getDefaultApplicationId())
-                || StringUtils.isEmpty(defaults.getDefaultPageId())) {
+                || StringUtils.isEmpty(defaults.getApplicationId())
+                || StringUtils.isEmpty(defaults.getPageId())) {
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", page.getId());
         }
-        page.setApplicationId(defaults.getDefaultApplicationId());
-        page.setId(defaults.getDefaultPageId());
+        page.setApplicationId(defaults.getApplicationId());
+        page.setId(defaults.getPageId());
         return page;
     }
 
@@ -46,14 +47,14 @@ public class SanitiseResponse {
     public ActionDTO sanitiseActionDTO(ActionDTO action) {
         DefaultResources defaults = action.getDefaultResources();
         if (defaults == null
-                || StringUtils.isEmpty(defaults.getDefaultApplicationId())
-                || StringUtils.isEmpty(defaults.getDefaultPageId())
-                || StringUtils.isEmpty(defaults.getDefaultActionId())) {
+                || StringUtils.isEmpty(defaults.getApplicationId())
+                || StringUtils.isEmpty(defaults.getPageId())
+                || StringUtils.isEmpty(defaults.getActionId())) {
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", action.getId());
         }
-        action.setApplicationId(defaults.getDefaultApplicationId());
-        action.setPageId(defaults.getDefaultPageId());
-        action.setId(defaults.getDefaultActionId());
+        action.setApplicationId(defaults.getApplicationId());
+        action.setPageId(defaults.getPageId());
+        action.setId(defaults.getActionId());
         return action;
     }
 
@@ -69,12 +70,12 @@ public class SanitiseResponse {
     public ActionViewDTO sanitiseActionViewDTO(ActionViewDTO viewDTO) {
         DefaultResources defaults = viewDTO.getDefaultResources();
         if (defaults == null
-                || StringUtils.isEmpty(defaults.getDefaultPageId())
-                || StringUtils.isEmpty(defaults.getDefaultActionId())) {
+                || StringUtils.isEmpty(defaults.getPageId())
+                || StringUtils.isEmpty(defaults.getActionId())) {
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionView", viewDTO.getId());
         }
-        viewDTO.setId(defaults.getDefaultActionId());
-        viewDTO.setPageId(defaults.getDefaultPageId());
+        viewDTO.setId(defaults.getActionId());
+        viewDTO.setPageId(defaults.getPageId());
         return viewDTO;
     }
 
@@ -91,5 +92,17 @@ public class SanitiseResponse {
                     }
                 });
         return application;
+    }
+
+    public CommentThread sanitiseCommentThreadDTO(CommentThread commentThread) {
+        DefaultResources defaults = commentThread.getDefaultResources();
+        if (defaults == null
+                || StringUtils.isEmpty(defaults.getApplicationId())
+                || StringUtils.isEmpty(defaults.getPageId())) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "commentThread", commentThread.getId());
+        }
+        commentThread.setApplicationId(defaults.getApplicationId());
+        commentThread.setPageId(defaults.getPageId());
+        return commentThread;
     }
 }

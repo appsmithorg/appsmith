@@ -296,7 +296,7 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<NewAction> findActionByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
-        Criteria defaultPageIdCriteria = where(fieldName(QNewAction.newAction.defaultResources.defaultActionId)).is(defaultActionId);
+        Criteria defaultPageIdCriteria = where(fieldName(QNewAction.newAction.defaultResources.actionId)).is(defaultActionId);
         Criteria branchCriteria = where(fieldName(QNewAction.newAction.defaultResources.branchName)).is(branchName);
         return queryOne(List.of(defaultPageIdCriteria, branchCriteria), permission);
     }

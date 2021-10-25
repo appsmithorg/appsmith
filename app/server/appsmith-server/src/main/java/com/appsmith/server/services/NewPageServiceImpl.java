@@ -153,9 +153,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     if (defaultResources == null) {
                         return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", savedPage.getId()));
                     }
-                    if (StringUtils.isEmpty(defaultResources.getDefaultPageId())) {
+                    if (StringUtils.isEmpty(defaultResources.getPageId())) {
                         NewPage updatePage = new NewPage();
-                        defaultResources.setDefaultPageId(savedPage.getId());
+                        defaultResources.setPageId(savedPage.getId());
                         updatePage.setDefaultResources(defaultResources);
                         return super.update(savedPage.getId(), updatePage);
                     }
@@ -283,7 +283,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         if (pageFromDb.getDefaultResources() == null) {
                             return Mono.error(new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", pageFromDb.getId()));
                         }
-                        pageNameIdDTO.setGitDefaultPageId(pageFromDb.getDefaultResources().getDefaultPageId());
+                        pageNameIdDTO.setGitDefaultPageId(pageFromDb.getDefaultResources().getPageId());
 
                         if (Boolean.TRUE.equals(view)) {
                             if (pageFromDb.getPublishedPage() == null) {

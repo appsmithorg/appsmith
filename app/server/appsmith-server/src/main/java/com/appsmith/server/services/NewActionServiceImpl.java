@@ -234,23 +234,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         DefaultResources defaultActionResource =  new DefaultResources();
         BeanCopyUtils.copyNewFieldValuesIntoOldObject(action.getDefaultResources(), defaultActionResource);
 
-        defaultActionResource.setDefaultApplicationId(null);
-        defaultActionResource.setDefaultActionId(null);
-        if(StringUtils.isEmpty(defaultActionResource.getDefaultPageId())) {
-            defaultActionResource.setDefaultPageId(action.getPageId());
+        defaultActionResource.setApplicationId(null);
+        defaultActionResource.setActionId(null);
+        if(StringUtils.isEmpty(defaultActionResource.getPageId())) {
+            defaultActionResource.setPageId(action.getPageId());
         }
-        if(StringUtils.isEmpty(defaultActionResource.getDefaultActionCollectionId())) {
-            defaultActionResource.setDefaultActionCollectionId(action.getCollectionId());
+        if(StringUtils.isEmpty(defaultActionResource.getActionCollectionId())) {
+            defaultActionResource.setActionCollectionId(action.getCollectionId());
         }
         action.setDefaultResources(defaultActionResource);
 
         // Only store defaultApplicationId and defaultActionId for NewAction level resource
         DefaultResources defaults = new DefaultResources();
         BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction.getDefaultResources(), defaults);
-        defaults.setDefaultPageId(null);
-        defaults.setDefaultActionCollectionId(null);
-        if(StringUtils.isEmpty(defaults.getDefaultApplicationId())) {
-            defaults.setDefaultApplicationId(action.getApplicationId());
+        defaults.setPageId(null);
+        defaults.setActionCollectionId(null);
+        if(StringUtils.isEmpty(defaults.getApplicationId())) {
+            defaults.setApplicationId(action.getApplicationId());
         }
         newAction.setDefaultResources(defaults);
 
@@ -297,8 +297,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 return super.create(newAction)
                         .flatMap(savedAction -> {
                             // If the default action is not set then current action will be the default one
-                            if (StringUtils.isEmpty(savedAction.getDefaultResources().getDefaultActionId())) {
-                                savedAction.getDefaultResources().setDefaultActionId(savedAction.getId());
+                            if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
+                                savedAction.getDefaultResources().setActionId(savedAction.getId());
                             }
                             return repository.save(savedAction);
                         })
@@ -371,8 +371,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(repository::save)
                 .flatMap(savedAction -> {
                     // If the default action is not set then current action will be the default one
-                    if (StringUtils.isEmpty(savedAction.getDefaultResources().getDefaultActionId())) {
-                        savedAction.getDefaultResources().setDefaultActionId(savedAction.getId());
+                    if (StringUtils.isEmpty(savedAction.getDefaultResources().getActionId())) {
+                        savedAction.getDefaultResources().setActionId(savedAction.getId());
                     }
                     return repository.save(savedAction);
                 })
@@ -465,8 +465,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     if (defaults == null) {
                         throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", newAction.getId());
                     }
-                    actionDTO.getDefaultResources().setDefaultActionId(defaults.getDefaultActionId());
-                    actionDTO.getDefaultResources().setDefaultApplicationId(defaults.getDefaultApplicationId());
+                    actionDTO.getDefaultResources().setActionId(defaults.getActionId());
+                    actionDTO.getDefaultResources().setApplicationId(defaults.getApplicationId());
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
@@ -1043,8 +1043,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     actionViewDTO.setConfirmBeforeExecute(action.getPublishedAction().getConfirmBeforeExecute());
                     // Update defaultResources
                     DefaultResources defaults = action.getDefaultResources();
-                    defaults.setDefaultPageId(action.getPublishedAction().getDefaultResources().getDefaultPageId());
-                    defaults.setDefaultActionCollectionId(action.getPublishedAction().getDefaultResources().getDefaultActionCollectionId());
+                    defaults.setPageId(action.getPublishedAction().getDefaultResources().getPageId());
+                    defaults.setActionCollectionId(action.getPublishedAction().getDefaultResources().getActionCollectionId());
                     actionViewDTO.setDefaultResources(defaults);
                     if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
                         Set<String> jsonPathKeys;
@@ -1395,7 +1395,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     layoutActionUpdateDTO.setId(pageAction.getId());
                     layoutActionUpdateDTO.setName(pageAction.getName());
                     layoutActionUpdateDTO.setExecuteOnLoad(pageAction.getExecuteOnLoad());
-                    layoutActionUpdateDTO.setDefaultActionId(pageAction.getDefaultResources().getDefaultActionId());
+                    layoutActionUpdateDTO.setDefaultActionId(pageAction.getDefaultResources().getActionId());
                     return layoutActionUpdateDTO;
                 })
                 .collect(Collectors.toList());

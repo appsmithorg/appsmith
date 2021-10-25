@@ -33,6 +33,7 @@ import reactor.core.scheduler.Schedulers;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -94,7 +95,9 @@ public class GitExecutorImpl implements GitExecutor {
             // Close the repo once the operation is successful
             git.close();
             return "Committed successfully!";
-        }).subscribeOn(scheduler);
+        })
+                .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
 
     }
 
@@ -137,7 +140,9 @@ public class GitExecutorImpl implements GitExecutor {
             });
             git.close();
             return commitLogs;
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     private Path createRepoPath(Path suffix) {
@@ -181,7 +186,9 @@ public class GitExecutorImpl implements GitExecutor {
             // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
             git.close();
             return result.substring(0, result.length() - 1);
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     /** Clone the repo to the file path : container-volume/orgId/defaultAppId/repo/applicationData
@@ -214,7 +221,9 @@ public class GitExecutorImpl implements GitExecutor {
             String branchName = result.getRepository().getBranch();
             result.close();
             return branchName;
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -241,7 +250,9 @@ public class GitExecutorImpl implements GitExecutor {
             // TODO immediately commit and push the created branch
 
             return git.getRepository().getBranch();
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -258,9 +269,11 @@ public class GitExecutorImpl implements GitExecutor {
                     .setBranchNames(branchName)
                     .setForce(Boolean.TRUE)
                     .call();
-
+            git.close();
             return Boolean.TRUE;
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -283,7 +296,9 @@ public class GitExecutorImpl implements GitExecutor {
                     .call()
                     .getName();
             return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -321,7 +336,9 @@ public class GitExecutorImpl implements GitExecutor {
                 git.close();
                 return e.getMessage();
             }
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -366,7 +383,9 @@ public class GitExecutorImpl implements GitExecutor {
             }
             git.close();
             return branchList;
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     /**
@@ -415,7 +434,10 @@ public class GitExecutorImpl implements GitExecutor {
             }
             git.close();
             return Mono.just(response);
-        }).flatMap(response -> response).subscribeOn(scheduler);
+        })
+        .flatMap(response -> response)
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -438,7 +460,9 @@ public class GitExecutorImpl implements GitExecutor {
                 git.close();
                 return e.getMessage();
             }
-        }).subscribeOn(scheduler);
+        })
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -457,10 +481,13 @@ public class GitExecutorImpl implements GitExecutor {
             log.error(error.getMessage());
             return Mono.error(error);
         })
+        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
     }
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
-        return Mono.fromCallable(() -> git.reset().setMode(ResetCommand.ResetType.HARD).call()).subscribeOn(scheduler);
+        return Mono.fromCallable(() -> git.reset().setMode(ResetCommand.ResetType.HARD).call())
+                .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+                .subscribeOn(scheduler);
     }
 }

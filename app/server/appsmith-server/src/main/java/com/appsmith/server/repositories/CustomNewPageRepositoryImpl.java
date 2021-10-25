@@ -134,7 +134,7 @@ public class CustomNewPageRepositoryImpl extends BaseAppsmithRepositoryImpl<NewP
 
     @Override
     public Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
-        Criteria defaultPageIdCriteria = where(fieldName(QNewPage.newPage.defaultResources.defaultPageId)).is(defaultPageId);
+        Criteria defaultPageIdCriteria = where(fieldName(QNewPage.newPage.defaultResources.pageId)).is(defaultPageId);
         Criteria branchCriteria = where(fieldName(QNewPage.newPage.defaultResources.branchName)).is(branchName);
         return queryOne(List.of(defaultPageIdCriteria, branchCriteria), permission);
     }

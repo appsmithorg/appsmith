@@ -111,7 +111,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     generateAndSetPagePolicies(application, page);
                     if (page.getDefaultResources() == null) {
                         DefaultResources defaults = new DefaultResources();
-                        defaults.setDefaultApplicationId(page.getApplicationId());
+                        defaults.setApplicationId(page.getApplicationId());
                         page.setDefaultResources(defaults);
                     }
                     return page;
@@ -133,19 +133,19 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> createPageWithBranchName(PageDTO page, String branchName) {
 
         DefaultResources defaultResources = page.getDefaultResources() == null ? new DefaultResources() : page.getDefaultResources();
-        if (StringUtils.isEmpty(defaultResources.getDefaultApplicationId())) {
+        if (StringUtils.isEmpty(defaultResources.getApplicationId())) {
             // Client will be aware of default application Id only so we are safe to assume this
-            defaultResources.setDefaultApplicationId(page.getApplicationId());
+            defaultResources.setApplicationId(page.getApplicationId());
         }
         defaultResources.setBranchName(branchName);
-        return applicationService.findChildApplicationId(branchName, defaultResources.getDefaultApplicationId(), MANAGE_PAGES)
+        return applicationService.findChildApplicationId(branchName, defaultResources.getApplicationId(), MANAGE_PAGES)
                 .flatMap(branchedApplicationId -> {
                     page.setApplicationId(branchedApplicationId);
                     return createPage(page);
                 })
                 .map(pageDTO -> {
-                    if (StringUtils.isEmpty(defaultResources.getDefaultPageId())) {
-                        defaultResources.setDefaultPageId(page.getId());
+                    if (StringUtils.isEmpty(defaultResources.getPageId())) {
+                        defaultResources.setPageId(page.getId());
                     }
                     return sanitiseResponse.sanitisePageDTO(page);
                 });
@@ -162,8 +162,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
 
-        String defaultPageId = page.getDefaultResources() == null || StringUtils.isEmpty(page.getDefaultResources().getDefaultPageId())
-                ? page.getId() : page.getDefaultResources().getDefaultPageId();
+        String defaultPageId = page.getDefaultResources() == null || StringUtils.isEmpty(page.getDefaultResources().getPageId())
+                ? page.getId() : page.getDefaultResources().getPageId();
         if(isDuplicatePage(application, page.getId())) {
             return applicationRepository.addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
                     .doOnSuccess(result -> {
@@ -313,7 +313,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
                     if (page.getDefaultResources() == null) {
                         DefaultResources defaults = new DefaultResources();
-                        defaults.setDefaultApplicationId(page.getApplicationId());
+                        defaults.setApplicationId(page.getApplicationId());
                         page.setDefaultResources(defaults);
                     }
                     //Set the page policies
@@ -474,7 +474,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 page.setId(null);
                                 page.setApplicationId(applicationId);
                                 DefaultResources defaults = new DefaultResources();
-                                defaults.setDefaultApplicationId(applicationId);
+                                defaults.setApplicationId(applicationId);
                                 page.setDefaultResources(defaults);
                                 return newPageService.createDefault(page);
                             });
@@ -486,8 +486,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
                                 DefaultResources actionDefaults = new DefaultResources();
-                                actionDefaults.setDefaultApplicationId(clonedPage.getApplicationId());
-                                actionDefaults.setDefaultPageId(newPageId);
+                                actionDefaults.setApplicationId(clonedPage.getApplicationId());
+                                actionDefaults.setPageId(newPageId);
                                 action.getUnpublishedAction().setDefaultResources(actionDefaults);
                                 /*
                                  * - Now create the new action from the template of the source action.

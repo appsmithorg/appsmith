@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,6 +12,9 @@ public abstract class AbstractCommentDomain extends BaseDomain {
     String pageId;
     String applicationId;
     String applicationName;
+
+    @JsonIgnore
+    DefaultResources defaultResources;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorName;  // Display name of the user, who authored this comment or thread.

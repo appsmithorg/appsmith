@@ -206,7 +206,7 @@ public class ExamplesOrganizationCloner {
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
                     DefaultResources defaults = new DefaultResources();
-                    defaults.setDefaultApplicationId(newPage.getApplicationId());
+                    defaults.setApplicationId(newPage.getApplicationId());
                     newPage.setDefaultResources(defaults);
                     makePristine(newPage);
                     PageDTO page = newPage.getUnpublishedPage();
