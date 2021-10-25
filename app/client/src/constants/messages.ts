@@ -615,6 +615,8 @@ export const SNIPING_NOT_SUPPORTED = () =>
   "Binding on selection is not supported for this type of widget!";
 export const SNIPING_FOR_CHART_FAILED = () =>
   "Failed to generate proper binding for chart widget from available data!";
+export const SNIPING_FOR_LIST_FAILED = () =>
+  "Failed to generate proper binding for list widget from available data!";
 
 //First Time User Onboarding
 //Checklist page

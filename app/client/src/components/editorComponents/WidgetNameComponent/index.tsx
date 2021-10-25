@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import SettingsControl, { Activities } from "./SettingsControl";
@@ -19,7 +19,6 @@ import WidgetFactory from "utils/WidgetFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { bindDataToWidget } from "../../../actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
 import { commentModeSelector } from "../../../selectors/commentsSelectors";
 
@@ -57,7 +56,6 @@ type WidgetNameComponentProps = {
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
-  const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const showTableFilterPane = useShowTableFilterPane();
@@ -89,11 +87,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
 
   const togglePropertyEditor = (e: any) => {
     if (isSnipingMode) {
-      dispatch(
-        bindDataToWidget({
-          widgetId: props.widgetId,
-        }),
-      );
+      return;
     } else if (
       (!propertyPaneState.isVisible &&
         props.widgetId === propertyPaneState.widgetId) ||

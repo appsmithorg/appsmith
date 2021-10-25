@@ -13,7 +13,10 @@ import {
   sortBy,
 } from "lodash";
 
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -690,6 +693,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   toggleDrag = (disable: boolean) => {
     this.disableDrag(disable);
   };
+
+  onSnipeWidget() {
+    return {
+      widgetType: TableWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "tableData",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
 
   getPageView() {
     const {

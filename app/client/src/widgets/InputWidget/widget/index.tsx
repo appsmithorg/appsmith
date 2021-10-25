@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { WidgetType, RenderModes, TextSize } from "constants/WidgetConstants";
@@ -90,6 +94,16 @@ export function defaultValueValidation(
 }
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: InputWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "defaultText",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
+
   constructor(props: InputWidgetProps) {
     super(props);
     this.state = {

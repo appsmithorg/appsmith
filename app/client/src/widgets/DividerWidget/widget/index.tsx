@@ -1,11 +1,26 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: DividerWidget.getWidgetType(),
+
+      isSnipable: false,
+      snipableProperty: "",
+      shouldSetPropertyInputToJsMode: false,
+      snipablePropertyValueType: SnipablePropertyValueType.NONE,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {

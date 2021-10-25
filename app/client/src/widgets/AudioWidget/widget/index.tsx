@@ -1,5 +1,9 @@
 import React, { Suspense, lazy } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -157,6 +161,16 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
         />
       </Suspense>
     );
+  }
+
+  onSnipeWidget() {
+    return {
+      widgetType: AudioWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "url",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
   }
 
   static getWidgetType(): WidgetType {

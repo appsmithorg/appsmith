@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "./BaseWidget";
 import styled from "styled-components";
 import { GRID_DENSITY_MIGRATION_V1 } from "./constants";
 
@@ -9,6 +13,16 @@ const SkeletonWrapper = styled.div`
 `;
 
 class SkeletonWidget extends BaseWidget<SkeletonWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: SkeletonWidget.getWidgetType(),
+
+      isSnipable: false,
+      snipableProperty: "",
+      shouldSetPropertyInputToJsMode: false,
+      snipablePropertyValueType: SnipablePropertyValueType.NONE,
+    };
+  }
   static getPropertyPaneConfig() {
     return [];
   }

@@ -1,5 +1,5 @@
 import React, { CSSProperties } from "react";
-import { WidgetProps } from "widgets/BaseWidget";
+import { SnipablePropertyValueType, WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
@@ -15,6 +15,17 @@ class CanvasWidget extends ContainerWidget {
   }
   static getWidgetType() {
     return "CANVAS_WIDGET";
+  }
+
+  onSnipeWidget() {
+    return {
+      widgetType: CanvasWidget.getWidgetType(),
+
+      isSnipable: false,
+      snipableProperty: "",
+      shouldSetPropertyInputToJsMode: false,
+      snipablePropertyValueType: SnipablePropertyValueType.NONE,
+    };
   }
 
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {

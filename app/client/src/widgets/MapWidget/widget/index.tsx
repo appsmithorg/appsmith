@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "../component";
 
@@ -41,6 +45,15 @@ type Center = {
   [x: string]: any;
 };
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: MapWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "defaultMarkers",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
   static getPropertyPaneConfig() {
     return [
       {

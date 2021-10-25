@@ -1,6 +1,10 @@
 import React, { lazy, Suspense } from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -14,6 +18,7 @@ import {
 
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
+import { SNIPING_FOR_CHART_FAILED } from "../../../constants/messages";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -32,6 +37,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   static getPropertyPaneConfig() {
     return propertyConfig;
+  }
+
+  onSnipeWidget() {
+    return {
+      widgetType: ChartWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "chartData",
+      shouldSetPropertyInputToJsMode: false,
+      snipablePropertyValueType: SnipablePropertyValueType.CUSTOM,
+      errorMessage: SNIPING_FOR_CHART_FAILED(),
+    };
   }
 
   onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {

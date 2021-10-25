@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
@@ -11,6 +15,16 @@ import moment from "moment";
 import { DatePickerType } from "../constants";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: DatePickerWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "defaultDate",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {

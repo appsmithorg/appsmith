@@ -1,4 +1,7 @@
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetState,
+} from "widgets/BaseWidget";
 import {
   TabContainerWidgetProps,
   TabsWidgetProps,
@@ -18,6 +21,16 @@ class TabsMigratorWidget extends BaseWidget<
 > {
   getPageView() {
     return null;
+  }
+  onSnipeWidget() {
+    return {
+      widgetType: TabsMigratorWidget.getWidgetType(),
+
+      isSnipable: false,
+      snipableProperty: "",
+      shouldSetPropertyInputToJsMode: false,
+      snipablePropertyValueType: SnipablePropertyValueType.NONE,
+    };
   }
   static getPropertyPaneConfig() {
     return [

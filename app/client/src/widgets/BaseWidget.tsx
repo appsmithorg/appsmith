@@ -257,14 +257,19 @@ abstract class BaseWidget<
     return <DraggableComponent {...this.props}>{content}</DraggableComponent>;
   }
   /**
-   * wraps the widget in a draggable component.
-   * Note: widget drag can be disabled by setting `dragDisabled` prop to true
+   * wraps the widget in a snipable component.
    *
    * @param content
    */
-  makeSnipeable(content: ReactNode) {
-    return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
+  makeSnipable(content: ReactNode) {
+    return (
+      <SnipeableComponent {...this.props} onSnipeWidget={this.onSnipeWidget}>
+        {content}
+      </SnipeableComponent>
+    );
   }
+
+  abstract onSnipeWidget(): SnipedWidgetPropertyDataType;
 
   makePositioned(content: ReactNode) {
     const style = this.getPositionStyle();
@@ -324,7 +329,7 @@ abstract class BaseWidget<
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
-          content = this.makeSnipeable(content);
+          content = this.makeSnipable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
         }
@@ -502,6 +507,30 @@ export interface WidgetCardProps {
   displayName: string;
   icon: string;
   isBeta?: boolean;
+}
+
+/*
+ * This is used to figureout the value string for snipable property
+ *
+ * DATA - sets the value to `Query.data`
+ * RUN - sets the value to `Query.run()`
+ * CUSTOM - can create custom string in the binding saga helper func: `getPropertyValueFromType`
+ *
+ */
+export enum SnipablePropertyValueType {
+  NONE = "NONE",
+  DATA = "DATA",
+  RUN = "RUN",
+  CUSTOM = "CUSTOM",
+}
+
+export interface SnipedWidgetPropertyDataType {
+  widgetType: string;
+  isSnipable: boolean; // Set if the widget will support sniping
+  snipableProperty: string; // Property name that will be sniped
+  shouldSetPropertyInputToJsMode: boolean; // Should the property input field be changed to JS mode
+  snipablePropertyValueType: SnipablePropertyValueType; // Type of vale to be set for snipable property
+  errorMessage?: string;
 }
 
 export const WidgetOperations = {

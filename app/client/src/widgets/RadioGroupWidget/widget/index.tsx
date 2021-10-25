@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -9,6 +13,15 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isArray } from "lodash";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: RadioGroupWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "options",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
   static getPropertyPaneConfig() {
     return [
       {

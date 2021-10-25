@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
@@ -149,7 +153,18 @@ function maxDateValidation(
     messages: [""],
   };
 }
+
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: DatePickerWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "defaultDate",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {

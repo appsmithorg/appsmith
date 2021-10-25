@@ -17,7 +17,11 @@ import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
@@ -36,9 +40,21 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { SNIPING_FOR_LIST_FAILED } from "../../../constants/messages";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: ListWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "listData",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+      errorMessage: SNIPING_FOR_LIST_FAILED(),
+    };
+  }
+
   state = {
     page: 1,
   };

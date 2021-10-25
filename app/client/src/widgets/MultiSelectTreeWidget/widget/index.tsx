@@ -1,5 +1,9 @@
 import React, { ReactNode } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray, findIndex } from "lodash";
@@ -43,6 +47,15 @@ class MultiSelectTreeWidget extends BaseWidget<
   MultiSelectTreeWidgetProps,
   WidgetState
 > {
+  onSnipeWidget() {
+    return {
+      widgetType: MultiSelectTreeWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "options",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
   static getPropertyPaneConfig() {
     return [
       {

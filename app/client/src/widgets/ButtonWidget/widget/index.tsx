@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, { ButtonType } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -259,6 +263,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         ],
       },
     ];
+  }
+
+  onSnipeWidget() {
+    return {
+      widgetType: ButtonWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "onClick",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.RUN,
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

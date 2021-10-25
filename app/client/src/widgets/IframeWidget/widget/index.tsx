@@ -1,10 +1,23 @@
 import React from "react";
-import BaseWidget, { WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: IframeWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "source",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {

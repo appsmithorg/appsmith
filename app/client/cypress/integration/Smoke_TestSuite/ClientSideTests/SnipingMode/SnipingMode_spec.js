@@ -43,13 +43,6 @@ describe("Testing Sniping functionality", function() {
   it("File Picker Widget", function() {
     cy.SnipeWidget(snipableWidgets.filepickerWidget);
   });
-
-  // it("Form Button Widget", function() {
-  //   cy.SnipeWidget(snipableWidgets.formButtonWidget);
-  // });
-  // it("Icon Button Widget", function() {
-  //   cy.SnipeWidget(snipableWidgets.iconButtonWidget);
-  // });
   it("Iframe Widget", function() {
     cy.SnipeWidget(snipableWidgets.iFrameWidget);
   });
@@ -59,15 +52,12 @@ describe("Testing Sniping functionality", function() {
   it("Input Widget", function() {
     cy.SnipeWidget(snipableWidgets.inputWidget);
   });
-  // it("List Widget", function() {
-  //   cy.SnipeWidget(snipableWidgets.listWidget);
-  // });
+  it("List Widget", function() {
+    cy.SnipeWidget(snipableWidgets.listWidget);
+  });
   it("Map Widget", function() {
     cy.SnipeWidget(snipableWidgets.mapWidget);
   });
-  // it("Menu Button Widget", function() {
-  //   cy.SnipeWidget(snipableWidgets.menuButtonWidget);
-  // });
   it("Multi Select Tree Widget", function() {
     cy.SnipeWidget(snipableWidgets.multiselecttreeWidget);
   });
@@ -86,21 +76,12 @@ describe("Testing Sniping functionality", function() {
   it("Dropdown Widget", function() {
     cy.SnipeWidget(snipableWidgets.dropdownWidget);
   });
-  // it("Chart Widget", function() {
-  //   cy.SnipeWidget(snipableWidgets.statboxWidget);
-  // });
   it("Switch Widget", function() {
     cy.SnipeWidget(snipableWidgets.switchWidget);
   });
   it("Table Widget", function() {
     cy.SnipeWidget(snipableWidgets.tableWidget);
   });
-  // it("Chart Widget", function() {
-  //   cy.SnipeWidget(snipableWidgets.tabsWidget);
-  // });
-  // it("Text Widget", function() {
-  //   cy.SnipeWidget(snipableWidgets.textWidget);
-  // });
   it("Single Select Tree Widget", function() {
     cy.SnipeWidget(snipableWidgets.singleselecttreeWidget);
   });

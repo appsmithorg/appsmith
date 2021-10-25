@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { SwitchComponent } from "../component";
 
@@ -10,6 +14,15 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "widgets/constants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: SwitchWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "defaultSwitchState",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
   static getPropertyPaneConfig() {
     return [
       {

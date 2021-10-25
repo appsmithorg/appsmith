@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import CheckboxComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -8,6 +12,16 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidget } from "widgets/constants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: CheckboxWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "defaultCheckedState",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {

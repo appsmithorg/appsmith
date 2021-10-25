@@ -33,6 +33,7 @@ const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
 type SnipeableComponentProps = WidgetProps;
 
 function SnipeableComponent(props: SnipeableComponentProps) {
+  const { onSnipeWidget } = props;
   const { focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -56,14 +57,14 @@ function SnipeableComponent(props: SnipeableComponentProps) {
 
   const onSelectWidgetToBind = useCallback(
     (e) => {
+      const snipedPropertyData = onSnipeWidget();
       dispatch(
-        bindDataToWidget({
-          widgetId: props.widgetId,
-        }),
+        bindDataToWidget({ ...snipedPropertyData, widgetId: props.widgetId }),
       );
+
       e.stopPropagation();
     },
-    [bindDataToWidget, props.widgetId, dispatch],
+    [onSnipeWidget],
   );
 
   return isSnipingMode ? (

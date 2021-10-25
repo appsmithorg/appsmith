@@ -1,6 +1,9 @@
 import React from "react";
 import TabsComponent from "../component";
-import BaseWidget, { WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetState,
+} from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   ValidationResponse,
@@ -32,6 +35,16 @@ class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
+  onSnipeWidget() {
+    return {
+      widgetType: TabsWidget.getWidgetType(),
+
+      isSnipable: false,
+      snipableProperty: "",
+      shouldSetPropertyInputToJsMode: false,
+      snipablePropertyValueType: SnipablePropertyValueType.NONE,
+    };
+  }
   static getPropertyPaneConfig() {
     return [
       {

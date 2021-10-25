@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "../component";
@@ -24,6 +28,16 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
 }
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: DropdownWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "options",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {

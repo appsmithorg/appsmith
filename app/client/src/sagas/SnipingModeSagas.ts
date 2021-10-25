@@ -22,71 +22,120 @@ import {
 } from "../constants/messages";
 
 import log from "loglevel";
-import {
-  getWidgetSnappableProps,
-  getPropertyValueFromType,
-} from "./SnipingModeUtils";
+import { SnipedWidgetPropertyDataType } from "../widgets/BaseWidget";
+import WidgetFactory from "utils/WidgetFactory";
+import { SnipablePropertyValueType } from "../widgets/BaseWidget";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
+
+export const getPropertyValueFromType = (
+  propertyType: SnipablePropertyValueType,
+  widgetType: string,
+  currentAction: any,
+  selectedWidget: any,
+) => {
+  // This is special condition for widgets
+  if (propertyType === SnipablePropertyValueType.NONE) return null;
+  else if (
+    propertyType === SnipablePropertyValueType.CUSTOM &&
+    widgetType === WidgetTypes.CHART_WIDGET
+  ) {
+    const primarySequenceKey = Object.keys(selectedWidget.chartData)[0];
+    const suggestedQuery = currentAction?.data?.suggestedWidgets?.find(
+      (eachWidget: any) => eachWidget.type === widgetType,
+    )?.bindingQuery;
+    return {
+      [primarySequenceKey]: {
+        data: `{{${currentAction.config.name}.${suggestedQuery}}}`,
+        seriesName: "Demo",
+      },
+    };
+  } else {
+    return `{{${currentAction.config.name}.${
+      propertyType === SnipablePropertyValueType.DATA ? "data" : "run()"
+    }}}`;
+  }
+};
 
 export function* bindDataToWidgetSaga(
-  action: ReduxAction<{
-    widgetId: string;
-  }>,
+  action: ReduxAction<SnipedWidgetPropertyDataType & { widgetId: string }>,
 ) {
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
-  // console.log("Binding Data in Saga");
-  const currentURL = new URL(window.location.href);
-  const searchParams = currentURL.searchParams;
-  const queryId = searchParams.get("bindTo");
-  const currentAction = yield select((state) =>
-    state.entities.actions.find(
-      (action: ActionData) => action.config.id === queryId,
-    ),
-  );
-  const selectedWidget = (yield select(getCanvasWidgets))[
-    action.payload.widgetId
-  ];
-
-  if (!selectedWidget || !selectedWidget.type) {
-    Toaster.show({
-      text: SNIPING_SELECT_WIDGET_AGAIN(),
-      variant: Variant.warning,
-    });
-    return;
-  }
   try {
-    const { widgetId } = action.payload;
+    const {
+      errorMessage,
+      isSnipable,
+      shouldSetPropertyInputToJsMode,
+      snipableProperty,
+      snipablePropertyValueType,
+      widgetId,
+      widgetType,
+    } = action.payload;
+    const applicationId = yield select(getCurrentApplicationId);
+    const pageId = yield select(getCurrentPageId);
+    const currentURL = new URL(window.location.href);
+    const searchParams = currentURL.searchParams;
+    const queryId = searchParams.get("bindTo");
+    const currentAction = yield select((state) =>
+      state.entities.actions.find(
+        (action: ActionData) => action.config.id === queryId,
+      ),
+    );
+    const selectedWidget = (yield select(getCanvasWidgets))[widgetId];
+    const snipablePropertyValue = getPropertyValueFromType(
+      snipablePropertyValueType,
+      widgetType,
+      currentAction,
+      selectedWidget,
+    );
 
-    const widgetProps = getWidgetSnappableProps(selectedWidget.type);
-    if (!widgetProps) {
+    AnalyticsUtil.logEvent("WIDGET_SELECTED_VIA_SNIPING_MODE", {
+      widgetType,
+      isSnipable,
+      widgetId,
+      actionName: currentAction.config.name,
+      apiId: queryId,
+      snipableProperty,
+      snipablePropertyValue,
+    });
+
+    // eslint-disable-next-line no-console
+    console.log("SNIPING MODE", {
+      widgetType,
+      isSnipable,
+      widgetId,
+      actionName: currentAction.config.name,
+      apiId: queryId,
+      snipableProperty,
+      snipablePropertyValue,
+    });
+
+    if (!selectedWidget || !selectedWidget.type) {
+      Toaster.show({
+        text: SNIPING_SELECT_WIDGET_AGAIN(),
+        variant: Variant.warning,
+      });
+      return;
+    }
+
+    if (!isSnipable) {
       queryId &&
         Toaster.show({
           text: SNIPING_NOT_SUPPORTED(),
           variant: Variant.warning,
         });
+      return;
     }
 
-    const propertyPath = widgetProps.property;
-    const {
-      errorMessage,
-      isJsMode,
-      isValid,
-      propertyValue,
-    } = getPropertyValueFromType(widgetProps, currentAction, selectedWidget);
-
-    AnalyticsUtil.logEvent("WIDGET_SELECTED_VIA_SNIPING_MODE", {
-      widgetType: selectedWidget.type,
-      actionName: currentAction.config.name,
-      apiId: queryId,
-      propertyPath,
-      propertyValue,
-    });
-    if (queryId && isValid && propertyValue) {
+    if (queryId && isSnipable && snipableProperty && snipablePropertyValue) {
       // set the property path to dynamic, i.e. enable JS mode
-      if (isJsMode)
-        yield put(setWidgetDynamicProperty(widgetId, propertyPath, true));
+      if (shouldSetPropertyInputToJsMode)
+        yield put(setWidgetDynamicProperty(widgetId, snipableProperty, true));
       yield put(
-        updateWidgetPropertyRequest(widgetId, propertyPath, propertyValue),
+        updateWidgetPropertyRequest(
+          widgetId,
+          snipableProperty,
+          snipablePropertyValue,
+        ),
       );
       yield put({
         type: ReduxActionTypes.SHOW_PROPERTY_PANE,

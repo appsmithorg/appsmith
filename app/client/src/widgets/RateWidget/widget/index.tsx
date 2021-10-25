@@ -1,5 +1,9 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipablePropertyValueType,
+  WidgetProps,
+  WidgetState,
+} from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { RateSize } from "../constants";
 import RateComponent from "../component";
@@ -67,6 +71,15 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
 }
 
 class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
+  onSnipeWidget() {
+    return {
+      widgetType: RateWidget.getWidgetType(),
+      isSnipable: true,
+      snipableProperty: "onRateChanged",
+      shouldSetPropertyInputToJsMode: true,
+      snipablePropertyValueType: SnipablePropertyValueType.RUN,
+    };
+  }
   static getPropertyPaneConfig() {
     return [
       {
