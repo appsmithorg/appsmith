@@ -631,7 +631,7 @@ jobs:
           docker run --detach --publish 80:80 --name appsmith \
             "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
           sleep 180
-          cd deploy/test-scripts/docker
+          cd deploy/docker
           if bash run-test.sh; then
             echo "Fat container test passed. Pushing image."
             docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
