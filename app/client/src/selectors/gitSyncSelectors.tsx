@@ -1,34 +1,33 @@
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
+import {
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+} from "./applicationSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
 
-export const getIsGitSyncModalOpen = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isGitSyncModalOpen,
-);
+export const getIsGitSyncModalOpen = (state: AppState) =>
+  state.ui.gitSync.isGitSyncModalOpen;
 
-export const getIsGitRepoSetup = () => true;
+export const getIsGitRepoSetup = (state: AppState) => {
+  const gitMetadata = getCurrentAppGitMetaData(state);
+  return gitMetadata?.remoteUrl;
+};
 
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
 
-export const getIsPushingToGit = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isPushingToGit,
-);
+export const getIsPushingToGit = (state: AppState) =>
+  state.ui.gitSync.isPushingToGit;
 
-export const getIsCommitSuccessful = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isCommitSuccessful,
-);
+export const getIsCommitSuccessful = (state: AppState) =>
+  state.ui.gitSync.isCommitSuccessful;
 
-export const getIsPushSuccessful = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.isPushSuccessful,
-);
+export const getIsPushSuccessful = (state: AppState) =>
+  state.ui.gitSync.isPushSuccessful;
 
 export const getActiveGitSyncModalTab = (state: AppState) =>
   state.ui.gitSync.activeGitSyncModalTab;
@@ -36,7 +35,8 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getGitError = (state: AppState) => state.ui.gitSync.gitError;
+export const getGitPushError = (state: AppState) =>
+  state.ui.gitSync.gitPushError;
 
 export const getIsImportAppViaGitModalOpen = (state: AppState) =>
   state.ui.gitSync.isImportAppViaGitModalOpen;
@@ -47,10 +47,37 @@ export const getOrganizationIdForImport = (state: AppState) =>
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;
 
-export const getLocalGitConfig = createSelector(
-  getGitSyncState,
-  (gitSync) => gitSync.localGitConfig,
-);
+export const getLocalGitConfig = (state: AppState) =>
+  state.ui.gitSync.localGitConfig;
 
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingGitConfig;
+
+export const getIsFetchingLocalGitConfig = (state: AppState) =>
+  state.ui.gitSync.isFetchingLocalGitConfig;
+
+export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
+
+export const getIsFetchingGitStatus = (state: AppState) =>
+  state.ui.gitSync.isFetchingGitStatus;
+
+export const getIsDisconnectingGit = (state: AppState) =>
+  state.ui.gitSync.isDisconnectingGit;
+
+export const getIsGitConnected = createSelector(
+  getCurrentAppGitMetaData,
+  (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),
+);
+export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
+
+export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
+  branches.map((branchObj) => branchObj.branchName),
+);
+
+export const getFetchingBranches = (state: AppState) =>
+  state.ui.gitSync.fetchingBranches;
+
+export const getCurrentGitBranch = (state: AppState) => {
+  const { gitApplicationMetadata } = getCurrentApplication(state) || {};
+  return gitApplicationMetadata?.branchName;
+};
