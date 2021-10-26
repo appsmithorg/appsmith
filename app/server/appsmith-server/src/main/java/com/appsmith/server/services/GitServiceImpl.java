@@ -630,11 +630,17 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
-    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
+    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, boolean isRemote) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
+
+        //If the user is trying to check out remote branch, create a new branch if the no local branch which is tracking the remote exists
+        if(isRemote) {
+            return checkoutRemoteBranch(defaultApplicationId, branchName);
+        }
+
         return getApplicationById(defaultApplicationId)
             .flatMap(application -> {
                 if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
@@ -644,6 +650,26 @@ public class GitServiceImpl implements GitService {
                     branchName, defaultApplicationId, READ_APPLICATIONS
                 );
             });
+    }
+
+    private Mono<Application> checkoutRemoteBranch(String applicationId, String branchName) {
+        return getApplicationById(applicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    String repoName = gitApplicationMetadata.getRepoName();
+                    Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                    return gitExecutor.checkoutRemoteBranch(repoPath,branchName)
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " --checkout branch", "")));
+                })
+                .flatMap(createdBranchName -> {
+                    /*
+                    * create a new application(each application => git branch)
+                    * Populate the application from the file system
+                    * Check if the existing branch track the given remote branch using the StoredConfig
+                    * Use the creat branch method with isRemoteFlag or use the setStartPoint ,method in createBranch method
+                    * */
+                    return Mono.just(new Application());
+                });
     }
 
     private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {

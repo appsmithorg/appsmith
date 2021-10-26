@@ -116,9 +116,10 @@ public class GitController {
 
     @GetMapping("/checkout-branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
+                                                         @RequestBody boolean isRemote,
                                                          @RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to push application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.checkoutBranch(defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME))
+        return service.checkoutBranch(defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME), isRemote)
             .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

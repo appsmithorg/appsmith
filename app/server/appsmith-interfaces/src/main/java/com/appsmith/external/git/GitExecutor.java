@@ -140,4 +140,12 @@ public interface GitExecutor {
      * @return Whether the two branches can be merged or not with list of files where the conflicts are present
      */
     Mono<MergeStatus> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
+
+    /**
+     *
+     * @param repoSuffix Path of the repoSuffix
+     * @param branchName Name of the remote branch
+     * @return created branch name
+     */
+    Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName);
 }

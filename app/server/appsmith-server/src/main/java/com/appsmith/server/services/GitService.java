@@ -40,7 +40,7 @@ public interface GitService {
 
     Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params);
 
-    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
+    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, boolean isRemote);
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
@@ -53,4 +53,6 @@ public interface GitService {
     Mono<GitPullDTO> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
 
     Mono<MergeStatus> isBranchMergeable(String applicationId, String sourceBranch, String destinationBranch);
+
+    //Mono<Application> checkoutRemoteBranch(String applicationId, String remoteBranchName);
 }
