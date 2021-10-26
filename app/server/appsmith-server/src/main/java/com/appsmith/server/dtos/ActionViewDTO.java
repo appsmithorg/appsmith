@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.domains.DefaultResources;
+import com.appsmith.external.models.DefaultResources;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

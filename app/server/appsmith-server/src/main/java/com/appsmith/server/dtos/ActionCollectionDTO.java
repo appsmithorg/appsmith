@@ -3,7 +3,7 @@ package com.appsmith.server.dtos;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.DefaultResources;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonIgnore;

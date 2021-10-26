@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.DefaultResources;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;

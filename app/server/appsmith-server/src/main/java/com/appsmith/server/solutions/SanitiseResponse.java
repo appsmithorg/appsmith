@@ -2,7 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.DefaultResources;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;

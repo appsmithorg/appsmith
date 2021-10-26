@@ -5,7 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ActionProvider;
-import com.appsmith.server.domains.DefaultResources;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.domains.PluginType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
