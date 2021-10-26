@@ -303,8 +303,8 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId, AclPermission permission) {
-        return repository.findByPageId(pageId, permission);
+    public Flux<ActionCollection> findByPageId(String pageId) {
+        return repository.findByPageId(pageId);
     }
 
     @Override
