@@ -3044,8 +3044,8 @@ Cypress.Commands.add("startInterceptRoutesForS3", () => {
 Cypress.Commands.add("fillAmazonS3DatasourceForm", () => {
   cy.get(datasourceEditor.projectID)
     .clear()
-    .type(datasourceFormData["s3-accessKey"]);
+    .type(Cypress.env("S3_ACCESS_KEY"));
   cy.get(datasourceEditor.serviceAccCredential)
     .clear()
-    .type(datasourceFormData["s3-secretKey"]);
+    .type(Cypress.env("S3_SECRET_KEY"));
 });

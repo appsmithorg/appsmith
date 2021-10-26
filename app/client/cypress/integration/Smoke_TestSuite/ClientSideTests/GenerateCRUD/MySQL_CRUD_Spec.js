@@ -103,7 +103,7 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it.only("Create new app and Generate CRUD page using a new datasource", function() {
+  it("Create new app and Generate CRUD page using a new datasource", function() {
     cy.NavigateToHome();
 
     cy.get(homePage.createNew)

@@ -5,12 +5,12 @@
 	},
 	"data": {
 		"page": {
-			"id": "6176607129003c689ad63601",
-			"name": "Hob2",
-			"applicationId": "61765e0229003c689ad635e2",
+			"id": "616532b5b58fda6558e56bb8",
+			"name": "CC2",
+			"applicationId": "615ec237fc57aa262aa4b1ea",
 			"layouts": [
 				{
-					"id": "6176607129003c689ad63600",
+					"id": "616532b5b58fda6558e56bb7",
 					"userPermissions": [
 
 					],
@@ -312,7 +312,7 @@
 												"version": 1.0,
 												"parentId": "59rw5mx0bq",
 												"isLoading": false,
-												"defaultOptionValue": "frequency",
+												"defaultOptionValue": "rating",
 												"parentColumnSpace": 18.8828125,
 												"dynamicTriggerPathList": [
 													{
@@ -325,7 +325,7 @@
 														"key": "isVisible"
 													}
 												],
-												"options": "[\n{\n\t\"label\": \"hobbiesname\",\n\t\"value\": \"hobbiesname\"\n}, \n{\n\t\"label\": \"frequency\",\n\t\"value\": \"frequency\"\n}]",
+												"options": "[\n{\n\t\"label\": \"age\",\n\t\"value\": \"age\"\n}, \n{\n\t\"label\": \"Name\",\n\t\"value\": \"Name\"\n}, \n{\n\t\"label\": \"ceoname\",\n\t\"value\": \"ceoname\"\n}, \n{\n\t\"label\": \"rating\",\n\t\"value\": \"rating\"\n}]",
 												"onOptionChange": "{{SelectQuery.run()}}",
 												"isDisabled": false
 											},
@@ -416,7 +416,7 @@
 
 												],
 												"fontSize": "HEADING1",
-												"text": "Hob Data"
+												"text": "CC Data"
 											},
 											{
 												"boxShadow": "NONE",
@@ -829,7 +829,7 @@
 
 																],
 																"fontSize": "PARAGRAPH",
-																"text": "frequency:"
+																"text": "rating:"
 															},
 															{
 																"isRequired": true,
@@ -855,7 +855,7 @@
 
 																],
 																"inputType": "TEXT",
-																"placeholderText": "frequency",
+																"placeholderText": "rating",
 																"isDisabled": false,
 																"validation": "true"
 															},
@@ -883,7 +883,7 @@
 
 																],
 																"fontSize": "PARAGRAPH",
-																"text": "hobbiesname:"
+																"text": "Name:"
 															},
 															{
 																"isRequired": true,
@@ -910,7 +910,117 @@
 																],
 																"inputType": "TEXT",
 																"defaultText": "",
-																"placeholderText": "hobbiesname",
+																"placeholderText": "Name",
+																"isDisabled": false,
+																"validation": "true"
+															},
+															{
+																"widgetName": "Text23",
+																"rightColumn": 19.0,
+																"textAlign": "RIGHT",
+																"widgetId": "btk60uozsm",
+																"topRow": 19.0,
+																"bottomRow": 23.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"fontStyle": "BOLD",
+																"type": "TEXT_WIDGET",
+																"textColor": "#231F20",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 7.6865234375,
+																"dynamicTriggerPathList": [
+
+																],
+																"leftColumn": 3.0,
+																"dynamicBindingPathList": [
+
+																],
+																"fontSize": "PARAGRAPH",
+																"text": "ceoname:"
+															},
+															{
+																"isRequired": true,
+																"widgetName": "insert_col_input3",
+																"rightColumn": 62.0,
+																"widgetId": "e490gfts69",
+																"topRow": 19.0,
+																"bottomRow": 23.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"label": "",
+																"type": "INPUT_WIDGET",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 8.0625,
+																"dynamicTriggerPathList": [
+
+																],
+																"resetOnSubmit": true,
+																"leftColumn": 21.0,
+																"dynamicBindingPathList": [
+
+																],
+																"inputType": "TEXT",
+																"placeholderText": "ceoname",
+																"defaultText": "",
+																"isDisabled": false,
+																"validation": "true"
+															},
+															{
+																"widgetName": "Text14",
+																"rightColumn": 19.0,
+																"textAlign": "RIGHT",
+																"widgetId": "8fm60omwwv",
+																"topRow": 26.0,
+																"bottomRow": 30.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"fontStyle": "BOLD",
+																"type": "TEXT_WIDGET",
+																"textColor": "#231F20",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 8.0625,
+																"dynamicTriggerPathList": [
+
+																],
+																"leftColumn": 3.0,
+																"dynamicBindingPathList": [
+
+																],
+																"fontSize": "PARAGRAPH",
+																"text": "age:"
+															},
+															{
+																"isRequired": true,
+																"widgetName": "insert_col_input4",
+																"rightColumn": 62.0,
+																"widgetId": "r55cydp0ao",
+																"topRow": 26.0,
+																"bottomRow": 30.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"label": "",
+																"type": "INPUT_WIDGET",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 8.0625,
+																"dynamicTriggerPathList": [
+
+																],
+																"resetOnSubmit": true,
+																"leftColumn": 21.0,
+																"dynamicBindingPathList": [
+
+																],
+																"inputType": "TEXT",
+																"placeholderText": "age",
+																"defaultText": "",
 																"isDisabled": false,
 																"validation": "true"
 															},
@@ -963,7 +1073,7 @@
 								"topRow": 0.0,
 								"bottomRow": 46.0,
 								"parentRowSpace": 10.0,
-								"isVisible": "{{!!Table1.selectedRow.frequency}}",
+								"isVisible": "{{!!Table1.selectedRow.rating}}",
 								"type": "FORM_WIDGET",
 								"parentId": "0",
 								"isLoading": false,
@@ -1091,7 +1201,67 @@
 													}
 												],
 												"inputType": "TEXT",
-												"defaultText": "{{Table1.selectedRow.hobbiesname}}",
+												"defaultText": "{{Table1.selectedRow.Name}}",
+												"isDisabled": false,
+												"validation": "true"
+											},
+											{
+												"isRequired": true,
+												"widgetName": "update_col_3",
+												"rightColumn": 63.0,
+												"widgetId": "mlhvfasf31",
+												"topRow": 12.0,
+												"bottomRow": 16.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"label": "",
+												"type": "INPUT_WIDGET",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 8.8963623046875,
+												"dynamicTriggerPathList": [
+
+												],
+												"resetOnSubmit": true,
+												"leftColumn": 19.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "defaultText"
+													}
+												],
+												"inputType": "TEXT",
+												"defaultText": "{{Table1.selectedRow.ceoname}}",
+												"isDisabled": false,
+												"validation": "true"
+											},
+											{
+												"isRequired": true,
+												"widgetName": "update_col_4",
+												"rightColumn": 63.0,
+												"widgetId": "0lz9vhcnr0",
+												"topRow": 19.0,
+												"bottomRow": 23.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"label": "",
+												"type": "INPUT_WIDGET",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 8.8963623046875,
+												"dynamicTriggerPathList": [
+
+												],
+												"resetOnSubmit": true,
+												"leftColumn": 19.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "defaultText"
+													}
+												],
+												"inputType": "TEXT",
+												"defaultText": "{{Table1.selectedRow.age}}",
 												"isDisabled": false,
 												"validation": "true"
 											},
@@ -1121,7 +1291,7 @@
 													}
 												],
 												"fontSize": "HEADING1",
-												"text": "Update Row: {{Table1.selectedRow.frequency}}"
+												"text": "Update Row: {{Table1.selectedRow.rating}}"
 											},
 											{
 												"widgetName": "Text17",
@@ -1147,7 +1317,59 @@
 
 												],
 												"fontSize": "PARAGRAPH",
-												"text": "hobbiesname:"
+												"text": "Name:"
+											},
+											{
+												"widgetName": "Text18",
+												"rightColumn": 18.0,
+												"textAlign": "RIGHT",
+												"widgetId": "xqcsd2e5dj",
+												"topRow": 12.0,
+												"bottomRow": 16.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 7.15625,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "ceoname:"
+											},
+											{
+												"widgetName": "Text19",
+												"rightColumn": 18.0,
+												"textAlign": "RIGHT",
+												"widgetId": "l109ilp3vq",
+												"topRow": 19.0,
+												"bottomRow": 23.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 7.15625,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "age:"
 											}
 										]
 									}
@@ -1158,7 +1380,7 @@
 					"layoutOnLoadActions": [
 						[
 							{
-								"id": "6176607129003c689ad63602",
+								"id": "616532b5b58fda6558e56bba",
 								"name": "SelectQuery",
 								"pluginType": "DB",
 								"jsonPathKeys": [
@@ -1179,9 +1401,9 @@
 				"read:pages",
 				"manage:pages"
 			],
-			"lastUpdatedTime": 1635147889
+			"lastUpdatedTime": 1634022070
 		},
 		"successMessage": "We have generated the <b>TABLE</b> from the <b>Mysql Datasource</b>. You can use the <b>FORM</b> to modify it. Since all your data is already connected you can add more queries and modify the bindings",
-		"successImageUrl": "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/crud/workflow_sql.svg"
+		"successImageUrl": "https://assets.appsmith.com/crud/working-flow-chart.png"
 	}
 }
