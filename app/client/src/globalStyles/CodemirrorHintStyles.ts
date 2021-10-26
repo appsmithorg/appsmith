@@ -208,6 +208,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   .CodeMirror-Tern-completion-bool:after {
     content: "Boolean";
   }
+  .CodeMirror-Tern-completion-keyword:before {
+    content: "K";
+    background: ${(props) => props.theme.colors.dataTypeBg.object};
+  }
+  .CodeMirror-Tern-completion-keyword[keyword]:after {
+    content: attr(keyword);
+  }
   .CodeMirror-Tern-tooltip {
     z-index: 20 !important;
   }
