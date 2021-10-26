@@ -121,7 +121,6 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  //margin-top: 16px;
 `;
 
 const SaveButtonContainer = styled.div`
@@ -150,14 +149,6 @@ const AuthorizeButton = styled(StyledButton)`
     width: 180px;
   }
 `;
-
-const COMMON_INPUT_PROPS: any = {
-  name: "",
-  formName: DATASOURCE_REST_API_FORM,
-  id: "",
-  isValid: false,
-  controlType: "",
-};
 
 class DatasourceRestAPIEditor extends React.Component<Props> {
   componentDidMount = () => {
@@ -356,29 +347,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderEditor = () => {
     const { formData, messages } = this.props;
     if (!formData) return;
-    const config = {
-      id: "",
-      isValid: false,
-      isRequired: true,
-      controlType: "DROP_DOWN",
-      configProperty: "isSendSessionEnabled",
-      encrypted: false,
-      label: "Send Appsmith signature header",
-      options: [
-        {
-          label: "Yes",
-          value: true,
-        },
-        {
-          label: "No",
-          value: false,
-        },
-      ],
-      conditionals: "",
-      placeholderText: "",
-      subtitle: "Header key: X-APPSMITH-SIGNATURE",
-      formName: DATASOURCE_REST_API_FORM,
-    };
     return (
       <>
         {messages &&

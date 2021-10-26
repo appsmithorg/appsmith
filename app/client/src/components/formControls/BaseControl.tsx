@@ -41,19 +41,17 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData {
   id: string;
   label: string;
-  displayType?: "UI" | "JSON";
-  showTooltip?: boolean;
+  displayType?: "UI" | "JSON"; //used for switch to JSON view
   tooltipText?: string;
   configProperty: string;
   controlType: ControlType;
-  description?: string;
   propertyValue?: any;
   isValid: boolean;
   validationMessage?: string;
   validationRegex?: string;
   dataType?: InputType;
   initialValue?: string | boolean | number;
-  info?: string;
+  info?: string; //helper text
   isRequired?: boolean;
   conditionals: string;
   hidden?: HiddenType;

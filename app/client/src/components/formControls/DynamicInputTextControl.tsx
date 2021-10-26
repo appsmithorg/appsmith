@@ -41,7 +41,7 @@ export function InputText(props: {
   actionName: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
 }) {
-  const { actionName, inputType, isRequired, label, name, placeholder } = props;
+  const { actionName, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
   let editorProps = {};
 

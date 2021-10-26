@@ -5,8 +5,12 @@ import { MenuItem } from "@blueprintjs/core";
 import { IItemRendererProps } from "@blueprintjs/select";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
-import _ from "lodash";
-import { Field } from "redux-form";
+import {
+  Field,
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form";
+
 const DropdownSelect = styled.div`
   font-size: 14px;
   width: 50vh;
@@ -14,26 +18,14 @@ const DropdownSelect = styled.div`
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const {
-      configProperty,
-      initialValue,
-      isRequired,
-      options,
-      placeholderText,
-    } = this.props;
-
     return (
       <div>
-        <DropdownSelect data-cy={configProperty}>
+        <DropdownSelect data-cy={this.props.configProperty}>
           <Field
             component={renderDropdown}
-            name={configProperty}
-            props={{
-              options: options,
-              isRequired: isRequired,
-              initialValue: initialValue,
-              placeholder: placeholderText,
-            }}
+            name={this.props.configProperty}
+            options={this.props.options}
+            props={this.props}
           />
         </DropdownSelect>
       </div>
@@ -65,23 +57,29 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   }
 }
 
-function renderDropdown(props: any): JSX.Element {
-  const selectedValue = props.input.value;
-  const selectedOption = props.options.find(
-    (option: DropdownOption) => option.value === selectedValue,
-  );
-
+function renderDropdown(props: {
+  input?: WrappedFieldInputProps;
+  meta?: WrappedFieldMetaProps;
+  props: DropDownControlProps;
+  options: { label: string; value: string }[];
+}): JSX.Element {
+  const selectedValue = props.input?.value || props?.props?.initialValue;
+  const selectedOption =
+    props?.options.find(
+      (option: DropdownOption) => option.value === selectedValue,
+    ) || {};
   return (
     <Dropdown
       dontUsePortal={false}
-      errorMsg={props.errorMsg}
+      errorMsg={props.props?.errorText}
       fillOptions
-      helperText={props.helperText}
-      onSelect={props.input.onChange}
-      options={props.options}
+      helperText={props.props?.info}
+      onSelect={props.input?.onChange}
       {...props}
+      options={props.options}
       {...props.input}
       boundary={"window"}
+      placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
       width="100%"

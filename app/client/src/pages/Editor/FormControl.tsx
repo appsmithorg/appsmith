@@ -143,10 +143,9 @@ function renderFormConfigTop(props: { config: ControlProps }) {
 }
 
 function renderFormConfigBottom(props: { config: ControlProps }) {
-  const { description, errorText, info, showError } = { ...props.config };
+  const { errorText, info, showError } = { ...props.config };
   return (
     <>
-      {description && <FormInputHelperText>{description}</FormInputHelperText>}
       {info && <FormInputHelperText>{info}</FormInputHelperText>}
       {showError && <FormInputErrorText>{errorText}</FormInputErrorText>}
     </>

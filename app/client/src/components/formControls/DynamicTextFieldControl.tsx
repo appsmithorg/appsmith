@@ -63,7 +63,6 @@ class DynamicTextControl extends BaseControl<
       actionName,
       configProperty,
       evaluationSubstitutionType,
-      label,
       placeholderText,
       responseType,
     } = this.props;

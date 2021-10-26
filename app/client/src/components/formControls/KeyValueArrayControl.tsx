@@ -49,8 +49,6 @@ function KeyValueRow(
   const valueName = getFieldName(extraData[1].configProperty);
   const keyFieldProps = extraData[0];
 
-  let isRequired: boolean | undefined;
-
   useEffect(() => {
     // Always maintain 1 row
     if (props.fields.length < 1) {
@@ -82,13 +80,6 @@ function KeyValueRow(
     },
     [keyFieldProps.validationRegex, keyFieldProps.validationMessage],
   );
-
-  if (extraData) {
-    isRequired = extraData[0].isRequired || extraData[1].isRequired;
-  }
-
-  /* eslint-disable no-console */
-  console.log(props);
 
   return typeof props.fields.getAll() === "object" ? (
     <>
