@@ -38,6 +38,8 @@ import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButton
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
+import { DSLWidget } from "widgets/constants";
 
 /**
  * adds logBlackList key for all list widget children
@@ -288,6 +290,24 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     }
     return children;
   });
+  return currentDSL;
+};
+
+const mapAllowHorizontalScrollMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+    if (child.type === "CHART_WIDGET") {
+      child.allowScroll = child.allowHorizontalScroll;
+      delete child.allowHorizontalScroll;
+    }
+
+    if (Array.isArray(child.children) && child.children.length > 0)
+      child = mapAllowHorizontalScrollMigration(child);
+
+    return child;
+  });
+
   return currentDSL;
 };
 
@@ -703,13 +723,17 @@ export const migrateInitialValues = (
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
-export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+export const transformDSL = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  newPage = false,
+) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
     // DropTargetComponent needs to know the minimum height the canvas can take
     // See DropTargetUtils.ts
     currentDSL.minHeight = calculateDynamicHeight();
-
+    currentDSL.bottomRow =
+      currentDSL.minHeight - GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     // For the first time the DSL is created, remove one row from the total possible rows
     // to adjust for padding and margins.
     currentDSL.snapRows =
@@ -718,14 +742,14 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
     // Force the width of the canvas to 1224 px
     currentDSL.rightColumn = 1224;
-    // The canvas is a CANVAS_WIDGET whichdoesn't have a background or borders by default
+    // The canvas is a CANVAS_WIDGET which doesn't have a background or borders by default
     currentDSL.backgroundColor = "none";
     currentDSL.containerStyle = "none";
     currentDSL.type = "CANVAS_WIDGET";
     currentDSL.detachFromLayout = true;
     currentDSL.canExtend = true;
 
-    // Update version to make sure this doesn't run everytime.
+    // Update version to make sure this doesn't run every time.
     currentDSL.version = 1;
   }
 
@@ -821,7 +845,9 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       currentDSL.bottomRow,
       currentDSL.detachFromLayout || false,
     );
-    currentDSL = migrateToNewLayout(currentDSL);
+    if (!newPage) {
+      currentDSL = migrateToNewLayout(currentDSL);
+    }
     currentDSL.version = 20;
   }
 
@@ -937,6 +963,16 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 41) {
     currentDSL = migrateButtonVariant(currentDSL);
+    currentDSL.version = 42;
+  }
+
+  if (currentDSL.version === 42) {
+    currentDSL = migrateMapWidgetIsClickedMarkerCentered(currentDSL);
+    currentDSL.version = 43;
+  }
+
+  if (currentDSL.version === 43) {
+    currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
