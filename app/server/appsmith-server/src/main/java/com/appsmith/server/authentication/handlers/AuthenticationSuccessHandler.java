@@ -24,6 +24,7 @@ import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -194,7 +195,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
 
         boolean addFirstTimeExperienceParam = false;
         if (isFromSignup) {
-            if(redirectUrl.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+            if(isDefaultRedirectUrl(redirectUrl) && defaultApplication != null) {
                 addFirstTimeExperienceParam = true;
                 HttpHeaders headers = exchange.getRequest().getHeaders();
                 redirectUrl = redirectHelper.buildApplicationUrl(defaultApplication, headers);
@@ -203,6 +204,22 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         }
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
+    }
+
+    /**
+     * Checks if the provided url is default redirect url
+     * @param url which needs to be checked
+     * @return true if default url. false otherwise
+     */
+    private boolean isDefaultRedirectUrl(String url) {
+        if(StringUtils.isEmpty(url)) {
+            return true;
+        }
+        try {
+            return URI.create(url).getPath().endsWith(RedirectHelper.DEFAULT_REDIRECT_URL);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
@@ -214,13 +231,15 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 .flatMap(redirectHelper::getRedirectUrl)
                 .map(s -> {
                     String url = s;
-                    boolean addFirstTimeExperienceParam = false;
-                    if(s.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
-                        addFirstTimeExperienceParam = true;
-                        HttpHeaders headers = exchange.getRequest().getHeaders();
-                        url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
-                    }
                     if (isFromSignup) {
+                        boolean addFirstTimeExperienceParam = false;
+
+                        // only redirect to default application if the redirectUrl contains no other url
+                        if(isDefaultRedirectUrl(url) && defaultApplication != null) {
+                            addFirstTimeExperienceParam = true;
+                            HttpHeaders headers = exchange.getRequest().getHeaders();
+                            url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
+                        }
                         // This redirectUrl will be used by the client to redirect after showing a welcome page.
                         url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
                     }
