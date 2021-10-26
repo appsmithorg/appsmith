@@ -602,7 +602,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
-            return Mono.just(getS3ClientBuilder(datasourceConfiguration).build())
+            return Mono.fromCallable(() -> getS3ClientBuilder(datasourceConfiguration).build())
                     .flatMap(client -> Mono.just(client))
                     .onErrorResume(e -> {
                                 if (e instanceof AppsmithPluginException) {

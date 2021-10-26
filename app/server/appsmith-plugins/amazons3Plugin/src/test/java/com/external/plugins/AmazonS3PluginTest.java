@@ -963,4 +963,21 @@ public class AmazonS3PluginTest {
         s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
         assertEquals("us-east-1", s3ClientBuilder.getEndpoint().getSigningRegion());
     }
+
+    @Test
+    public void testExtractRegionFromEndpointWithBadEndpointFormat() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        // Testing for Upcloud here. Flow for other listed service providers is same, hence not testing separately.
+        datasourceConfiguration.getProperties().get(0).setValue("upcloud");
+        datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2..de-fra1.upcloudobjects.com");
+
+        StepVerifier.create(Mono.fromCallable(() -> getS3ClientBuilder(datasourceConfiguration)))
+                .expectErrorSatisfies(error -> {
+                    String expectedErrorMessage = "Your S3 endpoint URL seems to be incorrect for the selected S3 " +
+                            "service provider. Please check your endpoint URL and the selected S3 service provider.";
+                    assertEquals(expectedErrorMessage, error.getMessage());
+                })
+                .verify();
+    }
 }
