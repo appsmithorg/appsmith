@@ -44,6 +44,11 @@ import { fetchApplication } from "../actions/applicationActions";
 import { APP_MODE } from "entities/App";
 import history from "utils/history";
 import { addBranchParam } from "constants/routes";
+import { MergeBranchPayload } from "../api/GitSyncAPI";
+import {
+  mergeBranchSuccess,
+  mergeBranchFailure,
+} from "../actions/gitSyncActions";
 
 function* commitToGitRepoSaga(
   action: ReduxAction<{
@@ -331,6 +336,31 @@ function* fetchGitStatusSaga() {
   }
 }
 
+function* mergeBranchSaga(action: ReduxAction<MergeBranchPayload>) {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+
+    const { destinationBranch, sourceBranch } = action.payload;
+
+    const response: ApiResponse = yield GitSyncAPI.merge({
+      applicationId,
+      sourceBranch,
+      destinationBranch,
+    });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put(mergeBranchSuccess());
+      Toaster.show({
+        text: "Merge Successful",
+        variant: Variant.success,
+      });
+    }
+  } catch (error) {
+    yield put(mergeBranchFailure());
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -361,5 +391,6 @@ export default function* gitSyncSagas() {
       updateLocalGitConfig,
     ),
     takeLatest(ReduxActionTypes.FETCH_GIT_STATUS_INIT, fetchGitStatusSaga),
+    takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
   ]);
 }

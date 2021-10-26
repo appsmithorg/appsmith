@@ -41,6 +41,7 @@ import {
   FieldEntityInformation,
   Hinter,
   HintHelper,
+  INDENTATION_CHARACTERS,
   isCloseKey,
   isModifierKey,
   MarkHelper,
