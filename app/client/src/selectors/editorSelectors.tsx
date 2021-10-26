@@ -2,13 +2,7 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import {
-  WIDGET_STATIC_PROPS,
-  WidgetCardProps,
-  WidgetProps,
-} from "widgets/BaseWidget";
-import { WidgetSidebarReduxState } from "reducers/uiReducers/widgetSidebarReducer";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -16,23 +10,29 @@ import {
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 import { OccupiedSpace } from "constants/editorConstants";
-import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
-import _ from "lodash";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import {
+  getActions,
+  getCanvasWidgets,
+  getJSCollections,
+} from "selectors/entitiesSelector";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+  WIDGET_STATIC_PROPS,
+} from "constants/WidgetConstants";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import {
   DataTree,
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import { getActions, getJSCollections } from "selectors/entitiesSelector";
-import { getCanvasWidgets } from "./entitiesSelector";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetTypes,
-} from "../constants/WidgetConstants";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { find, pick, sortBy } from "lodash";
+import WidgetFactory from "utils/WidgetFactory";
+import { APP_MODE } from "entities/App";
+import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
-const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -98,7 +98,13 @@ export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
 export const getCurrentApplicationId = (state: AppState) =>
-  state.entities.pageList.applicationId;
+  state.entities.pageList.applicationId ||
+  ""; /** this is set during init can assume it to be defined */
+
+export const getRenderMode = (state: AppState) =>
+  state.entities.app.mode === APP_MODE.EDIT
+    ? RenderModes.CANVAS
+    : RenderModes.PAGE;
 
 export const getViewModePageList = createSelector(
   getPageList,
@@ -123,6 +129,9 @@ export const getViewModePageList = createSelector(
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
+export const getCanvasWidth = (state: AppState) =>
+  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
@@ -131,28 +140,34 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getWidgetCards = createSelector(
-  getWidgetSideBar,
   getWidgetConfigs,
-  (
-    widgetCards: WidgetSidebarReduxState,
-    widgetConfigs: WidgetConfigReducerState,
-  ) => {
-    const cards = widgetCards.cards;
-    return cards
-      .map((widget: WidgetCardProps) => {
-        const {
-          columns,
-          detachFromLayout = false,
-          rows,
-        }: any = widgetConfigs.config[widget.type];
-        return { ...widget, rows, columns, detachFromLayout };
-      })
-      .sort(
-        (
-          { widgetCardName: widgetACardName }: WidgetCardProps,
-          { widgetCardName: widgetBCardName }: WidgetCardProps,
-        ) => widgetACardName.localeCompare(widgetBCardName),
-      );
+  (widgetConfigs: WidgetConfigReducerState) => {
+    const cards = Object.values(widgetConfigs.config).filter(
+      (config) => !config.hideCard,
+    );
+
+    const _cards = cards.map((config) => {
+      const {
+        columns,
+        detachFromLayout = false,
+        displayName,
+        iconSVG,
+        key,
+        rows,
+        type,
+      } = config;
+      return {
+        key,
+        type,
+        rows,
+        columns,
+        detachFromLayout,
+        displayName,
+        icon: iconSVG,
+      };
+    });
+    const sortedCards = sortBy(_cards, ["displayName"]);
+    return sortedCards;
   },
 );
 
@@ -161,7 +176,7 @@ const getMainContainer = (
   evaluatedDataTree: DataTree,
 ) => {
   const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
-  const evaluatedWidget = _.find(evaluatedDataTree, {
+  const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as DataTreeWidget;
   return createCanvasWidget(canvasWidget, evaluatedWidget);
@@ -186,7 +201,7 @@ export const getCanvasWidgetDsl = createSelector(
       .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
       .forEach((widgetKey) => {
         const canvasWidget = canvasWidgets[widgetKey];
-        const evaluatedWidget = _.find(evaluatedDataTree, {
+        const evaluatedWidget = find(evaluatedDataTree, {
           widgetId: widgetKey,
         }) as DataTreeWidget;
         if (evaluatedWidget) {
@@ -303,14 +318,11 @@ export const getActionById = createSelector(
   },
 );
 
-export const getActionTabsInitialIndex = (state: AppState) =>
-  state.ui.actionTabs.index;
-
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
   evaluatedWidget: DataTreeWidget,
 ) => {
-  const widgetStaticProps = _.pick(
+  const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
   );
@@ -320,10 +332,11 @@ const createCanvasWidget = (
   };
 };
 
+const WidgetTypes = WidgetFactory.widgetTypes;
 const createLoadingWidget = (
   canvasWidget: FlattenedWidgetProps,
 ): DataTreeWidget => {
-  const widgetStaticProps = _.pick(
+  const widgetStaticProps = pick(
     canvasWidget,
     Object.keys(WIDGET_STATIC_PROPS),
   ) as WidgetProps;
@@ -353,3 +366,6 @@ export const getJSCollectionById = createSelector(
     }
   },
 );
+
+export const getApplicationLastDeployedAt = (state: AppState) =>
+  state.ui.applications.currentApplication?.lastDeployedAt;

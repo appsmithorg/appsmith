@@ -1,4 +1,5 @@
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
+import { Colors } from "constants/Colors";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -6,6 +7,7 @@ import { AppState } from "reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
+import { generateReactKey } from "utils/generators";
 // import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
 
@@ -26,6 +28,7 @@ export type PopperProps = {
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
   disablePopperEvents?: boolean;
+  cypressSelectorDragHandle?: string;
   position?: {
     top: number;
     left: number;
@@ -39,23 +42,6 @@ const PopperWrapper = styled.div<{ zIndex: number }>`
   position: absolute;
 `;
 
-// const DragHandleBlock = styled.div`
-//   padding: 6px;
-//   height: 28px;
-//   background-color: ${(props) =>
-//     props.theme.colors?.propertyPane?.bg || Colors.BLACK};
-//   cursor: grab;
-//   box-shadow: 0px 0px 2px rgb(0 0 0 / 10%), 0px 2px 10px rgb(0 0 0 / 10%);
-//   clip-path: inset(-2px 0px -2px -2px);
-// `;
-
-// export function PopperDragHandle() {
-//   return (
-//     <DragHandleBlock>
-//       <DragHandleIcon />
-//     </DragHandleBlock>
-//   );
-// }
 const DragHandleBlock = styled.div`
   cursor: grab;
   display: flex;
@@ -64,7 +50,7 @@ const DragHandleBlock = styled.div`
   width: 43px;
   height: 28px;
   z-index: 3;
-  background-color: ${(props) => props.theme.colors.propertyPane.bg};
+  background-color: ${Colors.GREY_1};
 
   svg {
     transform: rotate(90deg);
@@ -82,6 +68,9 @@ export function PopperDragHandle() {
 /* eslint-disable react/display-name */
 export default (props: PopperProps) => {
   const contentRef = useRef(null);
+  const popperIdRef = useRef(generateReactKey());
+  const popperId = popperIdRef.current;
+
   const {
     isDraggable = false,
     disablePopperEvents = false,
@@ -90,8 +79,9 @@ export default (props: PopperProps) => {
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
     renderDragBlockPositions,
+    cypressSelectorDragHandle,
   } = props;
-  // Meomoizing to avoid rerender of draggable icon.
+  // Memoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
   const popperTheme = useMemo(
     () => getThemeDetails({} as AppState, themeMode),
@@ -110,7 +100,7 @@ export default (props: PopperProps) => {
       // and figure out a way to keep an app instance level popper instance
       // which we can update to have different references when called here.
       // However, the performance benefit gained by such an optimization
-      // remaines to be discovered.
+      // remains to be discovered.
       const _popper = new PopperJS(
         props.targetNode,
         (contentRef.current as unknown) as Element,
@@ -149,7 +139,7 @@ export default (props: PopperProps) => {
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
-          "popper",
+          `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
           position,
@@ -162,6 +152,7 @@ export default (props: PopperProps) => {
                 <PopperDragHandle />
               </ThemeProvider>
             ),
+          cypressSelectorDragHandle,
         );
       }
 

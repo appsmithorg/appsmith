@@ -12,7 +12,10 @@ import history from "utils/history";
 import QueryEditorForm from "./Form";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import { AppState } from "reducers";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
@@ -20,9 +23,9 @@ import {
   getPluginIdsOfPackageNames,
   getPlugins,
   getPluginImages,
-  getDBDatasources,
   getAction,
   getActionResponses,
+  getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction, QueryActionConfig } from "entities/Action";
@@ -77,6 +80,7 @@ type ReduxStateProps = {
   settingConfig: any;
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
+  applicationId: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -86,6 +90,7 @@ type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 class QueryEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
+    // Call the first evaluations when the page loads
     this.props.initFormEvaluation(
       this.props.editorConfig,
       this.props.settingConfig,
@@ -125,6 +130,8 @@ class QueryEditor extends React.Component<Props> {
         PerformanceTransactionName.RUN_QUERY_CLICK,
       );
     }
+    // Update the page when the queryID is changed by changing the
+    // URL or selecting new query from the query pane
     if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
       this.props.changeQueryPage(this.props.match.params.queryId);
     }
@@ -136,10 +143,7 @@ class QueryEditor extends React.Component<Props> {
         (this.props.formData.hasOwnProperty("actionConfiguration") &&
           !!prevProps.formData &&
           prevProps.formData.hasOwnProperty("actionConfiguration") &&
-          !!diff(
-            prevProps.formData.actionConfiguration,
-            this.props.formData.actionConfiguration,
-          )))
+          !!diff(prevProps.formData, this.props.formData)))
     ) {
       this.props.runFormEvaluation(
         this.props.formData.id,
@@ -150,6 +154,7 @@ class QueryEditor extends React.Component<Props> {
 
   render() {
     const {
+      applicationId,
       dataSources,
       editorConfig,
       isCreating,
@@ -166,7 +171,7 @@ class QueryEditor extends React.Component<Props> {
       settingConfig,
       uiComponent,
     } = this.props;
-    const { applicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
 
     if (!pluginIds?.length) {
       return (
@@ -248,7 +253,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: getDBDatasources(state),
+    dataSources: getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[props.match.params.queryId],
     isDeleting: state.ui.queryPane.isDeleting[props.match.params.queryId],
@@ -258,6 +263,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

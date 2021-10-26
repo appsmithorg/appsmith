@@ -241,8 +241,8 @@ function InlineCommentPin(props: Props) {
       ref={inlineCommentPinRef}
       top={top}
       topPercent={topPercent}
-      xOffset={-1}
-      yOffset={-6}
+      xOffset={2}
+      yOffset={1}
     >
       <Popover2
         autoFocus={false}
@@ -279,8 +279,8 @@ function InlineCommentPin(props: Props) {
         <Pin
           commentThreadId={commentThreadId}
           onClick={handlePinClick}
-          sequenceId={commentThread.sequenceId}
-          unread={!commentThread.isViewed || isCommentThreadVisible}
+          sequenceId={commentThread?.sequenceId}
+          unread={!commentThread?.isViewed || isCommentThreadVisible}
         />
       </Popover2>
     </CommentTriggerContainer>

@@ -4,10 +4,10 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { mockGetCanvasWidgetDsl, useMockDsl } from "./testCommon";
 
-export const MockCanvas = () => {
+export function MockCanvas() {
   const dsl = useSelector(mockGetCanvasWidgetDsl);
-  return <Canvas dsl={dsl}></Canvas>;
-};
+  return <Canvas dsl={dsl} />;
+}
 export function UpdatedMainContainer({ dsl }: any) {
   useMockDsl(dsl);
   return <MainContainer />;

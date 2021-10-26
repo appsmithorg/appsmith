@@ -83,11 +83,17 @@ import {
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
-import { ApiResponse } from "api/ApiResponses";
-import { PluginTriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 import { APP_MODE } from "entities/App";
-import FileDataTypes from "widgets/FileDataTypes";
+import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import {
+  PluginTriggerFailureError,
+  PluginActionExecutionError,
+  UserCancelledActionExecutionError,
+  getErrorAsString,
+} from "sagas/ActionExecution/errorUtils";
+import { trimQueryString } from "utils/helpers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -237,6 +243,7 @@ function* confirmRunActionSaga() {
 export default function* executePluginActionTriggerSaga(
   pluginAction: RunPluginActionDescription["payload"],
   eventType: EventType,
+  triggerMeta: TriggerMeta,
 ) {
   const { actionId, params } = pluginAction;
   PerformanceTracker.startAsyncTracking(
@@ -273,23 +280,13 @@ export default function* executePluginActionTriggerSaga(
     },
     state: action.actionConfiguration,
   });
-
-  let payload = EMPTY_RESPONSE;
-  let isError = true;
-  try {
-    const executePluginActionResponse: ExecutePluginActionResponse = yield call(
-      executePluginActionSaga,
-      action.id,
-      pagination,
-      params,
-    );
-    payload = executePluginActionResponse.payload;
-    isError = executePluginActionResponse.isError;
-  } catch (e) {
-    if (e instanceof UserCancelledActionExecutionError) {
-      return;
-    }
-  }
+  const executePluginActionResponse: ExecutePluginActionResponse = yield call(
+    executePluginActionSaga,
+    action.id,
+    pagination,
+    params,
+  );
+  const { isError, payload } = executePluginActionResponse;
 
   if (isError) {
     AppsmithConsole.addError({
@@ -315,6 +312,7 @@ export default function* executePluginActionTriggerSaga(
     throw new PluginTriggerFailureError(
       createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
       [payload.body, params],
+      triggerMeta,
     );
   } else {
     AppsmithConsole.info({
@@ -339,13 +337,13 @@ function* runActionShortcutSaga() {
   const location = window.location.pathname;
   const match: any = matchPath(location, {
     path: [
-      API_EDITOR_URL(),
-      API_EDITOR_ID_URL(),
-      QUERIES_EDITOR_URL(),
-      QUERIES_EDITOR_ID_URL(),
-      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
-      INTEGRATION_EDITOR_URL(),
-      SAAS_EDITOR_API_ID_URL(),
+      trimQueryString(API_EDITOR_URL()),
+      trimQueryString(API_EDITOR_ID_URL()),
+      trimQueryString(QUERIES_EDITOR_URL()),
+      trimQueryString(QUERIES_EDITOR_ID_URL()),
+      trimQueryString(API_EDITOR_URL_WITH_SELECTED_PAGE_ID()),
+      trimQueryString(INTEGRATION_EDITOR_URL()),
+      trimQueryString(SAAS_EDITOR_API_ID_URL()),
     ],
     exact: true,
     strict: false,
@@ -416,6 +414,8 @@ function* runActionSaga(
     payload = executePluginActionResponse.payload;
     isError = executePluginActionResponse.isError;
   } catch (e) {
+    // When running from the pane, we just want to end the saga if the user has
+    // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
       return;
     }
@@ -423,16 +423,43 @@ function* runActionSaga(
     error = e.message;
   }
 
+  // Error should be readable error if present.
+  // Otherwise payload's body.
+  // Default to "An unexpected error occurred" if none is available
+
+  const readableError = payload.readableError
+    ? getErrorAsString(payload.readableError)
+    : undefined;
+
+  const payloadBodyError = payload.body
+    ? getErrorAsString(payload.body)
+    : undefined;
+
+  const defaultError = "An unexpected error occurred";
+
   if (isError) {
-    // Get an appropriate error message
-    if (payload.body) {
-      error = !isString(payload.body)
-        ? JSON.stringify(payload.body)
-        : payload.body;
-      if (!error) {
-        error = "An unexpected error occurred";
-      }
+    error = readableError || payloadBodyError || defaultError;
+
+    // In case of debugger, both the current error message
+    // and the readableError needs to be present,
+    // since the readableError may be malformed for certain errors.
+
+    const appsmithConsoleErrorMessageList = [
+      {
+        message: error,
+        type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        subType: payload.errorType,
+      },
+    ];
+
+    if (error === readableError && !!payloadBodyError) {
+      appsmithConsoleErrorMessageList.push({
+        message: payloadBodyError,
+        type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        subType: payload.errorType,
+      });
     }
+
     AppsmithConsole.addError({
       id: actionId,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
@@ -444,13 +471,7 @@ function* runActionSaga(
         name: actionObject.name,
         id: actionId,
       },
-      messages: [
-        {
-          message: error,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-          subType: payload.errorType,
-        },
-      ],
+      messages: appsmithConsoleErrorMessageList,
       state: payload.request,
     });
 
@@ -615,27 +636,6 @@ function* executePageLoadActionsSaga() {
       text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
       variant: Variant.danger,
     });
-  }
-}
-
-/*
- * Thrown when action execution fails for some reason
- * */
-class PluginActionExecutionError extends Error {
-  response?: ApiResponse;
-  userCancelled: boolean;
-  constructor(message: string, userCancelled: boolean, response?: ApiResponse) {
-    super(message);
-    this.name = "PluginActionExecutionError";
-    this.userCancelled = userCancelled;
-    this.response = response;
-  }
-}
-
-class UserCancelledActionExecutionError extends PluginActionExecutionError {
-  constructor() {
-    super("User cancelled action execution", true);
-    this.name = "UserCancelledActionExecutionError";
   }
 }
 

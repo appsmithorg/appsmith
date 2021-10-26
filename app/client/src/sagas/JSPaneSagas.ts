@@ -24,17 +24,16 @@ import { createJSCollectionRequest } from "actions/jsActionActions";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { parseJSCollection, executeFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "../pages/Editor/Explorer/helpers";
-import { getDifferenceInJSCollection } from "../utils/JSPaneUtils";
-import JSActionAPI from "../api/JSActionAPI";
-import ActionAPI from "api/ActionAPI";
+import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
+import {
+  getDifferenceInJSCollection,
+  pushLogsForObjectUpdate,
+} from "../utils/JSPaneUtils";
+import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
 import {
   updateJSCollectionSuccess,
-  addJSObjectAction,
-  updateJSObjectAction,
-  deleteJSObjectAction,
   refactorJSCollectionAction,
-} from "../actions/jsPaneActions";
+} from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { PluginType } from "entities/Action";
@@ -43,10 +42,16 @@ import { Variant } from "components/ads/common";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
+  JS_EXECUTION_SUCCESS,
+  JS_EXECUTION_FAILURE,
+  JS_EXECUTION_FAILURE_TOASTER,
+  JS_FUNCTION_CREATE_SUCCESS,
+  JS_FUNCTION_DELETE_SUCCESS,
+  JS_FUNCTION_UPDATE_SUCCESS,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -64,13 +69,27 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     JS_PLUGIN_PACKAGE_NAME,
   );
   if (pageId && pluginId) {
-    const jsactions = yield select(getJSCollections);
-    const pageJSActions = jsactions.filter(
+    const jsActions = yield select(getJSCollections);
+    const pageJSActions = jsActions.filter(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
     const sampleBody =
       "export default {\n\tresults: [],\n\trun: () => {\n\t\t//write code here\n\t}\n}";
+    const sampleActions = [
+      {
+        name: "run",
+        pageId,
+        organizationId,
+        executeOnLoad: false,
+        actionConfiguration: {
+          body: "() => {\n\t\t//write code here\n\t}",
+          isAsync: false,
+          timeoutInMilliseconds: 0,
+          jsArguments: [],
+        },
+      },
+    ];
     yield put(
       createJSCollectionRequest({
         name: newJSCollectionName,
@@ -78,8 +97,13 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
         organizationId,
         pluginId,
         body: sampleBody,
-        variables: [],
-        actions: [],
+        variables: [
+          {
+            name: "results",
+            value: [],
+          },
+        ],
+        actions: sampleActions,
         applicationId,
         pluginType: PluginType.JS,
       }),
@@ -96,118 +120,123 @@ function* handleJSCollectionCreatedSaga(
   history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
-function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
-  const body = actionPayload.body;
+function* handleUpdateJSCollection(
+  actionPayload: ReduxAction<{ body: string }>,
+) {
+  const { body } = actionPayload.payload;
   const jsActionId = getJSCollectionIdFromURL();
   const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = yield call(parseJSCollection, body, jsAction);
-    if (parsedBody) {
-      AppsmithConsole.info({
-        logType: LOG_TYPE.JS_PARSE_SUCCESS,
-        text: "Executed successfully from widget request",
-        source: {
-          type: ENTITY_TYPE.JSACTION,
-          name: jsAction.name,
-          id: jsActionId,
-        },
-      });
-    }
-    const data = getDifferenceInJSCollection(parsedBody, jsAction);
     const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-    jsActionTobeUpdated.body = body;
-    if (parsedBody.variables) {
-      jsActionTobeUpdated.variables = parsedBody.variables;
-    }
-    if (data.nameChangedActions.length) {
-      for (let i = 0; i < data.nameChangedActions.length; i++) {
-        yield put(
-          refactorJSCollectionAction({
-            actionId: data.nameChangedActions[i].id,
-            collectionId: data.nameChangedActions[i].collectionId || "",
-            pageId: data.nameChangedActions[i].pageId,
-            oldName: data.nameChangedActions[i].oldName,
-            newName: data.nameChangedActions[i].newName,
-          }),
-        );
-      }
-    }
-    if (data.newActions.length) {
-      for (let i = 0; i < data.newActions.length; i++) {
-        jsActionTobeUpdated.actions.push({
-          ...data.newActions[i],
-          organizationId: organizationId,
-        });
-      }
-      yield put(
-        addJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.newActions,
-        }),
-      );
-    }
-    if (data.updateActions.length > 0) {
-      let changedActions = [];
-      for (let i = 0; i < data.updateActions.length; i++) {
-        changedActions = jsActionTobeUpdated.actions.map(
-          (js: JSAction) =>
-            data.updateActions.find(
-              (update: JSAction) => update.id === js.id,
-            ) || js,
-        );
-      }
-      jsActionTobeUpdated.actions = changedActions;
-      yield put(
-        updateJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.updateActions,
-        }),
-      );
-    }
-    if (data.deletedActions.length > 0) {
-      for (let i = 0; i < data.deletedActions.length; i++) {
-        jsActionTobeUpdated.actions.map((js: JSAction) => {
-          if (js.id !== data.deletedActions[i].id) {
-            return js;
+    if (parsedBody) {
+      jsActionTobeUpdated.body = body;
+      const data = getDifferenceInJSCollection(parsedBody, jsAction);
+      if (data.nameChangedActions.length) {
+        for (let i = 0; i < data.nameChangedActions.length; i++) {
+          yield put(
+            refactorJSCollectionAction({
+              refactorAction: {
+                actionId: data.nameChangedActions[i].id,
+                collectionName: jsAction.name,
+                pageId: data.nameChangedActions[i].pageId,
+                oldName: data.nameChangedActions[i].oldName,
+                newName: data.nameChangedActions[i].newName,
+              },
+              actionCollection: jsActionTobeUpdated,
+            }),
+          );
+        }
+      } else {
+        let newActions: Partial<JSAction>[] = [];
+        let updateActions: JSAction[] = [];
+        let deletedActions: JSAction[] = [];
+        if (parsedBody.variables) {
+          jsActionTobeUpdated.variables = parsedBody.variables;
+        }
+        if (data.newActions.length) {
+          newActions = data.newActions;
+          for (let i = 0; i < data.newActions.length; i++) {
+            jsActionTobeUpdated.actions.push({
+              ...data.newActions[i],
+              organizationId: organizationId,
+            });
           }
+        }
+        if (data.updateActions.length > 0) {
+          updateActions = data.updateActions;
+          let changedActions = [];
+          for (let i = 0; i < data.updateActions.length; i++) {
+            changedActions = jsActionTobeUpdated.actions.map(
+              (js: JSAction) =>
+                data.updateActions.find(
+                  (update: JSAction) => update.id === js.id,
+                ) || js,
+            );
+          }
+          jsActionTobeUpdated.actions = changedActions;
+        }
+        if (data.deletedActions.length > 0) {
+          deletedActions = data.deletedActions;
+          const nonDeletedActions = jsActionTobeUpdated.actions.filter(
+            (js: JSAction) => {
+              return !data.deletedActions.find((deleted) => {
+                return deleted.id === js.id;
+              });
+            },
+          );
+          jsActionTobeUpdated.actions = nonDeletedActions;
+        }
+        yield call(updateJSCollection, {
+          jsCollection: jsActionTobeUpdated,
+          newActions: newActions,
+          updatedActions: updateActions,
+          deletedActions: deletedActions,
         });
       }
-      yield put(
-        deleteJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.deletedActions,
-        }),
-      );
     }
-    return jsActionTobeUpdated;
   }
 }
 
-function* handleUpdateJSCollection(
-  actionPayload: ReduxAction<{ body: string }>,
-) {
+function* updateJSCollection(data: {
+  jsCollection: JSCollection;
+  newActions: Partial<JSAction>[];
+  updatedActions: JSAction[];
+  deletedActions: JSAction[];
+}) {
   let jsAction = {};
   const jsActionId = getJSCollectionIdFromURL();
   if (jsActionId) {
     jsAction = yield select(getJSCollection, jsActionId);
   }
   try {
-    const { body } = actionPayload.payload;
-    const data = yield call(handleParseUpdateJSCollection, { body: body });
-    if (data) {
-      const response = yield JSActionAPI.updateJSCollection(data);
+    const { deletedActions, jsCollection, newActions, updatedActions } = data;
+    if (jsCollection) {
+      const response = yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
-        AppsmithConsole.info({
-          logType: LOG_TYPE.JS_ACTION_UPDATE,
-          text: "JS object updated",
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: response?.data.name,
-            id: response?.data,
-          },
-        });
+        if (newActions.length) {
+          pushLogsForObjectUpdate(
+            newActions,
+            jsCollection,
+            createMessage(JS_FUNCTION_CREATE_SUCCESS),
+          );
+        }
+        if (updatedActions.length) {
+          pushLogsForObjectUpdate(
+            updatedActions,
+            jsCollection,
+            createMessage(JS_FUNCTION_UPDATE_SUCCESS),
+          );
+        }
+        if (deletedActions.length) {
+          pushLogsForObjectUpdate(
+            deletedActions,
+            jsCollection,
+            createMessage(JS_FUNCTION_DELETE_SUCCESS),
+          );
+        }
         yield put(updateJSCollectionSuccess({ data: response?.data }));
       }
     }
@@ -246,25 +275,33 @@ function* handleJSObjectNameChangeSuccessSaga(
 }
 
 function* handleExecuteJSFunctionSaga(
-  data: ReduxAction<{ collectionName: string; action: JSAction }>,
+  data: ReduxAction<{
+    collectionName: string;
+    action: JSAction;
+    collectionId: string;
+  }>,
 ): any {
-  const { action } = data.payload;
-  const collectionId = action.collectionId;
+  const { action, collectionId, collectionName } = data.payload;
   const actionId = action.id;
-  const { result, triggers } = yield call(
-    executeFunction,
-    data.payload.collectionName,
-    data.payload.action,
-  );
-
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map((trigger: ActionDescription) =>
-        call(executeActionTriggers, trigger, EventType.ON_CLICK),
-      ),
+  try {
+    const { result, triggers } = yield call(
+      executeFunction,
+      collectionName,
+      action,
     );
-  }
-  if (result) {
+    if (triggers && triggers.length) {
+      yield all(
+        triggers.map((trigger: ActionDescription) =>
+          call(executeActionTriggers, trigger, EventType.ON_CLICK, {
+            source: {
+              id: action.collectionId || "",
+              name: data.payload.collectionName,
+            },
+          }),
+        ),
+      );
+    }
+
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -273,45 +310,79 @@ function* handleExecuteJSFunctionSaga(
         actionId,
       },
     });
+    AppsmithConsole.info({
+      text: createMessage(JS_EXECUTION_SUCCESS),
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: collectionName + "." + action.name,
+        id: collectionId,
+      },
+      state: { response: result },
+    });
+  } catch (e) {
+    AppsmithConsole.addError({
+      id: actionId,
+      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+      text: createMessage(JS_EXECUTION_FAILURE),
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: collectionName + "." + action.name,
+        id: collectionId,
+      },
+      messages: [
+        {
+          message: e.message,
+          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        },
+      ],
+    });
+    Toaster.show({
+      text: e.message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
+      variant: Variant.danger,
+      showDebugButton: true,
+    });
   }
 }
 
 function* handleRefactorJSActionNameSaga(
   data: ReduxAction<{
-    actionId: string;
-    collectionId: string;
-    pageId: string;
-    oldName: string;
-    newName: string;
+    refactorAction: RefactorAction;
+    actionCollection: JSCollection;
   }>,
 ) {
   const pageResponse = yield call(PageApi.fetchPage, {
-    id: data.payload.pageId,
+    id: data.payload.refactorAction.pageId,
   });
   const isPageRequestSuccessful = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
+    const requestData = {
+      refactorAction: {
+        ...data.payload.refactorAction,
+        layoutId: layoutId,
+      },
+      actionCollection: data.payload.actionCollection,
+    };
     // call to refactor action
     try {
-      const refactorResponse = yield ActionAPI.updateActionName({
-        layoutId,
-        collectionId: data.payload.collectionId,
-        pageId: data.payload.pageId,
-        oldName: data.payload.oldName,
-        newName: data.payload.newName,
-        actionId: data.payload.actionId,
-      });
+      const refactorResponse = yield JSActionAPI.updateJSCollectionActionRefactor(
+        requestData,
+      );
 
       const isRefactorSuccessful = yield validateResponse(refactorResponse);
 
       const currentPageId = yield select(getCurrentPageId);
 
       if (isRefactorSuccessful) {
-        if (currentPageId === data.payload.pageId) {
+        yield put({
+          type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
+          payload: { collectionId: data.payload.actionCollection.id },
+        });
+        if (currentPageId === data.payload.refactorAction.pageId) {
           yield updateCanvasWithDSL(
             refactorResponse.data,
-            data.payload.pageId,
+            data.payload.refactorAction.pageId,
             layoutId,
           );
         }
@@ -319,7 +390,7 @@ function* handleRefactorJSActionNameSaga(
     } catch (error) {
       yield put({
         type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
-        payload: { error },
+        payload: { collectionId: data.payload.actionCollection.id },
       });
     }
   }

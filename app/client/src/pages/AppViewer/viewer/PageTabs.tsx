@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import { getApplicationViewerPageURL } from "constants/routes";
@@ -10,6 +10,8 @@ import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey, hideScrollbar } from "constants/DefaultTheme";
 import { Position } from "@blueprintjs/core";
+
+import { trimQueryString } from "utils/helpers";
 
 const TabsContainer = styled.div`
   width: 100%;
@@ -132,7 +134,7 @@ function PageTabContainer({
 }
 
 type Props = {
-  currentApplicationDetails?: ApplicationPayload;
+  currentApplicationDetails?: CurrentApplicationData;
   appPages: PageListPayload;
   measuredTabsRef: (ref: HTMLElement | null) => void;
   tabsScrollable: boolean;
@@ -155,9 +157,11 @@ export function PageTabs(props: Props) {
         <PageTabContainer
           isTabActive={
             pathname ===
-            getApplicationViewerPageURL(
-              currentApplicationDetails?.id,
-              page.pageId,
+            trimQueryString(
+              getApplicationViewerPageURL({
+                applicationId: currentApplicationDetails?.id,
+                pageId: page.pageId,
+              }),
             )
           }
           key={page.pageId}
@@ -168,9 +172,11 @@ export function PageTabs(props: Props) {
             activeClassName="is-active"
             className="t--page-switch-tab"
             to={{
-              pathname: getApplicationViewerPageURL(
-                currentApplicationDetails?.id,
-                page.pageId,
+              pathname: trimQueryString(
+                getApplicationViewerPageURL({
+                  applicationId: currentApplicationDetails?.id,
+                  pageId: page.pageId,
+                }),
               ),
               search: query,
             }}

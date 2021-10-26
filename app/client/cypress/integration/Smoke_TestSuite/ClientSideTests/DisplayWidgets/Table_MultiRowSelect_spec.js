@@ -1,5 +1,6 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Table Widget row multi select validation", function() {
   before(() => {
@@ -11,6 +12,7 @@ describe("Table Widget row multi select validation", function() {
     cy.get(widgetsPage.toggleEnableMultirowselection)
       .first()
       .click({ force: true });
+    cy.closePropertyPane("tablewidget");
     cy.get(".t--table-multiselect-header")
       .first()
       .should("be.visible");
@@ -42,5 +44,19 @@ describe("Table Widget row multi select validation", function() {
     cy.get(".t--table-multiselect-header-half-check-svg")
       .first()
       .should("be.visible");
+  });
+  it("Test action configured on onRowSelected get triggered whenever a table row is selected", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.onTableAction(0, "onrowselected", "Row Selected");
+    // un select first row
+    cy.get(".t--table-multiselect")
+      .first()
+      .click({ force: true });
+    cy.get(commonlocators.toastmsg).should("not.exist");
+    // click on first row select box
+    cy.get(".t--table-multiselect")
+      .first()
+      .click({ force: true });
+    cy.get(commonlocators.toastmsg).contains("Row Selected");
   });
 });

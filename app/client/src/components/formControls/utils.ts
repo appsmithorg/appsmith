@@ -1,4 +1,4 @@
-import { isBoolean, get, map, set } from "lodash";
+import { isBoolean, get, set } from "lodash";
 import { HiddenType } from "./BaseControl";
 
 export const evaluateCondtionWithType = (
@@ -94,37 +94,32 @@ export const isHidden = (values: any, hiddenConfig?: HiddenType) => {
   return !!hiddenConfig;
 };
 
+// Function that extracts the initial value from the JSON configs
 export const getConfigInitialValues = (config: Record<string, any>[]) => {
   const configInitialValues = {};
+  // We expect the JSON configs to be an array of objects
   if (!Array.isArray(config)) return configInitialValues;
 
+  // Function to loop through the configs and extract the initial values
   const parseConfig = (section: any): any => {
-    return map(section.children, (subSection: any) => {
-      if ("children" in subSection) {
-        return parseConfig(subSection);
-      }
+    if ("initialValue" in section) {
+      if (section.controlType === "KEYVALUE_ARRAY") {
+        section.initialValue.forEach(
+          (initialValue: string | number, index: number) => {
+            const configProperty = section.configProperty.replace("*", index);
 
-      if ("initialValue" in subSection) {
-        if (subSection.controlType === "KEYVALUE_ARRAY") {
-          subSection.initialValue.forEach(
-            (initialValue: string | number, index: number) => {
-              const configProperty = subSection.configProperty.replace(
-                "*",
-                index,
-              );
-
-              set(configInitialValues, configProperty, initialValue);
-            },
-          );
-        } else {
-          set(
-            configInitialValues,
-            subSection.configProperty,
-            subSection.initialValue,
-          );
-        }
+            set(configInitialValues, configProperty, initialValue);
+          },
+        );
+      } else {
+        set(configInitialValues, section.configProperty, section.initialValue);
       }
-    });
+    }
+    if ("children" in section) {
+      section.children.forEach((section: any) => {
+        parseConfig(section);
+      });
+    }
   };
 
   config.forEach((section: any) => {

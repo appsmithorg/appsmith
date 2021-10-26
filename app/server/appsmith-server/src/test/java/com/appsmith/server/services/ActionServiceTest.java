@@ -9,6 +9,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
@@ -21,7 +22,6 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -64,6 +64,7 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -187,6 +188,7 @@ public class ActionServiceTest {
         datasource.setOrganizationId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
     }
 
     @After
@@ -438,6 +440,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecute() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -471,6 +475,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteNullRequestBody() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -503,6 +509,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteDbQuery() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -533,6 +541,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteErrorResponse() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -574,6 +584,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteNullPaginationParameters() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -620,6 +632,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteSecondaryStaleConnection() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -662,6 +676,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteTimeout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -774,6 +790,8 @@ public class ActionServiceTest {
                 .thenThrow(new StaleConnectionException())
                 .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(Mockito.any())).thenReturn(Mono.empty());
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
 
         ActionDTO action = new ActionDTO();
@@ -1222,6 +1240,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteWithTableReturnType() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -1261,6 +1281,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteWithJsonReturnType() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -1303,6 +1325,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteWithPreAssignedReturnType() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -1346,6 +1370,8 @@ public class ActionServiceTest {
     @WithUserDetails(value = "api_user")
     public void testActionExecuteReturnTypeWithNullResultBody() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -1379,6 +1405,9 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithChartWidgetData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [\n" +
                 "  {\n" +
@@ -1450,6 +1479,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithTableWidgetData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [\n" +
                 "\t{\n" +
@@ -1561,6 +1592,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithListWidgetData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [\n" +
                 "    {\n" +
@@ -1664,6 +1697,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithDropdownWidgetData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [\n" +
                 "    {\n" +
@@ -1722,6 +1757,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithArrayOfStringsDropDownWidget() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
@@ -1761,6 +1798,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithArrayOfArray() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[[\"string1\", \"string2\", \"string3\", \"string4\"]," +
                 "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
@@ -1803,6 +1842,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithEmptyData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
@@ -1841,6 +1882,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithNumericData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": [1] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
@@ -1881,6 +1924,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithJsonNodeData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{\"data\": {\n" +
                 "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
@@ -1950,6 +1995,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithJsonObjectData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": {\n" +
                 "            \"id\": 1,\n" +
@@ -1999,6 +2046,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionAfterExecutionWithJsonArrayObjectData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\": {\n" +
                 "            \"id\": 1,\n" +
@@ -2059,6 +2108,8 @@ public class ActionServiceTest {
     public void testWidgetSuggestionNestedData() throws JsonProcessingException {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{\"data\": {\n" +
                 "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
@@ -2075,6 +2126,140 @@ public class ActionServiceTest {
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void suggestWidget_ArrayListData_SuggestTableTextChartDropDownWidget() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        ArrayList<JSONObject> listData = new ArrayList<>();
+        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width",32, "height", 32));
+        listData.add(jsonObject);
+        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width",42, "height", 22));
+        listData.add(jsonObject);
+        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width",52, "height", 12));
+        listData.add(jsonObject);
+        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width",62, "height", 52));
+        listData.add(jsonObject);
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(listData);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.CHART_WIDGET, "url", "width"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.DROP_DOWN_WIDGET, "url", "url"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void suggestWidget_ArrayListData_SuggestTableTextDropDownWidget() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        ArrayList<JSONObject> listData = new ArrayList<>();
+        JSONObject jsonObject = new JSONObject(Map.of("url", "images/thumbnails/0001.jpg", "width","32", "height", "32"));
+        listData.add(jsonObject);
+        jsonObject = new JSONObject(Map.of("url", "images/0001.jpg", "width","42", "height", "22"));
+        listData.add(jsonObject);
+        jsonObject = new JSONObject(Map.of("url", "images/0002.jpg", "width","52", "height", "12"));
+        listData.add(jsonObject);
+        jsonObject = new JSONObject(Map.of("url", "images/0003.jpg", "width","62", "height", "52"));
+        listData.add(jsonObject);
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(listData);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.DROP_DOWN_WIDGET, "url", "width"));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void suggestWidget_ArrayListDataEmpty_SuggestTextWidget() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        ArrayList<JSONObject> listData = new ArrayList<>();
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(listData);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();

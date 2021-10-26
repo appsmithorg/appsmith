@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.solutions.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

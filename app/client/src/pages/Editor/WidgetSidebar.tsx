@@ -2,15 +2,8 @@ import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import { WidgetCardProps } from "widgets/BaseWidget";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getWidgetCards,
-} from "selectors/editorSelectors";
-import { getColorWithOpacity } from "constants/DefaultTheme";
-import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
+import { getWidgetCards } from "selectors/editorSelectors";
+import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
@@ -22,32 +15,26 @@ import {
   getCurrentSubStep,
   inOnboarding,
 } from "sagas/OnboardingSagas";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { matchBuilderPath } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
+import { AppState } from "reducers";
+import { hideScrollbar } from "constants/DefaultTheme";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
-  padding: 10px 10px 20px 10px;
   height: 100%;
-  overflow-y: auto;
-
-  scrollbar-color: ${(props) => props.theme.colors.paneCard}
-    ${(props) => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 8px;
+  overflow: hidden;
+  padding: 0px 10px 20px 10px;
+  &:active,
+  &:focus,
+  &:hover {
+    overflow: auto;
+    ${hideScrollbar}
   }
-
   &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneCard};
-    outline: 1px solid ${(props) => props.theme.paneText};
-    border-radius: ${(props) => props.theme.radii[1]}px;
+    background-color: transparent;
   }
 `;
 
@@ -59,19 +46,8 @@ const CardsWrapper = styled.div`
   align-items: stretch;
 `;
 
-const CloseIcon = styled(Icon)`
-  &&.${Classes.ICON} {
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    opacity: 0.6;
-    &:hover {
-      opacity: 1;
-    }
-  }
-`;
-
 const Header = styled.div`
+  padding: 10px 10px 0px 10px;
   display: grid;
   grid-template-columns: 7fr 1fr;
 `;
@@ -93,6 +69,10 @@ const Info = styled.div`
 function WidgetSidebar(props: IPanelProps) {
   const location = useLocation();
   const cards = useSelector(getWidgetCards);
+  const isForceOpenWidgetPanel = useSelector(
+    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
+  );
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {
@@ -100,7 +80,7 @@ function WidgetSidebar(props: IPanelProps) {
     if (keyword.trim().length > 0) {
       filteredCards = produce(cards, (draft) => {
         cards.forEach((card, index) => {
-          if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
+          if (card.displayName.toLowerCase().indexOf(keyword) === -1) {
             delete draft[index];
           }
         });
@@ -119,18 +99,17 @@ function WidgetSidebar(props: IPanelProps) {
   const isInOnboarding = useSelector(inOnboarding);
   const currentStep = useSelector(getCurrentStep);
   const currentSubStep = useSelector(getCurrentSubStep);
-  const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
-  const onCanvas =
-    BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
+  const onCanvas = matchBuilderPath(window.location.pathname);
+
   useEffect(() => {
     if (
-      (currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
-      !onCanvas
+      ((currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
+        !onCanvas) ||
+      isForceOpenWidgetPanel === false
     ) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas, isInOnboarding, location]);
+  }, [currentStep, onCanvas, isInOnboarding, location, isForceOpenWidgetPanel]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
@@ -155,26 +134,19 @@ function WidgetSidebar(props: IPanelProps) {
         <ExplorerSearch
           autoFocus
           clear={clearSearchInput}
+          hideClear
           placeholder="Search widgets..."
           ref={searchInputRef}
         />
       </Boxed>
-
-      <MainWrapper>
-        <Header>
-          <Info>
-            <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
-          </Info>
-          <CloseIcon
-            className="t--close-widgets-sidebar"
-            color={Colors.WHITE}
-            icon="cross"
-            iconSize={16}
-            onClick={props.closePanel}
-          />
-        </Header>
+      <Header>
+        <Info>
+          <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
+        </Info>
+      </Header>
+      <MainWrapper ref={sidebarRef}>
         <CardsWrapper>
-          {filteredCards.map((card: WidgetCardProps) => (
+          {filteredCards.map((card) => (
             <Boxed
               key={card.key}
               show={
@@ -204,6 +176,7 @@ function WidgetSidebar(props: IPanelProps) {
             </Boxed>
           ))}
         </CardsWrapper>
+        <ScrollIndicator containerRef={sidebarRef} top={"90px"} />
       </MainWrapper>
     </>
   );

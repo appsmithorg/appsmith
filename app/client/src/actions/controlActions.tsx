@@ -1,12 +1,10 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { RenderMode } from "constants/WidgetConstants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
   propertyPath: string,
   propertyValue: any,
-  renderMode: RenderMode,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
@@ -14,7 +12,6 @@ export const updateWidgetPropertyRequest = (
       widgetId,
       propertyPath,
       propertyValue,
-      renderMode,
     },
   };
 };
@@ -28,11 +25,21 @@ export interface BatchPropertyUpdatePayload {
 export const batchUpdateWidgetProperty = (
   widgetId: string,
   updates: BatchPropertyUpdatePayload,
+  shouldReplay = true,
 ): ReduxAction<UpdateWidgetPropertyPayload> => ({
   type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   payload: {
     widgetId,
     updates,
+    shouldReplay,
+  },
+});
+export const batchUpdateMultipleWidgetProperties = (
+  updatesArray: UpdateWidgetPropertyPayload[],
+): ReduxAction<{ updatesArray: UpdateWidgetPropertyPayload[] }> => ({
+  type: ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,
+  payload: {
+    updatesArray,
   },
 });
 
@@ -66,7 +73,6 @@ export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
   propertyPath: string;
   propertyValue: any;
-  renderMode: RenderMode;
 }
 
 export interface UpdateWidgetPropertyPayload {
@@ -76,6 +82,7 @@ export interface UpdateWidgetPropertyPayload {
     dynamicBindingPathList: DynamicPath[];
     dynamicTriggerPathList: DynamicPath[];
   };
+  shouldReplay?: boolean;
 }
 
 export interface UpdateCanvasLayout {

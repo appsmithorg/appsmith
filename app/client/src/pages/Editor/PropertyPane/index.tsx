@@ -5,13 +5,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import {
-  PanelStack,
-  IPanel,
-  Classes,
-  IPanelProps,
-  Icon,
-} from "@blueprintjs/core";
+import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 
 import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
@@ -32,13 +26,13 @@ import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import { Layers } from "constants/Layers";
-import ConnectDataCTA, { actionsExist, excludeList } from "./ConnectDataCTA";
+import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
+import { WidgetType } from "constants/WidgetConstants";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -72,6 +66,7 @@ const StyledPanelStack = styled(PanelStack)`
 `;
 
 const CopyIcon = ControlIcons.COPY_CONTROL;
+const CloseIcon = ControlIcons.CLOSE_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
@@ -97,6 +92,23 @@ export const PropertyPaneBodyWrapper = styled.div`
   overflow: auto;
 `;
 
+// TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
+// Widgets where we do not want to show the CTA
+export const excludeList: WidgetType[] = [
+  "CONTAINER_WIDGET",
+  "TABS_WIDGET",
+  "FORM_WIDGET",
+  "MODAL_WIDGET",
+  "DIVIDER_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "BUTTON_WIDGET",
+  "CANVAS_WIDGET",
+  "AUDIO_RECORDER_WIDGET",
+  "IFRAME_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
+];
+
 function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
@@ -112,7 +124,7 @@ function PropertyPaneView(
     }
 
     return true;
-  }, [widgetProperties?.type]);
+  }, [widgetProperties?.type, excludeList]);
 
   const dispatch = useDispatch();
   const handleDelete = useCallback(() => {
@@ -130,9 +142,9 @@ function PropertyPaneView(
         icon: (
           <CopyIcon
             className="t--copy-widget"
-            height={14}
+            height={16}
             onClick={handleCopy}
-            width={14}
+            width={16}
           />
         ),
       },
@@ -148,16 +160,11 @@ function PropertyPaneView(
         ),
       },
       {
-        tooltipContent: <span>Explore widget related docs</span>,
-        icon: <PropertyPaneHelpButton />,
-      },
-      {
         tooltipContent: "Close",
         icon: (
-          <Icon
+          <CloseIcon
             className={"t--property-pane-close-btn"}
-            icon="cross"
-            iconSize={16}
+            height={16}
             onClick={(e: any) => {
               AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
                 widgetType: widgetProperties.widgetType,
@@ -167,6 +174,7 @@ function PropertyPaneView(
               e.preventDefault();
               e.stopPropagation();
             }}
+            width={16}
           />
         ),
       },
@@ -215,6 +223,13 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return ThemeMode.LIGHT;
   }
 
+  onPositionChange = (position: any) => {
+    this.props.setPropPanePoistion(
+      position,
+      this.props.widgetProperties?.widgetId,
+    );
+  };
+
   render() {
     if (
       !get(this.props, "widgetProperties") ||
@@ -231,15 +246,11 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       )[0];
       return (
         <Popper
+          cypressSelectorDragHandle="t--property-pane-drag-handle"
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
           isDraggable
           isOpen
-          onPositionChange={(position: any) => {
-            this.props.setPropPanePoistion(
-              position,
-              this.props.widgetProperties?.widgetId,
-            );
-          }}
+          onPositionChange={this.onPositionChange}
           placement="right-start"
           position={this.props?.propPanePreference?.position}
           targetNode={el}

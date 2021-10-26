@@ -58,6 +58,13 @@ import Tooltip from "components/ads/Tooltip";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
+import {
+  getFirstTimeUserOnboardingComplete,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
 
 //  ---------- Styles ----------
 
@@ -164,10 +171,9 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const {
-    applicationId: currentApplicationId,
-    pageId: currentPageId,
-  } = useParams<ExplorerURLParams>();
+  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
@@ -241,6 +247,13 @@ function GeneratePageForm() {
     fetchBucketList,
     isFetchingBucketList,
   } = useS3BucketList();
+
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
+  );
 
   const onSelectDataSource = useCallback(
     (
@@ -468,11 +481,13 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      `${INTEGRATION_EDITOR_URL(
-        currentApplicationId,
+      INTEGRATION_EDITOR_URL(
+        applicationId,
         currentPageId,
         INTEGRATION_TABS.NEW,
-      )}?isGeneratePageMode=generate-page`,
+        "",
+        { isGeneratePageMode: "generate-page" },
+      ),
     );
   };
 
@@ -485,7 +500,7 @@ function GeneratePageForm() {
     }
 
     const payload = {
-      applicationId: currentApplicationId || "",
+      applicationId: applicationId || "",
       pageId:
         currentMode.current === GENERATE_PAGE_MODE.NEW
           ? ""
@@ -500,6 +515,18 @@ function GeneratePageForm() {
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
+    if (isFirstTimeUserOnboardingEnabled) {
+      dispatch({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+        payload: "",
+      });
+    }
+    if (isFirstTimeUserOnboardingComplete) {
+      dispatch({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
+        payload: false,
+      });
+    }
   };
 
   const handleFormSubmit = () => {
@@ -516,7 +543,7 @@ function GeneratePageForm() {
       datasourceId: selectedDatasource.id,
     });
     const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
-      currentApplicationId,
+      applicationId,
       currentPageId,
       selectedDatasource.id,
       { isGeneratePageMode: "generate-page" },
@@ -648,8 +675,9 @@ function GeneratePageForm() {
             {showSearchableColumn && (
               <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
                 <Row>
-                  Select a searchable {pluginField.COLUMN} from
-                  <Bold> &nbsp;{selectedTable.label} </Bold>
+                  Select a searchable {pluginField.COLUMN} from the
+                  selected&nbsp;
+                  {pluginField.TABLE}
                   <TooltipWrapper>
                     <Tooltip
                       content="Only string values are allowed for searchable column"

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
 import Icon from "components/ads/Icon";
@@ -42,7 +42,7 @@ const ScrollBtnContainer = styled.div<{ visible: boolean }>`
 `;
 
 type AppViewerHeaderProps = {
-  currentApplicationDetails?: ApplicationPayload;
+  currentApplicationDetails?: CurrentApplicationData;
   pages: PageListPayload;
 };
 

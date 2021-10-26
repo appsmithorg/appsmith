@@ -112,7 +112,7 @@ echo "Generating the configuration files from the templates"
 bash "$templates_dir/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$custom_domain" > nginx_app.conf
 bash "$templates_dir/docker-compose.yml.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_database" > docker-compose.yml
 bash "$templates_dir/mongo-init.js.sh" "$mongo_root_user" "$mongo_root_password" > mongo-init.js
-bash "$templates_dir/docker.env.sh" "$mongo_root_user" "$mongo_root_password" "$mongo_host" "$disable_telemetry" > docker.env
+bash "$templates_dir/docker.env.sh" "$mongo_database" "$mongo_root_user" "$mongo_root_password" "$mongo_host" "$disable_telemetry" > docker.env
 bash "$templates_dir/encryption.env.sh" "$user_encryption_password" "$user_encryption_salt" > encryption.env
 
 move_file "data/nginx/app.conf.template" "nginx_app.conf"

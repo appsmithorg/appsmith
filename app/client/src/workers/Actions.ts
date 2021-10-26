@@ -147,7 +147,7 @@ const DATA_TREE_FUNCTIONS: Record<
       },
     });
   },
-  resetWidget: function(widgetName: string, resetChildren = false) {
+  resetWidget: function(widgetName: string, resetChildren = true) {
     return promisifyAction({
       type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
       payload: { widgetName, resetChildren },
@@ -189,6 +189,24 @@ const DATA_TREE_FUNCTIONS: Record<
         },
       });
     },
+  },
+  setInterval: function(callback: Function, interval: number, id?: string) {
+    return promisifyAction({
+      type: ActionTriggerType.SET_INTERVAL,
+      payload: {
+        callback: callback.toString(),
+        interval,
+        id,
+      },
+    });
+  },
+  clearInterval: function(id: string) {
+    return promisifyAction({
+      type: ActionTriggerType.CLEAR_INTERVAL,
+      payload: {
+        id,
+      },
+    });
   },
 };
 

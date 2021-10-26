@@ -39,70 +39,49 @@ describe("getKeyPositionsInString()", () => {
 });
 
 describe("getLintAnnotations()", () => {
-  const { LINT, PARSE } = PropertyEvaluationErrorType;
-  const { ERROR, WARNING } = Severity;
+  const { LINT } = PropertyEvaluationErrorType;
+  const { WARNING } = Severity;
   it("should return proper annotations", () => {
-    const value = `Hello {{ world == test }}\n  {{text}}`;
+    const value = `Hello {{ world == test }}`;
     const errors: EvaluationError[] = [
       {
-        errorMessage: "Expected '===' and instead saw '=='.",
-        severity: WARNING,
-        raw:
-          "\n  function closedFunction () {\n    const result = world == test \n    return result;\n  }\n  closedFunction()\n  ",
         errorType: LINT,
-        originalBinding: "world == test ",
-        errorSegment: "    const result = world == test ",
+        raw:
+          "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
+        severity: WARNING,
+        errorMessage: "Expected '===' and instead saw '=='.",
+        errorSegment: "    const result =  world == test ",
+        originalBinding: " world == test ",
         variables: ["===", "==", null, null],
         code: "W116",
+        line: 0,
+        ch: 8,
       },
       {
         errorType: LINT,
         raw:
-          "\n  function closedFunction () {\n    const result = world == test \n    return result;\n  }\n  closedFunction()\n  ",
+          "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
         severity: WARNING,
         errorMessage: "'world' is not defined.",
-        errorSegment: "    const result = world == test ",
-        originalBinding: "world == test ",
+        errorSegment: "    const result =  world == test ",
+        originalBinding: " world == test ",
         variables: ["world", null, null, null],
         code: "W117",
+        line: 0,
+        ch: 2,
       },
       {
-        errorType: LINT,
-        raw:
-          "\n  function closedFunction () {\n    const result = world == test \n    return result;\n  }\n  closedFunction()\n  ",
-        severity: WARNING,
         errorMessage: "'test' is not defined.",
-        errorSegment: "    const result = world == test ",
-        originalBinding: "world == test ",
+        severity: WARNING,
+        raw:
+          "\n  function closedFunction () {\n    const result =  world == test \n    return result;\n  }\n  closedFunction()\n  ",
+        errorType: LINT,
+        originalBinding: " world == test ",
+        errorSegment: "    const result =  world == test ",
         variables: ["test", null, null, null],
         code: "W117",
-      },
-      {
-        errorType: PARSE,
-        raw:
-          "\n  function closedFunction () {\n    const result = world == test \n    return result;\n  }\n  closedFunction()\n  ",
-        severity: ERROR,
-        errorMessage: "ReferenceError: world is not defined",
-        originalBinding: " world == test ",
-      },
-      {
-        errorMessage: "'text' is not defined.",
-        severity: WARNING,
-        raw:
-          "\n  function closedFunction () {\n    const result = text\n    return result;\n  }\n  closedFunction()\n  ",
-        errorType: LINT,
-        originalBinding: "text",
-        errorSegment: "    const result = text",
-        variables: ["text", null, null, null],
-        code: "W117",
-      },
-      {
-        errorMessage: "ReferenceError: text is not defined",
-        severity: WARNING,
-        raw:
-          "\n  function closedFunction () {\n    const result = text\n    return result;\n  }\n  closedFunction()\n  ",
-        errorType: PARSE,
-        originalBinding: "text",
+        line: 0,
+        ch: 11,
       },
     ];
 
@@ -142,18 +121,6 @@ describe("getLintAnnotations()", () => {
           ch: 22,
         },
         message: "'test' is not defined.",
-        severity: "warning",
-      },
-      {
-        from: {
-          line: 1,
-          ch: 4,
-        },
-        to: {
-          line: 1,
-          ch: 8,
-        },
-        message: "'text' is not defined.",
         severity: "warning",
       },
     ]);

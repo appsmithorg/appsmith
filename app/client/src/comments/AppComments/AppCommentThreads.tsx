@@ -10,6 +10,7 @@ import {
   getCommentThreadsFetched,
   getSortedAndFilteredAppCommentThreadIds,
   shouldShowResolved as shouldShowResolvedSelector,
+  getLastUpdatedCommentThreadId,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -31,13 +32,19 @@ const Container = styled.div`
   overflow: auto;
 `;
 
-export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
+export const useSortedCommentThreadIds = (
+  applicationId: string,
+  commentThreadIds: string[],
+) => {
   const commentThreadsMap = useSelector(allCommentThreadsMap);
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
   const appCommentsFilter = useSelector(appCommentsFilterSelector);
 
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
+  const lastUpdatedCommentThreadId = useSelector(
+    getLastUpdatedCommentThreadId(applicationId),
+  );
 
   return useMemo(
     () =>
@@ -54,6 +61,7 @@ export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
       shouldShowResolved,
       appCommentsFilter,
       currentUsername,
+      lastUpdatedCommentThreadId,
     ],
   );
 };
@@ -67,7 +75,10 @@ function AppCommentThreads() {
   );
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
 
-  const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
+  const commentThreadIds = useSortedCommentThreadIds(
+    applicationId,
+    appCommentThreadIds,
+  );
 
   const commentThreadsMap = useSelector(allCommentThreadsMap);
 

@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -11,7 +11,7 @@ import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _, { debounce } from "lodash";
+import _, { debounce, orderBy } from "lodash";
 import { Category, Size } from "components/ads/Button";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
@@ -37,7 +37,7 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   margin-bottom: 2px;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 10px;
   padding-right: 60px;
   text-overflow: ellipsis;
   &&& {
@@ -73,20 +73,41 @@ type RenderComponentProps = {
 
 function MenuItemComponent(props: RenderComponentProps) {
   const { deleteOption, index, item, updateOption } = props;
+
+  const [value, setValue] = useState(item.label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && item && item.label) setValue(item.label);
+  }, [item?.label, isEditing]);
+
   const debouncedUpdate = debounce(updateOption, 1000);
+  const onChange = useCallback(
+    (index: number, value: string) => {
+      setValue(value);
+      debouncedUpdate(index, value);
+    },
+    [updateOption],
+  );
   const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
     index,
   ]);
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        defaultValue={item.label}
+        onBlur={onBlur}
         onChange={(value: string) => {
-          debouncedUpdate(index, value);
+          onChange(index, value);
         }}
+        onFocus={onFocus}
         placeholder="Menu item label"
+        value={value}
       />
       <StyledDeleteIcon
         className="t--delete-tab-btn"
@@ -136,15 +157,17 @@ class MenuItemsControl extends BaseControl<ControlProps> {
     const menuItems: Array<{
       id: string;
       label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
+    }> =
+      _.isString(this.props.propertyValue) ||
+      _.isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
     return (
       <MenuItemsWrapper>
         <DroppableComponent
           deleteOption={this.deleteOption}
           itemHeight={45}
-          items={menuItems}
+          items={orderBy(menuItems, ["index"], ["asc"])}
           onEdit={this.onEdit}
           renderComponent={MenuItemComponent}
           toggleVisibility={this.toggleVisibility}
@@ -154,6 +177,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
         <StyledPropertyPaneButtonWrapper>
           <AddMenuItemButton
             category={Category.tertiary}
+            className="t--add-menu-item-btn"
             icon="plus"
             onClick={this.addOption}
             size={Size.medium}
@@ -218,7 +242,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   };
 
   addOption = () => {
-    let menuItems = this.props.propertyValue;
+    let menuItems = this.props.propertyValue || [];
     const menuItemsArray = Object.values(menuItems);
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
     const newMenuItemLabel = getNextEntityName(

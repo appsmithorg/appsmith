@@ -64,7 +64,10 @@ import {
 } from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getPageList } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getPageList,
+} from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, keyBy, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -74,6 +77,11 @@ import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
 import { lightTheme } from "selectors/themeSelectors";
+import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import copy from "copy-to-clipboard";
+import { getSnippet } from "./SnippetsDescription";
+import { Variant } from "components/ads/common";
+import { Toaster } from "components/ads/Toast";
 
 const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
@@ -108,8 +116,12 @@ const isModalOpenSelector = (state: AppState) =>
 
 const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
-const isMatching = (text = "", query = "") =>
-  text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
+const isMatching = (text = "", query = "") => {
+  if (typeof text === "string" && typeof query === "string") {
+    return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
+  }
+  return false;
+};
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   if (item.kind === SEARCH_ITEM_TYPES.document) {
@@ -161,6 +173,13 @@ function GlobalSearch() {
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
+  const [query, setQueryInState] = useState("");
+  const setQuery = useCallback(
+    (value: string) => {
+      setQueryInState(value);
+    },
+    [setQueryInState],
+  );
   const optionalFilterMeta = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.fieldMeta,
   );
@@ -168,12 +187,15 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
-  const setCategory = (category: SearchCategory) => {
-    if (isSnippet(category)) {
-      AnalyticsUtil.logEvent("SNIPPET_CATEGORY_CLICK");
-    }
-    dispatch(setGlobalSearchFilterContext({ category: category }));
-  };
+  const setCategory = useCallback(
+    (category: SearchCategory) => {
+      if (isSnippet(category)) {
+        AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      }
+      dispatch(setGlobalSearchFilterContext({ category: category }));
+    },
+    [dispatch, isSnippet, setGlobalSearchFilterContext],
+  );
   const setRefinements = (entityMeta: any) =>
     dispatch(setGlobalSearchFilterContext({ refinements: entityMeta }));
   const refinements = useSelector(
@@ -181,6 +203,8 @@ function GlobalSearch() {
   );
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
+
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
@@ -189,10 +213,7 @@ function GlobalSearch() {
     dispatch(toggleShowGlobalSearchModal());
     dispatch(cancelSnippet());
   };
-  const [query, setQueryInState] = useState("");
-  const setQuery = useCallback((query: string) => {
-    setQueryInState(query);
-  }, []);
+
   const scrollPositionRef = useRef(0);
 
   const [
@@ -436,12 +457,7 @@ function GlobalSearch() {
     const { config } = item;
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(
-      params.applicationId,
-      pageId,
-      id,
-      pluginType,
-    );
+    const url = actionConfig?.getURL(applicationId, pageId, id, pluginType);
     toggleShow();
     url && history.push(url);
   };
@@ -449,7 +465,7 @@ function GlobalSearch() {
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
-    history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
+    history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id));
     toggleShow();
   };
 
@@ -457,7 +473,7 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
-        params.applicationId,
+        applicationId,
         item.pageId,
         item.id,
         getQueryParams(),
@@ -467,12 +483,33 @@ function GlobalSearch() {
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId: item.pageId }));
   };
+
+  const onEnterSnippet = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.onEnter,
+  );
 
   const handleSnippetClick = (event: SelectEvent, item: any) => {
     if (event && event.type === "click") return;
-    dispatch(insertSnippet(get(item, "body.snippet", "")));
+    const snippetExecuteBtn = document.querySelector(
+      ".snippet-execute",
+    ) as HTMLButtonElement;
+    if (snippetExecuteBtn && !snippetExecuteBtn.disabled) {
+      return snippetExecuteBtn && snippetExecuteBtn.click();
+    }
+    if (onEnterSnippet === SnippetAction.INSERT) {
+      dispatch(insertSnippet(get(item, "body.snippet", "")));
+    } else {
+      const snippet = getSnippet(get(item, "body.snippet", ""), {});
+      const title = get(item, "body.title", "");
+      copy(snippet);
+      Toaster.show({
+        text: "Snippet copied to clipboard",
+        variant: Variant.success,
+      });
+      AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet, title });
+    }
     toggleShow();
   };
 

@@ -11,7 +11,7 @@ export const removeNewLineChars = (inputValue: any) => {
 };
 
 export const getInputValue = (inputValue: any) => {
-  if (typeof inputValue === "object") {
+  if (typeof inputValue === "object" || typeof inputValue === "boolean") {
     inputValue = JSON.stringify(inputValue, null, 2);
   } else if (typeof inputValue === "number" || typeof inputValue === "string") {
     inputValue += "";

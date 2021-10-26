@@ -1,15 +1,16 @@
 import { PositionedContainerProps } from "components/designSystems/appsmith/PositionedContainer";
 import { Layers } from "constants/Layers";
-import { DroppableWidgets } from "constants/WidgetConstants";
+
 import { useMemo } from "react";
 import { AppState } from "reducers";
+
 import { getSelectedWidgets } from "selectors/ui";
 import { useSelector } from "store";
 
 export const usePositionedContainerZIndex = (
   props: PositionedContainerProps,
+  droppableWidget: boolean,
 ) => {
-  const droppableWidget = DroppableWidgets.includes(props.widgetType);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );

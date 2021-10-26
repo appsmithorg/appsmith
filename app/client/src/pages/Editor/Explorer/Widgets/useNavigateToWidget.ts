@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { flashElementsById } from "utils/helpers";
@@ -12,6 +12,10 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
+import WidgetFactory from "utils/WidgetFactory";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
@@ -21,8 +25,9 @@ export const useNavigateToWidget = () => {
     selectWidget,
     shiftSelectWidgetEntityExplorer,
   } = useWidgetSelection();
+  const applicationId = useSelector(getCurrentApplicationId);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
-    navigateToCanvas(params, window.location.pathname, pageId, widgetId);
+    navigateToCanvas({ pageId, widgetId, applicationId });
     flashElementsById(widgetId);
     selectWidget(widgetId, true);
   };
@@ -40,12 +45,14 @@ export const useNavigateToWidget = () => {
     if (parentModalId) dispatch(showModal(parentModalId));
     else dispatch(closeAllModals());
     selectWidget(widgetId, false);
-    navigateToCanvas(params, window.location.pathname, pageId, widgetId);
+    navigateToCanvas({ pageId, widgetId, applicationId });
 
-    flashElementsById(widgetId);
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
     setTimeout(() => {
+      if (params.pageId === pageId) {
+        flashElementsById(widgetId);
+      }
       dispatch(forceOpenPropertyPane(widgetId));
     }, 0);
   };

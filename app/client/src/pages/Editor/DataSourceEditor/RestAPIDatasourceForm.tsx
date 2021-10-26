@@ -11,7 +11,6 @@ import {
   InjectedFormProps,
   reduxForm,
 } from "redux-form";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import InputTextControl, {
   StyledInfo,
@@ -53,8 +52,10 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { ButtonVariantTypes } from "components/constants";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -207,6 +208,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (!authentication || !_.get(authentication, "addTo")) {
       this.props.change("authentication.addTo", ApiKeyAuthType.Header);
     }
+    if (!authentication || !_.get(authentication, "headerPrefix")) {
+      this.props.change("authentication.headerPefix", "ApiKeyAuthType.Header");
+    }
   };
 
   ensureOAuthDefaultsAreCorrect = () => {
@@ -331,7 +335,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <ActionButton
           // accent="error"
           buttonStyle="DANGER"
-          buttonVariant="SOLID"
+          buttonVariant={ButtonVariantTypes.PRIMARY}
           className="t--delete-datasource"
           loading={isDeleting}
           onClick={() => deleteDatasource(datasourceId)}
@@ -467,6 +471,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderApiKey = () => {
+    const { authentication } = this.props.formData;
     return (
       <>
         <FormInputContainer>
@@ -481,6 +486,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.value"
+            encrypted
             label="Value"
             placeholderText="value"
           />
@@ -504,6 +510,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             propertyValue=""
           />
         </FormInputContainer>
+        {_.get(authentication, "addTo") == "header" && (
+          <FormInputContainer>
+            <InputTextControl
+              {...COMMON_INPUT_PROPS}
+              configProperty="authentication.headerPrefix"
+              label="Header Prefix"
+              placeholderText="eg: Bearer "
+            />
+          </FormInputContainer>
+        )}
       </>
     );
   };
@@ -514,6 +530,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         <InputTextControl
           {...COMMON_INPUT_PROPS}
           configProperty="authentication.bearerToken"
+          encrypted
           label="Bearer Token"
           placeholderText="Bearer Token"
         />

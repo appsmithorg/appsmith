@@ -1,12 +1,12 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { InputType } from "widgets/InputWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormLabel from "components/editorComponents/FormLabel";
 import { FormIcons } from "icons/FormIcons";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { InputType } from "components/constants";
 
 export const StyledInfo = styled.span`
   font-weight: normal;

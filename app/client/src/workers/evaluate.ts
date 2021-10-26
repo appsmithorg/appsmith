@@ -6,10 +6,10 @@ import {
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
-import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
 import { completePromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
+import { getLintingErrors } from "workers/lint";
 
 export type EvalResult = {
   result: any;
@@ -22,28 +22,28 @@ export enum EvaluationScriptType {
   TRIGGERS = "TRIGGERS",
 }
 
-const evaluationScripts: Record<
-  EvaluationScriptType,
-  (script: string) => string
-> = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `
+export const ScriptTemplate = "<<string>>";
+
+export const EvaluationScripts: Record<EvaluationScriptType, string> = {
+  [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
-    const result = ${script}
+    const result = ${ScriptTemplate}
     return result;
   }
   closedFunction()
   `,
-  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) => `
+  [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
     const result = userFunction.apply(self, ARGUMENTS);
     return result;
   }
-  callback(${script})
+  callback(${ScriptTemplate})
   `,
-  [EvaluationScriptType.TRIGGERS]: (script) => `
+  [EvaluationScriptType.TRIGGERS]: `
   async function closedFunction () {
-    const result = await ${script};
+    const result = await ${ScriptTemplate}
+    return result
   }
   closedFunction();
   `,
@@ -62,51 +62,13 @@ const getScriptType = (
   return scriptType;
 };
 
-const getScriptToEval = (
+export const getScriptToEval = (
   userScript: string,
-  evalArguments?: Array<any>,
-  isTriggerBased = false,
+  type: EvaluationScriptType,
 ): string => {
-  const scriptType = getScriptType(evalArguments, isTriggerBased);
-  return evaluationScripts[scriptType](userScript);
-};
-
-const getLintingErrors = (
-  script: string,
-  data: Record<string, unknown>,
-  originalBinding: string,
-): EvaluationError[] => {
-  const globalData: Record<string, boolean> = {};
-  Object.keys(data).forEach((datum) => (globalData[datum] = false));
-  const options = {
-    indent: 2,
-    esversion: 7,
-    eqeqeq: true,
-    curly: true,
-    freeze: true,
-    undef: true,
-    unused: true,
-    asi: true,
-    worker: true,
-    globals: globalData,
-  };
-  jshint(script, options);
-
-  return jshint.errors.map((lintError) => {
-    return {
-      errorType: PropertyEvaluationErrorType.LINT,
-      raw: script,
-      severity: lintError.code.startsWith("W")
-        ? Severity.WARNING
-        : Severity.ERROR,
-      errorMessage: lintError.reason,
-      errorSegment: lintError.evidence,
-      originalBinding,
-      // By keeping track of these variables we can highlight the exact text that caused the error.
-      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
-      code: lintError.code,
-    };
-  });
+  // Using replace here would break scripts with replacement patterns (ex: $&, $$)
+  const buffer = EvaluationScripts[type].split(ScriptTemplate);
+  return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
 export function setupEvaluationEnvironment() {
@@ -127,6 +89,41 @@ export function setupEvaluationEnvironment() {
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
+export const createGlobalData = (
+  dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
+  isTriggerBased: boolean,
+  evalArguments?: Array<any>,
+) => {
+  const GLOBAL_DATA: Record<string, any> = {};
+  ///// Adding callback data
+  GLOBAL_DATA.ARGUMENTS = evalArguments;
+  if (isTriggerBased) {
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+  } else {
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
+    });
+  }
+  if (!isEmpty(resolvedFunctions)) {
+    Object.keys(resolvedFunctions).forEach((datum: any) => {
+      const resolvedObject = resolvedFunctions[datum];
+      Object.keys(resolvedObject).forEach((key: any) => {
+        const dataTreeKey = GLOBAL_DATA[datum];
+        if (dataTreeKey) {
+          dataTreeKey[key] = resolvedObject[key];
+        }
+      });
+    });
+  }
+  return GLOBAL_DATA;
+};
+
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
@@ -139,42 +136,36 @@ export default function evaluateSync(
   const unescapedJS = unescapeJS(
     userScript.replace(beginsWithLineBreakRegex, ""),
   );
-  const script = getScriptToEval(unescapedJS, evalArguments);
+  const scriptType = getScriptType(evalArguments, false);
+  const script = getScriptToEval(unescapedJS, scriptType);
+  // We are linting original js binding,
+  // This will make sure that the character count is not messed up when we do unescapejs
+  const scriptToLint = getScriptToEval(userScript, scriptType);
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = {};
-    ///// Adding callback data
-    GLOBAL_DATA.ARGUMENTS = evalArguments;
-
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
-
-    ///// Adding Data tree
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
+    const GLOBAL_DATA: Record<string, any> = createGlobalData(
+      dataTree,
+      resolvedFunctions,
+      false,
+      evalArguments,
+    );
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-
-    Object.keys(GLOBAL_DATA).forEach((key) => {
+    for (const entity in GLOBAL_DATA) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
-      self[key] = GLOBAL_DATA[key];
-    });
-
-    if (!isEmpty(resolvedFunctions)) {
-      Object.keys(resolvedFunctions).forEach((datum: any) => {
-        const resolvedObject = resolvedFunctions[datum];
-        Object.keys(resolvedObject).forEach((key: any) => {
-          self[datum][key] = resolvedObject[key];
-        });
-      });
+      self[entity] = GLOBAL_DATA[entity];
     }
-    errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
+    errors = getLintingErrors(
+      scriptToLint,
+      GLOBAL_DATA,
+      userScript,
+      scriptType,
+    );
 
     try {
       result = eval(script);
@@ -188,6 +179,14 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     }
+
+    // Remove it from self
+    // This is needed so that next eval can have a clean sheet
+    Object.keys(GLOBAL_DATA).forEach((key) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      delete self[key];
+    });
 
     return { result, errors };
   })();
@@ -206,7 +205,8 @@ export async function evaluateAsync(
   const unescapedJS = unescapeJS(
     userScript.replace(beginsWithLineBreakRegex, ""),
   );
-  const script = getScriptToEval(unescapedJS, evalArguments, true);
+  const scriptType = getScriptType(evalArguments, true);
+  const script = getScriptToEval(unescapedJS, scriptType);
   return (async function() {
     let errors: EvaluationError[] = [];
     let result;
@@ -229,7 +229,7 @@ export async function evaluateAsync(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
+    errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS, scriptType);
     if (!isEmpty(resolvedFunctions)) {
       Object.keys(resolvedFunctions).forEach((datum: any) => {
         const resolvedObject = resolvedFunctions[datum];

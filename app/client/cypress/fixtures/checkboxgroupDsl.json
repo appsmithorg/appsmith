@@ -1,0 +1,57 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1280,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 530,
+        "containerStyle": "none",
+        "snapRows": 129,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 39,
+        "minHeight": 590,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isRequired": false,
+                "widgetName": "CheckboxGroup1",
+                "rightColumn": 64,
+                "defaultSelectedValues": "apple",
+                "widgetId": "g6sddv09d5",
+                "topRow": 1,
+                "bottomRow": 33,
+                "parentRowSpace": 10,
+                "isVisible": true,
+                "type": "CHECKBOX_GROUP_WIDGET",
+                "version": 1,
+                "parentId": "0",
+                "isLoading": false,
+                "parentColumnSpace": 7.852001953124999,
+                "leftColumn": 24,
+                "dynamicBindingPathList": [],
+                "options": [
+                    {
+                        "label": "Apple",
+                        "value": "apple"
+                    },
+                    {
+                        "label": "Orange",
+                        "value": "orange"
+                    },
+                    {
+                        "label": "Lemon",
+                        "value": "lemon"
+                    }
+                ],
+                "isDisabled": false
+            }
+        ]
+    }
+}

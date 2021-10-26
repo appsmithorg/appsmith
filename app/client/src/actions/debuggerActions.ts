@@ -73,3 +73,8 @@ export const hideDebuggerErrors = (payload: boolean) => ({
   type: ReduxActionTypes.HIDE_DEBUGGER_ERRORS,
   payload,
 });
+
+export const setCurrentTab = (payload: string) => ({
+  type: ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB,
+  payload,
+});

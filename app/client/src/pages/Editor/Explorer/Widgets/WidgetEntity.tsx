@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
@@ -18,7 +18,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
-const UNREGISTERED_WIDGETS: WidgetType[] = [WidgetTypes.ICON_WIDGET];
+const UNREGISTERED_WIDGETS: WidgetType[] = ["ICON_WIDGET"];
 
 const useWidget = (
   widgetId: string,
@@ -192,9 +192,5 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 });
 
 WidgetEntity.displayName = "WidgetEntity";
-
-(WidgetEntity as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default WidgetEntity;

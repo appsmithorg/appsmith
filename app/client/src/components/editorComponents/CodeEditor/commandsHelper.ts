@@ -10,6 +10,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
+import { SlashCommandPayload } from "entities/Action";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions = Object.values(data).filter(
@@ -28,7 +29,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         update,
       }: {
         datasources: Datasource[];
-        executeCommand: (payload: { actionType: string; args?: any }) => void;
+        executeCommand: (payload: SlashCommandPayload) => void;
         pluginIdToImageLocation: Record<string, string>;
         recentEntities: string[];
         update: (value: string) => void;
@@ -45,9 +46,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const value = editor.getValue();
       const slashIndex = value.lastIndexOf("/");
-      const shouldShowBinding =
-        slashIndex > -1 || (!value && currentEntityType === ENTITY_TYPE.WIDGET);
-      if (!cursorBetweenBinding && shouldShowBinding) {
+      const shouldShowBinding = !cursorBetweenBinding && slashIndex > -1;
+      if (shouldShowBinding) {
         const searchText = value.substring(slashIndex + 1);
         const list = generateQuickCommands(
           entitiesForSuggestions,
@@ -95,7 +95,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                 if (selected.action && typeof selected.action === "function") {
                   selected.action();
                 } else {
-                  CodeMirror.signal(editor, "postPick");
+                  selected.triggerCompletionsPostPick &&
+                    CodeMirror.signal(editor, "postPick");
                 }
               });
               try {

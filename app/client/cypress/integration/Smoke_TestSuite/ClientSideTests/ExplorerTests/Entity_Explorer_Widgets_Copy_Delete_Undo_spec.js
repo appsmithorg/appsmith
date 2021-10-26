@@ -13,6 +13,8 @@ before(() => {
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function() {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
   it("Drag and drop form widget and validate copy widget via toast message", function() {
     cy.openPropertyPane("formwidget");
     cy.widgetText(
@@ -46,10 +48,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       .trigger("mouseover")
       .click({ force: true });
       */
-    cy.get(commonlocators.toastAction).should("be.visible");
-    cy.get(commonlocators.toastAction)
-      .contains("UNDO")
-      .click({ force: true });
+    cy.get("body").type(`{${modifierKey}}z`);
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

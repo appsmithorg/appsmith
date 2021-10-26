@@ -8,7 +8,7 @@ const isVisible = {
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
-export const entityDefinitions = {
+export const entityDefinitions: Record<string, unknown> = {
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
     let data: Record<string, any> = {
@@ -33,6 +33,13 @@ export const entityDefinitions = {
         "fn(onSuccess: fn() -> void, onError: fn() -> void) -> +Promise[:t=[!0.<i>.:t]]",
       clear: "fn() -> +Promise[:t=[!0.<i>.:t]]",
     };
+  },
+  AUDIO_WIDGET: {
+    "!doc":
+      "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",
+    "!url": "https://docs.appsmith.com/widget-reference/audio",
+    playState: "number",
+    autoPlay: "bool",
   },
   CONTAINER_WIDGET: {
     "!doc":
@@ -71,6 +78,7 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/table",
     selectedRow: generateTypeDef(widget.selectedRow),
     selectedRows: generateTypeDef(widget.selectedRows),
+    triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
     pageNo: "number",
@@ -281,6 +289,8 @@ export const entityDefinitions = {
     selectedItem: generateTypeDef(widget.selectedItem),
     items: generateTypeDef(widget.items),
     listData: generateTypeDef(widget.listData),
+    pageNo: generateTypeDef(widget.pageNo),
+    pageSize: generateTypeDef(widget.pageSize),
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",
@@ -314,6 +324,45 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/menu-button",
     isVisible: isVisible,
     label: "string",
+  },
+  //TODO: fix this after development
+  SINGLE_SELECT_TREE_WIDGET: {
+    "!doc":
+      "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValue: {
+      "!type": "string",
+      "!doc": "The value selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+  },
+  MULTI_SELECT_TREE_WIDGET: {
+    "!doc":
+      "Multi TreeSelect is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A TreeSelect can capture a single choice as well as multiple choices",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
   },
   ICON_BUTTON_WIDGET: {
     "!doc":
@@ -416,6 +465,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Reset widget values",
     "!type":
       "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
+  },
+  setInterval: {
+    "!doc": "Execute triggers at a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+  clearInterval: {
+    "!doc": "Stop executing a setInterval with id",
+    "!type": "fn(id: string) -> void",
   },
 };
 

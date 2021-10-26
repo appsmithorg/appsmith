@@ -1,14 +1,16 @@
 import {
   executeActionTriggers,
   executeAppAction,
+  TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
-import { ACTION_ANONYMOUS_FUNC_REGEX } from "components/editorComponents/ActionCreator/Fields";
 import { PromiseActionDescription } from "entities/DataTree/actionTriggers";
+import {
+  UncaughtAppsmithPromiseError,
+  UserCancelledActionExecutionError,
+} from "sagas/ActionExecution/errorUtils";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -29,48 +31,43 @@ export class PluginTriggerFailureError extends TriggerFailureError {
 export default function* executePromiseSaga(
   trigger: PromiseActionDescription["payload"],
   eventType: EventType,
+  triggerMeta: TriggerMeta,
 ): any {
   try {
     const responses = yield all(
       trigger.executor.map((executionTrigger) =>
-        call(executeActionTriggers, executionTrigger, eventType),
+        call(executeActionTriggers, executionTrigger, eventType, triggerMeta),
       ),
     );
     if (trigger.then) {
       if (trigger.then.length) {
-        let responseData: unknown[] = [];
+        let responseData: unknown[] = [{}];
         if (responses.length === 1) {
           responseData = responses[0];
         }
+        const thenArguments = responseData || [{}];
         for (const thenable of trigger.then) {
           responseData = yield call(executeAppAction, {
             dynamicString: thenable,
             event: {
               type: eventType,
             },
-            responseData,
+            responseData: thenArguments,
+            source: triggerMeta.source,
+            triggerPropertyName: triggerMeta.triggerPropertyName,
           });
         }
       }
     }
   } catch (e) {
-    log.error(e);
-    if (!trigger.catch) {
-      Toaster.show({
-        text: e.message || "There was an error while executing",
-        variant: Variant.danger,
-        showDebugButton: true,
-      });
-    }
-    if (trigger.catch) {
+    if (e instanceof UserCancelledActionExecutionError) {
+      // Let this pass to finally clause
+    } else if (trigger.catch) {
       let responseData = [e.message];
       if (e instanceof PluginTriggerFailureError) {
         responseData = e.responseData;
       }
-      // if the catch callback is not an anonymous function, passing arguments will cause errors in execution
-      const catchArguments = ACTION_ANONYMOUS_FUNC_REGEX.test(trigger.catch)
-        ? responseData
-        : undefined;
+      const catchArguments = responseData || [{}];
 
       yield call(executeAppAction, {
         dynamicString: trigger.catch,
@@ -78,9 +75,12 @@ export default function* executePromiseSaga(
           type: eventType,
         },
         responseData: catchArguments,
+        source: triggerMeta.source,
+        triggerPropertyName: triggerMeta.triggerPropertyName,
       });
     } else {
-      throw new TriggerFailureError("Uncaught promise rejection", e);
+      log.error(e);
+      throw new UncaughtAppsmithPromiseError(e.message, triggerMeta, e);
     }
   }
 
@@ -90,6 +90,9 @@ export default function* executePromiseSaga(
       event: {
         type: eventType,
       },
+      responseData: [{}],
+      source: triggerMeta.source,
+      triggerPropertyName: triggerMeta.triggerPropertyName,
     });
   }
 }

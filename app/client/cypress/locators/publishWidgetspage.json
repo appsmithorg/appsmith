@@ -13,6 +13,8 @@
   "imageWidget": ".t--widget-imagewidget",
   "dropdownWidget": ".t--widget-dropdownwidget",
   "multiselectwidget": ".t--widget-multiselectwidget",
+  "multiselecttreewidget": ".t--widget-multiselecttreewidget",
+  "singleselecttreewidget": ".t--widget-singleselecttreewidget",
   "tabWidget": ".t--widget-tabswidget",
   "chartWidget": ".t--widget-chartwidget",
   "horizontalTab": ".t--widget-chartwidget g[class*='-scrollContainer'] rect",

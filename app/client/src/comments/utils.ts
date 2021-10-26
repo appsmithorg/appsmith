@@ -4,10 +4,9 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
@@ -123,10 +122,10 @@ export const getCommentThreadURL = ({
   pageId,
   mode = APP_MODE.PUBLISHED,
 }: {
-  applicationId?: string;
+  applicationId: string;
   commentThreadId: string;
   isResolved?: boolean;
-  pageId?: string;
+  pageId: string;
   mode?: APP_MODE;
 }) => {
   const queryParams: Record<string, any> = {
@@ -144,11 +143,11 @@ export const getCommentThreadURL = ({
       : BUILDER_PAGE_URL;
 
   const url = new URL(
-    `${window.location.origin}${urlBuilder(
-      applicationId,
+    `${window.location.origin}${urlBuilder({
+      applicationId: applicationId,
       pageId,
-      queryParams,
-    )}`,
+      params: queryParams,
+    })}`,
   );
 
   return url;

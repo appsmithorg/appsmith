@@ -5,7 +5,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;

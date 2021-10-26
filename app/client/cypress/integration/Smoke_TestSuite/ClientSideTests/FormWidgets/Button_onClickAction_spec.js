@@ -17,25 +17,14 @@ describe("Button Widget Functionality", function() {
     cy.openPropertyPane("buttonwidget");
   });
 
-  it("Button-AlertModal Validation", function() {
-    //creating the Alert Modal and verify Modal name
-    cy.createModal("Alert Modal", this.data.AlertModalName);
+  it("Button-Modal Validation", function() {
+    //creating the Modal and verify Modal name
+    cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.AlertModalName,
-    );
-  });
-
-  it("Button-FormModal Validation", function() {
-    //creating the Form Modal and verify Modal name
-    cy.updateModal("Form Modal", this.data.FormModalName);
-    cy.PublishtheApp();
-    cy.get(publishPage.buttonWidget).click();
-    cy.get(modalWidgetPage.modelTextField).should(
-      "have.text",
-      this.data.FormModalName,
+      this.data.ModalName,
     );
   });
 

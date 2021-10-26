@@ -1,8 +1,7 @@
-import { WidgetType, RenderMode } from "constants/WidgetConstants";
 import {
   WidgetBuilder,
-  WidgetProps,
   WidgetDataProps,
+  WidgetProps,
   WidgetState,
 } from "widgets/BaseWidget";
 import React from "react";
@@ -12,7 +11,9 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
+import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { RenderMode } from "constants/WidgetConstants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -42,6 +43,8 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
     return sectionOrControlConfig;
   });
 };
+
+export type WidgetType = typeof WidgetFactory.widgetTypes[number];
 
 function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
@@ -88,6 +91,7 @@ function validateValidationStructure(
   return config;
 }
 class WidgetFactory {
+  static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
     WidgetBuilder<WidgetProps, WidgetState>
@@ -110,29 +114,44 @@ class WidgetFactory {
     readonly PropertyPaneConfig[]
   > = new Map();
 
+  static widgetConfigMap: Map<
+    WidgetType,
+    Partial<WidgetProps> & WidgetConfigProps & { type: string }
+  > = new Map();
+
   static registerWidgetBuilder(
-    widgetType: WidgetType,
+    widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
-    this.widgetMap.set(widgetType, widgetBuilder);
-    this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
-    this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
-    this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
+    if (!this.widgetTypes[widgetType]) {
+      this.widgetTypes[widgetType] = widgetType;
+      this.widgetMap.set(widgetType, widgetBuilder);
+      this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
+      this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
+      this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
-    if (propertyPaneConfig) {
-      const validatedPropertyPaneConfig = validatePropertyPaneConfig(
-        propertyPaneConfig,
-      );
+      if (propertyPaneConfig) {
+        const validatedPropertyPaneConfig = validatePropertyPaneConfig(
+          propertyPaneConfig,
+        );
 
-      this.propertyPaneConfigsMap.set(
-        widgetType,
-        Object.freeze(addPropertyConfigIds(validatedPropertyPaneConfig)),
-      );
+        this.propertyPaneConfigsMap.set(
+          widgetType,
+          Object.freeze(addPropertyConfigIds(validatedPropertyPaneConfig)),
+        );
+      }
     }
+  }
+
+  static storeWidgetConfig(
+    widgetType: string,
+    config: Partial<WidgetProps> & WidgetConfigProps & { type: string },
+  ) {
+    this.widgetConfigMap.set(widgetType, Object.freeze(config));
   }
 
   static createWidget(
@@ -143,7 +162,7 @@ class WidgetFactory {
       key: widgetData.widgetId,
       isVisible: true,
       ...widgetData,
-      renderMode: renderMode,
+      renderMode,
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {

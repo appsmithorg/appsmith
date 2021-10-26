@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import { debounce } from "lodash";
@@ -13,21 +13,14 @@ import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "reducers";
 import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
-
-const Wrapper = styled.div`
-  & > div {
-    margin-top: 27px;
-  }
-`;
-const FieldWrapper = styled.div`
-  width: 520px;
-  display: flex;
-`;
-
-const LabelWrapper = styled.div`
-  width: 200px;
-  display: flex;
-`;
+import {
+  Wrapper,
+  FieldWrapper,
+  LabelWrapper,
+  Loader,
+  TextLoader,
+} from "./StyledComponents";
+import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -37,18 +30,6 @@ const ForgotPassword = styled.a`
     text-decoration: none;
   }
   display: inline-block;
-`;
-
-const Loader = styled.div`
-  height: 38px;
-  width: 320px;
-  border-radius: 0;
-`;
-
-const TextLoader = styled.div`
-  height: 15px;
-  width: 320px;
-  border-radius: 0;
 `;
 
 function General() {
@@ -82,6 +63,10 @@ function General() {
   const isFetchingUser = useSelector(
     (state: AppState) => state.ui.users.loadingStates.fetchingUser,
   );
+
+  useEffect(() => {
+    dispatch(refreshCurrentUser());
+  }, []);
 
   return (
     <Wrapper>

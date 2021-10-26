@@ -1,6 +1,7 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
+import { CommentsOnboardingState } from "../constants/userConstants";
 
 export interface LoginUserRequest {
   email: string;
@@ -53,6 +54,25 @@ export interface InviteUserRequest {
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
+  role?: string;
+  useCase?: string;
+}
+
+export interface CommentsOnboardingStateRequest {
+  commentOnboardingState: CommentsOnboardingState;
+}
+
+export interface CreateSuperUserRequest {
+  email: string;
+  name: string;
+  source: "FORM";
+  state: "ACTIVATED";
+  isEnabled: boolean;
+  password: string;
+  role: "Developer";
+  companyName: string;
+  allowCollectingAnonymousData: boolean;
+  signupForNewsletter: boolean;
 }
 
 class UserApi extends Api {
@@ -69,6 +89,11 @@ class UserApi extends Api {
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
+  static superUserURL = "v1/users/super";
+  static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
+  static adminSettingsURL = "v1/admin/env";
+  static restartServerURL = "v1/admin/restart";
+  static downloadConfigURL = "v1/admin/env/download";
 
   static createUser(
     request: CreateUserRequest,
@@ -149,6 +174,36 @@ class UserApi extends Api {
 
   static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.featureFlagsURL);
+  }
+
+  static createSuperUser(
+    request: CreateSuperUserRequest,
+  ): AxiosPromise<CreateUserResponse> {
+    return Api.post(UserApi.superUserURL, request);
+  }
+
+  static updateUsersCommentOnboardingState(
+    request: CommentsOnboardingStateRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.patch(UserApi.commentsOnboardingStateURL, request);
+  }
+
+  /*
+   * Super user endpoints
+   */
+
+  static fetchAdminSettings(): AxiosPromise<ApiResponse> {
+    return Api.get(UserApi.adminSettingsURL);
+  }
+
+  static saveAdminSettings(
+    request: Record<string, string>,
+  ): AxiosPromise<ApiResponse> {
+    return Api.put(UserApi.adminSettingsURL, request);
+  }
+
+  static restartServer(): AxiosPromise<ApiResponse> {
+    return Api.post(UserApi.restartServerURL);
   }
 }
 

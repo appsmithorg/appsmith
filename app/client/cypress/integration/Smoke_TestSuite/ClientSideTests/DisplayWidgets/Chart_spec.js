@@ -248,9 +248,9 @@ describe("Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
-  it("Chart - Show Alert Modal", function() {
-    //creating the Alert Modal and verify Modal name
-    cy.createModal("Alert Modal", this.data.AlertModalName);
+  it("Chart - Modal", function() {
+    //creating the Modal and verify Modal name
+    cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
     cy.get(widgetsPage.chartPlotGroup)
       .children()
@@ -258,21 +258,7 @@ describe("Chart Widget Functionality", function() {
       .click();
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.AlertModalName,
-    );
-  });
-
-  it("Chart - Form Modal Validation", function() {
-    //creating the Form Modal and verify Modal name
-    cy.updateModal("Form Modal", this.data.FormModalName);
-    cy.PublishtheApp();
-    cy.get(widgetsPage.chartPlotGroup)
-      .children()
-      .first()
-      .click();
-    cy.get(modalWidgetPage.modelTextField).should(
-      "have.text",
-      this.data.FormModalName,
+      this.data.ModalName,
     );
   });
 
@@ -306,13 +292,13 @@ describe("Chart Widget Functionality", function() {
   });
 
   it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function() {
-    cy.togglebarDisable(commonlocators.horizontalScroll);
+    cy.togglebarDisable(commonlocators.allowScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab).should("not.exist");
   });
 
   it("Chart Widget Functionality To Check Horizontal Scroll Visible", function() {
-    cy.togglebar(commonlocators.horizontalScroll);
+    cy.togglebar(commonlocators.allowScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab)
       .eq(1)

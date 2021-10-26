@@ -6,6 +6,7 @@ import ExplorerJSCollectionEntity from "./JSActionEntity";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { ADD_JS_ACTION, createMessage } from "constants/messages";
 
 type ExplorerJSCollectionGroupProps = {
   pageId: string;
@@ -18,8 +19,7 @@ export const ExplorerJSCollectionGroup = memo(
   (props: ExplorerJSCollectionGroupProps) => {
     const emptyNode = (
       <EntityPlaceholder step={props.step + 1}>
-        No JS Objects yet. Please click the <strong>+</strong> icon on above, to
-        create.
+        Please click the <strong>+</strong> icon above to create new JS Objects
       </EntityPlaceholder>
     );
     const jsActions = props.jsActions || [];
@@ -42,6 +42,7 @@ export const ExplorerJSCollectionGroup = memo(
     const dispatch = useDispatch();
     return (
       <Entity
+        addButtonHelptext={createMessage(ADD_JS_ACTION)}
         className={"js_actions"}
         disabled={!props.jsActions && !!props.searchKeyword}
         entityId={props.pageId + "_jsAction"}

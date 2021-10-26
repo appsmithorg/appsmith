@@ -50,7 +50,7 @@ export const dataTreeTypeDefCreator = (
         });
       }
     } else if (isAction(entity)) {
-      def[entityName] = entityDefinitions.ACTION(entity);
+      def[entityName] = (entityDefinitions.ACTION as any)(entity);
       flattenDef(def, entityName);
       entityMap.set(entityName, {
         type: ENTITY_TYPE.ACTION,
@@ -73,7 +73,7 @@ export const dataTreeTypeDefCreator = (
       for (let i = 0; i < entity.variables.length; i++) {
         const varKey = entity.variables[i];
         const varValue = entity[varKey];
-        jsOptions[varKey] = generateTypeDef(JSON.parse(varValue));
+        jsOptions[varKey] = generateTypeDef(varValue);
       }
 
       def[entityName] = jsOptions;

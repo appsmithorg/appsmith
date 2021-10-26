@@ -1,7 +1,7 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes, WidgetTypes } from "../../constants/WidgetConstants";
-import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
-import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
+import { RenderModes } from "../../constants/WidgetConstants";
+import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
+import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
@@ -28,7 +28,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       isVisibleDownload: true,
       label: "Data",
       searchKey: "",
-      type: WidgetTypes.TABLE_WIDGET,
+      type: "TABLE_WIDGET",
       parentId: "0",
       isLoading: false,
       horizontalAlignment: "LEFT",
@@ -161,7 +161,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabel":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonStyle":
+        "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
@@ -223,7 +223,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetName: "Chart1",
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
-      allowHorizontalScroll: false,
+      allowScroll: false,
       version: 1,
       chartData: {
         "random-id": {
@@ -233,7 +233,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
-      type: WidgetTypes.CHART_WIDGET,
+      type: "CHART_WIDGET",
       isLoading: false,
       parentColumnSpace: 74,
       parentRowSpace: 40,

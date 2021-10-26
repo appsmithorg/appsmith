@@ -1,4 +1,3 @@
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import React from "react";
 import styled from "styled-components";
 import _ from "lodash";
@@ -11,6 +10,7 @@ import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -295,7 +295,7 @@ export class JSONtoForm<
           // If the section is hidden, skip rendering
           if (isHidden(this.props.formData, section.hidden)) return null;
           if ("children" in propertyControlOrSection) {
-            const { children } = propertyControlOrSection;
+            const { children } = propertyControlOrSection as any;
             if (this.isKVArray(children)) {
               return this.renderKVArray(children);
             }

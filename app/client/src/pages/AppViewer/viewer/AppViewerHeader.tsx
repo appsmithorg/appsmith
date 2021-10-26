@@ -3,20 +3,28 @@ import { Link, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import styled, { ThemeProvider } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import AppsmithLogo from "assets/images/appsmith_logo.png";
+// import AppsmithLogo from "assets/images/appsmith_logo.png";
+import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getEditorURL } from "selectors/appViewSelectors";
-import { getViewModePageList } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getViewModePageList,
+} from "selectors/editorSelectors";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
@@ -27,14 +35,17 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import { IconWrapper } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
+import ToggleCommentModeButton, {
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { ShareButtonComponent } from "../../Editor/EditorHeader";
 
 const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   box-shadow: unset;
@@ -78,6 +89,10 @@ const HeaderWrapper = styled(StyledHeader)<{ hasPages: boolean }>`
   & ${Profile} {
     width: 24px;
     height: 24px;
+
+    span {
+      font-size: 12px;
+    }
   }
 
   & .current-app-name {
@@ -103,9 +118,11 @@ const HeaderSection = styled.div<{ justify: string }>`
   justify-content: ${(props) => props.justify};
 `;
 
-const AppsmithLogoImg = styled.img`
-  padding-left: ${(props) => props.theme.spaces[7]}px;
+const AppsmithLogoImg = styled(AppsmithLogo)`
   max-width: 110px;
+  width: 110px;
+  margin-right: 40px;
+  margin-left: 16px;
 `;
 
 const HeaderRightItemContainer = styled.div`
@@ -122,7 +139,7 @@ const PrimaryLogoLink = styled(Link)`
 
 type AppViewerHeaderProps = {
   url?: string;
-  currentApplicationDetails?: ApplicationPayload;
+  currentApplicationDetails?: CurrentApplicationData;
   pages: PageListPayload;
   currentOrgId: string;
   currentUser?: User;
@@ -138,7 +155,9 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
+  const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
@@ -153,7 +172,13 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   }
   if (hideHeader) return <HtmlTitle />;
 
-  const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}/fork`;
+  const forkUrl = `${AUTH_LOGIN_URL}?redirectUrl=${
+    window.location.origin
+  }${getApplicationViewerPageURL({
+    applicationId,
+    pageId,
+    suffix: "fork",
+  })}`;
   const loginUrl = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
   const CTA = GetAppViewerHeaderCTA({
@@ -171,14 +196,16 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
         <HtmlTitle />
         <HeaderRow justify={"space-between"}>
           <HeaderSection justify={"flex-start"}>
-            <div style={{ flex: 1 }}>
+            <div>
               <PrimaryLogoLink to={APPLICATIONS_URL}>
-                <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
+                <AppsmithLogoImg />
               </PrimaryLogoLink>
             </div>
-            <div style={{ flex: 1 }}>
-              <ToggleCommentModeButton />
-            </div>
+            {!shouldHideComments && (
+              <div>
+                <ToggleCommentModeButton />
+              </div>
+            )}
           </HeaderSection>
           <HeaderSection className="current-app-name" justify={"center"}>
             {currentApplicationDetails && (
@@ -195,14 +222,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   isOpen={showAppInviteUsersDialog}
                   orgId={currentOrgId}
                   title={currentApplicationDetails.name}
-                  trigger={
-                    <Button
-                      className="t--application-share-btn header__application-share-btn"
-                      icon={"share"}
-                      size={Size.small}
-                      text={"Share"}
-                    />
-                  }
+                  trigger={<ShareButtonComponent />}
                 />
                 {CTA && (
                   <HeaderRightItemContainer>{CTA}</HeaderRightItemContainer>
@@ -215,7 +235,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   modifiers={{
                     offset: {
                       enabled: true,
-                      offset: `0, ${pages.length > 1 ? 35 : 0}`,
+                      offset: `0, 0`,
                     },
                   }}
                   name={currentUser.name}

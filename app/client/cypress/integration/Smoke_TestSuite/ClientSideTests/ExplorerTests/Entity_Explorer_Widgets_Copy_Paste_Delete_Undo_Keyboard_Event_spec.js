@@ -42,10 +42,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(commonlocators.toastAction).should("be.visible");
-    cy.get(commonlocators.toastAction)
-      .contains("UNDO")
-      .click({ force: true });
+    cy.get("body").type(`{${modifierKey}}z`);
     cy.GlobalSearchEntity("FormTestCopy");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(2);

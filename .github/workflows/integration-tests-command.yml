@@ -1,0 +1,548 @@
+name: Appsmith External Integration Test Workflow
+
+on:
+  # This workflow is only triggered by the ok to test command dispatch
+  repository_dispatch:
+    types: [ok-to-test-command]
+
+jobs:
+  server-build:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'repository_dispatch' &&
+      github.event.client_payload.slash_command.sha != '' &&
+      contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
+    defaults:
+      run:
+        working-directory: app/server
+        shell: bash
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+
+    steps:
+      # Check out merge commit
+      - name: Fork based /ok-to-test checkout
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      # Build and test the code
+      - name: Build and test
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+        run: |
+          ./build.sh versions:set \
+          -DnewVersion=${{ steps.vars.outputs.version }} \
+          -DgenerateBackupPoms=false \
+          -DprocessAllModules=true
+
+        # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/server/dist/
+
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'repository_dispatch' &&
+      github.event.client_payload.slash_command.sha != '' &&
+      contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
+      # Check out merge commit
+      - name: Fork based /ok-to-test checkout
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
+      - name: Figure out the PR number
+        run: echo ${{ github.event.client_payload.pull_request.number }}
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Set the build environment based on the branch
+        id: vars
+        run: |
+          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+          fi
+          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+          fi
+          # Since this is an unreleased build, we set the version to incremented version number with
+          # a `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+
+      - name: Run the jest tests
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+
+      # We burn React environment & the Segment analytics key into the build itself.
+      # This is to ensure that we don't need to configure it in each installation
+      - name: Create the bundle
+        run: |
+          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            yarn build
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/client/build/
+
+        # Update check run called "build"
+      - name: Mark build job as complete
+        uses: actions/github-script@v1
+        id: update-check-run
+        if: ${{ always() }}
+        env:
+          run_id: ${{ github.run_id }}
+          repository: ${{ github.repository }}
+          number: ${{ github.event.client_payload.pull_request.number }}
+          job: ${{ github.job }}
+          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+          conclusion: ${{ job.status }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pull } = await github.pulls.get({
+              ...context.repo,
+              pull_number: process.env.number
+            });
+            const ref = pull.head.sha;
+
+            const { data: checks } = await github.checks.listForRef({
+              ...context.repo,
+              ref
+            });
+
+            const check = checks.check_runs.filter(c => c.name === process.env.job);
+
+            if(check.length == 0) {
+              const head_sha = pull.head.sha;
+              const { data: completed_at } = await github.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head_sha: head_sha,
+                name: process.env.job,
+                status: 'completed',
+                conclusion: process.env.conclusion,
+                output: {
+                  title: "Build client result for ok to test",
+                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                }
+              });
+
+              return completed_at;
+            } else {
+              const { data: result } = await github.checks.update({
+              ...context.repo,
+              check_run_id: check[0].id,
+              status: 'completed',
+              conclusion: process.env.conclusion,
+                output: {
+                  title: "Build client result for ok to test",
+                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                }
+            });
+
+            return result;
+            }
+
+  ui-test:
+    needs: [build, server-build]
+    # Only run if the build step is successful
+    if: success()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      # Check out merge commit
+      - name: Fork based /ok-to-test checkout
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/server/dist
+
+      # Start server
+      - name: start server
+        working-directory: app/server
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
+          APPSMITH_CLOUD_SERVICES_USERNAME: ""
+          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
+        run: |
+          ls -l
+          ls -l scripts/
+          ls -l dist/
+          nohup ./scripts/start-dev-server.sh 2>&1 &
+
+      - name: Wait for 30 seconds for server to start
+        run: |
+          sleep 30s
+
+      - name: Exit if Server hasnt started
+        run: |
+          if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+             echo "Server Not Started";
+             exit 1;
+           else
+             echo "Server Found";
+           fi
+
+      - name: Installing Yarn serve
+        run: |
+          yarn global add serve
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+
+      - name: Setting up the cypress tests
+        shell: bash
+        env:
+          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          POSTGRES_PASSWORD: postgres
+        run: |
+          ./cypress/setup-test.sh
+
+      - name: Run the cypress test
+        uses: cypress-io/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        with:
+          browser: chrome
+          headless: true
+          record: true
+          install: false
+          parallel: true
+          group: "Electrons on Github Action"
+          spec: "cypress/integration/Smoke_TestSuite/**/*.js"
+          working-directory: app/client
+          # tag will be either "push" or "pull_request"
+          tag: ${{ github.event_name }}
+          env: "NODE_ENV=development"
+
+      # Upload the screenshots as artifacts if there's a failure
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.job }}
+          path: app/client/cypress/screenshots/
+
+  ui-test-result:
+    needs: ui-test
+    # Only run if the ui-test with matrices step is successful
+    if: always()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
+      # Update check run called "ui-test-result"
+      - name: Mark ui-test-result job as complete
+        uses: actions/github-script@v1
+        id: update-check-run
+        if: ${{ always() }}
+        env:
+          run_id: ${{ github.run_id }}
+          repository: ${{ github.repository }}
+          number: ${{ github.event.client_payload.pull_request.number }}
+          job: ${{ github.job }}
+          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+          conclusion: ${{ job.status }}
+          matrix_result: ${{ toJson(needs.ui-test) }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pull } = await github.pulls.get({
+              ...context.repo,
+              pull_number: process.env.number
+            });
+            const ref = pull.head.sha;
+
+            const { data: checks } = await github.checks.listForRef({
+              ...context.repo,
+              ref
+            });
+
+            const check = checks.check_runs.filter(c => c.name === process.env.job);
+
+            if(check.length == 0) {
+              const head_sha = pull.head.sha;
+              const { data: completed_at } = await github.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head_sha: head_sha,
+                name: process.env.job,
+                status: 'completed',
+                conclusion: JSON.parse(process.env.matrix_result).result,
+                output: {
+                  title: "Integration tests result for ok to test",
+                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                }
+              });
+
+              return completed_at;
+            } else {
+              const { data: result } = await github.checks.update({
+              ...context.repo,
+              check_run_id: check[0].id,
+              status: 'completed',
+              conclusion: JSON.parse(process.env.matrix_result).result,
+                output: {
+                  title: "Integration tests result for ok to test",
+                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                }
+            });
+
+            return result;
+            }
+
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
+  package:
+    needs: ui-test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+    # Run this job only if all the previous steps are a success and the reference if the release or master branch
+    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/release-frozen' || github.ref == 'refs/heads/master')
+
+    steps:
+      # Update check run called "package"
+      - name: Mark package job as complete
+        uses: actions/github-script@v1
+        id: update-check-run
+        if: ${{ always() }}
+        env:
+          run_id: ${{ github.run_id }}
+          repository: ${{ github.repository }}
+          number: ${{ github.event.client_payload.pull_request.number }}
+          job: ${{ github.job }}
+          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
+          conclusion: ${{ job.status }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pull } = await github.pulls.get({
+              ...context.repo,
+              pull_number: process.env.number
+            });
+            const ref = pull.head.sha;
+
+            const { data: checks } = await github.checks.listForRef({
+              ...context.repo,
+              ref
+            });
+
+            const check = checks.check_runs.filter(c => c.name === process.env.job);
+
+            if(check.length == 0) {
+              const head_sha = pull.head.sha;
+              const { data: completed_at } = await github.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head_sha: head_sha,
+                name: process.env.job,
+                status: 'completed',
+                conclusion: process.env.conclusion,
+                output: {
+                  title: "Package result for ok to test",
+                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                }
+              });
+
+              return completed_at;
+            } else {
+              const { data: result } = await github.checks.update({
+              ...context.repo,
+              check_run_id: check[0].id,
+              status: 'completed',
+              conclusion: process.env.conclusion,
+                output: {
+                  title: "Package result for ok to test",
+                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                }
+            });
+
+            return result;
+            }

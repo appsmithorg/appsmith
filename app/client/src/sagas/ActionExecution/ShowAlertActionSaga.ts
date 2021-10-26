@@ -2,13 +2,18 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ShowAlertActionDescription } from "entities/DataTree/actionTriggers";
-import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
 
 export default function* showAlertSaga(
   payload: ShowAlertActionDescription["payload"],
+  triggerMeta: TriggerMeta,
 ) {
   if (typeof payload.message !== "string") {
-    throw new TriggerFailureError("Toast message needs to be a string");
+    throw new TriggerFailureError(
+      "Toast message needs to be a string",
+      triggerMeta,
+    );
   }
   let variant;
   switch (payload.style) {
@@ -28,6 +33,7 @@ export default function* showAlertSaga(
   if (payload.style && !variant) {
     throw new TriggerFailureError(
       `Toast type needs to be a one of ${Object.values(Variant).join(", ")}`,
+      triggerMeta,
     );
   }
   Toaster.show({

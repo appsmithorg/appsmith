@@ -3,8 +3,6 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
 import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
@@ -13,6 +11,7 @@ import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 import {
   getCanvasWidgetDsl,
+  getCurrentApplicationId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import EndTourHelper from "components/editorComponents/Onboarding/EndTourHelper";
@@ -23,6 +22,7 @@ import {
   PERMISSION_TYPE,
 } from "../Applications/permissionHelpers";
 import { fetchPublishedPage } from "actions/pageActions";
+import { DSLWidget } from "widgets/constants";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};
@@ -35,11 +35,12 @@ const Section = styled.section`
 `;
 type AppViewerPageContainerProps = {
   isFetchingPage: boolean;
-  widgets?: ContainerWidgetProps<WidgetProps>;
+  widgets?: DSLWidget;
   currentPageName?: string;
   currentAppName?: string;
   fetchPage: (pageId: string, bustCache?: boolean) => void;
   currentAppPermissions?: string[];
+  applicationId: string;
 } & RouteComponentProps<AppViewerRouteParams>;
 
 class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
@@ -65,10 +66,10 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
         <p>
           Please add widgets to this page in the&nbsp;
           <Link
-            to={BUILDER_PAGE_URL(
-              this.props.match.params.applicationId,
-              this.props.match.params.pageId,
-            )}
+            to={BUILDER_PAGE_URL({
+              applicationId: this.props.applicationId,
+              pageId: this.props.match.params.pageId,
+            })}
           >
             Appsmith Editor
           </Link>
@@ -126,6 +127,7 @@ const mapStateToProps = (state: AppState) => {
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

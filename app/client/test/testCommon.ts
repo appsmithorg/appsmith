@@ -13,9 +13,9 @@ import { APP_MODE } from "entities/App";
 import { createSelector } from "reselect";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
+
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
+import { DSLWidget } from "widgets/constants";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -69,7 +69,7 @@ export const useMockDsl = (dsl: any) => {
 
   dispatch(updateCurrentPage(mockResp.data.id));
 };
-export function MockPageDSL({ dsl, children }: any) {
+export function MockPageDSL({ children, dsl }: any) {
   editorInitializer();
   useMockDsl(dsl);
   return children;
@@ -77,9 +77,7 @@ export function MockPageDSL({ dsl, children }: any) {
 
 export const mockGetCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
-  (
-    canvasWidgets: CanvasWidgetsReduxState,
-  ): ContainerWidgetProps<WidgetProps> => {
+  (canvasWidgets: CanvasWidgetsReduxState): DSLWidget => {
     return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets,
     });

@@ -13,11 +13,11 @@ describe("Dropdown Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Dropdown-AlertModal Validation", function() {
+  it("Dropdown-Modal Validation", function() {
     cy.SearchEntityandOpen("Dropdown1");
     cy.testJsontext("options", JSON.stringify(data.input));
-    //creating the Alert Modal and verify Modal name
-    cy.createModal("Alert Modal", this.data.AlertModalName);
+    //creating the Modal and verify Modal name
+    cy.createModal("Modal", this.data.ModalName);
     cy.PublishtheApp();
     // Changing the option to verify the success message
     cy.get(formWidgetsPage.selectWidget)
@@ -29,25 +29,7 @@ describe("Dropdown Widget Functionality", function() {
     cy.wait(1000);
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
-      this.data.AlertModalName,
-    );
-  });
-
-  it("Dropdown-FromModal Validation", function() {
-    cy.openPropertyPane("dropdownwidget");
-    //creating the Alert Modal and verify Modal name
-    cy.updateModal("Form Modal", this.data.FormModalName);
-    cy.PublishtheApp();
-    // Changing the option to verify the success message
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 2")
-      .click({ force: true });
-    cy.get(modalWidgetPage.modelTextField).should(
-      "have.text",
-      this.data.FormModalName,
+      this.data.ModalName,
     );
   });
 
@@ -179,7 +161,7 @@ describe("Dropdown Widget Functionality", function() {
       .click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("No Action")
+      .contains("No action")
       .click();
   });
 

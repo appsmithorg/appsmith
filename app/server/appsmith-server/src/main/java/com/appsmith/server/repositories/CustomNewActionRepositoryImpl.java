@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.User;
@@ -31,6 +32,12 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
     public CustomNewActionRepositoryImpl(ReactiveMongoOperations mongoOperations,
                                          MongoConverter mongoConverter) {
         super(mongoOperations, mongoConverter);
+    }
+
+    @Override
+    public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
+        Criteria applicationIdCriteria = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        return queryAll(List.of(applicationIdCriteria), aclPermission);
     }
 
     @Override
@@ -280,11 +287,12 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
                 + ".datasource._id")
                 .is(new ObjectId(datasourceId));
 
-        Criteria datasourceCriteria = new Criteria().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
+        Criteria datasourceCriteria = where(FieldName.DELETED_AT).is(null)
+                .orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
 
         Query query = new Query();
         query.addCriteria(datasourceCriteria);
 
-        return mongoOperations.count(query, "newAction");
+        return mongoOperations.count(query, NewAction.class);
     }
 }

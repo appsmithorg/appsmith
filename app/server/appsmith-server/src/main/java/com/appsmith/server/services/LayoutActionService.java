@@ -36,4 +36,6 @@ public interface LayoutActionService {
     Mono<ActionDTO> createSingleAction(ActionDTO action);
 
     Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext);
+
+    Mono<ActionDTO> deleteUnpublishedAction(String id);
 }

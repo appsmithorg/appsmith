@@ -33,6 +33,7 @@ import {
   SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import { redoAction, undoAction } from "actions/pageActions";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -60,6 +61,8 @@ type Props = {
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
   children: React.ReactNode;
+  undo: () => void;
+  redo: () => void;
   appMode?: APP_MODE;
   isCommentMode: boolean;
 };
@@ -216,6 +219,7 @@ class GlobalHotKeys extends React.Component<Props> {
             }
           }}
         />
+
         <Hotkey
           combo="mod + a"
           global
@@ -238,8 +242,8 @@ class GlobalHotKeys extends React.Component<Props> {
                 source: "HOTKEY",
                 combo: "esc",
               });
+              setCommentModeInUrl(false);
             }
-            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
@@ -283,6 +287,30 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Execute Action"
           onKeyDown={this.props.executeAction}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          combo="mod + z"
+          global
+          label="Undo change in canvas"
+          onKeyDown={this.props.undo}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          combo="mod + shift + z"
+          global
+          label="Redo change in canvas"
+          onKeyDown={this.props.redo}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          combo="mod + y"
+          global
+          label="Redo change in canvas"
+          onKeyDown={this.props.redo}
           preventDefault
           stopPropagation
         />
@@ -343,6 +371,8 @@ const mapDispatchToProps = (dispatch: any) => {
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
+    undo: () => dispatch(undoAction()),
+    redo: () => dispatch(redoAction()),
   };
 };
 

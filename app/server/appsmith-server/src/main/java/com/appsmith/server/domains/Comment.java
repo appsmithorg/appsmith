@@ -26,11 +26,9 @@ public class Comment extends AbstractCommentDomain {
      */
     @JsonIgnore
     String authorId;
+    String authorPhotoId;
 
     Body body;
-
-    /** Edit/Published Mode */
-    String mode;
 
     List<Reaction> reactions;
 

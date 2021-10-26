@@ -45,11 +45,22 @@ const StyledDropTarget = styled.div`
   z-index: 1;
 `;
 
+const StyledOnboardingWrapper = styled.div`
+  position: fixed;
+  left: 50%;
+  top: 50vh;
+`;
+const StyledOnboardingMessage = styled.h2`
+  color: #ccc;
+`;
+
 function Onboarding() {
   return (
-    <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
-      <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
-    </div>
+    <StyledOnboardingWrapper>
+      <StyledOnboardingMessage>
+        Drag and drop a widget here
+      </StyledOnboardingMessage>
+    </StyledOnboardingWrapper>
   );
 }
 
@@ -62,12 +73,10 @@ export const DropTargetContext: Context<{
     widgetId: string,
     widgetBottomRow: number,
   ) => number | false;
-  persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   const canDropTargetExtend = props.canExtend;
-
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
 
   const isResizing = useSelector(
@@ -113,24 +122,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       }
     }
   }, [props.bottomRow, props.canExtend]);
-
-  const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
-    const newRows = calculateDropTargetRows(
-      widgetId,
-      widgetBottomRow,
-      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      occupiedSpacesByChildren,
-    );
-    const rowsToPersist = Math.max(
-      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      newRows,
-    );
-    rowRef.current = rowsToPersist;
-    updateHeight();
-    if (canDropTargetExtend) {
-      updateCanvasSnapRows(props.widgetId, rowsToPersist);
-    }
-  };
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
@@ -183,14 +174,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const contextValue = useMemo(() => {
     return {
       updateDropTargetRows,
-      persistDropTargetRows,
     };
-  }, [updateDropTargetRows, persistDropTargetRows, occupiedSpacesByChildren]);
+  }, [updateDropTargetRows, occupiedSpacesByChildren]);
 
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
-        className={"t--drop-target"}
+        className="t--drop-target"
         onClick={handleFocus}
         ref={dropTargetRef}
         style={{

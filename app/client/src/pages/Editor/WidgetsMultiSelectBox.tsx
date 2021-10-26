@@ -21,10 +21,12 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { WidgetTypes } from "constants/WidgetConstants";
+import WidgetFactory from "utils/WidgetFactory";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { commentModeSelector } from "selectors/commentsSelectors";
 
+const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
   position: absolute;
   cursor: grab;
@@ -170,6 +172,7 @@ function WidgetsMultiSelectBox(props: {
   snapRowSpace: number;
 }): any {
   const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
   const canvasWidgets = useSelector(getCanvasWidgets);
   const selectedWidgetIDs = useSelector(getSelectedWidgets);
   const selectedWidgets = selectedWidgetIDs.map(
@@ -187,7 +190,7 @@ function WidgetsMultiSelectBox(props: {
    * 3. multiple widgets are selected
    */
   const shouldRender = useMemo(() => {
-    if (isDragging) {
+    if (isDragging || isCommentMode) {
       return false;
     }
     const parentIDs = selectedWidgets
@@ -202,7 +205,7 @@ function WidgetsMultiSelectBox(props: {
       hasCommonParent &&
       get(selectedWidgets, "0.parentId") === props.widgetId
     );
-  }, [selectedWidgets, isDragging]);
+  }, [selectedWidgets, isDragging, isCommentMode]);
   const draggableRef = useRef<HTMLDivElement>(null);
   const { setDraggingState } = useWidgetDragResize();
 

@@ -59,6 +59,7 @@ export type Reaction = {
 export type Comment = CreateCommentRequest & {
   id: string;
   authorName?: string;
+  authorPhotoId?: string;
   authorUsername?: string;
   updationTime?: string;
   creationTime?: string;

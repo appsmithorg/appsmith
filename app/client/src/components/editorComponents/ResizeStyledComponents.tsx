@@ -14,14 +14,19 @@ export const VisibilityContainer = styled.div<{
   width: 100%;
 `;
 
-const ResizeIndicatorStyle = css`
+const ResizeIndicatorStyle = css<{
+  showLightBorder: boolean;
+}>`
   &::after {
     position: absolute;
     content: "";
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: ${theme.colors.widgetBorder};
+    background: ${(props) =>
+      props.showLightBorder
+        ? theme.colors.widgetLightBorder
+        : theme.colors.widgetBorder};
     top: calc(50% - 2px);
     left: calc(50% - 2px);
   }
@@ -29,16 +34,20 @@ const ResizeIndicatorStyle = css`
 
 export const EdgeHandleStyles = css<{
   showAsBorder: boolean;
+  showLightBorder: boolean;
 }>`
   position: absolute;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   height: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   &::before {
     position: absolute;
-    background: ${(props) =>
-      props.showAsBorder
-        ? theme.colors.widgetMultiSelectBorder
-        : theme.colors.widgetBorder};
+    background: ${(props) => {
+      if (props.showLightBorder) return theme.colors.widgetLightBorder;
+
+      if (props.showAsBorder) return theme.colors.widgetMultiSelectBorder;
+
+      return theme.colors.widgetBorder;
+    }};
     content: "";
   }
   ${(props) => (!props.showAsBorder ? ResizeIndicatorStyle : "")}
@@ -46,6 +55,7 @@ export const EdgeHandleStyles = css<{
 
 export const VerticalHandleStyles = css<{
   showAsBorder: boolean;
+  showLightBorder: boolean;
 }>`
   ${EdgeHandleStyles}
   top:-${WIDGET_PADDING - 1}px;
@@ -61,6 +71,7 @@ export const VerticalHandleStyles = css<{
 
 export const HorizontalHandleStyles = css<{
   showAsBorder: boolean;
+  showLightBorder: boolean;
 }>`
   ${EdgeHandleStyles}
   left: -${WIDGET_PADDING}px;

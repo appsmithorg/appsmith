@@ -56,6 +56,17 @@ function getPage(pageId) {
   });
 }
 
+async function getPageRetry(pageId, retries) {
+  while (retries-- > 0) {
+    try {
+      return await getPage(pageId);
+    } catch (error) {
+      continue;
+    }
+  }
+  throw new Error("Tried getting page " + retries + " times, but failed.");
+}
+
 const pages = [];
 
 
@@ -100,7 +111,7 @@ exports.handler = async (event, context, callback) => {
 
           pages.push(masterPage);
 
-          let promises = pages.map(page => page.uid).map(getPage);
+          let promises = pages.map(page => page.uid).map(pageId => getPageRetry(pageId, 3));
 
           Promise.all(promises).then(updatedPages => {
 

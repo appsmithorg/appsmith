@@ -24,6 +24,14 @@ export interface ApplicationPagePayload {
   isDefault: boolean;
 }
 
+export type GitApplicationMetadata =
+  | {
+      branchName: string;
+      remoteUrl: string;
+      repoName: string;
+    }
+  | undefined;
+
 export interface ApplicationResponsePayload {
   id: string;
   name: string;
@@ -32,6 +40,7 @@ export interface ApplicationResponsePayload {
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
+  gitApplicationMetadata: GitApplicationMetadata;
 }
 
 export interface FetchApplicationResponse extends ApiResponse {
@@ -65,7 +74,6 @@ export interface DeleteApplicationRequest {
 export interface DuplicateApplicationRequest {
   applicationId: string;
 }
-
 export interface ForkApplicationRequest {
   applicationId: string;
   organizationId: string;
@@ -234,6 +242,14 @@ class ApplicationApi extends Api {
       },
       onUploadProgress: request.progress,
     });
+  }
+
+  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+  }
+
+  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
   }
 }
 

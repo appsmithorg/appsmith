@@ -9,7 +9,7 @@ import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { CurrentApplicationData } from "constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
@@ -110,7 +110,6 @@ const DatasourceContentWrapper = styled.div`
 
 interface DatasourceHomeScreenProps {
   pageId: string;
-  applicationId: string;
   location: {
     search: string;
   };
@@ -128,7 +127,7 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   pluginImages: Record<string, string>;
   isSaving: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;

@@ -1,8 +1,6 @@
 import React, { useCallback } from "react";
 import { Page } from "constants/ReduxActionConstants";
 import Entity, { EntityClassNames } from "../Entity";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { updatePage } from "actions/pageActions";
@@ -10,7 +8,7 @@ import PageContextMenu from "./PageContextMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
-import { hiddenPageIcon, homePageIcon, pageIcon } from "../ExplorerIcons";
+import { hiddenPageIcon, pageIcon, defaultPageIcon } from "../ExplorerIcons";
 import { getPluginGroups } from "../Actions/helpers";
 import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 import { resolveAsSpaceChar } from "utils/helpers";
@@ -20,6 +18,7 @@ import { Plugin } from "api/PluginApi";
 import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
 import getFeatureFlags from "utils/featureFlags";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -34,24 +33,27 @@ type ExplorerPageEntityProps = {
 };
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
-  const params = useParams<ExplorerURLParams>();
-
   const currentPageId = useSelector((state: AppState) => {
     return state.entities.pageList.currentPageId;
   });
   const isCurrentPage = currentPageId === props.page.pageId;
 
+  const currenApplicationId = useSelector(getCurrentApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId);
+
   const switchPage = useCallback(() => {
-    if (!!params.applicationId) {
-      history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
+    if (!!applicationId) {
+      history.push(
+        BUILDER_PAGE_URL({ applicationId, pageId: props.page.pageId }),
+      );
     }
-  }, [props.page.pageId, params.applicationId]);
+  }, [props.page.pageId, applicationId]);
 
   const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 
   const contextMenu = (
     <PageContextMenu
-      applicationId={params.applicationId}
+      applicationId={currenApplicationId as string}
       className={EntityClassNames.CONTEXT_MENU}
       isDefaultPage={props.page.isDefault}
       isHidden={!!props.page.isHidden}
@@ -61,7 +63,7 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
     />
   );
 
-  const icon = props.page.isDefault ? homePageIcon : pageIcon;
+  const icon = props.page.isDefault ? defaultPageIcon : pageIcon;
   const rightIcon = !!props.page.isHidden ? hiddenPageIcon : null;
 
   const addWidgetsFn = useCallback(
@@ -117,8 +119,5 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
 }
 
 ExplorerPageEntity.displayName = "ExplorerPageEntity";
-(ExplorerPageEntity as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default ExplorerPageEntity;

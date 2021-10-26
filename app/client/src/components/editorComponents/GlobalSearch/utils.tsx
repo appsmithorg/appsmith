@@ -10,10 +10,12 @@ import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginType } from "entities/Action";
-import getFeatureFlags from "utils/featureFlags";
 import { modText } from "./HelpBar";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getPluginByPackageName } from "selectors/entitiesSelector";
+import { AppState } from "reducers";
+import WidgetFactory from "utils/WidgetFactory";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -86,25 +88,25 @@ export type SnippetBody = {
 
 export type FilterEntity = WidgetType | ENTITY_TYPE;
 
-//holds custom labels for snippet filters.
-export const SnippetFilterLabel: Partial<Record<FilterEntity, string>> = {
-  DROP_DOWN_WIDGET: "Dropdown",
+export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
+  ACTION: "All Queries",
+  WIDGET: "All Widgets",
 };
 
-export const getSnippetFilterLabel = (label: string) => {
+export const getSnippetFilterLabel = (state: AppState, label: string) => {
   return (
-    SnippetFilterLabel[label as FilterEntity] ||
+    WidgetFactory.widgetConfigMap.get(label as WidgetType)?.widgetName ||
+    getPluginByPackageName(state, label)?.name ||
+    filterEntityTypeLabels[label as ENTITY_TYPE] ||
     label
-      .toLowerCase()
-      .replace("_widget", "")
-      .replace("-plugin", "")
-      .replaceAll(/_|-/g, " ")
   );
 };
 
 export type SnippetArgument = {
+  identifier: string;
   name: string;
   type: ValidationTypes;
+  placeholder?: boolean;
 };
 
 export type SearchCategory = {
@@ -116,8 +118,12 @@ export type SearchCategory = {
 };
 
 export function getOptionalFilters(optionalFilterMeta: any) {
-  return Object.keys(optionalFilterMeta || {}).map(
-    (field) => `${field}:${optionalFilterMeta[field]}`,
+  return Object.entries(optionalFilterMeta || {}).reduce(
+    (acc: Array<string>, [key, value]: any) => {
+      value.forEach((value: string) => acc.push(`${key}:${value}`));
+      return acc;
+    },
+    [],
   );
 }
 
@@ -133,7 +139,6 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
     desc: createMessage(SNIPPET_DESCRIPTION),
-    show: () => getFeatureFlags().SNIPPET,
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
     title: "Search Documentation",
@@ -174,7 +179,6 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     item.kind === SEARCH_ITEM_TYPES.category
   )
     type = item.kind;
-  else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
   else if (item.config?.pluginType === PluginType.JS)
     type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
@@ -292,6 +296,7 @@ export const getEntityId = (entity: any) => {
     case "widget":
       return entity.widgetId;
     case "action":
+    case "jsAction":
       return entity.config?.id;
   }
 };

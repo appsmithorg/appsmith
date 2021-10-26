@@ -85,6 +85,12 @@ function main() {
 		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
 			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
 		}
+		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
+	});
+
+	io.of(PAGE_EDIT_NAMESPACE).adapter.on("join-room", (room, id) => {
+		log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} joined the room ${room}`)
+		sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
 	});
 
 	watchMongoDB(io)
@@ -152,13 +158,11 @@ async function tryAuth(socket:Socket) {
 	// we should be able to derive the API_BASE_URL from the host header. This will make configuration simpler
 	// for the user. The problem with this implementation is that Axios doesn't work for https endpoints currently.
 	// This needs to be debugged.
-	const host = socket.handshake.headers.host
-	const protocol = socket.handshake.headers.referer.startsWith("https") ? "https" : "http"
-	const apiUrl = "http://" + host + "/api/v1/users/me"
 	/* ********************************************************* */
 
+	// const host = socket.handshake.headers.host;
 	const connectionCookie = socket.handshake.headers.cookie;
-	if (connectionCookie != null && connectionCookie !== "") {
+	if (connectionCookie !== null && connectionCookie !== "") {
 		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
 		if(matchedCookie) {
 			const sessionCookie = matchedCookie[0]
@@ -229,11 +233,6 @@ async function watchMongoDB(io) {
 		if(comment.deleted) {
 			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
 		}
-		
-		const { applicationId }: CommentThread = await threadCollection.findOne(
-			{ _id: new ObjectId(comment.threadId) },
-			{ projection: { applicationId: 1 } },
-		)
 
 		comment.creationTime = comment.createdAt
 		comment.updationTime = comment.updatedAt
@@ -276,7 +275,7 @@ async function watchMongoDB(io) {
 			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
 		}
 		
-		if (thread == null) {
+		if (thread === null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
 			log.error("Null document recieved for comment change event", event)
 			return
@@ -320,7 +319,7 @@ async function watchMongoDB(io) {
 	notificationsStream.on("change", async (event: mongodb.ChangeEventCR) => {
 		const notification = event.fullDocument
 
-		if (notification == null) {
+		if (notification === null) {
 			// This happens when `event.operationType === "drop"`, when a notification is deleted.
 			log.error("Null document recieved for notification change event", event)
 			return

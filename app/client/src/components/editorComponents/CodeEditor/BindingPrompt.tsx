@@ -40,7 +40,7 @@ function BindingPrompt(props: {
 }): JSX.Element {
   const promptRef = useRef<HTMLDivElement>(null);
   const customMessage = !!props.promptMessage;
-  const bottomOffset = customMessage ? 6 : 0;
+  const bottomOffset = customMessage ? 6 : -2;
 
   return (
     <Wrapper

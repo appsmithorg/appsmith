@@ -14,15 +14,20 @@ import { NonIdealState, Classes, IPanelProps } from "@blueprintjs/core";
 import WidgetSidebar from "../WidgetSidebar";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "./helpers";
 import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
+import { Colors } from "constants/Colors";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -38,15 +43,34 @@ const Wrapper = styled.div`
 const NoResult = styled(NonIdealState)`
   &.${Classes.NON_IDEAL_STATE} {
     height: auto;
+    margin: 20px 0;
+
+    .${Classes.NON_IDEAL_STATE_VISUAL} {
+      margin-bottom: 16px;
+      height: 52px;
+
+      svg {
+        height: 52px;
+        width: 144px;
+      }
+    }
+
+    div {
+      color: ${Colors.DOVE_GRAY2};
+    }
+
+    .${Classes.HEADING} {
+      margin-bottom: 4px;
+      color: ${(props) => props.theme.colors.textOnWhiteBG};
+    }
   }
 `;
 
 const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
-
 function EntityExplorer(props: IPanelProps) {
-  const { applicationId } = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -64,6 +88,10 @@ function EntityExplorer(props: IPanelProps) {
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
   const jsActions = useJSCollections(searchKeyword);
+  const dispatch = useDispatch();
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
 
   let noResults = false;
   if (searchKeyword) {
@@ -84,10 +112,14 @@ function EntityExplorer(props: IPanelProps) {
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
-      history.push(BUILDER_PAGE_URL(applicationId, pageId));
+      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
       openPanel({ component: WidgetSidebar });
+      dispatch(forceOpenWidgetPanel(true));
+      if (isFirstTimeUserOnboardingEnabled) {
+        dispatch(toggleInOnboardingWidgetSelection(true));
+      }
     },
-    [openPanel, applicationId],
+    [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
   );
 
   return (
@@ -107,7 +139,7 @@ function EntityExplorer(props: IPanelProps) {
         <NoResult
           className={Classes.DARK}
           description="Try modifying the search keyword."
-          icon="search"
+          icon={<NoEntityFoundSvg />}
           title="No entities found"
         />
       )}
@@ -119,9 +151,5 @@ function EntityExplorer(props: IPanelProps) {
 }
 
 EntityExplorer.displayName = "EntityExplorer";
-
-EntityExplorer.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default EntityExplorer;

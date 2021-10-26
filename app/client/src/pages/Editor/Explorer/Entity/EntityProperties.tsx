@@ -66,7 +66,7 @@ export const EntityProperties = memo(
         }
         break;
       case ENTITY_TYPE.ACTION:
-        config = entityDefinitions.ACTION(entity as DataTreeAction);
+        config = (entityDefinitions.ACTION as any)(entity as DataTreeAction);
         if (config) {
           entityProperties = Object.keys(config)
             .filter((k) => k.indexOf("!") === -1)
