@@ -444,7 +444,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     @Override
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
         return applicationService.findById(commentThreadFilterDTO.getApplicationId(), AclPermission.READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_CURL_COMMAND)))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.APPLICATION_ID
+                )))
                 .zipWith(sessionUserService.getCurrentUser())
                 .flatMap(objects -> {
                     Application application = objects.getT1();

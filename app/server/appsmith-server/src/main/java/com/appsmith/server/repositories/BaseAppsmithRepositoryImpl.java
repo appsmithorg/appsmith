@@ -158,20 +158,13 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
-    public Mono<UpdateResult> updateByCriteria(Criteria criteria, Update updateObj, AclPermission permission) {
+    public Mono<UpdateResult> updateByCriteria(Criteria criteria, Update updateObj) {
         if (criteria == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "criteria"));
         }
-
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    User user = (User) principal;
-                    Query query = new Query(criteria);
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(user, permission)));
-                    return mongoOperations.updateMulti(query, updateObj, this.genericDomain);
-                });
+        Query query = new Query(criteria);
+        query.addCriteria(new Criteria().andOperator(notDeleted()));
+        return mongoOperations.updateMulti(query, updateObj, this.genericDomain);
     }
 
     protected Mono<T> queryOne(List<Criteria> criterias, AclPermission aclPermission) {

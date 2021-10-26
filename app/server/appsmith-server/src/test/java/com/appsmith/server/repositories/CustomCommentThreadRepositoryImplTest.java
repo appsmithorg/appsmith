@@ -270,7 +270,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void archiveByPageId_PermissionDoesNotMatch_ThreadsNotDeleted() {
+    public void archiveByPageId_CriteriaDoesNotMatch_ThreadsNotDeleted() {
         String uniqueRandomString = UUID.randomUUID().toString();
         String testPageId = "test-page-" + uniqueRandomString, // we'll delete by this id
                 threadUser = "test_user_" + uniqueRandomString,
@@ -278,11 +278,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
         // create few comment threads with pageId and permission that'll be deleted
         CommentThread thread = createThreadWithAllPermission(threadUser, applicationId, testPageId);
-
-        // add policy so that the current user can read the thread but does not have permission to add comment
-        Policy policyForCurrentUser = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.READ_THREAD), "api_user"
-        ).get(AclPermission.READ_THREAD.getValue());
+        thread.setMode(CommentMode.PUBLISHED);
 
         // add api_user to thread policy with read thread permission
         for(Policy policy: thread.getPolicies()) {
@@ -294,7 +290,6 @@ public class CustomCommentThreadRepositoryImplTest {
             }
         }
 
-        // api_user has no permission to comment on thread so can not archive the thread
         Mono<Map<String, Collection<CommentThread>>> pageIdThreadMono = commentThreadRepository.save(thread)
                 .then(commentThreadRepository.archiveByPageId(testPageId, CommentMode.EDIT)) // this will do nothing
                 .thenMany(commentThreadRepository.findByApplicationId(applicationId, AclPermission.READ_THREAD))
@@ -302,7 +297,7 @@ public class CustomCommentThreadRepositoryImplTest {
 
         StepVerifier.create(pageIdThreadMono)
                 .assertNext(pageIdThreadMap -> {
-                    // current user has no manage permission on this thread so threads will not be deleted
+                    // we've deleted by mode EDIT but thread has mode PUBLISHED so it should be there
                     assertThat(pageIdThreadMap.get(testPageId).size()).isEqualTo(1);
                 })
                 .verifyComplete();
