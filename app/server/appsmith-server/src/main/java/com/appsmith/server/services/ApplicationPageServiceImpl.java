@@ -593,7 +593,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.
                      */
-                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId())
                             .flatMap(actionCollection -> {
                                 log.debug("Going to archive actionCollectionId: {} for applicationId: {}", actionCollection.getId(), id);
                                 return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());

@@ -23,7 +23,7 @@
         {
           "widgetName": "Chart1",
           "rightColumn": 26,
-          "allowHorizontalScroll": false,
+          "allowScroll": false,
           "widgetId": "ypstklohw5",
           "topRow": 4,
           "bottomRow": 36,
