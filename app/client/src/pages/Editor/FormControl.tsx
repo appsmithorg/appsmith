@@ -101,7 +101,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
     encrypted,
     isRequired,
     label,
-    showHelp,
+    showTooltip,
     subtitle,
     tooltipText = "",
     url,
@@ -118,7 +118,7 @@ function renderFormConfigTop(props: { config: ControlProps }) {
               <FormInfoText>Encrypted</FormInfoText>
             </>
           )}
-          {showHelp && (
+          {showTooltip && (
             <Tooltip content={tooltipText} hoverOpenDelay={1000}>
               <FormIcons.HELP_ICON height={16} width={16} />
             </Tooltip>

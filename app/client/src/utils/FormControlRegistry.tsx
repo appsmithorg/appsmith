@@ -45,6 +45,7 @@ class FormControlRegistry {
       buildPropertyControl(
         controlProps: FixedKeyInputControlProps,
       ): JSX.Element {
+        //TODO: may not be in use
         return <FixedKeyInputControl {...controlProps} />;
       },
     });
@@ -67,10 +68,12 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("FILE_PICKER", {
       buildPropertyControl(controlProps: FilePickerControlProps): JSX.Element {
+        //TODO: may not be in use
         return <FilePickerControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("KEY_VAL_INPUT", {
+      //TODO: used via RestAPIDatasourceForm. may not be used anywhere else.
       //TODO: replace it with KeyValueArrayControl
       buildPropertyControl(
         controlProps: KeyValueInputControlProps,
@@ -92,6 +95,7 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("CHECKBOX", {
       buildPropertyControl(controlProps: CheckboxControlProps): JSX.Element {
+        //TODO: may not be in use
         return <CheckboxControl {...controlProps} />;
       },
     });

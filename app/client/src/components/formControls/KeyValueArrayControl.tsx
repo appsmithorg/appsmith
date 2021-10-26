@@ -90,6 +90,7 @@ function KeyValueRow(
           props.actionConfig[index].description &&
           props.rightIcon
         ) {
+          //TODO: may not be in use
           otherProps.rightIcon = (
             <HelperTooltip
               description={props.actionConfig[index].description}
