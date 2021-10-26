@@ -10,7 +10,10 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
+import {
+  thinScrollbar,
+  truncateTextUsingEllipsis,
+} from "constants/DefaultTheme";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -78,11 +81,6 @@ import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
 import {
-  BUILDER_PAGE_URL,
-  extractAppIdAndPageIdFromUrl,
-  SIGNUP_SUCCESS_URL,
-} from "constants/routes";
-import {
   createMessage,
   DOCUMENTATION,
   ORGANIZATIONS_HEADING,
@@ -92,9 +90,8 @@ import {
 } from "constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
-import { getIsSafeRedirectURL, howMuchTimeBeforeText } from "utils/helpers";
+import { howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
-import history from "utils/history";
 import getFeatureFlags from "utils/featureFlags";
 import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
@@ -314,6 +311,7 @@ const StyledAnchor = styled.a`
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
+  ${thinScrollbar};
   /* padding-bottom: 160px; */
 `;
 
@@ -957,11 +955,6 @@ type ApplicationProps = {
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
   ) => void;
-  enableFirstTimeUserOnboarding: (applicationId: string) => void;
-};
-
-const getIsFromSignup = () => {
-  return window.location?.pathname === SIGNUP_SUCCESS_URL;
 };
 
 class Applications extends Component<
@@ -980,10 +973,6 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    const isFromSignUp = getIsFromSignup();
-    if (isFromSignUp) {
-      this.redirectUsingQueryParam();
-    }
     this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
   }
@@ -991,39 +980,6 @@ class Applications extends Component<
   componentWillUnmount() {
     this.props.setHeaderMetaData(false, false);
   }
-
-  redirectUsingQueryParam = () => {
-    const urlObject = new URL(window.location.href);
-    const redirectUrl = urlObject?.searchParams.get("redirectUrl");
-    const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
-      "enableFirstTimeUserExperience",
-    );
-    if (redirectUrl) {
-      try {
-        if (
-          window.location.pathname == SIGNUP_SUCCESS_URL &&
-          shouldEnableFirstTimeUserOnboarding === "true"
-        ) {
-          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
-            redirectUrl,
-          );
-          if (applicationId && pageId) {
-            this.props.enableFirstTimeUserOnboarding(applicationId);
-            history.replace(
-              BUILDER_PAGE_URL({
-                applicationId: applicationId,
-                pageId,
-              }),
-            );
-          }
-        } else if (getIsSafeRedirectURL(redirectUrl)) {
-          window.location.replace(redirectUrl);
-        }
-      } catch (e) {
-        console.error("Error handling the redirect url");
-      }
-    }
-  };
 
   public render() {
     return (
@@ -1071,20 +1027,6 @@ const mapDispatchToProps = (dispatch: any) => ({
     showHeaderSeparator: boolean,
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
-  },
-  enableFirstTimeUserOnboarding: (applicationId: string) => {
-    dispatch({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
-      payload: true,
-    });
-    dispatch({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      payload: applicationId,
-    });
-    dispatch({
-      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
-      payload: true,
-    });
   },
 });
 

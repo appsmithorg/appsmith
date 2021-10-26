@@ -43,43 +43,6 @@ export enum Skin {
   DARK,
 }
 
-export const hideScrollbar = css`
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-    -webkit-appearance: none;
-  }
-`;
-
-export const thinScrollbar = css`
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-  }
-  &:hover {
-    ::-webkit-scrollbar-thumb {
-      background: ${Colors.PORCELAIN};
-      border-radius: 10px;
-    }
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
-`;
-
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -505,6 +468,42 @@ export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+  }
+`;
 // export const adsTheme: any = {
 //   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
 // };
@@ -754,6 +753,7 @@ type ColorType = {
       disabledBg: ShadeColor;
     };
     menu: {
+      border: ShadeColor;
       bg: ShadeColor;
       hover: ShadeColor;
       text: ShadeColor;
@@ -1720,6 +1720,7 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menu: {
+      border: darkShades[3],
       bg: darkShades[3],
       text: darkShades[9],
       hover: darkShades[4],
@@ -2356,7 +2357,8 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menu: {
-      bg: lightShades[11],
+      border: lightShades[13],
+      bg: lightShades[0],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
