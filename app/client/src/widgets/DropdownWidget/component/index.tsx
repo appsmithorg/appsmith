@@ -1,23 +1,17 @@
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  MenuItem,
-  Button,
-  ControlGroup,
-  Label,
-  Classes,
-} from "@blueprintjs/core";
+import { MenuItem, Button, ControlGroup, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import styled, {
   createGlobalStyle,
-  labelStyle,
   BlueprintCSSTransform,
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { TextSize } from "constants/WidgetConstants";
+import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
 import Icon from "components/ads/Icon";
 
@@ -92,20 +86,11 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
   }
 `;
 
-const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
+const StyledControlGroup = styled(ControlGroup)`
   &&& > {
-    label {
-      ${labelStyle}
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
-      align-self: flex-start;
-      flex: 0 1 30%;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
-      text-align: right;
-    }
     span {
       height: 100%;
-      max-width: ${(props) =>
-        props.haslabel === "true" ? `calc(70% - ${WIDGET_PADDING}px)` : "100%"};
+      max-width: 100%;
 
       & > span {
         height: 100%;
@@ -200,34 +185,54 @@ const DropdownStyles = createGlobalStyle<{ width: number }>`
   }
 `;
 
-const DropdownContainer = styled.div`
+const DropdownContainer = styled.div<{ compactMode: boolean }>`
   ${BlueprintCSSTransform}
+  display: flex;
+  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  align-items: ${(props) => (props.compactMode ? "center" : "left")};
+
+  label.select-label {
+    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
+    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  }
 `;
 const DEBOUNCE_TIMEOUT = 800;
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
-  render() {
+  render = () => {
+    const {
+      compactMode,
+      disabled,
+      isLoading,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
+    } = this.props;
     return (
-      <DropdownContainer>
+      <DropdownContainer compactMode={compactMode}>
         <DropdownStyles width={this.props.width} />
-        <StyledControlGroup
-          fill
-          haslabel={!!this.props.label ? "true" : "false"}
-        >
-          {this.props.label && (
-            <Label
-              className={
-                this.props.isLoading
-                  ? Classes.SKELETON
-                  : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }
+        {labelText && (
+          <TextLabelWrapper compactMode={compactMode}>
+            <StyledLabel
+              $compactMode={compactMode}
+              $disabled={!!disabled}
+              $labelStyle={labelStyle}
+              $labelText={labelText}
+              $labelTextColor={labelTextColor}
+              $labelTextSize={labelTextSize}
+              className={`select-label ${
+                isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+              }`}
             >
-              {this.props.label}
-            </Label>
-          )}
+              {labelText}
+            </StyledLabel>
+          </TextLabelWrapper>
+        )}
+        <StyledControlGroup fill>
           <StyledSingleDropDown
-            className={this.props.isLoading ? Classes.SKELETON : ""}
-            disabled={this.props.disabled}
+            className={isLoading ? Classes.SKELETON : ""}
+            disabled={disabled}
             filterable={this.props.isFilterable}
             isSelected={
               !_.isEmpty(this.props.options) &&
@@ -281,7 +286,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
         </StyledControlGroup>
       </DropdownContainer>
     );
-  }
+  };
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     const fuse = new Fuse(items, FUSE_OPTIONS);
@@ -330,7 +335,11 @@ export interface DropDownComponentProps extends ComponentProps {
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
-  label?: string;
+  labelText?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];
   isLoading: boolean;

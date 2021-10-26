@@ -1,8 +1,13 @@
 import React from "react";
-import { Checkbox, Classes } from "@blueprintjs/core";
+import { Checkbox, Classes, Label } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -194,7 +199,15 @@ export const DropdownStyles = createGlobalStyle`
 }
 `;
 
-export const MultiSelectContainer = styled.div`
+export const MultiSelectContainer = styled.div<{ compactMode: boolean }>`
+  display: flex;
+  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  align-items: ${(props) => (props.compactMode ? "center" : "left")};
+
+  label.tree-multiselect-label {
+    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
+    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  }
   .rc-select {
     display: inline-block;
     font-size: 12px;
@@ -436,3 +449,37 @@ export const inputIcon = (): JSX.Element => (
     />
   </svg>
 );
+
+export const TextLabelWrapper = styled.div<{
+  compactMode: boolean;
+}>`
+  ${(props) =>
+    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  display: flex;
+`;
+
+export const StyledLabel = styled(Label)<{
+  $compactMode: boolean;
+  $disabled: boolean;
+  $labelText?: string;
+  $labelTextColor?: string;
+  $labelTextSize?: TextSize;
+  $labelStyle?: string;
+}>`
+  overflow-y: hidden;
+  text-overflow: ellipsis;
+  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
+  text-align: left;
+  color: ${(props) =>
+    props.$labelTextColor
+      ? props.$labelTextColor
+      : props.$disabled
+      ? Colors.GREY_8
+      : "inherit"};
+  font-size: ${(props) =>
+    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+  font-weight: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-style: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+`;

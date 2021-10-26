@@ -5,10 +5,13 @@ import {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
+  TextLabelWrapper,
+  StyledLabel,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
   MODAL_PORTAL_CLASSNAME,
+  TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import Icon from "components/ads/Icon";
@@ -31,13 +34,23 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  labelText?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  compactMode: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
+  compactMode,
   disabled,
   dropdownStyle,
+  labelStyle,
+  labelText,
+  labelTextColor,
+  labelTextSize,
   loading,
   onChange,
   onFilterChange,
@@ -126,9 +139,27 @@ function MultiSelectComponent({
   return (
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}
+      compactMode={compactMode}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles />
+      {labelText && (
+        <TextLabelWrapper compactMode={compactMode}>
+          <StyledLabel
+            $compactMode={compactMode}
+            $disabled={disabled}
+            $labelStyle={labelStyle}
+            $labelText={labelText}
+            $labelTextColor={labelTextColor}
+            $labelTextSize={labelTextSize}
+            className={`tree-multiselect-label ${
+              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+            }`}
+          >
+            {labelText}
+          </StyledLabel>
+        </TextLabelWrapper>
+      )}
       <Select
         animation="slide-up"
         // TODO: Make Autofocus a variable in the property pane
