@@ -110,6 +110,11 @@ const UserCard = styled(Card)`
   .delete-btn {
     position: absolute;
   }
+
+  .t--user-status {
+    background: transparent;
+    border: 0px;
+  }
 `;
 
 const TableWrapper = styled(Table)`
@@ -358,6 +363,7 @@ export default function MemberSettings(props: PageProps) {
                       {user.username}
                     </Text>
                     <Dropdown
+                      className="t--user-status"
                       height="31px"
                       onSelect={(value) => {
                         selectRole(value, user.username);
