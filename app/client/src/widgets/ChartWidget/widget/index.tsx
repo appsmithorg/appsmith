@@ -18,7 +18,7 @@ import {
 
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
-import { SNIPING_FOR_CHART_FAILED } from "../../../constants/messages";
+import { createMessage, SNIPING_FOR_CHART_FAILED } from "constants/messages";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -46,7 +46,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       snipableProperty: "chartData",
       shouldSetPropertyInputToJsMode: false,
       snipablePropertyValueType: SnipablePropertyValueType.CUSTOM,
-      errorMessage: SNIPING_FOR_CHART_FAILED(),
+      errorMessage: createMessage(SNIPING_FOR_CHART_FAILED),
     };
   }
 

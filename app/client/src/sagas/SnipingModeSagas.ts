@@ -17,9 +17,10 @@ import { Variant } from "../components/ads/common";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 
 import {
+  createMessage,
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
-} from "../constants/messages";
+} from "constants/messages";
 
 import log from "loglevel";
 import { SnipedWidgetPropertyDataType } from "../widgets/BaseWidget";
@@ -98,20 +99,9 @@ export function* bindDataToWidgetSaga(
       snipablePropertyValue,
     });
 
-    // eslint-disable-next-line no-console
-    console.log("SNIPING MODE", {
-      widgetType,
-      isSnipable,
-      widgetId,
-      actionName: currentAction.config.name,
-      apiId: queryId,
-      snipableProperty,
-      snipablePropertyValue,
-    });
-
     if (!selectedWidget || !selectedWidget.type) {
       Toaster.show({
-        text: SNIPING_SELECT_WIDGET_AGAIN(),
+        text: createMessage(SNIPING_SELECT_WIDGET_AGAIN),
         variant: Variant.warning,
       });
       return;
@@ -120,7 +110,7 @@ export function* bindDataToWidgetSaga(
     if (!isSnipable) {
       queryId &&
         Toaster.show({
-          text: SNIPING_NOT_SUPPORTED(),
+          text: createMessage(SNIPING_NOT_SUPPORTED),
           variant: Variant.warning,
         });
       return;
@@ -154,7 +144,7 @@ export function* bindDataToWidgetSaga(
     } else {
       queryId &&
         Toaster.show({
-          text: errorMessage || SNIPING_NOT_SUPPORTED(),
+          text: errorMessage || createMessage(SNIPING_NOT_SUPPORTED),
           variant: errorMessage ? Variant.danger : Variant.warning,
         });
     }
