@@ -40,7 +40,7 @@ public interface GitService {
 
     Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params);
 
-    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, boolean isRemote);
+    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, String isRemote);
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
