@@ -418,7 +418,7 @@ public class GitServiceImpl implements GitService {
                 })
                 .map(application -> {
                     String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
-                    String defaultPageId = "";
+                    String defaultPageId;
                     if(!application.getPages().isEmpty()) {
                         defaultPageId = application.getPages()
                                 .stream()

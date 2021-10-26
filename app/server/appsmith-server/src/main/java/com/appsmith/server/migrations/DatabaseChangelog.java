@@ -3597,6 +3597,8 @@ public class DatabaseChangelog {
         final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.gitSyncId)).exists(false))
                 .addCriteria(where(fieldName(QDatasource.datasource.deleted)).ne(true));
 
+        datasourceQuery.fields().include(fieldName(QDatasource.datasource.id));
+
         List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
         for(Datasource datasource: datasources) {
             final Update update = new Update();
@@ -3629,6 +3631,8 @@ public class DatabaseChangelog {
 
         // Update pages
         final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
+        pageQuery.fields()
+                .include(fieldName(QNewPage.newPage.applicationId));
 
         List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
 
@@ -3658,23 +3662,35 @@ public class DatabaseChangelog {
 
         // Update actions
         final Query actionQuery = query(where(fieldName(QNewAction.newAction.deleted)).ne(true));
+        actionQuery.fields()
+                .include(fieldName(QNewAction.newAction.applicationId))
+                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId))
+                .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.collectionId))
+                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId))
+                .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.collectionId));
 
         List<NewAction> actions = mongockTemplate.find(actionQuery, NewAction.class);
 
         for (NewAction action : actions) {
+
+            final Update defaultResourceUpdates = new Update();
+
             DefaultResources defaults = new DefaultResources();
             defaults.setActionId(action.getId());
             defaults.setApplicationId(action.getApplicationId());
 
             String applicationId = action.getApplicationId();
-            action.setDefaultResources(defaults);
+            defaultResourceUpdates.set(fieldName(QNewAction.newAction.defaultResources), defaults);
 
             ActionDTO unpublishedAction = action.getUnpublishedAction();
             if (unpublishedAction != null) {
                 DefaultResources unpubDefaults = new DefaultResources();
                 unpubDefaults.setPageId(unpublishedAction.getPageId());
                 unpubDefaults.setActionCollectionId(unpublishedAction.getCollectionId());
-                unpublishedAction.setDefaultResources(unpubDefaults);
+                defaultResourceUpdates.set(
+                                fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
+                                unpubDefaults
+                        );
             }
 
             ActionDTO publishedAction = action.getPublishedAction();
@@ -3682,58 +3698,88 @@ public class DatabaseChangelog {
                 DefaultResources pubDefaults = new DefaultResources();
                 pubDefaults.setPageId(publishedAction.getPageId());
                 pubDefaults.setActionCollectionId(publishedAction.getCollectionId());
-                publishedAction.setDefaultResources(pubDefaults);
+                defaultResourceUpdates.set(
+                        fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.defaultResources),
+                        pubDefaults
+                );
             }
 
             // Update gitSyncId
             if (StringUtils.isEmpty(action.getGitSyncId())) {
-                action.setGitSyncId(applicationId + "_" + new ObjectId());
+                final String gitSyncId = applicationId + "_" + new ObjectId();
+                defaultResourceUpdates.set(fieldName(QNewAction.newAction.gitSyncId), gitSyncId);
             }
 
             if (!StringUtils.isEmpty(applicationId)) {
-                mongockTemplate.save(action);
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QNewAction.newAction.id)).is(action.getId())),
+                        defaultResourceUpdates,
+                        NewAction.class
+                );
             }
         }
 
         // Update JS collection
         final Query actionCollectionQuery = query(where(fieldName(QActionCollection.actionCollection.deleted)).ne(true));
 
+        actionCollectionQuery.fields()
+                .include(fieldName(QActionCollection.actionCollection.applicationId))
+                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
+                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
+
         List<ActionCollection> collections = mongockTemplate.find(actionCollectionQuery, ActionCollection.class);
 
         for (ActionCollection collection : collections) {
+
+            final Update defaultResourceUpdates = new Update();
+
             DefaultResources defaults = new DefaultResources();
             defaults.setActionCollectionId(collection.getId());
             defaults.setApplicationId(collection.getApplicationId());
 
             String applicationId = collection.getApplicationId();
-            collection.setDefaultResources(defaults);
+            defaultResourceUpdates.set(fieldName(QActionCollection.actionCollection.defaultResources), defaults);
 
             ActionCollectionDTO unpublishedCollection = collection.getUnpublishedCollection();
             if (unpublishedCollection != null) {
                 DefaultResources unpubDefaults = new DefaultResources();
                 unpubDefaults.setPageId(unpublishedCollection.getPageId());
-                unpublishedCollection.setDefaultResources(unpubDefaults);
+                defaultResourceUpdates.set(
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultResources),
+                        unpubDefaults
+                );
             }
 
             ActionCollectionDTO publishedCollection = collection.getPublishedCollection();
             if (publishedCollection != null) {
                 DefaultResources pubDefaults = new DefaultResources();
                 pubDefaults.setPageId(publishedCollection.getPageId());
-                publishedCollection.setDefaultResources(pubDefaults);
+                defaultResourceUpdates.set(
+                        fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.defaultResources),
+                        pubDefaults
+                );
             }
 
             // Update gitSyncId
             if (StringUtils.isEmpty(collection.getGitSyncId())) {
-                collection.setGitSyncId(applicationId + "_" + new ObjectId());
+                final String gitSyncId = applicationId + "_" + new ObjectId();
+                defaultResourceUpdates.set(fieldName(QActionCollection.actionCollection.gitSyncId), gitSyncId);
             }
 
             if (!StringUtils.isEmpty(applicationId)) {
-                mongockTemplate.save(collection);
+                mongockTemplate.updateFirst(
+                        query(where(fieldName(QActionCollection.actionCollection.id)).is(collection.getId())),
+                        defaultResourceUpdates,
+                        ActionCollection.class
+                );
             }
         }
 
         // Update comment threads
         final Query threadQuery = query(where(fieldName(QCommentThread.commentThread.deleted)).ne(true));
+        threadQuery.fields()
+                .include(fieldName(QCommentThread.commentThread.applicationId))
+                .include(fieldName((QCommentThread.commentThread.pageId)));
 
         List<CommentThread> threads = mongockTemplate.find(threadQuery, CommentThread.class);
 
