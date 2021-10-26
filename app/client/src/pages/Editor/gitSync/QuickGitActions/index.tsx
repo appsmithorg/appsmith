@@ -21,13 +21,13 @@ import { noop } from "lodash";
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { getIsGitRepoSetup } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -65,6 +65,10 @@ const QuickActionButtonContainer = styled.div`
   }
 `;
 
+const capitalizeFirstLetter = (string = " ") => {
+  return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
+};
+
 function QuickActionButton({
   count = 0,
   icon,
@@ -72,7 +76,7 @@ function QuickActionButton({
   tooltipText,
 }: QuickActionButtonProps) {
   return (
-    <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+    <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
       <QuickActionButtonContainer onClick={onClick}>
         {icon}
         {count > 0 && (
@@ -178,7 +182,7 @@ function ConnectGitPlaceholder() {
 }
 
 export default function QuickGitActions() {
-  const isGitRepoSetup = useSelector(getIsGitRepoSetup);
+  const isGitConnected = useSelector(getIsGitConnected);
   const dispatch = useDispatch();
 
   const quickActionButtons = getQuickActionButtons({
@@ -186,7 +190,7 @@ export default function QuickGitActions() {
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: true,
-          tab: GitSyncModalTab.GIT_CONNECTION,
+          tab: GitSyncModalTab.DEPLOY,
         }),
       );
     },
@@ -201,7 +205,7 @@ export default function QuickGitActions() {
       );
     },
   });
-  return getFeatureFlags().GIT && isGitRepoSetup ? (
+  return getFeatureFlags().GIT && isGitConnected ? (
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (

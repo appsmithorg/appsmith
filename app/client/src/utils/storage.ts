@@ -125,12 +125,12 @@ export const setRecentAppEntities = async (entities: any, appId: string) => {
   }
 };
 
-export const fetchRecentAppEntities = async (appId: string) => {
+export const fetchRecentAppEntities = async (recentEntitiesKey: string) => {
   try {
     const recentEntities = (await store.getItem(
       STORAGE_KEYS.RECENT_ENTITIES,
     )) as Record<string, any>;
-    return (recentEntities && recentEntities[appId]) || [];
+    return (recentEntities && recentEntities[recentEntitiesKey]) || [];
   } catch (error) {
     log.error("An error occurred while fetching recent entities");
     log.error(error);
@@ -145,6 +145,7 @@ export const deleteRecentAppEntities = async (appId: string) => {
         any
       >) || {};
     if (typeof recentEntities === "object") {
+      // todo (rishabh s) purge recent entities across branches
       delete recentEntities[appId];
     }
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);
