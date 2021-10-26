@@ -221,7 +221,9 @@ public class UserSignup {
                                     EnvManager.Vars.APPSMITH_DISABLE_TELEMETRY.name(),
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
                                     EnvManager.Vars.APPSMITH_INSTANCE_NAME.name(),
-                                    "Appsmith"
+                                    "Appsmith",
+                                    EnvManager.Vars.APPSMITH_ADMIN_EMAILS.name(),
+                                    user.getEmail()
                             )),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
