@@ -9,6 +9,10 @@ import {
 import DialogComponent from "components/ads/DialogComponent";
 import styled from "styled-components";
 import Button, { Category, Size } from "components/ads/Button";
+import {
+  createMessage,
+  QUERY_CONFIRMATION_MODAL_MESSAGE,
+} from "constants/messages";
 
 type Props = {
   isModalOpen: boolean;
@@ -46,7 +50,7 @@ class ConfirmRunModal extends React.Component<Props> {
         title="Confirm Action"
         width={"580px"}
       >
-        <ModalBody>Are you sure you want to perform this action?</ModalBody>
+        <ModalBody>{createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}</ModalBody>
         <ModalFooter>
           <Button
             category={Category.tertiary}
