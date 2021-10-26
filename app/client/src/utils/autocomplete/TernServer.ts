@@ -193,14 +193,14 @@ class TernServer {
     const searchText = (bindings.jsSnippets[0] || "").trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
-      let className = this.typeToIcon(completion.type);
+      let className = this.typeToIcon(completion.type, completion.isKeyword);
       const dataType = this.getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
       if (dataType === "FUNCTION") {
         completionText = completionText + "()";
       }
-      completions.push({
+      const codeMirrorCompletion: Completion = {
         text: completionText,
         displayText: completionText,
         className: className,
@@ -208,7 +208,18 @@ class TernServer {
         origin: completion.origin,
         type: dataType,
         isHeader: false,
-      });
+      };
+      if (completion.isKeyword) {
+        codeMirrorCompletion.render = (
+          element: HTMLElement,
+          self: any,
+          data: any,
+        ) => {
+          element.setAttribute("keyword", data.displayText);
+          element.innerHTML = data.displayText;
+        };
+      }
+      completions.push(codeMirrorCompletion);
     }
 
     completions = this.sortAndFilterCompletions(
@@ -441,9 +452,10 @@ class TernServer {
     else return AutocompleteDataType.OBJECT;
   }
 
-  typeToIcon(type: string) {
+  typeToIcon(type: string, isKeyword: boolean) {
     let suffix;
-    if (type === "?") suffix = "unknown";
+    if (isKeyword) suffix = "keyword";
+    else if (type === "?") suffix = "unknown";
     else if (type === "number" || type === "string" || type === "bool")
       suffix = type;
     else if (/^fn\(/.test(type)) suffix = "fn";
