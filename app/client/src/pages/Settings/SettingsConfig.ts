@@ -236,16 +236,16 @@ SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
   text: "Download",
 });
 
-SettingsFactory.register("APPSMITH_ENABLE_TELEMETRY", {
+SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
   category: "general",
   controlType: SettingTypes.TOGGLE,
-  label: "Share Anonymous Usage Data",
+  label: "Disable sharing Anonymous Usage Data",
   subText: "Share anonymous usage data to help improve the product",
   toggleText: (value: boolean) => {
     if (value) {
-      return "Share data & make appsmith better!";
-    } else {
       return "Don't share any data";
+    } else {
+      return "Share data & make appsmith better!";
     }
   },
 });
