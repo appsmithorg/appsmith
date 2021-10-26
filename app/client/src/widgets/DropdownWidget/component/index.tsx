@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import {
@@ -104,10 +105,15 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
 const DropdownStyles = createGlobalStyle<{
   parentWidth: number;
   dropDownWidth: number;
+  id: string;
 }>`
+${({ dropDownWidth, id, parentWidth }) => `
+  .popover-width-${id} {
+    min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+  }
+`}
   .select-popover-wrapper {
-    min-width:${({ dropDownWidth, parentWidth }) =>
-      parentWidth > dropDownWidth ? `${parentWidth}px` : `${dropDownWidth}px`} ;
+    width: 100%;    
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
     border-color: rgba(0, 0, 0, 0.2);
@@ -171,10 +177,12 @@ const DEBOUNCE_TIMEOUT = 800;
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
+    const id = _.uniqueId();
     return (
       <DropdownContainer>
         <DropdownStyles
           dropDownWidth={this.props.dropDownWidth}
+          id={id}
           parentWidth={this.props.width - WidgetContainerDiff}
         />
         <StyledControlGroup
@@ -221,7 +229,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                   enabled: false,
                 },
               },
-              popoverClassName: "select-popover-wrapper",
+              popoverClassName: `select-popover-wrapper hello popover-width-${id}`,
             }}
           >
             <Button
