@@ -38,7 +38,12 @@ function Field({
     <StyledWrapper>
       <LabelWrapper label={label} tooltip={tooltip}>
         <StyledControllerWrapper>
-          <Controller control={control} name={name} render={render} />
+          <Controller
+            control={control}
+            name={name}
+            render={render}
+            shouldUnregister
+          />
         </StyledControllerWrapper>
       </LabelWrapper>
     </StyledWrapper>

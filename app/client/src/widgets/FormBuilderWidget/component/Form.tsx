@@ -32,6 +32,7 @@ type StyledFormProps = {
 const FOOTER_BUTTON_GAP = 10;
 const BUTTON_WIDTH = 110;
 const FORM_FOOTER_PADDING_TOP = 10;
+const TITLE_MARGIN_BOTTOM = 16;
 
 const StyledFormFooter = styled.div`
   display: flex;
@@ -56,10 +57,11 @@ const StyledForm = styled.form<StyledFormProps>`
   padding: ${FIELD_PADDING_X}px;
 `;
 
-export const StyledText = styled(Text)`
+export const StyledTitle = styled(Text)`
   font-weight: bold;
   font-size: ${TEXT_SIZES.HEADING1};
   word-break: break-word;
+  margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
 `;
 
 function Form<TValues = any>({
@@ -87,7 +89,11 @@ function Form<TValues = any>({
     // TODO: find a better way if possible to set the form values
     // The problem here is that it's going to re-render the whole form, thus beating
     // the whole point of subscription
-    const subscription = watch((values) => updateFormValues(values as TValues));
+    const subscription = watch((values) => {
+      // eslint-disable-next-line
+      console.log("FORM VALUES", values);
+      updateFormValues(values as TValues);
+    });
     return () => subscription.unsubscribe();
   }, [watch]);
 
@@ -98,8 +104,10 @@ function Form<TValues = any>({
         onSubmit={methods.handleSubmit(onSubmit)}
         scrollContents={scrollContents}
       >
-        <StyledText>{title}</StyledText>
-        {children}
+        <div>
+          <StyledTitle>{title}</StyledTitle>
+          {children}
+        </div>
         <StyledFormFooter>
           <Button
             buttonColor={Colors.GREEN}

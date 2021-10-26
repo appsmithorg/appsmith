@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useFieldArray, ControllerRenderProps } from "react-hook-form";
 
@@ -34,6 +34,7 @@ const StyledDeleteButton = styled(StyledButton)`
 function ArrayField({ name, schemaItem }: ArrayFieldProps) {
   const { append, fields, remove } = useFieldArray({
     name,
+    shouldUnregister: true,
   });
 
   const { children, isVisible = true, label, props, tooltip } = schemaItem;
