@@ -43,7 +43,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.TRIGGERS]: `
   async function closedFunction () {
     const result = await ${ScriptTemplate}
-    return result
+
   }
   closedFunction();
   `,
@@ -211,16 +211,14 @@ export async function evaluateAsync(
     let errors: EvaluationError[] = [];
     let result;
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = {
-      REQUEST_ID: requestId,
-      DRY_RUN: false,
-    };
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
-    ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
+    const GLOBAL_DATA: Record<string, any> = createGlobalData(
+      dataTree,
+      resolvedFunctions,
+      true,
+      evalArguments,
+    );
+    GLOBAL_DATA.REQUEST_ID = requestId;
+    GLOBAL_DATA.DRY_RUN = false;
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
@@ -230,14 +228,6 @@ export async function evaluateAsync(
       self[key] = GLOBAL_DATA[key];
     });
     errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS, scriptType);
-    if (!isEmpty(resolvedFunctions)) {
-      Object.keys(resolvedFunctions).forEach((datum: any) => {
-        const resolvedObject = resolvedFunctions[datum];
-        Object.keys(resolvedObject).forEach((key: any) => {
-          self[datum][key] = resolvedObject[key];
-        });
-      });
-    }
 
     try {
       result = await eval(script);
