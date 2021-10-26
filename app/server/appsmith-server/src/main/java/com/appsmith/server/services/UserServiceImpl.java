@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
@@ -584,6 +585,25 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     );
                     return Mono.just(user);
                 });
+    }
+
+    @Override
+    public Mono<User> update(String id, User userUpdate) {
+        Mono<User> userFromRepository = repository.findById(id, MANAGE_USERS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
+
+        if (userUpdate.getPassword() != null) {
+            // The password is being updated. Hash it first and then store it
+            userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
+        }
+
+        return userFromRepository
+                .map(existingUser -> {
+                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
+                    return existingUser;
+                })
+                .flatMap(repository::save)
+                .map(userChangedHandler::publish);
     }
 
     /**
