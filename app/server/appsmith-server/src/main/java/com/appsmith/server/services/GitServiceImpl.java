@@ -522,16 +522,16 @@ public class GitServiceImpl implements GitService {
                                     gitData.getBranchName()))
                             .onErrorResume(error -> {
                                 if(error instanceof TransportException) {
-                                    return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Please give the write access to the SSH Key"));
+                                    return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Please give the write access to the Deploy Key"));
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                             });
                 })
-                .flatMap(push -> {
-                    if(push.contains("REJECTED")) {
-                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Remote has changes. Please pull them before pushing to remote branch."));
+                .flatMap(pushResult -> {
+                    if(pushResult.contains("REJECTED")) {
+                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", " Remote has changes. Please pull them before pushing to remote branch."));
                     }
-                    return Mono.just(push);
+                    return Mono.just(pushResult);
                 });
     }
 
@@ -557,7 +557,7 @@ public class GitServiceImpl implements GitService {
                     return fileUtils.detachRemote(repoPath)
                             .then(Mono.just(application));
                 })
-                .flatMap(application -> applicationPageService.deleteApplication(application.getId()));
+                .flatMap(application -> applicationService.save(application));
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params) {
