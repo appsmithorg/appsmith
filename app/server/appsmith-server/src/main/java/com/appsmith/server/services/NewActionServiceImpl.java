@@ -14,6 +14,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -351,6 +352,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Add JS function body to jsonPathKeys field.
         if (PluginType.JS.equals(actionDTO.getPluginType()) && actionConfiguration.getBody() != null) {
             keys.add(actionConfiguration.getBody());
+
+            // Since this is a JS function, we should also set the dynamic binding path list if absent
+            List<Property> dynamicBindingPathList = actionDTO.getDynamicBindingPathList();
+            if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
+                dynamicBindingPathList = new ArrayList<>();
+                // Add a key static the key `body` contains JS
+                dynamicBindingPathList.add(new Property("body", null));
+                actionDTO.setDynamicBindingPathList(dynamicBindingPathList);
+            }
         }
 
         return keys;
