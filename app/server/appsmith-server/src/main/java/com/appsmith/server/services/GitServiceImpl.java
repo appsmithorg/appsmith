@@ -413,7 +413,7 @@ public class GitServiceImpl implements GitService {
                                 });
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                 })
                 .flatMap(application -> {
@@ -426,9 +426,6 @@ public class GitServiceImpl implements GitService {
                                 .collect(Collectors.toList())
                                 .get(0)
                                 .getId();
-                    } else {
-                        // TODO either throw error message saying invalid application or have a default value
-                        defaultPageId = "defaultPage";
                     }
                     String viewModeUrl = Paths.get("/", application.getId(),
                             Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
@@ -442,7 +439,7 @@ public class GitServiceImpl implements GitService {
                         );
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                     return Mono.just(application);
                 });
