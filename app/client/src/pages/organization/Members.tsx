@@ -34,6 +34,7 @@ import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
+import { Colors } from "constants/Colors";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -373,8 +374,8 @@ export default function MemberSettings(props: PageProps) {
                     <DeleteIcon
                       className="t--deleteUser"
                       cypressSelector="t--deleteUser"
-                      fillColor="#FF6786"
-                      hoverFillColor="#FF6786"
+                      fillColor={Colors.DANGER_SOLID}
+                      hoverFillColor={Colors.DANGER_SOLID_HOVER}
                       name="trash-outline"
                       onClick={() => {
                         onConfirmMemberDeletion(
