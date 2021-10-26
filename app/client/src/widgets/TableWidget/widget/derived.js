@@ -43,8 +43,10 @@ export default {
       : [props.selectedRowIndices];
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
-
-    const selectedRows = selectedRowIndices.map(
+    const sanitizedSelectedRowIndices = selectedRowIndices.filter((entry) => {
+      return Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1;
+    });
+    const selectedRows = sanitizedSelectedRowIndices.map(
       (ind) => filteredTableData[ind],
     );
     return selectedRows;
