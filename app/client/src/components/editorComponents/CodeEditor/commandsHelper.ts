@@ -133,6 +133,11 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             },
           },
           completeSingle: false,
+          customKeys: {
+            Enter: (cm: CodeMirror.Editor) => {
+              cm.execCommand("newlineAndIndent");
+            },
+          },
         });
         return true;
       }

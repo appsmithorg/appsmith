@@ -131,7 +131,7 @@ class TernServer {
       },
       customKeys: {
         Enter: (cm: CodeMirror.Editor) => {
-          cm.replaceSelection("\n");
+          cm.execCommand("newlineAndIndent");
         },
       },
     });
