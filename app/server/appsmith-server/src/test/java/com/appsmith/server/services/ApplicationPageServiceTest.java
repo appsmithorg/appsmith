@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,16 +47,18 @@ public class ApplicationPageServiceTest {
         return commentThread;
     }
 
-    @Test
-    @WithUserDetails("api_user")
-    public void deleteUnpublishedPage_WhenPageDeleted_EditModeCommentsDeleted() {
+    /**
+     * Creates an organization, an application and a page under that application
+     * @param uniquePrefix unique string that'll be added as prefix to org and app names to avoid name collision
+     * @return publisher of PageDTO
+     */
+    private Mono<PageDTO> createPageMono(String uniquePrefix) {
         Organization unsavedOrg = new Organization();
-        unsavedOrg.setName("ApplicationPageServiceTestOrg");
-
-        Mono<List<CommentThread>> getThreadMono = organizationService.create(unsavedOrg)
+        unsavedOrg.setName(uniquePrefix + "_org");
+        return organizationService.create(unsavedOrg)
                 .flatMap(organization -> {
                     Application application = new Application();
-                    application.setName("ApplicationPageServiceTestApp");
+                    application.setName(uniquePrefix + "_app");
                     return applicationPageService.createApplication(application, organization.getId());
                 })
                 .flatMap(application -> {
@@ -63,7 +66,14 @@ public class ApplicationPageServiceTest {
                     page.setName("Test page");
                     page.setApplicationId(application.getId());
                     return applicationPageService.createPage(page);
-                }).flatMap(pageDTO -> {
+                });
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteUnpublishedPage_WhenPageDeleted_EditModeCommentsDeleted() {
+        Mono<List<CommentThread>> getThreadMono = createPageMono(UUID.randomUUID().toString())
+                .flatMap(pageDTO -> {
                     CommentThread editModeCommentThread = createCommentThread(CommentMode.EDIT, pageDTO);
                     CommentThread piublishedModeCommentThread = createCommentThread(CommentMode.PUBLISHED, pageDTO);
 
@@ -80,6 +90,36 @@ public class ApplicationPageServiceTest {
         StepVerifier.create(getThreadMono).assertNext(commentThreads -> {
             assertThat(commentThreads.size()).isEqualTo(1);
             assertThat(commentThreads.get(0).getMode()).isEqualTo(CommentMode.PUBLISHED);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteUnpublishedPage_WhenPageDeletedAndAppRePublished_PublishModeCommentsDeleted() {
+        Mono<List<CommentThread>> getThreadMono = createPageMono(UUID.randomUUID().toString())
+                .flatMap(pageDTO -> {
+                    CommentThread editModeCommentThread = createCommentThread(CommentMode.EDIT, pageDTO);
+                    CommentThread piublishedModeCommentThread = createCommentThread(CommentMode.PUBLISHED, pageDTO);
+
+                    // add a comment thread in edit mode
+                    return commentService.createThread(editModeCommentThread, "app.appsmith.com")
+                            // publish the app
+                            .then(applicationPageService.publish(pageDTO.getApplicationId(), true))
+                            // add a comment in published mode
+                            .then(commentService.createThread(piublishedModeCommentThread, "app.appsmith.com"))
+                            // delete the unpublised page, published page is still available
+                            .then(applicationPageService.deleteUnpublishedPage(pageDTO.getId()))
+                            // publish the page again, this should delete the published page and comment
+                            .then(applicationPageService.publish(pageDTO.getApplicationId(), true))
+                            .thenReturn(pageDTO);
+                }).flatMap(pageDTO -> {
+                    CommentThreadFilterDTO filterDTO = new CommentThreadFilterDTO();
+                    filterDTO.setApplicationId(pageDTO.getApplicationId());
+                    return commentService.getThreadsByApplicationId(filterDTO);
+                });
+
+        StepVerifier.create(getThreadMono).assertNext(commentThreads -> {
+            assertThat(commentThreads.size()).isEqualTo(0);
         }).verifyComplete();
     }
 }
