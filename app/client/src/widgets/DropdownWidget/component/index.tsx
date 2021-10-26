@@ -184,6 +184,7 @@ const DropdownStyles = createGlobalStyle<{ width: number }>`
       min-height: 38px;
       padding: 9px 12px;
       color: ${Colors.GREY_8};
+      min-width: 180px;
       &:hover{
         background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
