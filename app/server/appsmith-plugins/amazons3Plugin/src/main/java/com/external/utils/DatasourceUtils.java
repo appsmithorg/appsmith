@@ -40,14 +40,14 @@ public class DatasourceUtils {
 
     /**
      * Example endpoint : fra1.digitaloceanspaces.com
-     * Group 2 match: fra1
+     * Group 1 match: fra1
      */
     public static String DIGITAL_OCEAN_URL_ENDPOINT_PATTERN = "^([^\\.]+)\\.digitaloceanspaces\\.com$";
     public static int DIGITAL_OCEAN_REGION_GROUP_INDEX = 1;
 
     /**
      * Example endpoint : objects-us-east-1.dream.io
-     * Group 2 match: us-east-1
+     * Group 1 match: us-east-1
      */
     public static String DREAM_OBJECTS_URL_ENDPOINT_PATTERN = "^objects-([^\\.]+)\\.dream\\.io$";
     public static int DREAM_OBJECTS_REGION_GROUP_INDEX = 1;
