@@ -73,7 +73,7 @@ export const dataTreeTypeDefCreator = (
       for (let i = 0; i < entity.variables.length; i++) {
         const varKey = entity.variables[i];
         const varValue = entity[varKey];
-        jsOptions[varKey] = generateTypeDef(JSON.parse(varValue));
+        jsOptions[varKey] = generateTypeDef(varValue);
       }
 
       def[entityName] = jsOptions;

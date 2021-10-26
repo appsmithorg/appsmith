@@ -5,7 +5,7 @@ import { Size } from "./Button";
 import { CommonComponentProps, Classes } from "./common";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
-type IconSelectorProps = CommonComponentProps & {
+export type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;
   selectedColor: string;
   selectedIcon?: AppIconName;
@@ -62,21 +62,27 @@ function IconSelector(props: IconSelectorProps) {
   const iconRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<AppIconName>(firstSelectedIcon());
   const iconPaletteRef = React.createRef<HTMLDivElement>();
+  const [iconPalette, setIconPalette] = useState(props.iconPalette);
 
   useEffect(() => {
     if (props.selectedIcon && iconRef.current) {
+      // make selected icon in first position
+      // also, this will happen only when the pop up opens
+      // after that if user select an icon it won't change the position
+      if (
+        iconPalette &&
+        props.iconPalette &&
+        iconPalette[0] === props.iconPalette[0]
+      ) {
+        const _iconPalette = iconPalette ? [...iconPalette] : [];
+        _iconPalette?.splice(_iconPalette.indexOf(props.selectedIcon), 1);
+        _iconPalette?.splice(0, 0, props.selectedIcon);
+        setIconPalette(_iconPalette);
+      }
+      // icon position change ends here
       setSelected(props.selectedIcon);
     }
   }, [props.selectedIcon]);
-
-  useEffect(() => {
-    if (selected && iconRef.current) {
-      setTimeout(() => {
-        if (iconRef.current)
-          iconRef.current.scrollIntoView({ behavior: "smooth" });
-      }, 0);
-    }
-  }, []);
 
   function firstSelectedIcon() {
     if (props.iconPalette && props.iconPalette[0]) {
@@ -87,12 +93,13 @@ function IconSelector(props: IconSelectorProps) {
 
   return (
     <IconPalette
+      className={props.className}
       data-cy={props.cypressSelector}
       fill={props.fill}
       ref={iconPaletteRef}
     >
-      {props.iconPalette &&
-        props.iconPalette.map((iconName: AppIconName, index: number) => {
+      {iconPalette &&
+        iconPalette.map((iconName: AppIconName, index: number) => {
           return (
             <IconBox
               {...(selected === iconName ? { ref: iconRef } : {})}

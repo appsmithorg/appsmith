@@ -7,7 +7,7 @@ import { noop } from "lodash";
 
 type Variant = "dark" | "light";
 
-type TooltipProps = CommonComponentProps & {
+export type TooltipProps = CommonComponentProps & {
   content: JSX.Element | string;
   disabled?: boolean;
   position?: Position;
@@ -23,6 +23,7 @@ type TooltipProps = CommonComponentProps & {
   modifiers?: Modifiers;
   isOpen?: boolean;
   onOpening?: typeof noop;
+  donotUsePortal?: boolean;
 };
 
 const portalContainer = document.getElementById("tooltip-root");
@@ -32,6 +33,7 @@ function TooltipComponent(props: TooltipProps) {
     <Tooltip
       autoFocus={props.autoFocus}
       boundary={props.boundary || "scrollParent"}
+      className={props.className}
       content={props.content}
       disabled={props.disabled}
       hoverOpenDelay={props.hoverOpenDelay}
@@ -46,7 +48,7 @@ function TooltipComponent(props: TooltipProps) {
       popoverClassName={GLOBAL_STYLE_TOOLTIP_CLASSNAME}
       portalContainer={portalContainer as HTMLDivElement}
       position={props.position}
-      usePortal
+      usePortal={!props.donotUsePortal}
     >
       {props.children}
     </Tooltip>

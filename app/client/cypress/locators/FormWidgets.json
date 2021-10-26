@@ -27,7 +27,7 @@
   "treeSelectInput": ".rc-tree-select-selection-search-input",
   "labelradio": ".t--draggable-radiogroupwidget label",
   "labelCheckboxGroup": ".t--draggable-checkboxgroupwidget label",
-  "deleteradiovalue": ".t--property-control-options  mask",
+  "deleteradiovalue": ".t--property-control-options  svg.remixicon-icon ",
   "inputRadio": ".t--draggable-radiogroupwidget input",
   "defaultSelect": ".t--property-control-defaultselectedvalue .CodeMirror-code",
   "defaultSelectValues": ".t--property-control-defaultselectedvalues .CodeMirror-code",

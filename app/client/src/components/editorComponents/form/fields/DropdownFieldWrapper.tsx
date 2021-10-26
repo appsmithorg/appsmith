@@ -40,7 +40,7 @@ function DropdownFieldWrapper(props: DropdownWrapperProps) {
 
   return (
     <Dropdown
-      bgColor={Colors.ROYAL_BLUE}
+      bgColor={Colors.CODE_GRAY}
       className={props.className}
       height={props.height}
       onSelect={onSelectHandler}
