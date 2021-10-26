@@ -63,6 +63,7 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
@@ -898,9 +899,13 @@ public class AmazonS3Plugin extends BasePlugin {
         public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
                                                                  DatasourceConfiguration datasourceConfiguration) {
 
-            // Get the metadata from the datasource using pluginSpecifiedTemplate by executing the DB query
+            // TODO : Ignore the plugin specified templates. Once trigger functionality is implemented for UQI, replace
+            // this as well with trigger functions
+            Map<String, Object> configMap = new HashMap<>();
+            setValueSafelyInFormData(configMap, COMMAND, "LIST_BUCKETS");
+
             ActionConfiguration actionConfiguration = new ActionConfiguration();
-            actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            actionConfiguration.setFormData(configMap);
             return datasourceCreate(datasourceConfiguration)
                 .flatMap(connection -> execute(connection, datasourceConfiguration, actionConfiguration));
         }

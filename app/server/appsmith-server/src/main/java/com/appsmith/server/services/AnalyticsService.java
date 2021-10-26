@@ -64,11 +64,21 @@ public class AnalyticsService {
                             AclPermission.MANAGE_INSTANCE_ENV.getValue(),
                             savedUser.getUsername()
                     );
+
+                    String username = savedUser.getUsername();
+                    String name = savedUser.getName();
+                    String email = savedUser.getEmail();
+                    if (!commonConfig.isCloudHosting()) {
+                        username = hash(username);
+                        name = hash(name);
+                        email = hash(email);
+                    }
+
                     analytics.enqueue(IdentifyMessage.builder()
-                            .userId(hash(savedUser.getUsername()))
+                            .userId(ObjectUtils.defaultIfNull(username, ""))
                             .traits(Map.of(
-                                    "name", hash(savedUser.getName()),
-                                    "email", hash(savedUser.getEmail()),
+                                    "name", ObjectUtils.defaultIfNull(name, ""),
+                                    "email", ObjectUtils.defaultIfNull(email, ""),
                                     "isSuperUser", isSuperUser != null && isSuperUser,
                                     "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
                                     "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
