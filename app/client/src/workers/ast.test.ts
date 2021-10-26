@@ -130,7 +130,7 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["Table14.data"],
       },
       {
-        // function with variables
+        // expression with logical operations 
         script: `Table15.data || [{}]`,
         expectedResults: ["Table15.data"],
       },
