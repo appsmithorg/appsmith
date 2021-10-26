@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import {
@@ -229,7 +228,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                   enabled: false,
                 },
               },
-              popoverClassName: `select-popover-wrapper hello popover-width-${id}`,
+              popoverClassName: `select-popover-wrapper popover-width-${id}`,
             }}
           >
             <Button

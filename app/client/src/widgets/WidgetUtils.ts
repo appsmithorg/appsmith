@@ -62,7 +62,7 @@ export const hexToRgb = (
         b: -1,
       };
 };
-
+// Padding between PostionContainer and Widget
 export const WidgetContainerDiff = 7;
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
