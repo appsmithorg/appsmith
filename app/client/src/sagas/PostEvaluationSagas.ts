@@ -279,6 +279,10 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
+        Toaster.show({
+          text: `${error.message} at: ${error.context?.entity.name}`,
+          variant: Variant.danger,
+        });
         AppsmithConsole.error({
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });

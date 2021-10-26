@@ -43,6 +43,8 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
+  getParams,
+  updateJSCollectionInDataTree,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -62,7 +64,7 @@ import evaluate, {
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
-
+// import { updateJSCollectionInDataTree } from "utils/JSPaneUtils";
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -86,7 +88,7 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
-  createFirstTree(unEvalTree: DataTree): DataTree {
+  createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
     // Create dependency map
     const createDependencyStart = performance.now();
@@ -101,7 +103,11 @@ export default class DataTreeEvaluator {
     // Evaluate
     const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
     // this.resolvedFunctions = {};
-    this.resolveJSActionsFirstTree(localUnEvalTree);
+    let jsUpdates: Record<string, any> = {};
+    const parsedCollections = this.parseJSActionForFirstDataTree(
+      localUnEvalTree,
+    );
+    jsUpdates = parsedCollections.jsUpdates;
     const evaluateStart = performance.now();
     const evaluatedTree = this.evaluateTree(
       unEvalTree,
@@ -133,7 +139,7 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
-    return this.evalTree;
+    return { evalTree: this.evalTree, jsUpdates };
   }
 
   updateDataTree(
@@ -141,13 +147,15 @@ export default class DataTreeEvaluator {
   ): {
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
+    jsUpdates: Record<string, any>;
   } {
     // const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
-    const localUnEvalTree = Object.assign({}, unEvalTree);
+    let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
+    let jsUpdates: Record<string, any> = {};
     // Calculate diff
     const diffCheckTimeStart = performance.now();
-    const differences: Diff<DataTree, DataTree>[] =
+    let differences: Diff<DataTree, DataTree>[] =
       diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
@@ -155,9 +163,10 @@ export default class DataTreeEvaluator {
       return {
         evaluationOrder: [],
         unEvalUpdates: [],
+        jsUpdates: {},
       };
     }
-    const translatedDiffs = _.flatten(
+    let translatedDiffs = _.flatten(
       differences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
@@ -169,6 +178,42 @@ export default class DataTreeEvaluator {
 
     this.logs.push({ differences: _.cloneDeep(differences), translatedDiffs });
 
+    const parsedCollections = this.parseJSActions(
+      translatedDiffs,
+      localUnEvalTree,
+      this.oldUnEvalTree,
+    );
+
+    jsUpdates = parsedCollections.jsUpdates;
+
+    if (!_.isEmpty(jsUpdates)) {
+      Object.keys(jsUpdates).forEach((jsEntity) => {
+        const entity = localUnEvalTree[jsEntity];
+        const parsedBody = jsUpdates[jsEntity].parsedBody;
+        if (isJSAction(entity)) {
+          localUnEvalTree = updateJSCollectionInDataTree(
+            parsedBody,
+            entity,
+            localUnEvalTree,
+          );
+        }
+      });
+      differences = diff(this.oldUnEvalTree, localUnEvalTree) || [];
+      // Since eval tree is listening to possible events that dont cause differences
+      // We want to check if no diffs are present and bail out early
+      if (differences.length === 0) {
+        return {
+          evaluationOrder: [],
+          unEvalUpdates: [],
+          jsUpdates: {},
+        };
+      }
+      translatedDiffs = _.flatten(
+        differences.map((diff) =>
+          translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
+        ),
+      );
+    }
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
     const {
@@ -205,7 +250,6 @@ export default class DataTreeEvaluator {
       }
       return false;
     });
-    this.resolveJSActions(translatedDiffs, localUnEvalTree, this.oldUnEvalTree);
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -249,6 +293,7 @@ export default class DataTreeEvaluator {
     return {
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
+      jsUpdates: jsUpdates,
     };
   }
 
@@ -851,26 +896,97 @@ export default class DataTreeEvaluator {
     return propertyValue;
   }
 
-  resolveJSActionsFirstTree(unEvalDataTree: DataTree) {
+  saveResolvedFunctionsAndJSUpdates(
+    entity: DataTreeJSAction,
+    jsUpdates: Record<string, any>,
+    unEvalDataTree: DataTree,
+    entityName: string,
+  ) {
+    const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+    const correctFormat = regex.test(entity.body);
+    if (correctFormat) {
+      const body = entity.body.replace(/export default/g, "");
+      try {
+        const { result } = evaluate(body, unEvalDataTree, {});
+        delete this.resolvedFunctions[`${entityName}`];
+        if (result) {
+          const actions: any = [];
+          const variables: any = [];
+          Object.keys(result).forEach((unEvalFunc) => {
+            const unEvalValue = result[unEvalFunc];
+            if (typeof unEvalValue === "function") {
+              const params = getParams(unEvalValue);
+              actions.push({
+                name: unEvalFunc,
+                body: unEvalValue.toString(),
+                arguments: params,
+              });
+              _.set(
+                this.resolvedFunctions,
+                `${entityName}.${unEvalFunc}`,
+                unEvalValue,
+              );
+            } else {
+              variables.push({
+                name: unEvalFunc,
+                value: result[unEvalFunc],
+              });
+            }
+          });
+          const parsedBody = { body: entity.body, actions, variables };
+          _.set(jsUpdates, `${entityName}`, {
+            parsedBody,
+            id: entity.actionId,
+          });
+        }
+      } catch (e) {
+        const errors = {
+          type: EvalErrorTypes.PARSE_JS_ERROR,
+          context: {
+            entity: entity,
+            propertyPath: entity.name + ".body",
+          },
+          message: e.message,
+        };
+        this.errors.push(errors);
+      }
+    } else {
+      const errors = {
+        type: EvalErrorTypes.PARSE_JS_ERROR,
+        context: {
+          entity: entity,
+          propertyPath: entity.name + ".body",
+        },
+        message: "Start object with export default",
+      };
+      this.errors.push(errors);
+    }
+    return jsUpdates;
+  }
+
+  parseJSActionForFirstDataTree(unEvalDataTree: DataTree) {
+    let jsUpdates = {};
     Object.keys(unEvalDataTree).forEach((entityName) => {
       const entity = unEvalDataTree[entityName];
       if (!isJSAction(entity)) {
         return;
       }
-      Object.keys(entity.meta).forEach((unEvalFunc) => {
-        const unEvalValue = _.get(entity, unEvalFunc);
-        if (typeof unEvalValue === "string") {
-          const { result } = evaluate(unEvalValue, {}, {});
-          _.set(this.resolvedFunctions, `${entityName}.${unEvalFunc}`, result);
-        }
-      });
+      jsUpdates = this.saveResolvedFunctionsAndJSUpdates(
+        entity,
+        jsUpdates,
+        unEvalDataTree,
+        entityName,
+      );
     });
+    return { jsUpdates };
   }
-  resolveJSActions(
+
+  parseJSActions(
     differences: DataTreeDiff[],
     unEvalDataTree: DataTree,
     oldUnEvalTree: DataTree,
   ) {
+    let jsUpdates = {};
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         diff.payload.propertyPath,
@@ -889,50 +1005,21 @@ export default class DataTreeEvaluator {
         }
       }
       if (!isJSAction(entity)) {
-        return;
+        return false;
       }
-      // if a new js function is added
-      // or if js function is edited
-      // Resolve the js function and save it
-      if (diff.event === DataTreeDiffEvent.NEW) {
-        // Check if it is new JS Action
-        if (entityName == diff.payload.propertyPath) {
-          //// get all js functions and resolve them
-          Object.keys(entity.meta).forEach((unEvalFunc) => {
-            const unEvalValue = _.get(entity, unEvalFunc);
-            if (typeof unEvalValue === "string") {
-              const { result } = evaluate(unEvalValue, {}, {});
-              _.set(
-                this.resolvedFunctions,
-                `${entityName}.${unEvalFunc}`,
-                result,
-              );
-            }
-          });
-          // Check if it is a new JS action function
-        } else if (propertyPath in entity.meta) {
-          //// resolve that function
-          const unEvalValue = _.get(entity, propertyPath);
-          if (typeof unEvalValue === "string") {
-            const { result } = evaluate(unEvalValue, unEvalDataTree, {});
-            _.set(
-              this.resolvedFunctions,
-              `${entityName}.${propertyPath}`,
-              result,
-            );
-          }
-        }
-      }
-      if (diff.event === DataTreeDiffEvent.EDIT) {
-        if (propertyPath in entity.meta) {
-          const unEvalValue = _.get(entity, propertyPath);
-          if (typeof unEvalValue === "string") {
-            const { result } = evaluate(unEvalValue, unEvalDataTree, {});
-            _.set(this.resolvedFunctions, diff.payload.propertyPath, result);
-          }
-        }
+      if (
+        (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
+        (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
+      ) {
+        jsUpdates = this.saveResolvedFunctionsAndJSUpdates(
+          entity,
+          jsUpdates,
+          unEvalDataTree,
+          entityName,
+        );
       }
     });
+    return { jsUpdates };
   }
 
   updateDependencyMap(
