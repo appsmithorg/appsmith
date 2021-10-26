@@ -5,7 +5,7 @@ import { useFieldArray, ControllerRenderProps } from "react-hook-form";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import { ARRAY_ITEM_KEY } from "../constants";
+import { ARRAY_ITEM_KEY, FIELD_PADDING_X, FIELD_PADDING_Y } from "../constants";
 import { BaseFieldComponentProps } from "./types";
 
 type ArrayComponentOwnProps = {
@@ -14,11 +14,8 @@ type ArrayComponentOwnProps = {
 
 type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentOwnProps>;
 
-const WRAPPER_PADDING_Y = 10;
-const WRAPPER_PADDING_X = 15;
-
 const StyledWrapper = styled.div`
-  padding: ${WRAPPER_PADDING_Y}px ${WRAPPER_PADDING_X}px;
+  padding: ${FIELD_PADDING_Y}px ${FIELD_PADDING_X}px;
 `;
 
 const StyledItemWrapper = styled.div`

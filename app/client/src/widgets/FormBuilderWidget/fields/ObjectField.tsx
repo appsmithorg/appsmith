@@ -5,7 +5,7 @@ import { ControllerRenderProps } from "react-hook-form";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import { SchemaItem } from "../constants";
+import { FIELD_PADDING_X, FIELD_PADDING_Y, SchemaItem } from "../constants";
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
@@ -14,11 +14,8 @@ type ObjectFieldProps = {
   hideLabel?: boolean;
 };
 
-const WRAPPER_PADDING_Y = 10;
-const WRAPPER_PADDING_X = 15;
-
 const StyledWrapper = styled.div`
-  padding: ${WRAPPER_PADDING_Y}px ${WRAPPER_PADDING_X}px;
+  padding: ${FIELD_PADDING_Y}px ${FIELD_PADDING_X}px;
   padding-top: 0;
   width: 100%;
 `;

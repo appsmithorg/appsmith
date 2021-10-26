@@ -43,7 +43,6 @@ function General() {
         variant: Variant.success,
       });
       dispatch(logoutUser());
-      // eslint-disable-next-line prettier/prettier
     } catch (error) {
       Toaster.show({
         text: error._error,

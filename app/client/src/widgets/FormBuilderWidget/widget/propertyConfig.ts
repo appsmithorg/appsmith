@@ -287,6 +287,17 @@ export default [
         },
       },
       {
+        propertyName: "useFormDataValues",
+        helpText:
+          "It will use the values of the form data as the initial values for the form fields. Disabling this would make the form fields empty.",
+        label: "Use Form Data Values",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
         helpText: "Field configuration",
         label: "Field Configuration",
@@ -301,17 +312,6 @@ export default [
         controlType: "COLOR_PICKER",
         isBindProperty: false,
         isTriggerProperty: false,
-      },
-      {
-        propertyName: "useFormDataValues",
-        helpText:
-          "It will use the values of the form data as the initial values for the form fields. Disabling this would make the form fields empty.",
-        label: "Use Form Data Values",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         propertyName: "fixedFooter",

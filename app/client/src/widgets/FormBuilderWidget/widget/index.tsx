@@ -14,6 +14,7 @@ export type FormBuilderWidgetProps = WidgetProps & {
   formData?: Record<string, any>;
   isVisible: boolean;
   schema: Schema;
+  scrollContent: boolean;
   scrollContents: boolean;
   useFormDataValues: boolean;
 };
@@ -35,7 +36,9 @@ class FormBuilderWidget extends BaseWidget<
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return {};
+    return {
+      data: {},
+    };
   }
 
   componentDidMount() {
@@ -71,12 +74,19 @@ class FormBuilderWidget extends BaseWidget<
     this.updateWidgetProperty("schema", schema);
   };
 
+  updateFormValues = (values: any) => {
+    this.props.updateWidgetMetaProperty("data", values);
+  };
+
   getPageView() {
     return (
       <FormBuilderComponent
         backgroundColor={this.props.backgroundColor}
+        fixedFooter={this.props.fixedFooter}
         formData={this.props?.formData}
         schema={this.props.schema}
+        scrollContents={this.props.scrollContents}
+        updateFormValues={this.updateFormValues}
         useFormDataValues={this.props.useFormDataValues}
       />
     );
