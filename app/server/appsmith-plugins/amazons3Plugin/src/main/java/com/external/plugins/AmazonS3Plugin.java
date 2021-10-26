@@ -277,16 +277,6 @@ public class AmazonS3Plugin extends BasePlugin {
                     return Mono.error(new StaleConnectionException());
                 }
 
-                if (datasourceConfiguration == null) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "At least one of the mandatory fields in S3 datasource creation form is empty - " +
-                                            "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
-                            )
-                    );
-                }
-
                 if (actionConfiguration == null) {
                     return Mono.error(
                             new AppsmithPluginException(
