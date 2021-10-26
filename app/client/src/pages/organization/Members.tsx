@@ -34,6 +34,7 @@ import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
+import { Colors } from "constants/Colors";
 
 export type PageProps = RouteComponentProps<{
   orgId: string;
@@ -89,6 +90,7 @@ const UserCard = styled(Card)`
   margin-bottom: 15px;
   align-items: center;
   justify-content: center;
+  position: relative;
 
   .avatar {
     min-height: 71px;
@@ -104,6 +106,10 @@ const UserCard = styled(Card)`
   .approve-btn {
     background: #f86a2b;
   }
+
+  .delete-btn {
+    position: absolute;
+  }
 `;
 
 const TableWrapper = styled(Table)`
@@ -116,6 +122,12 @@ const TableWrapper = styled(Table)`
       }
     }
   }
+`;
+
+const DeleteIcon = styled(Icon)`
+  position: absolute;
+  top: ${(props) => props.theme.spaces[9]}px;
+  right: ${(props) => props.theme.spaces[7]}px;
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -358,6 +370,21 @@ export default function MemberSettings(props: PageProps) {
                       className="approve-btn"
                       size={Size.xxs}
                       text="Approve"
+                    />
+                    <DeleteIcon
+                      className="t--deleteUser"
+                      cypressSelector="t--deleteUser"
+                      fillColor={Colors.DANGER_SOLID}
+                      hoverFillColor={Colors.DANGER_SOLID_HOVER}
+                      name="trash-outline"
+                      onClick={() => {
+                        onConfirmMemberDeletion(
+                          user.username,
+                          user.username,
+                          orgId,
+                        );
+                      }}
+                      size={IconSize.LARGE}
                     />
                   </UserCard>
                 );
