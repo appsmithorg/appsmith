@@ -22,6 +22,9 @@ const IconSelectContainerStyles = createGlobalStyle<{
     padding: 3px;
     box-shadow: 0px 0px 0px 1px #e1e1e;
   }
+  .bp3-icon-search{
+    padding:3px !important;
+  }
 `;
 
 const StyledButton = styled(Button)`
