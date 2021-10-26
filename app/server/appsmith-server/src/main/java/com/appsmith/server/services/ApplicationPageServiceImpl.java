@@ -147,7 +147,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     if (StringUtils.isEmpty(defaultResources.getPageId())) {
                         defaultResources.setPageId(page.getId());
                     }
-                    return sanitiseResponse.sanitisePageDTO(page);
+                    return sanitiseResponse.updatePageDTOWithDefaultResources(page);
                 });
     }
 
@@ -217,7 +217,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> getPage(newPage.getId(), viewMode))
-                .map(sanitiseResponse::sanitisePageDTO);
+                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         // TODO remove the dependency of applicationId as pageId and branch can get the exact resource
         return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(branchedPage -> makePageDefault(branchedPage.getApplicationId(), branchedPage.getId()))
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -414,7 +414,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> clonePageByDefaultPageAndBranch(String defaultPageId, String branchName) {
         return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> clonePage(newPage.getId()))
-                .map(sanitiseResponse::sanitisePageDTO);
+                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId,
@@ -602,7 +602,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                     })
                             );
                 })
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
         // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow
@@ -687,7 +687,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
         return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
-                .map(sanitiseResponse::sanitisePageDTO);
+                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
@@ -806,7 +806,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
         return applicationService.findChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(branchedApplicationId -> publish(branchedApplicationId, isPublishedManually))
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -860,7 +860,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .setPages(applicationId, pages)
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(applicationId,Boolean.FALSE));
                 })
-                .map(sanitiseResponse::sanitiseApplicationPagesDTO);
+                .map(sanitiseResponse::updateApplicationPagesDTOWithDefaultResources);
     }
 
 }

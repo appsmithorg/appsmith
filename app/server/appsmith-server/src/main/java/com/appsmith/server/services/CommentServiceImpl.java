@@ -354,7 +354,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     commentThread.setPageId(branchedPageId);
                     return createThread(commentThread, originHeader);
                 })
-                .map(sanitiseResponse::sanitiseCommentThreadDTO);
+                .map(sanitiseResponse::updateCommentThreadDTOWithDefaultResources);
 
     }
 
@@ -516,7 +516,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     return getThreadsByApplicationId(commentThreadFilterDTO);
                 })
                 .map(commentThreads -> {
-                    commentThreads.forEach(sanitiseResponse::sanitiseCommentThreadDTO);
+                    commentThreads.forEach(sanitiseResponse::updateCommentThreadDTOWithDefaultResources);
                     return commentThreads;
                 });
     }

@@ -368,7 +368,7 @@ public class CreateDBTablePageSolution {
                             createSuccessMessageAndSetAsset(plugin, crudPage);
                             return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName())
                                     .map(res -> {
-                                        PageDTO sanitisedResponse = sanitiseResponse.sanitisePageDTO(res.getPage());
+                                        PageDTO sanitisedResponse = sanitiseResponse.updatePageDTOWithDefaultResources(res.getPage());
                                         crudPage.setPage(sanitisedResponse);
                                         return crudPage;
                                     });

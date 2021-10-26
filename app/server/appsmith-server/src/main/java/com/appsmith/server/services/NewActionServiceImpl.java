@@ -1031,7 +1031,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
         return applicationService.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
                 .flatMapMany(this::getActionsForViewMode)
-                .map(sanitiseResponse::sanitiseActionViewDTO);
+                .map(sanitiseResponse::updateActionViewDTOWithDefaultResources);
     }
 
     @Override
@@ -1218,7 +1218,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     }
                     return getUnpublishedActions(updatedParams);
                 })
-                .map(sanitiseResponse::sanitiseActionDTO);
+                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
 
     @Override

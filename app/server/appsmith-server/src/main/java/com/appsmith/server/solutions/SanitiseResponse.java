@@ -1,12 +1,8 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.DefaultResources;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -25,7 +21,7 @@ import java.util.List;
 @Component
 public class SanitiseResponse {
 
-    public PageDTO sanitisePageDTO(PageDTO page) {
+    public PageDTO updatePageDTOWithDefaultResources(PageDTO page) {
         DefaultResources defaults = page.getDefaultResources();
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getApplicationId())
@@ -37,7 +33,7 @@ public class SanitiseResponse {
         return page;
     }
 
-    public ApplicationPagesDTO sanitiseApplicationPagesDTO(ApplicationPagesDTO applicationPages) {
+    public ApplicationPagesDTO updateApplicationPagesDTOWithDefaultResources(ApplicationPagesDTO applicationPages) {
         List<PageNameIdDTO> pageNameIdList = applicationPages.getPages();
         pageNameIdList.forEach(page -> {
             if (StringUtils.isEmpty(page.getGitDefaultPageId())) {
@@ -48,7 +44,7 @@ public class SanitiseResponse {
         return applicationPages;
     }
 
-    public ActionDTO sanitiseActionDTO(ActionDTO action) {
+    public ActionDTO updateActionDTOWithDefaultResources(ActionDTO action) {
         DefaultResources defaults = action.getDefaultResources();
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getApplicationId())
@@ -62,7 +58,7 @@ public class SanitiseResponse {
         return action;
     }
 
-    public LayoutDTO sanitiseLayoutDTO(LayoutDTO layout) {
+    public LayoutDTO updateLayoutDTOWithDefaultResources(LayoutDTO layout) {
         layout.getActionUpdates()
                 .forEach(updateLayoutAction -> updateLayoutAction.setId(updateLayoutAction.getDefaultActionId()));
 
@@ -71,7 +67,7 @@ public class SanitiseResponse {
         return layout;
     }
 
-    public ActionViewDTO sanitiseActionViewDTO(ActionViewDTO viewDTO) {
+    public ActionViewDTO updateActionViewDTOWithDefaultResources(ActionViewDTO viewDTO) {
         DefaultResources defaults = viewDTO.getDefaultResources();
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getPageId())
@@ -83,7 +79,7 @@ public class SanitiseResponse {
         return viewDTO;
     }
 
-    public Application sanitiseApplication(Application application) {
+    public Application updateApplicationWithDefaultResources(Application application) {
         if (application.getGitApplicationMetadata() != null
                 && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
             application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
@@ -98,7 +94,7 @@ public class SanitiseResponse {
         return application;
     }
 
-    public CommentThread sanitiseCommentThreadDTO(CommentThread commentThread) {
+    public CommentThread updateCommentThreadDTOWithDefaultResources(CommentThread commentThread) {
         DefaultResources defaults = commentThread.getDefaultResources();
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getApplicationId())
@@ -108,38 +104,5 @@ public class SanitiseResponse {
         commentThread.setApplicationId(defaults.getApplicationId());
         commentThread.setPageId(defaults.getPageId());
         return commentThread;
-    }
-
-    public <T> T updateDefaultResources(T resource, String branchName) {
-        DefaultResources defaultResources = new DefaultResources();
-        if (resource instanceof NewAction) {
-            NewAction action = (NewAction) resource;
-            defaultResources.setApplicationId(action.getApplicationId());
-            defaultResources.setActionId(action.getId());
-            defaultResources.setBranchName(branchName);
-            action.setDefaultResources(defaultResources);
-        } else if (resource instanceof ActionDTO) {
-            ActionDTO action = (ActionDTO) resource;
-            defaultResources.setPageId(action.getPageId());
-            defaultResources.setActionCollectionId(action.getCollectionId());
-            action.setDefaultResources(defaultResources);
-        } else if (resource instanceof NewPage) {
-            NewPage page = (NewPage) resource;
-            defaultResources.setApplicationId(page.getApplicationId());
-            defaultResources.setPageId(page.getId());
-            defaultResources.setBranchName(branchName);
-            page.setDefaultResources(defaultResources);
-        } else if (resource instanceof ActionCollection) {
-            ActionCollection actionCollection = (ActionCollection) resource;
-            defaultResources.setApplicationId(actionCollection.getApplicationId());
-            defaultResources.setActionCollectionId(actionCollection.getId());
-            defaultResources.setBranchName(branchName);
-            actionCollection.setDefaultResources(defaultResources);
-        } else if (resource instanceof ActionCollectionDTO) {
-            ActionCollectionDTO collectionDTO = (ActionCollectionDTO) resource;
-            defaultResources.setPageId(collectionDTO.getPageId());
-            collectionDTO.setDefaultResources(defaultResources);
-        }
-        return resource;
     }
 }

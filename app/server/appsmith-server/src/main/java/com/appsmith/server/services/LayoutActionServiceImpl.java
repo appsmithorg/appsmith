@@ -228,7 +228,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     actionMoveDTO.getAction().setId(branchedActionId);
                     return moveAction(actionMoveDTO);
                 })
-                .map(sanitiseResponse::sanitiseActionDTO);
+                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
 
     @Override
@@ -293,7 +293,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
                     return refactorActionName(refactorActionNameDTO);
                 })
-                .map(sanitiseResponse::sanitiseLayoutDTO);
+                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
     }
 
     /**
@@ -700,7 +700,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         action.setPageId(null);
         return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
-                .map(sanitiseResponse::sanitiseActionDTO);
+                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
 
     @Override
@@ -726,7 +726,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
         return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
-                .map(sanitiseResponse::sanitiseActionDTO);
+                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
 
     /**
@@ -746,7 +746,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
         return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
-                .map(sanitiseResponse::sanitiseActionDTO);
+                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
 
     private Mono<String> updatePageLayoutsGivenAction(String pageId) {
@@ -997,7 +997,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     action.setDefaultResources(defaultResources);
                     return createAction(action, eventContext);
                 })
-                .map(sanitiseResponse::sanitiseActionDTO);
+                .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
 
     @Override

@@ -89,7 +89,7 @@ public class GitServiceImpl implements GitService {
                     return applicationService.save(application);
                 })
                 .flatMap(applicationService::setTransientFields)
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -444,7 +444,7 @@ public class GitServiceImpl implements GitService {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
                         throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
                     }
-                    return sanitiseResponse.sanitiseApplication(application);
+                    return sanitiseResponse.updateApplicationWithDefaultResources(application);
                 });
     }
 
@@ -547,7 +547,7 @@ public class GitServiceImpl implements GitService {
                             .then(Mono.just(application));
                 })
                 .flatMap(applicationService::save)
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
@@ -630,7 +630,7 @@ public class GitServiceImpl implements GitService {
                             branchDTO.getBranchName()
                     );
                 })
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
@@ -647,7 +647,7 @@ public class GitServiceImpl implements GitService {
                     branchName, defaultApplicationId, READ_APPLICATIONS
                 );
             })
-            .map(sanitiseResponse::sanitiseApplication);
+            .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {

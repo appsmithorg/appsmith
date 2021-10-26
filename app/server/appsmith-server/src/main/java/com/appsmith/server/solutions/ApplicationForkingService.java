@@ -81,7 +81,7 @@ public class ApplicationForkingService {
                                                            String branchName) {
         return applicationService.findChildApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .flatMap(branchedApplicationId -> forkApplicationToOrganization(branchedApplicationId, targetOrganizationId))
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String orgId, Application application) {

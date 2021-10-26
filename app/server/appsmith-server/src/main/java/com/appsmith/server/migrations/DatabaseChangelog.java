@@ -3591,7 +3591,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "095", id = "insert-default-resources", author = "")
     public void insertDefaultResources(MongockTemplate mongockTemplate) {
 
-        // We are not updating all the resources at once using db.updateALl is to avoid the out of memory issue which
+        // We are not updating all the resources at once using db.updateAll is to avoid the out of memory issue which
         // first occurred during deleteOrphanActions
         // Update datasources
         final Query datasourceQuery = query(where(fieldName(QDatasource.datasource.gitSyncId)).exists(false))

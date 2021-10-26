@@ -25,6 +25,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -83,7 +84,6 @@ public class ImportExportApplicationService {
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
-    private final SanitiseResponse sanitiseResponse;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -668,13 +668,13 @@ public class ImportExportApplicationService {
                                             if (action.getDefaultResources() == null) {
                                                 NewAction update = new NewAction();
                                                 update.setDefaultResources(
-                                                        sanitiseResponse
+                                                        DefaultResourcesUtils
                                                                 .updateDefaultResources(action, branchName).getDefaultResources());
                                                 if (action.getUnpublishedAction() != null) {
                                                     update.setUnpublishedAction(action.getUnpublishedAction());
                                                     update.getUnpublishedAction()
                                                             .setDefaultResources(
-                                                                    sanitiseResponse
+                                                                    DefaultResourcesUtils
                                                                             .updateDefaultResources(action.getUnpublishedAction(), branchName)
                                                                             .getDefaultResources()
                                                             );
@@ -683,7 +683,7 @@ public class ImportExportApplicationService {
                                                     update.setPublishedAction(action.getPublishedAction());
                                                     update.getPublishedAction()
                                                             .setDefaultResources(
-                                                                    sanitiseResponse
+                                                                    DefaultResourcesUtils
                                                                             .updateDefaultResources(action.getPublishedAction(), branchName)
                                                                             .getDefaultResources()
                                                             );
@@ -765,7 +765,7 @@ public class ImportExportApplicationService {
                                             if (actionCollection1.getDefaultResources() == null) {
                                                 ActionCollection update = new ActionCollection();
                                                 update.setDefaultResources(
-                                                        sanitiseResponse
+                                                        DefaultResourcesUtils
                                                                 .updateDefaultResources(actionCollection1, branchName)
                                                                 .getDefaultResources()
                                                 );
@@ -773,7 +773,7 @@ public class ImportExportApplicationService {
                                                     update.setUnpublishedCollection(actionCollection1.getUnpublishedCollection());
                                                     update.getUnpublishedCollection()
                                                             .setDefaultResources(
-                                                                    sanitiseResponse
+                                                                    DefaultResourcesUtils
                                                                             .updateDefaultResources(actionCollection1.getUnpublishedCollection(), branchName)
                                                                             .getDefaultResources()
                                                             );
@@ -782,7 +782,7 @@ public class ImportExportApplicationService {
                                                     update.setPublishedCollection(actionCollection1.getPublishedCollection());
                                                     update.getPublishedCollection()
                                                             .setDefaultResources(
-                                                                    sanitiseResponse
+                                                                    DefaultResourcesUtils
                                                                             .updateDefaultResources(actionCollection1.getPublishedCollection(), branchName)
                                                                             .getDefaultResources()
                                                             );
@@ -924,7 +924,7 @@ public class ImportExportApplicationService {
                                 .flatMap(page -> {
                                     if (page.getDefaultResources() == null) {
                                         NewPage update = new NewPage();
-                                        update.setDefaultResources(sanitiseResponse.updateDefaultResources(page, branchName).getDefaultResources());
+                                        update.setDefaultResources(DefaultResourcesUtils.updateDefaultResources(page, branchName).getDefaultResources());
                                         return newPageService.update(page.getId(), update);
                                     }
                                     return Mono.just(page);

@@ -232,7 +232,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                               ApplicationAccessDTO applicationAccessDTO) {
         return this.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
-                .map(sanitiseResponse::sanitiseApplication);
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     @Override

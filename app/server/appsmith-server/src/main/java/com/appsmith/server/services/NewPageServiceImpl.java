@@ -332,7 +332,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
         return applicationService.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
             .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view))
-            .map(sanitiseResponse::sanitiseApplicationPagesDTO);
+            .map(sanitiseResponse::updateApplicationPagesDTOWithDefaultResources);
     }
 
     @Override
@@ -436,7 +436,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
         return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
-                .map(sanitiseResponse::sanitisePageDTO);
+                .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
 
     @Override
