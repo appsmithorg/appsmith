@@ -31,8 +31,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: auto;
-  ${hideScrollbar};
+  // Hiding the scroll of react-virtuoso
+  & > div:first-child {
+    ${hideScrollbar};
+  }
 `;
 
 export const useSortedCommentThreadIds = (
@@ -77,7 +79,7 @@ function AppCommentThreads() {
     applicationCommentsSelector(applicationId),
   );
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement | Window | null>(null);
 
   const commentThreadIds = useSortedCommentThreadIds(
     applicationId,
@@ -89,6 +91,16 @@ function AppCommentThreads() {
   // TODO (rishabh s) Update this when adding pagination to comments
   const appCommentThreadsFetched = useSelector(getCommentThreadsFetched);
 
+  // Getting the ref of the inner div used of react-virtuoso which is responsible
+  // for the scroll
+  const scrollerRef = React.useCallback(
+    (element: HTMLElement | Window | null) => {
+      if (element) {
+        containerRef.current = element as HTMLElement;
+      }
+    },
+    [],
+  );
   useEffect(() => {
     // if user is visiting a comment thread link which is already resolved,
     // we'll activate the resolved comments filter
@@ -109,7 +121,7 @@ function AppCommentThreads() {
   }, [commentThreadIdFromUrl, appCommentThreadsFetched]);
 
   return (
-    <Container ref={containerRef}>
+    <Container>
       {commentThreadIds.length > 0 && (
         <Virtuoso
           data={commentThreadIds}
@@ -127,10 +139,11 @@ function AppCommentThreads() {
               />
             </div>
           )}
+          scrollerRef={scrollerRef}
         />
       )}
       {commentThreadIds.length === 0 && <AppCommentsPlaceholder />}
-      <ScrollIndicator containerRef={containerRef} />
+      <ScrollIndicator containerRef={containerRef as any} top={"50px"} />
     </Container>
   );
 }
