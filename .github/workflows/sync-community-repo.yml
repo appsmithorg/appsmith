@@ -22,8 +22,9 @@ jobs:
     - name: Sync release branch from community repo
       run: |
         git remote add community https://github.com/appsmithorg/appsmith.git
-        git config --local user.email "automated@github.com"
-        git config --local user.name "Automated Github Action"
+        git config user.email "automated@github.com"
+        git config user.name "Automated Github Action"
+        git config pull.rebase false
         git pull community release --no-edit
     
     - name: Push changes to the release branch
