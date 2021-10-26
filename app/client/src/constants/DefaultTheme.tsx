@@ -898,6 +898,7 @@ type ColorType = {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
+    iconBg: string;
     user: {
       textColor: ShadeColor;
     };
@@ -1864,6 +1865,7 @@ export const dark: ColorType = {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
+    iconBg: "#FFDEDE",
     user: {
       textColor: darkShades[7],
     },
@@ -2502,6 +2504,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: lightShades[5],
+    iconBg: "#FFDEDE",
     user: {
       textColor: lightShades[9],
     },
