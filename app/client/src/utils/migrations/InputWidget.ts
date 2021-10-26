@@ -6,6 +6,16 @@ export const migrateInputWidgetDefaultSelectedPhoneNumberCode = (
   currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    for (const key in child) {
+      if (
+        typeof child[key] === "string" &&
+        child[key].includes(".currencyCountryCode")
+      )
+        child[key] = child[key].replace(
+          ".currencyCountryCode",
+          ".currencyCode",
+        );
+    }
     if (child.type === "INPUT_WIDGET") {
       if (child.inputType === "PHONE_NUMBER" && child.phoneNumberCountryCode) {
         const ISDCodeOption = ISDCodeOptions.find((item: ISDCodeProps) => {
@@ -18,6 +28,7 @@ export const migrateInputWidgetDefaultSelectedPhoneNumberCode = (
     } else if (child.children && child.children.length > 0) {
       child = migrateInputWidgetDefaultSelectedPhoneNumberCode(child);
     }
+
     return child;
   });
   return currentDSL;
