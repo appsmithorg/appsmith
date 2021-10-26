@@ -186,7 +186,9 @@ class DatePickerComponent extends React.Component<
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
-              timePrecision={TimePrecision.MINUTE}
+              timePrecision={
+                this.props.isTimeEnabled ? TimePrecision.MINUTE : undefined
+              }
               value={value}
             />
           </ErrorTooltip>
@@ -303,6 +305,7 @@ interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  isTimeEnabled: boolean;
 }
 
 interface DatePickerComponentState {

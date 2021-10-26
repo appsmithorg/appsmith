@@ -568,6 +568,7 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
             datePickerType="DATE_PICKER"
             isDisabled={false}
             isLoading={false}
+            isTimeEnabled
             label=""
             onDateSelected={onDateSelected}
             selectedDate={value}

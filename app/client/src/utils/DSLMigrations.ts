@@ -39,6 +39,7 @@ import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
+import { migrateDatePickerForIsTimeEnabled } from "./migrations/DatePickerWidget2";
 
 /**
  * adds logBlackList key for all list widget children
@@ -949,6 +950,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 42) {
     currentDSL = migrateMapWidgetIsClickedMarkerCentered(currentDSL);
+    currentDSL.version = 43;
+  }
+
+  if (currentDSL.version === 43) {
+    currentDSL = migrateDatePickerForIsTimeEnabled(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

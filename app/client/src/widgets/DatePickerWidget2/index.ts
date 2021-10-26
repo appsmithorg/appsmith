@@ -13,7 +13,7 @@ export const CONFIG = {
     datePickerType: "DATE_PICKER",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     label: "",
-    dateFormat: "YYYY-MM-DD HH:mm",
+    dateTimeFormat: "YYYY-MM-DD HH:mm",
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "DatePicker",
     defaultDate: moment().toISOString(),
@@ -23,6 +23,7 @@ export const CONFIG = {
     isRequired: false,
     closeOnSelection: false,
     shortcuts: false,
+    isTimeEnabled: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -8,7 +8,40 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import moment from "moment";
-import { DatePickerType } from "../constants";
+import {
+  DatePickerType,
+  DEFAULT_DATE_ONLY_FORMAT,
+  DEFAULT_DATE_TIME_FORMAT,
+} from "../constants";
+
+// A hook to update either dateTimeFormat or dateFormat property when isTimeEnabled is changed
+export const updateDateFormat = (
+  props: DatePickerWidget2Props,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: any;
+  }> = [{ propertyPath, propertyValue }];
+
+  const isTimeEnabled = propertyValue;
+  if (isTimeEnabled) {
+    propertiesToUpdate.push({
+      propertyPath: "dateTimeFormat",
+      propertyValue: DEFAULT_DATE_TIME_FORMAT,
+    });
+
+    return propertiesToUpdate;
+  }
+
+  propertiesToUpdate.push({
+    propertyPath: "dateFormat",
+    propertyValue: DEFAULT_DATE_ONLY_FORMAT,
+  });
+
+  return propertiesToUpdate;
+};
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -16,6 +49,17 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       {
         sectionName: "General",
         children: [
+          {
+            propertyName: "isTimeEnabled",
+            label: "Enable Time",
+            helpText: "Shows time input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            updateHook: updateDateFormat,
+          },
           {
             propertyName: "defaultDate",
             label: "Default Date",
@@ -28,11 +72,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
+            dependencies: ["isTimeEnabled"],
           },
           {
-            helpText: "Sets the format of the selected date",
-            propertyName: "dateFormat",
-            label: "Date Format",
+            helpText: "Sets the format of the selected datetime",
+            propertyName: "dateTimeFormat",
+            label: "Datetime Format",
             controlType: "DROP_DOWN",
             isJSConvertible: true,
             optionWidth: "340px",
@@ -122,6 +167,73 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
             hideSubText: true,
+            dependencies: ["isTimeEnabled"],
+            hidden: (props: DatePickerWidget2Props) => {
+              return !props.isTimeEnabled;
+            },
+          },
+          {
+            helpText: "Sets the format of the selected date",
+            propertyName: "dateFormat",
+            label: "Date Format",
+            controlType: "DROP_DOWN",
+            isJSConvertible: true,
+            optionWidth: "340px",
+            options: [
+              {
+                label: moment().format("LL"),
+                subText: "LL",
+                value: "LL",
+              },
+              {
+                label: moment().format("D MMMM, YYYY"),
+                subText: "D MMMM, YYYY",
+                value: "D MMMM, YYYY",
+              },
+              {
+                label: moment().format("YYYY-MM-DD"),
+                subText: "YYYY-MM-DD",
+                value: "YYYY-MM-DD",
+              },
+              {
+                label: moment().format("MM-DD-YYYY"),
+                subText: "MM-DD-YYYY",
+                value: "MM-DD-YYYY",
+              },
+              {
+                label: moment().format("DD-MM-YYYY"),
+                subText: "DD-MM-YYYY",
+                value: "DD-MM-YYYY",
+              },
+              {
+                label: moment().format("MM/DD/YYYY"),
+                subText: "MM/DD/YYYY",
+                value: "MM/DD/YYYY",
+              },
+              {
+                label: moment().format("DD/MM/YYYY"),
+                subText: "DD/MM/YYYY",
+                value: "DD/MM/YYYY",
+              },
+              {
+                label: moment().format("DD/MM/YY"),
+                subText: "DD/MM/YY",
+                value: "DD/MM/YY",
+              },
+              {
+                label: moment().format("MM/DD/YY"),
+                subText: "MM/DD/YY",
+                value: "MM/DD/YY",
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hideSubText: true,
+            dependencies: ["isTimeEnabled"],
+            hidden: (props: DatePickerWidget2Props) => {
+              return props.isTimeEnabled;
+            },
           },
           {
             propertyName: "isRequired",
@@ -183,6 +295,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
+            dependencies: ["isTimeEnabled"],
           },
           {
             propertyName: "maxDate",
@@ -194,6 +307,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
+            dependencies: ["isTimeEnabled"],
           },
         ],
       },
@@ -217,7 +331,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
       selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
-      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
+      formattedDate: `{{ this.value ? moment(this.value).format(this.isTimeEnabled ? this.dateTimeFormat : this.dateFormat) : "" }}`,
     };
   }
 
@@ -237,10 +351,15 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     return (
       <DatePickerComponent
         closeOnSelection={this.props.closeOnSelection}
-        dateFormat={this.props.dateFormat}
+        dateFormat={
+          this.props.isTimeEnabled
+            ? this.props.dateTimeFormat
+            : this.props.dateFormat
+        }
         datePickerType={"DATE_PICKER"}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
+        isTimeEnabled={this.props.isTimeEnabled}
         label={`${this.props.label}`}
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
@@ -272,6 +391,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   selectedDate: string;
   formattedDate: string;
   isDisabled: boolean;
+  dateTimeFormat: string;
   dateFormat: string;
   label: string;
   datePickerType: DatePickerType;
@@ -282,6 +402,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  isTimeEnabled: boolean;
 }
 
 export default DatePickerWidget;
