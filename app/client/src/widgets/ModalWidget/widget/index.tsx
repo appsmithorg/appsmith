@@ -19,6 +19,7 @@ import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { deselectAllInitAction } from "actions/widgetSelectionActions";
 
 const minSize = 100;
 
@@ -100,6 +101,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
+    this.props.deselectAllWidgets();
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -222,6 +224,7 @@ export interface ModalWidgetProps extends WidgetProps {
   width: number;
   height: number;
   showPropertyPane: (widgetId?: string) => void;
+  deselectAllWidgets: () => void;
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;
@@ -244,6 +247,9 @@ const mapDispatchToProps = (dispatch: any) => ({
           : ReduxActionTypes.HIDE_PROPERTY_PANE,
       payload: { widgetId, callForDragOrResize, force },
     });
+  },
+  deselectAllWidgets: () => {
+    dispatch(deselectAllInitAction());
   },
 });
 
