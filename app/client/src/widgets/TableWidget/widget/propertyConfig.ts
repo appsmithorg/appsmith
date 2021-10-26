@@ -1094,7 +1094,6 @@ export default [
                     ),
                   }),
                   isJSConvertible: true,
-                  updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -1293,7 +1292,6 @@ export default [
                             isJSConvertible: true,
                             isBindProperty: true,
                             isTriggerProperty: true,
-                            updateHook: updateDerivedColumnsHook,
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
