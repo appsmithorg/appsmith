@@ -13,6 +13,7 @@ export const CONFIG = {
     rows: 40,
     schema: {},
     scrollContents: true,
+    title: "Form",
     useFormDataValues: true,
     version: 1,
     widgetName: "FormBuilder",

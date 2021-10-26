@@ -392,18 +392,18 @@ export const entityDefinitions: Record<string, unknown> = {
     value: "blob",
     url: "string",
   },
-  FORM_BUILDER_WIDGET: {
+  FORM_BUILDER_WIDGET: (widget: any) => ({
     "!doc":
       "Form builder widget can be used to auto-generate forms by just providing a JSON source data.",
     // TODO: Update the url
     "!url": "https://docs.appsmith.com/widget-reference",
     // TODO: Fix definition
-    data: "object",
+    data: generateTypeDef(widget.data),
     backgroundColor: {
       "!type": "string",
       "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
     },
-  },
+  }),
 };
 
 export const GLOBAL_DEFS = {

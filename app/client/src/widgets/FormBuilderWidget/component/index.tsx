@@ -13,9 +13,10 @@ type StyledContainerProps = {
 export type FormBuilderComponentProps<TValues> = {
   backgroundColor?: string;
   fixedFooter: boolean;
-  formData: TValues;
+  formData?: TValues;
   schema: Schema;
   scrollContents: boolean;
+  title: string;
   updateFormValues: (values: TValues) => void;
   useFormDataValues: boolean;
 };
@@ -27,12 +28,9 @@ const StyledContainer = styled.div<StyledContainerProps>`
 
 function FormBuilderComponent<TValues>({
   backgroundColor,
-  fixedFooter,
   formData,
   schema,
-  scrollContents,
-  updateFormValues,
-  useFormDataValues,
+  ...rest
 }: FormBuilderComponentProps<TValues>) {
   if (isEmpty(schema))
     return <StyledContainer backgroundColor={backgroundColor} />;
@@ -44,13 +42,10 @@ function FormBuilderComponent<TValues>({
   return (
     <StyledContainer backgroundColor={backgroundColor}>
       <Form
-        fixedFooter={fixedFooter}
+        {...rest}
         formData={formData as DefaultValues<TValues>}
         // eslint-disable-next-line no-console
         onSubmit={console.log}
-        scrollContents={scrollContents}
-        updateFormValues={updateFormValues}
-        useFormDataValues={useFormDataValues}
       >
         <RootField name="" schemaItem={rootSchemaItem} />
       </Form>

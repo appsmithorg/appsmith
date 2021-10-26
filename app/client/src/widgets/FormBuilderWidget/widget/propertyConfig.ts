@@ -265,6 +265,16 @@ export default [
     sectionName: "General",
     children: [
       {
+        propertyName: "title",
+        label: "Title",
+        helpText: "Sets the title of the form",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Update Order",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
         // TODO: Change formData to Source data
         propertyName: "formData",
         helpText: "Input JSON sample for default form layout",
@@ -341,6 +351,29 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+      },
+    ],
+  },
+  {
+    sectionName: "Actions",
+    children: [
+      {
+        helpText: "Triggers an action when the submit button is clicked",
+        propertyName: "onSubmit",
+        label: "onSubmit",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        helpText: "Triggers an action when the reset button is clicked",
+        propertyName: "onReset",
+        label: "onReset",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
     ],
   },

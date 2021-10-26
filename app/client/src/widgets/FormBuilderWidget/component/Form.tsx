@@ -6,17 +6,20 @@ import {
   useForm,
   DefaultValues,
 } from "react-hook-form";
+import { Text } from "@blueprintjs/core";
 
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FIELD_PADDING_X } from "../constants";
+import { TEXT_SIZES } from "constants/WidgetConstants";
 
 type FormProps<TValues = any> = PropsWithChildren<{
   fixedFooter: boolean;
   formData: DefaultValues<TValues>;
   onSubmit: SubmitHandler<TValues>;
   scrollContents: boolean;
+  title: string;
   updateFormValues: (values: TValues) => void;
   useFormDataValues: boolean;
 }>;
@@ -53,12 +56,19 @@ const StyledForm = styled.form<StyledFormProps>`
   padding: ${FIELD_PADDING_X}px;
 `;
 
+export const StyledText = styled(Text)`
+  font-weight: bold;
+  font-size: ${TEXT_SIZES.HEADING1};
+  word-break: break-word;
+`;
+
 function Form<TValues = any>({
   children,
   fixedFooter,
   formData,
   onSubmit,
   scrollContents,
+  title,
   updateFormValues,
   useFormDataValues,
 }: FormProps<TValues>) {
@@ -74,7 +84,9 @@ function Form<TValues = any>({
   }, [formData, useFormDataValues]);
 
   React.useEffect(() => {
-    // eslint-disable-next-line
+    // TODO: find a better way if possible to set the form values
+    // The problem here is that it's going to re-render the whole form, thus beating
+    // the whole point of subscription
     const subscription = watch((values) => updateFormValues(values as TValues));
     return () => subscription.unsubscribe();
   }, [watch]);
@@ -86,6 +98,7 @@ function Form<TValues = any>({
         onSubmit={methods.handleSubmit(onSubmit)}
         scrollContents={scrollContents}
       >
+        <StyledText>{title}</StyledText>
         {children}
         <StyledFormFooter>
           <Button

@@ -15,6 +15,7 @@ export type FormBuilderWidgetProps = WidgetProps & {
   isVisible: boolean;
   schema: Schema;
   scrollContent: boolean;
+  title: string;
   scrollContents: boolean;
   useFormDataValues: boolean;
 };
@@ -81,13 +82,8 @@ class FormBuilderWidget extends BaseWidget<
   getPageView() {
     return (
       <FormBuilderComponent
-        backgroundColor={this.props.backgroundColor}
-        fixedFooter={this.props.fixedFooter}
-        formData={this.props?.formData}
-        schema={this.props.schema}
-        scrollContents={this.props.scrollContents}
+        {...this.props}
         updateFormValues={this.updateFormValues}
-        useFormDataValues={this.props.useFormDataValues}
       />
     );
   }
