@@ -287,7 +287,7 @@ jobs:
           aws-access-key-id: "${{ secrets.DP_PACKAGE_AWS_ACCESS_KEY_ID }}"
           aws-secret-access-key: "${{ secrets.DP_PACKAGE_AWS_SECRET_ACCESS_KEY }}"
           aws-region: "${{ secrets.DP_PACKAGE_AWS_REGION }}"
-      - name: "Package"
+      - name: "Upload packages to S3"
         working-directory: app
         shell: bash
         continue-on-error: true
