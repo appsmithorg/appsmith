@@ -25,6 +25,7 @@ const initialState: GlobalSearchReduxState = {
     executionInProgress: false,
     evaluatedArguments: {},
     onEnter: SnippetAction.COPY,
+    hideOuterBindings: false,
   },
 };
 
@@ -128,6 +129,7 @@ export interface GlobalSearchReduxState {
     evaluatedSnippet: string;
     executionInProgress: boolean;
     evaluatedArguments: any;
+    hideOuterBindings: boolean;
   };
 }
 
