@@ -29,7 +29,7 @@ public class Condition {
 
     ConditionalOperator operator;
 
-    String value;
+    Object value;
 
     @JsonIgnore
     DataType valueDataType;
@@ -45,9 +45,11 @@ public class Condition {
         return conditionList
                 .stream()
                 .map(condition -> {
-                    String value = condition.getValue();
-                    DataType dataType = stringToKnownDataTypeConverter(value);
-                    condition.setValueDataType(dataType);
+                    if (condition.getValue() instanceof String) {
+                        String value = (String) condition.getValue();
+                        DataType dataType = stringToKnownDataTypeConverter(value);
+                        condition.setValueDataType(dataType);
+                    }
                     return condition;
                 })
                 .collect(Collectors.toList());
@@ -57,7 +59,7 @@ public class Condition {
 
         if (StringUtils.isEmpty(condition.getPath()) ||
                 (condition.getOperator() == null) ||
-                StringUtils.isEmpty(condition.getValue())) {
+                StringUtils.isEmpty((CharSequence) condition.getValue())) {
             return false;
         }
 

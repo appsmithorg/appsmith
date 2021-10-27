@@ -192,7 +192,7 @@ public class FilterDataService {
 
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
-            String value = condition.getValue();
+            String value = (String) condition.getValue();
 
             String sqlOp = SQL_OPERATOR_MAP.get(operator);
             if (sqlOp == null) {

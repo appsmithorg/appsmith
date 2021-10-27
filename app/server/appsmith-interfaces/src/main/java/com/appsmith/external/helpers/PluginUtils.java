@@ -1,5 +1,7 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.constants.ConditionalOperator;
+import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import org.springframework.util.CollectionUtils;
@@ -17,6 +19,11 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.appsmith.external.constants.FieldName.CHILDREN;
+import static com.appsmith.external.constants.FieldName.CONDITION;
+import static com.appsmith.external.constants.FieldName.KEY;
+import static com.appsmith.external.constants.FieldName.VALUE;
 
 public class PluginUtils {
 
@@ -196,5 +203,36 @@ public class PluginUtils {
         }
 
         return message;
+    }
+
+    public static Condition parseWhereClause(Map<String, Object> whereClause) {
+        Condition condition = new Condition();
+
+        Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.toString());
+        ConditionalOperator operator = ConditionalOperator.valueOf((String) unparsedOperator);
+
+        if (operator != null) {
+
+            condition.setOperator(operator);
+
+            // For logical operators, we must walk all the children and add the same as values to this condition
+            if (operator.equals(ConditionalOperator.AND) || operator.equals(ConditionalOperator.OR)) {
+                List<Condition> children = new ArrayList<>();
+                List<Map<String, Object>> conditionList = (List) whereClause.get(CHILDREN);
+                for (Map<String, Object> unparsedCondition : conditionList) {
+                    Condition childCondition = parseWhereClause(unparsedCondition);
+                    children.add(childCondition);
+                }
+                condition.setValue(children);
+            } else {
+                // This is a comparison operator.
+                String key = (String) whereClause.get(KEY);
+                String value = (String) whereClause.get(VALUE);
+                condition.setPath(key);
+                condition.setValue(value);
+            }
+        }
+
+        return condition;
     }
 }
