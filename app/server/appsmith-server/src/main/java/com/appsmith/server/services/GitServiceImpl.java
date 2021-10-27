@@ -396,6 +396,8 @@ public class GitServiceImpl implements GitService {
                     String defaultBranch = tuple.getT2();
                     String repoName = tuple.getT3();
                     Path repoPath = tuple.getT4();
+                    final String applicationId = application.getId();
+                    final String orgId = application.getOrganizationId();
                     try {
                         return fileUtils.checkIfDirectoryIsEmpty(repoPath)
                                 .flatMap(isEmpty -> {
@@ -403,12 +405,16 @@ public class GitServiceImpl implements GitService {
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_REPO));
                                     } else {
                                         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                                        gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                                        gitApplicationMetadata.setDefaultApplicationId(applicationId);
                                         gitApplicationMetadata.setBranchName(defaultBranch);
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
-                                        application.setGitApplicationMetadata(gitApplicationMetadata);
-                                        return applicationService.save(application);
+                                        return importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                                                .flatMap(applicationJson -> {
+                                                    applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
+                                                    return importExportApplicationService
+                                                            .importApplicationInOrganization(orgId, applicationJson, applicationId, defaultBranch);
+                                                });
                                     }
                                 });
                     } catch (IOException e) {
