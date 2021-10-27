@@ -202,8 +202,10 @@ export function* closeModalSaga(
         ),
       );
     }
-    yield put(deselectAllInitAction());
-    yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
+    if (modalName) {
+      yield put(deselectAllInitAction());
+      yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
+    }
   } catch (error) {
     log.error(error);
   }
