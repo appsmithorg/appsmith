@@ -261,7 +261,7 @@ export type GitSyncReducerState = {
 
   isDisconnectingGit: boolean;
 
-  branches: string[];
+  branches: Array<{ branchName: string; default: boolean }>;
   fetchingBranches: boolean;
   isFetchingLocalGitConfig?: boolean;
   isFetchingGitStatus: boolean;

@@ -131,6 +131,7 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
+  /*
   it("Form-Delete Verification", function() {
     cy.openPropertyPane("formwidget");
     // Delete the Form widget
@@ -144,6 +145,7 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(widgetsPage.formWidget).should("not.exist");
   });
+  */
 });
 afterEach(() => {
   // put your clean up code if any
