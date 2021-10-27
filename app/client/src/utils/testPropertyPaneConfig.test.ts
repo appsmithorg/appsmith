@@ -4,68 +4,61 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { isError } from "lodash";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ALL_WDIGETS_AND_CONFIG } from "./WidgetRegistry";
 
 function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
-  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
+  for (const sectionOrControlConfig of config) {
     if (sectionOrControlConfig.children) {
-      sectionOrControlConfig.children = sectionOrControlConfig.children.map(
-        validatePropertyControl,
-      );
-    }
-    return sectionOrControlConfig;
-  });
-}
-
-function validatePropertyControl(
-  config: PropertyPaneConfig,
-): PropertyPaneConfig {
-  const _config = config as PropertyPaneControlConfig;
-  try {
-    if (_config.validation !== undefined) {
-      if (!_config.isBindProperty) {
-        throw Error(
-          "isBindProperty should be true for evaluating the validation structure",
+      for (const propertyControlConfig of sectionOrControlConfig.children) {
+        const propertyControlValidation = validatePropertyControl(
+          propertyControlConfig,
         );
+        if (propertyControlValidation !== true)
+          return propertyControlValidation;
       }
-      _config.validation = validateValidationStructure(_config.validation);
-    }
-    if (_config.isJSConvertible !== undefined) {
-      if (!_config.isBindProperty && _config.isJSConvertible) {
-        throw Error("isBindProperty has to be true if isJSConvertible is true");
-      }
-    }
-    if (_config.children) {
-      _config.children = _config.children.map(validatePropertyControl);
-    }
-  } catch (e) {
-    if (isError(e)) {
-      throw Error(`Error on ${_config.propertyName}: ${e.message}`);
     }
   }
-  return _config;
+
+  return true;
+}
+
+function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
+  const _config = config as PropertyPaneControlConfig;
+  if (_config.validation !== undefined) {
+    if (!_config.isBindProperty) {
+      return "isBindProperty should be true for evaluating the validation structure";
+    }
+    const res = validateValidationStructure(_config.validation);
+    if (res !== true) return res;
+  }
+  if (_config.isJSConvertible !== undefined) {
+    if (!_config.isBindProperty && _config.isJSConvertible) {
+      return "isBindProperty has to be true if isJSConvertible is true";
+    }
+  }
+  if (_config.children) {
+    for (const child of _config.children) {
+      const res = validatePropertyControl(child);
+      if (res !== true) return res;
+    }
+  }
+  return true;
 }
 
 function validateValidationStructure(
   config: ValidationConfig,
-): ValidationConfig {
+): boolean | string {
   if (
     config.type === ValidationTypes.FUNCTION &&
     config.params &&
     config.params.fn
   ) {
-    config.params.fnString = config.params.fn.toString();
     if (!config.params.expected)
-      console.error(
-        `Error in configuration ${JSON.stringify(config)}: For a ${
-          ValidationTypes.FUNCTION
-        } type validation, expected type and example are mandatory`,
-      );
-    delete config.params.fn;
+      return `Error in configuration ${JSON.stringify(config)}: For a ${
+        ValidationTypes.FUNCTION
+      } type validation, expected type and example are mandatory`;
   }
-  return config;
+  return true;
 }
 
 describe("Tests all widget's propertyPane config", () => {
@@ -76,7 +69,7 @@ describe("Tests all widget's propertyPane config", () => {
       const validatedPropertyPaneConfig = validatePropertyPaneConfig(
         propertyPaneConfig,
       );
-      expect(validatedPropertyPaneConfig).toBeTruthy();
+      expect(validatedPropertyPaneConfig).toStrictEqual(true);
     });
   });
 });
