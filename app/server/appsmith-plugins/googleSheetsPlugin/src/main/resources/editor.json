@@ -475,7 +475,7 @@
           "label": "Row Object",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
             "conditionType": "OR",
             "conditions": [
@@ -507,7 +507,7 @@
           "label": "Row Objects",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "evaluationSubstitutionType": "PARAMETER",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
             "conditionType": "OR",
             "conditions": [
@@ -533,7 +533,7 @@
           "label": "Row Objects",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "hidden": {
             "conditionType": "OR",
             "conditions": [

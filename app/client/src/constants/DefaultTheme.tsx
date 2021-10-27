@@ -753,6 +753,7 @@ type ColorType = {
       disabledBg: ShadeColor;
     };
     menu: {
+      border: ShadeColor;
       bg: ShadeColor;
       hover: ShadeColor;
       text: ShadeColor;
@@ -1719,6 +1720,7 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menu: {
+      border: darkShades[3],
       bg: darkShades[3],
       text: darkShades[9],
       hover: darkShades[4],
@@ -2355,7 +2357,8 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menu: {
-      bg: lightShades[11],
+      border: lightShades[13],
+      bg: lightShades[0],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
