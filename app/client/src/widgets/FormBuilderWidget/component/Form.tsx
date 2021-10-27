@@ -1,12 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import React, { PropsWithChildren, useEffect, useRef } from "react";
 import styled from "styled-components";
-import {
-  FormProvider,
-  SubmitHandler,
-  useForm,
-  DefaultValues,
-} from "react-hook-form";
+import { FormProvider, useForm, DefaultValues } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
@@ -15,11 +10,12 @@ import { Colors } from "constants/Colors";
 import { FIELD_PADDING_X } from "../constants";
 import { TEXT_SIZES } from "constants/WidgetConstants";
 
-type FormProps<TValues = any> = PropsWithChildren<{
+export type FormProps<TValues = any> = PropsWithChildren<{
   fixedFooter: boolean;
   formData: DefaultValues<TValues>;
-  onSubmit: SubmitHandler<TValues>;
+  onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   scrollContents: boolean;
+  showReset: boolean;
   stretchBodyVertically: boolean;
   title: string;
   updateFormValues: (values: TValues) => void;
@@ -49,8 +45,12 @@ const StyledFormFooter = styled.div`
     width: ${BUTTON_WIDTH}px;
   }
 
-  & > button:first-of-type {
+  & > button {
     margin-right: ${FOOTER_BUTTON_GAP}px;
+  }
+
+  & > button:last-of-type {
+    margin-right: 0;
   }
 `;
 
@@ -81,6 +81,7 @@ function Form<TValues = any>({
   formData,
   onSubmit,
   scrollContents,
+  showReset,
   stretchBodyVertically,
   title,
   updateFormValues,
@@ -114,27 +115,35 @@ function Form<TValues = any>({
     return () => subscription.unsubscribe();
   }, []);
 
+  const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    event.preventDefault();
+
+    if (useFormDataValues) {
+      reset(formData);
+    }
+  };
+
   return (
     <FormProvider {...methods}>
-      <StyledForm
-        fixedFooter={fixedFooter}
-        onSubmit={methods.handleSubmit(onSubmit)}
-        scrollContents={scrollContents}
-      >
+      <StyledForm fixedFooter={fixedFooter} scrollContents={scrollContents}>
         <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
           <StyledTitle>{title}</StyledTitle>
           {children}
         </StyledFormBody>
         <StyledFormFooter>
-          <Button
-            buttonColor={Colors.GREEN}
-            buttonVariant={ButtonVariantTypes.SECONDARY}
-            text="Reset"
-            type="reset"
-          />
+          {showReset && (
+            <Button
+              buttonColor={Colors.GREEN}
+              buttonVariant={ButtonVariantTypes.SECONDARY}
+              onClick={onReset}
+              text="Reset"
+              type="reset"
+            />
+          )}
           <Button
             buttonColor={Colors.GREEN}
             buttonVariant={ButtonVariantTypes.PRIMARY}
+            onClick={onSubmit}
             text="Submit"
             type="submit"
           />

@@ -13,6 +13,7 @@ export const CONFIG = {
     rows: 40,
     schema: {},
     scrollContents: true,
+    showReset: true,
     title: "Form",
     useFormDataValues: true,
     version: 1,

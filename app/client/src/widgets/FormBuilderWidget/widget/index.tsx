@@ -7,16 +7,19 @@ import FormBuilderComponent from "../component";
 import propertyConfig from "./propertyConfig";
 import SchemaParser from "../schemaParser";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Schema } from "../constants";
 
 export type FormBuilderWidgetProps = WidgetProps & {
   fixedFooter: boolean;
   formData?: Record<string, any>;
   isVisible: boolean;
+  onSubmit?: string;
   schema: Schema;
   scrollContent: boolean;
-  title: string;
   scrollContents: boolean;
+  showReset: boolean;
+  title: string;
   useFormDataValues: boolean;
 };
 
@@ -83,10 +86,26 @@ class FormBuilderWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty(`data.${name}`, value);
   };
 
+  onSubmit = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (this.props.onSubmit) {
+      super.executeAction({
+        triggerPropertyName: "onSubmit",
+        dynamicString: this.props.onSubmit,
+        event: {
+          type: EventType.ON_SUBMIT,
+        },
+      });
+    }
+  };
+
   getPageView() {
     return (
       <FormBuilderComponent
         {...this.props}
+        onSubmit={this.onSubmit}
         updateFormValues={this.updateFormValues}
       />
     );

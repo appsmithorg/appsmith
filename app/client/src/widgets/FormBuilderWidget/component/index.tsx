@@ -16,8 +16,10 @@ export type FormBuilderComponentProps<TValues> = {
   backgroundColor?: string;
   fixedFooter: boolean;
   formData?: TValues;
+  onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   schema: Schema;
   scrollContents: boolean;
+  showReset: boolean;
   title: string;
   updateFormValues: (values: TValues) => void;
   useFormDataValues: boolean;
@@ -72,8 +74,6 @@ function FormBuilderComponent<TValues>({
       <Form
         {...rest}
         formData={formData as DefaultValues<TValues>}
-        // eslint-disable-next-line no-console
-        onSubmit={console.log}
         stretchBodyVertically={isSchemaEmpty}
       >
         {isEmpty(schema) ? zeroState : renderRootField()}
