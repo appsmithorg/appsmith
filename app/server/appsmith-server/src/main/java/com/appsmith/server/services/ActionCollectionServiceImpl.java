@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -97,6 +98,11 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
         return repository.saveAll(collections);
+    }
+
+    @Override
+    public Mono<ActionCollection> findByIdAndBranchName(String id, String branchName) {
+        return this.findByBranchNameAndDefaultCollectionId(branchName, id, READ_ACTIONS);
     }
 
     @Override
@@ -189,7 +195,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                .findChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .findBranchedApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
                 .flatMapMany(childApplicationId ->
                     repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, READ_ACTIONS)
                 )
@@ -339,5 +345,26 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 .flatMap(actionList -> actionCollectionMono)
                 .flatMap(actionCollection -> repository.delete(actionCollection).thenReturn(actionCollection))
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultCollectionId, AclPermission permission) {
+
+        if (StringUtils.isEmpty(defaultCollectionId)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
+        } else if (StringUtils.isEmpty(branchName)) {
+            return this.findById(defaultCollectionId, permission)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultCollectionId))
+                    );
+        }
+        return repository.findByBranchNameAndDefaultCollectionId(branchName, defaultCollectionId, permission)
+                .switchIfEmpty(Mono.defer(() -> {
+                    // No matching existing page found, fetch with defaultCollectionId
+                    return this.findById(defaultCollectionId, permission)
+                            .switchIfEmpty(Mono.error(
+                                    new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultCollectionId))
+                            );
+                }));
     }
 }

@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,5 +128,12 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
     @Override
     public Flux<ActionCollection> findByPageId(String pageId) {
         return this.findByPageId(pageId, null);
+    }
+
+    @Override
+    public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultCollectionId, AclPermission permission) {
+        Criteria defaultCollectionIdCriteria = where(fieldName(QNewPage.newPage.defaultResources.pageId)).is(defaultCollectionId);
+        Criteria branchCriteria = where(fieldName(QNewPage.newPage.defaultResources.branchName)).is(branchName);
+        return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);
     }
 }

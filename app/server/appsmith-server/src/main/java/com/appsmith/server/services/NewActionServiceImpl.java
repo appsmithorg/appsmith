@@ -188,6 +188,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
+    public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
+        return this.findByBranchNameAndDefaultActionId(branchName, id, READ_ACTIONS);
+    }
+
+    @Override
     public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
         ActionDTO action = null;
 
@@ -774,7 +779,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     @Override
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String branchName){
 
-        return this.findActionByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
+        return this.findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
                 .flatMap(branchedAction -> {
                     executeActionDTO.setActionId(branchedAction.getId());
                     return executeAction(executeActionDTO);
@@ -1029,7 +1034,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
-        return applicationService.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
                 .flatMapMany(this::getActionsForViewMode)
                 .map(sanitiseResponse::updateActionViewDTOWithDefaultResources);
     }
@@ -1201,10 +1206,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Get branched applicationId and pageId
         Mono<NewPage> branchedPageMono = StringUtils.isEmpty(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
-                : newPageService.findPageByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), READ_PAGES);
+                : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), READ_PAGES);
         Mono<Application> branchedApplicationMono = StringUtils.isEmpty(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
-                : applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS);
+                : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS);
 
         return Mono.zip(branchedApplicationMono, branchedPageMono)
                 .flatMapMany(tuple -> {
@@ -1487,7 +1492,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         return Mono.just(datasource);
     }
 
-    public Mono<NewAction> findActionByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
+    public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultActionId, permission)
                     .switchIfEmpty(Mono.error(

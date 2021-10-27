@@ -321,7 +321,7 @@ public class ImportExportApplicationService {
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
-        return applicationService.findChildApplicationId(branchName, applicationId, AclPermission.EXPORT_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, applicationId, AclPermission.EXPORT_APPLICATIONS)
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
 

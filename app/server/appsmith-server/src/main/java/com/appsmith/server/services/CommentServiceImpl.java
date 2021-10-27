@@ -338,8 +338,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         final String defaultAppId = commentThread.getApplicationId();
         final String defaultPageId = commentThread.getPageId();
         return Mono.zip(
-                applicationService.findChildApplicationId(branchName, defaultAppId, COMMENT_ON_APPLICATIONS),
-                newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES))
+                applicationService.findBranchedApplicationId(branchName, defaultAppId, COMMENT_ON_APPLICATIONS),
+                newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES))
                 .flatMap(tuple -> {
                     String branchedApplicationId = tuple.getT1();
                     String branchedPageId = tuple.getT2().getId();
@@ -510,7 +510,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO,
                                                                String branchName) {
         final String defaultApplicationId = commentThreadFilterDTO.getApplicationId();
-        return applicationService.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
                 .flatMap(branchAppId -> {
                     commentThreadFilterDTO.setApplicationId(branchAppId);
                     return getThreadsByApplicationId(commentThreadFilterDTO);
@@ -692,7 +692,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     public Mono<Long> getUnreadCount(String applicationId, String branchName) {
         return Mono.zip(
                 sessionUserService.getCurrentUser(),
-                applicationService.findChildApplicationId(branchName, applicationId, READ_APPLICATIONS))
+                applicationService.findBranchedApplicationId(branchName, applicationId, READ_APPLICATIONS))
                 .flatMap(tuple ->
                         threadRepository.countUnreadThreads(tuple.getT2(), tuple.getT1().getUsername())
                 );

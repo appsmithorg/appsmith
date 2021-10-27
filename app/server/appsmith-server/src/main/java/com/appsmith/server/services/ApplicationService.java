@@ -45,11 +45,11 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<GitAuth> getSshKey(String applicationId);
 
-    Mono<Application> findApplicationByBranchNameAndDefaultApplication(String branchName,
-                                                                       String defaultApplicationId,
-                                                                       AclPermission aclPermission);
+    Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
+                                                              String defaultApplicationId,
+                                                              AclPermission aclPermission);
 
-    Mono<String> findChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
+    Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
-    Flux<Application> findAllApplicationsByGitDefaultApplicationId(String defaultApplicationId);
+    Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId);
 }

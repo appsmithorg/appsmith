@@ -103,12 +103,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> getByIdAndBranchName(String id, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
-            return this.getById(id);
-        }
-        return this.findChildApplicationId(branchName, id, READ_APPLICATIONS)
-            .flatMap(this::getById);
+    public Mono<Application> findByIdAndBranchName(String id, String branchName) {
+        return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS);
     }
 
     private Mono<Application> setUnreadCommentCount(Application application, User user) {
@@ -230,7 +226,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> changeViewAccess(String defaultApplicationId,
                                               String branchName,
                                               ApplicationAccessDTO applicationAccessDTO) {
-        return this.findApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
@@ -243,7 +239,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
 
-        return this.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return this.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
             .flatMap(this::getApplicationInViewMode);
     }
 
@@ -456,9 +452,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> findApplicationByBranchNameAndDefaultApplication(String branchName,
-                                                                              String defaultApplicationId,
-                                                                              AclPermission aclPermission){
+    public Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
+                                                                     String defaultApplicationId,
+                                                                     AclPermission aclPermission){
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultApplicationId, aclPermission)
                     .switchIfEmpty(Mono.error(
@@ -486,7 +482,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
     }
 
-    public Mono<String> findChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
+    public Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
         if (StringUtils.isEmpty(branchName)) {
             if (StringUtils.isEmpty(defaultApplicationId)) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, defaultApplicationId));
@@ -509,7 +505,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
      * @return Application flux which match the condition
      */
     @Override
-    public Flux<Application> findAllApplicationsByGitDefaultApplicationId(String defaultApplicationId) {
+    public Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId) {
         return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
     }
 }

@@ -79,7 +79,7 @@ public class ApplicationForkingService {
     public Mono<Application> forkApplicationToOrganization(String srcApplicationId,
                                                            String targetOrganizationId,
                                                            String branchName) {
-        return applicationService.findChildApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .flatMap(branchedApplicationId -> forkApplicationToOrganization(branchedApplicationId, targetOrganizationId))
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }

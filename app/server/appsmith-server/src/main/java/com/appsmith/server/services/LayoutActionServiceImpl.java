@@ -206,16 +206,16 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         final String defaultDestinationPageId = actionMoveDTO.getDestinationPageId();
         Mono<String> toPageMono = newPageService
-                .findPageByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
                 .map(NewPage::getId);
 
         // As client only have default page Id it will be sent under action and not the action.defaultResources
         Mono<String> fromPageMono = newPageService
-                .findPageByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getAction().getPageId(), MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getAction().getPageId(), MANAGE_PAGES)
                 .map(NewPage::getId);;
 
         Mono<String> branchedActionMono = newActionService
-                .findActionByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), MANAGE_ACTIONS)
+                .findByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), MANAGE_ACTIONS)
                 .map(NewAction::getId);
 
         return Mono.zip(toPageMono, fromPageMono, branchedActionMono)
@@ -287,7 +287,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO, String branchName) {
 
         String defaultActionId = refactorActionNameDTO.getActionId();
-        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(branchedAction -> {
                     refactorActionNameDTO.setActionId(branchedAction.getId());
                     refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
@@ -698,7 +698,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
         action.setApplicationId(null);
         action.setPageId(null);
-        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
                 .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
@@ -724,7 +724,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
-        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
                 .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
@@ -744,7 +744,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
-        return newActionService.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
                 .map(sanitiseResponse::updateActionDTOWithDefaultResources);
     }
@@ -989,7 +989,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             defaultResources.setApplicationId(action.getCollectionId());
         }
 
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), MANAGE_PAGES)
                 .flatMap(newPage -> {
                     // Update the page and application id with branched resource
                     action.setPageId(newPage.getId());

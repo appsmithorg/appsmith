@@ -87,5 +87,5 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
-    Mono<NewAction> findActionByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+    Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 }

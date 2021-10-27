@@ -138,7 +138,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             defaultResources.setApplicationId(page.getApplicationId());
         }
         defaultResources.setBranchName(branchName);
-        return applicationService.findChildApplicationId(branchName, defaultResources.getApplicationId(), MANAGE_PAGES)
+        return applicationService.findBranchedApplicationId(branchName, defaultResources.getApplicationId(), MANAGE_PAGES)
                 .flatMap(branchedApplicationId -> {
                     page.setApplicationId(branchedApplicationId);
                     return createPage(page);
@@ -215,7 +215,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
 
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> getPage(newPage.getId(), viewMode))
                 .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
@@ -270,7 +270,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Application> makePageDefault(String defaultApplicationId, String defaultPageId, String branchName) {
         // TODO remove the dependency of applicationId as pageId and branch can get the exact resource
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(branchedPage -> makePageDefault(branchedPage.getApplicationId(), branchedPage.getId()))
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
@@ -379,7 +379,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                         // Delete git repo from local and delete the applications from DB
                         return gitFileUtils.detachRemote(repoPath)
                                 .flatMapMany(isCleared -> applicationService
-                                        .findAllApplicationsByGitDefaultApplicationId(gitData.getDefaultApplicationId()));
+                                        .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId()));
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -412,7 +412,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     @Override
     public Mono<PageDTO> clonePageByDefaultPageAndBranch(String defaultPageId, String branchName) {
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> clonePage(newPage.getId()))
                 .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
@@ -538,7 +538,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
-        Mono<Application> applicationMono = applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, applicationId, MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Application")))
                 .cache();
 
@@ -685,7 +685,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     }
 
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
-        return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
                 .map(sanitiseResponse::updatePageDTOWithDefaultResources);
     }
@@ -804,7 +804,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
     @Override
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
-        return applicationService.findChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(branchedApplicationId -> publish(branchedApplicationId, isPublishedManually))
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
@@ -838,7 +838,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      **/
     @Override
     public Mono<ApplicationPagesDTO> reorderPage(String applicationId, String pageId, Integer order, String branchName) {
-        return applicationService.findApplicationByBranchNameAndDefaultApplication(branchName, applicationId, MANAGE_APPLICATIONS)
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
                     // Update the order in unpublished pages here, since this should only ever happen in edit mode.

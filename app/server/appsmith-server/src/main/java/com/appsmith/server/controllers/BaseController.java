@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CrudService;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
     public Mono<ResponseDTO<T>> create(@Valid @RequestBody T resource,
                                        @RequestHeader(name = "Origin", required = false) String originHeader,
                                        ServerWebExchange exchange) {
-        log.debug("Going to create resource {}", resource.getClass().getName());
+        log.debug("Going to create resource from base controller {}", resource.getClass().getName());
         return service.create(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
@@ -48,35 +49,29 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
      */
     @GetMapping("")
     public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all resources");
+        log.debug("Going to get all resources from base controller {}", params);
         return service.get(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseDTO<T>> getById(@PathVariable ID id) {
-        log.debug("Going to get resource for id: {}", id);
-        return service.getById(id)
+    public Mono<ResponseDTO<T>> getById(@PathVariable ID id,
+                                        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to get resource from base controller for id: {}", id);
+        return service.findByIdAndBranchName(id, branchName)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
-    }
-
-    @GetMapping("/{id}/branch/{branchName}")
-    public Mono<ResponseDTO<T>> getByIdAndBranchName(@PathVariable ID id, @PathVariable String branchName) {
-        log.debug("Going to get resource for id: {}", id);
-        return service.getByIdAndBranchName(id, branchName)
-            .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseDTO<T>> update(@PathVariable ID id, @RequestBody T resource) {
-        log.debug("Going to update resource with id: {}", id);
+        log.debug("Going to update resource from base controller with id: {}", id);
         return service.update(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<T>> delete(@PathVariable ID id) {
-        log.debug("Going to delete resource with id: {}", id);
+        log.debug("Going to delete resource from base controller with id: {}", id);
         return service.delete(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }

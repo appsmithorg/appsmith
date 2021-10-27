@@ -1,10 +1,10 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -117,6 +117,11 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap(page -> getPageByViewMode(page, view));
+    }
+
+    @Override
+    public Mono<NewPage> findByIdAndBranchName(String id, String branchName) {
+        return this.findByBranchNameAndDefaultPageId(branchName, id, READ_PAGES);
     }
 
     @Override
@@ -330,7 +335,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                                                                                           String branchName,
                                                                                           Boolean view) {
 
-        return applicationService.findChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
             .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view))
             .map(sanitiseResponse::updateApplicationPagesDTOWithDefaultResources);
     }
@@ -472,7 +477,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     }
 
     @Override
-    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
+    public Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission) {
 
         if (StringUtils.isEmpty(defaultPageId)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);

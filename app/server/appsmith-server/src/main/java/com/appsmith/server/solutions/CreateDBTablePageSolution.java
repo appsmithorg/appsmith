@@ -395,7 +395,7 @@ public class CreateDBTablePageSolution {
 
         log.debug("Fetching page from application {}, defaultPageId {}, branchName {}", defaultApplicationId, defaultPageId, branchName);
         if(defaultPageId != null) {
-            return newPageService.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+            return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                 )
@@ -408,7 +408,7 @@ public class CreateDBTablePageSolution {
                 });
         }
 
-        return applicationService.findChildApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, MANAGE_PAGES, false))
                 .collectList()
                 .flatMap(pages -> {

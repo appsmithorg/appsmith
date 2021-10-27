@@ -18,8 +18,8 @@ public interface CrudService<T extends BaseDomain, ID> {
 
     Mono<T> getById(ID id);
 
-    default Mono<T> getByIdAndBranchName(ID id, String branchName) {
-        return getById(id);
+    default Mono<T> findByIdAndBranchName(ID id, String branchName) {
+        return this.getById(id);
     };
 
     Mono<T> delete(ID id);

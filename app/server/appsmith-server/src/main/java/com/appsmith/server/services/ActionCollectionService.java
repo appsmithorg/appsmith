@@ -43,4 +43,6 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
     Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId);
     
     Flux<ActionCollection> findByPageId(String pageId);
+
+    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultPageId, AclPermission permission);
 }
