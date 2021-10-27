@@ -42,7 +42,6 @@ class ConfirmRunModal extends React.Component<Props> {
     };
 
     return (
-      // <Dialog isOpen={isModalOpen} onClose={handleClose} title="Confirm Action">
       <DialogComponent
         isOpen={isModalOpen}
         maxHeight={"80vh"}

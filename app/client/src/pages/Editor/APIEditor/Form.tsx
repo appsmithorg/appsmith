@@ -303,6 +303,11 @@ const Flex = styled.div<{ size: number }>`
       width: 100%;
     }
 
+    .${BluePrintClasses.POPOVER_TARGET} {
+      width: fit-content;
+      max-width: 100%;
+    }
+
     .${BluePrintClasses.POPOVER_TARGET} > span {
       max-height: 32px;
       padding: 6px 12px;
@@ -310,6 +315,8 @@ const Flex = styled.div<{ size: number }>`
       overflow: hidden;
       text-overflow: ellipsis;
       padding-left: 2px;
+      width: fit-content;
+      max-width: 100%;
     }
   }
 `;
@@ -368,17 +375,13 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
               </Flex>
               <Flex className="key-value disabled possible-overflow" size={3}>
                 <Text type={TextType.H6}>
-                  {header.value.length > 50 ? (
-                    <TooltipComponent
-                      content={header.value}
-                      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                      position={Position.BOTTOM_LEFT}
-                    >
-                      {header.value}
-                    </TooltipComponent>
-                  ) : (
-                    header.value
-                  )}
+                  <TooltipComponent
+                    content={header.value}
+                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                    position={Position.BOTTOM_LEFT}
+                  >
+                    {header.value}
+                  </TooltipComponent>
                 </Text>
               </Flex>
             </FlexContainer>
