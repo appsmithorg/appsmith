@@ -1501,7 +1501,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         }
         return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
                 );
     }
 
