@@ -9,11 +9,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -30,17 +26,6 @@ class ContainerWidget extends BaseWidget<
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
-  }
-
-  onSnipeWidget() {
-    return {
-      widgetType: ContainerWidget.getWidgetType(),
-
-      isSnipable: false,
-      snipableProperty: "",
-      shouldSetPropertyInputToJsMode: false,
-      snipablePropertyValueType: SnipablePropertyValueType.NONE,
-    };
   }
 
   static getPropertyPaneConfig() {

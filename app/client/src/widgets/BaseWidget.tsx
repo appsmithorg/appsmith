@@ -262,14 +262,8 @@ abstract class BaseWidget<
    * @param content
    */
   makeSnipable(content: ReactNode) {
-    return (
-      <SnipeableComponent {...this.props} onSnipeWidget={this.onSnipeWidget}>
-        {content}
-      </SnipeableComponent>
-    );
+    return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
   }
-
-  abstract onSnipeWidget(): SnipedWidgetPropertyDataType;
 
   makePositioned(content: ReactNode) {
     const style = this.getPositionStyle();

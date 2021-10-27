@@ -3,12 +3,25 @@ import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
+import { SnipablePropertyValueType } from "../BaseWidget";
+import {
+  createMessage,
+  SNIPING_FOR_CHART_FAILED,
+} from "../../constants/messages";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Chart",
   iconSVG: IconSVG,
   needsMeta: true,
+  sniping: {
+    widgetType: Widget.getWidgetType(),
+    isSnipable: true,
+    snipableProperty: "chartData",
+    shouldSetPropertyInputToJsMode: false,
+    snipablePropertyValueType: SnipablePropertyValueType.CUSTOM,
+    errorMessage: createMessage(SNIPING_FOR_CHART_FAILED),
+  },
   defaults: {
     rows: 8 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,

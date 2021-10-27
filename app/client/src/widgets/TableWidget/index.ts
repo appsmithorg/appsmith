@@ -1,6 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { WidgetProps } from "widgets/BaseWidget";
+import { SnipablePropertyValueType, WidgetProps } from "widgets/BaseWidget";
 import { cloneDeep, set } from "lodash";
 import {
   BlueprintOperationTypes,
@@ -176,6 +176,13 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+  },
+  sniping: {
+    widgetType: Widget.getWidgetType(),
+    isSnipable: true,
+    snipableProperty: "tableData",
+    shouldSetPropertyInputToJsMode: true,
+    snipablePropertyValueType: SnipablePropertyValueType.DATA,
   },
 };
 

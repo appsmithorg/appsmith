@@ -17,17 +17,6 @@ class CanvasWidget extends ContainerWidget {
     return "CANVAS_WIDGET";
   }
 
-  onSnipeWidget() {
-    return {
-      widgetType: CanvasWidget.getWidgetType(),
-
-      isSnipable: false,
-      snipableProperty: "",
-      shouldSetPropertyInputToJsMode: false,
-      snipablePropertyValueType: SnipablePropertyValueType.NONE,
-    };
-  }
-
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {
     return {
       ...this.props,
@@ -128,6 +117,13 @@ export const CONFIG = {
     default: CanvasWidget.getDefaultPropertiesMap(),
     meta: CanvasWidget.getMetaPropertiesMap(),
     config: CanvasWidget.getPropertyPaneConfig(),
+  },
+  sniping: {
+    widgetType: CanvasWidget.getWidgetType(),
+    isSnipable: false,
+    snipableProperty: "",
+    shouldSetPropertyInputToJsMode: false,
+    snipablePropertyValueType: SnipablePropertyValueType.NONE,
   },
 };
 

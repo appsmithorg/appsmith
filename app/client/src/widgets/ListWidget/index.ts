@@ -5,13 +5,14 @@ import {
   FlattenedWidgetProps,
   GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { SnipablePropertyValueType, WidgetProps } from "widgets/BaseWidget";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { SNIPING_FOR_LIST_FAILED } from "../../constants/messages";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,6 +20,14 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  sniping: {
+    widgetType: Widget.getWidgetType(),
+    isSnipable: true,
+    snipableProperty: "listData",
+    shouldSetPropertyInputToJsMode: true,
+    snipablePropertyValueType: SnipablePropertyValueType.DATA,
+    errorMessage: SNIPING_FOR_LIST_FAILED(),
+  },
   defaults: {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",

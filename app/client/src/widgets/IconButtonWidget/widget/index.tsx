@@ -1,11 +1,7 @@
 import React from "react";
 import { IconName } from "@blueprintjs/icons";
 
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -33,16 +29,6 @@ export interface IconButtonWidgetProps extends WidgetProps {
 }
 
 class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
-  onSnipeWidget() {
-    return {
-      widgetType: IconButtonWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "onClick",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.RUN,
-    };
-  }
-
   static getPropertyPaneConfig() {
     return [
       {

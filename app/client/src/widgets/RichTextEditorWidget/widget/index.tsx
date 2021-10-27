@@ -1,9 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -26,15 +22,6 @@ class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
 > {
-  onSnipeWidget() {
-    return {
-      widgetType: RichTextEditorWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "defaultText",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.DATA,
-    };
-  }
   static getPropertyPaneConfig() {
     return [
       {

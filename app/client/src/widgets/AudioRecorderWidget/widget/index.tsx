@@ -1,10 +1,6 @@
 import React from "react";
 
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -95,16 +91,6 @@ class AudioRecorderWidget extends BaseWidget<
         ],
       },
     ];
-  }
-
-  onSnipeWidget() {
-    return {
-      widgetType: AudioRecorderWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "onRecordingStart",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.RUN,
-    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {

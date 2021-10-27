@@ -1,9 +1,5 @@
 import React from "react";
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import styled from "styled-components";
 import IconComponent, { IconType } from "../component";
 import {
@@ -17,16 +13,6 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
-  onSnipeWidget() {
-    return {
-      widgetType: IconWidget.getWidgetType(),
-
-      isSnipable: false,
-      snipableProperty: "",
-      shouldSetPropertyInputToJsMode: false,
-      snipablePropertyValueType: SnipablePropertyValueType.NONE,
-    };
-  }
   static getPropertyPaneConfig() {
     return [];
   }

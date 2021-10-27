@@ -1,9 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "../../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -22,15 +18,6 @@ export enum PlayState {
 }
 
 class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
-  onSnipeWidget() {
-    return {
-      widgetType: VideoWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "url",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.DATA,
-    };
-  }
   static getPropertyPaneConfig() {
     return [
       {

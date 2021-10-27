@@ -1,9 +1,5 @@
 import * as React from "react";
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import ImageComponent from "../component";
 
@@ -15,15 +11,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
-  }
-  onSnipeWidget() {
-    return {
-      widgetType: ImageWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "defaultImage",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.DATA,
-    };
   }
 
   static getPropertyPaneConfig() {

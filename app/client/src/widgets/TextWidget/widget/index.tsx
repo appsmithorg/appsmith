@@ -9,23 +9,10 @@ import { TextSize } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
-  onSnipeWidget() {
-    return {
-      widgetType: TextWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "text",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.DATA,
-    };
-  }
   static getPropertyPaneConfig() {
     return [
       {

@@ -13,16 +13,6 @@ const SkeletonWrapper = styled.div`
 `;
 
 class SkeletonWidget extends BaseWidget<SkeletonWidgetProps, WidgetState> {
-  onSnipeWidget() {
-    return {
-      widgetType: SkeletonWidget.getWidgetType(),
-
-      isSnipable: false,
-      snipableProperty: "",
-      shouldSetPropertyInputToJsMode: false,
-      snipablePropertyValueType: SnipablePropertyValueType.NONE,
-    };
-  }
   static getPropertyPaneConfig() {
     return [];
   }
@@ -51,6 +41,13 @@ export const CONFIG = {
     default: SkeletonWidget.getDefaultPropertiesMap(),
     meta: SkeletonWidget.getMetaPropertiesMap(),
     config: SkeletonWidget.getPropertyPaneConfig(),
+  },
+  sniping: {
+    widgetType: SkeletonWidget.getWidgetType(),
+    isSnipable: false,
+    snipableProperty: "",
+    shouldSetPropertyInputToJsMode: false,
+    snipablePropertyValueType: SnipablePropertyValueType.NONE,
   },
 };
 

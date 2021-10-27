@@ -1,6 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { WidgetProps } from "widgets/BaseWidget";
+import { SnipablePropertyValueType, WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
@@ -15,6 +15,13 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  sniping: {
+    widgetType: Widget.getWidgetType(),
+    isSnipable: false,
+    snipableProperty: "",
+    shouldSetPropertyInputToJsMode: false,
+    snipablePropertyValueType: SnipablePropertyValueType.NONE,
+  },
   defaults: {
     rows: 6 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,

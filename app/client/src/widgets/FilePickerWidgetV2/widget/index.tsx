@@ -1,9 +1,5 @@
 import React from "react";
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import FilePickerComponent from "../component";
 import Uppy from "@uppy/core";
@@ -30,16 +26,6 @@ class FilePickerWidget extends BaseWidget<
     this.state = {
       isLoading: false,
       uppy: this.initializeUppy(),
-    };
-  }
-
-  onSnipeWidget() {
-    return {
-      widgetType: FilePickerWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "onFilesSelected",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.RUN,
     };
   }
 

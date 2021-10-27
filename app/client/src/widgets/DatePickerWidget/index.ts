@@ -2,6 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import moment from "moment";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { SnipablePropertyValueType } from "../BaseWidget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -25,6 +26,13 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+  },
+  sniping: {
+    widgetType: Widget.getWidgetType(),
+    isSnipable: true,
+    snipableProperty: "defaultDate",
+    shouldSetPropertyInputToJsMode: true,
+    snipablePropertyValueType: SnipablePropertyValueType.DATA,
   },
 };
 

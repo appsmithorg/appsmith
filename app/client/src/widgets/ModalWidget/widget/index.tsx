@@ -5,11 +5,7 @@ import { connect } from "react-redux";
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
 import {
@@ -27,15 +23,6 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
-  onSnipeWidget() {
-    return {
-      widgetType: ModalWidget.getWidgetType(),
-      isSnipable: false,
-      snipableProperty: "",
-      shouldSetPropertyInputToJsMode: false,
-      snipablePropertyValueType: SnipablePropertyValueType.NONE,
-    };
-  }
   static getPropertyPaneConfig() {
     return [
       {

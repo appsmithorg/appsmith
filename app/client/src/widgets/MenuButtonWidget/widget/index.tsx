@@ -1,10 +1,6 @@
 import React from "react";
 
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import MenuButtonComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -48,16 +44,6 @@ export interface MenuButtonWidgetProps extends WidgetProps {
 }
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
-  onSnipeWidget() {
-    return {
-      widgetType: MenuButtonWidget.getWidgetType(),
-
-      isSnipable: false,
-      snipableProperty: "",
-      shouldSetPropertyInputToJsMode: false,
-      snipablePropertyValueType: SnipablePropertyValueType.NONE,
-    };
-  }
   static getPropertyPaneConfig() {
     return [
       {

@@ -1,9 +1,5 @@
 import React from "react";
-import BaseWidget, {
-  SnipablePropertyValueType,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
@@ -47,15 +43,6 @@ class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
-  onSnipeWidget() {
-    return {
-      widgetType: MultiSelectWidget.getWidgetType(),
-      isSnipable: true,
-      snipableProperty: "options",
-      shouldSetPropertyInputToJsMode: true,
-      snipablePropertyValueType: SnipablePropertyValueType.DATA,
-    };
-  }
   static getPropertyPaneConfig() {
     return [
       {
