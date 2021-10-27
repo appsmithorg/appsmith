@@ -109,8 +109,6 @@ export const DropdownStyles = createGlobalStyle`
   border: 1px solid #E7E7E7;
   border-color: rgba(0,0,0,0.2);
   min-height: fit-content;
-  min-width: 200px !important;
-  width: 200px !important;
 }
 
 .rc-tree-select-selection__choice-zoom {
