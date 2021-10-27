@@ -73,6 +73,7 @@ import SearchSnippets from "components/ads/SnippetButton";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -387,6 +388,7 @@ type QueryFormProps = {
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
     suggestedWidgets?: SuggestedWidget[];
+    readableError?: string;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -451,7 +453,9 @@ export function EditorJSONtoForm(props: Props) {
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
-      error = String(executedQueryData.body);
+      error = executedQueryData.readableError
+        ? getErrorAsString(executedQueryData.readableError)
+        : getErrorAsString(executedQueryData.body);
     } else if (isString(executedQueryData.body)) {
       output = JSON.parse(executedQueryData.body);
     } else {

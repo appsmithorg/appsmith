@@ -1,16 +1,22 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
+import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig } from "entities/GitSync";
-import { GitApplicationMetadata } from "../api/ApplicationApi";
+import { GitApplicationMetadata } from "api/ApplicationApi";
+import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import { ReduxActionErrorTypes } from "../constants/ReduxActionConstants";
+
+// test comment
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
   tab?: GitSyncModalTab;
-}) => ({
-  type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
-  payload,
-});
+}) => {
+  return {
+    type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
+    payload,
+  };
+};
 
 export const commitToRepoInit = (payload: {
   commitMessage: string;
@@ -64,14 +70,34 @@ export const connectToGitSuccess = (payload: ConnectToGitResponse) => ({
   payload,
 });
 
-export const switchGitBranchInit = (branchName: string) => ({
-  type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
-  payload: branchName,
+export const disconnectToGitInit = () => ({
+  type: ReduxActionTypes.DISCONNECT_TO_GIT_INIT,
+  payload: null,
 });
 
-export const createNewBranchInit = (branchName: string) => ({
+export const disconnectToGitSuccess = (payload: unknown) => ({
+  type: ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS,
+  payload,
+});
+
+export const switchGitBranchInit = (branch: string) => ({
+  type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
+  payload: branch,
+});
+
+export const createNewBranchInit = ({
+  branch,
+  onErrorCallback,
+  onSuccessCallback,
+}: {
+  branch: string;
+  onSuccessCallback: () => void;
+  onErrorCallback: () => void;
+}) => ({
   type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
-  payload: branchName,
+  payload: branch,
+  onErrorCallback,
+  onSuccessCallback,
 });
 
 export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
@@ -110,6 +136,15 @@ export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   payload,
 });
 
+export const fetchBranchesInit = () => ({
+  type: ReduxActionTypes.FETCH_BRANCHES_INIT,
+});
+
+export const fetchBranchesSuccess = (payload: any) => ({
+  type: ReduxActionTypes.FETCH_BRANCHES_SUCCESS,
+  payload,
+});
+
 // Local Git config is repo level
 export const updateLocalGitConfigInit = (payload: GitConfig) => ({
   type: ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
@@ -128,4 +163,34 @@ export const fetchLocalGitConfigInit = () => ({
 export const fetchLocalGitConfigSuccess = (payload: GitConfig) => ({
   type: ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS,
   payload,
+});
+
+export const fetchGitStatusInit = () => ({
+  type: ReduxActionTypes.FETCH_GIT_STATUS_INIT,
+  payload: null,
+});
+
+export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
+  type: ReduxActionTypes.FETCH_GIT_STATUS_SUCCESS,
+  payload,
+});
+
+export const updateBranchLocally = (payload: string) => ({
+  type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
+  payload,
+});
+
+type MergeBranchPayload = { sourceBranch: string; destinationBranch: string };
+
+export const mergeBranchInit = (payload: MergeBranchPayload) => ({
+  type: ReduxActionTypes.MERGE_BRANCH_INIT,
+  payload,
+});
+
+export const mergeBranchSuccess = () => ({
+  type: ReduxActionTypes.MERGE_BRANCH_SUCCESS,
+});
+
+export const mergeBranchFailure = () => ({
+  type: ReduxActionErrorTypes.MERGE_BRANCH_ERROR,
 });

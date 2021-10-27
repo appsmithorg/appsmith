@@ -266,7 +266,12 @@ export function* deleteJSCollectionSaga(
             JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
           );
         } else {
-          history.push(BUILDER_PAGE_URL(applicationId, pageId));
+          history.push(
+            BUILDER_PAGE_URL({
+              applicationId,
+              pageId,
+            }),
+          );
         }
       }
       AppsmithConsole.info({

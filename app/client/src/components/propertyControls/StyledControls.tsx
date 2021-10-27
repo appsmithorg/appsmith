@@ -1,4 +1,4 @@
-import { Classes, Popover, MenuItem, Menu } from "@blueprintjs/core";
+import { Classes, MenuItem, Menu } from "@blueprintjs/core";
 import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
@@ -119,39 +119,6 @@ export const StyledMenu = styled(Menu)`
   }
   .bp3-submenu .bp3-menu {
     background: ${(props) => props.theme.dropdown[Skin.LIGHT].background};
-  }
-`;
-
-export const StyledPopover = styled(Popover)`
-  .${Classes.POPOVER_TARGET} {
-    display: flex;
-  }
-  div {
-    flex: 1 1 auto;
-  }
-  span {
-    width: 100%;
-    position: relative;
-  }
-  .${Classes.BUTTON} {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .${Classes.BUTTON_TEXT} {
-    text-overflow: ellipsis;
-    text-align: left;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-  }
-  && {
-    .${Classes.ICON} {
-      width: fit-content;
-      color: ${Colors.SLATE_GRAY};
-    }
   }
 `;
 

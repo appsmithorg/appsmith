@@ -78,3 +78,16 @@ export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
     payload,
   };
 };
+
+export const firstTimeUserOnboardingInit = (
+  applicationId: string,
+  pageId: string,
+) => {
+  return {
+    type: ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
+    payload: {
+      applicationId: applicationId,
+      pageId: pageId,
+    },
+  };
+};

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { Title, Caption, Space } from "../components/StyledComponents";
 import Dropdown from "components/ads/Dropdown";
 
@@ -11,10 +11,13 @@ import { ReactComponent as MergeIcon } from "assets/icons/ads/git-merge.svg";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";
-import * as log from "loglevel";
+// import * as log from "loglevel";
 import Button, { Size } from "components/ads/Button";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { getGitBranches } from "selectors/gitSyncSelectors";
+import { DropdownOptions } from "../../GeneratePage/components/constants";
+import { mergeBranchInit } from "../../../../actions/gitSyncActions";
 
 const Row = styled.div`
   display: flex;
@@ -23,21 +26,67 @@ const Row = styled.div`
 
 // mock data
 const listOfBranchesExceptCurrentBranch = [
-  { label: "Master", value: "master" },
   {
     label: "Feature/new",
     value: "Feature/new",
+  },
+  {
+    label: "FeatureA",
+    value: "FeatureA",
+  },
+  {
+    label: "FeatureB",
+    value: "FeatureB",
+  },
+  {
+    label: "FeatureC",
+    value: "FeatureC",
   },
 ];
 
 export default function Merge() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const currentBranchName = gitMetaData?.branchName;
+  const gitBranches = useSelector(getGitBranches);
+  const dispatch = useDispatch();
+  const currentBranch = gitMetaData?.branchName;
+
+  const [selectedBranch, setSelectedBranch] = useState(currentBranch);
+
+  const branchList = useMemo(() => {
+    const listOfBranches: DropdownOptions = [];
+    gitBranches.map((branchObj) => {
+      if (currentBranch !== branchObj.branchName) {
+        if (!branchObj.default) {
+          listOfBranches.push({
+            label: branchObj.branchName,
+            data: { idDefault: branchObj.default },
+          });
+        } else {
+          listOfBranches.unshift({
+            label: branchObj.branchName,
+            data: { idDefault: branchObj.default },
+          });
+        }
+      }
+    });
+    return listOfBranches;
+  }, [gitBranches]);
 
   const currentBranchDropdownOption = {
-    label: currentBranchName || "",
-    value: currentBranchName || "",
+    label: currentBranch || "",
+    value: currentBranch || "",
   };
+
+  const mergeHandler = useCallback(() => {
+    if (currentBranch && selectedBranch) {
+      dispatch(
+        mergeBranchInit({
+          sourceBranch: currentBranch,
+          destinationBranch: selectedBranch,
+        }),
+      );
+    }
+  }, [currentBranch, selectedBranch, dispatch]);
 
   return (
     <>
@@ -50,11 +99,11 @@ export default function Merge() {
         <Space horizontal size={3} />
         <Dropdown
           fillOptions
-          onSelect={() => {
-            log.debug("selected");
+          onSelect={(value?: string) => {
+            setSelectedBranch(value);
           }}
-          options={listOfBranchesExceptCurrentBranch}
-          selected={{ label: "Master", value: "master" }}
+          options={listOfBranchesExceptCurrentBranch || branchList}
+          selected={{ label: selectedBranch, value: selectedBranch }}
           showLabelOnly
           width={"220px"}
         />
@@ -72,6 +121,7 @@ export default function Merge() {
       </Row>
       <Space size={10} />
       <Button
+        onClick={mergeHandler}
         size={Size.medium}
         text={createMessage(MERGE_CHANGES)}
         width="max-content"
