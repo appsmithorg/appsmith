@@ -2,7 +2,6 @@ package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.BasicAuth;
@@ -24,6 +23,7 @@ import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -31,6 +31,8 @@ import javax.mail.internet.MimeMultipart;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 
 public class SmtpPlugin extends BasePlugin {
     public SmtpPlugin(PluginWrapper wrapper) {
@@ -47,17 +49,24 @@ public class SmtpPlugin extends BasePlugin {
             Message message = new MimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
-                String fromAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "from");
-                message.setFrom(new InternetAddress(fromAddress));
+                String fromAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "from");
+                String toAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"to");
+                String ccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"cc");
+                String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"bcc");
+                String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"subject");
+                String replyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(),"isReplyTo") ?
+                        (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"replyTo") : null;
 
-                String toAddress = (String) actionConfiguration.getFormData().get("to");
-                String ccAddress = (String) actionConfiguration.getFormData().get("cc");
-                String bccAddress = (String) actionConfiguration.getFormData().get("bcc");
-                String subject = (String) actionConfiguration.getFormData().get("subject");
-                String replyTo = (Boolean) actionConfiguration.getFormData().get("isReplyTo") ?
-                        (String) actionConfiguration.getFormData().get("replyTo") : null;
-
+                if (!StringUtils.hasText(toAddress)) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Couldn't find a valid recipient address. Please check your action configuration."));
+                }
+                if (!StringUtils.hasText(fromAddress)) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            "Couldn't find a valid sender address. Please check your action configuration."));
+                }
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress));
+                message.setFrom(new InternetAddress(fromAddress));
 
                 if (StringUtils.hasText(ccAddress)) {
                     message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccAddress));
@@ -71,7 +80,7 @@ public class SmtpPlugin extends BasePlugin {
 
                 message.setSubject(subject);
 
-                String msg = actionConfiguration.getBody();
+                String msg = StringUtils.hasText(actionConfiguration.getBody()) ? actionConfiguration.getBody() : "";
 
                 MimeBodyPart mimeBodyPart = new MimeBodyPart();
                 mimeBodyPart.setContent(msg, "text/html");
@@ -82,15 +91,15 @@ public class SmtpPlugin extends BasePlugin {
 
                 System.out.println("Going to send the email");
                 Transport.send(message);
-                System.out.println("Sent the email");
                 result.setIsExecutionSuccess(true);
                 result.setBody("Sent email successfully");
-            } catch (MessagingException e) {
+            } catch(AddressException e) {
                 e.printStackTrace();
-                result.setIsExecutionSuccess(false);
-                result.setBody(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to send email because of error: " + e.getMessage())
-                        .getMessage());
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Unable to " + e.getMessage()));
+            } catch (MessagingException e) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Unable to send email because of error: " + e.getMessage()));
             }
 
             return Mono.just(result);
