@@ -3,6 +3,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/multiSelectDsl.json");
+const dslWithEmptyOptions = require("../../../../fixtures/multiSelectDslWithEmptyData.json");
 const pages = require("../../../../locators/Pages.json");
 const data = require("../../../../fixtures/example.json");
 
@@ -39,6 +40,11 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(formWidgetsPage.mulitiselectInput).click({ force: true });
     cy.get(formWidgetsPage.mulitiselectInput).type("Option");
     cy.dropdownMultiSelectDynamic("Option 2");
+  });
+  it("Dropdown functionality to check empty options", () => {
+    cy.addDsl(dslWithEmptyOptions);
+    cy.get(formWidgetsPage.mulitiselectInput).click({ force: true });
+    cy.get(".rc-select-item-empty").should("have.text", "No Results Found");
   });
   it("Dropdown Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
