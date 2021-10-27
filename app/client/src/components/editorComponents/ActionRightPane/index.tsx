@@ -31,6 +31,7 @@ import {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -215,7 +216,8 @@ function ActionSidebar({
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
+  const { pageId } = useParams<ExplorerURLParams>();
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const handleBindData = () => {
     AnalyticsUtil.logEvent("SELECT_IN_CANVAS_CLICK", {
@@ -226,7 +228,7 @@ function ActionSidebar({
     dispatch(
       bindDataOnCanvas({
         queryId: (params.apiId || params.queryId) as string,
-        applicationId,
+        applicationId: applicationId as string,
         pageId,
       }),
     );
@@ -242,7 +244,7 @@ function ActionSidebar({
   }
 
   const navigeteToCanvas = () => {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
   };
 
   return (

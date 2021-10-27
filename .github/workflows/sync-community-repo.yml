@@ -22,6 +22,7 @@ jobs:
         git remote add community https://github.com/appsmithorg/appsmith.git
         git config user.email "automated@github.com"
         git config user.name "Automated Github Action"
+        git config pull.rebase false
         git pull community release --no-edit
         git push origin release
 

@@ -11,7 +11,9 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import history from "utils/history";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -23,10 +25,11 @@ function OnboardingExplorer(props: IPanelProps) {
   const dispatch = useDispatch();
 
   let node = <Loading />;
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
     openPanel({ component: WidgetSidebar });
     dispatch(forceOpenWidgetPanel(true));
   }, [openPanel, applicationId, pageId]);
