@@ -340,7 +340,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             })}
           >
             <div
-              className="relative w-4 h-4 text-gray-700 group"
+              className="relative w-4 h-4 text-gray-700 group t--pin-entity-explorer"
               onMouseEnter={onMenuHover}
             >
               <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />

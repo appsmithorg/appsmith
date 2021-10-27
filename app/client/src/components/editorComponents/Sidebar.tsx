@@ -166,7 +166,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        "js-entity-explorer transform transition-all flex h-full z-3 duration-400 border-r border-gray-200": true,
+        "js-entity-explorer t--entity-explorer transform transition-all flex h-full z-3 duration-400 border-r border-gray-200": true,
         "relative ": pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
@@ -194,7 +194,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
             })}
           >
             <button
-              className="p-2 hover:bg-warmGray-100 group"
+              className="p-2 hover:bg-warmGray-100 group t--unpin-entity-explorer"
               onClick={onPin}
               type="button"
             >
@@ -202,6 +202,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
             </button>
           </div>
         </div>
+        {/* SWITCHER */}
         <div className="px-3 mt-1 mb-3">
           <Switcher activeObj={activeSwitch} switches={switches} />
         </div>
@@ -220,7 +221,10 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         onMouseDown={resizer.onMouseDown}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}
-        style={{ left: !pinned && !active ? 0 : props.width }}
+        style={{
+          left: !pinned && !active ? 0 : props.width,
+          display: isPreviewMode ? "none" : "initial",
+        }}
       >
         <div
           className={classNames({
