@@ -69,6 +69,13 @@ function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
   );
 }
 
-SelectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
+SelectField.componentDefaultValues = {
+  ...COMPONENT_DEFAULT_VALUES,
+  options: [
+    { label: "Blue", value: "BLUE" },
+    { label: "Green", value: "GREEN" },
+    { label: "Red", value: "RED" },
+  ],
+};
 
 export default SelectField;

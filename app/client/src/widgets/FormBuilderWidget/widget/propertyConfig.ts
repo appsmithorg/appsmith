@@ -85,9 +85,7 @@ const fieldTypeUpdateHook = (
   const newSchemaItem = SchemaParser.getSchemaItemByFieldType(
     schemaItem.name,
     fieldType,
-    {
-      isCustomField: schemaItem.isCustomField,
-    },
+    schemaItem,
   );
 
   return [{ propertyPath: schemaItemPath, propertyValue: newSchemaItem }];

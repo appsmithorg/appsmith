@@ -5,7 +5,12 @@ import { useFieldArray, ControllerRenderProps } from "react-hook-form";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import { ARRAY_ITEM_KEY, FIELD_PADDING_X, FIELD_PADDING_Y } from "../constants";
+import {
+  ARRAY_ITEM_KEY,
+  FIELD_PADDING_X,
+  FIELD_PADDING_Y,
+  FIELD_TYPE_TO_POTENTIAL_DATA,
+} from "../constants";
 import { BaseFieldComponentProps } from "./types";
 
 type ArrayComponentOwnProps = {
@@ -34,7 +39,6 @@ const StyledDeleteButton = styled(StyledButton)`
 function ArrayField({ name, schemaItem }: ArrayFieldProps) {
   const { append, fields, remove } = useFieldArray({
     name,
-    shouldUnregister: true,
   });
 
   const { children, isVisible = true, label, props, tooltip } = schemaItem;
@@ -42,7 +46,9 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
   const arrayItemSchema = children[ARRAY_ITEM_KEY];
 
   const onAddClick = () => {
-    append({ firstName: "appendBill", lastName: "appendLuo" });
+    const data = FIELD_TYPE_TO_POTENTIAL_DATA[arrayItemSchema.fieldType];
+
+    append(data);
   };
 
   const options = {
@@ -59,6 +65,7 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
         <StyledWrapper>
           {fields.map((field, index) => {
             const fieldName = `${name}.${index}` as ControllerRenderProps["name"];
+
             return (
               <StyledItemWrapper key={field.id}>
                 {fieldRenderer(fieldName, arrayItemSchema, options)}

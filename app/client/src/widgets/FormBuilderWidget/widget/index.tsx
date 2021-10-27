@@ -79,6 +79,10 @@ class FormBuilderWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("data", values);
   };
 
+  updateFormFieldValue = (name: string, value: any) => {
+    this.props.updateWidgetMetaProperty(`data.${name}`, value);
+  };
+
   getPageView() {
     return (
       <FormBuilderComponent

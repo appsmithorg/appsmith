@@ -31,7 +31,7 @@ function InputField({ name, schemaItem, ...rest }: InputFieldProps) {
         <InputComponent
           compactMode={false}
           disabled={isDisabled}
-          inputRef={ref}
+          // inputRef={ref}
           inputType={inputType}
           isInvalid={false}
           isLoading={false}

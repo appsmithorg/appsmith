@@ -34,18 +34,21 @@ function Field({
 
   const LabelWrapper = hideLabel ? Fragment : FieldLabel;
 
+  const controller = (
+    <StyledControllerWrapper>
+      <Controller control={control} name={name} render={render} />
+    </StyledControllerWrapper>
+  );
+
   return (
     <StyledWrapper>
-      <LabelWrapper label={label} tooltip={tooltip}>
-        <StyledControllerWrapper>
-          <Controller
-            control={control}
-            name={name}
-            render={render}
-            shouldUnregister
-          />
-        </StyledControllerWrapper>
-      </LabelWrapper>
+      {hideLabel ? (
+        controller
+      ) : (
+        <LabelWrapper label={label} tooltip={tooltip}>
+          {controller}
+        </LabelWrapper>
+      )}
     </StyledWrapper>
   );
 }

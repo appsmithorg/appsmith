@@ -95,7 +95,7 @@ function Form<TValues = any>({
       updateFormValues(values as TValues);
     });
     return () => subscription.unsubscribe();
-  }, [watch]);
+  }, []);
 
   return (
     <FormProvider {...methods}>

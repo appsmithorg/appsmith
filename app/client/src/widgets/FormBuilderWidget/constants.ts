@@ -41,14 +41,15 @@ export enum DataType {
 }
 
 export type SchemaItem<TProps = any> = {
+  // position: number;
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
+  formData: any;
   isCustomField: boolean;
   isVisible: boolean;
   label: string;
   name: string;
-  // position: number;
   props: TProps;
   tooltip?: string;
 };
@@ -155,11 +156,11 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.TEXT]: "",
   [FieldType.NUMBER]: 0,
   [FieldType.EMAIL]: "",
-  [FieldType.PHONE_NUMBER]: 0,
+  [FieldType.PHONE_NUMBER]: "",
   [FieldType.CHECKBOX]: true,
   [FieldType.DATE]: "",
   [FieldType.RADIO_GROUP]: "",
-  [FieldType.MULTI_SELECT]: [""],
+  [FieldType.MULTI_SELECT]: [],
   [FieldType.SELECT]: "",
   [FieldType.SWITCH]: true,
   [FieldType.ARRAY]: [{}],

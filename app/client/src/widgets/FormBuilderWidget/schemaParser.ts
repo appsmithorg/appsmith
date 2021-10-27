@@ -132,13 +132,19 @@ class SchemaParser {
   static getSchemaItemByFieldType = (
     key: string,
     fieldType: FieldType,
-    options: ParserOptions = {},
+    schemaItem: SchemaItem,
   ) => {
-    const possibleValue = FIELD_TYPE_TO_POTENTIAL_DATA[fieldType];
+    const currFormData = schemaItem.isCustomField
+      ? FIELD_TYPE_TO_POTENTIAL_DATA[fieldType]
+      : schemaItem.formData;
+
+    const options = {
+      isCustomField: schemaItem.isCustomField,
+    };
 
     return SchemaParser.getSchemaItemFor(key, {
       ...options,
-      currFormData: possibleValue,
+      currFormData,
       fieldType,
     });
   };
@@ -174,6 +180,7 @@ class SchemaParser {
       children,
       dataType,
       fieldType,
+      formData: currFormData,
       isCustomField,
       isVisible: true,
       label,
