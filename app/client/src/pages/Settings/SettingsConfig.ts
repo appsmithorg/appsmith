@@ -3,9 +3,7 @@ import UserApi from "api/UserApi";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   EMAIL_SETUP_DOC,
-  GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_MAPS_SETUP_DOC,
-  GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
 import { Dispatch } from "react";
 import { isEmail } from "utils/formhelpers";
