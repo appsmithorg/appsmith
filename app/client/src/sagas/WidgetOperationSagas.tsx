@@ -323,7 +323,7 @@ function getPropertiesToUpdate(
   const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
   const {
     triggerPaths: triggerPathsFromPropertyConfig = {},
-  } = getAllPathsFromPropertyConfig(widget, widgetConfig, {});
+  } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 
   Object.keys(updatePaths).forEach((propertyPath) => {
     const propertyValue = _.get(updates, propertyPath);
