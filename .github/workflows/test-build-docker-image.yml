@@ -270,7 +270,7 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
-  package-for-dp:
+  package-for-deploy-preview:
     needs: [buildClient, buildServer, buildRts]
     runs-on: ubuntu-latest
     if: |
