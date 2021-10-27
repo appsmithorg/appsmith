@@ -44,7 +44,11 @@
             <version>1.18.8</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.5.0-b01</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -68,9 +72,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.5.0-b01</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.15.0-rc2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

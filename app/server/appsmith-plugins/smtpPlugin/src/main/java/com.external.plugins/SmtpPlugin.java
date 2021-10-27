@@ -5,7 +5,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -29,6 +28,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -38,30 +38,13 @@ public class SmtpPlugin extends BasePlugin {
     }
 
     @Extension
-    public static class SmtpPluginExecutor implements PluginExecutor<Object> {
+    public static class SmtpPluginExecutor implements PluginExecutor<Session> {
 
 
         @Override
-        public Mono<ActionExecutionResult> execute(Object connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(Session connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
 
-            Properties prop = new Properties();
-            prop.put("mail.smtp.auth", true);
-            prop.put("mail.smtp.starttls.enable", "false");
-            prop.put("mail.smtp.host", "smtp.mailtrap.io");
-            prop.put("mail.smtp.port", "2525");
-            prop.put("mail.smtp.ssl.trust", "smtp.mailtrap.io");
-            String username = "dfc7da10622c73";
-            String password = "7624b2118ec602";
-
-            Session session = Session.getInstance(prop, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
-                }
-            });
-
-
-            Message message = new MimeMessage(session);
+            Message message = new MimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
                 String fromAddress = (String) PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), "from");
@@ -71,6 +54,9 @@ public class SmtpPlugin extends BasePlugin {
                 String ccAddress = (String) actionConfiguration.getFormData().get("cc");
                 String bccAddress = (String) actionConfiguration.getFormData().get("bcc");
                 String subject = (String) actionConfiguration.getFormData().get("subject");
+                String replyTo = (Boolean) actionConfiguration.getFormData().get("isReplyTo") ?
+                        (String) actionConfiguration.getFormData().get("replyTo") : null;
+
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress));
 
                 if (StringUtils.hasText(ccAddress)) {
@@ -78,6 +64,9 @@ public class SmtpPlugin extends BasePlugin {
                 }
                 if (StringUtils.hasText(bccAddress)) {
                     message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccAddress));
+                }
+                if (StringUtils.hasText(replyTo)) {
+                    message.setReplyTo(InternetAddress.parse(replyTo));
                 }
 
                 message.setSubject(subject);
@@ -99,55 +88,73 @@ public class SmtpPlugin extends BasePlugin {
             } catch (MessagingException e) {
                 e.printStackTrace();
                 result.setIsExecutionSuccess(false);
-                result.setBody("Sending email failed");
+                result.setBody(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Unable to send email because of error: " + e.getMessage())
+                        .getMessage());
             }
 
             return Mono.just(result);
-//            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
         }
 
         @Override
-        public Mono datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<Session> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+
+            Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
 
             Properties prop = new Properties();
             prop.put("mail.smtp.auth", true);
-            prop.put("mail.smtp.starttls.enable", "true");
-            if (datasourceConfiguration.getEndpoints() == null ||
-                    datasourceConfiguration.getEndpoints().isEmpty() ||
-                    datasourceConfiguration.getEndpoints().get(0) == null
-            ) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Required endpoint configuration is missing"));
-            }
-            Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-            if (!StringUtils.hasText(endpoint.getHost())) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Required hostname is missing"));
-            }
-            if (endpoint.getPort() == null) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "Required port is missing"));
-            }
-
-            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
-            if (authentication == null || !StringUtils.hasText(authentication.getUsername()) || !StringUtils.hasText(authentication.getPassword()) )
+            prop.put("mail.smtp.starttls.enable", "false");
             prop.put("mail.smtp.host", endpoint.getHost());
-            prop.put("mail.smtp.port", endpoint.getPort());
+            prop.put("mail.smtp.port", String.valueOf(endpoint.getPort()));
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
+
             String username = authentication.getUsername();
             String password = authentication.getPassword();
 
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
+            Session session = Session.getInstance(prop, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(username, password);
+                }
+            });
+            return Mono.just(session);
         }
 
         @Override
-        public void datasourceDestroy(Object connection) {
+        public void datasourceDestroy(Session connection) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement");
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement");
+            Set<String> invalids = new HashSet<>();
+            if (datasourceConfiguration.getEndpoints() == null ||
+                    datasourceConfiguration.getEndpoints().isEmpty() ||
+                    datasourceConfiguration.getEndpoints().get(0) == null
+            ) {
+                invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+            } else {
+                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+                if (!StringUtils.hasText(endpoint.getHost())) {
+                    invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
+                }
+                if (endpoint.getPort() == null) {
+                    invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Could not find port. Please edit the 'Port' field to provide the desired endpoint.").getMessage());
+                }
+            }
+
+            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
+            if (authentication == null || !StringUtils.hasText(authentication.getUsername()) ||
+                    !StringUtils.hasText(authentication.getPassword())
+            ) {
+                invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage());
+            }
+
+            return invalids;
         }
 
         @Override
@@ -156,7 +163,7 @@ public class SmtpPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(Object connection, DatasourceConfiguration datasourceConfiguration) {
+        public Mono<DatasourceStructure> getStructure(Session connection, DatasourceConfiguration datasourceConfiguration) {
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
         }
     }
