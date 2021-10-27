@@ -75,10 +75,5 @@ export default function* handleAppLevelSocketEvents(event: any) {
       yield put(collabSetAppEditors(event.payload[0]));
       return;
     }
-    // notification on release version
-    case APP_LEVEL_SOCKET_EVENTS.RELEASE_VERSION_NOTIFICATION: {
-      // TODO: do something here with release version = event.payload[0]
-      return;
-    }
   }
 }
