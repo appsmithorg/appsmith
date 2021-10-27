@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -920,6 +921,26 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
+    @Override
+    public Mono<MergeStatus> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                    }
+                    Path repoPath = Paths.get(application.getOrganizationId(),
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
+
+                    //1. Hydrate from db to file system for both branch Applications
+                    return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, sourceBranch, repoPath)
+                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, destinationBranch, repoPath))
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge status", error.getMessage())));
+                })
+                .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch));
+    }
+
     private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String sourceBranch, String destinationBranch, Path repoPath) {
         return applicationService.getApplicationByBranchNameAndDefaultApplication(destinationBranch, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
@@ -941,6 +962,7 @@ public class GitServiceImpl implements GitService {
                     GitCommitDTO gitCommitDTO = new GitCommitDTO();
                     gitCommitDTO.setDoPush(true);
                     gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
+                    // TODO delete the branches created as part of conflicts handling
                     return commitApplication(gitCommitDTO, defaultApplicationId, branchName)
                             .flatMap(status -> pushApplication(defaultApplicationId, true));
                 });
