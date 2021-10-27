@@ -3429,8 +3429,8 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "093", id = "application-git-metadata-index", author = "")
-    public void updateGitApplicationMetadataIndex(MongockTemplate mongockTemplate) {
-        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+    public void updateGitApplicationMetadataIndex(MongockTemplate mongoTemplate) {
+        // MongoTemplate mongoTemplate = mongockTemplate.getImpl();
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitRepo_gitBranch_compound_index");

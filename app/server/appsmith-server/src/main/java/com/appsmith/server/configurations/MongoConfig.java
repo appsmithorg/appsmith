@@ -21,7 +21,7 @@ import org.springframework.data.convert.SimpleTypeInformationMapper;
 import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
-import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
@@ -45,24 +45,12 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@EnableMongoAuditing
+@EnableReactiveMongoAuditing
 @EnableReactiveMongoRepositories(repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
         basePackages = "com.appsmith.server.repositories",
         repositoryBaseClass = BaseRepositoryImpl.class
 )
 public class MongoConfig {
-
-//    @Bean
-//    public SpringBootMongock mongock(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-//        return new SpringBootMongockBuilder(
-//                mongoTemplate,
-//                getClass().getPackageName().replaceFirst("\\.[^.]+$", ".migrations")
-//        )
-//                .setApplicationContext(springContext)
-//                .setLockQuickConfig()
-//                .build();
-//    }
-
     @Bean
     public MongockSpring5.MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
         SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
@@ -76,20 +64,6 @@ public class MongoConfig {
                 // any extra configuration you need
                 .buildApplicationRunner();
     }
-
-//    @Bean
-//    public MongockSpring5.MongockInitializingBeanRunner mongockInitializingBeanRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-//        SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
-//        springDataMongoV3Driver.setWriteConcern(WriteConcern.JOURNALED);
-//        springDataMongoV3Driver.setReadConcern(ReadConcern.LOCAL);
-//
-//        return MongockSpring5.builder()
-//                .setDriver(springDataMongoV3Driver)
-//                .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
-//                .setSpringContext(springContext)
-//                // any extra configuration you need
-//                .buildInitializingBeanRunner();
-//    }
 
     @Bean
     public ReactiveMongoTemplate reactiveMongoTemplate(ReactiveMongoDatabaseFactory mongoDbFactory, MappingMongoConverter mappingMongoConverter) {
