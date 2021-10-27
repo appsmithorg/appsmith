@@ -8,7 +8,6 @@ ff4j:
   audit: false
 
   features:
-
     - uid: JS_EDITOR
       enable: true
       description: Enable JS editor by email domain of the user
@@ -39,6 +38,15 @@ ff4j:
     - uid: GIT
       enable: true
       description: Enable git for apps
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
+
+    - uid: ADMIN_SETTINGS
+      enable: true
+      description: Enable admin settings for apps
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:

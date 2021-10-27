@@ -3,7 +3,9 @@ import UserApi from "api/UserApi";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   EMAIL_SETUP_DOC,
+  GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_MAPS_SETUP_DOC,
+  GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
 import { Dispatch } from "react";
 import { isEmail } from "utils/formhelpers";
@@ -237,7 +239,7 @@ SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
 SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
   category: "general",
   controlType: SettingTypes.TOGGLE,
-  label: "Disable sharing Anonymous Usage Data",
+  label: "Disable Sharing Anonymous Usage Data",
   subText: "Share anonymous usage data to help improve the product",
   toggleText: (value: boolean) => {
     if (value) {
@@ -278,63 +280,62 @@ SettingsFactory.register("APPSMITH_SIGNUP_DISABLED", {
   },
 });
 
-//To be uncommented when BE fixes issue with hot reloading
-// SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_READ_MORE", {
-//   category: "authentication",
-//   subCategory: "google signup",
-//   controlType: SettingTypes.LINK,
-//   label: "How to configure?",
-//   url: GOOGLE_SIGNUP_SETUP_DOC,
-// });
+SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_READ_MORE", {
+  category: "authentication",
+  subCategory: "google signup",
+  controlType: SettingTypes.LINK,
+  label: "How to configure?",
+  url: GOOGLE_SIGNUP_SETUP_DOC,
+});
 
-// SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID", {
-//   category: "authentication",
-//   subCategory: "google signup",
-//   controlType: SettingTypes.TEXTINPUT,
-//   controlSubType: SettingSubtype.TEXT,
-//   label: "Client ID",
-// });
+SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID", {
+  category: "authentication",
+  subCategory: "google signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Client ID",
+});
 
-// SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET", {
-//   category: "authentication",
-//   subCategory: "google signup",
-//   controlType: SettingTypes.TEXTINPUT,
-//   controlSubType: SettingSubtype.TEXT,
-//   label: "Client Secret",
-// });
+SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET", {
+  category: "authentication",
+  subCategory: "google signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Client Secret",
+});
 
-// SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
-//   category: "authentication",
-//   subCategory: "google signup",
-//   controlType: SettingTypes.TEXTINPUT,
-//   controlSubType: SettingSubtype.TEXT,
-//   label: "Allowed Domains",
-//   placeholder: "domain1.com, domain2.com",
-// });
+SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
+  category: "authentication",
+  subCategory: "google signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Allowed Domains",
+  placeholder: "domain1.com, domain2.com",
+});
 
-// SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_READ_MORE", {
-//   category: "authentication",
-//   subCategory: "github signup",
-//   controlType: SettingTypes.LINK,
-//   label: "How to configure?",
-//   url: GITHUB_SIGNUP_SETUP_DOC,
-// });
+SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_READ_MORE", {
+  category: "authentication",
+  subCategory: "github signup",
+  controlType: SettingTypes.LINK,
+  label: "How to configure?",
+  url: GITHUB_SIGNUP_SETUP_DOC,
+});
 
-// SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_ID", {
-//   category: "authentication",
-//   subCategory: "github signup",
-//   controlType: SettingTypes.TEXTINPUT,
-//   controlSubType: SettingSubtype.TEXT,
-//   label: "Client ID",
-// });
+SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_ID", {
+  category: "authentication",
+  subCategory: "github signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Client ID",
+});
 
-// SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET", {
-//   category: "authentication",
-//   subCategory: "github signup",
-//   controlType: SettingTypes.TEXTINPUT,
-//   controlSubType: SettingSubtype.TEXT,
-//   label: "Client Secret",
-// });
+SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET", {
+  category: "authentication",
+  subCategory: "github signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Client Secret",
+});
 
 //version
 SettingsFactory.register("APPSMITH_CURRENT_VERSION", {
