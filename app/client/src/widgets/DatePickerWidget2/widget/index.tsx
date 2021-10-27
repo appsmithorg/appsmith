@@ -50,17 +50,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         sectionName: "General",
         children: [
           {
-            propertyName: "isTimeEnabled",
-            label: "Enable Time",
-            helpText: "Shows time input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-            updateHook: updateDateFormat,
-          },
-          {
             propertyName: "defaultDate",
             label: "Default Date",
             helpText:
@@ -264,6 +253,17 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isTimeEnabled",
+            label: "Enable Time",
+            helpText: "Shows time input to this widget",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            updateHook: updateDateFormat,
           },
           {
             propertyName: "closeOnSelection",
