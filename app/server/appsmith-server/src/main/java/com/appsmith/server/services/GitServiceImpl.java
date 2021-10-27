@@ -24,7 +24,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -655,12 +654,12 @@ public class GitServiceImpl implements GitService {
             });
     }
 
-    private Mono<Application> checkoutRemoteBranch(String applicationId, String branchName) {
-        return getApplicationById(applicationId)
+    private Mono<Application> checkoutRemoteBranch(String defaultApplicationId, String branchName) {
+        return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                     String repoName = gitApplicationMetadata.getRepoName();
-                    Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
 
                     return gitExecutor.fetchRemote(repoPath, gitApplicationMetadata.getGitAuth().getPublicKey(), gitApplicationMetadata.getGitAuth().getPrivateKey(), false)
                             .flatMap(fetchStatus -> gitExecutor.checkoutRemoteBranch(repoPath, branchName).zipWith(Mono.just(application))
