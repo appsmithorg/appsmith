@@ -1,4 +1,5 @@
 import {
+  SnipedWidgetPropertyDataType,
   WidgetBuilder,
   WidgetDataProps,
   WidgetProps,
@@ -100,6 +101,10 @@ class WidgetFactory {
     WidgetType,
     WidgetDerivedPropertyType
   > = new Map();
+  static snipingConfigsMap: Map<
+    WidgetType,
+    SnipedWidgetPropertyDataType
+  > = new Map();
   static derivedPropertiesMap: Map<
     WidgetType,
     DerivedPropertiesMap
@@ -122,6 +127,7 @@ class WidgetFactory {
   static registerWidgetBuilder(
     widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
+    snipingConfig: SnipedWidgetPropertyDataType,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
@@ -130,6 +136,7 @@ class WidgetFactory {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
       this.widgetMap.set(widgetType, widgetBuilder);
+      this.snipingConfigsMap.set(widgetType, snipingConfig);
       this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
       this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
@@ -192,6 +199,17 @@ class WidgetFactory {
       return {};
     }
     return map;
+  }
+
+  static getWidgetSnipingConfig(
+    widgetType: WidgetType,
+  ): SnipedWidgetPropertyDataType | void {
+    const config = this.snipingConfigsMap.get(widgetType);
+    if (!config) {
+      console.error("Widget sniping config not defined", widgetType);
+      return;
+    }
+    return config;
   }
 
   static getWidgetDefaultPropertiesMap(

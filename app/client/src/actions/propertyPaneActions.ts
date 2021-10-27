@@ -1,5 +1,4 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { SnipedWidgetPropertyDataType } from "../widgets/BaseWidget";
 export const updateWidgetName = (widgetId: string, newName: string) => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_NAME_INIT,
@@ -16,12 +15,9 @@ export const hidePropertyPane = () => {
   };
 };
 
-export const bindDataToWidget = (payload: SnipedWidgetPropertyDataType) => {
-  return {
-    type: ReduxActionTypes.BIND_DATA_TO_WIDGET,
-    payload,
-  };
-};
+export const bindDataToWidget = () => ({
+  type: ReduxActionTypes.BIND_DATA_TO_WIDGET,
+});
 
 export const setSnipingMode = (payload: boolean) => ({
   type: ReduxActionTypes.SET_SNIPING_MODE,

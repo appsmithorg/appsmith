@@ -3,7 +3,10 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 import store from "store";
 
-import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
+import BaseWidget, {
+  SnipedWidgetPropertyDataType,
+  WidgetProps,
+} from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
@@ -27,6 +30,7 @@ export interface WidgetConfiguration {
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
   };
+  sniping: SnipedWidgetPropertyDataType;
 }
 
 const generateWidget = memoize(function getWidgetComponent(
@@ -51,6 +55,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
         return <ProfiledWidget {...widgetData} key={widgetData.widgetId} />;
       },
     },
+    config.sniping,
     config.properties.derived,
     config.properties.default,
     config.properties.meta,
