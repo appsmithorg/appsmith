@@ -553,7 +553,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           else if (
             this.inputType === "NUMBER" ||
             this.inputType === "INTEGER" ||
-            this.inputType === "CURRENCY" ||
+            this.inputType === "CURRENCY"
           ) {
             let value = this.text.split(",").join("");
             if (parsedRegex) {
