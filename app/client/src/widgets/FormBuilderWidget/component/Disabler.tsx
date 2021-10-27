@@ -14,6 +14,8 @@ const disable = css`
 `;
 
 const Disabler = styled.div<DisablerProps>`
+  width: 100%;
+
   ${({ isDisabled }) => isDisabled && disable}
 `;
 

@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { noop, pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
@@ -26,6 +27,10 @@ type SelectComponentOwnProps = Pick<
 
 type SelectFieldProps = BaseFieldComponentProps<SelectComponentOwnProps>;
 
+const StyledSelectWrapper = styled.div`
+  width: 100%;
+`;
+
 function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
   const { label, props } = schemaItem;
   const { options = [], isDisabled = false, ...restSchemaItemProps } = props;
@@ -47,22 +52,24 @@ function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
         };
 
         return (
-          <DropDownComponent
-            {...restSchemaItemProps}
-            disabled={isDisabled}
-            height={10}
-            inputRef={ref}
-            isLoading={false}
-            label=""
-            onBlurHandler={onBlur}
-            onFilterChange={noop}
-            onOptionSelected={onOptionSelected}
-            options={options}
-            placeholder=""
-            selectedIndex={selectedIndex}
-            widgetId=""
-            width={10}
-          />
+          <StyledSelectWrapper>
+            <DropDownComponent
+              {...restSchemaItemProps}
+              disabled={isDisabled}
+              height={10}
+              inputRef={ref}
+              isLoading={false}
+              label=""
+              onBlurHandler={onBlur}
+              onFilterChange={noop}
+              onOptionSelected={onOptionSelected}
+              options={options}
+              placeholder=""
+              selectedIndex={selectedIndex}
+              widgetId=""
+              width={10}
+            />
+          </StyledSelectWrapper>
         );
       }}
     />
