@@ -125,12 +125,12 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["Table13.data"],
       },
       {
-        // expression with arithmetic operations 
+        // expression with arithmetic operations
         script: `Table14.data + 15`,
         expectedResults: ["Table14.data"],
       },
       {
-        // expression with logical operations 
+        // expression with logical operations
         script: `Table15.data || [{}]`,
         expectedResults: ["Table15.data"],
       },

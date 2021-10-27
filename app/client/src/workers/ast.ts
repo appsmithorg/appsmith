@@ -123,8 +123,11 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   try {
     ast = getAST(code);
   } catch (e) {
-    // Syntax error. Ignore and return 0 identifiers
-    return [];
+    if (e instanceof SyntaxError) {
+      // Syntax error. Ignore and return 0 identifiers
+      return [];
+    }
+    throw e;
   }
 
   /*
