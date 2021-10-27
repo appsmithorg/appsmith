@@ -797,8 +797,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
-  // All components in formControls must be rendered via FormControl as it FormControl is the common wrapper for all
-  // and contains common functionalities
+  // All components in formControls must be rendered via FormControl.
+  // FormControl is the common wrapper for all formcontrol components and contains common elements i.e. label, subtitle, helpertext
   renderInputTextControlViaFormControl(
     configProperty: string,
     label: string,
@@ -868,7 +868,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       id: "",
       configProperty: configProperty,
       isValid: false,
-      controlType: "KEY_VAL_INPUT",
+      controlType: "KEYVALUE_ARRAY",
       placeholderText: placeholderText,
       label: label,
       conditionals: "",

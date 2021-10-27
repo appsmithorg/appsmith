@@ -9,7 +9,7 @@ import {
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
 import { FormIcons } from "icons/FormIcons";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import HelperTooltip from "components/editorComponents/HelperTooltip";
@@ -21,6 +21,8 @@ export interface KeyValueArrayControlProps extends ControlProps {
   rightIcon?: JSXElementConstructor<{ height: number; width: number }>;
   description?: string;
   actionConfig?: any;
+  extraData?: ControlData[];
+  isRequired?: boolean;
 }
 
 const FormRowWithLabel = styled.div`
@@ -45,15 +47,19 @@ function KeyValueRow(
   props: KeyValueArrayControlProps & WrappedFieldArrayProps,
 ) {
   const { extraData = [] } = props;
-  const keyName = getFieldName(extraData[0].configProperty);
-  const valueName = getFieldName(extraData[1].configProperty);
+  const keyName = getFieldName(extraData[0]?.configProperty);
+  const valueName = getFieldName(extraData[1]?.configProperty);
   const keyFieldProps = extraData[0];
 
   useEffect(() => {
     // Always maintain 1 row
     if (props.fields.length < 1) {
       for (let i = props.fields.length; i < 1; i += 1) {
-        props.fields.push({ [keyName[1]]: "", [valueName[1]]: "" });
+        if (keyName && valueName) {
+          props.fields.push({ [keyName[1]]: "", [valueName[1]]: "" });
+        } else {
+          props.fields.push({ key: "", value: "" });
+        }
       }
     }
   }, [props.fields, keyName, valueName]);
@@ -70,20 +76,29 @@ function KeyValueRow(
 
   const keyFieldValidate = useCallback(
     (value: string) => {
-      if (value && keyFieldProps.validationRegex) {
-        const regex = new RegExp(keyFieldProps.validationRegex);
+      if (value && keyFieldProps?.validationRegex) {
+        const regex = new RegExp(keyFieldProps?.validationRegex);
 
         return regex.test(value) ? undefined : keyFieldProps.validationMessage;
       }
 
       return undefined;
     },
-    [keyFieldProps.validationRegex, keyFieldProps.validationMessage],
+    [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
   );
 
   return typeof props.fields.getAll() === "object" ? (
     <>
       {props.fields.map((field: any, index: number) => {
+        let keyTextFieldName = `${field}.key`;
+        let valueTextFieldName = `${field}.value`;
+
+        if (keyName && Array.isArray(keyName) && keyName?.length)
+          keyTextFieldName = `${field}.${keyName[1]}`;
+
+        if (valueName && Array.isArray(valueName) && valueName?.length)
+          valueTextFieldName = `${field}.${valueName[1]}`;
+
         const otherProps: Record<string, any> = {};
         if (
           props.actionConfig &&
@@ -108,37 +123,33 @@ function KeyValueRow(
             <div style={{ width: "50vh" }}>
               <Field
                 component={renderTextInput}
-                name={`${field}.${keyName[1]}`}
+                name={keyTextFieldName}
                 props={{
-                  dataType: getType(extraData[0].dataType),
+                  dataType: getType(extraData[0]?.dataType),
                   defaultValue: props.initialValue,
                   keyFieldValidate,
                   placeholder: props.extraData
                     ? props.extraData[1]?.placeholderText
                     : "",
-                  isRequired: extraData[0].isRequired,
-                  //TODO: pass helperText, errorMsg
+                  isRequired: extraData[0]?.isRequired,
                 }}
               />
             </div>
             {!props.actionConfig && (
-              <div style={{ marginLeft: 16 }}>
+              <div style={{ marginLeft: "16px", width: "50vh" }}>
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div style={{ marginRight: 14, width: 72 }}>
-                    <Field
-                      component={renderTextInput}
-                      name={`${field}.${valueName[1]}`}
-                      props={{
-                        dataType: getType(extraData[1].dataType),
-                        defaultValue: props.initialValue,
-                        placeholder: props.extraData
-                          ? props.extraData[1]?.placeholderText
-                          : "",
-                        isRequired: extraData[1].isRequired,
-                        //TODO: pass helperText, errorMsg
-                      }}
-                    />
-                  </div>
+                  <Field
+                    component={renderTextInput}
+                    name={valueTextFieldName}
+                    props={{
+                      dataType: getType(extraData[1]?.dataType),
+                      defaultValue: props.initialValue,
+                      placeholder: props.extraData
+                        ? props.extraData[1]?.placeholderText
+                        : "",
+                      isRequired: extraData[1]?.isRequired,
+                    }}
+                  />
                   {index === props.fields.length - 1 ? (
                     <Icon
                       color={Colors["CADET_BLUE"]}
@@ -147,14 +158,14 @@ function KeyValueRow(
                       onClick={() => {
                         props.fields.push({ key: "", value: "" });
                       }}
-                      style={{ alignSelf: "center" }}
+                      style={{ marginLeft: "16px", alignSelf: "center" }}
                     />
                   ) : (
                     <FormIcons.DELETE_ICON
                       color={Colors["CADET_BLUE"]}
                       height={20}
                       onClick={() => props.fields.remove(index)}
-                      style={{ alignSelf: "center" }}
+                      style={{ marginLeft: "16px", alignSelf: "center" }}
                       width={20}
                     />
                   )}
@@ -190,7 +201,7 @@ class KeyValueArrayControl extends BaseControl<KeyValueArrayControlProps> {
         component={KeyValueRow}
         rerenderOnEveryChange={false}
         {...this.props}
-        name={name[0]}
+        name={name ? name[0] : ""}
       />
     );
   }
@@ -200,8 +211,8 @@ class KeyValueArrayControl extends BaseControl<KeyValueArrayControlProps> {
   }
 }
 
-const getFieldName = (configProperty: string) => {
-  return configProperty.split("[*].");
+const getFieldName = (configProperty: string): string[] | undefined => {
+  if (configProperty) return configProperty.split("[*].");
 };
 
 const getType = (dataType: string | undefined) => {

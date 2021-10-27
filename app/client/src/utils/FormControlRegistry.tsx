@@ -73,8 +73,7 @@ class FormControlRegistry {
       },
     });
     FormControlFactory.registerControlBuilder("KEY_VAL_INPUT", {
-      //TODO: used via RestAPIDatasourceForm. may not be used anywhere else.
-      //TODO: replace it with KeyValueArrayControl
+      //TODO: may not be in use, replace it with KeyValueArrayControl
       buildPropertyControl(
         controlProps: KeyValueInputControlProps,
       ): JSX.Element {

@@ -1,8 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import { MenuItem } from "@blueprintjs/core";
-import { IItemRendererProps } from "@blueprintjs/select";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
 import {
@@ -32,26 +30,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     );
   }
 
-  renderItem = (option: DropdownOption, itemProps: IItemRendererProps) => {
-    if (!itemProps.modifiers.matchesPredicate) {
-      return null;
-    }
-    const isSelected: boolean = this.isOptionSelected(option);
-    return (
-      <MenuItem
-        active={isSelected}
-        className="single-select"
-        key={option.value}
-        onClick={itemProps.handleClick}
-        text={option.label}
-      />
-    );
-  };
-
-  isOptionSelected = (selectedOption: DropdownOption) => {
-    return selectedOption.value === this.props.propertyValue;
-  };
-
   getControlType(): ControlType {
     return "DROP_DOWN";
   }
@@ -71,6 +49,8 @@ function renderDropdown(props: {
   return (
     <Dropdown
       dontUsePortal={false}
+      dropdownMaxHeight="250px"
+      enableSearch
       errorMsg={props.props?.errorText}
       fillOptions
       helperText={props.props?.info}
