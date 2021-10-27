@@ -53,6 +53,4 @@ public interface GitService {
     Mono<GitPullDTO> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
 
     Mono<MergeStatus> isBranchMergeable(String applicationId, String sourceBranch, String destinationBranch);
-
-    //Mono<Application> checkoutRemoteBranch(String applicationId, String remoteBranchName);
 }

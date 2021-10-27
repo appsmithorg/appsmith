@@ -519,9 +519,7 @@ public class GitExecutorImpl implements GitExecutor {
             config.setString("branch", branchName, "remote", "origin");
             config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
             config.save();
-
-            // TODO immediately commit and push the created branch
-
+            git.close();
             return git.getRepository().getBranch();
         }).subscribeOn(scheduler);
     }
