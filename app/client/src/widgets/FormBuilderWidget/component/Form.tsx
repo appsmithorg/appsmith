@@ -1,6 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import React, { PropsWithChildren, useEffect, useRef } from "react";
 import styled from "styled-components";
+import { cloneDeep } from "lodash";
 import { FormProvider, useForm, DefaultValues } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
@@ -107,8 +108,9 @@ function Form<TValues = any>({
       // eslint-disable-next-line
       console.log("FORM VALUES", values);
       // TODO: CHECK why this is getting triggered when other buttons are pressed in the canvas
+
       if (!equal(valuesRef.current, values)) {
-        valuesRef.current = values;
+        valuesRef.current = cloneDeep(values);
         updateFormValues(values as TValues);
       }
     });
