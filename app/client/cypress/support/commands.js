@@ -2943,8 +2943,10 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
-    .type("{downarrow}{downarrow}{downarrow}  ")
+    .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
     .type(JSCode);
   cy.wait(1000);
-  cy.get(jsEditorLocators.runButton).click();
+  cy.get(jsEditorLocators.runButton)
+    .first()
+    .click();
 });
