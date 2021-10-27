@@ -491,7 +491,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         }
         return repository.getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, permission)
             .switchIfEmpty(Mono.error(
-                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId + ", " + branchName))
             )
             .map(Application::getId);
     }

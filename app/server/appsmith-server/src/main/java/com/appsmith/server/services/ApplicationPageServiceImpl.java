@@ -138,7 +138,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             defaultResources.setApplicationId(page.getApplicationId());
         }
         defaultResources.setBranchName(branchName);
-        return applicationService.findBranchedApplicationId(branchName, defaultResources.getApplicationId(), MANAGE_PAGES)
+        return applicationService.findBranchedApplicationId(branchName, defaultResources.getApplicationId(), MANAGE_APPLICATIONS)
                 .flatMap(branchedApplicationId -> {
                     page.setApplicationId(branchedApplicationId);
                     return createPage(page);

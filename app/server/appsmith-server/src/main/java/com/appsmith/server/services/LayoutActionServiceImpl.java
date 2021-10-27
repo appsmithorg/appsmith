@@ -247,6 +247,20 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     }
 
     @Override
+    public Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO, String branchName) {
+        if (StringUtils.isEmpty(branchName)) {
+            return refactorWidgetName(refactorNameDTO);
+        }
+
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, refactorNameDTO.getPageId(), MANAGE_PAGES)
+                .flatMap(branchedPage -> {
+                    refactorNameDTO.setPageId(branchedPage.getId());
+                    return refactorWidgetName(refactorNameDTO);
+                })
+                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
+    }
+
+    @Override
     public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO) {
         String pageId = refactorActionNameDTO.getPageId();
         String layoutId = refactorActionNameDTO.getLayoutId();
@@ -904,6 +918,16 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                     return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, finalDsl, true, null)
                             .thenReturn(layoutDTO);
                 });
+    }
+
+    @Override
+    public Mono<LayoutDTO> updateLayout(String defaultPageId, String layoutId, Layout layout, String branchName) {
+        if (StringUtils.isEmpty(branchName)) {
+            return updateLayout(defaultPageId, layoutId, layout);
+        }
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+                .flatMap(branchedPage -> updateLayout(branchedPage.getId(), layoutId, layout))
+                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
     }
 
     private LayoutDTO generateResponseDTO(Layout layout) {

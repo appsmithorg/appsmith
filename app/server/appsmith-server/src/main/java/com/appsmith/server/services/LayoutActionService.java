@@ -13,11 +13,15 @@ import reactor.core.publisher.Mono;
 public interface LayoutActionService {
     Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout);
 
+    Mono<LayoutDTO> updateLayout(String pageId, String layoutId, Layout layout, String branchName);
+
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO);
 
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO, String branchName);
 
     Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO);
+
+    Mono<LayoutDTO> refactorWidgetName(RefactorNameDTO refactorNameDTO, String branchName);
 
     Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO);
 
