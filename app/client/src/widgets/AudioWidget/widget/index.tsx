@@ -135,7 +135,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             if (
               this._player.current &&
               this._player.current.getDuration() ===
-                this._player.current?.getCurrentTime()
+                this._player.current.getCurrentTime()
             ) {
               return;
             }
