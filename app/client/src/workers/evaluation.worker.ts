@@ -175,7 +175,6 @@ ctx.addEventListener(
         );
 
         break;
-
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
