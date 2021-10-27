@@ -301,17 +301,27 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getCustomFusionChartDataSource = () => {
     let config = this.props.customFusionChartConfig;
     if (config) {
-      config = {
-        type: this.props.customFusionChartType,
-        dataSource: {
+      if (config.hasOwnProperty("dataSource"))
+        config = {
           ...config,
           chart: {
-            ...config.chart,
-            caption: this.props.chartName || config.chart.caption,
+            ...config.dataSource.chart,
+            caption: this.props.chartName || config.dataSource.chart.caption,
             setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
           },
-        },
-      };
+        };
+      else
+        config = {
+          type: this.props.customFusionChartType,
+          dataSource: {
+            ...config,
+            chart: {
+              ...config.chart,
+              caption: this.props.chartName || config.chart.caption,
+              setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
+            },
+          },
+        };
     }
     return config;
   };

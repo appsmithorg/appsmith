@@ -973,37 +973,9 @@ export const transformDSL = (
 
   if (currentDSL.version === 43) {
     currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
-  }
-
-  if (currentDSL.version === 44) {
-    currentDSL = migrateCustomChartConfig(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
-  return currentDSL;
-};
-
-const migrateCustomChartConfig = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
-  if (currentDSL.type === "CHART_WIDGET") {
-    if (currentDSL.hasOwnProperty("customFusionChartConfig")) {
-      let config = currentDSL.customFusionChartConfig;
-      if (isString(config)) {
-        try {
-          config = JSON.parse(config);
-        } catch {}
-      }
-      currentDSL.customFusionChartType = config.type;
-      currentDSL.customFusionChartConfig = config.dataSource;
-    }
-    return currentDSL;
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateCustomChartConfig(child),
-    );
-  }
   return currentDSL;
 };
 
