@@ -12,6 +12,7 @@ describe("Testing Sniping functionality", function() {
     cy.get(pages.integrationCreateNew)
       .should("be.visible")
       .click({ force: true });
+    cy.get(pages.mockDataSourcesList).click({ force: true });
     cy.get(pages.mockDatasourceUsers).click({ force: true });
     cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
       .last()

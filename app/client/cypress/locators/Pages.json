@@ -10,6 +10,7 @@
     "Delete": ":nth-child(2) > .bp3-menu-item",
     "apiEditorIcon": ".t--nav-link-api-editor",
     "addEntityAPI": ".datasources .t--entity-add-btn",
+    "mockDataSourcesList": "[data-cy=t--tab-MOCK_DATABASE]",
     "integrationCreateNew": "[data-cy=t--tab-CREATE_NEW]",
     "integrationActiveTab": "[data-cy=t--tab-ACTIVE]",
     "mockDatasourceUsers": ".t--mock-datasource-users",
