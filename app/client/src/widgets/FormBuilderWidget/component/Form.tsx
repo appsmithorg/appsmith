@@ -19,6 +19,7 @@ type FormProps<TValues = any> = PropsWithChildren<{
   formData: DefaultValues<TValues>;
   onSubmit: SubmitHandler<TValues>;
   scrollContents: boolean;
+  stretchBodyVertically: boolean;
   title: string;
   updateFormValues: (values: TValues) => void;
   useFormDataValues: boolean;
@@ -27,6 +28,10 @@ type FormProps<TValues = any> = PropsWithChildren<{
 type StyledFormProps = {
   fixedFooter: boolean;
   scrollContents: boolean;
+};
+
+type StyledFormBodyProps = {
+  stretchBodyVertically: boolean;
 };
 
 const FOOTER_BUTTON_GAP = 10;
@@ -57,11 +62,16 @@ const StyledForm = styled.form<StyledFormProps>`
   padding: ${FIELD_PADDING_X}px;
 `;
 
-export const StyledTitle = styled(Text)`
+const StyledTitle = styled(Text)`
   font-weight: bold;
   font-size: ${TEXT_SIZES.HEADING1};
   word-break: break-word;
   margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
+`;
+
+const StyledFormBody = styled.div<StyledFormBodyProps>`
+  height: ${({ stretchBodyVertically }) =>
+    stretchBodyVertically ? "100%" : "auto"};
 `;
 
 function Form<TValues = any>({
@@ -70,6 +80,7 @@ function Form<TValues = any>({
   formData,
   onSubmit,
   scrollContents,
+  stretchBodyVertically,
   title,
   updateFormValues,
   useFormDataValues,
@@ -104,10 +115,10 @@ function Form<TValues = any>({
         onSubmit={methods.handleSubmit(onSubmit)}
         scrollContents={scrollContents}
       >
-        <div>
+        <StyledFormBody stretchBodyVertically={stretchBodyVertically}>
           <StyledTitle>{title}</StyledTitle>
           {children}
-        </div>
+        </StyledFormBody>
         <StyledFormFooter>
           <Button
             buttonColor={Colors.GREEN}
