@@ -29,7 +29,7 @@ export type FetchActionsPayload = {
 };
 
 export const fetchActions = (
-  applicationId: string,
+  { applicationId }: { applicationId: string },
   postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<unknown> => {
   return {
@@ -39,9 +39,11 @@ export const fetchActions = (
   };
 };
 
-export const fetchActionsForView = (
-  applicationId: string,
-): ReduxAction<FetchActionsPayload> => {
+export const fetchActionsForView = ({
+  applicationId,
+}: {
+  applicationId: string;
+}): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
     payload: { applicationId },

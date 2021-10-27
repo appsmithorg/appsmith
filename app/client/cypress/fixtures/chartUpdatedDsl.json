@@ -107,7 +107,7 @@
                                 "widgetName": "Chart1",
                                 "chartType": "LINE_CHART",
                                 "chartName": "Last week's revenue",
-                                "allowHorizontalScroll": false,
+                                "allowScroll": false,
                                 "version": 1,
                                 "chartData": {
                                     "q4pm3w97mo": {

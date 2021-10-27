@@ -15,7 +15,7 @@ export const CONFIG = {
     widgetName: "Chart",
     chartType: "COLUMN_CHART",
     chartName: "Sales Report",
-    allowHorizontalScroll: false,
+    allowScroll: false,
     version: 1,
     chartData: {
       [generateReactKey()]: {
