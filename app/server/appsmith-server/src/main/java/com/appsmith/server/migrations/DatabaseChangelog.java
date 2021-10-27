@@ -940,14 +940,14 @@ public class DatabaseChangelog {
 
         for (Page page : pagesToFix) {
             for (Layout layout : page.getLayouts()) {
-                final ArrayList<HashSet<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
+                final ArrayList<Set<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
                 if (layout.getLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getLayoutOnLoadActions());
                 }
                 if (layout.getPublishedLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getPublishedLayoutOnLoadActions());
                 }
-                for (HashSet<DslActionDTO> actionSet : layoutOnLoadActions) {
+                for (Set<DslActionDTO> actionSet : layoutOnLoadActions) {
                     for (DslActionDTO actionDTO : actionSet) {
                         final String actionName = actionDTO.getName();
                         final Action action = mongoTemplate.findOne(
@@ -3410,4 +3410,16 @@ public class DatabaseChangelog {
         return newPluginSpecifiedTemplates;
     }
 
+    @ChangeSet(order = "093", id = "application-git-metadata-index", author = "")
+    public void updateGitApplicationMetadataIndex(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitRepo_gitBranch_compound_index");
+
+        ensureIndexes(mongoTemplate, Application.class,
+                makeIndex("organizationId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
+                        .unique().named("organization_application_deleted_gitApplicationMetadata_compound_index")
+        );
+    }
 }

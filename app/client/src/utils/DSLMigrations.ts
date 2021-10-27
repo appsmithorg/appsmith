@@ -38,6 +38,7 @@ import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButton
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -943,6 +944,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 41) {
     currentDSL = migrateButtonVariant(currentDSL);
+    currentDSL.version = 42;
+  }
+
+  if (currentDSL.version === 42) {
+    currentDSL = migrateMapWidgetIsClickedMarkerCentered(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

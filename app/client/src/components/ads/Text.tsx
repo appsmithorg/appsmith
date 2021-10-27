@@ -34,6 +34,7 @@ export type TextProps = CommonComponentProps & {
   weight?: FontWeight;
   highlight?: boolean;
   textAlign?: string;
+  color?: string;
 };
 
 const typeSelector = (props: TextProps & ThemeProp): string => {
@@ -72,7 +73,11 @@ const Text = styled.span.attrs((props: TextProps) => ({
   letter-spacing: ${(props) =>
     props.theme.typography[props.type].letterSpacing}px;
   color: ${(props) =>
-    props.highlight ? props.theme.colors.text.highlight : typeSelector(props)};
+    props.highlight
+      ? props.theme.colors.text.highlight
+      : props.color
+      ? props.color
+      : typeSelector(props)};
   text-transform: ${(props) => (props.case ? props.case : "none")};
   text-align: ${(props) => (props.textAlign ? props.textAlign : "normal")};
 `;
