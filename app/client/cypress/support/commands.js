@@ -3102,7 +3102,7 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     method: "POST",
     url: "api/v1/users",
     headers: {
-      "content-type": "application/x-www-form-urlencoded",
+      "content-type": "application/json",
     },
     followRedirect: false,
     form: true,
