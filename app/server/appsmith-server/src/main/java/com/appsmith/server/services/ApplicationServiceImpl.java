@@ -19,6 +19,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.jcraft.jsch.JSch;
@@ -156,13 +157,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     }
 
     @Override
-    public Mono<Application> createDefault(Application object) {
-        return super.create(object);
+    public Mono<Application> createDefault(Application application) {
+        application.setSlug(TextUtils.getSlug(application.getName()));
+        return super.create(application);
     }
 
     @Override
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
+        application.setSlug(TextUtils.getSlug(application.getName()));
         return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
             .onErrorResume(error -> {
                 if (error instanceof DuplicateKeyException) {
