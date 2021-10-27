@@ -1,4 +1,5 @@
-import React, { PropsWithChildren, useEffect } from "react";
+import equal from "fast-deep-equal/es6";
+import React, { PropsWithChildren, useEffect, useRef } from "react";
 import styled from "styled-components";
 import {
   FormProvider,
@@ -85,6 +86,7 @@ function Form<TValues = any>({
   updateFormValues,
   useFormDataValues,
 }: FormProps<TValues>) {
+  const valuesRef = useRef({});
   const methods = useForm();
   const { reset, watch } = methods;
 
@@ -103,7 +105,11 @@ function Form<TValues = any>({
     const subscription = watch((values) => {
       // eslint-disable-next-line
       console.log("FORM VALUES", values);
-      updateFormValues(values as TValues);
+      // TODO: CHECK why this is getting triggered when other buttons are pressed in the canvas
+      if (!equal(valuesRef.current, values)) {
+        valuesRef.current = values;
+        updateFormValues(values as TValues);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);

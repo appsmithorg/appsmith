@@ -17,10 +17,7 @@ import {
   setWidgetDynamicProperty,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import {
-  PanelConfig,
-  PropertyPaneControlConfig,
-} from "constants/PropertyControlConstants";
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {

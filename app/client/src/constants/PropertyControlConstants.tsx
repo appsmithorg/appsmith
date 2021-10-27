@@ -6,7 +6,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { DropDownControlProps } from "components/propertyControls/DropDownControl";
+
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 

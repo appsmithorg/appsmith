@@ -27,7 +27,7 @@ function InputField({ name, schemaItem, ...rest }: InputFieldProps) {
       {...rest}
       label={label}
       name={name}
-      render={({ field: { onBlur, onChange, ref, value } }) => (
+      render={({ field: { onBlur, onChange, value } }) => (
         <InputComponent
           compactMode={false}
           disabled={isDisabled}

@@ -34,7 +34,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
       {...rest}
       label={label}
       name={name}
-      render={({ field: { onBlur, onChange, ref, value } }) => (
+      render={({ field: { onChange, value } }) => (
         <DateComponent
           {...props}
           datePickerType="DATE_PICKER"

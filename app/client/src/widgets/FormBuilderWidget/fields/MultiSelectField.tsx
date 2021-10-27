@@ -41,7 +41,7 @@ function MultiSelectField({
       {...rest}
       label={label}
       name={name}
-      render={({ field: { onBlur, onChange, ref, value = [] } }) => (
+      render={({ field: { onChange, value = [] } }) => (
         <StyledMultiSelectWrapper>
           <MultiSelect
             {...restSchemaItemProps}
