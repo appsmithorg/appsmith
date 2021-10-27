@@ -25,6 +25,8 @@ public class PageDTO {
 
     String name;
 
+    String slug;
+
     @Transient
     String applicationId;
 
@@ -40,8 +42,6 @@ public class PageDTO {
     Instant deletedAt = null;
 
     Boolean isHidden;
-
-    private String slug;
 
     @Transient
     Long lastUpdatedTime;

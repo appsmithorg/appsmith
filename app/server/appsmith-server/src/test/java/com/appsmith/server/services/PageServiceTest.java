@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.PluginRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -165,7 +166,9 @@ public class PageServiceTest {
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("PageServiceTest TestApp".equals(page.getName()));
+
+                    assertThat(page.getName()).isEqualTo("PageServiceTest TestApp");
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.getSlug(page.getName()));
 
                     assertThat(page.getPolicies()).isNotEmpty();
                     assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
@@ -243,7 +246,8 @@ public class PageServiceTest {
                 .assertNext(page -> {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
-                    assertThat("New Page Name".equals(page.getName()));
+                    assertThat(page.getName()).isEqualTo("New Page Name");
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.getSlug(page.getName()));
 
                     // Check for the policy object not getting overwritten during update
                     assertThat(page.getPolicies()).isNotEmpty();

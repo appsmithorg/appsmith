@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -128,6 +129,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<PageDTO> createDefault(PageDTO object) {
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(object);
+        object.setSlug(TextUtils.getSlug(object.getName()));
 
         newPage.setApplicationId(object.getApplicationId());
         newPage.setPolicies(object.getPolicies());
@@ -379,13 +381,11 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Mono<PageDTO> updatePage(String id, PageDTO page) {
-        NewPage newPage = new NewPage();
-        newPage.setUnpublishedPage(page);
-
         return repository.findById(id, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(dbPage -> {
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
+                    dbPage.getUnpublishedPage().setSlug(TextUtils.getSlug(page.getName()));
                     return this.update(id, dbPage);
                 })
                 .flatMap(savedPage -> applicationService.saveLastEditInformation(savedPage.getApplicationId())
