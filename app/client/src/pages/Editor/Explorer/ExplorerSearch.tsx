@@ -11,9 +11,9 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
   height: 48px;
   justify-content: flex-start;
   align-items: center;
-  position: sticky;
+  // for the input underline
+  position: relative;
   font-size: 14px;
-  top: 0;
   z-index: 1;
   background: ${Colors.ALABASTER_ALT};
   & {
