@@ -171,7 +171,7 @@ export default function evaluate(
     try {
       result = eval(script);
       if (isTriggerBased) {
-        triggers = [...self.triggers];
+        triggers = self.triggers.slice();
         self.triggers = [];
       }
     } catch (e) {
