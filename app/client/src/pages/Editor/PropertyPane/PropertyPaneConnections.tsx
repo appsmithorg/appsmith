@@ -27,7 +27,6 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 
-const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
 
 const TopLayer = styled.div`
@@ -38,8 +37,11 @@ const TopLayer = styled.div`
   .connection-dropdown {
     box-shadow: none;
     border: none;
-    background-color: ${Colors.GREY_1};
+    background-color: ${Colors.WHITE};
+    padding: 0;
+    width: auto;
   }
+
   .error {
     border: 1px solid
       ${(props) => props.theme.colors.propertyPane.connections.error};
@@ -50,16 +52,17 @@ const TopLayer = styled.div`
 const SelectedNodeWrapper = styled.div<{
   entityCount: number;
   hasError: boolean;
+  justifyContent: string;
 }>`
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  justify-content: ${(props) => props.justifyContent};
   color: ${(props) =>
     props.hasError
       ? props.theme.colors.propertyPane.connections.error
       : props.theme.colors.propertyPane.connections.connectionsCount};
   ${(props) => getTypographyByKey(props, "p3")}
-  width: 113px;
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {
@@ -166,6 +169,7 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   iconAlignment: "LEFT" | "RIGHT";
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
+  justifyContent: string;
 };
 
 const doConnectionsHaveErrors = (
@@ -273,6 +277,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
       className={props.hasError ? "t--connection-error" : "t--connection"}
       entityCount={props.entityCount}
       hasError={props.hasError}
+      justifyContent={props.justifyContent}
       onClick={onClick}
     >
       {props.iconAlignment === "LEFT" && (
@@ -328,6 +333,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"LEFT"}
+            justifyContent={"flex-start"}
             {...selectedValueProps}
             connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
@@ -347,13 +353,14 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width={`100%`}
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
+            justifyContent={"flex-end"}
             {...selectedValueProps}
             connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
@@ -374,7 +381,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width={`100%`}
       />
     </TopLayer>
   );

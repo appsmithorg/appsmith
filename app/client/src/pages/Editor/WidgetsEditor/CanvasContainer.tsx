@@ -51,7 +51,7 @@ function CanvasContainer() {
 
   return (
     <Container
-      className={`${getCanvasClassName()} text-white scrollbar-thin mt-9`}
+      className={`${getCanvasClassName()} scrollbar-thin mt-9`}
       key={currentPageId}
     >
       {node}

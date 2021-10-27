@@ -33,6 +33,7 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
+import TooltipComponent from "components/ads/Tooltip";
 
 type Props = {
   width: number;
@@ -175,7 +176,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 overflow-y-auto text-white bg-white t--sidebar min-w-48 max-w-96"
+        className="flex flex-col p-0 overflow-y-auto bg-white t--sidebar min-w-48 max-w-96"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
@@ -188,18 +189,27 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           </h3>
           <div
             className={classNames({
-              "flex items-center transition-opacity duration-300": true,
-              "opacity-0 pointer-events-none": pinned === false,
-              "opacity-100": pinned,
+              "flex items-center transition-all duration-300 transform": true,
+              "opacity-0 pointer-events-none scale-50": pinned === false,
+              "opacity-100 scale-100": pinned,
             })}
           >
-            <button
-              className="p-2 hover:bg-warmGray-100 group t--unpin-entity-explorer"
-              onClick={onPin}
-              type="button"
+            <TooltipComponent
+              content={
+                <div className="flex items-center justify-between">
+                  <span>Close sidebar</span>
+                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+                </div>
+              }
             >
-              <PinIcon className="w-3 h-3 text-trueGray-400" />
-            </button>
+              <button
+                className="p-2 hover:bg-warmGray-100 group t--unpin-entity-explorer"
+                onClick={onPin}
+                type="button"
+              >
+                <PinIcon className="w-3 h-3 text-trueGray-500" />
+              </button>
+            </TooltipComponent>
           </div>
         </div>
         {/* SWITCHER */}

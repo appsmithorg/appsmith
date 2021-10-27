@@ -339,16 +339,26 @@ export function EditorHeader(props: EditorHeaderProps) {
               "-ml-7": pinned,
             })}
           >
-            <div
-              className="relative w-4 h-4 text-gray-700 group t--pin-entity-explorer"
-              onMouseEnter={onMenuHover}
+            <TooltipComponent
+              content={
+                <div className="flex items-center justify-between">
+                  <span>Lock sidebar open</span>
+                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+                </div>
+              }
+              position="bottom-left"
             >
-              <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
-              <UnpinIcon
-                className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                onClick={onPin}
-              />
-            </div>
+              <div
+                className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
+                onMouseEnter={onMenuHover}
+              >
+                <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
+                <UnpinIcon
+                  className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                  onClick={onPin}
+                />
+              </div>
+            </TooltipComponent>
           </div>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}

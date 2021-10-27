@@ -89,7 +89,7 @@ function WidgetSidebar(props: IPanelProps) {
           ref={searchInputRef}
         />
       </Boxed>
-      <div className="flex-grow px-3 overflow-y-scroll text-white">
+      <div className="flex-grow px-3 overflow-y-scroll">
         <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>

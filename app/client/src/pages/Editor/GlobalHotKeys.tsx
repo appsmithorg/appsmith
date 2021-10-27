@@ -44,6 +44,8 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
 import { setPreviewMode } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { setExplorerPinned } from "actions/explorerActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -69,6 +71,8 @@ type Props = {
   isCommentMode: boolean;
   isPreviewMode: boolean;
   setPreviewMode: (shouldSet: boolean) => void;
+  explorerPinned: boolean;
+  setExplorerPinned: (shouldPinned: boolean) => void;
 };
 
 @HotkeysTarget
@@ -352,6 +356,14 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.setPreviewMode(!this.props.isPreviewMode);
           }}
         />
+        <Hotkey
+          combo="mod + /"
+          global
+          label="Preview Mode"
+          onKeyDown={() => {
+            this.props.setExplorerPinned(!this.props.explorerPinned);
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -368,6 +380,7 @@ const mapStateToProps = (state: AppState) => ({
   appMode: getAppMode(state),
   isCommentMode: commentModeSelector(state),
   isPreviewMode: previewModeSelector(state),
+  explorerPinned: getExplorerPinned(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -389,6 +402,8 @@ const mapDispatchToProps = (dispatch: any) => {
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
     setPreviewMode: (shouldSet: boolean) => dispatch(setPreviewMode(shouldSet)),
+    setExplorerPinned: (shouldSet: boolean) =>
+      dispatch(setExplorerPinned(shouldSet)),
   };
 };
 
