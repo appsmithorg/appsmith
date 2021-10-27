@@ -344,7 +344,7 @@ class GlobalHotKeys extends React.Component<Props> {
           stopPropagation
         />
         <Hotkey
-          combo="mod + m"
+          combo="p"
           global
           label="Preview Mode"
           onKeyDown={() => {

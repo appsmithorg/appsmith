@@ -403,15 +403,26 @@ function ToggleCommentModeButton({
             showUnreadIndicator={showUnreadIndicator}
           />
           {appMode === APP_MODE.EDIT && (
-            <ModeButton
-              active={isPreviewMode}
-              className="t--switch-comment-mode-off"
-              onClick={onClickPreviewModeButton}
-              showSelectedMode={showSelectedMode}
-              type="fill"
+            <TooltipComponent
+              content={
+                <>
+                  Preview Mode
+                  <span style={{ color: "#fff", marginLeft: 20 }}>P</span>
+                </>
+              }
+              hoverOpenDelay={1000}
+              position={Position.BOTTOM}
             >
-              <Eye size={20} />
-            </ModeButton>
+              <ModeButton
+                active={isPreviewMode}
+                className="t--switch-preview-mode-toggle"
+                onClick={onClickPreviewModeButton}
+                showSelectedMode={showSelectedMode}
+                type="fill"
+              >
+                <Eye size={20} />
+              </ModeButton>
+            </TooltipComponent>
           )}
         </div>
       </TourTooltipWrapper>
