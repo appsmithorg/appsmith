@@ -5,6 +5,7 @@
     "mongo-username": "cypress-test",
     "mongo-password": "RaopEmky505xYV4p",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
+    "mongo-uri": "mongodb+srv://localhost:localhost@mockdb.net/mock?retryWrites=true&w=majority",
     "postgres-host": "localhost",
     "postgres-port": 5432,
     "postgres-databaseName": "fakeapi",
