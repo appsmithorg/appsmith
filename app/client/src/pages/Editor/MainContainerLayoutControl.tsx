@@ -1,18 +1,20 @@
-import { updateApplicationLayout } from "actions/applicationActions";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { Colors } from "constants/Colors";
-import React, { useMemo, useCallback } from "react";
+import classNames from "classnames";
 import { useDispatch } from "react-redux";
-import {
-  AppLayoutConfig,
-  SupportedLayouts,
-} from "reducers/entityReducers/pageListReducer";
+import React, { useMemo, useCallback } from "react";
+
 import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
 import { useSelector } from "store";
-import classNames from "classnames";
+import { Colors } from "constants/Colors";
+import {
+  AppLayoutConfig,
+  SupportedLayouts,
+} from "reducers/entityReducers/pageListReducer";
+import TooltipComponent from "components/ads/Tooltip";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { updateApplicationLayout } from "actions/applicationActions";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -92,25 +94,33 @@ export function MainContainerLayoutControl() {
     <div className="px-3 space-y-2 t--layout-control-wrapper">
       <p className="text-sm text-gray-700">Canvas Size</p>
       <div className="flex justify-around">
-        {AppsmithLayouts.map((layoutOption: any) => {
+        {AppsmithLayouts.map((layoutOption: any, index: number) => {
           return (
-            <button
-              className={classNames({
-                "border-transparent border flex items-center justify-center p-2 flex-grow": true,
-                "bg-white border-gray-300":
-                  selectedLayout?.name === layoutOption.name,
-                "bg-gray-100 hover:bg-gray-200":
-                  selectedLayout?.name !== layoutOption.name,
-              })}
+            <TooltipComponent
+              className="flex-grow"
+              content={layoutOption.name}
               key={layoutOption.name}
-              onClick={() => updateAppLayout(layoutOption)}
+              position={
+                index === AppsmithLayouts.length - 1 ? "left" : "bottom"
+              }
             >
-              <Icon
-                fillColor={Colors.BLACK}
-                name={layoutOption.icon}
-                size={layoutOption.iconSize || IconSize.MEDIUM}
-              />
-            </button>
+              <button
+                className={classNames({
+                  "border-transparent border flex items-center justify-center p-2 flex-grow": true,
+                  "bg-white border-gray-300":
+                    selectedLayout?.name === layoutOption.name,
+                  "bg-gray-100 hover:bg-gray-200":
+                    selectedLayout?.name !== layoutOption.name,
+                })}
+                onClick={() => updateAppLayout(layoutOption)}
+              >
+                <Icon
+                  fillColor={Colors.BLACK}
+                  name={layoutOption.icon}
+                  size={layoutOption.iconSize || IconSize.MEDIUM}
+                />
+              </button>
+            </TooltipComponent>
           );
         })}
       </div>
