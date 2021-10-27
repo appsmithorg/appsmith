@@ -237,6 +237,10 @@ export const DropdownWrapper = styled.div<{
   }
 `;
 
+const SearchComponentWrapper = styled.div`
+  margin: 0px 5px;
+`;
+
 const DropdownOptionsWrapper = styled.div<{
   maxHeight?: string;
   height: string;
@@ -515,12 +519,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
       width={optionWidth}
     >
       {props.enableSearch && (
-        <SearchComponent
-          className="dropdown-search"
-          onSearch={onOptionSearch}
-          placeholder={props.searchPlaceholder || ""}
-          value={searchValue}
-        />
+        <SearchComponentWrapper>
+          <SearchComponent
+            onSearch={onOptionSearch}
+            placeholder={props.searchPlaceholder || ""}
+            value={searchValue}
+          />
+        </SearchComponentWrapper>
       )}
       {props.headerLabel && <HeaderWrapper>{props.headerLabel}</HeaderWrapper>}
       <DropdownOptionsWrapper
