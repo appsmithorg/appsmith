@@ -11,6 +11,8 @@ import {
   isBoolean,
   isArray,
   sortBy,
+  xorWith,
+  isEmpty,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -51,6 +53,14 @@ import { Colors } from "constants/Colors";
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
 );
+const defaultFilter = [
+  {
+    column: "",
+    operator: OperatorTypes.OR,
+    value: "",
+    condition: "",
+  },
+];
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap() {
@@ -565,14 +575,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
       // Set filter to default
-      const defaultFilter = [
-        {
-          column: "",
-          operator: OperatorTypes.OR,
-          value: "",
-          condition: "",
-        },
-      ];
       this.applyFilters(defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
@@ -684,7 +686,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   applyFilters = (filters: ReactTableFilter[]) => {
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("filters", filters);
-    this.props.updateWidgetMetaProperty("pageNo", 1);
+
+    // Reset Page only when a filter is added
+    if (!isEmpty(xorWith(filters, defaultFilter, isEqual))) {
+      this.props.updateWidgetMetaProperty("pageNo", 1);
+    }
   };
 
   toggleDrag = (disable: boolean) => {

@@ -41,6 +41,7 @@ import {
   FieldEntityInformation,
   Hinter,
   HintHelper,
+  INDENTATION_CHARACTERS,
   isCloseKey,
   isModifierKey,
   isNavKey,
@@ -461,9 +462,29 @@ class CodeEditor extends Component<Props, State> {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       cm.closeHint();
-    } else if (!isNavKey(event.code)) {
-      this.handleAutocompleteVisibility(cm);
+      return;
     }
+    const cursor = cm.getCursor();
+    const line = cm.getLine(cursor.line);
+    if (event.code === "Backspace") {
+      /*
+        Check if the character before cursor is completable to show autocomplete
+      */
+      // Return early if the cursor position is 0.
+      if (cursor.ch === 0) return;
+      const prevChar = line[cursor.ch - 1];
+      // Return early if previous character is indentation.
+      if (INDENTATION_CHARACTERS.hasOwnProperty(prevChar)) return;
+    }
+    if (key === "{") {
+      /* 
+        Autocomplete for { should show up only when a user attempts to write {{}} and not a code block.
+      */
+      const prevChar = line[cursor.ch - 2];
+      if (prevChar && prevChar !== "{") return;
+    }
+    if (isNavKey(event.code)) return;
+    this.handleAutocompleteVisibility(cm);
   };
 
   lintCode(editor: CodeMirror.Editor) {
