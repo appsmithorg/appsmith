@@ -6,6 +6,45 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { BlobContent, BlobContentTypes } from "../constants";
+
+// Get blot contents
+export const getBlobContent = (
+  blob: Blob,
+  readType: BlobContent,
+): Promise<Record<string, string | ArrayBuffer | null>> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      switch (readType) {
+        case BlobContentTypes.RAW_BINARY:
+          resolve({ raw: reader.result });
+          break;
+        case BlobContentTypes.DATA_URL:
+          resolve({ base64: reader.result });
+          break;
+        default:
+          resolve({ text: reader.result });
+          break;
+      }
+    };
+
+    reader.onerror = reject;
+
+    // read blob content
+    switch (readType) {
+      case BlobContentTypes.RAW_BINARY:
+        reader.readAsBinaryString(blob);
+        break;
+      case BlobContentTypes.DATA_URL:
+        reader.readAsDataURL(blob);
+        break;
+      default:
+        reader.readAsText(blob);
+        break;
+    }
+  });
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   backgroundColor: string;
@@ -95,18 +134,18 @@ class AudioRecorderWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: null,
+      recordedFile: null,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      url: `{{URL.createObjectURL(this.value)}}`,
+      url: `{{URL.createObjectURL(this.recordedFile)}}`,
     };
   }
 
   handleRecordingStart = () => {
-    this.props.updateWidgetMetaProperty("value", null);
+    this.props.updateWidgetMetaProperty("recordedFile", null);
 
     if (this.props.onRecordingStart) {
       super.executeAction({
@@ -121,16 +160,40 @@ class AudioRecorderWidget extends BaseWidget<
 
   handleRecordingComplete = (blobUrl?: string, blob?: Blob) => {
     if (!blobUrl) {
-      this.props.updateWidgetMetaProperty("value", undefined);
+      this.props.updateWidgetMetaProperty("recordedFile", undefined);
       return;
     }
-    this.props.updateWidgetMetaProperty("value", blob, {
-      triggerPropertyName: "onRecordingComplete",
-      dynamicString: this.props.onRecordingComplete,
-      event: {
-        type: EventType.ON_RECORDING_COMPLETE,
-      },
-    });
+    // Read content from a blob
+    if (blob) {
+      Promise.all([
+        getBlobContent(blob, BlobContentTypes.RAW_BINARY),
+        getBlobContent(blob, BlobContentTypes.DATA_URL),
+        getBlobContent(blob, BlobContentTypes.TEXT),
+      ])
+        .then((results) => {
+          const recordedFile = {
+            contents: {
+              ...results[0],
+              ...results[1],
+              ...results[2],
+            },
+            size: blob.size,
+            type: blob.type,
+          };
+
+          // Save the recorded file
+          this.props.updateWidgetMetaProperty("recordedFile", recordedFile, {
+            triggerPropertyName: "onRecordingComplete",
+            dynamicString: this.props.onRecordingComplete,
+            event: {
+              type: EventType.ON_RECORDING_COMPLETE,
+            },
+          });
+        })
+        .catch(() => {
+          this.props.updateWidgetMetaProperty("recordedFile", null);
+        });
+    }
   };
 
   getPageView() {
@@ -142,9 +205,9 @@ class AudioRecorderWidget extends BaseWidget<
       leftColumn,
       parentColumnSpace,
       parentRowSpace,
+      recordedFile,
       rightColumn,
       topRow,
-      value,
     } = this.props;
 
     return (
@@ -155,7 +218,7 @@ class AudioRecorderWidget extends BaseWidget<
         isDisabled={isDisabled}
         onRecordingComplete={this.handleRecordingComplete}
         onRecordingStart={this.handleRecordingStart}
-        value={value}
+        value={recordedFile}
         width={(rightColumn - leftColumn) * parentColumnSpace}
       />
     );
