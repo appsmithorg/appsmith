@@ -11,9 +11,7 @@ describe("Generate New CRUD Page Inside from Ms SQL as Data Source", function() 
     //cy.startInterceptRoutesForDatasource(); //if used in before - 2nd testcase failing with no aliasing found error
   });
 
-  it("Add new Page and generate CRUD template using existing supported datasource", function() {
-    cy.startInterceptRoutesForDatasource();
-
+  it.skip("Add new Page and generate CRUD template using existing supported datasource", function() {
     cy.NavigateToDatasourceEditor();
 
     cy.get(datasource.MsSQL).click();
@@ -101,9 +99,7 @@ describe("Generate New CRUD Page Inside from Ms SQL as Data Source", function() 
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Create new app and Generate CRUD page using a new datasource", function() {
-    cy.startInterceptRoutesForDatasource();
-
+  it.skip("Create new app and Generate CRUD page using a new datasource", function() {
     cy.NavigateToHome();
 
     cy.get(homePage.createNew)
@@ -181,9 +177,7 @@ describe("Generate New CRUD Page Inside from Ms SQL as Data Source", function() 
     cy.get("span:contains('GOT IT')").click();
   });
 
-  it("Generate CRUD page from datasource ACTIVE section", function() {
-    cy.startInterceptRoutesForDatasource();
-
+  it.skip("Generate CRUD page from datasource ACTIVE section", function() {
     cy.NavigateToQueryEditor();
     cy.get(pages.integrationActiveTab)
       .should("be.visible")
