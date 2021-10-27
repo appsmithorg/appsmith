@@ -149,7 +149,6 @@ function maxDateValidation(
     messages: [""],
   };
 }
-
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [

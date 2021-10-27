@@ -12,7 +12,6 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     super(props);
     this.onImageClick = this.onImageClick.bind(this);
   }
-
   static getPropertyPaneConfig() {
     return [
       {
