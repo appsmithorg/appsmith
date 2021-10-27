@@ -15,7 +15,7 @@ public class DefaultResources {
 
     String pageId;
 
-    String actionCollectionId;
+    String collectionId;
 
     String branchName;
 }

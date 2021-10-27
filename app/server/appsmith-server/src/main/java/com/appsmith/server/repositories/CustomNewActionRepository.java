@@ -40,5 +40,5 @@ public interface CustomNewActionRepository extends AppsmithRepository<NewAction>
 
     Mono<Long> countByDatasourceId(String datasourceId);
 
-    Mono<NewAction> findActionByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
+    Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission);
 }

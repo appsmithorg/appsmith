@@ -19,7 +19,7 @@ public class DefaultResourcesUtils {
         } else if (resource instanceof ActionDTO) {
             ActionDTO action = (ActionDTO) resource;
             defaultResources.setPageId(action.getPageId());
-            defaultResources.setActionCollectionId(action.getCollectionId());
+            defaultResources.setCollectionId(action.getCollectionId());
             action.setDefaultResources(defaultResources);
         } else if (resource instanceof NewPage) {
             NewPage page = (NewPage) resource;
@@ -30,7 +30,7 @@ public class DefaultResourcesUtils {
         } else if (resource instanceof ActionCollection) {
             ActionCollection actionCollection = (ActionCollection) resource;
             defaultResources.setApplicationId(actionCollection.getApplicationId());
-            defaultResources.setActionCollectionId(actionCollection.getId());
+            defaultResources.setCollectionId(actionCollection.getId());
             defaultResources.setBranchName(branchName);
             actionCollection.setDefaultResources(defaultResources);
         } else if (resource instanceof ActionCollectionDTO) {

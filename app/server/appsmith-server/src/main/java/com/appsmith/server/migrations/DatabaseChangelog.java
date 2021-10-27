@@ -3686,7 +3686,7 @@ public class DatabaseChangelog {
             if (unpublishedAction != null) {
                 DefaultResources unpubDefaults = new DefaultResources();
                 unpubDefaults.setPageId(unpublishedAction.getPageId());
-                unpubDefaults.setActionCollectionId(unpublishedAction.getCollectionId());
+                unpubDefaults.setCollectionId(unpublishedAction.getCollectionId());
                 defaultResourceUpdates.set(
                                 fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.defaultResources),
                                 unpubDefaults
@@ -3697,7 +3697,7 @@ public class DatabaseChangelog {
             if (publishedAction != null) {
                 DefaultResources pubDefaults = new DefaultResources();
                 pubDefaults.setPageId(publishedAction.getPageId());
-                pubDefaults.setActionCollectionId(publishedAction.getCollectionId());
+                pubDefaults.setCollectionId(publishedAction.getCollectionId());
                 defaultResourceUpdates.set(
                         fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.defaultResources),
                         pubDefaults
@@ -3734,7 +3734,7 @@ public class DatabaseChangelog {
             final Update defaultResourceUpdates = new Update();
 
             DefaultResources defaults = new DefaultResources();
-            defaults.setActionCollectionId(collection.getId());
+            defaults.setCollectionId(collection.getId());
             defaults.setApplicationId(collection.getApplicationId());
 
             String applicationId = collection.getApplicationId();

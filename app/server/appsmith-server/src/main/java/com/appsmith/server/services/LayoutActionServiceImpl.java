@@ -985,7 +985,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         if (StringUtils.isEmpty(defaultResources.getApplicationId())) {
             defaultResources.setApplicationId(action.getApplicationId());
         }
-        if (StringUtils.isEmpty(defaultResources.getActionCollectionId())) {
+        if (StringUtils.isEmpty(defaultResources.getCollectionId())) {
             defaultResources.setApplicationId(action.getCollectionId());
         }
 
@@ -1024,7 +1024,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         if (action.getDefaultResources() == null) {
             DefaultResources defaultResources = new DefaultResources();
             defaultResources.setPageId(action.getPageId());
-            defaultResources.setActionCollectionId(action.getCollectionId());
+            defaultResources.setCollectionId(action.getCollectionId());
             action.setDefaultResources(defaultResources);
         }
 

@@ -245,8 +245,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if(StringUtils.isEmpty(defaultActionResource.getPageId())) {
             defaultActionResource.setPageId(action.getPageId());
         }
-        if(StringUtils.isEmpty(defaultActionResource.getActionCollectionId())) {
-            defaultActionResource.setActionCollectionId(action.getCollectionId());
+        if(StringUtils.isEmpty(defaultActionResource.getCollectionId())) {
+            defaultActionResource.setCollectionId(action.getCollectionId());
         }
         action.setDefaultResources(defaultActionResource);
 
@@ -254,7 +254,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         DefaultResources defaults = new DefaultResources();
         BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction.getDefaultResources(), defaults);
         defaults.setPageId(null);
-        defaults.setActionCollectionId(null);
+        defaults.setCollectionId(null);
         if(StringUtils.isEmpty(defaults.getApplicationId())) {
             defaults.setApplicationId(action.getApplicationId());
         }
@@ -1059,7 +1059,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     // Update defaultResources
                     DefaultResources defaults = action.getDefaultResources();
                     defaults.setPageId(action.getPublishedAction().getDefaultResources().getPageId());
-                    defaults.setActionCollectionId(action.getPublishedAction().getDefaultResources().getActionCollectionId());
+                    defaults.setCollectionId(action.getPublishedAction().getDefaultResources().getCollectionId());
                     actionViewDTO.setDefaultResources(defaults);
                     if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
                         Set<String> jsonPathKeys;
@@ -1499,7 +1499,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
                     );
         }
-        return repository.findActionByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+        return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
                 .switchIfEmpty(Mono.defer(() -> {
                     // No matching existing action found, fetch with defaultPageId
                     return repository.findById(defaultActionId, permission)
