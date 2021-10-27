@@ -240,11 +240,12 @@ public class ImportExportApplicationService {
                                     newAction.setOrganizationId(null);
                                     newAction.setPolicies(null);
                                     newAction.setApplicationId(null);
+                                    newAction.setUpdatedAt(null);
                                     concernedDBNames.add(
-                                            sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null)
+                                            sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
                                     );
                                     concernedDBNames.add(
-                                            sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null)
+                                            sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null, true)
                                     );
 
                                     if (newAction.getUnpublishedAction() != null) {
@@ -294,6 +295,7 @@ public class ImportExportApplicationService {
                                 actionCollection.setOrganizationId(null);
                                 actionCollection.setPolicies(null);
                                 actionCollection.setApplicationId(null);
+                                actionCollection.setUpdatedAt(null);
 
                                 if (actionCollection.getUnpublishedCollection() != null) {
                                     ActionCollectionDTO actionCollectionDTO = actionCollection.getUnpublishedCollection();
@@ -637,14 +639,14 @@ public class ImportExportApplicationService {
                                     parentPage = pageNameMap.get(newAction.getUnpublishedAction().getPageId());
                                     actionIdMap.put(newAction.getUnpublishedAction().getName() + parentPage.getId(), newAction.getId());
                                     newAction.getUnpublishedAction().setPageId(parentPage.getId());
-                                    sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceMap, pluginMap, organizationId);
+                                    sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceMap, pluginMap, organizationId, false);
                                 }
 
                                 if (newAction.getPublishedAction() != null && newAction.getPublishedAction().getName() != null) {
                                     parentPage = pageNameMap.get(newAction.getPublishedAction().getPageId());
                                     actionIdMap.put(newAction.getPublishedAction().getName() + parentPage.getId(), newAction.getId());
                                     newAction.getPublishedAction().setPageId(parentPage.getId());
-                                    sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceMap, pluginMap, organizationId);
+                                    sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceMap, pluginMap, organizationId, false);
                                 }
 
                                 examplesOrganizationCloner.makePristine(newAction);
@@ -942,11 +944,18 @@ public class ImportExportApplicationService {
      * @param organizationId organisation in which the application supposed to be imported
      * @return
      */
-    private String sanitizeDatasourceInActionDTO(ActionDTO actionDTO, Map<String, String> datasourceMap, Map<String, String> pluginMap, String organizationId) {
+    private String sanitizeDatasourceInActionDTO(ActionDTO actionDTO,
+                                                 Map<String, String> datasourceMap,
+                                                 Map<String, String> pluginMap,
+                                                 String organizationId,
+                                                 boolean isExporting) {
 
         if (actionDTO != null && actionDTO.getDatasource() != null) {
 
             Datasource ds = actionDTO.getDatasource();
+            if (isExporting) {
+                ds.setUpdatedAt(null);
+            }
             if (ds.getId() != null) {
                 //Mapping ds name in id field
                 ds.setId(datasourceMap.get(ds.getId()));
