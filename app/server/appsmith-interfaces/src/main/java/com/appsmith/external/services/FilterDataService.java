@@ -108,7 +108,7 @@ public class FilterDataService {
         insertAllData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions, schema);
+        List<Map<String, Object>> finalResults = executeFilterQueryOldFormat(tableName, conditions, schema);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -118,14 +118,14 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
-    public List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
+    public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
         Connection conn = checkAndGetConnection();
 
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
 
         LinkedHashMap<String, DataType> values = new LinkedHashMap<>();
 
-        String whereClause = generateWhereClause(conditions, values, schema);
+        String whereClause = generateWhereClauseOldFormat(conditions, values, schema);
 
         sb.append(whereClause);
 
@@ -174,7 +174,7 @@ public class FilterDataService {
         return rowsList;
     }
 
-    private String generateWhereClause(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema) {
+    private String generateWhereClauseOldFormat(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema) {
 
         StringBuilder sb = new StringBuilder();
 
