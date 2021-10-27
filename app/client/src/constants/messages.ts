@@ -524,12 +524,24 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
-export const GIT_CONNECTION = () => "Git connection";
+
+export const GIT_DISCONNECT_POPUP_TITLE = () =>
+  `This will disconnect the git repository from this application`;
+
+export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
+  `Git features will no more be shown for this application`;
+export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
+
+export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const CONNECT_TO_GIT = () => "Connect to git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
+  "Checkout branches, Make commits, add deploy your application";
+export const REMOTE_URL = () => "Remote URL";
+export const REMOTE_URL_INFO = () =>
+  `Create an empty git repository and paste the remote URL`;
+"Checkout branches, make commits, add deploy your application";
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
@@ -565,7 +577,7 @@ export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
 export const COMMITTED_SUCCESSFULLY = () => "Committed successfully";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
-  "Copy this deploy key to your Git Repository setting.";
+  "Paste this key in your repository settings and give it write access.";
 
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
@@ -576,6 +588,14 @@ export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
+export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
+export const COPIED_SSH_KEY = () => "Copied SSH Key";
+export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
+export const PASTE_SSH_URL_INFO = () =>
+  "Please paste SSH URL of your repository";
+export const GENERATE_KEY = () => "Generate Key";
+export const UPDATE_CONFIG = () => "UPDATE CONFIG";
+export const CONNECT_BTN_LABEL = () => "CONNECT";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -765,6 +785,12 @@ export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
 export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
 export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
+
+// Navigation Menu
+export const DEPLOY_MENU_OPTION = () => "Deploy";
+export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current Deployed Version";
+export const CONNECT_TO_GIT_OPTION = () => "Connect to Git Repository";
+//
 export const GO_TO_PAGE = () => "Go to page";
 export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
 export const HIDDEN_TOOLTIP = () => "Hidden";
@@ -778,3 +804,9 @@ export const RESTART_BANNER_HEADER = () => "Restarting Server";
 export const RESTART_ERROR_BODY = () =>
   "Something went wrong. Please contact your administrator.";
 export const RESTART_ERROR_HEADER = () => "Restart failed";
+
+export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
+  "Tell us more about what you do at work?";
+export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
+export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
+  "What are you planning to use Appsmith for?";

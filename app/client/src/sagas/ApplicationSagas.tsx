@@ -45,7 +45,6 @@ import {
   GetSSHKeyPairReduxAction,
   FetchApplicationReduxAction,
 } from "actions/applicationActions";
-import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   APPLICATION_NAME_UPDATE,
@@ -118,7 +117,11 @@ export function* publishApplicationSaga(
 
       const showOnboardingCompletionDialog = yield select(showCompletionDialog);
       if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl += "?onboardingComplete=true";
+        appicationViewPageUrl = getApplicationViewerPageURL({
+          applicationId,
+          pageId: currentPageId,
+          params: { onboardingComplete: "true" },
+        });
       }
 
       yield put({
@@ -206,12 +209,6 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       payload: response.data,
     });
-
-    yield put(
-      fetchUnreadCommentThreadsCountSuccess(
-        response.data?.unreadCommentThreads,
-      ),
-    );
 
     if (action.onSuccessCallback) {
       action.onSuccessCallback(response);

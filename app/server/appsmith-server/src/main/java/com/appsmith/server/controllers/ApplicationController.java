@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -11,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.GitService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -48,6 +50,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     private final ApplicationFetcher applicationFetcher;
     private final ApplicationForkingService applicationForkingService;
     private final ImportExportApplicationService importExportApplicationService;
+    private final GitService gitService;
 
     @Autowired
     public ApplicationController(
@@ -55,12 +58,14 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
             ApplicationPageService applicationPageService,
             ApplicationFetcher applicationFetcher,
             ApplicationForkingService applicationForkingService,
-            ImportExportApplicationService importExportApplicationService) {
+            ImportExportApplicationService importExportApplicationService,
+            GitService gitService) {
         super(service);
         this.applicationPageService = applicationPageService;
         this.applicationFetcher = applicationFetcher;
         this.applicationForkingService = applicationForkingService;
         this.importExportApplicationService = importExportApplicationService;
+        this.gitService = gitService;
     }
 
     @PostMapping
@@ -175,8 +180,14 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @PostMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<String>> generateSSHKeyPair(@PathVariable String applicationId) {
-        return service.generateSshKeyPair(applicationId)
+    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId) {
+        return service.createOrUpdateSshKeyPair(applicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @GetMapping("/ssh-keypair/{applicationId}")
+    public Mono<ResponseDTO<GitAuth>> getSSHKey(@PathVariable String applicationId) {
+        return service.getSshKey(applicationId)
+            .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 }
