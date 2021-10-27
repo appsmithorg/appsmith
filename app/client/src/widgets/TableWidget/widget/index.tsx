@@ -36,6 +36,7 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
+import { selectRowIndex, selectRowIndices } from "./utilities";
 
 import {
   ColumnProperties,
@@ -691,59 +692,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  getOriginalRowIndex = (
-    oldTableData: Array<Record<string, unknown>>,
-    newTableData: Array<Record<string, unknown>>,
-    selectedRowIndex: number,
-  ) => {
-    const primaryKey = oldTableData[selectedRowIndex].__primaryKey__;
-    if (primaryKey) {
-      const selectedRow = newTableData.find(
-        (item) => item.__primaryKey__ === primaryKey,
-      );
-      if (selectedRow) {
-        return selectedRow.__originalIndex__ as number;
-      }
-    }
-  };
-
   updateMetaRowData = (
     oldTableData: Array<Record<string, unknown>>,
     newTableData: Array<Record<string, unknown>>,
   ) => {
     if (!this.props.multiRowSelection) {
-      let selectedRowIndex = isNumber(this.props.defaultSelectedRow)
-        ? this.props.defaultSelectedRow
-        : -1;
-      if (
-        this.props.selectedRowIndex !== -1 &&
-        this.props.selectedRowIndex !== undefined &&
-        this.props.primaryColumnId
-      ) {
-        const rowIndex = this.getOriginalRowIndex(
-          oldTableData,
-          newTableData,
-          this.props.selectedRowIndex,
-        );
-        if (rowIndex !== undefined) {
-          selectedRowIndex = rowIndex;
-        }
-      }
+      const selectedRowIndex = selectRowIndex(
+        oldTableData,
+        newTableData,
+        this.props.defaultSelectedRow,
+        this.props.selectedRowIndex,
+        this.props.primaryColumnId,
+      );
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
-      const rowIndices = Array.isArray(this.props.selectedRowIndices)
-        ? this.props.selectedRowIndices
-        : Array.isArray(this.props.defaultSelectedRow)
-        ? this.props.defaultSelectedRow
-        : [];
-      const selectedRowIndices = rowIndices.map((index) => {
-        const rowIndex = this.getOriginalRowIndex(
-          oldTableData,
-          newTableData,
-          index,
-        );
-        return rowIndex;
-      });
+      const selectedRowIndices = selectRowIndices(
+        oldTableData,
+        newTableData,
+        this.props.defaultSelectedRow,
+        this.props.selectedRowIndex,
+      );
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,

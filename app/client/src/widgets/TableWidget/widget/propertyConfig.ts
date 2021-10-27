@@ -1312,10 +1312,10 @@ export default [
       },
       {
         helpText:
-          "Lets you persist a selected row based on unique row value in a column on table data update, if left blank this will be set to the rowIndex.",
+          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on value",
         propertyName: "primaryColumnId",
         dependencies: ["primaryColumns"],
-        label: "Selected row key",
+        label: "Primary key column",
         controlType: "PRIMARY_COLUMNS_DROPDOWN",
         isBindProperty: true,
         isTriggerProperty: false,
