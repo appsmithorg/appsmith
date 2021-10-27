@@ -1,4 +1,10 @@
+import React from "react";
+import Dropdown from "components/ads/Dropdown";
+import StyledFormGroup from "components/ads/formFields/FormGroup";
+import { FormTextFieldProps } from "components/ads/formFields/TextField";
+import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";
+import { OptionType } from "./constants";
 
 export const FormHeaderWrapper = styled.div`
   position: relative;
@@ -58,3 +64,51 @@ export const StyledLink = styled.a`
     text-decoration: none;
   }
 `;
+
+const DROPDOWN_CLASSNAME = "setup-dropdown";
+export const DropdownWrapper = styled(StyledFormGroup)`
+  && {
+    margin-bottom: 33px;
+  }
+  && .cs-text {
+    width: 100%;
+  }
+
+  .${DROPDOWN_CLASSNAME} {
+    .ads-dropdown-options-wrapper {
+      padding: 0;
+      border: 1px solid rgba(0, 0, 0, 8%);
+    }
+  }
+`;
+
+export function withDropdown(options: OptionType[], width: string) {
+  return function DropdownField(
+    ComponentProps: FormTextFieldProps & {
+      meta: Partial<WrappedFieldMetaProps>;
+      input: Partial<WrappedFieldInputProps>;
+    },
+  ) {
+    function onSelect(value?: string) {
+      ComponentProps.input.onChange && ComponentProps.input.onChange(value);
+      ComponentProps.input.onBlur && ComponentProps.input.onBlur(value);
+    }
+
+    const selected =
+      options.find((option) => option.value == ComponentProps.input.value) ||
+      {};
+
+    return (
+      <Dropdown
+        className={DROPDOWN_CLASSNAME}
+        dontUsePortal
+        fillOptions
+        onSelect={onSelect}
+        options={options}
+        selected={selected}
+        showLabelOnly
+        width={width}
+      />
+    );
+  };
+}
