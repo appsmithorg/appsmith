@@ -355,16 +355,12 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         } else if (StringUtils.isEmpty(branchName)) {
             return this.findById(defaultCollectionId, permission)
                     .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultCollectionId))
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId))
                     );
         }
         return repository.findByBranchNameAndDefaultCollectionId(branchName, defaultCollectionId, permission)
-                .switchIfEmpty(Mono.defer(() -> {
-                    // No matching existing page found, fetch with defaultCollectionId
-                    return this.findById(defaultCollectionId, permission)
-                            .switchIfEmpty(Mono.error(
-                                    new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultCollectionId))
-                            );
-                }));
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, defaultCollectionId))
+                );
     }
 }

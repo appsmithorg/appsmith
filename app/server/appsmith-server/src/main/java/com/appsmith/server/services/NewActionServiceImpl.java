@@ -1500,13 +1500,9 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     );
         }
         return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
-                .switchIfEmpty(Mono.defer(() -> {
-                    // No matching existing action found, fetch with defaultPageId
-                    return repository.findById(defaultActionId, permission)
-                            .switchIfEmpty(Mono.error(
-                                    new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
-                            );
-                }));
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
+                );
     }
 
 }

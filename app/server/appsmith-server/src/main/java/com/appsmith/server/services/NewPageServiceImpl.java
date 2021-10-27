@@ -488,12 +488,8 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     );
         }
         return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
-                .switchIfEmpty(Mono.defer(() -> {
-                    // No matching existing page found, fetch with defaultPageId
-                    return this.findById(defaultPageId, permission)
-                            .switchIfEmpty(Mono.error(
-                                    new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
-                            );
-                }));
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
+                );
     }
 }
