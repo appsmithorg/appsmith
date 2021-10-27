@@ -290,7 +290,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.selectedRow).should(
       "have.css",
       "background-color",
-      "rgba(106, 134, 206, 0.1)",
+      "rgb(236, 249, 243)",
     );
     cy.get(publish.backToEditor).click();
   });

@@ -28,6 +28,7 @@ import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
   pushLogsForObjectUpdate,
+  createDummyJSCollectionActions,
 } from "../utils/JSPaneUtils";
 import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
 import {
@@ -74,36 +75,28 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
-    const sampleBody =
-      "export default {\n\tresults: [],\n\trun: () => {\n\t\t//write code here\n\t}\n}";
-    const sampleActions = [
-      {
-        name: "run",
-        pageId,
-        organizationId,
-        executeOnLoad: false,
-        actionConfiguration: {
-          body: "() => {\n\t\t//write code here\n\t}",
-          isAsync: false,
-          timeoutInMilliseconds: 0,
-          jsArguments: [],
-        },
-      },
-    ];
+    const { actions, body } = createDummyJSCollectionActions(
+      pageId,
+      organizationId,
+    );
     yield put(
       createJSCollectionRequest({
         name: newJSCollectionName,
         pageId,
         organizationId,
         pluginId,
-        body: sampleBody,
+        body: body,
         variables: [
           {
-            name: "results",
+            name: "myVar1",
             value: [],
           },
+          {
+            name: "myVar2",
+            value: {},
+          },
         ],
-        actions: sampleActions,
+        actions: actions,
         applicationId,
         pluginType: PluginType.JS,
       }),
