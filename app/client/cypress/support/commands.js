@@ -61,8 +61,10 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
 
 Cypress.Commands.add("goToEditFromPublish", () => {
   cy.url().then((url) => {
-    if (!url.includes("edit")) {
-      cy.visit(url + "/edit");
+    const urlObject = new URL(url);
+    if (!urlObject.pathname.includes("edit")) {
+      urlObject.pathname = urlObject.pathname + "/edit";
+      cy.visit(urlObject.toString());
     }
   });
 });
@@ -2947,8 +2949,10 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
-    .type("{downarrow}{downarrow}{downarrow}  ")
+    .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
     .type(JSCode);
   cy.wait(1000);
-  cy.get(jsEditorLocators.runButton).click();
+  cy.get(jsEditorLocators.runButton)
+    .first()
+    .click();
 });

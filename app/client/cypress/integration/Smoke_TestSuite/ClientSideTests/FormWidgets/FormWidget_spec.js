@@ -131,6 +131,7 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
+  /*
   it("Form-Delete Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("formwidget");
@@ -145,6 +146,7 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(widgetsPage.formWidget).should("not.exist");
   });
+  */
 });
 afterEach(() => {
   // put your clean up code if any
