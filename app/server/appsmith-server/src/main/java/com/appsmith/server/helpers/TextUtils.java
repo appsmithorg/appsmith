@@ -1,22 +1,32 @@
 package com.appsmith.server.helpers;
 
-import java.text.Normalizer;
-import java.util.Locale;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class TextUtils {
-    private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
     /**
-     * Creates a slug from the inputText and returns it
-     * @param inputText String that'll be converted to slug
-     * @return String in the slug format
+     * Creates a human readable URL safe text from the input text. It considers the following:
+     * (1) It removes heading and trailing whitespaces and replace any other whitespace with `-`
+     * (2) If the input is in ascii, it converts to lowercase
+     * (3) If the input is unicode, it becomes URL encoded string
+     * Modern browsers displays the URL encoded string in decoded format so the URL will look clean i.e. no % symbols will be visible
+     * @param inputText String that'll be converted
+     * @return String, empty if failed due to encoding exception
      */
-    public static String getSlug(String inputText) {
-        String nowhitespace = WHITESPACE.matcher(inputText.trim()).replaceAll("-");
-        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
-        String slug = NONLATIN.matcher(normalized).replaceAll("");
-        return slug.toLowerCase(Locale.ENGLISH);
+    public static String toUrlSafeHumanReadableText(String inputText) {
+        String nowhitespaceInLowecase = WHITESPACE.matcher(inputText.trim()).replaceAll("-").toLowerCase();
+        try{
+            return URLEncoder.encode(nowhitespaceInLowecase, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            log.error("failed to create slug from " + inputText, ex);
+            return "";
+        }
     }
 }

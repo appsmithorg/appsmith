@@ -174,7 +174,7 @@ public class ApplicationServiceTest {
                 .create(applicationMono)
                 .assertNext(application -> {
                     assertThat(application).isNotNull();
-                    assertThat(application.getSlug()).isEqualTo(TextUtils.getSlug(application.getName()));
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.toUrlSafeHumanReadableText(application.getName()));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
@@ -327,7 +327,7 @@ public class ApplicationServiceTest {
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
-                    assertThat(t.getSlug()).isEqualTo(TextUtils.getSlug(t.getName()));
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.toUrlSafeHumanReadableText(t.getName()));
                 })
                 .verifyComplete();
     }
