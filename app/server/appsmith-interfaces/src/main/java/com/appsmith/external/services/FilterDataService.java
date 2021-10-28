@@ -431,7 +431,7 @@ public class FilterDataService {
     }
 
 
-    private Map<String, DataType> generateSchema(ArrayNode items) {
+    public Map<String, DataType> generateSchema(ArrayNode items) {
 
         JsonNode item = items.get(0);
 
@@ -538,7 +538,7 @@ public class FilterDataService {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
                     break;
                 }
-                case STRING: 
+                case STRING:
                 default:
                     preparedStatement.setString(index, value);
                     break;
@@ -586,6 +586,77 @@ public class FilterDataService {
         // All the conditions were iterated over and checked. In case an error was found, an exception has already been
         // thrown. If reached here, everything is hunky-dory.
         return true;
+    }
+
+    public String generateLogicalExpression(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema, ConditionalOperator logicOp) {
+
+        StringBuilder sb = new StringBuilder();
+
+        Boolean firstCondition = true;
+        for (Condition condition : conditions) {
+            if (firstCondition) {
+                // Append the start bracket before adding the conditions
+                sb.append(" ( ");
+                firstCondition = false;
+            } else {
+                // This is not the first condition. Append the operator before adding the next condition
+                sb.append(" " + logicOp + " ( ");
+            }
+
+            String path = condition.getPath();
+            ConditionalOperator operator = condition.getOperator();
+            Object objValue = condition.getValue();
+            if (operator.equals(ConditionalOperator.AND) || operator.equals(ConditionalOperator.OR)) {
+                List<Condition> subConditions = (List<Condition>) objValue;
+                sb.append(generateLogicalExpression(subConditions, values, schema, operator));
+            } else {
+                String value = (String) objValue;
+
+                String sqlOp = SQL_OPERATOR_MAP.get(operator);
+                if (sqlOp == null) {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            operator + " is not supported currently for filtering.");
+                }
+
+                sb.append("\"" + path + "\"");
+                sb.append(" ");
+                sb.append(sqlOp);
+                sb.append(" ");
+
+                // These are array operations. Convert value into appropriate format and then append
+                if (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN) {
+
+                    StringBuilder valueBuilder = new StringBuilder("(");
+
+                    try {
+                        List<Object> arrayValues = objectMapper.readValue(value, List.class);
+                        List<String> updatedStringValues = arrayValues
+                                .stream()
+                                .map(fieldValue -> {
+                                    values.put(String.valueOf(fieldValue), schema.get(path));
+                                    return "?";
+                                })
+                                .collect(Collectors.toList());
+                        String finalValues = String.join(",", updatedStringValues);
+                        valueBuilder.append(finalValues);
+                    } catch (IOException e) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                value + " could not be parsed into an array");
+                    }
+
+                    valueBuilder.append(")");
+                    value = valueBuilder.toString();
+                    sb.append(value);
+
+                } else {
+                    // Not an array. Simply add a placeholder
+                    sb.append("?");
+                    values.put(value, schema.get(path));
+                }
+            }
+            sb.append(" ) ");
+        }
+        return sb.toString();
     }
 
 }
