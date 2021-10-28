@@ -66,6 +66,7 @@ import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
+import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -91,6 +92,7 @@ import DownArrow from "remixicon-react/ArrowDownSFillIcon";
 import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
+import EditLineIcon from "remixicon-react/EditLineIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
 import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
@@ -127,6 +129,7 @@ export enum IconSize {
   XL = "extraLarge",
   XXL = "extraExtraLarge",
   XXXL = "extraExtraExtraLarge",
+  XXXXL = "extraExtraExtraExtraLarge",
 }
 
 export const sizeHandler = (size?: IconSize) => {
@@ -155,6 +158,9 @@ export const sizeHandler = (size?: IconSize) => {
       break;
     case IconSize.XXXL:
       iconSize = theme.iconSizes.XXXL;
+      break;
+    case IconSize.XXXXL:
+      iconSize = theme.iconSizes.XXXXL;
       break;
     default:
       iconSize = theme.iconSizes.SMALL;
@@ -203,6 +209,7 @@ export const IconCollection = [
   "download",
   "duplicate",
   "edit",
+  "edit-line",
   "emoji",
   "error",
   "expand-less",
@@ -271,6 +278,7 @@ export const IconCollection = [
   "edit-underline",
   "down-arrow",
   "loader",
+  "setting",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -287,21 +295,28 @@ export const IconWrapper = styled.span<IconProps>`
     ${(props) =>
       !props.keepColors
         ? `
-    fill: ${props.fillColor || ""};
-    circle {
-      fill: ${props.fillColor || ""};
+          fill: ${props.fillColor || ""};
+          circle {
+            fill: ${props.fillColor || ""};
+          }
+          path {
+            fill: ${props.fillColor || ""};
+          }
+          `
+        : ""};
+    ${(props) => (props.invisible ? `visibility: hidden;` : null)};
+    &:hover {
+      cursor: ${(props) => (props.clickable ? "pointer" : "default")};
+      ${(props) =>
+        !props.keepColors
+          ? `
+            fill: ${props.hoverFillColor || ""};
+            path {
+              fill: ${props.hoverFillColor || ""};
+            }
+          `
+          : ""}
     }
-    `
-        : ""}
-  ${(props) => (props.invisible ? `visibility: hidden;` : null)};
-  &:hover {
-    cursor: ${(props) => (props.clickable ? "pointer" : "default")};
-    ${(props) =>
-      !props.keepColors
-        ? `
-    fill: ${props.hoverFillColor || ""};
-    `
-        : ""}
   }
 `;
 
@@ -429,6 +444,9 @@ const Icon = forwardRef(
         break;
       case "edit":
         returnIcon = <EditIcon />;
+        break;
+      case "edit-line":
+        returnIcon = <EditLineIcon />;
         break;
       case "emoji":
         returnIcon = <Emoji />;
@@ -615,6 +633,12 @@ const Icon = forwardRef(
         break;
       case "warning-triangle":
         returnIcon = <WarningTriangleIcon />;
+        break;
+      case "setting":
+        returnIcon = <SettingIcon />;
+        break;
+      case "support":
+        returnIcon = <SupportIcon />;
         break;
       case "workspace":
         returnIcon = <WorkspaceIcon />;

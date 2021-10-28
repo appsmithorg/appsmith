@@ -1,0 +1,51 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1290,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 36,
+        "minHeight": 410,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "label": "{{\nfunction() }()\n}}",
+                "defaultCheckedState": true,
+                "widgetName": "Checkbox1",
+                "version": 1,
+                "alignWidget": "LEFT",
+                "isDisabled": false,
+                "isRequired": false,
+                "type": "CHECKBOX_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 14.90625,
+                "parentRowSpace": 10,
+                "leftColumn": 11,
+                "rightColumn": 23,
+                "topRow": 13,
+                "bottomRow": 17,
+                "parentId": "0",
+                "widgetId": "ij9sjiejc4",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "label"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            }
+        ],
+        "dynamicTriggerPathList": []
+    }
+}

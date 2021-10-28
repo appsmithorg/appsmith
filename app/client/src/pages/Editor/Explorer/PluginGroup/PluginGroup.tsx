@@ -13,6 +13,8 @@ import Entity from "../Entity";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { ExplorerURLParams } from "../helpers";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { ADD_DATASOURCE_TOOLTIP, createMessage } from "constants/messages";
 
 type ExplorerPluginGroupProps = {
   step: number;
@@ -25,9 +27,10 @@ type ExplorerPluginGroupProps = {
 
 const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
   const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
   const switchToCreateActionPage = useCallback(() => {
     const path = props.actionConfig?.generateCreatePageURL(
-      params?.applicationId,
+      applicationId,
       props.page.pageId,
       INTEGRATION_TABS.NEW,
       INTEGRATION_EDITOR_MODES.AUTO,
@@ -54,7 +57,12 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
 
   return (
     <Entity
-      active={props.actionConfig?.isGroupActive(params, props.page.pageId)}
+      active={props.actionConfig?.isGroupActive(
+        params,
+        props.page.pageId,
+        applicationId,
+      )}
+      addButtonHelptext={createMessage(ADD_DATASOURCE_TOOLTIP)}
       className={`group ${props.actionConfig?.groupName
         .toLowerCase()
         .replace(/ /g, "")}`}
@@ -62,7 +70,11 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
       entityId={props.page.pageId + "_" + props.actionConfig?.types.join("_")}
       icon={props.actionConfig?.icon}
       isDefaultExpanded={
-        props.actionConfig?.isGroupExpanded(params, props.page.pageId) ||
+        props.actionConfig?.isGroupExpanded(
+          params,
+          props.page.pageId,
+          applicationId,
+        ) ||
         !!props.searchKeyword ||
         !!props.datasources.length
       }

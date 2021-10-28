@@ -1,0 +1,85 @@
+{
+  "identifier": "LIST",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'LIST'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Bucket to Query",
+      "children": [
+        {
+          "label": "Bucket Name",
+          "configProperty": "actionConfiguration.formData.bucket",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description" : "Optional",
+      "children": [
+        {
+          "label": "Prefix",
+          "configProperty": "actionConfiguration.formData.list.prefix",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Options",
+      "children": [
+        {
+          "label": "Generate Signed URL",
+          "configProperty": "actionConfiguration.formData.list.signedUrl",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
+        },
+        {
+          "label": "Expiry Duration of Signed URL (Minutes)",
+          "configProperty": "actionConfiguration.formData.list.expiry",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5",
+          "show": {
+            "path": "actionConfiguration.formData.list.signedUrl",
+            "comparison": "EQUALS",
+            "value": "YES"
+          }
+        },
+        {
+          "label": "Generate Un-signed URL",
+          "configProperty": "actionConfiguration.formData.list.unSignedUrl",
+          "controlType": "DROP_DOWN",
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

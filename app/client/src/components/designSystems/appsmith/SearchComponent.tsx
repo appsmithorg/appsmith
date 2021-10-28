@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { InputGroup } from "@blueprintjs/core";
 import { debounce } from "lodash";
 import { Colors } from "constants/Colors";
+import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 
 interface SearchProps {
   onSearch: (value: any) => void;
@@ -11,20 +12,63 @@ interface SearchProps {
   className?: string;
 }
 
-const SearchInputWrapper = styled(InputGroup)`
-  &&& input {
-    box-shadow: none;
-    font-size: 12px;
-    color: ${Colors.SILVER_CHALICE};
+const SearchComponentWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const CrossIconWrapper = styled.div`
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  cursor: pointer;
+  top: 5px;
+  right: 5px;
+  .cross-icon {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    top: 5px;
+    left: 5px;
   }
-  &&& svg {
-    path {
-      fill: ${Colors.SILVER_CHALICE};
+`;
+
+// Firefox doesn't have a default search cancel button
+const HideDefaultSearchCancelIcon = `
+    // chrome, safari
+    input[type="search"]::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+    }
+
+    // MS-edge
+    input[type="search"]::-ms-clear {
+      appearance: none;
+    }
+`;
+
+const SearchInputWrapper = styled(InputGroup)`
+  &&& {
+    input {
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 12px;
+      color: ${Colors.GREY_10};
+    }
+    input:focus {
+      border: 1.2px solid ${Colors.FERN_GREEN};
+      box-sizing: border-box;
+    }
+    input:active {
+      box-shadow: 0px 0px 0px 3px ${Colors.JAGGED_ICE};
+    }
+    ${HideDefaultSearchCancelIcon}
+    svg {
+      path {
+        fill: ${Colors.GREY_7};
+      }
     }
   }
-  margin: 5px 16px;
-  width: 250px;
-  min-width: 150px;
+  width: 100%;
 `;
 
 class SearchComponent extends React.Component<
@@ -54,16 +98,29 @@ class SearchComponent extends React.Component<
     this.setState({ localValue: search });
     this.onDebouncedSearch(search);
   };
+
+  clearSearch = () => {
+    this.setState({ localValue: "" });
+    this.onDebouncedSearch("");
+  };
+
   render() {
     return (
-      <SearchInputWrapper
-        className={`${this.props.className} t--search-input`}
-        leftIcon="search"
-        onChange={this.handleSearch}
-        placeholder={this.props.placeholder}
-        type="search"
-        value={this.state.localValue}
-      />
+      <SearchComponentWrapper>
+        <SearchInputWrapper
+          className={`${this.props.className} t--search-input`}
+          leftIcon="search"
+          onChange={this.handleSearch}
+          placeholder={this.props.placeholder}
+          type="search"
+          value={this.state.localValue}
+        />
+        {this.state.localValue && (
+          <CrossIconWrapper onClick={this.clearSearch}>
+            <CrossIcon className="cross-icon" />
+          </CrossIconWrapper>
+        )}
+      </SearchComponentWrapper>
     );
   }
 }

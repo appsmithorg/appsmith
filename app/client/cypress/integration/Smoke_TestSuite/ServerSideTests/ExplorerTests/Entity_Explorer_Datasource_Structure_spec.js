@@ -53,7 +53,7 @@ describe("Entity explorer datasource structure", function() {
     cy.get(explorer.templateMenuIcon)
       .first()
       .click({ force: true });
-    cy.get(".bp3-popover-content")
+    cy.get(".t--structure-template-menu-popover")
       .last()
       .contains("SELECT")
       .click({ force: true });
