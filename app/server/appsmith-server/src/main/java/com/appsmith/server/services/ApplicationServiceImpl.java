@@ -148,7 +148,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> save(Application application) {
         if(!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.toUrlSafeHumanReadableText(application.getName()));
+            application.setSlug(TextUtils.makeSlug(application.getName()));
         }
         return repository.save(application)
                 .flatMap(this::setTransientFields);
@@ -161,7 +161,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> createDefault(Application application) {
-        application.setSlug(TextUtils.toUrlSafeHumanReadableText(application.getName()));
+        application.setSlug(TextUtils.makeSlug(application.getName()));
         return super.create(application);
     }
 
@@ -169,7 +169,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
         if(!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.toUrlSafeHumanReadableText(application.getName()));
+            application.setSlug(TextUtils.makeSlug(application.getName()));
         }
         return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
             .onErrorResume(error -> {

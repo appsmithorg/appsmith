@@ -2,31 +2,24 @@ package com.appsmith.server.helpers;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 @Slf4j
 public class TextUtils {
-    private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
-
+    private static final Pattern NONLATIN = Pattern.compile("[^\\w_-]");
+    private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Punct}&&[^-]]");
     /**
-     * Creates a human readable URL safe text from the input text. It considers the following:
-     * (1) It removes heading and trailing whitespaces and replace any other whitespace with `-`
-     * (2) If the input is in ascii, it converts to lowercase
-     * (3) If the input is unicode, it becomes URL encoded string
-     * Modern browsers displays the URL encoded string in decoded format so the URL will look clean i.e. no % symbols will be visible
+     * Creates URL safe text aka slug from the input text. It supports english locale only.
+     * For other languages, it'll return empty.
      * @param inputText String that'll be converted
      * @return String, empty if failed due to encoding exception
      */
-    public static String toUrlSafeHumanReadableText(String inputText) {
-        String nowhitespaceInLowecase = WHITESPACE.matcher(inputText.trim()).replaceAll("-").toLowerCase();
-        try{
-            return URLEncoder.encode(nowhitespaceInLowecase, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            log.error("failed to create slug from " + inputText, ex);
-            return "";
-        }
+    public static String makeSlug(String inputText) {
+        String noseparators = SEPARATORS.matcher(inputText).replaceAll("-");
+        String normalized = Normalizer.normalize(noseparators, Normalizer.Form.NFD);
+        String slug = NONLATIN.matcher(normalized).replaceAll("");
+        return slug.toLowerCase(Locale.ENGLISH).replaceAll("-{2,}","-").replaceAll("^-|-$","");
     }
 }

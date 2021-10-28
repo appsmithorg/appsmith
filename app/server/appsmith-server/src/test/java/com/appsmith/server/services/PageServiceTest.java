@@ -168,7 +168,7 @@ public class PageServiceTest {
                     assertThat(page.getId()).isNotNull();
 
                     assertThat(page.getName()).isEqualTo("PageServiceTest TestApp");
-                    assertThat(page.getSlug()).isEqualTo(TextUtils.toUrlSafeHumanReadableText(page.getName()));
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
 
                     assertThat(page.getPolicies()).isNotEmpty();
                     assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
@@ -247,7 +247,7 @@ public class PageServiceTest {
                     assertThat(page).isNotNull();
                     assertThat(page.getId()).isNotNull();
                     assertThat(page.getName()).isEqualTo("New Page Name");
-                    assertThat(page.getSlug()).isEqualTo(TextUtils.toUrlSafeHumanReadableText(page.getName()));
+                    assertThat(page.getSlug()).isEqualTo(TextUtils.makeSlug(page.getName()));
 
                     // Check for the policy object not getting overwritten during update
                     assertThat(page.getPolicies()).isNotEmpty();

@@ -386,7 +386,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 .flatMap(dbPage -> {
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
                     if(!StringUtils.isEmpty(page.getName())) {
-                        dbPage.getUnpublishedPage().setSlug(TextUtils.toUrlSafeHumanReadableText(page.getName()));
+                        dbPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(page.getName()));
                     }
                     return this.update(id, dbPage);
                 })
