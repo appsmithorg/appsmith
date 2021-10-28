@@ -13,7 +13,11 @@ export const useSSHKeyPair = () => {
   const dispatch = useDispatch();
 
   const currentApplication = useSelector(getCurrentApplication);
-
+  //
+  //
+  // TODO: MAINTAIN SSHKeyPair in GitSyncReducer
+  //
+  //
   const SSHKeyPair = currentApplication?.SSHKeyPair;
   const deployKeyDocUrl = currentApplication?.deployKeyDocUrl || DOCS_BASE_URL;
 
@@ -72,7 +76,7 @@ export const useSSHKeyPair = () => {
   };
 };
 
-export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
+export const useGitConnect = () => {
   const dispatch = useDispatch();
 
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
@@ -81,7 +85,6 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
-    onSuccess();
   }, [setIsConnectingToGit]);
 
   const onGitConnectFailure = useCallback(() => {

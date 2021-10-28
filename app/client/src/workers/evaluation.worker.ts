@@ -185,6 +185,7 @@ ctx.addEventListener(
           fullPropertyPath,
         );
         const cleanTriggers = removeFunctions(triggers);
+        const cleanResult = removeFunctions(result);
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
         const errors = evalErrors
@@ -196,7 +197,7 @@ ctx.addEventListener(
             message: error.errorMessage,
             type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
           }));
-        return { triggers: cleanTriggers, errors, result };
+        return { triggers: cleanTriggers, errors, result: cleanResult };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;

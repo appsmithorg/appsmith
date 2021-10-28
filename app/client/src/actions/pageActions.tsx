@@ -37,7 +37,11 @@ export interface CreatePageActionPayload {
 }
 
 export const fetchPageList = (
-  applicationId: string,
+  {
+    applicationId,
+  }: {
+    applicationId: string;
+  },
   mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
   return {
