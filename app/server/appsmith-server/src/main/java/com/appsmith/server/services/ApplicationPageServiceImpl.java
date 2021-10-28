@@ -372,7 +372,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return applicationMono
                 .flatMapMany(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
                         GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                         String repoName = gitApplicationMetadata.getRepoName();
                         Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
