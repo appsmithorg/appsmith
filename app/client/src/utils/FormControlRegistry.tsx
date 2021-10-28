@@ -94,7 +94,7 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("CHECKBOX", {
       buildPropertyControl(controlProps: CheckboxControlProps): JSX.Element {
-        //TODO: may not be in use
+        //used in API datasource form only
         return <CheckboxControl {...controlProps} />;
       },
     });
