@@ -3879,13 +3879,13 @@ public class DatabaseChangelog {
     @ChangeSet(order = "094", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
-        plugin.setName("SmtpPlugin");
-        plugin.setType(PluginType.DB);
+        plugin.setName("SMTP");
+        plugin.setType(PluginType.REMOTE);
         plugin.setPackageName("smtp-plugin");
         plugin.setUiComponent("UQIDbEditorForm");
         plugin.setDatasourceComponent("AutoForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/SmtpPlugin.png");
+        plugin.setIconLocation("https://assets.appsmith.com/smtp-icon.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-smtp-plugin");
         plugin.setDefaultInstall(false);
         try {
