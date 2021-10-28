@@ -209,7 +209,7 @@ public class PluginUtils {
         Condition condition = new Condition();
 
         Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.toString());
-        ConditionalOperator operator = ConditionalOperator.valueOf((String) unparsedOperator);
+        ConditionalOperator operator = ConditionalOperator.valueOf(((String) unparsedOperator).trim().toUpperCase());
 
         if (operator != null) {
 

@@ -55,6 +55,24 @@ public class Condition {
                 .collect(Collectors.toList());
     }
 
+    public static Condition addValueDataType(Condition condition) {
+        Object objValue = condition.getValue();
+
+        if (objValue instanceof String) {
+            String value = (String) condition.getValue();
+            DataType dataType = stringToKnownDataTypeConverter(value);
+            condition.setValueDataType(dataType);
+        } else if (objValue instanceof List) {
+            List<Condition> conditionList = (List<Condition>) objValue;
+            List<Condition> updatedConditions = conditionList
+                    .stream()
+                    .map(subCondition -> addValueDataType(subCondition))
+                    .collect(Collectors.toList());
+            condition.setValue(updatedConditions);
+        }
+        return condition;
+    }
+
     public static Boolean isValid(Condition condition) {
 
         if (StringUtils.isEmpty(condition.getPath()) ||

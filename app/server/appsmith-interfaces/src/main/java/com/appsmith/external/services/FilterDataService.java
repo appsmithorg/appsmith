@@ -118,6 +118,94 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
+    public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
+
+        if (items == null || items.size() == 0) {
+            return items;
+        }
+
+        Map<String, DataType> schema = generateSchema(items);
+
+        Condition updatedCondition = addValueDataType(condition);
+
+        String tableName = generateTable(schema);
+
+        // insert the data
+        insertAllData(tableName, items, schema);
+
+        // Filter the data
+        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, updatedCondition, schema);
+
+        // Now that the data has been filtered. Clean Up. Drop the table
+        dropTable(tableName);
+
+        ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
+
+        return finalResultsNode;
+    }
+
+    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Condition condition, Map<String, DataType> schema) {
+        Connection conn = checkAndGetConnection();
+
+        StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
+
+        LinkedHashMap<String, DataType> values = new LinkedHashMap<>();
+
+        if (condition != null) {
+            ConditionalOperator operator = condition.getOperator();
+            List<Condition> conditions = (List<Condition>) condition.getValue();
+
+            String whereClause = generateLogicalExpression(conditions, values, schema, operator);
+
+            sb.append(" WHERE ");
+            sb.append(whereClause);
+        }
+
+        sb.append(";");
+
+        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
+        String selectQuery = sb.toString();
+        log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
+
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
+            Set<Map.Entry<String, DataType>> valueEntries = values.entrySet();
+            Iterator<Map.Entry<String, DataType>> iterator = valueEntries.iterator();
+            for (int i = 0; iterator.hasNext(); i++) {
+                Map.Entry<String, DataType> valueEntry = iterator.next();
+                String value = valueEntry.getKey();
+                DataType dataType = valueEntry.getValue();
+                setValueInStatement(preparedStatement, i + 1, value, dataType);
+            }
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int colCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                Map<String, Object> row = new LinkedHashMap<>(colCount);
+                for (int i = 1; i <= colCount; i++) {
+                    Object resultValue = resultSet.getObject(i);
+
+                    // Set null values to empty strings
+                    if (null == resultValue) {
+                        resultValue = "";
+                    }
+
+                    row.put(metaData.getColumnName(i), resultValue);
+                }
+                rowsList.add(row);
+            }
+        } catch (SQLException e) {
+            // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
+            log.error(e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e.getMessage());
+        }
+
+        return rowsList;
+    }
+
     public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
         Connection conn = checkAndGetConnection();
 
