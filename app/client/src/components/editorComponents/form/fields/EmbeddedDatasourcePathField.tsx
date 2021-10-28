@@ -46,6 +46,8 @@ import { getQueryParams } from "../../../../utils/AppsmithUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 type ReduxStateProps = {
   orgId: string;
   datasource: Datasource | EmbeddedRestDatasource;
@@ -70,6 +72,12 @@ const DatasourceContainer = styled.div`
   display: flex;
   position: relative;
   align-items: center;
+  .t--datasource-editor {
+    background-color: transparent;
+    .cm-s-duotone-light.CodeMirror {
+      background: transparent;
+    }
+  }
 `;
 
 const hintContainerStyles: React.CSSProperties = {
@@ -246,7 +254,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
     const { datasourceList } = this.props;
     return () => {
       return {
-        trigger: (editor: CodeMirror.Editor) => {
+        showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
           if (
@@ -291,11 +299,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
                 return hints;
               },
             });
+            return true;
           }
-        },
-        showHint: () => {
           return false;
         },
+        fireOnFocus: true,
       };
     };
   };
@@ -330,7 +338,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
       <DatasourceContainer>
         <CodeEditor
           {...props}
-          border={CodeEditorBorder.NONE}
+          border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
           height="35px"
         />
@@ -351,7 +359,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<Props> {
               );
             }}
           >
-            <Icon name="edit" size={IconSize.LARGE} />
+            <Icon name="edit-line" size={IconSize.XXL} />
             <Text type={TextType.P1}>Edit Datasource</Text>
           </DatasourceIcon>
         ) : null}
@@ -387,7 +395,7 @@ const mapStateToProps = (
       (d) => d.pluginId === ownProps.pluginId,
     ),
     currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

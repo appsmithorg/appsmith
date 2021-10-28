@@ -29,6 +29,8 @@ import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
 interface ReduxStateProps {
   formData: Datasource;
   isSaving: boolean;
@@ -42,13 +44,13 @@ interface ReduxStateProps {
   pluginType: string;
   pluginDatasourceForm: string;
   pluginPackageName: string;
+  applicationId: string;
 }
 
 type Props = ReduxStateProps &
   DatasourcePaneFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    applicationId: string;
     pageId: string;
   }>;
 
@@ -72,11 +74,11 @@ class DataSourceEditor extends React.Component<Props> {
   };
 
   handleSave = (formData: Datasource) => {
-    const { applicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
     this.props.updateDatasource(
       formData,
       this.props.redirectToNewIntegrations(
-        applicationId,
+        this.props.applicationId,
         pageId,
         getQueryParams(),
       ),
@@ -105,7 +107,7 @@ class DataSourceEditor extends React.Component<Props> {
 
     return (
       <DataSourceEditorForm
-        applicationId={this.props.match.params.applicationId}
+        applicationId={this.props.applicationId}
         datasourceId={datasourceId}
         formConfig={formConfig}
         formData={formData}
@@ -152,6 +154,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
+    applicationId: getCurrentApplicationId(state),
   };
 };
 
@@ -202,7 +205,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
       isSaving,
       location,
       match: {
-        params: { applicationId, datasourceId, pageId },
+        params: { datasourceId, pageId },
       },
       pluginDatasourceForm,
       pluginId,
@@ -218,7 +221,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "RestAPIDatasourceForm" && !viewMode) {
       return (
         <RestAPIDatasourceForm
-          applicationId={this.props.match.params.applicationId}
+          applicationId={this.props.applicationId}
           datasourceId={datasourceId}
           isDeleting={isDeleting}
           isNewDatasource={isNewDatasource}
@@ -232,7 +235,7 @@ class DatasourceEditorRouter extends React.Component<Props> {
     if (pluginDatasourceForm === "DatasourceSaaSForm") {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          applicationId,
+          this.props.applicationId,
           pageId,
           pluginPackageName,
           datasourceId,

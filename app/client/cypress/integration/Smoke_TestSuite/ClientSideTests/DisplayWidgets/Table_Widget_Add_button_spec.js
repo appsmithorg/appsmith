@@ -23,7 +23,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Show Message")
+      .contains("Show message")
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
     // Close Property pane
@@ -45,6 +45,23 @@ describe("Table Widget property pane feature validation", function() {
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
   });
+
+  it("Table Button color validation", function() {
+    cy.openPropertyPane("tablewidget");
+    // Open column details of "id".
+    cy.editColumn("id");
+    // Changing column data type to "Button"
+    cy.changeColumnType("Button");
+    const color = "rgb(255, 0, 0)";
+    cy.get(widgetsPage.buttonColor)
+      .click({ force: true })
+      .clear()
+      .type(color);
+    // Close Property pane
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color);
+  });
+
   it("Table widget triggeredRow property should be accessible", function() {
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
@@ -126,7 +143,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Show Message")
+      .contains("Show message")
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
 
@@ -154,5 +171,16 @@ describe("Table Widget property pane feature validation", function() {
         const someText = text;
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
+  });
+  it("Table widget test on button icon click, row should not get deselected", () => {
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+    //click icon button again
+    cy.get(widgetsPage.tableIconBtn)
+      .last()
+      .click({ force: true });
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
 });

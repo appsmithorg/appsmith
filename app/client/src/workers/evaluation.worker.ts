@@ -21,7 +21,7 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
-import evaluate from "workers/evaluate";
+import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
 
@@ -71,6 +71,10 @@ ctx.addEventListener(
   "message",
   messageEventListener((method, requestData: any) => {
     switch (method) {
+      case EVAL_WORKER_ACTIONS.SETUP: {
+        setupEvaluationEnvironment();
+        return true;
+      }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
           shouldReplay = true,
@@ -180,6 +184,7 @@ ctx.addEventListener(
           fullPropertyPath,
         );
         const cleanTriggers = removeFunctions(triggers);
+        const cleanResult = removeFunctions(result);
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
         const errors = evalErrors
@@ -191,7 +196,7 @@ ctx.addEventListener(
             message: error.errorMessage,
             type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
           }));
-        return { triggers: cleanTriggers, errors, result };
+        return { triggers: cleanTriggers, errors, result: cleanResult };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;

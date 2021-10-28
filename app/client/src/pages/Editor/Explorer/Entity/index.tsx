@@ -6,7 +6,7 @@ import React, {
   forwardRef,
   useCallback,
 } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
 import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
@@ -30,10 +30,19 @@ export enum EntityClassNames {
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
   WRAPPER = "t--entity",
   PROPERTY = "t--entity-property",
+  TOOLTIP = "t--entity-tooltp",
 }
 
 const Wrapper = styled.div<{ active: boolean }>`
   line-height: ${(props) => props.theme.lineHeights[2]}px;
+`;
+
+export const entityTooltipCSS = css`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const EntityItem = styled.div<{
@@ -49,7 +58,7 @@ export const EntityItem = styled.div<{
   user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
-  background: ${(props) => (props.active ? Colors.ALABASTER_ALT : "none")};
+  background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
   height: 30px;
   width: 100%;
   display: inline-grid;
@@ -60,14 +69,14 @@ export const EntityItem = styled.div<{
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.ALABASTER_ALT};
+    background: ${Colors.GREY_2};
   }
-  & .${Classes.POPOVER_TARGET}, & .${Classes.POPOVER_WRAPPER} {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+  & .${EntityClassNames.TOOLTIP} {
+    ${entityTooltipCSS}
+    .${Classes.POPOVER_TARGET} {
+      ${entityTooltipCSS}
+    }
   }
 
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
@@ -236,6 +245,7 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           }`}
           highlight={!!props.highlight}
+          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
@@ -269,6 +279,7 @@ export const Entity = forwardRef(
           {props.addButtonHelptext ? (
             <TooltipComponent
               boundary="viewport"
+              className={EntityClassNames.TOOLTIP}
               content={props.addButtonHelptext}
               hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
               position={Position.RIGHT}

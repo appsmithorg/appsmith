@@ -11,6 +11,8 @@ import {
   isBoolean,
   isArray,
   sortBy,
+  xorWith,
+  isEmpty,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -51,6 +53,14 @@ import { Colors } from "constants/Colors";
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
 );
+const defaultFilter = [
+  {
+    column: "",
+    operator: OperatorTypes.OR,
+    value: "",
+    condition: "",
+  },
+];
 
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyValidationMap() {
@@ -142,15 +152,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties,
             originalIndex,
           );
+          let isSelected = false;
+          if (this.props.multiRowSelection) {
+            isSelected =
+              Array.isArray(this.props.selectedRowIndices) &&
+              this.props.selectedRowIndices.includes(rowIndex);
+          } else {
+            isSelected = this.props.selectedRowIndex === rowIndex;
+          }
           if (columnProperties.columnType === "button") {
-            let isSelected = false;
-            if (this.props.multiRowSelection) {
-              isSelected =
-                Array.isArray(this.props.selectedRowIndices) &&
-                this.props.selectedRowIndices.includes(rowIndex);
-            } else {
-              isSelected = this.props.selectedRowIndex === rowIndex;
-            }
             const buttonProps = {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
@@ -183,7 +193,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 : undefined,
             });
           } else if (columnProperties.columnType === "image") {
-            const isSelected = !!props.row.isSelected;
             const isCellVisible = cellProperties.isCellVisible ?? true;
             const onClick = columnProperties.onClick
               ? () =>
@@ -207,7 +216,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isDisabled: cellProperties.isDisabled || false,
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
-              menuVariant: cellProperties.menuVariant ?? "SOLID",
+              menuVariant: cellProperties.menuVariant ?? "PRIMARY",
               menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
@@ -220,7 +229,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "iconButton") {
             const iconButtonProps = {
-              isSelected: !!props.row.isSelected,
+              isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
               columnActions: [
@@ -325,7 +334,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 } catch (e) {
                   isValidDate = false;
                 }
-                if (isValidDate) {
+                if (isValidDate && value) {
                   try {
                     if (outputFormat === "SAME_AS_INPUT") {
                       outputFormat = inputFormat;
@@ -566,14 +575,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
       // Set filter to default
-      const defaultFilter = [
-        {
-          column: "",
-          operator: OperatorTypes.OR,
-          value: "",
-          condition: "",
-        },
-      ];
       this.applyFilters(defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
@@ -685,6 +686,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   applyFilters = (filters: ReactTableFilter[]) => {
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("filters", filters);
+
+    // Reset Page only when a filter is added
+    if (!isEmpty(xorWith(filters, defaultFilter, isEqual))) {
+      this.props.updateWidgetMetaProperty("pageNo", 1);
+    }
   };
 
   toggleDrag = (disable: boolean) => {

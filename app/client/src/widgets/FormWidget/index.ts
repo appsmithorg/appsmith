@@ -54,7 +54,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Submit",
-                    buttonVariant: ButtonVariantTypes.SOLID,
+                    buttonVariant: ButtonVariantTypes.PRIMARY,
                     buttonColor: Colors.GREEN,
                     disabledWhenInvalid: true,
                     resetFormOnClick: true,
@@ -74,7 +74,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "Reset",
-                    buttonVariant: ButtonVariantTypes.OUTLINE,
+                    buttonVariant: ButtonVariantTypes.SECONDARY,
                     buttonColor: Colors.GREEN,
                     disabledWhenInvalid: false,
                     resetFormOnClick: true,

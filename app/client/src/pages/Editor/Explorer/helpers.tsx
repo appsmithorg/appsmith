@@ -1,15 +1,17 @@
 import { IPopoverSharedProps } from "@blueprintjs/core";
 import { matchPath } from "react-router";
 import {
-  API_EDITOR_ID_URL,
-  QUERIES_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
-  JS_COLLECTION_ID_URL,
+  API_EDITOR_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  JS_COLLECTION_ID_PATH,
+  DATA_SOURCES_EDITOR_ID_PATH,
 } from "constants/routes";
+
 import {
-  SAAS_EDITOR_API_ID_URL,
-  SAAS_EDITOR_DATASOURCE_ID_URL,
-} from "../SaaSEditor/constants";
+  SAAS_EDITOR_API_ID_PATH,
+  SAAS_EDITOR_DATASOURCE_ID_PATH,
+} from "pages/Editor/SaaSEditor/constants";
+
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
     enabled: true,
@@ -26,25 +28,24 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 };
 
 export type ExplorerURLParams = {
-  applicationId: string;
   pageId: string;
 };
 
 export const getActionIdFromURL = () => {
   const apiMatch = matchPath<{ apiId: string }>(window.location.pathname, {
-    path: API_EDITOR_ID_URL(),
+    path: API_EDITOR_ID_PATH,
   });
   if (apiMatch?.params?.apiId) {
     return apiMatch.params.apiId;
   }
   const match = matchPath<{ queryId: string }>(window.location.pathname, {
-    path: QUERIES_EDITOR_ID_URL(),
+    path: QUERIES_EDITOR_ID_PATH,
   });
   if (match?.params?.queryId) {
     return match.params.queryId;
   }
   const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
-    path: SAAS_EDITOR_API_ID_URL(),
+    path: SAAS_EDITOR_API_ID_PATH,
   });
   if (saasMatch?.params?.apiId) {
     return saasMatch.params.apiId;
@@ -55,7 +56,7 @@ export const getJSCollectionIdFromURL = () => {
   const functionMatch = matchPath<{ collectionId: string }>(
     window.location.pathname,
     {
-      path: JS_COLLECTION_ID_URL(),
+      path: JS_COLLECTION_ID_PATH,
     },
   );
   if (functionMatch?.params?.collectionId) {
@@ -65,7 +66,7 @@ export const getJSCollectionIdFromURL = () => {
 
 export const getQueryIdFromURL = () => {
   const match = matchPath<{ queryId: string }>(window.location.pathname, {
-    path: QUERIES_EDITOR_ID_URL(),
+    path: QUERIES_EDITOR_ID_PATH,
   });
   if (match?.params?.queryId) {
     return match.params.queryId;
@@ -74,7 +75,7 @@ export const getQueryIdFromURL = () => {
 
 export const getDatasourceIdFromURL = () => {
   const match = matchPath<{ datasourceId: string }>(window.location.pathname, {
-    path: DATA_SOURCES_EDITOR_ID_URL(),
+    path: DATA_SOURCES_EDITOR_ID_PATH,
   });
   if (match?.params?.datasourceId) {
     return match.params.datasourceId;
@@ -82,7 +83,7 @@ export const getDatasourceIdFromURL = () => {
   const saasMatch = matchPath<{ datasourceId: string }>(
     window.location.pathname,
     {
-      path: SAAS_EDITOR_DATASOURCE_ID_URL(),
+      path: SAAS_EDITOR_DATASOURCE_ID_PATH,
     },
   );
   if (saasMatch?.params?.datasourceId) {
