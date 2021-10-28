@@ -37,8 +37,6 @@ function renderComponent(props: renderComponentProps) {
     props.input && props.input.onChange && props.input.onChange(value);
   };
 
-  /* eslint-disable no-console*/
-  // console.log("rai", Object.keys(props));
   return (
     <StyledCheckbox
       info={""}

@@ -50,7 +50,6 @@ function renderDropdown(props: {
     <Dropdown
       dontUsePortal={false}
       dropdownMaxHeight="250px"
-      enableSearch
       errorMsg={props.props?.errorText}
       fillOptions
       helperText={props.props?.info}
