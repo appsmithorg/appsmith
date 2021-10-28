@@ -2,6 +2,7 @@ import React from "react";
 import Checkbox, { CheckboxProps } from "components/ads/Checkbox";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
+import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import {
   Field,
   WrappedFieldInputProps,
@@ -9,11 +10,7 @@ import {
 } from "redux-form";
 import styled from "styled-components";
 
-const StyledCheckbox = styled(Checkbox)`
-  span {
-    margin: 0px 10px: 
-  }
-`;
+const StyledCheckbox = styled(Checkbox)``;
 
 class CheckboxControl extends BaseControl<CheckboxControlProps> {
   getControlType(): ControlType {
@@ -21,15 +18,20 @@ class CheckboxControl extends BaseControl<CheckboxControlProps> {
   }
   render() {
     return (
-      <Field component={renderComponent} props={this.props} type="checkbox" />
+      <Field
+        component={renderComponent}
+        name={this.props.configProperty}
+        props={{ ...this.props }}
+        type="checkbox"
+      />
     );
   }
 }
 
-type renderComponentProps = CheckboxProps & {
+type renderComponentProps = CheckboxControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
-  props: CheckboxControlProps;
+  // props: CheckboxControlProps;
 };
 
 function renderComponent(props: renderComponentProps) {
@@ -39,8 +41,9 @@ function renderComponent(props: renderComponentProps) {
 
   return (
     <StyledCheckbox
-      info={""}
-      isDefaultChecked={props.props?.initialValue as boolean}
+      isDefaultChecked={props?.input?.checked as boolean}
+      {...props}
+      info={undefined}
       label={""}
       onCheckChange={onChangeHandler}
     />

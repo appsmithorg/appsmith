@@ -85,8 +85,17 @@ function FormConfig(props: FormConfigProps) {
               : "block",
         }}
       >
-        {renderFormConfigTop({ config: props.config })}
-        {props.children}
+        {props.config.controlType === "CHECKBOX" ? (
+          <>
+            {props.children}
+            {renderFormConfigTop({ config: props.config })}
+          </>
+        ) : (
+          <>
+            {renderFormConfigTop({ config: props.config })}
+            {props.children}
+          </>
+        )}
       </div>
       {renderFormConfigBottom({ config: props.config })}
     </div>
