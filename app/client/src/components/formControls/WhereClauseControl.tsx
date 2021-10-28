@@ -146,7 +146,7 @@ function ConditionComponent(props: any, index: number) {
           customStyles,
           configProperty: `${props.field}.condition`,
           options: props.comparisonTypes,
-          initialValue: props.comparisonTypes[0],
+          initialValue: props.comparisonTypes[0].value,
         }}
         formName={props.formName}
       />
@@ -178,7 +178,9 @@ function ConditionBlock(props: any) {
   useEffect(() => {
     if (props.fields.length < 1) {
       if (props.currentNestingLevel === 0) {
-        props.fields.push({});
+        props.fields.push({
+          condition: props.comparisonTypes[0].value,
+        });
       } else {
         props.onDeletePressed(props.index);
       }
@@ -266,7 +268,11 @@ function ConditionBlock(props: any) {
         </ConditionWrapper>
       </SecondaryBox>
       <ActionBox>
-        <AddMoreAction onClick={() => props.fields.push({})}>
+        <AddMoreAction
+          onClick={() =>
+            props.fields.push({ condition: props.comparisonTypes[0].value })
+          }
+        >
           {/*Hardcoded label to be removed */}
           <Text type={TextType.H5}>+ Add Filter</Text>
         </AddMoreAction>
@@ -276,7 +282,11 @@ function ConditionBlock(props: any) {
             onClick={() => {
               props.fields.push({
                 condition: props.logicalTypes[0].value,
-                children: [{}],
+                children: [
+                  {
+                    condition: props.comparisonTypes[0].value,
+                  },
+                ],
               });
               // eslint-disable-next-line no-console
               console.log("Ayush new field", props.fields.getAll());
