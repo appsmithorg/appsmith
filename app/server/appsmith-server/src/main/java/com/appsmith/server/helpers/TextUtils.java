@@ -17,6 +17,9 @@ public class TextUtils {
      * @return String, empty if failed due to encoding exception
      */
     public static String makeSlug(String inputText) {
+        if(inputText == null) {
+            return "";
+        }
         String noseparators = SEPARATORS.matcher(inputText).replaceAll("-");
         String normalized = Normalizer.normalize(noseparators, Normalizer.Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");

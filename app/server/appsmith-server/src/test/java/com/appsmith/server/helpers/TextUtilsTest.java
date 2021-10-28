@@ -18,6 +18,8 @@ public class TextUtilsTest {
         assertThat(TextUtils.makeSlug("page 1!")).isEqualTo("page-1");
         assertThat(TextUtils.makeSlug("page__1")).isEqualTo("page-1");
         assertThat(TextUtils.makeSlug("Hello (new)")).isEqualTo("hello-new");
+        assertThat(TextUtils.makeSlug("")).isEqualTo("");
+        assertThat(TextUtils.makeSlug(null)).isEqualTo("");
         // text is hindi
         assertThat(TextUtils.makeSlug("परीक्षण पृष्ठ")).isEqualTo("");
         // text is in spanish
