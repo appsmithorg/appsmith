@@ -362,7 +362,7 @@ function ToggleCommentModeButton({
     proceedToNextTourStep();
   }, [proceedToNextTourStep]);
 
-  const handleOnClick = useCallback(() => {
+  const commentModeToggleHandler = useCallback(() => {
     AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
       mode,
       source: "CLICK",
@@ -377,7 +377,7 @@ function ToggleCommentModeButton({
           <ModeButton
             active={!isCommentMode}
             className="t--switch-comment-mode-off"
-            onClick={handleOnClick}
+            onClick={commentModeToggleHandler}
             showSelectedMode={showSelectedMode}
             type="fill"
           >

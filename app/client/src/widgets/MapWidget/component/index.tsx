@@ -116,6 +116,21 @@ const MyMapComponent = withGoogleMap((props: any) => {
     [props.enableCreateMarker],
   );
 
+  const handleOnClickMarker = useCallback((marker) => {
+    if (props.clickedMarkerCentered) {
+      setMapCenter({
+        ...marker,
+        lng: marker.long,
+      });
+    }
+
+    props.selectMarker(marker.lat, marker.long, marker.title);
+  }, []);
+
+  const handleOnDragEnd = useCallback((de, index) => {
+    props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
+  }, []);
+
   useEffect(() => {
     if (!props.selectedMarker) {
       setMapCenter({
@@ -157,19 +172,8 @@ const MyMapComponent = withGoogleMap((props: any) => {
               props.selectedMarker.long === marker.long
             }
             key={index}
-            onClick={() => {
-              if (props.clickedMarkerCentered) {
-                setMapCenter({
-                  ...marker,
-                  lng: marker.long,
-                });
-              }
-
-              props.selectMarker(marker.lat, marker.long, marker.title);
-            }}
-            onDragEnd={(de) => {
-              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-            }}
+            onClick={() => handleOnClickMarker(marker)}
+            onDragEnd={(de) => handleOnDragEnd(de, index)}
             position={{ lat: marker.lat, lng: marker.long }}
             title={marker.title}
           />
