@@ -100,6 +100,9 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
+import { getReflow } from "selectors/widgetReflowSelectors";
+import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
+import { stopReflow } from "actions/reflowActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -121,6 +124,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
+    const isReflowed: boolean = yield call(reflowWidgets, widgets);
     const updatedCanvasBottomRow: number = yield call(
       getCanvasSizeAfterWidgetMove,
       parentId,
@@ -134,6 +138,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       };
     }
     log.debug("resize computations took", performance.now() - start, "ms");
+    if (isReflowed) yield put(stopReflow());
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
     yield put({
@@ -144,6 +149,51 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       },
     });
   }
+}
+
+export function* reflowWidgets(widgets: {
+  [widgetId: string]: FlattenedWidgetProps;
+}) {
+  const reflowState: widgetReflowState = yield select(getReflow);
+
+  if (!reflowState || !reflowState.isReflowing || !reflowState.reflow)
+    return false;
+
+  const { reflowingWidgets } = reflowState.reflow;
+
+  const reflowWidgetKeys = Object.keys(reflowingWidgets || {});
+
+  if (reflowWidgetKeys.length <= 0) return true;
+
+  for (const reflowedWidgetId of reflowWidgetKeys) {
+    //eslint-disable-next-line
+    const reflowWidget = reflowingWidgets![reflowedWidgetId];
+    const canvasWidget = { ...widgets[reflowedWidgetId] };
+    if (
+      reflowWidget.maxX !== undefined &&
+      reflowWidget.X !== undefined &&
+      reflowWidget.width !== undefined
+    ) {
+      const leftColumn =
+        canvasWidget.leftColumn +
+        reflowWidget.X / canvasWidget.parentColumnSpace;
+      const rightColumn =
+        leftColumn + reflowWidget.width / canvasWidget.parentColumnSpace;
+      widgets[reflowedWidgetId] = { ...canvasWidget, leftColumn, rightColumn };
+    } else if (
+      reflowWidget.maxY !== undefined &&
+      reflowWidget.Y !== undefined &&
+      reflowWidget.height !== undefined
+    ) {
+      const topRow =
+        canvasWidget.topRow + reflowWidget.Y / canvasWidget.parentRowSpace;
+      const bottomRow =
+        topRow + reflowWidget.height / canvasWidget.parentRowSpace;
+      widgets[reflowedWidgetId] = { ...canvasWidget, topRow, bottomRow };
+    }
+  }
+
+  return true;
 }
 
 enum DynamicPathUpdateEffectEnum {

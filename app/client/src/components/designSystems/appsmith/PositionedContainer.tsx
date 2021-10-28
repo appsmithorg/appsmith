@@ -68,13 +68,16 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const reflowX = reflowedPosition?.X || 0;
   const reflowY = reflowedPosition?.Y || 0;
   const reflowWidth = reflowedPosition?.width;
+  const reflowHeight = reflowedPosition?.height;
 
   const containerStyle: CSSProperties = useMemo(() => {
     const styles: CSSProperties = {
       position: "absolute",
       left: x,
       top: y,
-      height: props.style.componentHeight + (props.style.heightUnit || "px"),
+      height:
+        reflowHeight ||
+        props.style.componentHeight + (props.style.heightUnit || "px"),
       width:
         reflowWidth ||
         props.style.componentWidth + (props.style.widthUnit || "px"),
@@ -83,10 +86,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
       backgroundColor: "inherit",
       transform: `translate(${reflowX}px,${reflowY}px)`,
     };
-    if (reflowedPosition) {
-      styles.padding = "0px";
-      styles.border = "4px solid cadetblue";
-    }
+    // if (reflowedPosition) {
+    //   styles.padding = "0px";
+    //   styles.border = "4px solid cadetblue";
+    // }
     return styles;
   }, [
     props.style,
@@ -95,6 +98,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
     reflowX,
     reflowY,
     reflowWidth,
+    reflowHeight,
     reflowedPosition,
   ]);
 
