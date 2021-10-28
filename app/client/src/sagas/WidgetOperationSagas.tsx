@@ -94,6 +94,7 @@ import {
   createWidgetCopy,
   getNextWidgetName,
   getParentWidgetIdForGrouping,
+  isCopiedModalWidget,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -747,6 +748,8 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
       copiedWidgetGroups,
       pastingIntoWidgetId,
     );
+  } else if (isCopiedModalWidget(copiedWidgetGroups, widgets)) {
+    pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
 
   // to avoid invoking old copied widgets
