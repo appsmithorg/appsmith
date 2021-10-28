@@ -1059,14 +1059,20 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
-                    actionViewDTO.setId(action.getId());
+                    actionViewDTO.setId(action.getDefaultResources().getActionId());
                     actionViewDTO.setName(action.getPublishedAction().getValidName());
                     actionViewDTO.setPageId(action.getPublishedAction().getPageId());
                     actionViewDTO.setConfirmBeforeExecute(action.getPublishedAction().getConfirmBeforeExecute());
                     // Update defaultResources
                     DefaultResources defaults = action.getDefaultResources();
-                    defaults.setPageId(action.getPublishedAction().getDefaultResources().getPageId());
-                    defaults.setCollectionId(action.getPublishedAction().getDefaultResources().getCollectionId());
+                    // Consider a situation when action is not published but user is viewing in deployed mode
+                    if (action.getPublishedAction().getDefaultResources() != null) {
+                        defaults.setPageId(action.getPublishedAction().getDefaultResources().getPageId());
+                        defaults.setCollectionId(action.getPublishedAction().getDefaultResources().getCollectionId());
+                    } else {
+                        defaults.setPageId(null);
+                        defaults.setCollectionId(null);
+                    }
                     actionViewDTO.setDefaultResources(defaults);
                     if (action.getPublishedAction().getJsonPathKeys() != null && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
                         Set<String> jsonPathKeys;

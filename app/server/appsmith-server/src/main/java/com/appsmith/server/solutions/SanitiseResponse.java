@@ -86,7 +86,6 @@ public class SanitiseResponse {
     public ActionViewDTO updateActionViewDTOWithDefaultResources(ActionViewDTO viewDTO) {
         DefaultResources defaults = viewDTO.getDefaultResources();
         if (defaults == null
-                || StringUtils.isEmpty(defaults.getPageId())
                 || StringUtils.isEmpty(defaults.getActionId())) {
             throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionView", viewDTO.getId());
         }
