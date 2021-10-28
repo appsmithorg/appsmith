@@ -48,6 +48,7 @@
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
             <version>1.5.0-b01</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test Dependencies -->

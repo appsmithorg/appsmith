@@ -1,0 +1,44 @@
+{
+  "identifier": "SEND",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'SEND'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Email Configuration",
+      "description" : "Optional",
+      "children": [
+        {
+          "label": "From Address",
+          "configProperty": "actionConfiguration.formData.send.from",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "fromAddress@example.com"
+        },
+        {
+          "label": "To Address",
+          "configProperty": "actionConfiguration.formData.send.to",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "toAddress@example.com"
+        },
+        {
+          "label": "Subject",
+          "configProperty": "actionConfiguration.formData.send.subject",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "Awesome email subject"
+        },
+        {
+          "label": "Body",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "Incredible body text"
+        }
+      ]
+    }
+  ]
+}

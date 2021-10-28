@@ -1,7 +1,7 @@
 {
   "form": [
     {
-      "sectionName": "Connection",
+      "sectionName": "Email Configuration",
       "id": 1,
       "children": [
         {
@@ -21,11 +21,6 @@
               "controlType": "KEYVALUE_ARRAY"
             }
           ]
-        },
-        {
-          "label": "Database Name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT"
         }
       ]
     },

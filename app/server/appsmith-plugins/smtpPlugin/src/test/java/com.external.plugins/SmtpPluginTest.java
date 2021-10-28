@@ -70,13 +70,13 @@ public class SmtpPluginTest {
                                                           String replyTo) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         Map<String, Object> formData = new HashMap<>();
-        PluginUtils.setValueSafelyInFormData(formData, "from", fromAddress);
-        PluginUtils.setValueSafelyInFormData(formData, "to", toAddress);
-        PluginUtils.setValueSafelyInFormData(formData, "cc", ccAddress);
-        PluginUtils.setValueSafelyInFormData(formData, "bcc", bccAddress);
-        PluginUtils.setValueSafelyInFormData(formData, "isReplyTo", true);
-        PluginUtils.setValueSafelyInFormData(formData, "replyTo", replyTo);
-        PluginUtils.setValueSafelyInFormData(formData, "subject", "This is a test subject");
+        PluginUtils.setValueSafelyInFormData(formData, "send.from", fromAddress);
+        PluginUtils.setValueSafelyInFormData(formData, "send.to", toAddress);
+        PluginUtils.setValueSafelyInFormData(formData, "send.cc", ccAddress);
+        PluginUtils.setValueSafelyInFormData(formData, "send.bcc", bccAddress);
+        PluginUtils.setValueSafelyInFormData(formData, "send.isReplyTo", true);
+        PluginUtils.setValueSafelyInFormData(formData, "send.replyTo", replyTo);
+        PluginUtils.setValueSafelyInFormData(formData, "send.subject", "This is a test subject");
         actionConfiguration.setBody("This is a body");
 
         actionConfiguration.setFormData(formData);
@@ -134,7 +134,7 @@ public class SmtpPluginTest {
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "from", "   ");
+                "send.from", "   ");
         Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
 
@@ -152,7 +152,7 @@ public class SmtpPluginTest {
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "to", "   ");
+                "send.to", "   ");
         Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
 
@@ -170,7 +170,7 @@ public class SmtpPluginTest {
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "from", "invalid");
+                "send.from", "invalid");
         Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
 
@@ -185,7 +185,7 @@ public class SmtpPluginTest {
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
-                "to", "invalidEmail");
+                "send.to", "invalidEmail");
         Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguraion)
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguraion, actionConfiguration));
 

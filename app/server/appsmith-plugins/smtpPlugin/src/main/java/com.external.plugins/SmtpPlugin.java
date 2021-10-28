@@ -4,13 +4,14 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
@@ -28,7 +29,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -49,13 +52,14 @@ public class SmtpPlugin extends BasePlugin {
             Message message = new MimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
-                String fromAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "from");
-                String toAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"to");
-                String ccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"cc");
-                String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"bcc");
-                String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"subject");
-                String replyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(),"isReplyTo") ?
-                        (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"replyTo") : null;
+                String fromAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
+                String toAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.to");
+                String ccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.cc");
+                String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.bcc");
+                String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.subject");
+                Boolean isReplyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
+                String replyTo = (isReplyTo != null && isReplyTo) ?
+                        (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.replyTo") : null;
 
                 if (!StringUtils.hasText(toAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -91,8 +95,13 @@ public class SmtpPlugin extends BasePlugin {
 
                 System.out.println("Going to send the email");
                 Transport.send(message);
+                System.out.println("Sent the email successfully");
+
                 result.setIsExecutionSuccess(true);
-                result.setBody("Sent email successfully");
+                Map<String, String> responseBody = new HashMap<>();
+                responseBody.put("message", "Sent the email successfully");
+                
+                result.setBody(objectMapper.writeValueAsString(responseBody));
             } catch(AddressException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
@@ -100,6 +109,9 @@ public class SmtpPlugin extends BasePlugin {
             } catch (MessagingException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to send email because of error: " + e.getMessage()));
+            } catch (JsonProcessingException e) {
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Unable to send response for email plugin because of error: " + e.getMessage()));
             }
 
             return Mono.just(result);
@@ -109,7 +121,7 @@ public class SmtpPlugin extends BasePlugin {
         public Mono<Session> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
             Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             Properties prop = new Properties();
             prop.put("mail.smtp.auth", true);
@@ -132,7 +144,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session connection) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Operation not supported");
         }
 
         @Override
@@ -156,7 +168,7 @@ public class SmtpPlugin extends BasePlugin {
                 }
             }
 
-            BasicAuth authentication = (BasicAuth) datasourceConfiguration.getAuthentication();
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (authentication == null || !StringUtils.hasText(authentication.getUsername()) ||
                     !StringUtils.hasText(authentication.getPassword())
             ) {
@@ -173,7 +185,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(Session connection, DatasourceConfiguration datasourceConfiguration) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Operation not supported"));
         }
     }
 }
