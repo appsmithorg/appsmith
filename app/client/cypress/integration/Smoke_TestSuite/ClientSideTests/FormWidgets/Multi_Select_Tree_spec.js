@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/TreeSelectDsl.json");
-const dslWithEmptyOptions = require("../../../../fixtures/TreeSelectDslWithEmptyOptions.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -24,14 +23,6 @@ describe("MultiSelectTree Widget Functionality", function() {
       .first()
       .type("light");
     cy.treeSelectDropdown("Light Blue");
-  });
-  it(" To Check empty Options", function() {
-    cy.addDsl(dslWithEmptyOptions);
-    cy.get(formWidgetsPage.treeSelectInput)
-      .first()
-      .click({ force: true })
-      .get(".rc-tree-select-empty")
-      .should("have.text", "No Results Found");
   });
   it("To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);

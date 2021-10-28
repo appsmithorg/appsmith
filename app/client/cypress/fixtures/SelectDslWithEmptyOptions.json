@@ -76,7 +76,30 @@
              "renderMode":"CANVAS",
              "isLoading":false,
              "allowClear":false
-          }
+          },
+          {
+            "isRequired": false,
+            "widgetName": "MultiSelect",
+            "rightColumn": 62,
+            "widgetId": "p6qkmj8uo1",
+            "topRow": 49,
+            "bottomRow": 60,
+            "parentRowSpace": 10,
+            "isVisible": true,
+            "label": "",
+            "type": "MULTI_SELECT_WIDGET",
+            "version": 1,
+            "parentId": "e3tq9qwta6",
+            "isLoading": false,
+            "defaultOptionValue": "",
+            "parentColumnSpace": 13.662109375,
+            "dynamicTriggerPathList": [],
+            "leftColumn": 37,
+            "dynamicBindingPathList": [],
+            "options": [],
+            "placeholderText": "select option(s)",
+            "isDisabled": false
+        }
        ]
     }
  }
