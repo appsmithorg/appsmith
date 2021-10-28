@@ -150,5 +150,6 @@ export const Colors = {
   GREEN_1: "#50AF6C",
   GREEN_2: "#D5EFE3",
   GREEN_3: "#ECF9F3",
+  MASALA: "#43403D",
 };
 export type Color = typeof Colors[keyof typeof Colors];
