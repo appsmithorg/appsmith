@@ -33,4 +33,24 @@ describe("Modal Widget Functionality", function() {
 
     cy.get(commonlocators.toastmsg).contains("test");
   });
+
+  it("should paste modal widgets with main container as parentId", () => {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+    cy.SearchEntityandOpen("Modal1");
+    cy.wait(200);
+    cy.get("body").type(`{${modifierKey}}c`);
+    cy.get(commonlocators.toastBody)
+      .first()
+      .contains("Copied");
+
+    cy.get(widgets.iconWidgetBtn).click({ force: true });
+
+    cy.get("body").type(`{${modifierKey}}v`);
+
+    cy.get('.bp3-collapse-body > [step="2"]')
+      .first()
+      .children()
+      .should("have.length", 2);
+  });
 });
