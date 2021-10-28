@@ -56,8 +56,10 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
 
 Cypress.Commands.add("goToEditFromPublish", () => {
   cy.url().then((url) => {
-    if (!url.includes("edit")) {
-      cy.visit(url + "/edit");
+    const urlObject = new URL(url);
+    if (!urlObject.pathname.includes("edit")) {
+      urlObject.pathname = urlObject.pathname + "/edit";
+      cy.visit(urlObject.toString());
     }
   });
 });
