@@ -281,6 +281,6 @@
     }
   },
   "lint-staged": {
-    "src/*.{ts,tsx}": ["eslint . --fix", "prettier --ignore-unknown --write", "git add"]
+    "*/src/*.tsx": ["eslint . --fix", "prettier --ignore-unknown --write", "git add"]
   }
 }
