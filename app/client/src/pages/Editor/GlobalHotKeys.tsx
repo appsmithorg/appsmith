@@ -99,6 +99,10 @@ class GlobalHotKeys extends React.Component<Props> {
     categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
   ) {
     e.preventDefault();
+
+    // don't open omnibar if preview mode is on
+    if (this.props.isPreviewMode) return;
+
     const category = filterCategories[categoryId];
     this.props.toggleShowGlobalSearchModal(category);
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {

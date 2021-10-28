@@ -20,6 +20,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPublishingApplication,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -256,6 +257,8 @@ export function EditorHeader(props: EditorHeaderProps) {
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
   const shouldHideComments = useHideComments();
+  const isPreviewMode = useSelector(previewModeSelector);
+
   useEffect(() => {
     if (window.location.href) {
       const searchParams = new URL(window.location.href).searchParams;
@@ -416,7 +419,13 @@ export function EditorHeader(props: EditorHeaderProps) {
             )}
           </Boxed>
         </HeaderSection>
-        <HeaderSection>
+        <HeaderSection
+          className={classNames({
+            "-translate-y-full opacity-0": isPreviewMode,
+            "translate-y-0 opacity-100": !isPreviewMode,
+            "transition-all transform duration-400": true,
+          })}
+        >
           <HelpBar />
           <HelpButton />
         </HeaderSection>

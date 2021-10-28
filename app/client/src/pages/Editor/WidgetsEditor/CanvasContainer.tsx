@@ -4,6 +4,8 @@ import {
   getCurrentPageId,
   getIsFetchingPage,
   getCanvasWidgetDsl,
+  getViewModePageList,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -12,10 +14,10 @@ import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "@blueprintjs/core";
 import Canvas from "../Canvas";
 import { useParams } from "react-router";
+import classNames from "classnames";
 
 const Container = styled.section`
   width: 100%;
-  height: calc(100% - 2.25rem);
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
@@ -33,7 +35,10 @@ function CanvasContainer() {
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgets = useSelector(getCanvasWidgetDsl);
+  const pages = useSelector(getViewModePageList);
+  const isPreviewMode = useSelector(previewModeSelector);
   const params = useParams<{ applicationId: string; pageId: string }>();
+  const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
 
   const pageLoading = (
     <Centered>
@@ -51,8 +56,13 @@ function CanvasContainer() {
 
   return (
     <Container
-      className={`${getCanvasClassName()} scrollbar-thin mt-9`}
+      className={classNames({
+        [`${getCanvasClassName()} scrollbar-thin`]: true,
+        "mt-0": !shouldHaveTopMargin,
+        "mt-9": shouldHaveTopMargin,
+      })}
       key={currentPageId}
+      style={{ height: `calc(100% - ${shouldHaveTopMargin ? "2rem" : "0px"})` }}
     >
       {node}
     </Container>
