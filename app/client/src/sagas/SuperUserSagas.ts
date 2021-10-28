@@ -91,6 +91,15 @@ function* RestartServerPoll() {
   });
 }
 
+function* SendTestEmail() {
+  yield call(UserApi.sendTestEmail);
+  Toaster.show({
+    text: "Test email sent successfully",
+    hideProgressBar: false,
+    variant: Variant.success,
+  });
+}
+
 function* InitSuperUserSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
@@ -102,6 +111,7 @@ function* InitSuperUserSaga(action: ReduxAction<User>) {
       ),
       takeLatest(ReduxActionTypes.SAVE_ADMIN_SETTINGS, SaveAdminSettingsSaga),
       takeLatest(ReduxActionTypes.RESTART_SERVER_POLL, RestartServerPoll),
+      takeLatest(ReduxActionTypes.SEND_TEST_EMAIL, SendTestEmail),
     ]);
   }
 }
