@@ -148,3 +148,10 @@ export const WINDOW_OBJECT_METHODS = {
   setTimeout: "setTimeout",
   stop: "stop",
 };
+
+export const THIRD_PARTY_DEPENDENCY_KEYWORDS = {
+  _: "_",
+  moment: "moment",
+  xmlParser: "xmlParser",
+  forge: "forge",
+};
