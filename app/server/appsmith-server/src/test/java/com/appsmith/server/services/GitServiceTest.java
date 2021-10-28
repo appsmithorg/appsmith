@@ -363,7 +363,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INTERNAL_SERVER_ERROR.getMessage()))
+                        && throwable.getMessage().contains("Error while accessing the file system"))
                 .verify();
     }
 
