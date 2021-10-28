@@ -116,7 +116,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
     [props.enableCreateMarker],
   );
 
-  const handleOnClickMarker = useEffect(() => {
+  useEffect(() => {
     if (!props.selectedMarker) {
       setMapCenter({
         ...props.center,
