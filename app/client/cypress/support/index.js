@@ -13,6 +13,8 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 require("cypress-xpath");
+//require('../../src/index').addCustomCommand();
+
 let pageid;
 let appId;
 

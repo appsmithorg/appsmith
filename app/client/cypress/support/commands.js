@@ -3,6 +3,8 @@
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
+require('../../src/index').addCustomCommand();
+
 const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
@@ -25,6 +27,8 @@ const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
+const publish = require("../locators/publishWidgetspage.json");
+
 
 let pageidcopy = " ";
 
@@ -500,6 +504,36 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 });
+
+Cypress.Commands.add("downloadData", (option) => {
+  cy.get(publish.downloadBtn).click();
+  cy.get(publish.downloadOption)
+    .contains(option)
+    .click({ force: true })
+});
+
+Cypress.Commands.add("AddFilterWithOperator", (operator, option, condition,value) => {
+  cy.get(publish.addFilter).click();
+  cy.get(publish.operatorsDropdown)
+    .click({ force: true });
+  cy.get(publish.attributeValue)
+    .contains(operator)
+    .click({ force: true });
+  cy.get(publish.attributesDropdown)
+    .last()
+    .click({ force: true });
+  cy.get(publish.attributeValue)
+    .contains(option)
+    .click({ force: true });
+  cy.get(publish.conditionDropdown)
+    .last()
+    .click({ force: true });
+  cy.get(publish.attributeValue)
+    .contains(condition)
+    .click({ force: true });
+  cy.get(publish.inputValue).last().type(value);
+});
+
 
 Cypress.Commands.add("LogOut", () => {
   cy.request("POST", "/api/v1/logout");
@@ -1735,8 +1769,8 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-      Pagename +
-      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+    Pagename +
+    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
