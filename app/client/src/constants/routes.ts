@@ -85,6 +85,21 @@ export const addBranchParam = (branch: string) => {
   return url.toString().slice(url.origin.length);
 };
 
+const fetchParamsToPersist = () => {
+  const existingParams = getQueryParamsObject() || {};
+
+  // not persisting the entire query currently, since that's the current behaviour
+  const { branch, embed } = existingParams;
+  let params = { branch, embed } as any;
+
+  // test param to make sure a query param is present in the URL during dev and tests
+  if ((window as any).Cypress || process.env?.NODE_ENV === "development") {
+    params = { a: "b", ...params };
+  }
+
+  return params;
+};
+
 export type BuilderRouteParams = {
   pageId: string;
   applicationId: string;
@@ -127,33 +142,13 @@ export const BUILDER_PAGE_URL = (props: {
   params?: Record<string, string>;
   suffix?: string;
 }): string => {
-  const {
-    branch,
-    applicationId,
-    hash = "",
-    pageId,
-    params = {},
-    suffix,
-  } = props;
+  const { applicationId, hash = "", pageId, params = {}, suffix } = props;
 
   // todo (rishabh s) check when this is applicable
   if (!pageId) return APPLICATIONS_URL;
 
-  const existingParams = getQueryParamsObject() || {};
-
-  // not persisting the entire query currently, since that's the current behaviour
-  const { branch: branchQuery } = existingParams;
-
-  let modifiedParams = { ...params };
-  const derivedBranch = branch || branchQuery;
-  if (derivedBranch) {
-    modifiedParams = { branch: derivedBranch, ...params };
-  }
-
-  // test param to make sure a query param is present in the URL during dev and tests
-  if ((window as any).Cypress || process.env?.NODE_ENV === "development") {
-    modifiedParams = { a: "b", ...modifiedParams };
-  }
+  const paramsToPersist = fetchParamsToPersist();
+  const modifiedParams = { ...paramsToPersist, ...params };
 
   const queryString = convertToQueryParams(modifiedParams);
   const suffixPath = suffix ? `/${suffix}` : "";
@@ -324,15 +319,8 @@ export const getApplicationViewerPageURL = (props: {
 
   const url = `/applications/${applicationId}/pages/${pageId}`;
 
-  const existingParams = getQueryParamsObject() || {};
-
-  // not persisting the entire query currently, since that's the current behaviour
-  const { branch } = existingParams;
-
-  let modifiedParams = { ...params };
-  if (branch) {
-    modifiedParams = { branch, ...params };
-  }
+  const paramsToPersist = fetchParamsToPersist();
+  const modifiedParams = { ...paramsToPersist, ...params };
 
   const queryString = convertToQueryParams(modifiedParams);
   const suffixPath = suffix ? `/${suffix}` : "";

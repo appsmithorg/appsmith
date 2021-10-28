@@ -205,10 +205,10 @@ export const DropdownWrapper = styled.div<{
   background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
   border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
-  .dropdown-search {
-    margin: 4px 12px 8px;
-    width: calc(100% - 24px);
-  }
+`;
+
+const SearchComponentWrapper = styled.div`
+  margin: 0px 5px;
 `;
 
 const DropdownOptionsWrapper = styled.div<{
@@ -488,12 +488,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
       width={optionWidth}
     >
       {props.enableSearch && (
-        <SearchComponent
-          className="dropdown-search"
-          onSearch={onOptionSearch}
-          placeholder={props.searchPlaceholder || ""}
-          value={searchValue}
-        />
+        <SearchComponentWrapper>
+          <SearchComponent
+            onSearch={onOptionSearch}
+            placeholder={props.searchPlaceholder || ""}
+            value={searchValue}
+          />
+        </SearchComponentWrapper>
       )}
       {props.headerLabel && <HeaderWrapper>{props.headerLabel}</HeaderWrapper>}
       <DropdownOptionsWrapper
