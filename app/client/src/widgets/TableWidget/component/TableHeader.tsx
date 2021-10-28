@@ -39,6 +39,11 @@ const PageNumberInputWrapper = styled(NumericInput)`
   margin: 0 8px;
 `;
 
+const SearchComponentWrapper = styled.div`
+  margin: 3px 10px;
+  flex: 0 0 200px;
+`;
+
 function PageNumberInput(props: {
   pageNo: number;
   pageCount: number;
@@ -125,11 +130,13 @@ function TableHeader(props: TableHeaderProps) {
   return (
     <>
       {props.isVisibleSearch && (
-        <SearchComponent
-          onSearch={props.searchTableData}
-          placeholder="Search..."
-          value={props.searchKey}
-        />
+        <SearchComponentWrapper>
+          <SearchComponent
+            onSearch={props.searchTableData}
+            placeholder="Search..."
+            value={props.searchKey}
+          />
+        </SearchComponentWrapper>
       )}
       {(props.isVisibleFilters || props.isVisibleDownload) && (
         <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
