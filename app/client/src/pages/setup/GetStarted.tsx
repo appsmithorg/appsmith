@@ -88,6 +88,16 @@ const DROPDOWN_WIDTH = "400px";
 function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
+  const handleGetStarted = useCallback(
+    () =>
+      props.onGetStarted &&
+      props.onGetStarted(
+        props.role !== "other" ? props.role : props.role_name,
+        props.useCase,
+      ),
+    [props.onGetStarted, props.role, props.role_name, props.useCase],
+  );
+
   return (
     <StyledNonSuperUserForm>
       <Space />
@@ -122,15 +132,7 @@ function NonSuperUser(
         <StyledButton
           className="t--get-started-button"
           disabled={props.invalid}
-          onClick={useCallback(
-            () =>
-              props.onGetStarted &&
-              props.onGetStarted(
-                props.role !== "other" ? props.role : props.role_name,
-                props.useCase,
-              ),
-            [],
-          )}
+          onClick={handleGetStarted}
           text={createMessage(WELCOME_ACTION)}
         />
       </ActionContainer>

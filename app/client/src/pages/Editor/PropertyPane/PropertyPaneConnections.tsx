@@ -235,7 +235,7 @@ function OptionNode(props: any) {
       source: "PROPERTY_PANE",
       entityType: entityInfo?.entityType,
     });
-  }, []);
+  }, [entityInfo?.hasError, entityInfo?.type, entityInfo?.entityType]);
 
   return (
     <OptionWrapper

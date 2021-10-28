@@ -362,6 +362,14 @@ function ToggleCommentModeButton({
     proceedToNextTourStep();
   }, [proceedToNextTourStep]);
 
+  const handleOnClick = useCallback(() => {
+    AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+      mode,
+      source: "CLICK",
+    });
+    setCommentModeInUrl(false);
+  }, []);
+
   return (
     <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
@@ -369,13 +377,7 @@ function ToggleCommentModeButton({
           <ModeButton
             active={!isCommentMode}
             className="t--switch-comment-mode-off"
-            onClick={useCallback(() => {
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode,
-                source: "CLICK",
-              });
-              setCommentModeInUrl(false);
-            }, [])}
+            onClick={handleOnClick}
             showSelectedMode={showSelectedMode}
             type="fill"
           >

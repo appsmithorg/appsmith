@@ -106,7 +106,17 @@ const MyMapComponent = withGoogleMap((props: any) => {
       }
     }
   }, []);
-  useEffect(() => {
+
+  const handleOnClickGoogleMap = useCallback(
+    (e) => {
+      if (props.enableCreateMarker) {
+        props.saveMarker(e.latLng.lat(), e.latLng.lng());
+      }
+    },
+    [props.enableCreateMarker],
+  );
+
+  const handleOnClickMarker = useEffect(() => {
     if (!props.selectedMarker) {
       setMapCenter({
         ...props.center,
@@ -117,11 +127,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
   return (
     <GoogleMap
       center={mapCenter}
-      onClick={useCallback((e) => {
-        if (props.enableCreateMarker) {
-          props.saveMarker(e.latLng.lat(), e.latLng.lng());
-        }
-      }, [])}
+      onClick={handleOnClickGoogleMap}
       options={{
         zoomControl: props.allowZoom,
         fullscreenControl: false,
@@ -151,7 +157,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
               props.selectedMarker.long === marker.long
             }
             key={index}
-            onClick={useCallback(() => {
+            onClick={() => {
               if (props.clickedMarkerCentered) {
                 setMapCenter({
                   ...marker,
@@ -160,10 +166,10 @@ const MyMapComponent = withGoogleMap((props: any) => {
               }
 
               props.selectMarker(marker.lat, marker.long, marker.title);
-            }, [])}
-            onDragEnd={useCallback((de) => {
+            }}
+            onDragEnd={(de) => {
               props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-            }, [])}
+            }}
             position={{ lat: marker.lat, lng: marker.long }}
             title={marker.title}
           />
