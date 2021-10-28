@@ -3632,17 +3632,21 @@ public class DatabaseChangelog {
         // Update pages
         final Query pageQuery = query(where(fieldName(QNewPage.newPage.deleted)).ne(true));
         pageQuery.fields()
-                .include(fieldName(QNewPage.newPage.applicationId));
+                .include(fieldName(QNewPage.newPage.applicationId))
+                .include(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts")
+                .include(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts");
 
         List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
 
         for (NewPage page : pages) {
+            String applicationId = page.getApplicationId();
+            final Update defaultResourceUpdates = new Update();
             DefaultResources defaults = new DefaultResources();
             defaults.setPageId(page.getId());
             defaults.setApplicationId(page.getApplicationId());
+            defaults.setApplicationId(applicationId);
 
-            String applicationId = page.getApplicationId();
-            final Update defaultResourceUpdates = new Update();
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.defaultResources), defaults);
 
             // Update gitSyncId
             if (StringUtils.isEmpty(page.getGitSyncId())) {
@@ -3650,7 +3654,26 @@ public class DatabaseChangelog {
                 defaultResourceUpdates.set(fieldName(QNewPage.newPage.gitSyncId), gitSyncId);
             }
 
-            defaultResourceUpdates.set(fieldName(QNewPage.newPage.defaultResources), defaults);
+            page.getUnpublishedPage()
+                    .getLayouts()
+                    .stream()
+                    .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                    .forEach(layout -> layout.getLayoutOnLoadActions()
+                            .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+
+            defaultResourceUpdates.set(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts", page.getUnpublishedPage().getLayouts());
+
+            if (page.getPublishedPage() != null && !CollectionUtils.isEmpty(page.getPublishedPage().getLayouts())) {
+                page.getPublishedPage()
+                        .getLayouts()
+                        .stream()
+                        .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                        .forEach(layout -> layout.getLayoutOnLoadActions()
+                                .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+
+                defaultResourceUpdates.set(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts", page.getPublishedPage().getLayouts());
+            }
+
             if (!StringUtils.isEmpty(applicationId) ) {
                 mongockTemplate.updateFirst(
                         query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),

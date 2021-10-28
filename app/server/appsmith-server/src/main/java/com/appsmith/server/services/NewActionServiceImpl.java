@@ -212,6 +212,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Set the fields from NewAction into Action
         setCommonFieldsFromNewActionIntoAction(newAction, action);
 
+        // Update the default fields from newAction to actionDTO which includes defaultAppId and defaultActionId
+        DefaultResources defaultResources = newAction.getDefaultResources();
+        if (action.getDefaultResources() != null) {
+            action.getDefaultResources().setActionId(defaultResources.getActionId());
+            action.getDefaultResources().setApplicationId(defaultResources.getApplicationId());
+        }
+
         return Mono.just(action);
     }
 
