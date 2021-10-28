@@ -1,5 +1,6 @@
 import React, { ReactNode, useState, useEffect, useRef } from "react";
 import styled, { StyledComponent } from "styled-components";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDrag } from "react-use-gesture";
 import { Spring } from "react-spring/renderprops";
 import PerformanceTracker, {
@@ -12,6 +13,7 @@ import { useSelector } from "react-redux";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
+  overflow: hidden;
   & {
     * {
       pointer-events: ${(props) => !props.prevents && "none"};
@@ -384,6 +386,14 @@ export function Resizable(props: ResizableProps) {
     />
   ));
 
+  const widgetWidth =
+    reflowedPosition?.width === undefined
+      ? newDimensions.width
+      : reflowedPosition.width - 2 * WIDGET_PADDING;
+  const widgetHeight =
+    reflowedPosition?.height === undefined
+      ? newDimensions.height
+      : reflowedPosition.height - 2 * WIDGET_PADDING;
   return (
     <Spring
       config={{
@@ -397,8 +407,8 @@ export function Resizable(props: ResizableProps) {
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
-        width: reflowedPosition?.width || newDimensions.width,
-        height: newDimensions.height,
+        width: widgetWidth,
+        height: widgetHeight,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}
     >

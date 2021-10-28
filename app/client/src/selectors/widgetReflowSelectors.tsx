@@ -2,7 +2,8 @@ import { AppState } from "reducers";
 import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
 import { createSelector } from "reselect";
 
-const getReflow = (state: AppState): widgetReflowState => state.ui.widgetReflow;
+export const getReflow = (state: AppState): widgetReflowState =>
+  state.ui.widgetReflow;
 
 export const getReflowSelector = (widgetId: string) => {
   return createSelector(getReflow, (reflowState: widgetReflowState) => {
