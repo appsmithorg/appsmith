@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 
 const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
-  overflow: hidden;
   & {
     * {
       pointer-events: ${(props) => !props.prevents && "none"};

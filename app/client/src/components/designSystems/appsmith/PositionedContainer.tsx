@@ -86,10 +86,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
       backgroundColor: "inherit",
       transform: `translate(${reflowX}px,${reflowY}px)`,
     };
-    if (reflowedPosition) {
-      styles.padding = "0px";
-      styles.border = "4px solid cadetblue";
-    }
+    // if (reflowedPosition) {
+    //   styles.padding = "0px";
+    //   styles.border = "4px solid cadetblue";
+    // }
     return styles;
   }, [
     props.style,
