@@ -29,6 +29,52 @@
           "configProperty": "actionConfiguration.formData.list.prefix",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
+        },
+        {
+          "label": "Where",
+          "configProperty": "actionConfiguration.formData.list.where",
+          "nestedLevels": 3,
+          "controlType": "WHERE_CLAUSE",
+          "logicalTypes": [
+            {
+              "label": "OR",
+              "value": "OR"
+            },
+            {
+              "label": "AND",
+              "value": "AND"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "<",
+              "value": "LT"
+            },
+            {
+              "label": "<=",
+              "value": "LTE"
+            },
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": ">=",
+              "value": "GTE"
+            },
+            {
+              "label": ">",
+              "value": "GT"
+            },
+            {
+              "label": "in",
+              "value": "IN"
+            },
+            {
+              "label": "not in",
+              "value": "NOT_IN"
+            }
+          ]
         }
       ]
     },
