@@ -15,7 +15,7 @@ export type conditionBlock = {
 };
 
 export type whereClauseValueType = {
-  logicalType: string;
+  condition: string;
   children: [conditionBlock | whereClauseValueType];
 };
 
@@ -43,7 +43,7 @@ const conditionFieldConfig: any = {
 
 const logicalFieldConfig: any = {
   label: "Operator",
-  key: "logicalType",
+  key: "condition",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
   options: [],
@@ -189,7 +189,7 @@ function NestedComponents(props: any) {
         <FormControl
           config={{
             ...logicalFieldConfig,
-            configProperty: `${props.configProperty}.logicalType`,
+            configProperty: `${props.configProperty}.condition`,
             options: props.logicalTypes,
             initialValue: props.logicalTypes[0],
           }}
@@ -202,10 +202,7 @@ function NestedComponents(props: any) {
               // eslint-disable-next-line no-console
               // console.log("Ayush checking children of fields", field);
               const fieldValue = props.fields.get(index);
-              if (
-                !!fieldValue &&
-                ("logicalType" in fieldValue || "children" in fieldValue)
-              ) {
+              if (!!fieldValue && "children" in fieldValue) {
                 // eslint-disable-next-line no-console
                 console.log(
                   "Ayush checking for special child",
@@ -267,7 +264,7 @@ function NestedComponents(props: any) {
           <AddMoreAction
             onClick={() => {
               props.fields.push({
-                logicalType: props.logicalTypes[0].value,
+                condition: props.logicalTypes[0].value,
                 children: [{}],
               });
               // eslint-disable-next-line no-console
