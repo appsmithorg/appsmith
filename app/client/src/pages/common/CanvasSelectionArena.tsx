@@ -12,7 +12,6 @@ import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
-  getPanningEnabled,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
@@ -60,7 +59,6 @@ export function CanvasSelectionArena({
 }) {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
-  const isPanningEnabled = useSelector(getPanningEnabled);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
     getWidget(state, parentId || ""),
@@ -347,7 +345,7 @@ export function CanvasSelectionArena({
         }
       };
       const onMouseMove = (e: any) => {
-        if (isDragging && canvasRef.current && isPanningEnabled === false) {
+        if (isDragging && canvasRef.current) {
           selectionRectangle.width =
             e.offsetX - canvasRef.current.offsetLeft - selectionRectangle.left;
           selectionRectangle.height =
@@ -441,7 +439,6 @@ export function CanvasSelectionArena({
     snapRows,
     snapColumnSpace,
     snapRowSpace,
-    isPanningEnabled,
   ]);
 
   const shouldShow =

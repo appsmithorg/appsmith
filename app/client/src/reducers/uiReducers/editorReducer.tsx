@@ -29,9 +29,6 @@ const initialState: EditorReduxState = {
   isSnipingMode: false,
   isPreviewMode: false,
   zoomLevel: 1,
-  isPanning: false,
-  panningEnabled: false,
-  panningAllowed: true,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -196,15 +193,6 @@ const editorReducer = createReducer(initialState, {
       isPreviewMode: action.payload,
     };
   },
-  [ReduxActionTypes.UPDATE_CANVAS_IS_PANNING]: (
-    state: EditorReduxState,
-    action: ReduxAction<number>,
-  ) => {
-    return {
-      ...state,
-      isPanning: action.payload,
-    };
-  },
 });
 
 export interface EditorReduxState {
@@ -218,9 +206,6 @@ export interface EditorReduxState {
   isSnipingMode: boolean;
   isPreviewMode: boolean;
   zoomLevel: number;
-  isPanning: boolean;
-  panningEnabled: boolean;
-  panningAllowed: boolean;
   loadingStates: {
     saving: boolean;
     savingError: boolean;

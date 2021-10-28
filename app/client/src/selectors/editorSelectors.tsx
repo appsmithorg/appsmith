@@ -392,33 +392,3 @@ export const previewModeSelector = (state: AppState) => {
 export const getZoomLevel = (state: AppState) => {
   return state.ui.editor.zoomLevel;
 };
-
-/**
- * returns the `state.ui.editor.isPanning`
- *
- * @param state AppState
- * @returns boolean
- */
-export const getIsPanning = (state: AppState) => {
-  return state.ui.editor.isPanning;
-};
-
-/**
- * returns the `state.ui.editor.panningEnabled`
- *
- * @param state AppState
- * @returns boolean
- */
-export const getPanningEnabled = (state: AppState) => {
-  return state.ui.editor.panningEnabled;
-};
-
-/**
- * returns the `state.ui.editor.panningAllowed`
- *
- * @param state AppState
- * @returns boolean
- */
-export const getPanningAllowed = (state: AppState) => {
-  return state.ui.editor.panningAllowed;
-};
