@@ -164,7 +164,7 @@
                   {
                     "widgetName": "Chart1",
                     "rightColumn": 8,
-                    "allowHorizontalScroll": false,
+                    "allowScroll": false,
                     "widgetId": "n536wy81vu",
                     "topRow": 3,
                     "bottomRow": 14,
@@ -324,7 +324,7 @@
                   {
                     "widgetName": "Chart1",
                     "rightColumn": 8,
-                    "allowHorizontalScroll": false,
+                    "allowScroll": false,
                     "widgetId": "n536wy81vu",
                     "topRow": 3,
                     "bottomRow": 14,
@@ -537,7 +537,7 @@
                   {
                     "widgetName": "Chart1",
                     "rightColumn": 8,
-                    "allowHorizontalScroll": false,
+                    "allowScroll": false,
                     "widgetId": "ul3c5oquih",
                     "topRow": 4,
                     "bottomRow": 14,
@@ -801,7 +801,7 @@
                   {
                     "widgetName": "Chart1",
                     "rightColumn": 8,
-                    "allowHorizontalScroll": false,
+                    "allowScroll": false,
                     "widgetId": "ul3c5oquih",
                     "topRow": 4,
                     "bottomRow": 14,
@@ -2856,7 +2856,7 @@
                     "widgetName": "Chart1",
                     "chartType": "PIE_CHART",
                     "chartName": "Orders",
-                    "allowHorizontalScroll": false,
+                    "allowScroll": false,
                     "chartData": "[{\"seriesName\":\"Order Status\",\"data\":\"[\\n  {\\n    \\\"x\\\": \\\"ORDER_PLACED\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"ORDER_PLACED\\\" }).length}}\\n  },\\n    {\\n    \\\"x\\\": \\\"OUT_FOR_DELIVERY\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"OUT_FOR_DELIVERY\\\" }).length}}\\n  },\\n  {\\n    \\\"x\\\": \\\"PAYMENT_PENDING\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"PAYMENT_PENDING\\\" }).length}}\\n  },\\n    {\\n    \\\"x\\\": \\\"REFUNDED\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"REFUNDED\\\" }).length}}\\n  }\\n  \\n]\"}]",
                     "xAxisName": "Last Week",
                     "yAxisName": "Total Order Revenue $",
@@ -4277,7 +4277,7 @@
                     "widgetName": "Chart1",
                     "chartType": "PIE_CHART",
                     "chartName": "Orders",
-                    "allowHorizontalScroll": false,
+                    "allowScroll": false,
                     "chartData": "[{\"seriesName\":\"Order Status\",\"data\":\"[\\n  {\\n    \\\"x\\\": \\\"ORDER_PLACED\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"ORDER_PLACED\\\" }).length}}\\n  },\\n    {\\n    \\\"x\\\": \\\"OUT_FOR_DELIVERY\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"OUT_FOR_DELIVERY\\\" }).length}}\\n  },\\n  {\\n    \\\"x\\\": \\\"PAYMENT_PENDING\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"PAYMENT_PENDING\\\" }).length}}\\n  },\\n    {\\n    \\\"x\\\": \\\"REFUNDED\\\",\\n    \\\"y\\\": {{getOrders.data.filter((order) => { return order.status === \\\"REFUNDED\\\" }).length}}\\n  }\\n  \\n]\"}]",
                     "xAxisName": "Last Week",
                     "yAxisName": "Total Order Revenue $",

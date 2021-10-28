@@ -39,7 +39,9 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { Profile } from "pages/common/ProfileImage";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton from "pages/Editor/ToggleModeButton";
+import ToggleCommentModeButton, {
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import GetAppViewerHeaderCTA from "./GetAppViewerHeaderCTA";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -155,7 +157,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const hideHeader = !!isEmbed;
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
-
+  const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
@@ -199,9 +201,11 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                 <AppsmithLogoImg />
               </PrimaryLogoLink>
             </div>
-            <div>
-              <ToggleCommentModeButton />
-            </div>
+            {!shouldHideComments && (
+              <div>
+                <ToggleCommentModeButton />
+              </div>
+            )}
           </HeaderSection>
           <HeaderSection className="current-app-name" justify={"center"}>
             {currentApplicationDetails && (
