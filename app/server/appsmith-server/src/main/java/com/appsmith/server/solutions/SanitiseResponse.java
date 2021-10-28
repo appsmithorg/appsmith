@@ -14,6 +14,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -31,6 +32,14 @@ public class SanitiseResponse {
         }
         page.setApplicationId(defaults.getApplicationId());
         page.setId(defaults.getPageId());
+
+        page.getLayouts()
+                .stream().filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                .forEach(layout -> layout.getLayoutOnLoadActions()
+                        .forEach(dslActionDTOS -> dslActionDTOS
+                                .forEach(actionDTO -> actionDTO.setId(actionDTO.getDefaultActionId())))
+                );
+
         return page;
     }
 

@@ -883,6 +883,9 @@ public class PageLoadActionsUtil {
         dslActionDTO.setPluginType(actionDTO.getPluginType());
         dslActionDTO.setJsonPathKeys(actionDTO.getJsonPathKeys());
         dslActionDTO.setName(actionDTO.getValidName());
+        if (actionDTO.getDefaultResources() != null) {
+            dslActionDTO.setDefaultActionId(actionDTO.getDefaultResources().getActionId());
+        }
 
         if (actionDTO.getActionConfiguration() != null) {
             dslActionDTO.setTimeoutInMillisecond(actionDTO.getActionConfiguration().getTimeoutInMillisecond());
