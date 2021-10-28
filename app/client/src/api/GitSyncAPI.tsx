@@ -68,9 +68,10 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeBranchPayload): AxiosPromise<ApiResponse> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/merge/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
-    );
+    return Api.post(`${GitSyncAPI.baseURL}/merge/${applicationId}`, {
+      sourceBranch,
+      destinationBranch,
+    });
   }
 
   static connect(payload: ConnectToGitPayload, applicationId: string) {
