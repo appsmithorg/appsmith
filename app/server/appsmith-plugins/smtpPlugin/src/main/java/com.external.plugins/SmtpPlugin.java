@@ -6,7 +6,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
@@ -17,10 +16,12 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import javax.mail.AuthenticationFailedException;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.NoSuchProviderException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -53,13 +54,13 @@ public class SmtpPlugin extends BasePlugin {
             ActionExecutionResult result = new ActionExecutionResult();
             try {
                 String fromAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.from");
-                String toAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.to");
-                String ccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.cc");
-                String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.bcc");
-                String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.subject");
+                String toAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.to");
+                String ccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.cc");
+                String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
+                String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
                 Boolean isReplyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
                 String replyTo = (isReplyTo != null && isReplyTo) ?
-                        (String) getValueSafelyFromFormData(actionConfiguration.getFormData(),"send.replyTo") : null;
+                        (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
 
                 if (!StringUtils.hasText(toAddress)) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -100,9 +101,9 @@ public class SmtpPlugin extends BasePlugin {
                 result.setIsExecutionSuccess(true);
                 Map<String, String> responseBody = new HashMap<>();
                 responseBody.put("message", "Sent the email successfully");
-                
+
                 result.setBody(objectMapper.writeValueAsString(responseBody));
-            } catch(AddressException e) {
+            } catch (AddressException e) {
                 e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to " + e.getMessage()));
@@ -125,7 +126,7 @@ public class SmtpPlugin extends BasePlugin {
 
             Properties prop = new Properties();
             prop.put("mail.smtp.auth", true);
-            prop.put("mail.smtp.starttls.enable", "false");
+            prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.host", endpoint.getHost());
             prop.put("mail.smtp.port", String.valueOf(endpoint.getPort()));
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
@@ -144,11 +145,22 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session connection) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Operation not supported");
+            System.out.println("Going to destroy an email datasource");
+            try {
+                Transport transport = connection.getTransport();
+                if (transport != null) {
+                    transport.close();
+                }
+            } catch (NoSuchProviderException e) {
+                e.printStackTrace();
+            } catch (MessagingException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            System.out.println("Going to validate an email datasource");
             Set<String> invalids = new HashSet<>();
             if (datasourceConfiguration.getEndpoints() == null ||
                     datasourceConfiguration.getEndpoints().isEmpty() ||
@@ -180,12 +192,30 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
+            System.out.println("Going to test an email datasource");
+            Mono<Session> sessionMono = datasourceCreate(datasourceConfiguration);
+            return sessionMono.map(session -> {
+                Set<String> invalids = new HashSet<>();
+                try {
+                    Transport transport = session.getTransport();
+                    if (transport != null) {
+                        transport.connect();
+                    }
+                    return invalids;
+                } catch (NoSuchProviderException e) {
+                    invalids.add("Unable to create underlying SMTP protocol. Please contact support");
+                } catch (AuthenticationFailedException e) {
+                    invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
+                } catch (MessagingException e) {
+                    invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
+                    e.printStackTrace();
+                }
+                return invalids;
+            }).map(invalids -> {
+                DatasourceTestResult testResult = new DatasourceTestResult(invalids);
+                return testResult;
+            });
         }
 
-        @Override
-        public Mono<DatasourceStructure> getStructure(Session connection, DatasourceConfiguration datasourceConfiguration) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Operation not supported"));
-        }
     }
 }

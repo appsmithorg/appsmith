@@ -11,18 +11,48 @@
       "description" : "Optional",
       "children": [
         {
-          "label": "From Address",
+          "label": "From email",
           "configProperty": "actionConfiguration.formData.send.from",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "fromAddress@example.com"
         },
         {
-          "label": "To Address",
+          "label": "Set Reply To Email",
+          "configProperty": "actionConfiguration.formData.send.isReplyTo",
+          "controlType": "SWITCH",
+          "evaluationSubstitutionType": "TEMPLATE"
+        },
+        {
+          "label": "Reply to email",
+          "configProperty": "actionConfiguration.formData.send.replyTo",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "replyTo@example.com",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.send.isReplyTo === true}}"
+          }
+        },
+        {
+          "label": "To email(s)",
           "configProperty": "actionConfiguration.formData.send.to",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "toAddress@example.com"
+          "placeholderText": "to@example.com,to2@example.com"
+        },
+        {
+          "label": "CC email(s)",
+          "configProperty": "actionConfiguration.formData.send.cc",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "cc@example.com,cc2@example.com"
+        },
+        {
+          "label": "BCC email(s)",
+          "configProperty": "actionConfiguration.formData.send.bcc",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "bcc@example.com,bcc2@example.com"
         },
         {
           "label": "Subject",
@@ -34,7 +64,7 @@
         {
           "label": "Body",
           "configProperty": "actionConfiguration.body",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "Incredible body text"
         }
