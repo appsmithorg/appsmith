@@ -62,9 +62,9 @@ export const entityDefinitions: Record<string, unknown> = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
-    countryCode: {
+    dialCode: {
       "!type": "string",
-      "!doc": "Selected country code for Phone Number type input",
+      "!doc": "Selected international dialing code for Phone Number type input",
     },
     currencyCode: {
       "!type": "string",

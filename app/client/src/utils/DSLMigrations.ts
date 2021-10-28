@@ -979,6 +979,10 @@ export const transformDSL = (
   }
   if (currentDSL.version === 44) {
     currentDSL = isSortableMigration(currentDSL);
+    currentDSL.version = 45;
+  }
+  if (currentDSL.version === 45) {
+    currentDSL = migrateInputWidgetDefaultSelectedPhoneNumberCode(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

@@ -564,7 +564,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           }
         })()
       }}`,
-      countryCode: `{{this.selectedPhoneNumberCountryCode ? this.selectedPhoneNumberCountryCode : this.phoneNumberCountryCode}}`,
+      dialCode: `{{this.selectedPhoneNumberCountryCode ? this.selectedPhoneNumberCountryCode : this.phoneNumberCountryCode}}`,
       currencyCode: `{{this.selectedCurrencyCountryCode ? this.selectedCurrencyCountryCode : this.currencyCountryCode}}`,
       value: `{{this.text}}`,
     };
@@ -721,7 +721,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
-        phoneNumberCountryCode={this.props.countryCode}
+        phoneNumberCountryCode={this.props.dialCode}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
         stepSize={1}
@@ -748,7 +748,7 @@ export interface InputWidgetProps extends WidgetProps {
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
   phoneNumberCountryCode?: string;
-  countryCode?: string;
+  dialCode?: string;
   currencyCode?: string;
   decimalsInCurrency?: number;
   defaultText?: string | number;
