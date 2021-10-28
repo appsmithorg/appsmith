@@ -147,6 +147,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> save(Application application) {
+        if(!StringUtils.isEmpty(application.getName())) {
+            application.setSlug(TextUtils.getSlug(application.getName()));
+        }
         return repository.save(application)
                 .flatMap(this::setTransientFields);
     }
@@ -165,7 +168,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
-        application.setSlug(TextUtils.getSlug(application.getName()));
+        if(!StringUtils.isEmpty(application.getName())) {
+            application.setSlug(TextUtils.getSlug(application.getName()));
+        }
         return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
             .onErrorResume(error -> {
                 if (error instanceof DuplicateKeyException) {

@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -129,9 +130,8 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<PageDTO> createDefault(PageDTO object) {
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(object);
-        object.setSlug(TextUtils.getSlug(object.getName()));
-
         newPage.setApplicationId(object.getApplicationId());
+        newPage.getUnpublishedPage().setSlug(object.getName());
         newPage.setPolicies(object.getPolicies());
         if (newPage.getGitSyncId() == null) {
             newPage.setGitSyncId(newPage.getApplicationId() + "_" + Instant.now().toString());
@@ -385,7 +385,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(dbPage -> {
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
-                    dbPage.getUnpublishedPage().setSlug(TextUtils.getSlug(page.getName()));
+                    if(!StringUtils.isEmpty(page.getName())) {
+                        dbPage.getUnpublishedPage().setSlug(TextUtils.getSlug(page.getName()));
+                    }
                     return this.update(id, dbPage);
                 })
                 .flatMap(savedPage -> applicationService.saveLastEditInformation(savedPage.getApplicationId())
