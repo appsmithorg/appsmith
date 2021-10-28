@@ -54,7 +54,6 @@ export interface ControlData {
   placeholderText?: string;
   schema?: any;
   logicalTypes?: string[];
-  comparisonKeys?: string[];
   comparisonTypes?: string[];
   nestedLevels?: number;
   customStyles?: any;

@@ -8,41 +8,39 @@ import { FieldArray } from "redux-form";
 import FormLabel from "components/editorComponents/FormLabel";
 import { ControlProps } from "./BaseControl";
 
-export type conditionBlock = {
-  key: string;
-  value: string;
-  condition: string;
-};
-
+// Type of the value for each condition
 export type whereClauseValueType = {
-  condition: string;
-  children: [conditionBlock | whereClauseValueType];
+  condition?: string;
+  children?: [whereClauseValueType];
+  key?: string;
+  value?: string;
 };
 
+// Form config for the value field
 const valueFieldConfig: any = {
-  // label: "Value",
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
 };
 
+// Form config for the key field
 const keyFieldConfig: any = {
-  // label: "Key",
   key: "key",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "key",
 };
 
+// Form config for the condition field
 const conditionFieldConfig: any = {
-  // label: "Operator",
   key: "operator",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
   options: [],
 };
 
+// Form config for the operator field
 const logicalFieldConfig: any = {
-  label: "Operator",
+  label: "Condition",
   key: "condition",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
@@ -50,8 +48,8 @@ const logicalFieldConfig: any = {
   customStyles: { width: "10vh", height: "30px" },
 };
 
+// Component for the delete Icon
 const CenteredIcon = styled(Icon)`
-  /* margin-top: 25px; */
   margin-left: 5px;
   align-self: end;
   margin-bottom: 10px;
@@ -61,6 +59,7 @@ const CenteredIcon = styled(Icon)`
   }
 `;
 
+// Outer box that houses the whole component
 const PrimaryBox = styled.div`
   display: flex;
   width: 105vh;
@@ -69,41 +68,39 @@ const PrimaryBox = styled.div`
   padding: 10px;
 `;
 
+// Wrapper inside the main box, contains the dropdown and ConditionWrapper
 const SecondaryBox = styled.div`
   display: flex;
   flex-direction: row;
 `;
 
+// Wrapper to contain either a ConditionComponent or ConditionBlock
 const ConditionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: min-content;
-  /* align-items: center; */
   justify-content: space-between;
-  /* padding: 5px; */
 `;
 
+// Wrapper to contain a single condition statement
 const ConditionBox = styled.div`
   display: flex;
   flex-direction: row;
   width: min-content;
-  /* align-items: center; */
   justify-content: space-between;
-  /* padding: 5px; */
 `;
 
+// Box containing the action buttons to add more filters
 const ActionBox = styled.div`
   display: flex;
   margin-top: 16px;
   flex-direction: row;
   width: max-content;
-  /* align-items: center; */
   justify-content: space-between;
-  /* padding: 5px; */
 `;
 
+// The final button to add more filters/ filter groups
 const AddMoreAction = styled.div`
-  /* width: fit-content; */
   cursor: pointer;
   .${Classes.TEXT} {
     margin-left: 8px;
@@ -111,12 +108,16 @@ const AddMoreAction = styled.div`
   }
 `;
 
+// Component to display single line of condition, includes 2 inputs and 1 dropdown
 function ConditionComponent(props: any, index: number) {
+  // Custom styles have to be passed as props, otherwise the UI will be disproportional
   const customStyles = {
+    // 15 is subtracted because the width of the operator dropdown is 15px
     width: `${(props.maxWidth - 15) / 3}vh`,
     height: "30px",
   };
 
+  // Labels are only displayed if the condition is the first one
   let keyLabel = "";
   let valueLabel = "";
   let conditionLabel = "";
@@ -127,6 +128,7 @@ function ConditionComponent(props: any, index: number) {
   }
   return (
     <ConditionBox key={index}>
+      {/* Component to input the LHS for single condition */}
       <FormControl
         config={{
           ...keyFieldConfig,
@@ -136,6 +138,7 @@ function ConditionComponent(props: any, index: number) {
         }}
         formName={props.formName}
       />
+      {/* Component to select the operator for the 2 inputs */}
       <FormControl
         config={{
           ...conditionFieldConfig,
@@ -147,6 +150,7 @@ function ConditionComponent(props: any, index: number) {
         }}
         formName={props.formName}
       />
+      {/* Component to input the RHS for single component */}
       <FormControl
         config={{
           ...valueFieldConfig,
@@ -156,6 +160,7 @@ function ConditionComponent(props: any, index: number) {
         }}
         formName={props.formName}
       />
+      {/* Component to render the delete icon */}
       <CenteredIcon
         name="cross"
         onClick={(e) => {
@@ -168,7 +173,8 @@ function ConditionComponent(props: any, index: number) {
   );
 }
 
-function NestedComponents(props: any) {
+// This is the block which contains an operator and multiple conditions/ condition blocks
+function ConditionBlock(props: any) {
   useEffect(() => {
     if (props.fields.length < 1) {
       if (props.currentNestingLevel === 0) {
@@ -181,11 +187,17 @@ function NestedComponents(props: any) {
   const onDeletePressed = (index: number) => {
     props.fields.remove(index);
   };
-  // eslint-disable-next-line no-console
-  // console.log("Ayush checking fields", props.fields);
+  let marginTop = "8px";
+  // In case the first component is a complex element, add extra margin
+  // because the keys are not visible. Will not affect the outer most
+  // component because index is not present in the props
+  if (props.index === 0) {
+    marginTop = "24px";
+  }
   return (
-    <PrimaryBox style={{ width: `${props.maxWidth}vh` }}>
+    <PrimaryBox style={{ width: `${props.maxWidth}vh`, marginTop }}>
       <SecondaryBox>
+        {/* Component to render the joining operator between multiple conditions */}
         <FormControl
           config={{
             ...logicalFieldConfig,
@@ -199,21 +211,13 @@ function NestedComponents(props: any) {
           {props.fields &&
             props.fields.length > 0 &&
             props.fields.map((field: any, index: number) => {
-              // eslint-disable-next-line no-console
-              // console.log("Ayush checking children of fields", field);
-              const fieldValue = props.fields.get(index);
+              const fieldValue: whereClauseValueType = props.fields.get(index);
               if (!!fieldValue && "children" in fieldValue) {
-                // eslint-disable-next-line no-console
-                console.log(
-                  "Ayush checking for special child",
-                  fieldValue,
-                  props,
-                  field,
-                );
+                // If the value contains children in it, that means it is a ConditionBlock
                 return (
                   <ConditionBox>
                     <FieldArray
-                      component={NestedComponents}
+                      component={ConditionBlock}
                       key={`${field}.children`}
                       name={`${field}.children`}
                       props={{
@@ -221,7 +225,6 @@ function NestedComponents(props: any) {
                         configProperty: `${field}`,
                         formName: props.formName,
                         logicalTypes: props.logicalTypes,
-                        comparisonKeys: props.comparisonKeys,
                         comparisonTypes: props.comparisonTypes,
                         nestedLevels: props.nestedLevels,
                         currentNestingLevel: props.currentNestingLevel + 1,
@@ -241,6 +244,7 @@ function NestedComponents(props: any) {
                   </ConditionBox>
                 );
               } else {
+                // Render a single condition component
                 return ConditionComponent(
                   {
                     onDeletePressed,
@@ -260,6 +264,7 @@ function NestedComponents(props: any) {
           {/*Hardcoded label to be removed */}
           <Text type={TextType.H5}>+ Add Filter</Text>
         </AddMoreAction>
+        {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         {props.currentNestingLevel < props.nestedLevels && (
           <AddMoreAction
             onClick={() => {
@@ -282,20 +287,21 @@ function NestedComponents(props: any) {
 
 export default function WhereClauseControl(props: WhereClauseControlProps) {
   const {
-    comparisonKeys,
-    comparisonTypes,
-    configProperty,
-    formName,
-    label,
-    logicalTypes,
-    nestedLevels,
+    comparisonTypes, // All possible keys for the comparison
+    configProperty, // JSON path for the where clause data
+    formName, // Name of the form, used by redux-form lib to store the data in redux store
+    label, // Label for the where clause
+    logicalTypes, // All possible keys for the logical operators joining multiple conditions
+    nestedLevels, // Number of nested levels allowed
   } = props;
+
+  // Max width is designed in a way that the proportion stays same even after nesting
   const maxWidth = 105;
   return (
     <>
       <FormLabel>{label}</FormLabel>
       <FieldArray
-        component={NestedComponents}
+        component={ConditionBlock}
         key={`${configProperty}.children`}
         name={`${configProperty}.children`}
         props={{
@@ -303,7 +309,6 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
           maxWidth,
           formName,
           logicalTypes,
-          comparisonKeys,
           comparisonTypes,
           nestedLevels,
           currentNestingLevel: 0,
