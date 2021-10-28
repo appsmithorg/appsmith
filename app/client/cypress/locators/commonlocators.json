@@ -125,5 +125,14 @@
   "viewerPage": ".t--app-viewer-page",
   "dropDownOptSelected": "//span[@type='p1']",
   "generalChevran":".t--property-pane-section-collapse-general  [icon=chevron-right]",
-  "generalSection":".t--property-pane-section-general"
+  "generalSection":".t--property-pane-section-general",
+  "labelSection": ".cm-keyword",
+  "lintWarning": ".CodeMirror-lint-mark-warning",
+  "lintErrorMsg": ".CodeMirror-lint-message-error",
+  "lintWarningMsg": ".CodeMirror-lint-message-warning",
+  "labelSectionTxt": ".CodeMirror-code .cm-variable",
+  "lintError": ".CodeMirror-lint-mark-error",
+  "debugger": ".t--debugger svg",
+  "errorTab": "[data-cy=t--tab-ERROR]",
+  "debugErrorMsg": ".t--debugger-message"
 }
