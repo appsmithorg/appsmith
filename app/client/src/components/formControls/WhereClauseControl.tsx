@@ -194,6 +194,11 @@ function ConditionBlock(props: any) {
   if (props.index === 0) {
     marginTop = "24px";
   }
+
+  let isDisabled = false;
+  if (props.logicalTypes.length === 1) {
+    isDisabled = true;
+  }
   return (
     <PrimaryBox style={{ width: `${props.maxWidth}vh`, marginTop }}>
       <SecondaryBox>
@@ -203,7 +208,8 @@ function ConditionBlock(props: any) {
             ...logicalFieldConfig,
             configProperty: `${props.configProperty}.condition`,
             options: props.logicalTypes,
-            initialValue: props.logicalTypes[0],
+            initialValue: props.logicalTypes[0].value,
+            isDisabled,
           }}
           formName={props.formName}
         />

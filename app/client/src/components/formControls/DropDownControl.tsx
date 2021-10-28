@@ -53,7 +53,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const {
       configProperty,
       customStyles,
+      isDisabled,
       isRequired,
+      isSearchable,
       label,
       options,
       subtitle,
@@ -77,6 +79,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         <DropdownSelect data-cy={configProperty} style={{ width }}>
           <DropdownField
             customSelectStyles={customSelectStyles}
+            isDisabled={isDisabled}
+            isSearchable={isSearchable}
             name={configProperty}
             options={options}
             placeholder=""
@@ -117,6 +121,8 @@ export interface DropDownControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
+  isDisabled?: boolean;
+  isSearchable?: boolean;
 }
 
 export default DropDownControl;
