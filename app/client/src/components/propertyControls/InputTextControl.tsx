@@ -6,6 +6,7 @@ import CodeEditor, {
   CodeEditorExpected,
 } from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -42,10 +43,12 @@ export function InputText(props: {
     <StyledDynamicInput>
       <CodeEditor
         additionalDynamicData={props.additionalAutocomplete}
+        border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
+        hoverInteraction
         input={{
           value: value,
           onChange: onChange,

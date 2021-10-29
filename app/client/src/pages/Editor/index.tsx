@@ -36,10 +36,20 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import history from "utils/history";
 import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
+import { getCurrentPageId } from "selectors/editorSelectors";
+
+import { getSearchQuery } from "utils/helpers";
+import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
+import {
+  collabStartSharingPointerEvent,
+  collabStopSharingPointerEvent,
+} from "actions/appCollabActions";
+
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
-  initEditor: (applicationId: string, pageId: string) => void;
+  initEditor: (applicationId: string, pageId: string, branch?: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
@@ -52,6 +62,11 @@ type EditorProps = {
   handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
+  handleBranchChange: (branch: string) => void;
+  currentPageId?: string;
+  isPageLevelSocketConnected: boolean;
+  collabStartSharingPointerEvent: (pageId: string) => void;
+  collabStopSharingPointerEvent: (pageId?: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -67,16 +82,43 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
+
+    const {
+      location: { search },
+    } = this.props;
+    const branch = getSearchQuery(search, "branch");
+
     const { applicationId, pageId } = this.props.match.params;
-    if (applicationId && pageId) {
-      this.props.initEditor(applicationId, pageId);
+    if (applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
+
+    if (this.props.isPageLevelSocketConnected && pageId) {
+      this.props.collabStartSharingPointerEvent(pageId);
+    }
+  }
+
+  getIsBranchUpdated(props1: Props, props2: Props) {
+    const {
+      location: { search: search1 },
+    } = props1;
+    const {
+      location: { search: search2 },
+    } = props2;
+
+    const branch1 = getSearchQuery(search1, "branch");
+    const branch2 = getSearchQuery(search2, "branch");
+
+    return branch1 !== branch2;
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, nextProps);
+
     return (
+      isBranchUpdated ||
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
@@ -88,22 +130,45 @@ class Editor extends Component<Props> {
         this.props.isEditorInitializeError ||
       nextProps.creatingOnboardingDatabase !==
         this.props.creatingOnboardingDatabase ||
-      nextState.registered !== this.state.registered
+      nextState.registered !== this.state.registered ||
+      (nextProps.isPageLevelSocketConnected &&
+        !this.props.isPageLevelSocketConnected)
     );
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { pageId } = this.props.match.params || {};
+    const { applicationId, pageId } = this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
-    if (pageId && pageId !== prevPageId) {
-      this.props.updateCurrentPage(pageId);
-      this.props.fetchPage(pageId);
+    const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
+
+    const branch = getSearchQuery(this.props.location.search, "branch");
+
+    const isPageIdUpdated = pageId !== prevPageId;
+
+    if (isBranchUpdated && applicationId) {
+      this.props.initEditor(applicationId, pageId, branch);
+    } else {
+      /**
+       * First time load is handled by init sagas
+       * If we don't check for `prevPageId`: fetch page is retriggered
+       * when redirected to the default page
+       */
+      if (prevPageId && pageId && isPageIdUpdated) {
+        this.props.updateCurrentPage(pageId);
+        this.props.fetchPage(pageId);
+      }
+    }
+
+    if (this.props.isPageLevelSocketConnected && isPageIdUpdated) {
+      this.props.collabStartSharingPointerEvent(pageId);
     }
   }
 
   componentWillUnmount() {
+    const { pageId } = this.props.match.params || {};
     this.props.resetEditorRequest();
     if (typeof this.unlisten === "function") this.unlisten();
+    this.props.collabStopSharingPointerEvent(pageId);
   }
 
   handleHistoryChange = (location: any) => {
@@ -143,6 +208,7 @@ class Editor extends Component<Props> {
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
+              <ConcurrentPageEditorToast />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />
@@ -163,17 +229,23 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
+  currentPageId: getCurrentPageId(state),
+  isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string) =>
-      dispatch(initEditor(applicationId, pageId)),
+    initEditor: (applicationId: string, pageId: string, branch?: string) =>
+      dispatch(initEditor(applicationId, pageId, branch)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
+    collabStartSharingPointerEvent: (pageId: string) =>
+      dispatch(collabStartSharingPointerEvent(pageId)),
+    collabStopSharingPointerEvent: (pageId?: string) =>
+      dispatch(collabStopSharingPointerEvent(pageId)),
   };
 };
 

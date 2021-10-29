@@ -231,7 +231,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetName: "Chart1",
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
-      allowHorizontalScroll: false,
+      allowScroll: false,
       version: 1,
       chartData: {
         "random-id": {

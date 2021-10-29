@@ -43,7 +43,7 @@ APPSMITH_CLIENT_LOG_LEVEL=
 APPSMITH_GOOGLE_MAPS_API_KEY=
 
 # Email server
-APPSMITH_MAIL_ENABLED=
+APPSMITH_MAIL_ENABLED=false
 APPSMITH_MAIL_HOST=
 APPSMITH_MAIL_PORT=
 APPSMITH_MAIL_USERNAME=
@@ -58,7 +58,7 @@ APPSMITH_MAIL_SMTP_TLS_ENABLED=
 
 # Disable all telemetry
 # Note: This only takes effect in self-hosted scenarios. 
-# Please visit: https://docs.appsmith.com/v/v1.2.1/setup/telemetry to read more about anonymized data collected by Appsmith
+# Please visit: https://docs.appsmith.com/telemetry to read more about anonymized data collected by Appsmith
 APPSMITH_DISABLE_TELEMETRY=false
 
 #APPSMITH_SENTRY_DSN=
@@ -77,8 +77,6 @@ APPSMITH_MONGODB_URI=mongodb://appsmith:$MONGO_PASSWORD@localhost/appsmith
 APPSMITH_API_BASE_URL=http://localhost:8080
 
 APPSMITH_REDIS_URL=redis://127.0.0.1:6379
-
-APPSMITH_MAIL_ENABLED=false
 
 APPSMITH_ENCRYPTION_PASSWORD=$ENCRYPTION_PASSWORD
 APPSMITH_ENCRYPTION_SALT=$ENCRYPTION_SALT

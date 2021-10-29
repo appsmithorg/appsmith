@@ -6,6 +6,7 @@ import { cloneDeep } from "lodash";
 const initialState: AppCollabReducerState = {
   editors: [],
   pointerData: {},
+  pageEditors: [],
 };
 
 const appCollabReducer = createReducer(initialState, {
@@ -51,6 +52,13 @@ const appCollabReducer = createReducer(initialState, {
       pointerData: {},
     };
   },
+  [ReduxActionTypes.APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS]: (
+    state: AppCollabReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    pageEditors: action.payload,
+  }),
 });
 
 type PointerDataType = {
@@ -60,6 +68,7 @@ type PointerDataType = {
 export type AppCollabReducerState = {
   editors: User[];
   pointerData: PointerDataType;
+  pageEditors: User[];
 };
 
 export default appCollabReducer;

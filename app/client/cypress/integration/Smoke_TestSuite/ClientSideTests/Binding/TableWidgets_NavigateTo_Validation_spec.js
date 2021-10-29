@@ -20,7 +20,7 @@ describe("Table Widget and Navigate to functionality validation", function() {
     cy.get(widgetsPage.tableOnRowSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Navigate To")
+      .contains("Navigate to")
       .click();
     cy.enterNavigatePageName(pageid);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });

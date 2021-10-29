@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import {
-  INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
   QueryEditorRouteParams,
@@ -13,7 +12,10 @@ import history from "utils/history";
 import QueryEditorForm from "./Form";
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import { AppState } from "reducers";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
@@ -78,6 +80,7 @@ type ReduxStateProps = {
   settingConfig: any;
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
+  applicationId: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -151,6 +154,7 @@ class QueryEditor extends React.Component<Props> {
 
   render() {
     const {
+      applicationId,
       dataSources,
       editorConfig,
       isCreating,
@@ -167,7 +171,7 @@ class QueryEditor extends React.Component<Props> {
       settingConfig,
       uiComponent,
     } = this.props;
-    const { applicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
 
     if (!pluginIds?.length) {
       return (
@@ -191,12 +195,7 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(
-          applicationId,
-          pageId,
-          INTEGRATION_TABS.NEW,
-          INTEGRATION_EDITOR_MODES.AUTO,
-        ),
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
     };
     return (
@@ -264,6 +263,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
+    applicationId: getCurrentApplicationId(state),
   };
 };
 

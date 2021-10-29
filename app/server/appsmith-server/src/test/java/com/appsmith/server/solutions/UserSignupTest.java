@@ -60,7 +60,6 @@ public class UserSignupTest {
                 configService,
                 analyticsService,
                 policyUtils,
-                applicationPageService,
                 envManager
         );
     }

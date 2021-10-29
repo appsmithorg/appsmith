@@ -56,7 +56,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.OBJECT,
               params: {
-                required: true,
                 allowedKeys: [
                   {
                     name: "lat",
@@ -130,6 +129,15 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            propertyName: "isClickedMarkerCentered",
+            label: "Map & Marker centering",
+            helpText:
+              "Controls whether the clicked marker is centered on the map",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "enableSearch",
@@ -317,6 +325,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             allowZoom={this.props.allowZoom}
             apiKey={google.apiKey}
             center={this.getCenter()}
+            clickedMarkerCentered={this.props.isClickedMarkerCentered}
             enableCreateMarker={this.props.enableCreateMarker}
             enableDrag={this.enableDrag}
             enablePickLocation={this.props.enablePickLocation}

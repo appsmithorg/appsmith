@@ -10,17 +10,22 @@ import {
   collabStopEditingAppEvent,
   collabResetAppEditors,
 } from "actions/appCollabActions";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
 
 const UserImageContainer = styled.div`
   display: flex;
-  margin-right: ${(props) => props.theme.spaces[3]}px;
+  margin-right: ${(props) => props.theme.spaces[4]}px;
 
   div {
     cursor: default;
     margin-left: ${(props) => props.theme.spaces[1]}px;
     width: 24px;
     height: 24px;
+  }
+
+  div:first-child {
+    margin-left: 0px;
   }
 
   div:last-child {
@@ -37,6 +42,8 @@ export function useEditAppCollabEvents(applicationId?: string) {
 
   const isWebsocketConnected = useSelector(getIsAppLevelSocketConnected);
 
+  const currentPageId = useSelector(getCurrentPageId);
+
   useEffect(() => {
     // websocket has to be connected as we only fire this event once.
     isWebsocketConnected &&
@@ -48,7 +55,7 @@ export function useEditAppCollabEvents(applicationId?: string) {
         applicationId &&
         dispatch(collabStopEditingAppEvent(applicationId));
     };
-  }, [applicationId, isWebsocketConnected]);
+  }, [applicationId, currentPageId, isWebsocketConnected]);
 }
 
 function RealtimeAppEditors(props: RealtimeAppEditorsProps) {

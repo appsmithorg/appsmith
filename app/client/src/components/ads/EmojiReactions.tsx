@@ -11,7 +11,7 @@ const Container = styled.div`
 `;
 
 const Bubble = styled.div<{ active?: boolean }>`
-  font-size: 16px; // emoji
+  font-size: 12px; // emoji
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -37,8 +37,7 @@ const Bubble = styled.div<{ active?: boolean }>`
         : "transparent"};
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
-  margin-right: ${(props) => `${props.theme.radii[1]}px`};
-  margin-top: ${(props) => `${props.theme.radii[1]}px`};
+  margin-right: ${(props) => `${props.theme.radii[1]}px`};  
 
   & span.emoji {
     /*
@@ -52,7 +51,7 @@ const Bubble = styled.div<{ active?: boolean }>`
       not screen and (min-device-pixel-ratio: 2),
       not screen and (min-resolution: 192dpi),
       not screen and (min-resolution: 2dppx) {
-      margin-right: 3px;
+      /* margin-right: 3px;*/
     }
   }
 `;
@@ -188,7 +187,7 @@ function EmojiReactions({
             >
               <span className="emoji">{reaction.reactionEmoji}</span>
               {reaction.count > 1 && (
-                <Count active={reaction.active}>{12}</Count>
+                <Count active={reaction.active}>{reaction.count}</Count>
               )}
             </Bubble>
           </TooltipComponent>
@@ -196,14 +195,14 @@ function EmojiReactions({
       {!hideReactions ? (
         <Bubble>
           <EmojiPicker
-            iconName="reaction-2"
+            iconName="emoji"
             iconSize={iconSize}
             onSelectEmoji={(e, emoji) => handleSelectReaction(e, emoji.native)}
           />
         </Bubble>
       ) : (
         <EmojiPicker
-          iconName="reaction-2"
+          iconName="emoji"
           iconSize={iconSize}
           onSelectEmoji={(e, emoji) => handleSelectReaction(e, emoji.native)}
         />

@@ -7,6 +7,7 @@ import {
   INVITE_USERS_VALIDATION_EMAIL_LIST,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
+import { Colors } from "constants/Colors";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
 
@@ -14,7 +15,7 @@ const TagInputWrapper = styled.div<{ intent?: Intent }>`
     .${Classes.TAG_INPUT} {
       background-color: ${(props) => props.theme.colors.tagInput.bg};
       min-height: 38px;
-      border: 1px solid ${(props) => props.theme.colors.tagInput.bg};
+      border: 1.2px solid ${Colors.ALTO2};
       border-radius: 0px;
     }
     .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
@@ -33,8 +34,11 @@ const TagInputWrapper = styled.div<{ intent?: Intent }>`
       background-color: ${(props) => props.theme.colors.info.main};
       border-radius: 0px;
       font-size: 11px;
-      line-height: 13px;
       letter-spacing: 0.4px;
+
+      .${Classes.TAG_REMOVE} {
+        margin-top: 0;
+      }
     }
   }
 `;

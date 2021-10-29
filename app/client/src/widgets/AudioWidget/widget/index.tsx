@@ -130,7 +130,16 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             });
           }}
           onPause={() => {
-            //TODO: We do not want the pause event for onSeek or onEnd.
+            //TODO: We do not want the pause event for onSeek.
+            // Don't set playState to paused on onEnd
+            if (
+              this._player.current &&
+              this._player.current.getDuration() ===
+                this._player.current.getCurrentTime()
+            ) {
+              return;
+            }
+
             this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
               triggerPropertyName: "onPause",
               dynamicString: onPause,

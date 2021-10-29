@@ -32,6 +32,12 @@ public class UserProfileDTO {
 
     CommentOnboardingState commentOnboardingState;
 
+    String photoId;
+
+    String role;
+
+    String useCase;
+
     public boolean isAccountNonExpired() {
         return this.isEnabled;
     }

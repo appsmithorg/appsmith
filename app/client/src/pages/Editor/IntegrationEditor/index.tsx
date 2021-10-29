@@ -4,13 +4,13 @@ import { RouteComponentProps } from "react-router";
 import * as Sentry from "@sentry/react";
 
 type Props = RouteComponentProps<{
-  applicationId: string;
   pageId: string;
   selectedTab: string;
 }>;
 
 const integrationsEditor = (props: Props) => {
   const { history, location, match } = props;
+
   return (
     <div
       style={{
@@ -21,7 +21,6 @@ const integrationsEditor = (props: Props) => {
       }}
     >
       <IntegrationsHomeScreen
-        applicationId={match.params.applicationId}
         history={history}
         location={location}
         pageId={match.params.pageId}

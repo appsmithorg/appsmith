@@ -156,10 +156,11 @@ if ! [[ -e "$ENV_PATH" ]]; then
 	bash "/opt/appsmith/templates/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
 fi
 
-if [[ -f /appsmith-stacks/configuration/docker.env ]]; then
+if [[ -f "$ENV_PATH" ]]; then
+	sed -i 's/APPSMITH_MONGO_USERNAME/MONGO_INITDB_ROOT_USERNAME/; s/APPSMITH_MONGO_PASSWORD/MONGO_INITDB_ROOT_PASSWORD/; s/APPSMITH_MONGO_DATABASE/MONGO_INITDB_DATABASE/' "$ENV_PATH"
 	echo 'Load environment configuration'
 	set -o allexport
-	. /appsmith-stacks/configuration/docker.env
+	. "$ENV_PATH"
 	set +o allexport
 fi
 
@@ -196,6 +197,9 @@ configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
+
+# Create sub-directory to store services log in the container mounting folder
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis}
 
 # Handle CMD command
 exec "$@"

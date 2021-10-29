@@ -1,4 +1,5 @@
 import { Collapse, Position } from "@blueprintjs/core";
+import { get } from "lodash";
 import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
 import { Classes } from "components/ads/common";
@@ -6,7 +7,7 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon } from "./helpers";
 import Text, { TextType } from "components/ads/Text";
@@ -66,7 +67,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
         }
       }
     }
-    
+
     .${BPPopover2Classes.POPOVER2_OPEN} {
       .${Classes.ICON}.search-menu {
         path {
@@ -98,6 +99,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     word-break: break-word;
     .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
+      margin-left: -5px;
+      margin-top: 
     }
 
     .debugger-label {
@@ -135,6 +138,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     text-decoration-line: underline;
     cursor: pointer;
   }
+`;
+
+const RowWrapper = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const JsonWrapper = styled.div`
@@ -222,7 +230,7 @@ function LogItem(props: LogItemProps) {
       : { message: props.text };
 
   const messages = props.messages || [];
-
+  const theme = useTheme();
   return (
     <Wrapper
       className={props.severity}
@@ -234,45 +242,48 @@ function LogItem(props: LogItemProps) {
       <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
-        {showToggleIcon && (
-          <Icon
-            className={`${Classes.ICON} debugger-toggle`}
-            name={"downArrow"}
-            onClick={() => setIsOpen(!isOpen)}
-            size={IconSize.XXS}
-          />
-        )}
-        {props.source && (
-          <EntityLink
-            id={props.source.id}
-            name={props.source.name}
-            type={props.source.type}
-            uiComponent={DebuggerLinkUI.ENTITY_TYPE}
-          />
-        )}
-        <span className="debugger-label">{props.text}</span>
-        {props.timeTaken && (
-          <span className="debugger-timetaken">{props.timeTaken}</span>
-        )}
-        {props.severity !== Severity.INFO && (
-          <ContextualMenu entity={props.source} error={errorToSearch}>
-            <TooltipComponent
-              content={
-                <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                  {createMessage(TROUBLESHOOT_ISSUE)}
-                </Text>
-              }
-              minimal
-              position={Position.BOTTOM_LEFT}
-            >
-              <StyledSearchIcon
-                className={`${Classes.ICON} search-menu`}
-                name={"wand"}
-                size={IconSize.MEDIUM}
-              />
-            </TooltipComponent>
-          </ContextualMenu>
-        )}
+        <RowWrapper>
+          {showToggleIcon && (
+            <Icon
+              className={`${Classes.ICON} debugger-toggle`}
+              fillColor={get(theme, "colors.debugger.jsonIcon")}
+              name={"downArrow"}
+              onClick={() => setIsOpen(!isOpen)}
+              size={IconSize.XXL}
+            />
+          )}
+          {props.source && (
+            <EntityLink
+              id={props.source.id}
+              name={props.source.name}
+              type={props.source.type}
+              uiComponent={DebuggerLinkUI.ENTITY_TYPE}
+            />
+          )}
+          <span className="debugger-label">{props.text}</span>
+          {props.timeTaken && (
+            <span className="debugger-timetaken">{props.timeTaken}</span>
+          )}
+          {props.severity !== Severity.INFO && (
+            <ContextualMenu entity={props.source} error={errorToSearch}>
+              <TooltipComponent
+                content={
+                  <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                    {createMessage(TROUBLESHOOT_ISSUE)}
+                  </Text>
+                }
+                minimal
+                position={Position.BOTTOM_LEFT}
+              >
+                <StyledSearchIcon
+                  className={`${Classes.ICON} search-menu`}
+                  name={"wand"}
+                  size={IconSize.MEDIUM}
+                />
+              </TooltipComponent>
+            </ContextualMenu>
+          )}
+        </RowWrapper>
 
         {showToggleIcon && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
