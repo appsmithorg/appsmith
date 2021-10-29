@@ -97,7 +97,6 @@ import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
 import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "configs";
-import * as log from "loglevel";
 
 const OrgDropDown = styled.div`
   display: flex;
