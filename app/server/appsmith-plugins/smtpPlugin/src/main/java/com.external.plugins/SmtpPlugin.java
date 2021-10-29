@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -13,13 +14,11 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.MimeType;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -35,9 +34,13 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -101,10 +104,23 @@ public class SmtpPlugin extends BasePlugin {
                 message.setContent(multipart);
 
                 // Create the attachments
-                MimeBodyPart attachment = new MimeBodyPart();
-                DataSource emailDatasource = new ByteArrayDataSource("byteArray", "text/html");
-                attachment.setDataHandler(new DataHandler(emailDatasource));
-                attachment.setFileName(emailDatasource.getName());
+                String attachmentStr = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
+
+                List<MultipartFormDataDTO> attachmentData = Arrays.asList(objectMapper.readValue(
+                        attachmentStr,
+                        MultipartFormDataDTO[].class
+                ));
+
+                for (MultipartFormDataDTO attachment : attachmentData) {
+                    MimeBodyPart attachBodyPart = new MimeBodyPart();
+                    DataSource emailDatasource = new ByteArrayDataSource(
+                            new ByteArrayInputStream(String.valueOf(attachment.getData()).getBytes(StandardCharsets.UTF_8)),
+                            attachment.getType()
+                    );
+                    attachBodyPart.setDataHandler(new DataHandler(emailDatasource));
+                    attachBodyPart.setFileName(attachment.getName());
+                    multipart.addBodyPart(attachBodyPart);
+                }
 
                 // Send the email now
                 System.out.println("Going to send the email");
