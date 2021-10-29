@@ -13,8 +13,7 @@ import {
 } from "reducers/uiReducers/reflowReducer";
 import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { generateClassName, getNearestParentCanvas } from "utils/generators";
-import { scrollElementIntoParentCanvasView } from "utils/helpers";
+import { generateClassName } from "utils/generators";
 import { XYCord } from "utils/hooks/useCanvasDragging";
 import { getSnapColumns, Rect } from "utils/WidgetPropsUtils";
 import { WidgetRowCols } from "widgets/BaseWidget";
@@ -147,19 +146,19 @@ export const useReflow = (
     let updated = false;
     if (updateDropTargetRows) {
       updated = !!updateDropTargetRows(widgetId, bottom);
-      const el = resizableRef.current;
-      if (el) {
-        const { height } = el?.getBoundingClientRect();
-        const scrollParent = getNearestParentCanvas(resizableRef.current);
-        scrollElementIntoParentCanvasView(
-          {
-            top: 40,
-            height,
-          },
-          scrollParent,
-          el,
-        );
-      }
+      // const el = resizableRef.current;
+      // if (el) {
+      //   const { height } = el?.getBoundingClientRect();
+      //   const scrollParent = getNearestParentCanvas(resizableRef.current);
+      //   scrollElementIntoParentCanvasView(
+      //     {
+      //       top: 40,
+      //       height,
+      //     },
+      //     scrollParent,
+      //     el,
+      //   );
+      // }
     }
 
     const delta: UIElementSize = {
