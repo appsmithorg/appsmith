@@ -513,14 +513,19 @@ jobs:
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: github.ref == 'refs/heads/master' ||
-      ((github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)) &&
-      github.ref == 'refs/heads/release')
-    #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
+    if: (success() && github.ref == 'refs/heads/master') ||
+      ( always() && 
+          (
+            github.event_name == 'workflow_dispatch' ||
+            github.event_name == 'push' ||
+            (
+                github.event_name == 'pull_request_review' &&
+                github.event.review.state == 'approved' &&
+                github.event.pull_request.head.repo.full_name == github.repository
+            )
+        ) &&
+        github.ref == 'refs/heads/release'
+      )
 
     steps:
       # Checkout the code
