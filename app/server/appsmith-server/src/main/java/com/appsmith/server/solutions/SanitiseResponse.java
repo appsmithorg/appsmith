@@ -4,6 +4,8 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -41,6 +43,22 @@ public class SanitiseResponse {
                 );
 
         return page;
+    }
+
+    public NewPage updateNewPageWithDefaultResources(NewPage newPage) {
+        DefaultResources defaultResources = newPage.getDefaultResources();
+        if (defaultResources == null) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "page", newPage.getId());
+        }
+        newPage.setId(defaultResources.getPageId());
+        newPage.setApplicationId(defaultResources.getApplicationId());
+        if (newPage.getUnpublishedPage() != null) {
+            newPage.setUnpublishedPage(this.updatePageDTOWithDefaultResources(newPage.getUnpublishedPage()));
+        }
+        if (newPage.getPublishedPage() != null) {
+            newPage.setPublishedPage(this.updatePageDTOWithDefaultResources(newPage.getPublishedPage()));
+        }
+        return newPage;
     }
 
     public ApplicationPagesDTO updateApplicationPagesDTOWithDefaultResources(ApplicationPagesDTO applicationPages) {
@@ -92,6 +110,22 @@ public class SanitiseResponse {
         viewDTO.setId(defaults.getActionId());
         viewDTO.setPageId(defaults.getPageId());
         return viewDTO;
+    }
+
+    public NewAction updateNewActionWithDefaultResources(NewAction newAction) {
+        DefaultResources defaultResources = newAction.getDefaultResources();
+        if (defaultResources == null) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", newAction.getId());
+        }
+        newAction.setId(defaultResources.getActionId());
+        newAction.setApplicationId(defaultResources.getApplicationId());
+        if (newAction.getUnpublishedAction() != null) {
+            newAction.setUnpublishedAction(this.updateActionDTOWithDefaultResources(newAction.getUnpublishedAction()));
+        }
+        if (newAction.getPublishedAction() != null) {
+            newAction.setPublishedAction(this.updateActionDTOWithDefaultResources(newAction.getPublishedAction()));
+        }
+        return newAction;
     }
 
     public Application updateApplicationWithDefaultResources(Application application) {

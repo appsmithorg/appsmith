@@ -22,7 +22,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
@@ -217,13 +216,16 @@ public class GitExecutorImpl implements GitExecutor {
                 FileSystemUtils.deleteRecursively(file);
             }
 
-            Git result = Git.cloneRepository()
+            Git git = Git.cloneRepository()
                     .setURI(remoteUrl)
                     .setTransportConfigCallback(transportConfigCallback)
                     .setDirectory(file)
                     .call();
-            String branchName = result.getRepository().getBranch();
-            result.close();
+            String branchName = git.getRepository().getBranch();
+
+            repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+
+            git.close();
             return branchName;
         })
         .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
@@ -246,10 +248,7 @@ public class GitExecutorImpl implements GitExecutor {
                     .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                     .call();
 
-            StoredConfig config = git.getRepository().getConfig();
-            config.setString("branch", branchName, "remote", "origin");
-            config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
-            config.save();
+            repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
 
             // TODO immediately commit and push the created branch
 

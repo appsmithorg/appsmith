@@ -6,9 +6,9 @@ import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -113,7 +113,7 @@ public class GitServiceImpl implements GitService {
                     if (gitData.getGitAuth() != null) {
                         gitData.setPublicKey(gitData.getGitAuth().getPublicKey());
                     }
-                    gitData.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+                    gitData.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                     return gitData;
                 });
     }
@@ -409,7 +409,7 @@ public class GitServiceImpl implements GitService {
                                         gitApplicationMetadata.setBranchName(defaultBranch);
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
-                                        return importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
+                                        return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                                                 .flatMap(applicationJson -> {
                                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
                                                     return importExportApplicationService
@@ -524,14 +524,20 @@ public class GitServiceImpl implements GitService {
                                     gitData.getBranchName()))
                             .onErrorResume(error -> {
                                 if(error instanceof TransportException) {
-                                    return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Please give the write access to the Deploy Key"));
+                                    return Mono.error( new AppsmithException(
+                                            AppsmithError.GIT_ACTION_FAILED,
+                                            "push",
+                                            " Uh oh! you haven't provided the write permission to deploy keys. Appsmith needs write access to push to remote, please provide one to proceed"));
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
                             });
                 })
                 .flatMap(pushResult -> {
                     if(pushResult.contains("REJECTED")) {
-                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", " Remote has changes. Please pull them before pushing to remote branch."));
+                        final String error = "Failed to push some refs to remote\n" +
+                                "> To prevent you from losing history, non-fast-forward updates were rejected\n" +
+                                "> Merge the remote changes (e.g. 'git pull') before pushing again.";
+                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", error));
                     }
                     return Mono.just(pushResult);
                 });

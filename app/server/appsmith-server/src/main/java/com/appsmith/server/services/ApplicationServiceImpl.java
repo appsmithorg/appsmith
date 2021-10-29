@@ -3,8 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -104,7 +104,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Mono<Application> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS);
+        return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS)
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> setUnreadCommentCount(Application application, User user) {
@@ -240,7 +241,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
 
         return this.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
-            .flatMap(this::getApplicationInViewMode);
+            .flatMap(this::getApplicationInViewMode)
+            .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -370,7 +372,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         gitAuth.setPublicKey(publicKeyOutput.toString());
         gitAuth.setPrivateKey(privateKeyOutput.toString());
         gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
@@ -433,7 +435,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 }
                 // Check if the application is root application
                 if (applicationId.equals(gitData.getDefaultApplicationId())) {
-                    gitData.getGitAuth().setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+                    gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                     return Mono.just(gitData.getGitAuth());
                 }
                 if (gitData.getDefaultApplicationId() == null) {
@@ -445,7 +447,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
                     .map(rootApplication -> {
                         GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
-                        gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+                        gitAuth.setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                         return gitAuth;
                     });
             });
