@@ -67,7 +67,15 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "Incredible body text"
+        },
+        {
+          "label": "Attachment(s)",
+          "configProperty": "actionConfiguration.formData.send.attachments",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{{Filepicker.files[0]}}"
         }
+
       ]
     }
   ]

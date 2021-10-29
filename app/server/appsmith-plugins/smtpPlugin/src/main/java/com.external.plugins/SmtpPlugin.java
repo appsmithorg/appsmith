@@ -13,8 +13,12 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.MimeType;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Authenticator;
@@ -30,6 +34,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -70,17 +76,17 @@ public class SmtpPlugin extends BasePlugin {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Couldn't find a valid sender address. Please check your action configuration."));
                 }
-                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress));
+                message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress, false));
                 message.setFrom(new InternetAddress(fromAddress));
 
                 if (StringUtils.hasText(ccAddress)) {
-                    message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccAddress));
+                    message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccAddress, false));
                 }
                 if (StringUtils.hasText(bccAddress)) {
-                    message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccAddress));
+                    message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccAddress, false));
                 }
                 if (StringUtils.hasText(replyTo)) {
-                    message.setReplyTo(InternetAddress.parse(replyTo));
+                    message.setReplyTo(InternetAddress.parse(replyTo, false));
                 }
 
                 message.setSubject(subject);
@@ -94,6 +100,13 @@ public class SmtpPlugin extends BasePlugin {
                 multipart.addBodyPart(mimeBodyPart);
                 message.setContent(multipart);
 
+                // Create the attachments
+                MimeBodyPart attachment = new MimeBodyPart();
+                DataSource emailDatasource = new ByteArrayDataSource("byteArray", "text/html");
+                attachment.setDataHandler(new DataHandler(emailDatasource));
+                attachment.setFileName(emailDatasource.getName());
+
+                // Send the email now
                 System.out.println("Going to send the email");
                 Transport.send(message);
                 System.out.println("Sent the email successfully");
@@ -113,6 +126,8 @@ public class SmtpPlugin extends BasePlugin {
             } catch (JsonProcessingException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to send response for email plugin because of error: " + e.getMessage()));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             return Mono.just(result);
