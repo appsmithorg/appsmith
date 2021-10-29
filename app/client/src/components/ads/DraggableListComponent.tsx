@@ -48,6 +48,7 @@ export class DroppableComponent extends React.Component<
       id: item.id,
       label: item.label,
       isVisible: item.isVisible,
+      isDuplicateLabel: item.isDuplicateLabel,
     };
   }
 

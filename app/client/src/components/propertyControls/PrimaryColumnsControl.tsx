@@ -37,11 +37,17 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { Colors } from "constants/Colors";
+import { noop } from "utils/AppsmithUtils";
 
-const ItemWrapper = styled.div`
+const ItemWrapper = styled.div<{ isInvalid?: boolean }>`
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  & > div:nth-child(2) {
+    ${(props) =>
+      props.isInvalid ? `border: 1px solid ${Colors.DANGER_SOLID};` : ""}
+  }
 `;
 
 const TabsWrapper = styled.div`
@@ -105,6 +111,7 @@ type RenderComponentProps = {
     label: string;
     isDerived?: boolean;
     isVisible?: boolean;
+    isDuplicateLabel?: boolean;
   };
   updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
@@ -140,10 +147,12 @@ function ColumnControlComponent(props: RenderComponentProps) {
     item,
     onEdit,
     toggleVisibility,
+    updateFocus,
     updateOption,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
   const debouncedUpdate = _.debounce(updateOption, 1000);
+  const debouncedFocus = updateFocus ? _.debounce(updateFocus, 400) : noop;
   const onChange = useCallback(
     (index: number, value: string) => {
       setValue(value);
@@ -154,15 +163,15 @@ function ColumnControlComponent(props: RenderComponentProps) {
 
   const onFocus = () => {
     setEditing(true);
-    if (props.updateFocus) props.updateFocus(index, true);
+    debouncedFocus(index, true);
   };
   const onBlur = () => {
     setEditing(false);
-    if (props.updateFocus) props.updateFocus(index, false);
+    debouncedFocus(index, false);
   };
 
   return (
-    <ItemWrapper>
+    <ItemWrapper isInvalid={props.item.isDuplicateLabel}>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
@@ -216,11 +225,35 @@ function ColumnControlComponent(props: RenderComponentProps) {
   );
 }
 
-class PrimaryColumnsControl extends BaseControl<ControlProps> {
-  // handle column name input is focused or not
-  state = {
-    isFocused: false,
-  };
+type State = {
+  focusedIndex: number | null;
+  duplicateColumnIds: string[];
+};
+
+class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
+
+    const columns: Record<string, ColumnProperties> = props.propertyValue || {};
+    const columnOrder = Object.keys(columns);
+    const reorderedColumns = reorderColumns(columns, columnOrder);
+    const tableColumnLabels = _.map(reorderedColumns, "label");
+    const duplicateColumnIds = [];
+
+    for (let index = 0; index < tableColumnLabels.length; index++) {
+      const currLabel = tableColumnLabels[index] as string;
+      const duplicateValueIndex = tableColumnLabels.indexOf(currLabel);
+      if (duplicateValueIndex !== index) {
+        // get column id from columnOrder index
+        duplicateColumnIds.push(reorderedColumns[columnOrder[index]].id);
+      }
+    }
+
+    this.state = {
+      focusedIndex: null,
+      duplicateColumnIds,
+    };
+  }
 
   render() {
     // Get columns from widget properties
@@ -250,16 +283,26 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
           isVisible: column.isVisible,
           isDerived: column.isDerived,
           index: column.index,
+          isDuplicateLabel: _.includes(
+            this.state.duplicateColumnIds,
+            column.id,
+          ),
         };
       },
     );
 
+    const column: ColumnProperties | undefined = Object.values(
+      reorderedColumns,
+    ).find(
+      (column: ColumnProperties) => column.index === this.state.focusedIndex,
+    );
+    // show popup on duplicate column label input focused
+    const isFocused =
+      !_.isNull(this.state.focusedIndex) &&
+      _.includes(this.state.duplicateColumnIds, column?.id);
     return (
       <TabsWrapper>
-        <EvaluatedValuePopupWrapper
-          {...this.props}
-          isFocused={this.state.isFocused}
-        >
+        <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
           <DroppableComponent
             deleteOption={this.deleteOption}
             itemHeight={45}
@@ -373,6 +416,12 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
         propertiesToDelete.push(`columnOrder[${columnOrderIndex}]`);
 
       this.deleteProperties(propertiesToDelete);
+      // if column deleted, clean up duplicateIndexes
+      let duplicateColumnIds = [...this.state.duplicateColumnIds];
+      duplicateColumnIds = duplicateColumnIds.filter(
+        (id) => id !== originalColumn.id,
+      );
+      this.setState({ duplicateColumnIds });
     }
   };
 
@@ -390,11 +439,24 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
         `${this.props.propertyName}.${originalColumn.id}.label`,
         updatedLabel,
       );
+      // check entered label is unique or duplicate
+      const tableColumnLabels = _.map(columns, "label");
+      let duplicateColumnIds = [...this.state.duplicateColumnIds];
+      // if duplicate, add into array
+      if (_.includes(tableColumnLabels, updatedLabel)) {
+        duplicateColumnIds.push(originalColumn.id);
+        this.setState({ duplicateColumnIds });
+      } else {
+        duplicateColumnIds = duplicateColumnIds.filter(
+          (id) => id !== originalColumn.id,
+        );
+        this.setState({ duplicateColumnIds });
+      }
     }
   };
 
   updateFocus = (index: number, isFocused: boolean) => {
-    this.setState({ isFocused });
+    this.setState({ focusedIndex: isFocused ? index : null });
   };
 
   static getControlType() {
