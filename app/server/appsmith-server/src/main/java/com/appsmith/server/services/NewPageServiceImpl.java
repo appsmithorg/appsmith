@@ -121,7 +121,8 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Mono<NewPage> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultPageId(branchName, id, READ_PAGES);
+        return this.findByBranchNameAndDefaultPageId(branchName, id, READ_PAGES)
+                .map(sanitiseResponse::updateNewPageWithDefaultResources);
     }
 
     @Override

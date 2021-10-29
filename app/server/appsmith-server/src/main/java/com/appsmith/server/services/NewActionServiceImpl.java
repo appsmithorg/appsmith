@@ -189,7 +189,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultActionId(branchName, id, READ_ACTIONS);
+        return this.findByBranchNameAndDefaultActionId(branchName, id, READ_ACTIONS)
+                .map(sanitiseResponse::updateNewActionWithDefaultResources);
     }
 
     @Override
