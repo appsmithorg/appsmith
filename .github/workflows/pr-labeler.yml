@@ -29,6 +29,6 @@ jobs:
         with:
           message: |
             Unable to find test scripts. Please add necessary tests to the PR.
-            allow-repeats: false
+          allow-repeats: false
       
 
