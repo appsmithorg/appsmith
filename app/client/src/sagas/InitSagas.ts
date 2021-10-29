@@ -60,7 +60,6 @@ import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import GitSyncAPI from "api/GitSyncAPI";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -102,11 +101,7 @@ function* initializeEditorSaga(
   yield put(resetEditorSuccess());
   const { applicationId, branch, pageId } = initializeEditorAction.payload;
   try {
-    if (branch) {
-      yield put(updateBranchLocally(branch));
-      // as branch in the query param could be different from the currently checked-out branch
-      yield GitSyncAPI.checkoutBranch(applicationId);
-    }
+    if (branch) yield put(updateBranchLocally(branch));
 
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
@@ -265,11 +260,7 @@ export function* initializeAppViewerSaga(
 ) {
   const { applicationId, branch, pageId } = action.payload;
 
-  if (branch) {
-    yield put(updateBranchLocally(branch));
-    // as branch in the query param could be different from the currently checked-out branch
-    yield GitSyncAPI.checkoutBranch(applicationId);
-  }
+  if (branch) yield put(updateBranchLocally(branch));
 
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
