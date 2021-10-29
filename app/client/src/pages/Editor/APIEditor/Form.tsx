@@ -295,6 +295,27 @@ const Flex = styled.div<{ size: number }>`
   display: flex;
   align-items: center;
 
+  &.possible-overflow-key {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: fit-content;
+    max-width: 100%;
+
+    .${BluePrintClasses.POPOVER_WRAPPER} {
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .${BluePrintClasses.POPOVER_TARGET} > span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: fit-content;
+      max-width: 100%;
+      padding-right: 8px;
+    }
+  }
+
   &.possible-overflow {
     width: 0;
     max-height: 32px;
@@ -370,8 +391,17 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
         return (
           <FormRowWithLabel key={index}>
             <FlexContainer>
-              <Flex className="key-value disabled" size={1}>
-                <Text type={TextType.H6}>{header.key}</Text>
+              <Flex
+                className="key-value disabled possible-overflow-key"
+                size={1}
+              >
+                <TooltipComponent
+                  content={header.key}
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM_LEFT}
+                >
+                  <Text type={TextType.H6}>{header.key}</Text>
+                </TooltipComponent>
               </Flex>
               <Flex className="key-value disabled possible-overflow" size={3}>
                 <Text type={TextType.H6}>
