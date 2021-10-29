@@ -494,6 +494,7 @@ function getWidgetCollisionGraph(
   dimensions = { X: 0, Y: 0 },
   reflowedWidgets: reflowWidgets,
   widgetParentSpaces: WidgetParentSpaces,
+  isRoot = true,
   processedNodes: { [key: string]: WidgetCollisionGraph } = {},
 ) {
   if (!widgetCollisionGraph) return;
@@ -533,6 +534,7 @@ function getWidgetCollisionGraph(
     widgetParentSpaces,
     dimensions,
     accessors,
+    isRoot,
   );
   //eslint-disable-next-line
   console.log(newDimensions);
@@ -553,6 +555,7 @@ function getWidgetCollisionGraph(
         dimensions,
         reflowedWidgets,
         widgetParentSpaces,
+        false,
         processedNodes,
       );
       processedNodes[currentWidgetCollisionGraph.id] = {
@@ -1059,15 +1062,18 @@ function getResizedDimensions(
   widgetParentSpaces: WidgetParentSpaces,
   dimensions: { X: number; Y: number },
   accessors: CollisionAccessors,
+  isRoot: boolean,
 ) {
   const reflowedPositions = { ...widgetCollisionGraph, children: [] };
+  const increment = isRoot ? 0 : accessors.directionIndicator * 1;
   if (accessors.isHorizontal) {
     const dimensionXBeforeCollision =
       reflowedWidgets[reflowedPositions.id]?.dimensionXBeforeCollision;
     if (dimensionXBeforeCollision === undefined)
       return {
         ...reflowedPositions,
-        [accessors.direction]: reflowedPositions[accessors.direction] + 0,
+        [accessors.direction]:
+          reflowedPositions[accessors.direction] + increment,
       };
     const newColumn =
       (dimensions.X - dimensionXBeforeCollision) /
@@ -1080,7 +1086,8 @@ function getResizedDimensions(
     if (dimensionYBeforeCollision === undefined)
       return {
         ...reflowedPositions,
-        [accessors.direction]: reflowedPositions[accessors.direction] + 0,
+        [accessors.direction]:
+          reflowedPositions[accessors.direction] + increment,
       };
     const newRow =
       (dimensions.Y - dimensionYBeforeCollision) /
