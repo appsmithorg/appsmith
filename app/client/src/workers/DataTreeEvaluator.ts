@@ -1329,11 +1329,7 @@ export default class DataTreeEvaluator {
       jsSnippets[0],
       EvaluationScriptType.TRIGGERS,
     );
-    const GLOBAL_DATA = createGlobalData(
-      this.evalTree,
-      this.resolvedFunctions,
-      true,
-    );
+    const GLOBAL_DATA = createGlobalData(this.evalTree, this.resolvedFunctions);
     return getLintingErrors(
       script,
       GLOBAL_DATA,

@@ -92,24 +92,17 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export const createGlobalData = (
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
-  isTriggerBased: boolean,
   evalArguments?: Array<any>,
 ) => {
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
-  if (isTriggerBased) {
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
-    ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
-  } else {
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
-    });
-  }
+  //// Add internal functions to dataTree;
+  const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+  ///// Adding Data tree with functions
+  Object.keys(dataTreeWithFunctions).forEach((datum) => {
+    GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+  });
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
@@ -148,9 +141,10 @@ export default function evaluateSync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
-      false,
       evalArguments,
     );
+
+    GLOBAL_DATA.ALLOW_ASYNC = false;
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -180,14 +174,6 @@ export default function evaluateSync(
       });
     }
 
-    // Remove it from self
-    // This is needed so that next eval can have a clean sheet
-    Object.keys(GLOBAL_DATA).forEach((key) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      delete self[key];
-    });
-
     return { result, errors };
   })();
 }
@@ -214,11 +200,10 @@ export async function evaluateAsync(
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
-      true,
       evalArguments,
     );
     GLOBAL_DATA.REQUEST_ID = requestId;
-    GLOBAL_DATA.DRY_RUN = false;
+    GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
@@ -251,7 +236,7 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
   return (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
-      DRY_RUN: true,
+      ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };
     //// Add internal functions to dataTree;
