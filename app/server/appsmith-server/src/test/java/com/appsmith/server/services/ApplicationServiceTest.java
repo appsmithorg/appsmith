@@ -1437,4 +1437,46 @@ public class ApplicationServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_withNullGitData_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_withNullGitData_Success";
+        testApplication.setName(appName);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_WithDeployKeysNotConnectedToRemote_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_WithDeployKeysNotConnectedToRemote_Success";
+        testApplication.setName(appName);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPrivateKey("privateKey");
+        gitAuth.setPublicKey("publicKey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
+                .verifyComplete();
+    }
+
 }
