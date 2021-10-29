@@ -67,7 +67,11 @@ public class PolicyUtils {
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
+                if (policy.getUsers() == null) {
+                    policy.setUsers(new HashSet<>());
+                }
                 policy.getUsers().addAll(policyMap1.get(permission).getUsers());
+
                 if (policy.getGroups() == null) {
                     policy.setGroups(new HashSet<>());
                 }
