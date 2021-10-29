@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -41,6 +42,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -411,7 +413,7 @@ public class GitServiceImpl implements GitService {
                                 });
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                 })
                 .flatMap(application -> {
@@ -424,9 +426,6 @@ public class GitServiceImpl implements GitService {
                                 .collect(Collectors.toList())
                                 .get(0)
                                 .getId();
-                    } else {
-                        // TODO either throw error message saying invalid application or have a default value
-                        defaultPageId = "defaultPage";
                     }
                     String viewModeUrl = Paths.get("/", application.getId(),
                             Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
@@ -440,7 +439,7 @@ public class GitServiceImpl implements GitService {
                         );
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                     }
                     return Mono.just(application);
                 });
@@ -518,7 +517,18 @@ public class GitServiceImpl implements GitService {
                                     gitAuth.getPublicKey(),
                                     gitAuth.getPrivateKey(),
                                     gitData.getBranchName()))
-                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage())));
+                            .onErrorResume(error -> {
+                                if(error instanceof TransportException) {
+                                    return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Please give the write access to the Deploy Key"));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
+                            });
+                })
+                .flatMap(pushResult -> {
+                    if(pushResult.contains("REJECTED")) {
+                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", " Remote has changes. Please pull them before pushing to remote branch."));
+                    }
+                    return Mono.just(pushResult);
                 });
     }
 
@@ -920,6 +930,26 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
+    @Override
+    public Mono<MergeStatus> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                    }
+                    Path repoPath = Paths.get(application.getOrganizationId(),
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
+
+                    //1. Hydrate from db to file system for both branch Applications
+                    return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, sourceBranch, repoPath)
+                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, destinationBranch, repoPath))
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge status", error.getMessage())));
+                })
+                .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch));
+    }
+
     private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String sourceBranch, String destinationBranch, Path repoPath) {
         return applicationService.getApplicationByBranchNameAndDefaultApplication(destinationBranch, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
@@ -941,6 +971,7 @@ public class GitServiceImpl implements GitService {
                     GitCommitDTO gitCommitDTO = new GitCommitDTO();
                     gitCommitDTO.setDoPush(true);
                     gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
+                    // TODO delete the branches created as part of conflicts handling
                     return commitApplication(gitCommitDTO, defaultApplicationId, branchName)
                             .flatMap(status -> pushApplication(defaultApplicationId, true));
                 });

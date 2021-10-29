@@ -20,7 +20,6 @@ public class MockPluginExecutor implements PluginExecutor {
         if (datasourceConfiguration == null) {
             return Mono.error(new Exception("DatasourceConfiguration is null"));
         }
-        System.out.println("In the execute");
 
         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
         actionExecutionResult.setBody("");
@@ -31,19 +30,15 @@ public class MockPluginExecutor implements PluginExecutor {
 
     @Override
     public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-        System.out.println("In the datasourceCreate");
         return Mono.empty();
     }
 
     @Override
     public void datasourceDestroy(Object connection) {
-        System.out.println("In the datasourceDestroy");
-
     }
 
     @Override
     public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-        System.out.println("In the datasourceValidate");
         return new HashSet<>();
     }
 
