@@ -20,15 +20,15 @@ jobs:
         continue-on-error: true
 
       - name: Run step when a file changes
-        uses: actions-ecosystem/action-create-comment@v1
+        uses: mshick/add-pr-comment@v1
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: |
           contains(steps.changed-files.outputs.files_modified, 'cypress') == false &&
           contains(steps.changed-files.outputs.files_modified, 'test') == false
         with:
-          github_token: ${{ secrets.github_token }}
-          body: |
+          message: |
             Unable to find test scripts. Please add necessary tests to the PR.
+            allow-repeats: false
       
 
