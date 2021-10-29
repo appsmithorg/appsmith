@@ -10,9 +10,6 @@ function MultiSelectPropertyPane() {
   const selectedWidgets = useSelector(getSelectedWidgets);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
-  // eslint-disable-next-line
-  console.log({ canvasWidgets, selectedWidgets });
-
   return (
     <div className="relative space-y-3">
       <div className="px-3 py-3">

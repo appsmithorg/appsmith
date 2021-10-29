@@ -28,6 +28,11 @@ export const AppsmithDefaultLayout: AppLayoutConfig = {
 
 const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
   {
+    name: "Fluid Width",
+    type: "FLUID",
+    icon: "fluid",
+  },
+  {
     name: "Desktop",
     type: "DESKTOP",
     icon: "desktop",
@@ -47,11 +52,6 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     type: "MOBILE",
     icon: "mobile",
   },
-  {
-    name: "Fluid Width",
-    type: "FLUID",
-    icon: "fluid",
-  },
 ];
 
 export function MainContainerLayoutControl() {
@@ -60,8 +60,8 @@ export function MainContainerLayoutControl() {
   const appLayout = useSelector(getCurrentApplicationLayout);
 
   /**
-   * selected layout. if there is no app
-   * layout, use the first one
+   * return selected layout. if there is no app
+   * layout, use the default one ( fluid )
    */
   const selectedLayout = useMemo(() => {
     return AppsmithLayouts.find(
@@ -89,7 +89,6 @@ export function MainContainerLayoutControl() {
     [dispatch, appLayout],
   );
 
-  // eslint-disable-next-line
   return (
     <div className="px-3 space-y-2 t--layout-control-wrapper">
       <p className="text-sm text-gray-700">Canvas Size</p>
