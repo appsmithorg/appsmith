@@ -80,6 +80,7 @@ public enum AppsmithError {
     INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH Key is not configured properly. Did you forget to add SSH key to remote? Can you please try again by reconfiguring the SSH key", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     INVALID_GIT_REPO(400, 4033, "The remote repo is not empty. Please create a new empty repo and configure the SSH keys. " +
             "If you want to clone from remote repo and build application, please go to the Clone Application option.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
+    GIT_FILE_SYSTEM_ERROR(400, 4031, "Error while accessing the file system. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     INVALID_CRUD_PAGE_REQUEST(400, 4038, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
@@ -118,6 +119,7 @@ public enum AppsmithError {
     INSTANCE_REGISTRATION_FAILURE(500, 5011, "Registration for instance failed with error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     TOO_MANY_REQUESTS(429, 4039, "Too many requests received. Please try later.", AppsmithErrorAction.DEFAULT, "Too many requests", ErrorType.INTERNAL_ERROR),
     INVALID_JS_ACTION(400, 4040, "Something went wrong while trying to parse this action. Please check the JS object for errors.", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
+    CYCLICAL_DEPENDENCY_ERROR(400, 4041, "Cyclical dependency error encountered while parsing relationship [{0}] where the relationship is denoted as (source : target).", AppsmithErrorAction.DEFAULT, "Cyclical Dependency in Page Load Actions", ErrorType.CONFIGURATION_ERROR),
     CLOUD_SERVICES_ERROR(500, 5012, "Received error from cloud services {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     ;
 

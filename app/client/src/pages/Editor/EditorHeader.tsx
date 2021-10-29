@@ -48,7 +48,9 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import ToggleModeButton, {
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
@@ -95,10 +97,8 @@ const HeaderWrapper = styled(StyledHeader)`
   }
 `;
 
-// looks offset by 1px even though, checking bounding rect values
 const HeaderSection = styled.div`
   position: relative;
-  top: -1px;
   display: flex;
   flex: 1;
   overflow: visible;
@@ -259,7 +259,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
-
+  const shouldHideComments = useHideComments();
   useEffect(() => {
     if (window.location.href) {
       const searchParams = new URL(window.location.href).searchParams;
@@ -373,7 +373,9 @@ export function EditorHeader(props: EditorHeaderProps) {
                 setIsPopoverOpen={setIsPopoverOpen}
               />
             </TooltipComponent>
-            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
+            {!shouldHideComments && (
+              <ToggleModeButton showSelectedMode={!isPopoverOpen} />
+            )}
           </Boxed>
         </HeaderSection>
         <HeaderSection>
