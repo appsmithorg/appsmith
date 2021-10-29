@@ -478,13 +478,10 @@ public class AmazonS3Plugin extends BasePlugin {
 
                         if (whereFormObject != null) {
                             Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
-                            Object whereObj = whereForm.get("where");
-                            if (whereObj != null) {
-                                Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereObj;
-                                Condition condition = parseWhereClause(unparsedWhereClause);
-                                ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
-                                actionResult = filterDataService.filterDataNew(preFilteringResponse, condition);
-                            }
+                            Condition condition = parseWhereClause(whereForm);
+                            ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
+                            actionResult = filterDataService.filterDataNew(preFilteringResponse, condition);
+
                         }
 
                         break;
