@@ -116,31 +116,6 @@ class CheckboxGroupWidget extends BaseWidget<
             },
           },
           {
-            propertyName: "isInline",
-            label: "Inline",
-            controlType: "SWITCH",
-            helpText: "Displays the checkboxes horizontally",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "isSelectAll",
-            label: "Select All Options",
-            controlType: "SWITCH",
-            helpText:
-              "Controls whether select all control will be shown or not",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
             propertyName: "isRequired",
             label: "Required",
             helpText: "Makes input to the widget mandatory",
@@ -169,6 +144,30 @@ class CheckboxGroupWidget extends BaseWidget<
             label: "Disabled",
             controlType: "SWITCH",
             helpText: "Disables input to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
+            propertyName: "isInline",
+            label: "Inline",
+            controlType: "SWITCH",
+            helpText: "Displays the checkboxes horizontally",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+            },
+          },
+          {
+            propertyName: "isSelectAll",
+            label: "Select All Options",
+            controlType: "SWITCH",
+            helpText: "Controls whether select all control is shown",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

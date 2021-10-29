@@ -77,6 +77,24 @@ describe("Checkbox Group Widget Functionality", function() {
       .should("have.text", "test2");
     cy.get(publish.backToEditor).click();
   });
+
+  it("handleSelectAllChange: unchecked", function() {
+    const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
+    const uncheckedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:not(:checked)`;
+    // Deselect all
+    cy.get(selectAllSelector).click();
+    // Should get 3 unchecked option inputs
+    cy.get(uncheckedOptionInputs).should("have.length", 3);
+  });
+
+  it("handleSelectAllChange: checked", function() {
+    const selectAllSelector = formWidgetsPage.selectAllCheckboxControl;
+    const checkedOptionInputs = `${formWidgetsPage.checkboxGroupOptionInputs} input:checked`;
+    // Select all
+    cy.get(selectAllSelector).click();
+    // Should get 3 checked option inputs
+    cy.get(checkedOptionInputs).should("have.length", 3);
+  });
 });
 afterEach(() => {
   // put your clean up code if any

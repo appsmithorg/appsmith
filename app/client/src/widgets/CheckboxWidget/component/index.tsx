@@ -3,8 +3,10 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
 import { AlignWidget } from "widgets/constants";
+import { Colors } from "constants/Colors";
 
 type StyledCheckboxProps = {
+  checked?: boolean;
   rowSpace: number;
 };
 
@@ -50,6 +52,10 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
 
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
     border-radius: 0;
+  }
+
+  &.bp3-control.bp3-checkbox {
+    color: ${({ checked }) => (checked ? Colors.GREY_10 : Colors.GREY_9)};
   }
 `;
 

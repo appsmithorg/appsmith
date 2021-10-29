@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
+import { Colors } from "constants/Colors";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
@@ -35,6 +36,11 @@ const CheckboxGroupContainer = styled.div<
     border: 1px solid ${theme.colors.error};
   `}
   padding: 2px 4px;
+
+  & .select-all {
+    height: auto;
+    color: ${Colors.GREY_9} !important;
+  }
 `;
 
 export interface SelectAllProps {
@@ -58,6 +64,7 @@ function SelectAll(props: SelectAllProps) {
   return (
     <StyledCheckbox
       checked={checked}
+      className="select-all"
       disabled={disabled}
       indeterminate={indeterminate}
       inline={inline}
