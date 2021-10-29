@@ -47,7 +47,6 @@ describe("evaluate", () => {
     const response1 = evaluate("wrongJS", {}, {});
     expect(response1).toStrictEqual({
       result: undefined,
-      triggers: [],
       errors: [
         {
           ch: 1,
@@ -85,7 +84,6 @@ describe("evaluate", () => {
     const response2 = evaluate("{}.map()", {}, {});
     expect(response2).toStrictEqual({
       result: undefined,
-      triggers: [],
       errors: [
         {
           errorMessage: "TypeError: {}.map is not a function",
@@ -108,50 +106,11 @@ describe("evaluate", () => {
     const response = evaluate(js, dataTree, {});
     expect(response.result).toBe("value");
   });
-  it("gets triggers from a function", () => {
-    const js = "showAlert('message', 'info')";
-    const response = evaluate(js, dataTree, {}, undefined, true);
-    //this will be changed again in new implemenation for promises
-    const data = {
-      action: {
-        payload: {
-          executor: [
-            {
-              payload: { message: "message", style: "info" },
-              type: "SHOW_ALERT",
-            },
-          ],
-          then: [],
-        },
-        type: "PROMISE",
-      },
-      triggerReference: 0,
-    };
-    expect(response.result).toEqual(data);
-    expect(response.triggers).toStrictEqual([
-      {
-        type: "PROMISE",
-        payload: {
-          executor: [
-            {
-              type: "SHOW_ALERT",
-              payload: {
-                message: "message",
-                style: "info",
-              },
-            },
-          ],
-          then: [],
-        },
-      },
-    ]);
-  });
   it("disallows unsafe function calls", () => {
     const js = "setTimeout(() => {}, 100)";
     const response = evaluate(js, dataTree, {});
     expect(response).toStrictEqual({
       result: undefined,
-      triggers: [],
       errors: [
         {
           errorMessage: "TypeError: setTimeout is not a function",
