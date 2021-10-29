@@ -17,8 +17,8 @@ You can find the archives of the calls below with a brief summary of each event.
 -----------------
 
 ## Community Call
-Catch previous sessions of our <a href="https://youtube.com/playlist?list=PLE_KXGiWfqwiUzo4-wG1WzU_wtul1Syin">Community Calls on Youtube</a>
+Catch previous sessions of our <a href="https://youtube.com/playlist?list=PLE_KXGiWfqwiUzo4-wG1WzU_wtul1Syin">Community Calls on YouTube</a>
 
 ## Live Demo
-View all our <a href="https://youtube.com/playlist?list=PLE_KXGiWfqwhaf10ZnUB__X0gnL5OPMgq">Live Demo events on Youtube</a>
+View all our <a href="https://youtube.com/playlist?list=PLE_KXGiWfqwhaf10ZnUB__X0gnL5OPMgq">Live Demo events on YouTube</a>
 
