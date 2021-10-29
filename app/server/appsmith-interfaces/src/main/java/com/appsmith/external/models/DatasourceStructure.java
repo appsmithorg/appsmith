@@ -6,7 +6,6 @@ import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -108,7 +107,6 @@ public class DatasourceStructure {
     }
 
     @Data
-    @ToString
     @NoArgsConstructor
     public static class Template {
         String title;

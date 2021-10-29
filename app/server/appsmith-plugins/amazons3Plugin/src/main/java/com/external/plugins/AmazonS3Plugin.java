@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -65,7 +64,6 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.CREATE_DATATYPE;
@@ -879,17 +877,24 @@ public class AmazonS3Plugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * Since S3 storage is not like a regular database, this method returns a list of buckets as the datasource
+         * structure.
+         */
         @Override
         public Mono<DatasourceStructure> getStructure(AmazonS3 connection, DatasourceConfiguration datasourceConfiguration) {
 
             return Mono.fromSupplier(() -> {
-                List<DatasourceStructure.Table> tableList = null;
+                List<DatasourceStructure.Table> tableList;
                 try {
                     tableList = connection.listBuckets()
                             .stream()
+                            /* Get name of each bucket */
                             .map(Bucket::getName)
+                            /* Get command templates and use it to create Table object */
                             .map(bucketName -> new DatasourceStructure.Table(DatasourceStructure.TableType.BUCKET, "",
                                     bucketName, new ArrayList<>(), new ArrayList<>(), getTemplates(bucketName)))
+                            /* Collect all Table objects in a list */
                             .collect(Collectors.toList());
                 } catch (SdkClientException e) {
                     throw new AppsmithPluginException(
