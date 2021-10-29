@@ -6,45 +6,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { BlobContent, BlobContentTypes } from "../constants";
-
-// Get blot contents
-export const getBlobContent = (
-  blob: Blob,
-  readType: BlobContent,
-): Promise<Record<string, string | ArrayBuffer | null>> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      switch (readType) {
-        case BlobContentTypes.RAW_BINARY:
-          resolve({ raw: reader.result });
-          break;
-        case BlobContentTypes.DATA_URL:
-          resolve({ base64: reader.result });
-          break;
-        default:
-          resolve({ text: reader.result });
-          break;
-      }
-    };
-
-    reader.onerror = reject;
-
-    // read blob content
-    switch (readType) {
-      case BlobContentTypes.RAW_BINARY:
-        reader.readAsBinaryString(blob);
-        break;
-      case BlobContentTypes.DATA_URL:
-        reader.readAsDataURL(blob);
-        break;
-      default:
-        reader.readAsText(blob);
-        break;
-    }
-  });
+import { createBlobUrl } from "utils/AppsmithUtils";
+import { FileDataTypes } from "widgets/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   backgroundColor: string;
@@ -53,6 +16,7 @@ export interface AudioRecorderWidgetProps extends WidgetProps {
   isValid: boolean;
   onRecordingStart?: string;
   onRecordingComplete?: string;
+  blobUrl?: string;
 }
 
 class AudioRecorderWidget extends BaseWidget<
@@ -134,18 +98,26 @@ class AudioRecorderWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      recordedFile: null,
+      blobUrl: undefined,
+      dataAsDataURL: undefined,
+      dataAsRawBinary: undefined,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      url: `{{URL.createObjectURL(this.recordedFile)}}`,
-    };
+    // return {
+    //   url: `{{URL.createObjectURL(this.recordedFile)}}`,
+    // };
+    return {};
   }
 
   handleRecordingStart = () => {
-    this.props.updateWidgetMetaProperty("recordedFile", null);
+    if (this.props.blobUrl) {
+      URL.revokeObjectURL(this.props.blobUrl);
+    }
+
+    this.props.updateWidgetMetaProperty("dataAsDataURL", undefined);
+    this.props.updateWidgetMetaProperty("dataAsRawBinary", undefined);
 
     if (this.props.onRecordingStart) {
       super.executeAction({
@@ -160,52 +132,43 @@ class AudioRecorderWidget extends BaseWidget<
 
   handleRecordingComplete = (blobUrl?: string, blob?: Blob) => {
     if (!blobUrl) {
-      this.props.updateWidgetMetaProperty("recordedFile", undefined);
+      this.props.updateWidgetMetaProperty("blobUrl", undefined);
+      this.props.updateWidgetMetaProperty("dataAsDataURL", undefined);
+      this.props.updateWidgetMetaProperty("dataAsRawBinary", undefined);
       return;
     }
-    // Read content from a blob
+    this.props.updateWidgetMetaProperty("blobUrl", blobUrl);
     if (blob) {
-      Promise.all([
-        getBlobContent(blob, BlobContentTypes.RAW_BINARY),
-        getBlobContent(blob, BlobContentTypes.DATA_URL),
-        getBlobContent(blob, BlobContentTypes.TEXT),
-      ])
-        .then((results) => {
-          const recordedFile = {
-            contents: {
-              ...results[0],
-              ...results[1],
-              ...results[2],
-            },
-            size: blob.size,
-            type: blob.type,
-          };
+      const blobIdForBase64 = createBlobUrl(blob, FileDataTypes.Base64);
+      const blobIdForRaw = createBlobUrl(blob, FileDataTypes.Binary);
 
-          // Save the recorded file
-          this.props.updateWidgetMetaProperty("recordedFile", recordedFile, {
-            triggerPropertyName: "onRecordingComplete",
-            dynamicString: this.props.onRecordingComplete,
-            event: {
-              type: EventType.ON_RECORDING_COMPLETE,
-            },
-          });
-        })
-        .catch(() => {
-          this.props.updateWidgetMetaProperty("recordedFile", null);
-        });
+      this.props.updateWidgetMetaProperty("dataAsDataURL", blobIdForBase64, {
+        triggerPropertyName: "onRecordingComplete",
+        dynamicString: this.props.onRecordingComplete,
+        event: {
+          type: EventType.ON_RECORDING_COMPLETE,
+        },
+      });
+      this.props.updateWidgetMetaProperty("dataAsRawBinary", blobIdForRaw, {
+        triggerPropertyName: "onRecordingComplete",
+        dynamicString: this.props.onRecordingComplete,
+        event: {
+          type: EventType.ON_RECORDING_COMPLETE,
+        },
+      });
     }
   };
 
   getPageView() {
     const {
       backgroundColor,
+      blobUrl,
       bottomRow,
       iconColor,
       isDisabled,
       leftColumn,
       parentColumnSpace,
       parentRowSpace,
-      recordedFile,
       rightColumn,
       topRow,
     } = this.props;
@@ -213,12 +176,12 @@ class AudioRecorderWidget extends BaseWidget<
     return (
       <AudioRecorderComponent
         backgroundColor={backgroundColor}
+        blobUrl={blobUrl}
         height={(bottomRow - topRow) * parentRowSpace}
         iconColor={iconColor}
         isDisabled={isDisabled}
         onRecordingComplete={this.handleRecordingComplete}
         onRecordingStart={this.handleRecordingStart}
-        value={recordedFile}
         width={(rightColumn - leftColumn) * parentColumnSpace}
       />
     );
