@@ -545,6 +545,8 @@ export const updateJSCollectionInDataTree = (
     functionsList.push(action);
   });
 
+  const reg = /this\./g;
+
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
@@ -573,10 +575,11 @@ export const updateJSCollectionInDataTree = (
         const meta = jsCollection.meta;
         meta[action.name] = { arguments: action.arguments };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        const actionBody = action.body.replaceAll(reg, `${jsCollection.name}.`);
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
-          action.body.toString(),
+          actionBody,
         );
       }
     }
@@ -661,5 +664,47 @@ export const updateJSCollectionInDataTree = (
       _.set(modifiedDataTree, `${jsCollection.name}.variables`, newVarList);
     }
   }
+  return modifiedDataTree;
+};
+
+export const removeFunctionsAndVariableJSCollection = (
+  dataTree: DataTree,
+  entity: DataTreeJSAction,
+) => {
+  const modifiedDataTree: any = dataTree;
+  const functionsList: Array<string> = [];
+  Object.keys(entity.meta).forEach((action) => {
+    functionsList.push(action);
+  });
+  //removed variables
+  const varList: Array<string> = entity.variables;
+  _.set(modifiedDataTree, `${entity.name}.variables`, []);
+  for (let i = 0; i < varList.length; i++) {
+    const varName = varList[i];
+    delete modifiedDataTree[`${entity.name}`][`${varName}`];
+  }
+  //remove functions
+  let dynamicBindingPathList = entity.dynamicBindingPathList;
+  const bindingPaths = entity.bindingPaths;
+  const meta = entity.meta;
+  let dependencyMap = entity.dependencyMap["body"];
+  for (let i = 0; i < functionsList.length; i++) {
+    const actionName = functionsList[i];
+    delete bindingPaths[actionName];
+    delete meta[actionName];
+    delete modifiedDataTree[`${entity.name}`][`${actionName}`];
+    dynamicBindingPathList = dynamicBindingPathList.filter(
+      (path: any) => path["key"] !== actionName,
+    );
+    dependencyMap = dependencyMap.filter((item: any) => item !== actionName);
+  }
+  _.set(modifiedDataTree, `${entity.name}.bindingPaths`, bindingPaths);
+  _.set(
+    modifiedDataTree,
+    `${entity.name}.dynamicBindingPathList`,
+    dynamicBindingPathList,
+  );
+  _.set(modifiedDataTree, `${entity.name}.dependencyMap.body`, dependencyMap);
+  _.set(modifiedDataTree, `${entity.name}.meta`, meta);
   return modifiedDataTree;
 };

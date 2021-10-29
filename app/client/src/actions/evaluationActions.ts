@@ -37,7 +37,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   // JS Actions
   ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
   ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
-  // ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
   ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
   ReduxActionTypes.COPY_JS_ACTION_SUCCESS,

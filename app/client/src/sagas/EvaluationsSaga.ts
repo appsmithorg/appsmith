@@ -128,12 +128,12 @@ function* evaluateTreeSaga(
 
   const updatedDataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
-  yield call(makeUpdateJSCollection, jsUpdates);
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
   const appMode = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
+    yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
       unevalTree,

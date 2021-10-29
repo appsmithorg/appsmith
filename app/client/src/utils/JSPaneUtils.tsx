@@ -15,6 +15,11 @@ export type ParsedBody = {
   variables: Array<Variable>;
 };
 
+export type JSUpdate = {
+  id: string;
+  parsedBody: ParsedBody | undefined;
+};
+
 export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
   jsAction: JSCollection,
@@ -119,11 +124,31 @@ export const getDifferenceInJSCollection = (
       jsAction.actions.splice(deleteArchived, 1);
     }
   }
+  //change in variables
+  const varList = jsAction.variables;
+  let changedVariables: Array<Variable> = [];
+  if (parsedBody.variables.length) {
+    for (let i = 0; i < parsedBody.variables.length; i++) {
+      const newVar = parsedBody.variables[i];
+      const existedVar = varList.find((item) => item.name === newVar.name);
+      if (!!existedVar) {
+        const existedValue = existedVar.value;
+        if (existedValue.toString() !== newVar.value.toString()) {
+          changedVariables.push(newVar);
+        }
+      } else {
+        changedVariables.push(newVar);
+      }
+    }
+  } else {
+    changedVariables = jsAction.variables;
+  }
   return {
     newActions: toBeAddedActions,
     updateActions: toBeUpdatedActions,
     deletedActions: toBearchivedActions,
     nameChangedActions: nameChangedActions,
+    changedVariables: changedVariables,
   };
 };
 

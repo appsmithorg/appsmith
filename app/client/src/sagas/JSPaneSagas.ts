@@ -27,6 +27,7 @@ import { executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
+  JSUpdate,
   pushLogsForObjectUpdate,
 } from "../utils/JSPaneUtils";
 import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
@@ -121,7 +122,7 @@ function* handleJSCollectionCreatedSaga(
   history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
-function* handleNewUpdateJSCollection(update: any) {
+function* handleEachUpdateJSCollection(update: JSUpdate) {
   const jsActionId = update.id;
   const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
@@ -150,8 +151,11 @@ function* handleNewUpdateJSCollection(update: any) {
         let newActions: Partial<JSAction>[] = [];
         let updateActions: JSAction[] = [];
         let deletedActions: JSAction[] = [];
-        if (parsedBody.variables) {
+        let updateCollection = false;
+        const changedVariables = data.changedVariables;
+        if (changedVariables.length) {
           jsActionTobeUpdated.variables = parsedBody.variables;
+          updateCollection = true;
         }
         if (data.newActions.length) {
           newActions = data.newActions;
@@ -161,6 +165,7 @@ function* handleNewUpdateJSCollection(update: any) {
               organizationId: organizationId,
             });
           }
+          updateCollection = true;
         }
         if (data.updateActions.length > 0) {
           updateActions = data.updateActions;
@@ -173,6 +178,7 @@ function* handleNewUpdateJSCollection(update: any) {
                 ) || js,
             );
           }
+          updateCollection = true;
           jsActionTobeUpdated.actions = changedActions;
         }
         if (data.deletedActions.length > 0) {
@@ -184,23 +190,26 @@ function* handleNewUpdateJSCollection(update: any) {
               });
             },
           );
+          updateCollection = true;
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
-        yield call(updateJSCollection, {
-          jsCollection: jsActionTobeUpdated,
-          newActions: newActions,
-          updatedActions: updateActions,
-          deletedActions: deletedActions,
-        });
+        if (updateCollection) {
+          yield call(updateJSCollection, {
+            jsCollection: jsActionTobeUpdated,
+            newActions: newActions,
+            updatedActions: updateActions,
+            deletedActions: deletedActions,
+          });
+        }
       }
     }
   }
 }
 
-export function* makeUpdateJSCollection(jsUpdates: Record<string, any>) {
+export function* makeUpdateJSCollection(jsUpdates: Record<string, JSUpdate>) {
   yield all(
     Object.keys(jsUpdates).map((key) =>
-      call(handleNewUpdateJSCollection, jsUpdates[key]),
+      call(handleEachUpdateJSCollection, jsUpdates[key]),
     ),
   );
 }

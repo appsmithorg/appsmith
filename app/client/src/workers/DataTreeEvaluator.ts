@@ -45,6 +45,7 @@ import {
   validateWidgetProperty,
   getParams,
   updateJSCollectionInDataTree,
+  removeFunctionsAndVariableJSCollection,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -64,7 +65,7 @@ import evaluate, {
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
-// import { updateJSCollectionInDataTree } from "utils/JSPaneUtils";
+import { JSUpdate } from "utils/JSPaneUtils";
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -75,6 +76,7 @@ export default class DataTreeEvaluator {
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
+  currentJSCollectionState: Record<string, any> = {};
   parsedValueCache: Map<
     string,
     {
@@ -90,9 +92,21 @@ export default class DataTreeEvaluator {
 
   createFirstTree(unEvalTree: DataTree) {
     const totalStart = performance.now();
+    let localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
+    let jsUpdates: Record<string, JSUpdate> = {};
+    //parse js collection to get functions
+    //save current state of js collection action and variables to be added to uneval tree
+    //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
+    //and functions are saved in dataTree as strings
+    const parsedCollections = this.parseJSActions(localUnEvalTree);
+    jsUpdates = parsedCollections.jsUpdates;
+    localUnEvalTree = this.getUpdatedLocalUnEvalTreeAfterJSUpdates(
+      jsUpdates,
+      localUnEvalTree,
+    );
     // Create dependency map
     const createDependencyStart = performance.now();
-    this.dependencyMap = this.createDependencyMap(unEvalTree);
+    this.dependencyMap = this.createDependencyMap(localUnEvalTree);
     const createDependencyEnd = performance.now();
     // Sort
     const sortDependenciesStart = performance.now();
@@ -101,16 +115,9 @@ export default class DataTreeEvaluator {
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
     // Evaluate
-    const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
-    // this.resolvedFunctions = {};
-    let jsUpdates: Record<string, any> = {};
-    const parsedCollections = this.parseJSActionForFirstDataTree(
-      localUnEvalTree,
-    );
-    jsUpdates = parsedCollections.jsUpdates;
     const evaluateStart = performance.now();
     const evaluatedTree = this.evaluateTree(
-      unEvalTree,
+      localUnEvalTree,
       this.resolvedFunctions,
       this.sortedDependencies,
     );
@@ -120,7 +127,7 @@ export default class DataTreeEvaluator {
     this.evalTree = getValidatedTree(evaluatedTree);
     const validateEnd = performance.now();
 
-    this.oldUnEvalTree = unEvalTree;
+    this.oldUnEvalTree = JSON.parse(JSON.stringify(localUnEvalTree));
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -139,7 +146,48 @@ export default class DataTreeEvaluator {
       },
     };
     this.logs.push({ timeTakenForFirstTree });
-    return { evalTree: this.evalTree, jsUpdates };
+    return { evalTree: this.evalTree, jsUpdates: jsUpdates };
+  }
+
+  updateLocalUnEvalTree(dataTree: DataTree) {
+    //add functions and variables to unevalTree
+    Object.keys(this.currentJSCollectionState).forEach((update) => {
+      const updates = this.currentJSCollectionState[update];
+      if (!!dataTree[update]) {
+        Object.keys(updates).forEach((key) => {
+          _.set(dataTree, `${update}.${key}`, updates[key]);
+        });
+      }
+    });
+  }
+
+  getUpdatedLocalUnEvalTreeAfterJSUpdates(
+    jsUpdates: Record<string, JSUpdate>,
+    localUnEvalTree: DataTree,
+  ) {
+    if (!_.isEmpty(jsUpdates)) {
+      Object.keys(jsUpdates).forEach((jsEntity) => {
+        const entity = localUnEvalTree[jsEntity];
+        const parsedBody = jsUpdates[jsEntity].parsedBody;
+        if (isJSAction(entity)) {
+          if (!!parsedBody) {
+            //add/delete/update functions from dataTree
+            localUnEvalTree = updateJSCollectionInDataTree(
+              parsedBody,
+              entity,
+              localUnEvalTree,
+            );
+          } else {
+            //if parse error remove functions and variables from dataTree
+            localUnEvalTree = removeFunctionsAndVariableJSCollection(
+              localUnEvalTree,
+              entity,
+            );
+          }
+        }
+      });
+    }
+    return localUnEvalTree;
   }
 
   updateDataTree(
@@ -147,15 +195,43 @@ export default class DataTreeEvaluator {
   ): {
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
-    jsUpdates: Record<string, any>;
+    jsUpdates: Record<string, JSUpdate>;
   } {
-    // const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
     let localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
-    let jsUpdates: Record<string, any> = {};
+    let jsUpdates: Record<string, JSUpdate> = {};
     // Calculate diff
     const diffCheckTimeStart = performance.now();
-    let differences: Diff<DataTree, DataTree>[] =
+    //update uneval tree from previously saved current state of collection
+    this.updateLocalUnEvalTree(localUnEvalTree);
+    //get difference in js collection body to be parsed
+    const oldUnEvalTreeJSCollections = this.getJSEntities(this.oldUnEvalTree);
+    const localUnEvalTreeJSCollection = this.getJSEntities(localUnEvalTree);
+    const jsDifferences: Diff<
+      Record<string, DataTreeJSAction>,
+      Record<string, DataTreeJSAction>
+    >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
+
+    const jsTranslatedDiffs = _.flatten(
+      jsDifferences.map((diff) =>
+        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
+      ),
+    );
+    //save parsed functions in resolveJSfunctions, update current state of js collection
+    const parsedCollections = this.parseJSActions(
+      localUnEvalTree,
+      jsTranslatedDiffs,
+      this.oldUnEvalTree,
+    );
+
+    jsUpdates = parsedCollections.jsUpdates;
+    //update local data tree if js body has updated (remove/update/add js functions or variables)
+    localUnEvalTree = this.getUpdatedLocalUnEvalTreeAfterJSUpdates(
+      jsUpdates,
+      localUnEvalTree,
+    );
+
+    const differences: Diff<DataTree, DataTree>[] =
       diff(this.oldUnEvalTree, localUnEvalTree) || [];
     // Since eval tree is listening to possible events that dont cause differences
     // We want to check if no diffs are present and bail out early
@@ -166,7 +242,7 @@ export default class DataTreeEvaluator {
         jsUpdates: {},
       };
     }
-    let translatedDiffs = _.flatten(
+    const translatedDiffs = _.flatten(
       differences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
@@ -178,42 +254,6 @@ export default class DataTreeEvaluator {
 
     this.logs.push({ differences: _.cloneDeep(differences), translatedDiffs });
 
-    const parsedCollections = this.parseJSActions(
-      translatedDiffs,
-      localUnEvalTree,
-      this.oldUnEvalTree,
-    );
-
-    jsUpdates = parsedCollections.jsUpdates;
-
-    if (!_.isEmpty(jsUpdates)) {
-      Object.keys(jsUpdates).forEach((jsEntity) => {
-        const entity = localUnEvalTree[jsEntity];
-        const parsedBody = jsUpdates[jsEntity].parsedBody;
-        if (isJSAction(entity)) {
-          localUnEvalTree = updateJSCollectionInDataTree(
-            parsedBody,
-            entity,
-            localUnEvalTree,
-          );
-        }
-      });
-      differences = diff(this.oldUnEvalTree, localUnEvalTree) || [];
-      // Since eval tree is listening to possible events that dont cause differences
-      // We want to check if no diffs are present and bail out early
-      if (differences.length === 0) {
-        return {
-          evaluationOrder: [],
-          unEvalUpdates: [],
-          jsUpdates: {},
-        };
-      }
-      translatedDiffs = _.flatten(
-        differences.map((diff) =>
-          translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
-        ),
-      );
-    }
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
     const {
@@ -275,7 +315,7 @@ export default class DataTreeEvaluator {
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = _.cloneDeep(unEvalTree);
+    this.oldUnEvalTree = _.cloneDeep(localUnEvalTree);
     this.evalTree = newEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -909,6 +949,7 @@ export default class DataTreeEvaluator {
       try {
         const { result } = evaluate(body, unEvalDataTree, {});
         delete this.resolvedFunctions[`${entityName}`];
+        delete this.currentJSCollectionState[`${entityName}`];
         if (result) {
           const actions: any = [];
           const variables: any = [];
@@ -926,16 +967,31 @@ export default class DataTreeEvaluator {
                 `${entityName}.${unEvalFunc}`,
                 unEvalValue,
               );
+              _.set(
+                this.currentJSCollectionState,
+                `${entityName}.${unEvalFunc}`,
+                unEvalValue.toString(),
+              );
             } else {
               variables.push({
                 name: unEvalFunc,
                 value: result[unEvalFunc],
               });
+              _.set(
+                this.currentJSCollectionState,
+                `${entityName}.${unEvalFunc}`,
+                unEvalValue,
+              );
             }
           });
           const parsedBody = { body: entity.body, actions, variables };
           _.set(jsUpdates, `${entityName}`, {
             parsedBody,
+            id: entity.actionId,
+          });
+        } else {
+          _.set(jsUpdates, `${entityName}`, {
+            parsedBody: undefined,
             id: entity.actionId,
           });
         }
@@ -964,62 +1020,77 @@ export default class DataTreeEvaluator {
     return jsUpdates;
   }
 
-  parseJSActionForFirstDataTree(unEvalDataTree: DataTree) {
-    let jsUpdates = {};
-    Object.keys(unEvalDataTree).forEach((entityName) => {
-      const entity = unEvalDataTree[entityName];
-      if (!isJSAction(entity)) {
-        return;
-      }
-      jsUpdates = this.saveResolvedFunctionsAndJSUpdates(
-        entity,
-        jsUpdates,
-        unEvalDataTree,
-        entityName,
-      );
-    });
-    return { jsUpdates };
-  }
-
   parseJSActions(
-    differences: DataTreeDiff[],
     unEvalDataTree: DataTree,
-    oldUnEvalTree: DataTree,
+    differences?: DataTreeDiff[],
+    oldUnEvalTree?: DataTree,
   ) {
     let jsUpdates = {};
-    differences.forEach((diff) => {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-        diff.payload.propertyPath,
-      );
-      const entity = unEvalDataTree[entityName];
-      if (diff.event === DataTreeDiffEvent.DELETE) {
-        const deletedEntity = oldUnEvalTree[entityName];
-        if (!isJSAction(deletedEntity)) {
-          return;
+    if (!!differences && !!oldUnEvalTree) {
+      differences.forEach((diff) => {
+        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+          diff.payload.propertyPath,
+        );
+        const entity = unEvalDataTree[entityName];
+        if (diff.event === DataTreeDiffEvent.DELETE) {
+          const deletedEntity = oldUnEvalTree[entityName];
+          if (!isJSAction(deletedEntity)) {
+            return;
+          }
+          if (
+            this.currentJSCollectionState &&
+            this.currentJSCollectionState[diff.payload.propertyPath]
+          ) {
+            delete this.currentJSCollectionState[diff.payload.propertyPath];
+          }
+          if (
+            this.resolvedFunctions &&
+            this.resolvedFunctions[diff.payload.propertyPath]
+          ) {
+            delete this.resolvedFunctions[diff.payload.propertyPath];
+          }
+        }
+        if (!isJSAction(entity)) {
+          return false;
         }
         if (
-          this.resolvedFunctions &&
-          this.resolvedFunctions[diff.payload.propertyPath]
+          (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
+          (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
         ) {
-          delete this.resolvedFunctions[diff.payload.propertyPath];
+          jsUpdates = this.saveResolvedFunctionsAndJSUpdates(
+            entity,
+            jsUpdates,
+            unEvalDataTree,
+            entityName,
+          );
         }
-      }
-      if (!isJSAction(entity)) {
-        return false;
-      }
-      if (
-        (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
-        (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
-      ) {
+      });
+    } else {
+      Object.keys(unEvalDataTree).forEach((entityName) => {
+        const entity = unEvalDataTree[entityName];
+        if (!isJSAction(entity)) {
+          return;
+        }
         jsUpdates = this.saveResolvedFunctionsAndJSUpdates(
           entity,
           jsUpdates,
           unEvalDataTree,
           entityName,
         );
+      });
+    }
+    return { jsUpdates };
+  }
+
+  getJSEntities(dataTree: DataTree) {
+    const jsCollections: Record<string, DataTreeJSAction> = {};
+    Object.keys(dataTree).forEach((key: string) => {
+      const entity = dataTree[key];
+      if (isJSAction(entity)) {
+        jsCollections[entity.name] = entity;
       }
     });
-    return { jsUpdates };
+    return jsCollections;
   }
 
   updateDependencyMap(
