@@ -581,7 +581,7 @@ public class CreateDBTablePageSolutionTests {
                 for (NewAction action : actions) {
                     ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
                     assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
-                    assertThat(actionConfiguration.getPluginSpecifiedTemplates().get(1).getValue().toString())
+                    assertThat(actionConfiguration.getFormData().get("bucket"))
                         .isEqualTo(resource.getTableName());
                 }
 
