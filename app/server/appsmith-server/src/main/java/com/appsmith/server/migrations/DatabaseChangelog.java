@@ -940,14 +940,14 @@ public class DatabaseChangelog {
 
         for (Page page : pagesToFix) {
             for (Layout layout : page.getLayouts()) {
-                final ArrayList<HashSet<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
+                final ArrayList<Set<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
                 if (layout.getLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getLayoutOnLoadActions());
                 }
                 if (layout.getPublishedLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getPublishedLayoutOnLoadActions());
                 }
-                for (HashSet<DslActionDTO> actionSet : layoutOnLoadActions) {
+                for (Set<DslActionDTO> actionSet : layoutOnLoadActions) {
                     for (DslActionDTO actionDTO : actionSet) {
                         final String actionName = actionDTO.getName();
                         final Action action = mongoTemplate.findOne(
@@ -1762,7 +1762,8 @@ public class DatabaseChangelog {
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
+
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
 
             // We have found an action with dynamic binding path list set by the client.
@@ -1780,62 +1781,7 @@ public class DatabaseChangelog {
                 List<String> finalDynamicBindingPathList = new ArrayList<>();
                 finalDynamicBindingPathList.addAll(dynamicBindingPathNames);
 
-                Set<String> pathsToRemove = new HashSet<>();
-
-                for (String path : dynamicBindingPathNames) {
-
-                    if (path != null) {
-
-                        String[] fields = path.split("[].\\[]");
-
-                        // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
-                        Map<String, Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
-                        Object parent = new JSONObject(actionConfigurationMap);
-                        Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
-                        Boolean isLeafNode = false;
-
-                        while (fieldsIterator.hasNext()) {
-                            String nextKey = fieldsIterator.next();
-                            if (parent instanceof JSONObject) {
-                                parent = ((JSONObject) parent).get(nextKey);
-                            } else if (parent instanceof Map) {
-                                parent = ((Map<String, ?>) parent).get(nextKey);
-                            } else if (parent instanceof List) {
-                                if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                                    try {
-                                        parent = ((List) parent).get(Integer.parseInt(nextKey));
-                                    } catch (IndexOutOfBoundsException e) {
-                                        // The index being referred does not exist. Hence the path would not exist.
-                                        pathsToRemove.add(path);
-                                    }
-                                } else {
-                                    // Parent is a list but does not match the pattern. Hence the path would not exist.
-                                    pathsToRemove.add(path);
-                                    break;
-                                }
-                            }
-
-                            // After updating the parent, check for the types
-                            if (parent == null) {
-                                pathsToRemove.add(path);
-                                break;
-                            } else if (parent instanceof String) {
-                                // If we get String value, then this is a leaf node
-                                isLeafNode = true;
-                            }
-                        }
-                        // Only extract mustache keys from leaf nodes
-                        if (parent != null && isLeafNode) {
-                            Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
-
-                            // We found the path. But if the path does not have any mustache bindings, remove it from the path list
-                            if (mustacheKeysFromFields.isEmpty()) {
-                                pathsToRemove.add(path);
-                            }
-                        }
-                    }
-
-                }
+                Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
 
                 Boolean actionEdited = pathsToRemove.size() > 0 ? TRUE : FALSE;
 
@@ -1863,6 +1809,65 @@ public class DatabaseChangelog {
             }
 
         }
+    }
+
+    private Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+        Set<String> pathsToRemove = new HashSet<>();
+        for (String path : dynamicBindingPathNames) {
+
+            if (path != null) {
+
+                String[] fields = path.split("[].\\[]");
+
+                // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
+                Map<String, Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
+                Object parent = new JSONObject(actionConfigurationMap);
+                Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                Boolean isLeafNode = false;
+
+                while (fieldsIterator.hasNext()) {
+                    String nextKey = fieldsIterator.next();
+                    if (parent instanceof JSONObject) {
+                        parent = ((JSONObject) parent).get(nextKey);
+                    } else if (parent instanceof Map) {
+                        parent = ((Map<String, ?>) parent).get(nextKey);
+                    } else if (parent instanceof List) {
+                        if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                            try {
+                                parent = ((List) parent).get(Integer.parseInt(nextKey));
+                            } catch (IndexOutOfBoundsException e) {
+                                // The index being referred does not exist. Hence the path would not exist.
+                                pathsToRemove.add(path);
+                            }
+                        } else {
+                            // Parent is a list but does not match the pattern. Hence the path would not exist.
+                            pathsToRemove.add(path);
+                            break;
+                        }
+                    }
+
+                    // After updating the parent, check for the types
+                    if (parent == null) {
+                        pathsToRemove.add(path);
+                        break;
+                    } else if (parent instanceof String) {
+                        // If we get String value, then this is a leaf node
+                        isLeafNode = true;
+                    }
+                }
+                // Only extract mustache keys from leaf nodes
+                if (parent != null && isLeafNode) {
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+
+                    // We found the path. But if the path does not have any mustache bindings, remove it from the path list
+                    if (mustacheKeysFromFields.isEmpty()) {
+                        pathsToRemove.add(path);
+                    }
+                }
+            }
+
+        }
+        return pathsToRemove;
     }
 
     @ChangeSet(order = "057", id = "update-database-action-configuration-timeout", author = "")
@@ -3312,4 +3317,267 @@ public class DatabaseChangelog {
         }
     }
 
+    /**
+     * Recently a change was introduced to modify the default value of s3 plugin's permanent URL toggle from NO to YES.
+     * This created an issue with the older actions where the toggle didn't exist and hence no value was saved against its
+     * property. Hence, since the default is now ON and the older actions don't have any value saved, the action
+     * editor shows the toggle value as ON but behaves like the value is OFF. To fix this issue, this method adds
+     * URL toggle as `NO` where no toggle value exists.
+     *
+     * @param mongockTemplate : Mongo client
+     */
+    @ChangeSet(order = "092", id = "update-s3-permanent-url-toggle-default-value", author = "")
+    public void updateS3PermanentUrlToggleDefaultValue(MongockTemplate mongockTemplate) {
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        /**
+         * Query to find all S3 actions such that:
+         *   o action type is LIST
+         *   o permanent url property either does not exist or the property is null or the property's value is null -
+         *   indicating that the property has not been set.
+         */
+        Query missingToggleQuery = query(new Criteria().andOperator(
+                where("pluginId").is(s3Plugin.getId()),
+                where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.0.value").is("LIST"),
+                new Criteria().orOperator(
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").exists(false),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8").is(null),
+                        where("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.8.value").is(null)
+                )
+        ));
+        List<NewAction> s3ListActionObjectsWithNoToggleValue = mongockTemplate.find(missingToggleQuery, NewAction.class);
+
+        // Replace old pluginSpecifiedTemplates with updated pluginSpecifiedTemplates.
+        s3ListActionObjectsWithNoToggleValue.stream()
+                .forEach(action -> {
+                    List<Property> oldPluginSpecifiedTemplates =
+                            action.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+                    List<Property> newPluginSpecifiedTemplates = setS3ListActionDefaults(oldPluginSpecifiedTemplates);
+                    action.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(newPluginSpecifiedTemplates);
+                });
+
+        /**
+         * Save changes only after all the processing is done so that in case any data manipulation fails, no data
+         * write occurs.
+         * Write data back to db only if all data manipulations done above have succeeded.
+         */
+        s3ListActionObjectsWithNoToggleValue.stream()
+                .forEach(action -> mongockTemplate.save(action));
+    }
+
+    /**
+     * This method fills `pluginSpecifiedTemplates` list with default values until the 7th index (i.e size = 8) for
+     * LIST action type. The 8th index is mapped against the toggle for generating a permanent url for s3 resource.
+     * However, a value cannot be set against this toggle if the value for previous keys in the list are missing.
+     * Hence, this method populates the values for all the keys that appear before the permanent url toggle key. To
+     * check out the indexes for each key / property please look into the `editor.json` file for s3 plugin.
+     *
+     * The keys are saved as `null` for properties where editor.json does not define any value for the property keys.
+     *
+     * @param oldPluginSpecifiedTemplates : current config saved in db.
+     * @return newPluginSpecifiedTemplates : new config with default values against missing keys.
+     */
+    private List<Property> setS3ListActionDefaults(List<Property> oldPluginSpecifiedTemplates) {
+        List<Property> newPluginSpecifiedTemplates = new ArrayList<>(oldPluginSpecifiedTemplates);
+        switch(newPluginSpecifiedTemplates.size()) {
+            case 0:
+                /**
+                 * This case is never expected to be hit. However, I am still adding the handling here for the sake
+                 * of completeness and comprehension.
+                 */
+                newPluginSpecifiedTemplates.add(new Property(null, "LIST")); // action type
+            case 1:
+                newPluginSpecifiedTemplates.add(new Property(null, "")); // bucket name
+            case 2:
+                newPluginSpecifiedTemplates.add(new Property(null, "NO")); // generate signed url
+            case 3:
+                newPluginSpecifiedTemplates.add(new Property(null, "5")); // expiry duration
+            case 4:
+                newPluginSpecifiedTemplates.add(new Property(null, "")); // prefix
+            case 5:
+                newPluginSpecifiedTemplates.add(new Property(null, "YES")); // base64 encode file
+            case 6:
+                newPluginSpecifiedTemplates.add(new Property(null, "YES")); // base64 data
+            case 7:
+                newPluginSpecifiedTemplates.add(new Property(null, "5")); // expiry duration for url with upload
+            case 8:
+                newPluginSpecifiedTemplates.add(new Property("generateUnsignedUrl", "NO")); // generate unsigned url
+            default:
+                if (newPluginSpecifiedTemplates.get(8) == null
+                        || newPluginSpecifiedTemplates.get(8).getValue() == null) {
+                    newPluginSpecifiedTemplates.set(8, new Property("generateUnsignedUrl", "NO"));
+                }
+        }
+
+        return newPluginSpecifiedTemplates;
+    }
+
+    @ChangeSet(order = "093", id = "application-git-metadata-index", author = "")
+    public void updateGitApplicationMetadataIndex(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_gitRepo_gitBranch_compound_index");
+
+        ensureIndexes(mongoTemplate, Application.class,
+                makeIndex("organizationId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
+                        .unique().named("organization_application_deleted_gitApplicationMetadata_compound_index")
+        );
+    }
+
+    public final static Map<Integer, List<String>> s3MigrationMap = Map.ofEntries(
+            Map.entry(0, List.of("command")),
+            Map.entry(1, List.of("bucket")),
+            Map.entry(2, List.of("list.signedUrl")),
+            Map.entry(3, List.of("list.expiry")),
+            Map.entry(4, List.of("list.prefix")),
+            Map.entry(5, List.of("read.usingBase64Encoding")),
+            Map.entry(6, List.of("create.dataType", "read.dataType")),
+            Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
+            Map.entry(8, List.of("list.unSignedUrl"))
+    );
+
+    private void updateFormDataMultipleOptions(int index, Object value, Map formData, Map<Integer, List<String>> migrationMap) {
+        if (migrationMap.containsKey(index)) {
+            List<String> paths = migrationMap.get(index);
+            for (String path : paths) {
+                setValueSafelyInFormData(formData, path, value);
+            }
+        }
+    }
+
+    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates, Map<Integer, List<String>> migrationMap) {
+
+        if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
+            Map<String, Object> formData = new HashMap<>();
+            for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
+                Property template = pluginSpecifiedTemplates.get(i);
+                if (template != null) {
+                    updateFormDataMultipleOptions(i, template.getValue(), formData, migrationMap);
+                }
+            }
+            return formData;
+        }
+
+        return new HashMap<>();
+    }
+
+    @ChangeSet(order = "093", id = "migrate-s3-to-uqi", author = "")
+    public void migrateS3PluginToUqi(MongockTemplate mongockTemplate) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        // First update the UI component for the s3 plugin to UQI
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+        s3Plugin.setUiComponent("UQIDbEditorForm");
+
+
+        // Now migrate all the existing actions to the new UQI structure.
+
+        List<NewAction> s3Actions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction s3Action : s3Actions) {
+            // First migrate the plugin specified templates to form data
+            ActionDTO unpublishedAction = s3Action.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+
+            unpublishedAction.getActionConfiguration().setFormData(
+                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+            );
+            unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+
+            ActionDTO publishedAction = s3Action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
+                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
+                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                publishedAction.getActionConfiguration().setFormData(
+                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+                );
+                publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+            }
+
+            // Now migrate the dynamic binding pathlist
+            List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
+
+            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
+                List<Property> newDynamicBindingPathList = new ArrayList<>();
+                for (Property path : dynamicBindingPathList) {
+                    String pathKey = path.getKey();
+                    if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                        // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                        Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                        Matcher matcher = pattern.matcher(pathKey);
+
+                        while (matcher.find()) {
+                            int index = Integer.parseInt(matcher.group());
+                            List<String> partialPaths = s3MigrationMap.get(index);
+                            for (String partialPath : partialPaths) {
+                                Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                                newDynamicBindingPathList.add(dynamicBindingPath);
+                            }
+                        }
+                    } else {
+                        // this dynamic binding is for body. Add as is
+                        newDynamicBindingPathList.add(path);
+                    }
+
+                    // We may have an invalid dynamic binding. Trim the same
+                    List<String> dynamicBindingPathNames = newDynamicBindingPathList
+                            .stream()
+                            .map(property -> property.getKey())
+                            .collect(Collectors.toList());
+
+                    Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, s3Action, dynamicBindingPathNames);
+
+                    // We have found atleast 1 invalid dynamic binding path.
+                    if (!pathsToRemove.isEmpty()) {
+                        // First remove the invalid paths from the set of paths
+                        dynamicBindingPathNames.removeAll(pathsToRemove);
+
+                        // Transform the set of paths to Property as it is stored in the db.
+                        List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
+                                .stream()
+                                .map(dynamicBindingPath -> {
+                                    Property property = new Property();
+                                    property.setKey(dynamicBindingPath);
+                                    return property;
+                                })
+                                .collect(Collectors.toList());
+
+                        // Reset the path list to only contain valid binding paths.
+                        newDynamicBindingPathList = updatedDynamicBindingPathList;
+                    }
+                }
+
+                unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
+            }
+
+            actionsToSave.add(s3Action);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction s3Action : actionsToSave) {
+            mongockTemplate.save(s3Action);
+        }
+        // Now that the actions have completed the migrations, update the plugin to use the new UI form.
+        mongockTemplate.save(s3Plugin);
+    }
 }

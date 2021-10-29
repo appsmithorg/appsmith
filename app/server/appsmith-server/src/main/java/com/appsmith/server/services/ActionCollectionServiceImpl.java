@@ -9,6 +9,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -33,8 +34,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -43,6 +46,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
     private final NewActionService newActionService;
     private final PolicyGenerator policyGenerator;
+    private final ApplicationService applicationService;
 
     @Autowired
     public ActionCollectionServiceImpl(Scheduler scheduler,
@@ -52,10 +56,12 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                        ActionCollectionRepository repository,
                                        AnalyticsService analyticsService,
                                        NewActionService newActionService,
-                                       PolicyGenerator policyGenerator) {
+                                       PolicyGenerator policyGenerator,
+                                       ApplicationService applicationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
         this.policyGenerator = policyGenerator;
+        this.applicationService = applicationService;
     }
 
     @Override
@@ -147,6 +153,34 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
+    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId) {
+        if (applicationId == null || applicationId.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        }
+
+        return repository
+                .findByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS)
+                .flatMap(actionCollection -> {
+                    ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
+                    final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+                    actionCollectionViewDTO.setId(actionCollection.getId());
+                    actionCollectionViewDTO.setName(publishedCollection.getName());
+                    actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
+                    actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
+                    actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+                    return Flux.fromIterable(publishedCollection.getActionIds())
+                            .flatMap(actionId -> {
+                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
+                            })
+                            .collectList()
+                            .map(actionDTOList -> {
+                                actionCollectionViewDTO.setActions(actionDTOList);
+                                return actionCollectionViewDTO;
+                            });
+                });
+    }
+
+    @Override
     public Flux<ActionCollectionDTO> getActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode) {
         if (params == null || viewMode == null) {
             return Flux.empty();
@@ -154,10 +188,12 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
-            return repository
-                    .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), viewMode, READ_ACTIONS)
-                    .flatMap(actionCollection ->
-                            generateActionCollectionByViewMode(actionCollection, viewMode));
+            return applicationService
+                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .flatMapMany(childApplicationId ->
+                    repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, READ_ACTIONS)
+                )
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
         }
 
         String name = null;
@@ -267,8 +303,8 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId, AclPermission permission) {
-        return repository.findByPageId(pageId, permission);
+    public Flux<ActionCollection> findByPageId(String pageId) {
+        return repository.findByPageId(pageId);
     }
 
     @Override

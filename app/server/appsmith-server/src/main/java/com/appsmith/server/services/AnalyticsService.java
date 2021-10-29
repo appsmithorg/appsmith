@@ -52,7 +52,7 @@ public class AnalyticsService {
         return value == null ? "" : DigestUtils.sha256Hex(value);
     }
 
-    public Mono<User> trackNewUser(User user, UserData userData) {
+    public Mono<User> identifyUser(User user, UserData userData) {
         if (!isActive()) {
             return Mono.just(user);
         }
@@ -64,11 +64,21 @@ public class AnalyticsService {
                             AclPermission.MANAGE_INSTANCE_ENV.getValue(),
                             savedUser.getUsername()
                     );
+
+                    String username = savedUser.getUsername();
+                    String name = savedUser.getName();
+                    String email = savedUser.getEmail();
+                    if (!commonConfig.isCloudHosting()) {
+                        username = hash(username);
+                        name = hash(name);
+                        email = hash(email);
+                    }
+
                     analytics.enqueue(IdentifyMessage.builder()
-                            .userId(hash(savedUser.getUsername()))
+                            .userId(ObjectUtils.defaultIfNull(username, ""))
                             .traits(Map.of(
-                                    "name", hash(savedUser.getName()),
-                                    "email", hash(savedUser.getEmail()),
+                                    "name", ObjectUtils.defaultIfNull(name, ""),
+                                    "email", ObjectUtils.defaultIfNull(email, ""),
                                     "isSuperUser", isSuperUser != null && isSuperUser,
                                     "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
                                     "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
@@ -77,6 +87,18 @@ public class AnalyticsService {
                     analytics.flush();
                     return savedUser;
                 });
+    }
+
+    public void identifyInstance(String instanceId, String role, String useCase) {
+        analytics.enqueue(IdentifyMessage.builder()
+                .userId(instanceId)
+                .traits(Map.of(
+                        "isInstance", true,  // Is this "identify" data-point for a user or an instance?
+                        "role", ObjectUtils.defaultIfNull(role, ""),
+                        "goal", ObjectUtils.defaultIfNull(useCase, "")
+                ))
+        );
+        analytics.flush();
     }
 
     public void sendEvent(String event, String userId, Map<String, Object> properties) {
