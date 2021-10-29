@@ -105,7 +105,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
         props.unselectMarker();
       }
     }
-  }, []);
+  }, [setMapCenter, props.updateCenter, props.unselectMarker]);
 
   const handleOnClickGoogleMap = useCallback(
     (e) => {
