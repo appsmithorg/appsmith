@@ -168,6 +168,7 @@ jobs:
 
       - name: Build
         run: |
+          echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
           ./build.sh
           ls -l dist
 
