@@ -98,7 +98,7 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
 
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
@@ -122,7 +122,7 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
 
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
@@ -141,7 +141,7 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.getProperties().get(0).setValue("");
 
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
@@ -163,7 +163,7 @@ public class AmazonS3PluginTest {
         datasourceConfiguration.getProperties().get(1).setValue("upcloud");
         datasourceConfiguration.getProperties().get(2).setValue("");
 
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
@@ -186,7 +186,7 @@ public class AmazonS3PluginTest {
         datasourceConfiguration.getProperties().get(2).setValue("");
         datasourceConfiguration.getEndpoints().get(0).setHost("");
 
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
 
         StepVerifier.create(pluginExecutorMono)
@@ -205,7 +205,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testTestDatasourceWithFalseCredentials() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
         StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
                 .assertNext(datasourceTestResult -> {
                     assertNotEquals(0, datasourceTestResult.getInvalids().size());
@@ -220,7 +220,7 @@ public class AmazonS3PluginTest {
     public void testStaleConnectionExceptionFromExecuteMethod() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor());
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(new AmazonS3Plugin.S3PluginExecutor(filterDataService));
         Mono<ActionExecutionResult> resultMono = pluginExecutorMono
                                                  .flatMap(executor -> {
                                                      return executor.execute(
@@ -236,7 +236,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesInBucketWithNoUrl() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -302,7 +302,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testCreateFileFromBodyWithFalseCredentialsAndNonNullDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -345,7 +345,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testFileUploadFromBodyWithMissingDuration() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -382,7 +382,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "dummyBody;";
@@ -432,7 +432,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testReadFileFromPathWithoutBase64Encoding() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -474,7 +474,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testReadFileFromPathWithBase64Encoding() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -530,7 +530,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testDeleteFile() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -578,7 +578,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithPrefix() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -638,7 +638,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithUnsignedUrl() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -715,7 +715,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithSignedUrl() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -795,7 +795,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListFilesWithSignedUrlAndNullDuration() throws MalformedURLException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         String dummyBody = "";
@@ -894,7 +894,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testListBuckets() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor(filterDataService);
         Bucket mockS3Bucket = mock(Bucket.class);
         mockS3Bucket.setName("dummy_bucket");
 
