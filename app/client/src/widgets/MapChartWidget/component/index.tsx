@@ -16,6 +16,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 // Import the dataset and the colorRange of the map
 import { colorRange, dataSetForWorld, MapTypes } from "../constants";
+import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
 
 // Adding the chart and theme as dependency to the core fusioncharts
 ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
@@ -216,21 +217,25 @@ function MapChartComponent(props: MapChartComponentProps) {
       if (type === MapTypes.CUSTOM) {
         newChartConfigs = normalizeCustomConfigs();
       }
+      const mapDefinition = CUSTOM_MAP_PLUGINS[alias];
+      ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
+      setChartConfigs(newChartConfigs);
+      // https://cdn.fusionmaps.com/fusionmaps/maps/fusioncharts.${alias}.js
       // Dynamically import the map definition file
-      import(
-        /* webpackChunkName: "[request]" */
-        `fusionmaps/maps/fusioncharts.${alias}.js`
-      )
-        .then(({ default: mapDefinition }) => {
-          // Adding the chart and theme as dependency to the core fusioncharts
-          ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
+      // import(
+      //   /* webpackChunkName: "[request]" */
+      //   `fusionmaps/maps/fusioncharts.${alias}.js`
+      // )
+      //   .then(({ default: mapDefinition }) => {
+      //     // Adding the chart and theme as dependency to the core fusioncharts
+      //     ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
 
-          setChartConfigs(newChartConfigs);
-        })
-        .catch((err) => {
-          console.error(err);
-          return;
-        });
+      //     setChartConfigs(newChartConfigs);
+      //   })
+      //   .catch((err) => {
+      //     console.error(err);
+      //     return;
+      //   });
     }
   };
 
