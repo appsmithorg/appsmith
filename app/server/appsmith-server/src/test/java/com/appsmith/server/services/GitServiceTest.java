@@ -12,6 +12,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -785,7 +786,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just("2 commits pulled"));
         Mockito.when(importExportApplicationService.exportApplicationById(Mockito.anyString(), Mockito.any(SerialiseApplicationObjective.class)))
                 .thenReturn(Mono.just(new ApplicationJson()));
-        Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class)))
+        Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(application));
 
         Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
@@ -903,6 +904,8 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkoutRemoteBranch_NotPresentInLocal_NewChildApplicationCreated() throws GitAPIException, IOException {
+        GitCheckoutBranchDTO gitCheckoutBranchDTO = new GitCheckoutBranchDTO();
+        gitCheckoutBranchDTO.setIsRemote(true);
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
         gitApplicationMetadata.setRepoName("testRepo");
@@ -927,7 +930,7 @@ public class GitServiceTest {
         Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(new Application()));
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote", "true")
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote", gitCheckoutBranchDTO)
                 .flatMap(application1 -> applicationService.getApplicationByBranchNameAndDefaultApplication("testRemote", application.getId(), AclPermission.READ_APPLICATIONS));
 
         StepVerifier
@@ -942,7 +945,8 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkoutRemoteBranch_PresentInLocal_CheckedOutToExistingApplication() {
-        GitProfile gitProfile = getConfigRequest("test@appsmith.com", "Test 1");
+        GitCheckoutBranchDTO gitCheckoutBranchDTO = new GitCheckoutBranchDTO();
+        gitCheckoutBranchDTO.setIsRemote(true);
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
         gitApplicationMetadata.setRepoName("testRepo");
@@ -960,7 +964,7 @@ public class GitServiceTest {
         testApplication1.setGitApplicationMetadata(gitApplicationMetadata1);
         Application application2 = applicationPageService.createApplication(testApplication1).block();
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", "true");
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", gitCheckoutBranchDTO);
 
         StepVerifier
                 .create(applicationMono)
