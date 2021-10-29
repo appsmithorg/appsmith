@@ -67,7 +67,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
-            <version>2.4.4</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,10 +90,6 @@
             <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
@@ -105,7 +100,6 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.2.0.Final</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -145,7 +139,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>2.4.4</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -154,7 +147,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -182,17 +174,14 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-mongodb</artifactId>
-            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-apt</artifactId>
-            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
-            <version>5.0.0</version>
         </dependency>
 
         <dependency>
@@ -208,7 +197,6 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>3.2.11.RELEASE</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -233,15 +221,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
         </dependency>
-
-        <!-- MongoDB Migrations: https://github.com/cloudyrock/mongock -->
-<!--        <dependency>-->
-<!--            <groupId>com.github.cloudyrock.mongock</groupId>-->
-<!--            <artifactId>mongock-spring</artifactId>-->
-<!--            <version>3.3.2</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.commons</groupId>
