@@ -13,6 +13,8 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -892,47 +894,61 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void testListBuckets() {
+    public void testGetStructure() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        Bucket mockS3Bucket = mock(Bucket.class);
-        mockS3Bucket.setName("dummy_bucket");
 
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "";
-        actionConfiguration.setBody(dummyBody);
-
-        Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, COMMAND, "LIST_BUCKETS");
-
-        actionConfiguration.setFormData(configMap);
+        Bucket mockS3Bucket1 = mock(Bucket.class);
+        when(mockS3Bucket1.getName()).thenReturn("dummy_bucket_1");
 
         AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listBuckets()).thenReturn(List.of(mockS3Bucket));
+        when(mockConnection.listBuckets()).thenReturn(List.of(mockS3Bucket1));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
-            mockConnection,
-            datasourceConfiguration,
-            actionConfiguration);
-        StepVerifier.create(resultMono)
-            .assertNext(result -> {
-                assertTrue(result.getIsExecutionSuccess());
+        StepVerifier.create(pluginExecutor.getStructure(mockConnection, datasourceConfiguration))
+                .assertNext(datasourceStructure -> {
+                    String expectedBucketName = "dummy_bucket_1";
+                    assertEquals(expectedBucketName, datasourceStructure.getTables().get(0).getName());
 
-                Map<String, List<String>> node = (Map<String, List<String>>) result.getBody();
-                List<String> buckets = node.get("bucketList");
-                assertTrue(buckets.size() == 1);
-                assertEquals(buckets.get(0), mockS3Bucket.getName());
-                /*
-                 * - RequestParamDTO object only have attributes configProperty and value at this point.
-                 */
-                List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                expectedRequestParams.add(new RequestParamDTO("command", "LIST_BUCKETS",
-                    null, null, null)); // Action
-                expectedRequestParams.add(new RequestParamDTO("bucket", null,
-                    null, null, null)); // Bucket name
-                assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
-            })
-            .verifyComplete();
+                    List<Template> templates = datasourceStructure.getTables().get(0).getTemplates();
+
+                    // Check list files template
+                    Template listFilesTemplate = templates.get(0);
+                    assertEquals("List files", listFilesTemplate.getTitle());
+
+                    Map<String, Object> listFilesConfig = (Map<String, Object>) listFilesTemplate.getConfiguration();
+                    assertEquals(expectedBucketName, listFilesConfig.get("bucket"));
+
+                    // Check read file template
+                    Template readFileTemplate = templates.get(1);
+                    assertEquals("Read file", readFileTemplate.getTitle());
+                    assertEquals("TestFile.txt", readFileTemplate.getActionConfiguration().getPath());
+
+                    Map<String, Object> readFileConfig = (Map<String, Object>) readFileTemplate.getConfiguration();
+                    assertEquals(expectedBucketName, readFileConfig.get("bucket"));
+                    assertEquals("READ_FILE", readFileConfig.get("command"));
+
+                    // Check create file template
+                    Template createFileTemplate = templates.get(2);
+                    assertEquals("Create file", createFileTemplate.getTitle());
+                    assertEquals("TestFile.txt", createFileTemplate.getActionConfiguration().getPath());
+                    assertEquals("{{FilePicker1.files[0].data}}", createFileTemplate.getActionConfiguration().getBody());
+
+                    Map<String, Object> createFileConfig = (Map<String, Object>) createFileTemplate.getConfiguration();
+                    assertEquals(expectedBucketName, createFileConfig.get("bucket"));
+                    assertEquals("UPLOAD_FILE_FROM_BODY", createFileConfig.get("command"));
+
+                    // Check delete file template
+                    Template deleteFileTemplate = templates.get(3);
+                    assertEquals("Delete file", deleteFileTemplate.getTitle());
+                    assertEquals("TestFile.txt", deleteFileTemplate.getActionConfiguration().getPath());
+
+                    Map<String, Object> deleteFileConfig = (Map<String, Object>) deleteFileTemplate.getConfiguration();
+                    assertEquals(expectedBucketName, deleteFileConfig.get("bucket"));
+                    assertEquals("DELETE_FILE", deleteFileConfig.get("command"));
+
+
+                })
+                .verifyComplete();
     }
 
 }

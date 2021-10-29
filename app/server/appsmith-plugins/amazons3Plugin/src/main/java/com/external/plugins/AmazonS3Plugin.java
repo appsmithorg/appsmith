@@ -1,6 +1,8 @@
 package com.external.plugins;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
@@ -74,6 +76,7 @@ import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
+import static com.external.utils.TemplateUtils.getTemplates;
 
 public class AmazonS3Plugin extends BasePlugin {
 
@@ -538,14 +541,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         connection.deleteObject(bucketName, path);
                         actionResult = Map.of("status", "File deleted successfully");
                         break;
-                    case LIST_BUCKETS:
-                        List<String> bucketNames = connection.listBuckets()
-                            .stream()
-                            .map(Bucket::getName)
-                            .collect(Collectors.toList());
-                        actionResult = Map.of("bucketList", bucketNames);
-                        break;
-
                     default:
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -886,28 +881,27 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(AmazonS3 connection, DatasourceConfiguration datasourceConfiguration) {
-            /*
-             * Not sure if it make sense to list all buckets as part of structure ? Leaving it empty for now.
-             */
-            return Mono.empty();
-        }
 
-        // This function executes the DB query to fetch details about the datasource from plugin specified templates
-        // when we don't want to create new action just to get the information about the datasource in this case we can
-        // get list of S3 buckets etc.
-        @Override
-        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
-                                                                 DatasourceConfiguration datasourceConfiguration) {
+            return Mono.fromSupplier(() -> {
+                List<DatasourceStructure.Table> tableList = null;
+                try {
+                    tableList = connection.listBuckets()
+                            .stream()
+                            .map(Bucket::getName)
+                            .map(bucketName -> new DatasourceStructure.Table(DatasourceStructure.TableType.BUCKET, "",
+                                    bucketName, new ArrayList<>(), new ArrayList<>(), getTemplates(bucketName)))
+                            .collect(Collectors.toList());
+                } catch (SdkClientException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                            "Appsmith server has failed to fetch list of buckets from database. Please check if " +
+                                    "the database credentials are valid and/or you have the required permissions."
+                    );
+                }
 
-            // TODO : Ignore the plugin specified templates. Once trigger functionality is implemented for UQI, replace
-            // this as well with trigger functions
-            Map<String, Object> configMap = new HashMap<>();
-            setValueSafelyInFormData(configMap, COMMAND, "LIST_BUCKETS");
-
-            ActionConfiguration actionConfiguration = new ActionConfiguration();
-            actionConfiguration.setFormData(configMap);
-            return datasourceCreate(datasourceConfiguration)
-                .flatMap(connection -> execute(connection, datasourceConfiguration, actionConfiguration));
+                return new DatasourceStructure(tableList);
+            })
+                    .subscribeOn(scheduler);
         }
     }
 }
