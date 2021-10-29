@@ -11,8 +11,10 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -55,6 +57,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -80,6 +83,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -348,6 +352,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Add JS function body to jsonPathKeys field.
         if (PluginType.JS.equals(actionDTO.getPluginType()) && actionConfiguration.getBody() != null) {
             keys.add(actionConfiguration.getBody());
+
+            // Since this is a JS function, we should also set the dynamic binding path list if absent
+            List<Property> dynamicBindingPathList = actionDTO.getDynamicBindingPathList();
+            if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
+                dynamicBindingPathList = new ArrayList<>();
+                // Add a key static the key `body` contains JS
+                dynamicBindingPathList.add(new Property("body", null));
+                actionDTO.setDynamicBindingPathList(dynamicBindingPathList);
+            }
         }
 
         return keys;
@@ -1008,12 +1021,69 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     public Mono<ActionDTO> populateHintMessages(ActionDTO action) {
         /*
          * - No need for this null check: action == null. By the time the code flow reaches here, action is
-         *   guaranteed to be non null.
+         *   guaranteed to be non-null.
          */
 
-        datasourceService.populateHintMessages(action.getDatasource());
+        /**
+         * ImportExportApplicationServiceTests.java seem to have TCs that introduce actionDTOs with datasource or
+         * pluginId being null. Hence, need adding a check here. I am not sure at this point if that is a scenario
+         * that can be expected in production.
+         * TBD: need to confirm if this check is actually required or if an error should be returned from here.
+         */
+        if (action.getDatasource() == null || action.getDatasource().getPluginId() == null) {
+            return Mono.just(action);
+        }
 
-        return Mono.just(action);
+        Mono<Plugin> pluginMono = pluginService.findById(action.getDatasource().getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
+
+        Mono<DatasourceConfiguration> dsConfigMono;
+        if (action.getDatasource().getDatasourceConfiguration() != null) {
+            dsConfigMono = Mono.just(action.getDatasource().getDatasourceConfiguration());
+        }
+        else if (action.getDatasource().getId() != null) {
+            dsConfigMono = datasourceService.findById(action.getDatasource().getId())
+                    .flatMap(datasource -> {
+                        if (datasource.getDatasourceConfiguration() == null) {
+                            return Mono.just(new DatasourceConfiguration());
+                        }
+
+                        return Mono.just(datasource.getDatasourceConfiguration());
+                    })
+                    .switchIfEmpty(
+                            Mono.error(
+                                    new AppsmithException(
+                                            AppsmithError.NO_RESOURCE_FOUND,
+                                            FieldName.DATASOURCE,
+                                            action.getDatasource().getId()
+                                    )
+                            )
+                    );
+        }
+        else {
+            dsConfigMono = Mono.just(new DatasourceConfiguration());
+        }
+
+        return Mono.zip(pluginExecutorMono, dsConfigMono)
+                .flatMap(tuple ->{
+                        PluginExecutor pluginExecutor = tuple.getT1();
+                        DatasourceConfiguration dsConfig = tuple.getT2();
+
+                        /**
+                         * Delegate the task of generating hint messages to the concerned plugin, since only the
+                         * concerned plugin can correctly interpret their configuration.
+                         */
+                        return pluginExecutor.getHintMessages(action.getActionConfiguration(), dsConfig);
+                })
+                .flatMap(tuple -> {
+                    Set datasourceHintMessages = ((Tuple2<Set, Set>) tuple).getT1();
+                    action.getDatasource().getMessages().addAll(datasourceHintMessages);
+
+                    Set actionHintMessages = ((Tuple2<Set, Set>) tuple).getT2();
+                    action.getMessages().addAll(actionHintMessages);
+
+                    return Mono.just(action);
+                });
     }
 
     @Override
@@ -1035,10 +1105,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
-            return repository
-                    .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, READ_ACTIONS)
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                    .flatMap(this::setTransientFieldsInUnpublishedAction);
+            return applicationService
+                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .flatMapMany(applicationId -> repository.findByApplicationIdAndViewMode(applicationId, false, READ_ACTIONS))
+                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
+                .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);

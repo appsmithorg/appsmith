@@ -56,8 +56,10 @@ Cypress.Commands.add("renameOrg", (orgName, newOrgName) => {
 
 Cypress.Commands.add("goToEditFromPublish", () => {
   cy.url().then((url) => {
-    if (!url.includes("edit")) {
-      cy.visit(url + "/edit");
+    const urlObject = new URL(url);
+    if (!urlObject.pathname.includes("edit")) {
+      urlObject.pathname = urlObject.pathname + "/edit";
+      cy.visit(urlObject.toString());
     }
   });
 });
@@ -275,7 +277,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
 
 Cypress.Commands.add("CreateAppForOrg", (orgName, appname) => {
   cy.get(homePage.orgList.concat(orgName).concat(homePage.createAppFrOrg))
-    .scrollIntoView({ force: true })
+    .scrollIntoView()
     .should("be.visible")
     .click({ force: true });
   cy.wait("@createNewApplication").should(
@@ -417,6 +419,11 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
+  cy.wait("@applications").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
   initLocalstorage();
 });
 
@@ -431,6 +438,13 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.username).type(uname);
   cy.get(signupPage.password).type(pword);
   cy.get(signupPage.submitBtn).click();
+  cy.wait(1000);
+  cy.get(signupPage.roleDropdown).click();
+  cy.get(signupPage.dropdownOption).click();
+  cy.get(signupPage.useCaseDropdown).click();
+  cy.get(signupPage.dropdownOption).click();
+  cy.get(signupPage.roleUsecaseSubmit).click();
+
   cy.wait("@getUser");
   cy.wait("@applications").should(
     "have.nested.property",
@@ -755,9 +769,11 @@ Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
   cy.get(
     commonlocators.entitySearchResult.concat(apiname1).concat("')"),
   ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .last()
-    .dblclick({ force: true });
+  return cy
+    .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .dblclick()
+    .get("input")
+    .last();
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
@@ -2616,6 +2632,14 @@ Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
   cy.get(widgetCss + disableCss).should("exist");
 });
 
+Cypress.Commands.add("validateToolbarVisible", (widgetCss, toolbarCss) => {
+  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("exist");
+});
+
+Cypress.Commands.add("validateToolbarHidden", (widgetCss, toolbarCss) => {
+  cy.get(widgetCss + toolbarCss, { timeout: 10000 }).should("not.exist");
+});
+
 Cypress.Commands.add("validateEnableWidget", (widgetCss, disableCss) => {
   cy.get(widgetCss + disableCss).should("not.exist");
 });
@@ -2721,6 +2745,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
+
+  cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
+  cy.route("POST", "api/v1/git/commit/*").as("commit");
+
+  cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
+
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
   cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
 });
@@ -2915,8 +2945,10 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
-    .type("{downarrow}{downarrow}{downarrow}  ")
+    .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
     .type(JSCode);
   cy.wait(1000);
-  cy.get(jsEditorLocators.runButton).click();
+  cy.get(jsEditorLocators.runButton)
+    .first()
+    .click();
 });

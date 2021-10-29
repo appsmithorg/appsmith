@@ -21,7 +21,6 @@ body:
       | ------------- | -------------- |
       | e.g. Simplify user experience  | Customer satisfaction score increases  |
       | e.g. Simplify onboarding flow  | Decrease churn rate down to 30%        |
-    render: markdown
   validations:
     required: true
 - type: textarea
@@ -32,7 +31,6 @@ body:
       | ------------- | ------------- | ------------- | ------------- |
       | e.g. Must be mobile responsive  | e.g. as a user, I want to be able to access the platform via mobile phone  | High, Low or Medium  | Content Cell  |
       | e.g. The user should be able to leave a comment | e.g as a user, I want to be able to communicate with the other members on the canvas  | High, Low or Medium  | Content Cell  |
-    render: markdown
   validations:
     required: false
 - type: textarea
@@ -44,7 +42,6 @@ body:
       - Item 1
       - Item 2
       - Item 3
-    render: markdown
   validations:
     required: false
 - type: input
@@ -63,6 +60,5 @@ body:
       | Accountable   |               |
       | Consulted     | @Nikhil-Nandagopal, @mohanarpit, @areyabhishek|
       | Informed      |               |
-    render: markdown
   validations:
     required: true
