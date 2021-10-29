@@ -24,7 +24,7 @@ const Container = styled.div`
 
 export const PROFILE_FORM = "PROFILE_FORM";
 
-const fieldNames = {
+export const fieldNames = {
   displayName: "displayName",
   emailAddress: "emailAddress",
 };

@@ -44,6 +44,9 @@ export const Colors = {
   GREEN: "#03B365",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
+  FERN_GREEN: "#50AF6C",
+  NARVIK_GREEN: "#ECF9F3",
+  JAGGED_ICE: "#CAECDC",
   EUCALYPTUS: "#218358",
   RED: "#B30338",
   ERROR_RED: "#E22C2C",
@@ -135,10 +138,14 @@ export const Colors = {
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
   GREY_5: "#E0DEDE",
+  GREY_6: "#A9A7A7",
+  GREY_7: "#858282",
   GREY_8: "#716E6E",
   GREY_9: "#4B4848",
   GREY_10: "#090707",
 
   PRIMARY_ORANGE: "#F86A2B",
+  MIRAGE: "#182026",
+  MASALA: "#43403D",
 };
 export type Color = typeof Colors[keyof typeof Colors];

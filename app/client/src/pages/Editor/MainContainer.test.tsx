@@ -570,10 +570,10 @@ describe("Drag and Drop widgets into Main container", () => {
     act(() => {
       fireEvent.click(widgetAddButton);
     });
-    const containerButton: any = component.queryByText("Container");
+    const containerButton: any = component.queryAllByText("Container");
 
     act(() => {
-      fireEvent.dragStart(containerButton);
+      fireEvent.dragStart(containerButton[0]);
     });
 
     const mainCanvas: any = component.queryByTestId("canvas-dragging-0");

@@ -4,8 +4,10 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.PluginOrgDTO;
+import com.appsmith.server.dtos.RemotePluginOrgDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.PluginService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
@@ -24,6 +26,7 @@ import java.util.List;
 
 
 @RestController
+@Slf4j
 @RequestMapping(Url.PLUGIN_URL)
 public class PluginController extends BaseController<PluginService, Plugin, String> {
 
@@ -57,5 +60,17 @@ public class PluginController extends BaseController<PluginService, Plugin, Stri
     public Mono<ResponseDTO<Object>> getDatasourceForm(@PathVariable String pluginId) {
         return service.getFormConfig(pluginId)
                 .map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
+    }
+
+    /**
+     * This endpoint is accessible for server-to-server calls so that cloud services can install a plugin
+     * to a specific installation on our Appsmith cloud version
+     */
+    @PostMapping("/remote/install")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<Void> remoteInstall(@Valid @RequestBody RemotePluginOrgDTO plugin) {
+        log.debug("Entered endpoint to install plugin at server ... ");
+        log.debug("Plugin: {}", plugin);
+        return service.installRemotePlugin(plugin);
     }
 }

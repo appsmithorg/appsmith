@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import TooltipComponent from "components/ads/Tooltip";
@@ -16,8 +16,9 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
-  showUnreadIndicator as showUnreadIndicatorSelector,
-} from "../../selectors/commentsSelectors";
+  getAppCommentThreads,
+  getCommentsState,
+} from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
@@ -36,23 +37,13 @@ import {
   matchViewerPath,
 } from "constants/routes";
 
-import localStorage from "utils/localStorage";
-
-import { getAppMode } from "selectors/applicationSelectors";
-
-import { noop } from "lodash";
 import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const getShowCommentsButtonToolTip = () => {
-  const flag = localStorage.getItem("ShowCommentsButtonToolTip");
-  return flag === null || !!flag;
-};
-const setShowCommentsButtonToolTip = (value = "") =>
-  localStorage.setItem("ShowCommentsButtonToolTip", value);
+import { getCurrentApplicationId } from "../../selectors/editorSelectors";
+import { getAppMode } from "../../selectors/applicationSelectors";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -165,6 +156,11 @@ const useUpdateCommentMode = async (currentUser?: User) => {
       dispatch(fetchApplicationCommentsRequest());
     }
   }, [isCommentMode]);
+
+  // Need to fetch the comments on app edit for the first time.
+  useEffect(() => {
+    dispatch(fetchApplicationCommentsRequest());
+  }, []);
 };
 
 export const setCommentModeInUrl = (isCommentMode: boolean) => {
@@ -293,34 +289,8 @@ function CommentModeBtn({
   );
 }
 
-const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
-  const currentUser = useSelector(getCurrentUser);
-  const appMode = useSelector(getAppMode);
-
-  const initShowCommentButtonDiscoveryTooltip =
-    getShowCommentsButtonToolTip() &&
-    appMode === APP_MODE.PUBLISHED &&
-    currentUser?.username !== ANONYMOUS_USERNAME;
-
-  const [
-    showCommentButtonDiscoveryTooltip,
-    setShowCommentButtonDiscoveryTooltipInState,
-  ] = useState(initShowCommentButtonDiscoveryTooltip);
-
-  useEffect(() => {
-    setShowCommentButtonDiscoveryTooltipInState(
-      initShowCommentButtonDiscoveryTooltip,
-    );
-  }, [appMode, currentUser]);
-
-  return [
-    showCommentButtonDiscoveryTooltip,
-    setShowCommentButtonDiscoveryTooltipInState,
-  ];
-};
-
 export const useHideComments = () => {
-  const [shouldHide, setShouldHide] = useState(false);
+  const [shouldHide, setShouldHide] = useState(true);
   const location = useLocation();
   const currentUser = useSelector(getCurrentUser);
   useEffect(() => {
@@ -341,20 +311,32 @@ type ToggleCommentModeButtonProps = {
   showSelectedMode?: boolean;
 };
 
+export const useHasUnreadCommentThread = (applicationId: string) => {
+  const commentsState = useSelector(getCommentsState);
+  return useMemo(() => {
+    return !!getAppCommentThreads(
+      commentsState.applicationCommentThreadsByRef[applicationId],
+    ).find((tId: string) => !commentsState.commentThreadsMap[tId]?.isViewed);
+  }, [commentsState]);
+};
+
 function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
   const isCommentMode = useSelector(commentModeSelector);
   const currentUser = useSelector(getCurrentUser);
+  const appId = useSelector(getCurrentApplicationId) || "";
+  const appMode = useSelector(getAppMode);
+  const hasUnreadCommentThread = useHasUnreadCommentThread(appId);
 
-  const [
-    showCommentButtonDiscoveryTooltip,
-    setShowCommentButtonDiscoveryTooltipInState,
-  ] = useShowCommentDiscoveryTooltip();
-
+  // show comments indicator only if -
+  // 1. user hasn't completed their comments onboarding and they are in published mode or
+  // 2. There is at least one unread comment thread
   const showUnreadIndicator =
-    useSelector(showUnreadIndicatorSelector) ||
-    showCommentButtonDiscoveryTooltip;
+    hasUnreadCommentThread ||
+    (!currentUser?.commentOnboardingState &&
+      appMode === APP_MODE.PUBLISHED &&
+      currentUser?.username !== ANONYMOUS_USERNAME);
 
   useUpdateCommentMode(currentUser);
 
@@ -378,17 +360,10 @@ function ToggleCommentModeButton({
     });
     setCommentModeInUrl(true);
     proceedToNextTourStep();
-    setShowCommentButtonDiscoveryTooltipInState(false);
-    setShowCommentsButtonToolTip();
-  }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
-
-  // Show comment mode button only on the canvas editor and viewer
-  const isHideComments = useHideComments();
-
-  if (isHideComments) return null;
+  }, [proceedToNextTourStep]);
 
   return (
-    <Container>
+    <Container className="t--comment-mode-switch-toggle">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton

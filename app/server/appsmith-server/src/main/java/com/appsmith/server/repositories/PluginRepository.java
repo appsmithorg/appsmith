@@ -17,4 +17,6 @@ public interface PluginRepository extends BaseRepository<Plugin, String>, Custom
     Flux<Plugin> findByDefaultInstall(Boolean isDefaultInstall);
 
     Flux<Plugin> findByType(PluginType pluginType);
+
+    Mono<Plugin> findByPluginNameAndPackageNameAndVersion(String pluginName, String packageName, String version);
 }

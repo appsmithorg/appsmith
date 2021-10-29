@@ -86,6 +86,17 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
+    public Mono<T> retrieveById(ID id) {
+        Query query = new Query(getIdCriteria(id));
+        query.addCriteria(notDeleted());
+
+        return mongoOperations.query(entityInformation.getJavaType())
+                .inCollection(entityInformation.getCollectionName())
+                .matching(query)
+                .one();
+    }
+
+    @Override
     public Flux<T> findAll() {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())

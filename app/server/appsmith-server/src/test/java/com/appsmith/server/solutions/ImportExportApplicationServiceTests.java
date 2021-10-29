@@ -446,8 +446,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
 
-                    DecryptedSensitiveFields decryptedFields =
-                            applicationJson.getDecryptedFields().get(datasource.getName());
+                    DecryptedSensitiveFields decryptedFields = applicationJson.getDecryptedFields().get(datasource.getName());
 
                     DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
                     assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());
@@ -735,7 +734,8 @@ public class ImportExportApplicationServiceTests {
                                 datasourceService.findAllByOrganizationId(application.getOrganizationId(), MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(application).collectList(),
                                 newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false
+                                        , MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();

@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
@@ -72,9 +73,9 @@ public class ActionCollectionController {
     }
 
     @GetMapping("/view")
-    public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllPublishedActionCollections(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all published action collections with params : {}", params);
-        return actionCollectionService.getPopulatedActionCollectionsByViewMode(params, true)
+    public Mono<ResponseDTO<List<ActionCollectionViewDTO>>> getAllPublishedActionCollections(@RequestParam String applicationId) {
+        log.debug("Going to get all published action collections with application Id : {}", applicationId);
+        return actionCollectionService.getActionCollectionsForViewMode(applicationId)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }

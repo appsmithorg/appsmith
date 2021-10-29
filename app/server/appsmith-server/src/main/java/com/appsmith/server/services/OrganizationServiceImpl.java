@@ -344,4 +344,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findAllOrganizations();
     }
 
+    @Override
+    public Mono<Organization> retrieveById(String organizationId) {
+        return repository.retrieveById(organizationId);
+    }
+
 }

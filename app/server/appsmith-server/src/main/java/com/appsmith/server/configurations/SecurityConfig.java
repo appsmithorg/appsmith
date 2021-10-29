@@ -41,6 +41,7 @@ import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
+import static com.appsmith.server.constants.Url.PLUGIN_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -118,7 +119,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ApiKeyAuthenticationManager apiKeyAuthenticationManager) {
         return http
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .cors().and()
@@ -128,10 +129,13 @@ public class SecurityConfig {
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
                 // The client will redirect to the login page if we return 401 as Http status response
                 .exceptionHandling()
-                    .authenticationEntryPoint(authenticationEntryPoint)
-                    .accessDeniedHandler(accessDeniedHandler)
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .authorizeExchange()
+                // Allow cloud-services to install a remote plugin
+                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, PLUGIN_URL + "/remote/install"))
+                .access(apiKeyAuthenticationManager)
                 // All public URLs that should be served to anonymous users should also be defined in acl.rego file
                 // This is because the flow enters AclFilter as well and needs to be whitelisted there
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
