@@ -7,7 +7,6 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { CUSTOM_MAP_TYPES } from "../CustomMapConstants";
 import {
   dataSetForAfrica,
   dataSetForAsia,
@@ -23,9 +22,7 @@ import { EntityData, MapType } from "../component";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
-    import(
-      /* webpackPrefetch: true, webpackChunkName: "mapCharts" */ "../component"
-    ),
+    import(/* webpackChunkName: "mapCharts" */ "../component"),
   ),
 );
 
@@ -136,10 +133,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                 label: "Africa",
                 value: MapTypes.AFRICA,
               },
-              {
-                label: "Custom",
-                value: MapTypes.CUSTOM,
-              },
             ],
             isJSconvertible: true,
             isBindProperty: true,
@@ -157,7 +150,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                   MapTypes.ASIA,
                   MapTypes.OCEANIA,
                   MapTypes.AFRICA,
-                  MapTypes.CUSTOM,
                 ],
               },
             },
@@ -188,83 +180,12 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         sectionName: "Map Chart Data",
         children: [
           {
-            helpText:
-              "Manually configure a FusionMaps, see https://docs.appsmith.com/widget-reference/map#custom-map",
-            placeholderText: `Enter {"type": "maps/world","dataSource": {}}`,
-            propertyName: "customFusionMapConfig",
-            label: "Custom Fusion Map Configuration",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                allowedKeys: [
-                  {
-                    type: ValidationTypes.TEXT,
-                    name: "type",
-                    params: {
-                      allowedValues: CUSTOM_MAP_TYPES,
-                      default: "",
-                      required: true,
-                    },
-                  },
-                  {
-                    type: ValidationTypes.OBJECT,
-                    name: "dataSource",
-                    params: {
-                      allowedKeys: [
-                        {
-                          name: "chart",
-                          type: ValidationTypes.OBJECT,
-                          params: {
-                            default: {},
-                          },
-                        },
-                        {
-                          name: "data",
-                          type: ValidationTypes.ARRAY,
-                          params: {
-                            default: [],
-                            children: {
-                              type: ValidationTypes.OBJECT,
-                              params: {
-                                allowedKeys: [
-                                  {
-                                    name: "id",
-                                    type: ValidationTypes.TEXT,
-                                  },
-                                  {
-                                    name: "value",
-                                    type: ValidationTypes.TEXT,
-                                  },
-                                ],
-                              },
-                            },
-                          },
-                        },
-                      ],
-                    },
-                  },
-                ],
-              },
-            },
-            hidden: (props: MapChartWidgetProps) =>
-              props.mapType !== MapTypes.CUSTOM,
-            dependencies: ["mapType"],
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
-          },
-          {
             helpText: "Populates the map with the data",
             propertyName: "data",
             label: "Data",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            hidden: (props: MapChartWidgetProps) =>
-              props.mapType === MapTypes.CUSTOM,
-            dependencies: ["mapType"],
             validation: {
               type: ValidationTypes.ARRAY,
               params: {

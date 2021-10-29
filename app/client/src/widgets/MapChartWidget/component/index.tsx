@@ -83,7 +83,6 @@ export interface EntityData {
 function MapChartComponent(props: MapChartComponentProps) {
   const {
     caption,
-    customConfigs,
     data,
     height,
     onEntityClick,
@@ -106,11 +105,6 @@ function MapChartComponent(props: MapChartComponentProps) {
   }, []);
 
   useEffect(() => {
-    if (type === MapTypes.CUSTOM) {
-      initializeMap(customConfigs);
-      return;
-    }
-
     const newChartConfigs = {
       ...chartConfigs,
       dataSource: {
@@ -185,12 +179,6 @@ function MapChartComponent(props: MapChartComponentProps) {
     setChartConfigs(newChartConfigs);
   }, [showLabels]);
 
-  useEffect(() => {
-    if (type === MapTypes.CUSTOM) {
-      initializeMap(customConfigs);
-    }
-  }, [customConfigs]);
-
   // Called by FC-React component to return the rendered chart
   const renderComplete = (chart: FusionCharts.FusionCharts) => {
     setChart(chart);
@@ -200,42 +188,13 @@ function MapChartComponent(props: MapChartComponentProps) {
     onEntityClick(eventObj.data);
   };
 
-  const normalizeCustomConfigs = () => {
-    const newChartConfigs: any = JSON.parse(JSON.stringify(customConfigs));
-
-    newChartConfigs["dataSource"]["chart"]["caption"] = caption;
-    const targetValue = showLabels ? "1" : "0";
-    newChartConfigs["dataSource"]["chart"]["showLabels"] = targetValue;
-    return { ...newChartConfigs };
-  };
-
   const initializeMap = (configs: ChartObject) => {
     const { type: mapType } = configs;
-    let newChartConfigs = configs;
     if (mapType) {
       const alias = mapType.substr(5);
-      if (type === MapTypes.CUSTOM) {
-        newChartConfigs = normalizeCustomConfigs();
-      }
       const mapDefinition = CUSTOM_MAP_PLUGINS[alias];
       ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
-      setChartConfigs(newChartConfigs);
-      // https://cdn.fusionmaps.com/fusionmaps/maps/fusioncharts.${alias}.js
-      // Dynamically import the map definition file
-      // import(
-      //   /* webpackChunkName: "[request]" */
-      //   `fusionmaps/maps/fusioncharts.${alias}.js`
-      // )
-      //   .then(({ default: mapDefinition }) => {
-      //     // Adding the chart and theme as dependency to the core fusioncharts
-      //     ReactFC.fcRoot(FusionCharts, FusionMaps, mapDefinition, FusionTheme);
-
-      //     setChartConfigs(newChartConfigs);
-      //   })
-      //   .catch((err) => {
-      //     console.error(err);
-      //     return;
-      //   });
+      setChartConfigs(configs);
     }
   };
 
