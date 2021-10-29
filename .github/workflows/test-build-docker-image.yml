@@ -254,6 +254,7 @@ jobs:
 
       - name: Build
         run: |
+          echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           ./build.sh
           ls -l dist
 
