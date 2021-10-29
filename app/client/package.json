@@ -280,8 +280,5 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "lint-staged": {
-    "src/*.{ts,tsx}": ["eslint . --fix", "prettier --ignore-unknown --write", "git add"]
   }
 }
