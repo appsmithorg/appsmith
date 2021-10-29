@@ -37,12 +37,12 @@
           "controlType": "WHERE_CLAUSE",
           "logicalTypes": [
             {
-              "label": "OR",
-              "value": "OR"
-            },
-            {
               "label": "AND",
               "value": "AND"
+            },
+            {
+              "label": "OR",
+              "value": "OR"
             }
           ],
           "comparisonTypes": [
