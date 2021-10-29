@@ -131,7 +131,7 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(object);
         newPage.setApplicationId(object.getApplicationId());
-        newPage.getUnpublishedPage().setSlug(object.getName());
+        newPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(object.getName()));
         newPage.setPolicies(object.getPolicies());
         if (newPage.getGitSyncId() == null) {
             newPage.setGitSyncId(newPage.getApplicationId() + "_" + Instant.now().toString());
