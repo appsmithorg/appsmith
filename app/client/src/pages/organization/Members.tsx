@@ -20,7 +20,7 @@ import {
   changeOrgUserRole,
   deleteOrgUser,
 } from "actions/orgActions";
-import Button, { Size } from "components/ads/Button";
+import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
 import Text, { TextType } from "components/ads/Text";
@@ -82,12 +82,15 @@ const UserCardContainer = styled.div`
 const UserCard = styled(Card)`
   display: flex;
   flex-direction: column;
-  background-color: #ebebeb;
-  padding: ${(props) => props.theme.spaces[15]}px 64px;
-  width: 345px;
+  box-shadow: none;
+  background-color: ${Colors.GREY_1};
+  border: 1px solid ${Colors.GREY_3};
+  padding: ${(props) =>
+    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
+  width: 343px;
   height: 201px;
   margin: auto;
-  margin-bottom: 15px;
+  margin-bottom: ${(props) => props.theme.spaces[7] - 1}px;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -97,16 +100,18 @@ const UserCard = styled(Card)`
   }
 
   .${AppClass.TEXT} {
-    color: #090707;
+    color: ${Colors.GREY_10};
+    margin-top: ${(props) => props.theme.spaces[4]}px;
     &.email {
-      color: #858282;
+      color: ${Colors.GREY_7};
+      margin-top: ${(props) => props.theme.spaces[1]}px;
     }
   }
 
   .approve-btn {
-    background: #f86a2b;
+    padding: ${(props) =>
+      `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
   }
-
   .delete-btn {
     position: absolute;
   }
@@ -114,6 +119,10 @@ const UserCard = styled(Card)`
   .t--user-status {
     background: transparent;
     border: 0px;
+    .${AppClass.TEXT} {
+      margin-top: 0px;
+      color: ${Colors.GREY_10};
+    }
   }
 `;
 
@@ -373,6 +382,7 @@ export default function MemberSettings(props: PageProps) {
                       width="140px"
                     />
                     <Button
+                      category={Category.primary}
                       className="approve-btn"
                       size={Size.xxs}
                       text="Approve"
