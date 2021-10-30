@@ -6,6 +6,7 @@ import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.BasicAuth;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import org.junit.Assert;
@@ -45,10 +46,12 @@ public class SmtpPluginTest {
         port = Long.valueOf(smtp.getFirstMappedPort());
     }
 
-    private DatasourceConfiguration createDatasourceConfiguraion() {
+    private DatasourceConfiguration createDatasourceConfiguration() {
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        BasicAuth auth = new BasicAuth(username, password);
+        DBAuth auth = new DBAuth();
+        auth.setUsername(username);
+        auth.setPassword(password);
         dsConfig.setAuthentication(auth);
         dsConfig.setEndpoints(List.of(new Endpoint(host, port)));
         return dsConfig;
@@ -85,7 +88,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidHostname() {
-        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguraion();
+        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint("", 25l)));
 
         Assert.assertEquals(Set.of("Could not find host address. Please edit the 'Hostname' field to provide the " +
@@ -95,7 +98,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidPort() {
-        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguraion();
+        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint(host, null)));
 
         Assert.assertEquals(Set.of("Could not find port. Please edit the 'Port' field to provide the " +
@@ -105,7 +108,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testNullAuthentication() {
-        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguraion();
+        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setAuthentication(null);
 
         Assert.assertEquals(Set.of("Invalid authentication credentials. Please check datasource configuration."),
@@ -114,8 +117,11 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidAuthentication() {
-        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguraion();
-        invalidDatasourceConfiguration.setAuthentication(new BasicAuth("randomUser", "randomPass"));
+        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
+        DBAuth auth = new DBAuth();
+        auth.setUsername("randomUser");
+        auth.setPassword("randomPass");
+        invalidDatasourceConfiguration.setAuthentication(auth);
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
 
@@ -130,7 +136,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testBlankFromAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguraion();
+        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
@@ -148,7 +154,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testBlankToAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguraion();
+        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
@@ -166,7 +172,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidFromAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguraion();
+        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
@@ -181,7 +187,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testInvalidToAddress() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguraion();
+        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
@@ -196,7 +202,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testNullSubject() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguraion();
+        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(),
@@ -211,7 +217,7 @@ public class SmtpPluginTest {
 
     @Test
     public void testBlankBody() {
-        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguraion();
+        DatasourceConfiguration datasourceConfiguraion = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
         actionConfiguration.setBody(null);
@@ -224,14 +230,84 @@ public class SmtpPluginTest {
                 .verifyComplete();
     }
 
+    /**
+     * The email should be sent without the attachments if the attachment object is null or empty
+     */
+    @Test
+    public void testEmptyAttachments() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = createActionConfiguration();
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", "");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
 
     @Test
-    public void testSendEmailValid() {
+    public void testNullAttachment() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
-        DatasourceConfiguration dsConfig = createDatasourceConfiguraion();
+        ActionConfiguration actionConfiguration = createActionConfiguration();
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", null);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidAttachmentJSON() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = createActionConfiguration();
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", "randomValue");
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException)
+                .verify();
+    }
+
+    @Test
+    public void testInvalidAttachmentFiledata() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = createActionConfiguration();
+        String attachmentJson = "[{\n" +
+                "        \"type\": \"image/png\",\n" +
+                "        \"id\": \"uppy-smtp/icon/png-1d-1e-image/png-2854-1635400419555\",\n" +
+                "        \"data\": \"data:image/png;randomValueHere\",\n" +
+                "        \"name\": \"test-icon-file.png\",\n" +
+                "        \"size\": 2854\n" +
+                "    }]";
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", attachmentJson);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.datasourceCreate(datasourceConfiguration)
+                .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSendEmailValidWithAttachment() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Session> sessionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = createActionConfiguration();
+        PluginUtils.setValueSafelyInFormData(actionConfiguration.getFormData(), "send.attachments", "");
 
         Mono<ActionExecutionResult> resultMono = sessionMono.flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration));
 

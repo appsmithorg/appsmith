@@ -25,6 +25,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.NoSuchProviderException;
+import javax.mail.Part;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -34,10 +35,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +48,8 @@ import java.util.Set;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 
 public class SmtpPlugin extends BasePlugin {
+    private static final String BASE64_DELIMITER = ";base64,";
+
     public SmtpPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -97,29 +99,44 @@ public class SmtpPlugin extends BasePlugin {
                 String msg = StringUtils.hasText(actionConfiguration.getBody()) ? actionConfiguration.getBody() : "";
 
                 MimeBodyPart mimeBodyPart = new MimeBodyPart();
+
+                // By default, all emails sent will be of type HTML. This can be parameterized. For simplification reasons,
+                // use the text/html mime type right now.
                 mimeBodyPart.setContent(msg, "text/html");
 
                 Multipart multipart = new MimeMultipart();
                 multipart.addBodyPart(mimeBodyPart);
                 message.setContent(multipart);
 
-                // Create the attachments
-                String attachmentStr = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
+                // Look for any attachments that need to be sent along with this email
+                String attachmentsStr = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
 
-                List<MultipartFormDataDTO> attachmentData = Arrays.asList(objectMapper.readValue(
-                        attachmentStr,
-                        MultipartFormDataDTO[].class
-                ));
+                if (StringUtils.hasText(attachmentsStr)) {
+                    List<MultipartFormDataDTO> attachmentData = Arrays.asList(objectMapper.readValue(
+                            attachmentsStr,
+                            MultipartFormDataDTO[].class
+                    ));
 
-                for (MultipartFormDataDTO attachment : attachmentData) {
-                    MimeBodyPart attachBodyPart = new MimeBodyPart();
-                    DataSource emailDatasource = new ByteArrayDataSource(
-                            new ByteArrayInputStream(String.valueOf(attachment.getData()).getBytes(StandardCharsets.UTF_8)),
-                            attachment.getType()
-                    );
-                    attachBodyPart.setDataHandler(new DataHandler(emailDatasource));
-                    attachBodyPart.setFileName(attachment.getName());
-                    multipart.addBodyPart(attachBodyPart);
+                    // Iterate over each attachment and add it to the main multipart body of the email
+                    for (MultipartFormDataDTO attachment : attachmentData) {
+                        MimeBodyPart attachBodyPart = new MimeBodyPart();
+
+                        // Decode the base64 data received in the input by first removing the sequence data:image/png;base64,
+                        // from the start of the string.
+                        Base64.Decoder decoder = Base64.getDecoder();
+                        String attachmentStr = String.valueOf(attachment.getData());
+                        if (!attachmentStr.contains(BASE64_DELIMITER)) {
+                            continue;
+                        }
+                        byte[] bytes = decoder.decode(attachmentStr.split(BASE64_DELIMITER)[1]);
+                        DataSource emailDatasource = new ByteArrayDataSource(bytes, attachment.getType());
+
+                        attachBodyPart.setDataHandler(new DataHandler(emailDatasource));
+                        attachBodyPart.setDisposition(Part.ATTACHMENT);
+                        attachBodyPart.setFileName(attachment.getName());
+                        // Add the attachment body part to the multipart body
+                        multipart.addBodyPart(attachBodyPart);
+                    }
                 }
 
                 // Send the email now
@@ -133,7 +150,6 @@ public class SmtpPlugin extends BasePlugin {
 
                 result.setBody(objectMapper.writeValueAsString(responseBody));
             } catch (AddressException e) {
-                e.printStackTrace();
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to " + e.getMessage()));
             } catch (MessagingException e) {
@@ -141,7 +157,7 @@ public class SmtpPlugin extends BasePlugin {
                         "Unable to send email because of error: " + e.getMessage()));
             } catch (JsonProcessingException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to send response for email plugin because of error: " + e.getMessage()));
+                        "Unable to parse the email body/attachments because it was an invalid JSON object."));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -176,7 +192,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session connection) {
-            System.out.println("Going to destroy an email datasource");
+            System.out.println("Going to destroy email datasource");
             try {
                 Transport transport = connection.getTransport();
                 if (transport != null) {
@@ -191,7 +207,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("Going to validate an email datasource");
+            System.out.println("Going to validate email datasource");
             Set<String> invalids = new HashSet<>();
             if (datasourceConfiguration.getEndpoints() == null ||
                     datasourceConfiguration.getEndpoints().isEmpty() ||
@@ -223,7 +239,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            System.out.println("Going to test an email datasource");
+            System.out.println("Going to test email datasource");
             Mono<Session> sessionMono = datasourceCreate(datasourceConfiguration);
             return sessionMono.map(session -> {
                 Set<String> invalids = new HashSet<>();
@@ -242,10 +258,7 @@ public class SmtpPlugin extends BasePlugin {
                     e.printStackTrace();
                 }
                 return invalids;
-            }).map(invalids -> {
-                DatasourceTestResult testResult = new DatasourceTestResult(invalids);
-                return testResult;
-            });
+            }).map(invalids -> new DatasourceTestResult(invalids));
         }
 
     }
