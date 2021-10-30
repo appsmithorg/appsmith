@@ -28,7 +28,7 @@ appInitializer();
 
 function App() {
   return (
-    <Sentry.ErrorBoundary fallback={"An error has occured"}>
+    <Sentry.ErrorBoundary fallback={<div>An error has occured</div>}>
       <Provider store={store}>
         <LayersContext.Provider value={Layers}>
           <ThemedAppWithProps />

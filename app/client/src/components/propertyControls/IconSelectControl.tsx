@@ -110,7 +110,7 @@ class IconSelectControl extends BaseControl<
             .width,
         };
       });
-    }, 0);
+    }, 0) as any;
   }
 
   componentWillUnmount() {

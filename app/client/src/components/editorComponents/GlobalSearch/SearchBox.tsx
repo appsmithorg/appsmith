@@ -99,7 +99,7 @@ const useListenToChange = (modalOpen: boolean) => {
     setListenToChange(false);
     let timer: number;
     if (modalOpen) {
-      timer = setTimeout(() => setListenToChange(true), 100);
+      timer = setTimeout(() => setListenToChange(true), 100) as any;
     }
     return () => clearTimeout(timer);
   }, [modalOpen]);

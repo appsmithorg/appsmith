@@ -14,7 +14,7 @@ type DropdownProps = {
   isLoading?: boolean;
   input: WrappedFieldInputProps;
   meta: WrappedFieldMetaProps;
-  components: SelectComponents<any>;
+  components: SelectComponents<any, any>;
   onCreateOption: (inputValue: string) => void;
   formatCreateLabel?: (value: string) => React.ReactNode;
   noOptionsMessage?: (obj: { inputValue: string }) => string;

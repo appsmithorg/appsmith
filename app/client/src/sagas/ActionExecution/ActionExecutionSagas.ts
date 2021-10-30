@@ -121,7 +121,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     throw new Error("Executing undefined action");
   }
 
-  const triggers = yield call(
+  const triggers: [] = yield call(
     evaluateDynamicTrigger,
     dynamicString,
     responseData,
