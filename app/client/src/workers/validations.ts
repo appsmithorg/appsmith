@@ -349,16 +349,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    if (
-      config.params?.regex &&
-      isString(config.params?.regex) &&
-      !config.params?.regex.test(parsed as string)
-    ) {
+    const videoRegex = new RegExp(config.params?.regex as RegExp);
+    if (videoRegex && !videoRegex.test(parsed as string)) {
       return {
         parsed: config.params?.default || "",
-        messages: [
-          `Value does not match expected regex: ${config.params?.regex.source}`,
-        ],
+        messages: [`Value does not match expected regex: ${videoRegex.source}`],
         isValid: false,
       };
     }
