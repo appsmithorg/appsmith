@@ -1,4 +1,5 @@
 Appsmith is an Open source admin panel. 
+Appsmith is a low code, open-source framework to build internal applications.
 It is an open source framework to build internal tools.
 The low code project comes with UI widgets like tables, charts, forms, map viewer, and more.
 Easily connect to REST APIs, Postgres, Mongo, and MySQL.
