@@ -45,7 +45,7 @@ function General() {
       dispatch(logoutUser());
     } catch (error) {
       Toaster.show({
-        text: (error as any)._error,
+        text: error._error,
         variant: Variant.success,
       });
     }

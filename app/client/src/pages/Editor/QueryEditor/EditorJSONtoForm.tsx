@@ -470,7 +470,7 @@ export function EditorJSONtoForm(props: Props) {
 
   const dispatch = useDispatch();
 
-  function MenuList(props: MenuListComponentProps<{ children: Node }, any>) {
+  function MenuList(props: MenuListComponentProps<{ children: Node }>) {
     return (
       <>
         <components.MenuList {...props}>{props.children}</components.MenuList>
@@ -497,7 +497,7 @@ export function EditorJSONtoForm(props: Props) {
     );
   }
 
-  function CustomOption(props: OptionProps<OptionTypeBase, any>) {
+  function CustomOption(props: OptionProps<OptionTypeBase>) {
     return (
       <components.Option {...props}>
         <Container className="t--datasource-option">

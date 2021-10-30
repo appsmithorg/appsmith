@@ -473,7 +473,7 @@ function EvaluatedValuePopup(props: Props) {
           }}
           onMouseLeave={() => {
             const id = setTimeout(() => setContentHovered(false), 500);
-            setTimeoutId(id as any);
+            setTimeoutId(id);
           }}
           preparedStatementViewer={
             props.evaluationSubstitutionType
