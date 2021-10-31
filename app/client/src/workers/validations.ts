@@ -10,6 +10,7 @@ import _, {
   isArray,
   isObject,
   isPlainObject,
+  isRegExp,
   isString,
   toString,
   uniq,
@@ -349,11 +350,17 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    const videoRegex = new RegExp(config.params?.regex as RegExp);
-    if (videoRegex && !videoRegex.test(parsed as string)) {
+    const validationRegex = config.params?.regex;
+    if (
+      validationRegex &&
+      isRegExp(validationRegex) &&
+      !validationRegex.test(parsed as string)
+    ) {
       return {
         parsed: config.params?.default || "",
-        messages: [`Value does not match expected regex: ${videoRegex.source}`],
+        messages: [
+          `Value does not match expected regex: ${validationRegex.source}`,
+        ],
         isValid: false,
       };
     }
