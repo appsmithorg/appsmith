@@ -2101,10 +2101,11 @@ public class DatabaseChangelog {
                     .filter(policy -> AclPermission.READ_APPLICATIONS.getValue().equals(policy.getPermission()))
                     .findFirst()
                     .ifPresent(readAppPolicy -> {
-                        final Policy.PolicyBuilder newPolicy = Policy.builder()
+                        final Policy newPolicy = Policy.builder()
                                 .permission(AclPermission.COMMENT_ON_APPLICATIONS.getValue())
                                 .users(readAppPolicy.getUsers())
-                                .groups(readAppPolicy.getGroups());
+                                .groups(readAppPolicy.getGroups())
+                                .build();
                         mongoTemplate.updateFirst(
                                 query(where(fieldName(QApplication.application.id)).is(application.getId())),
                                 new Update().push(fieldName(QApplication.application.policies), newPolicy),
