@@ -22,7 +22,7 @@ import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
 import log from "loglevel";
-import { extraLibraries } from "./DynamicBindingUtils";
+import { extraLibrariesNames } from "./DynamicBindingUtils";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -266,16 +266,6 @@ export const convertArrayToSentence = (arr: string[]) => {
 };
 
 /**
- * creates dynamic list of constants based on
- * current list of extra libraries i.e lodash("_"), moment etc
- */
-export const EXTRA_LIBRARIES = () =>
-  extraLibraries.reduce((prev: any, curr: any) => {
-    prev[curr.accessor] = curr.accessor;
-    return prev;
-  }, {});
-
-/**
  * checks if the name is conflicting with
  * 1. API names,
  * 2. Queries name
@@ -297,7 +287,7 @@ export const isNameValid = (
     name in GLOBAL_FUNCTIONS ||
     name in WINDOW_OBJECT_PROPERTIES ||
     name in WINDOW_OBJECT_METHODS ||
-    name in EXTRA_LIBRARIES() ||
+    name in extraLibrariesNames ||
     name in invalidNames
   );
 };
