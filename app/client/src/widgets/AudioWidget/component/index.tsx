@@ -47,7 +47,8 @@ export default function AudioComponent(props: AudioComponentProps) {
       config={{
         file: {
           attributes: {
-            controlsList: "nofullscreen nodownload noremoteplayback noplaybackrate",
+            controlsList: 
+            "nofullscreen nodownload noremoteplayback noplaybackrate",
           },
         },
       }}
