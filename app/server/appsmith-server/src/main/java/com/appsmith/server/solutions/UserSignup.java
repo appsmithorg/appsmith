@@ -202,18 +202,21 @@ public class UserSignup {
                     return Mono.when(
                             userDataService.updateForUser(user, userData)
                                     .then(configService.getInstanceId())
-                                    .doOnSuccess(instanceId -> analyticsService.sendEvent(
-                                            AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
-                                            instanceId,
-                                            Map.of(
-                                                    "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
-                                                    "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
-                                                    "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
-                                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
-                                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
-                                            ),
-                                            false
-                                    )),
+                                    .doOnSuccess(instanceId -> {
+                                        analyticsService.sendEvent(
+                                                AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
+                                                instanceId,
+                                                Map.of(
+                                                        "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
+                                                        "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
+                                                        "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
+                                                        "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                                        "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
+                                                ),
+                                                false
+                                        );
+                                        analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
+                                    }),
                             envManager.applyChanges(Map.of(
                                     "APPSMITH_DISABLE_TELEMETRY",
                                     String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())

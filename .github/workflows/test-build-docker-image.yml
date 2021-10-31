@@ -254,6 +254,7 @@ jobs:
 
       - name: Build
         run: |
+          echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           ./build.sh
           ls -l dist
 
@@ -269,6 +270,34 @@ jobs:
         with:
           name: rts-build-deps
           path: app/rts/node_modules/
+
+  package-for-deploy-preview:
+    needs: [buildClient, buildServer, buildRts]
+    runs-on: ubuntu-latest
+    if: |
+      success() &&
+      (
+        github.event_name == 'pull_request' &&
+        github.event.number != '' &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      )
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: "${{ secrets.DP_PACKAGE_AWS_ACCESS_KEY_ID }}"
+          aws-secret-access-key: "${{ secrets.DP_PACKAGE_AWS_SECRET_ACCESS_KEY }}"
+          aws-region: "${{ secrets.DP_PACKAGE_AWS_REGION }}"
+      - name: "Upload packages to S3"
+        working-directory: app
+        shell: bash
+        continue-on-error: true
+        run: |
+          date --utc --iso-8601=seconds > package_time.txt
+          git rev-parse HEAD > commit_hash.txt
+          echo ${{ github.event.number }} > pr_number.txt
+          tar -vcaf full-dist.tar.gz client/build server/dist rts/{dist,node_modules} *.txt
+          aws s3 cp full-dist.tar.gz "s3://${{ secrets.DP_PACKAGE_AWS_S3_BUCKET_PATH }}/${{ github.event.number }}.tar.gz"
 
   ui-test:
     needs: [buildClient, buildServer, buildRts]
@@ -513,14 +542,19 @@ jobs:
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: github.ref == 'refs/heads/master' ||
-      ((github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)) &&
-      github.ref == 'refs/heads/release')
-    #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
+    if: (success() && github.ref == 'refs/heads/master') ||
+      ( always() && 
+          (
+            github.event_name == 'workflow_dispatch' ||
+            github.event_name == 'push' ||
+            (
+                github.event_name == 'pull_request_review' &&
+                github.event.review.state == 'approved' &&
+                github.event.pull_request.head.repo.full_name == github.repository
+            )
+        ) &&
+        github.ref == 'refs/heads/release'
+      )
 
     steps:
       # Checkout the code
