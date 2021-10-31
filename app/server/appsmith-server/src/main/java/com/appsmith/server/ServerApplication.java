@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-//@EnableMongock
 public class ServerApplication {
 
     public static void main(String[] args) {
