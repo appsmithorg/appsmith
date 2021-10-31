@@ -13,8 +13,9 @@ describe("Page Load tests", () => {
 
     cy.skipGenerateCRUDPage();
 
-    cy.get("h2").contains("Drag and drop a widget here");
+    cy.get("h2").contains(Cypress.env("MESSAGES").DRAG_AND_DROP_TEXT());
   });
+
   it("Published page loads correctly", () => {
     //add page within page
     cy.addDsl(dsl);
@@ -66,6 +67,7 @@ describe("Page Load tests", () => {
       "This is Page 1",
     );
   });
+
   it("Hide Page and validate published app", () => {
     cy.get(publish.backToEditor).click();
     cy.GlobalSearchEntity("Page1");

@@ -37,7 +37,10 @@ describe("Entity explorer tests related to query and datasource", function() {
       .clear()
       .type("download", { force: true })
       .blur();
-    cy.get(".Toastify").should("contain", "Invalid name");
+    cy.get(".Toastify").should(
+      "contain",
+      Cypress.env("MESSAGES").EDITOR_INVALID_NAME(),
+    );
 
     // checking a valid name
     cy.get(".t--edit-datasource-name").click();

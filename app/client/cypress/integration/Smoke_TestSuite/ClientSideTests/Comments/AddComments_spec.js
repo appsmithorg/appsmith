@@ -55,7 +55,7 @@ describe("Comments", function() {
     });
     cy.get(commonLocators.canvas);
     cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
-    cy.contains("SKIP").click({ force: true });
+    cy.contains(Cypress.env("MESSAGES").SKIP()).click({ force: true });
     cy.get("input[name='displayName']").type("Skip User");
     cy.get("button[type='submit']").click();
 
@@ -149,7 +149,7 @@ describe("Comments", function() {
       force: true,
     });
     // this is needed, as on CI we create new users
-    cy.contains("SKIP").click({ force: true });
+    cy.contains(Cypress.env("MESSAGES").SKIP()).click({ force: true });
     cy.get("input[name='displayName']").type("Skip User");
     cy.get("button[type='submit']").click();
     cy.get(

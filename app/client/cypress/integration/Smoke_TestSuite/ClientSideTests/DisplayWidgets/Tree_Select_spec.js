@@ -9,6 +9,7 @@ describe("Tree Select Widget", function() {
     cy.get(".widgets").click();
     cy.get(".t--entity-name:contains(MultiSelectTree1)").click();
   });
+
   it("Open Existing SingleSelectTree from created Widgets list", () => {
     cy.get(".widgets").click();
     cy.get(".t--entity-name:contains(SingleSelectTree1)").click();

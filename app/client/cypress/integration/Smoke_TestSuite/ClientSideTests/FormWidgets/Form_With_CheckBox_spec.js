@@ -44,6 +44,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

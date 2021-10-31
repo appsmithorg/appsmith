@@ -10,6 +10,7 @@ describe("Form Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Defult Form text,  Reset and Close button Validation", function() {
     cy.get(widgetsPage.textWidget).should("be.visible");
     cy.get(widgetsPage.formButtonWidget)
@@ -21,6 +22,7 @@ describe("Form Widget Functionality", function() {
       .scrollIntoView()
       .should("be.visible");
   });
+
   it("Add Multiple widgets in Form", function() {
     cy.get(explorer.addWidget).click();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
@@ -33,6 +35,7 @@ describe("Form Widget Functionality", function() {
     cy.get(widgetsPage.inputWidget).should("be.visible");
     cy.PublishtheApp();
   });
+
   it("Form_Widget Minimize and maximize General Validation", function() {
     cy.openPropertyPane("formwidget");
     cy.get(commonlocators.generalChevran).click({ force: true });
@@ -41,12 +44,14 @@ describe("Form Widget Functionality", function() {
     cy.get(commonlocators.generalSection).should("be.visible");
     cy.PublishtheApp();
   });
+
   it("Rename Form widget from Entity Explorer", function() {
     cy.GlobalSearchEntity("Form1");
     cy.RenameEntity("Form");
     cy.wait(1000);
     cy.get(".t--entity").should("contain", "Form");
   });
+
   it("Form Widget Functionality", function() {
     cy.openPropertyPane("formwidget");
     /**
@@ -83,12 +88,14 @@ describe("Form Widget Functionality", function() {
     // Close the form propert pane
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
+
   it("Form Widget Functionality To Verify The Colour", function() {
     cy.PublishtheApp();
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
       .and("eq", "rgb(3, 179, 101)");
   });
+
   it("Form Widget Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("formwidget");
     // Uncheck the visble JS
@@ -98,6 +105,7 @@ describe("Form Widget Functionality", function() {
     cy.get(publish.formWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
+
   it("Form Widget Functionality To Check Visible Widget", function() {
     // Open property pone
     cy.openPropertyPane("formwidget");
@@ -108,6 +116,7 @@ describe("Form Widget Functionality", function() {
     cy.get(publish.formWidget).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
+
   it("Toggle JS - Form-Unckeck Visible field Validation", function() {
     cy.openPropertyPane("formwidget");
     //Uncheck the disabled checkbox using JS and validate
@@ -150,6 +159,7 @@ describe("Form Widget Functionality", function() {
   });
   */
 });
+
 afterEach(() => {
   // put your clean up code if any
   cy.goToEditFromPublish();

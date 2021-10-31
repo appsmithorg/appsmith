@@ -20,6 +20,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
+import { VALIDATION_ISO_8601_DATE_STRING } from "constants/messages";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 
 const flat = (array: Record<string, any>[], uniqueParam: string) => {
@@ -241,7 +242,7 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
     case ValidationTypes.REGEX:
       return "regExp";
     case ValidationTypes.DATE_ISO_STRING:
-      return "ISO 8601 date string";
+      return VALIDATION_ISO_8601_DATE_STRING();
     case ValidationTypes.BOOLEAN:
       return "boolean";
     case ValidationTypes.NUMBER:

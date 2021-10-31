@@ -7,6 +7,7 @@ describe("MultiSelectTree Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Selects value with enter in default value", () => {
     cy.openPropertyPane("singleselecttreewidget");
     cy.testJsontext("defaultvalue", "RED\n");
@@ -15,6 +16,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .first()
       .should("have.text", "Red");
   });
+
   it(" To Validate Options", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
@@ -24,6 +26,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .type("light");
     cy.treeSelectDropdown("Light Blue");
   });
+
   it("To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -32,6 +35,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     ).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
+
   it(" To Check Visible Widget", function() {
     cy.openPropertyPane("singleselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
@@ -42,6 +46,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

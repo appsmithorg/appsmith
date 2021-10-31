@@ -14,6 +14,10 @@ import { saveDatasourceName } from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import {
+  VALIDATION_ALREADY_BEING_USED,
+  VALIDATION_ENTER_VALID_NAME,
+} from "constants/messages";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -73,9 +77,9 @@ function FormTitle(props: FormTitleProps) {
   const isInvalidDatasourceName = React.useCallback(
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
-        return "Please enter a valid name";
+        return VALIDATION_ENTER_VALID_NAME();
       } else if (hasNameConflict(name)) {
-        return `${name} is already being used.`;
+        return VALIDATION_ALREADY_BEING_USED(name);
       }
       return false;
     },

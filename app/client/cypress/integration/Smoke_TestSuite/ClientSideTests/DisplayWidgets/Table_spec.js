@@ -27,7 +27,7 @@ describe("Table Widget Functionality", function() {
     //   .click({ force: true })
     //   .get(commonlocators.dropdownmenu)
     //   .children()
-    //   .contains("Navigate to")
+    //   .contains(Cypress.env("MESSAGES").NAVIGATE_TO())
     //   .click();
     // cy.wait("@updateLayout");
     // cy.get(widgetsPage.tableOnRowSelected)

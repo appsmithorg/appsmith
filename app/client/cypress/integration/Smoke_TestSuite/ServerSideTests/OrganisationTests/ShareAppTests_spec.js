@@ -26,7 +26,7 @@ describe("Create new org and share with a user", function() {
         "response.body.responseMeta.status",
         200,
       );
-      cy.get("h2").contains("Drag and drop a widget here");
+      cy.get("h2").contains(Cypress.env("MESSAGES").DRAG_AND_DROP_TEXT());
       cy.get(homePage.shareApp).click({ force: true });
       cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.viewerRole);
     });
@@ -62,7 +62,7 @@ describe("Create new org and share with a user", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("h2").contains("Drag and drop a widget here");
+    cy.get("h2").contains(Cypress.env("MESSAGES").DRAG_AND_DROP_TEXT());
     cy.get(homePage.shareApp).click();
     cy.enablePublicAccess();
     cy.PublishtheApp();
@@ -124,7 +124,7 @@ describe("Create new org and share with a user", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get("h2").contains("Drag and drop a widget here");
+    cy.get("h2").contains(Cypress.env("MESSAGES").DRAG_AND_DROP_TEXT());
     cy.get(homePage.shareApp).click();
     cy.enablePublicAccess();
     cy.LogOut();

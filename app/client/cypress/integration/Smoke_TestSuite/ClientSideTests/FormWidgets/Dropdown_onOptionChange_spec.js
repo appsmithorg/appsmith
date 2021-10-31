@@ -161,7 +161,7 @@ describe("Dropdown Widget Functionality", function() {
       .click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("No action")
+      .contains(Cypress.env("MESSAGES").NO_ACTION())
       .click();
   });
 

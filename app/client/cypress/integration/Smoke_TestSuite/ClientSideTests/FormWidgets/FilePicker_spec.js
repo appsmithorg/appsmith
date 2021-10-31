@@ -40,7 +40,9 @@ describe("FilePicker Widget Functionality", function() {
     cy.get(".bp3-spinner").should("have.length", 1);
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get("button").contains("1 files selected");
+    cy.get("button").contains(
+      Cypress.env("MESSAGES").FILEPICKER_WIDGET_FILES_SELECTED(1),
+    );
   });
 
   it("It checks the deletion of filepicker works as expected", function() {
@@ -51,7 +53,9 @@ describe("FilePicker Widget Functionality", function() {
     cy.get(commonlocators.filePickerUploadButton).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get("button").contains("1 files selected");
+    cy.get("button").contains(
+      Cypress.env("MESSAGES").FILEPICKER_WIDGET_FILES_SELECTED(1),
+    );
     cy.get(commonlocators.filePickerButton).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(200);
@@ -63,7 +67,9 @@ describe("FilePicker Widget Functionality", function() {
     cy.get(commonlocators.filePickerUploadButton).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get("button").contains("1 files selected");
+    cy.get("button").contains(
+      Cypress.env("MESSAGES").FILEPICKER_WIDGET_FILES_SELECTED(1),
+    );
   });
 
   afterEach(() => {

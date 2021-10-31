@@ -2,6 +2,10 @@
 // const explorer = require("../../../../locators/explorerlocators.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import {
+  OnboardingConfig,
+  OnboardingStep,
+} from "../../../../../src/constants/OnboardingConstants.tsx";
 
 describe("Onboarding", function() {
   it("Onboarding flow - manual without using do it for me option", function() {
@@ -78,12 +82,14 @@ describe("Onboarding", function() {
         cy.dragAndDropToCanvas("inputwidget", { x: 360, y: 40 });
         cy.get(".t--property-control-onsubmit .t--open-dropdown-Select-Action")
           .click({ force: true })
-          .selectOnClickOption("Execute a query")
-          .selectOnClickOption("Create New Query");
+          .selectOnClickOption(Cypress.env("MESSAGES").EXECUTE_A_QUERY())
+          .selectOnClickOption(
+            Cypress.env("MESSAGES").LIGHTNING_MENU_QUERY_CREATE_NEW(),
+          );
 
         cy.contains(
           ".t--onboarding-helper-title",
-          "Deploy the Standup Dashboard",
+          OnboardingConfig[OnboardingStep.DEPLOY].helper.title,
         );
         cy.get(".t--close--button").should("not.exist");
       });

@@ -10,6 +10,7 @@ describe("Switch Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Switch Widget Functionality", function() {
     cy.openPropertyPane("switchwidget");
     /**
@@ -37,6 +38,7 @@ describe("Switch Widget Functionality", function() {
     cy.getAlert(commonlocators.optionchangetextSwitch);
     cy.PublishtheApp();
   });
+
   it("Switch Functionality To Switch Label", function() {
     cy.get(publish.switchwidget + " " + "label").should(
       "have.text",
@@ -44,6 +46,7 @@ describe("Switch Widget Functionality", function() {
     );
     cy.get(publish.backToEditor).click();
   });
+
   it("Switch Functionality To Check Disabled Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
@@ -51,6 +54,7 @@ describe("Switch Widget Functionality", function() {
     cy.get(publish.switchwidget + " " + "input").should("be.disabled");
     cy.get(publish.backToEditor).click();
   });
+
   it("Switch Functionality To Check Enabled Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
@@ -58,6 +62,7 @@ describe("Switch Widget Functionality", function() {
     cy.get(publish.switchwidget + " " + "input").should("be.enabled");
     cy.get(publish.backToEditor).click();
   });
+
   it("Switch Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -65,6 +70,7 @@ describe("Switch Widget Functionality", function() {
     cy.get(publish.switchwidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
   });
+
   it("Switch Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
@@ -87,6 +93,7 @@ describe("Switch Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

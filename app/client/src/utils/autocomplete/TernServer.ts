@@ -21,6 +21,7 @@ import { FieldEntityInformation } from "components/editorComponents/CodeEditor/E
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
+import { AUTOCOMPLETE_NO_SUGGESTIONS } from "constants/messages";
 
 const DEFS: Def[] = [
   GLOBAL_FUNCTIONS,
@@ -162,7 +163,7 @@ class TernServer {
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
     if (error) return this.showError(cm, error);
     if (data.completions.length === 0) {
-      return this.showError(cm, "No suggestions");
+      return this.showError(cm, AUTOCOMPLETE_NO_SUGGESTIONS());
     }
     const doc = this.findDoc(cm.getDoc());
     const cursor = cm.getCursor();

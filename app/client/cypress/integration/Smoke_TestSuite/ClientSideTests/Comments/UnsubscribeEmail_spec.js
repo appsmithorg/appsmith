@@ -3,10 +3,9 @@
 describe("Unsubscribe comment email test spec", function() {
   it("User can access unsubscribe page", function() {
     cy.visit("/unsubscribe/discussion/123456");
-    cy.contains("Unsubscribe");
     cy.get("button")
-      .contains("Unsubscribe me")
+      .contains(Cypress.env("MESSAGES").UNSUBSCRIBE_BUTTON_LABEL())
       .click();
-    cy.contains("successfully unsubscribed");
+    cy.contains(Cypress.env("MESSAGES").UNSUBSCRIBE_EMAIL_SUCCESS());
   });
 });

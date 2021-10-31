@@ -10,6 +10,7 @@ describe("Switch Widget within Form widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Switch Widget Functionality check with success message", function() {
     cy.openPropertyPane("switchwidget");
     cy.widgetText(
@@ -34,7 +35,7 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Reset widget")
+      .contains(Cypress.env("MESSAGES").RESET_WIDGET())
       .click();
     cy.get(widgetsPage.selectWidget).click({ force: true });
     cy.get(commonlocators.chooseAction)

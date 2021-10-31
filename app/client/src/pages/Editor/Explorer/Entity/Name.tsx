@@ -25,6 +25,7 @@ import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { VALIDATION_ALREADY_BEING_USED } from "constants/messages";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const searchHighlightSpanClassName = "token";
@@ -173,7 +174,7 @@ export const EntityName = forwardRef(
         if (!newName || newName.trim().length === 0) {
           return "Please enter a name";
         } else if (newName !== name && hasNameConflict(newName, tabs)) {
-          return `${newName} is already being used.`;
+          return VALIDATION_ALREADY_BEING_USED(newName);
         }
         return false;
       },

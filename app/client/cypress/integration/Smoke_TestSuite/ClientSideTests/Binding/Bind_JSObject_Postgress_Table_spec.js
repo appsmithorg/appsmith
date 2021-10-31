@@ -17,6 +17,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
+
   it("Create a query and populate response by choosing addWidget and validate in Table Widget", () => {
     cy.createPostgresDatasource();
     cy.get("@createDatasource").then((httpResponse) => {

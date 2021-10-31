@@ -43,12 +43,13 @@ describe("Dynamic input autocomplete", () => {
           .then(() => {
             cy.get(".CodeMirror-Tern-tooltip").should(
               "have.text",
-              "No suggestions",
+              Cypress.env("MESSAGES").AUTOCOMPLETE_NO_SUGGESTIONS(),
             );
           });
       });
     cy.evaluateErrorMessage("ReferenceError: garbage is not defined");
   });
+
   it("opens current value popup", () => {
     // Test on api pane
     cy.NavigateToAPI_Panel();

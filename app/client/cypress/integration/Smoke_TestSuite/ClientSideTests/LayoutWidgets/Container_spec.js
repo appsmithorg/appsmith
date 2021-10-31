@@ -53,6 +53,7 @@ describe("Container Widget Functionality", function() {
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
+
   it("Container Widget Functionality To Verify The Colour", function() {
     cy.get(widgetsPage.containerD)
       .eq(0)

@@ -47,6 +47,7 @@ import {
 } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  APPLICATION_IMPORTED_SUCCESSFULLY,
   APPLICATION_NAME_UPDATE,
   createMessage,
   DELETING_APPLICATION,
@@ -600,7 +601,7 @@ export function* importApplicationSaga(
         });
         history.push(pageURL);
         Toaster.show({
-          text: "Application imported successfully",
+          text: APPLICATION_IMPORTED_SUCCESSFULLY(),
           variant: Variant.success,
         });
       }

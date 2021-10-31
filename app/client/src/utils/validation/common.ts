@@ -1,4 +1,8 @@
-import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
+import {
+  createMessage,
+  FIELD_REQUIRED_ERROR,
+  VALIDATION_ISO_8601_DATE_STRING,
+} from "constants/messages";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
@@ -63,7 +67,7 @@ export function getExpectedValue(
       };
     case ValidationTypes.DATE_ISO_STRING:
       return {
-        type: "ISO 8601 date string",
+        type: VALIDATION_ISO_8601_DATE_STRING(),
         example: moment().toISOString(true),
         autocompleteDataType: AutocompleteDataType.STRING,
       };

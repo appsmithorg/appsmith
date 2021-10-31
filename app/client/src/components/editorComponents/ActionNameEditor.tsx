@@ -25,6 +25,10 @@ import { Classes } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import log from "loglevel";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import {
+  VALIDATION_ALREADY_BEING_USED,
+  VALIDATION_ENTER_VALID_NAME,
+} from "constants/messages";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -115,12 +119,12 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
   const isInvalidActionName = useCallback(
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
-        return "Please enter a valid name";
+        return VALIDATION_ENTER_VALID_NAME();
       } else if (
         name !== currentActionConfig?.name &&
         hasActionNameConflict(name)
       ) {
-        return `${name} is already being used.`;
+        return VALIDATION_ALREADY_BEING_USED(name);
       }
       return false;
     },

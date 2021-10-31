@@ -10,6 +10,7 @@ describe("MultiSelect Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
+
   it("Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidget");
     cy.testJsontext("options", JSON.stringify(data.input));
@@ -28,6 +29,7 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Option 3");
   });
+
   it("Selects value with enter in default value", () => {
     cy.testJsontext("defaultvalue", "3\n");
     cy.get(formWidgetsPage.multiselectWidget)
@@ -35,11 +37,13 @@ describe("MultiSelect Widget Functionality", function() {
       .first()
       .should("have.text", "Option 3");
   });
+
   it("Dropdown Functionality To Validate Options", function() {
     cy.get(formWidgetsPage.mulitiselectInput).click({ force: true });
     cy.get(formWidgetsPage.mulitiselectInput).type("Option");
     cy.dropdownMultiSelectDynamic("Option 2");
   });
+
   it("Dropdown Functionality To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -48,6 +52,7 @@ describe("MultiSelect Widget Functionality", function() {
     );
     cy.get(publish.backToEditor).click();
   });
+
   it("Dropdown Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("multiselectwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
@@ -58,6 +63,7 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

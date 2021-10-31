@@ -126,6 +126,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(commonlocators.headingTextStyle).scrollIntoView({ duration: 2000 });
     cy.closePropertyPane();
   });
+
   it("Test border width, color and verity", function() {
     cy.testJsontext("borderwidth", "10");
     cy.get(

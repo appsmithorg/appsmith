@@ -19,6 +19,7 @@ describe("Dynamic Layout Functionality", function() {
       .invoke("width")
       .should("be.eq", 450);
   });
+
   it("Dynamic Layout - New Page should have selected Layout", function() {
     cy.get(pages.AddPage)
       .first()

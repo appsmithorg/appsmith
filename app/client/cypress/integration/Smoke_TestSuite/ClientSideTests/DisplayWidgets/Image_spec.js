@@ -66,6 +66,7 @@ describe("Image Widget Functionality", function() {
     cy.get(publish.imageWidget).should("be.visible");
   });
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

@@ -70,6 +70,7 @@ describe("Input Widget Functionality", function() {
     );
     cy.PublishtheApp();
   });
+
   it("Input Widget Functionality To Validate Default Text and Placeholder", function() {
     cy.get(publish.inputWidget + " " + "input")
       .invoke("attr", "value")
@@ -79,6 +80,7 @@ describe("Input Widget Functionality", function() {
       .should("contain", this.data.placeholder);
     cy.get(publish.backToEditor).click({ force: true });
   });
+
   it("Input Widget Functionality To Check Disabled Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
@@ -86,6 +88,7 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.inputWidget + " " + "input").should("be.disabled");
     cy.get(publish.backToEditor).click({ force: true });
   });
+
   it("Input Widget Functionality To Check Enabled Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
@@ -93,6 +96,7 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.inputWidget + " " + "input").should("be.enabled");
     cy.get(publish.backToEditor).click({ force: true });
   });
+
   it("Input Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -100,6 +104,7 @@ describe("Input Widget Functionality", function() {
     cy.get(publish.inputWidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click({ force: true });
   });
+
   it("Input Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("inputwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
@@ -215,6 +220,7 @@ describe("Input Widget Functionality", function() {
       });
   });
 });
+
 afterEach(() => {
   // put your clean up code if any
 });

@@ -996,7 +996,9 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+    expect($x).contain(
+      Cypress.env("MESSAGES").VALIDATION_ALREADY_BEING_USED(apiname),
+    );
   });
   cy.get(apiwidget.apiTxt).blur();
 });
@@ -1081,13 +1083,17 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+    expect($x).contain(
+      Cypress.env("MESSAGES").VALIDATION_ALREADY_BEING_USED(apiname),
+    );
   });
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".bp3-popover-content").should(($x) => {
-    expect($x).contain(value.concat(" is already being used."));
+    expect($x).contain(
+      Cypress.env("MESSAGES").VALIDATION_ALREADY_BEING_USED(value),
+    );
   });
 });
 
@@ -1150,7 +1156,7 @@ Cypress.Commands.add("AddActionWithModal", () => {
     .last()
     .click();
   cy.get(".single-select")
-    .contains("Open modal")
+    .contains(Cypress.env("MESSAGES").OPEN_MODAL())
     .click({ force: true });
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
@@ -1161,7 +1167,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(widgetsPage.actionSelect)
     .first()
     .click({ force: true });
-  cy.selectOnClickOption("Open modal");
+  cy.selectOnClickOption(Cypress.env("MESSAGES").OPEN_MODAL());
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
@@ -1261,11 +1267,14 @@ Cypress.Commands.add("editColName", (text) => {
 
 Cypress.Commands.add("invalidWidgetText", () => {
   // checking invalid widget name
+  const widgetName = "download";
   cy.get(commonlocators.editWidgetName)
     .click({ force: true })
-    .type("download")
+    .type(widgetName)
     .type("{enter}");
-  cy.get(commonlocators.toastmsg).contains("download is already being used.");
+  cy.get(commonlocators.toastmsg).contains(
+    Cypress.env("MESSAGES").VALIDATION_ALREADY_BEING_USED(widgetName),
+  );
 });
 
 Cypress.Commands.add("EvaluateDataType", (dataType) => {
@@ -1590,7 +1599,7 @@ Cypress.Commands.add("addAction", (value) => {
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show message")
+    .contains(Cypress.env("MESSAGES").SHOW_MESSAGE())
     .click();
   cy.enterActionValue(value);
 });
@@ -1601,7 +1610,7 @@ Cypress.Commands.add("onTableAction", (value, value1, value2) => {
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show message")
+    .contains(Cypress.env("MESSAGES").SHOW_MESSAGE())
     .click();
   cy.testJsontext(value1, value2);
 });
@@ -1609,7 +1618,7 @@ Cypress.Commands.add("onTableAction", (value, value1, value2) => {
 Cypress.Commands.add("selectShowMsg", () => {
   cy.get(commonlocators.chooseAction)
     .children()
-    .contains("Show message")
+    .contains(Cypress.env("MESSAGES").SHOW_MESSAGE())
     .click();
 });
 
@@ -1867,7 +1876,7 @@ Cypress.Commands.add("getAlert", (alertcss) => {
   cy.get(widgetsPage.menubar)
     .contains("Show Alert")
     .click({ force: true })
-    .should("have.text", "Show Alert");
+    .should("have.text", "d");
 
   cy.get(alertcss)
     .click({ force: true })
@@ -1896,7 +1905,7 @@ Cypress.Commands.add(
       .first()
       .click({ force: true });
     cy.get(widgetsPage.menubar)
-      .contains("Show message")
+      .contains(Cypress.env("MESSAGES").SHOW_MESSAGE())
       .click({ force: true });
 
     cy.get(alertcss)
@@ -1913,7 +1922,7 @@ Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a query")
+    .selectOnClickOption(Cypress.env("MESSAGES").EXECUTE_A_QUERY())
     .selectOnClickOption(QueryName);
 });
 
@@ -1921,7 +1930,7 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
     .click({ force: true })
-    .selectOnClickOption("Execute a query")
+    .selectOnClickOption(Cypress.env("MESSAGES").EXECUTE_A_QUERY())
     .selectOnClickOption(ApiName);
 });
 
@@ -2391,7 +2400,7 @@ Cypress.Commands.add("executeDbQuery", (queryName) => {
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
-    .contains("Execute a query")
+    .contains(Cypress.env("MESSAGES").EXECUTE_A_QUERY())
     .click({ force: true })
     .get("ul.bp3-menu")
     .children()
@@ -2475,10 +2484,10 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
     .children()
-    .contains("No action")
+    .contains(Cypress.env("MESSAGES").NO_ACTION())
     .first()
     .click({ force: true })
-    .selectOnClickOption("Show message")
+    .selectOnClickOption(Cypress.env("MESSAGES").SHOW_MESSAGE())
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .click()
     .type(forSuccess)
@@ -2491,10 +2500,10 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // For Failure
   cy.get(".code-highlight")
     .children()
-    .contains("No action")
+    .contains(Cypress.env("MESSAGES").NO_ACTION())
     .last()
     .click({ force: true })
-    .selectOnClickOption("Show message")
+    .selectOnClickOption(Cypress.env("MESSAGES").SHOW_MESSAGE())
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
@@ -2670,17 +2679,13 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/datasources?organizationId=*").as(
-    "getDataSources",
-  );
+  cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
   cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
 
   cy.route("POST");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
-  cy.route("GET", "/api/v1/applications/*/pages/*/edit").as(
-    "getAppPageEdit",
-  );
+  cy.route("GET", "/api/v1/applications/*/pages/*/edit").as("getAppPageEdit");
   cy.route("GET", "/api/v1/actions*").as("getActions");
   cy.route("GET", "api/v1/providers/categories").as("getCategories");
   cy.route("GET", "api/v1/import/templateCollections").as(
@@ -2699,9 +2704,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "datasourceQuery",
   );
 
-  cy.route("PUT", "/api/v1/pages/crud-page/*").as(
-    "replaceLayoutWithCRUDPage",
-  );
+  cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
   cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
 
   cy.route("GET", "/api/v1/organizations").as("organizations");
@@ -2715,14 +2718,11 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
-  cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as(
-    "curlImport",
-  );
+  cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
-  cy.route(
-    "GET",
-    "/api/v1/marketplace/providers?category=*&page=*&size=*",
-  ).as("get3PProviders");
+  cy.route("GET", "/api/v1/marketplace/providers?category=*&page=*&size=*").as(
+    "get3PProviders",
+  );
   cy.route("GET", "/api/v1/marketplace/templates?providerId=*").as(
     "get3PProviderTemplates",
   );
@@ -2732,17 +2732,13 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.route("POST", "/api/v1/applications/?orgId=*").as(
-    "createNewApplication",
-  );
+  cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
   cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
-  cy.route("POST", "api/v1/applications/import/*").as(
-    "importNewApplication",
-  );
+  cy.route("POST", "api/v1/applications/import/*").as("importNewApplication");
   cy.route("GET", "api/v1/applications/export/*").as("exportApplication");
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
@@ -2757,9 +2753,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
-  cy.route("PUT", "/api/v1/users/leaveOrganization/*").as(
-    "leaveOrgApiCall",
-  );
+  cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
@@ -2767,16 +2761,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
   cy.route("POST", "api/v1/git/commit/*").as("commit");
 
-  cy.route("PUT", "api/v1/collections/actions/refactor").as(
-    "renameJsAction",
-  );
+  cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
-  cy.route("POST", "/api/v1/collections/actions").as(
-    "createNewJSCollection",
-  );
-  cy.route("DELETE", "/api/v1/collections/actions/*").as(
-    "deleteJSCollection",
-  );
+  cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
+  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
 
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
 });
@@ -2907,7 +2895,7 @@ Cypress.Commands.add("callApi", (apiname) => {
     .first()
     .click({ force: true });
   cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute a query")
+    .contains(Cypress.env("MESSAGES").EXECUTE_A_QUERY())
     .click({ force: true });
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)

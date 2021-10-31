@@ -11,7 +11,7 @@ describe("Input Widget Max Char Functionality", function() {
     cy.get(widgetsPage.innertext).click();
     cy.get(".bp3-popover-content").should(($x) => {
       expect($x).contain(
-        "Default Text length must be less than Max Chars allowed",
+        Cypress.env("MESSAGES").INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR(),
       );
     });
   });

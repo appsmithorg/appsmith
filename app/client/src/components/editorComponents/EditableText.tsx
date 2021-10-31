@@ -9,6 +9,7 @@ import ErrorTooltip from "./ErrorTooltip";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import Icon, { IconSize } from "components/ads/Icon";
+import { EDITOR_INVALID_NAME } from "constants/messages";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -139,7 +140,7 @@ export function EditableText(props: EditableTextProps) {
         setIsEditing(false);
       } else {
         Toaster.show({
-          text: "Invalid name",
+          text: EDITOR_INVALID_NAME(),
           variant: Variant.danger,
         });
       }

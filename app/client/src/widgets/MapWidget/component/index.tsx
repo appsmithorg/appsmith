@@ -6,6 +6,7 @@ import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import { MAP_WIDGET_PLACEHOLDER } from "constants/messages";
 
 interface MapComponentProps {
   apiKey: string;
@@ -138,7 +139,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
           onPlacesChanged={onPlacesChanged}
           ref={searchBox}
         >
-          <StyledInput placeholder="Enter location to search" type="text" />
+          <StyledInput placeholder={MAP_WIDGET_PLACEHOLDER()} type="text" />
         </SearchBox>
       )}
       {Array.isArray(props.markers) &&

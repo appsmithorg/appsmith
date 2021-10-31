@@ -12,6 +12,7 @@ import { HelpIcons } from "icons/HelpIcons";
 import ReleaseComponent, { Release, StyledSeparator } from "./ReleaseComponent";
 import { withTheme } from "styled-components";
 import { Color } from "constants/Colors";
+import { PRODUCT_UPDATES_TITLE } from "constants/messages";
 
 const CloseIcon = HelpIcons.CLOSE_ICON;
 
@@ -66,7 +67,7 @@ const Header = withTheme(
   ({ onClose, theme }: { onClose: () => void; theme: any }) => (
     <>
       <HeaderContents>
-        <Heading>Product Updates</Heading>
+        <Heading>{PRODUCT_UPDATES_TITLE()}</Heading>
         <HeaderRight>
           <ViewInGithubLink
             href="https://github.com/appsmithorg/appsmith/releases"

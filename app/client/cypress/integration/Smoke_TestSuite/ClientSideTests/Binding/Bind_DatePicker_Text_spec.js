@@ -126,7 +126,7 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.openPropertyPane("datepickerwidget");
     cy.get(commonlocators.onDateSelectedField).click();
     cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Show message")
+      .contains(Cypress.env("MESSAGES").SHOW_MESSAGE())
       .click({ force: true });
     cy.getAlert(commonlocators.optionchangetextDatePicker);
 

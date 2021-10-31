@@ -1,5 +1,3 @@
-const testdata = require("../../../../fixtures/testdata.json");
-
 describe("API Panel Test Functionality ", function() {
   it("Test Search API fetaure", function() {
     cy.log("Login Successful");

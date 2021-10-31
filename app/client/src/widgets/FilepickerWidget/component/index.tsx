@@ -5,6 +5,7 @@ import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import { FILEPICKER_WIDGET_FILES_SELECTED } from "constants/messages";
 
 class FilePickerComponent extends React.Component<
   FilePickerComponentProps,
@@ -26,7 +27,7 @@ class FilePickerComponent extends React.Component<
   render() {
     let label = this.props.label;
     if (this.props.files && this.props.files.length) {
-      label = `${this.props.files.length} files selected`;
+      label = FILEPICKER_WIDGET_FILES_SELECTED(this.props.files.length);
     }
     return (
       <BaseButton

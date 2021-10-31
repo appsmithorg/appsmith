@@ -23,7 +23,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Show message")
+      .contains(Cypress.env("MESSAGES").SHOW_MESSAGE())
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
     // Close Property pane
@@ -143,7 +143,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Show message")
+      .contains(Cypress.env("MESSAGES").SHOW_MESSAGE())
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
 

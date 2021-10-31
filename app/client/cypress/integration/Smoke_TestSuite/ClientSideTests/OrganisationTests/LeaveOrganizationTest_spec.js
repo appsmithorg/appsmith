@@ -14,7 +14,7 @@ describe("Leave organization test spec", function() {
       newOrgId = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openOrgOptionsPopup(newOrganizationName);
-      cy.contains("Leave Organization");
+      cy.contains(Cypress.env("MESSAGES").ORGANIZATION_LEAVE_ORGANIZATION());
     });
   });
 
@@ -26,8 +26,10 @@ describe("Leave organization test spec", function() {
       newOrgId = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openOrgOptionsPopup(newOrganizationName);
-      cy.contains("Leave Organization").click();
-      cy.contains("Are you sure").click();
+      cy.contains(
+        Cypress.env("MESSAGES").ORGANIZATION_LEAVE_ORGANIZATION(),
+      ).click();
+      cy.contains(Cypress.env("MESSAGES").ORGANIZATION_ARE_YOU_SURE()).click();
       cy.wait("@leaveOrgApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(400);
       });
@@ -56,7 +58,7 @@ describe("Leave organization test spec", function() {
         .find("a")
         .should("have.length", 1)
         .first()
-        .contains("Leave Organization");
+        .contains(Cypress.env("MESSAGES").ORGANIZATION_LEAVE_ORGANIZATION());
     });
   });
 });

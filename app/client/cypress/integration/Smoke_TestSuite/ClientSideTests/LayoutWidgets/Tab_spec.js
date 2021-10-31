@@ -52,6 +52,7 @@ describe("Tab widget test", function() {
     cy.get(commonlocators.crossbutton).click({ force: true });
     cy.PublishtheApp();
   });
+
   it("Tab Widget Functionality To Select Tabs", function() {
     cy.get(publish.tabWidget)
       .contains(this.data.tabName)
@@ -59,6 +60,7 @@ describe("Tab widget test", function() {
       .should("be.selected");
     cy.get(publish.backToEditor).click();
   });
+
   it("Tab Widget Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("tabswidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -66,6 +68,7 @@ describe("Tab widget test", function() {
     cy.get(publish.tabWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
+
   it("Tab Widget Functionality To Check Visible Widget", function() {
     cy.openPropertyPane("tabswidget");
     cy.togglebar(commonlocators.visibleCheckbox);

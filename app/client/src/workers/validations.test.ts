@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
+import { VALIDATION_ISO_8601_DATE_STRING } from "constants/messages";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -746,17 +747,23 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: defaultDate,
-        messages: ["Value does not match: ISO 8601 date string"],
+        messages: [
+          `Value does not match: ${VALIDATION_ISO_8601_DATE_STRING()}`,
+        ],
       },
       {
         isValid: false,
         parsed: defaultDate,
-        messages: ["Value does not match: ISO 8601 date string"],
+        messages: [
+          `Value does not match: ${VALIDATION_ISO_8601_DATE_STRING()}`,
+        ],
       },
       {
         isValid: false,
-        messages: ["Value does not match: ISO 8601 date string"],
         parsed: defaultDate,
+        messages: [
+          `Value does not match: ${VALIDATION_ISO_8601_DATE_STRING()}`,
+        ],
       },
     ];
 

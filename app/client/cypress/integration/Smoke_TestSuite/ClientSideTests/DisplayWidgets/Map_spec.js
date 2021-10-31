@@ -53,7 +53,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       cy.get(viewWidgetsPage.mapSearch).should("be.visible");
       cy.get(viewWidgetsPage.mapSearch)
         .invoke("attr", "placeholder")
-        .should("contain", "Enter location to search");
+        .should("contain", Cypress.env("MESSAGES").MAP_WIDGET_PLACEHOLDER());
       /**
        * Enable the Pick Location checkbox and Validate the same in editor mode
        */
@@ -75,7 +75,7 @@ if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
       cy.get(publishPage.mapSearch).should("be.visible");
       cy.get(publishPage.mapSearch)
         .invoke("attr", "placeholder")
-        .should("contain", "Enter location to search");
+        .should("contain", Cypress.env("MESSAGES").MAP_WIDGET_PLACEHOLDER());
       cy.get(publishPage.pickMyLocation).should("exist");
       cy.get(publishPage.backToEditor).click();
     });

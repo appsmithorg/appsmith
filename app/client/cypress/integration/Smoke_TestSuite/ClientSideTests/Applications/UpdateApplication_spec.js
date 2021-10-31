@@ -1,11 +1,9 @@
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import tinycolor from "tinycolor2";
 
 describe("Update Application", function() {
   let appname;
   let iconname;
-  let colorname;
   let veryLongAppName = `gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1gnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionihgnerwihnireongionih1${Math.random()
     .toString(36)
     .slice(2, -1)}`;
@@ -25,7 +23,10 @@ describe("Update Application", function() {
       .first()
       .click({ force: true });
     cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
-    cy.get(homePage.toastMessage).should("contain", "Application name updated");
+    cy.get(homePage.toastMessage).should(
+      "contain",
+      Cypress.env("MESSAGES").APPLICATION_NAME_UPDATE(),
+    );
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -82,7 +83,10 @@ describe("Update Application", function() {
       "response.body.data.name",
       `${appname} updated`,
     );
-    cy.get(homePage.toastMessage).should("contain", "Application name updated");
+    cy.get(homePage.toastMessage).should(
+      "contain",
+      Cypress.env("MESSAGES").APPLICATION_NAME_UPDATE(),
+    );
   });
 
   it("Updates the name of first application to very long name and checks whether update is reflected in the application card with a popover", function() {

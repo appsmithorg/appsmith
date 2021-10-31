@@ -87,6 +87,8 @@ import {
   SEARCH_APPS,
   WELCOME_TOUR,
   NO_APPS_FOUND,
+  ORGANIZATION_LEAVE_ORGANIZATION,
+  ORGANIZATION_ARE_YOU_SURE,
 } from "constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
@@ -863,8 +865,8 @@ function ApplicationsSection(props: any) {
                           }
                           text={
                             !warnLeavingOrganization
-                              ? "Leave Organization"
-                              : "Are you sure?"
+                              ? ORGANIZATION_LEAVE_ORGANIZATION()
+                              : ORGANIZATION_ARE_YOU_SURE()
                           }
                           type={
                             !warnLeavingOrganization ? undefined : "warning"

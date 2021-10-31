@@ -61,7 +61,11 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   it("Datepicker default date validation message", function() {
     cy.openPropertyPane("datepickerwidget2");
     cy.testJsontext("defaultdate", "24-12-2021");
-    cy.evaluateErrorMessage("Value does not match: ISO 8601 date string");
+    cy.evaluateErrorMessage(
+      `Value does not match: ${Cypress.env(
+        "MESSAGES",
+      ).VALIDATION_ISO_8601_DATE_STRING()}`,
+    );
     cy.closePropertyPane();
   });
 

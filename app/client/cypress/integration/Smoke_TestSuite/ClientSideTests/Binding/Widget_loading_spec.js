@@ -36,6 +36,7 @@ describe("Binding the multiple widgets and validating default data", function() 
       datasourceName = httpResponse.response.body.data.name;
     });
   });
+
   it("Create and runs query", () => {
     cy.NavigateToQueryEditor();
     cy.contains(".t--datasource-name", datasourceName)

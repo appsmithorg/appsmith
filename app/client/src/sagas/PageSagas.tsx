@@ -107,6 +107,7 @@ import {
 import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { VALIDATION_ALREADY_BEING_USED } from "constants/messages";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -790,7 +791,9 @@ export function* updateWidgetNameSaga(
           type: ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR,
           payload: {
             error: {
-              message: `Entity name: ${action.payload.newName} is already being used.`,
+              message: `Entity name: ${VALIDATION_ALREADY_BEING_USED(
+                action.payload.newName,
+              )}`,
             },
           },
         });

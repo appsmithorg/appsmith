@@ -45,7 +45,7 @@ describe("Pages", function() {
   it("Checks if 404 is showing correct route", () => {
     cy.visit("/route-that-does-not-exist");
     cy.get(".bold-text").should(($x) => {
-      expect($x).contain("Page not found");
+      expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());
     });
   });
 });

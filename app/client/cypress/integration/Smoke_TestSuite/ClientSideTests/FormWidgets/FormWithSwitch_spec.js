@@ -29,14 +29,14 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("Form reset button valdiation with switch widget", function() {
+  it("Form reset button validation with switch widget", function() {
     // Open form button
     cy.SearchEntityandOpen("FormButton2");
     // Click on reset widget action
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Reset widget")
+      .contains(Cypress.env("MESSAGES").RESET_WIDGET())
       .click();
     // click on toggler from actions
     cy.get(widgetsPage.selectWidget).click({ force: true });

@@ -14,6 +14,8 @@ export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
 export const ERROR_MESSAGE_CREATE_APPLICATION = () =>
   `We could not create the Application`;
 export const APPLICATION_NAME_UPDATE = () => `Application name updated`;
+export const APPLICATION_IMPORTED_SUCCESSFULLY = () =>
+  `Application imported successfully`;
 export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
@@ -452,6 +454,7 @@ export const JS_OBJECT_BODY_INVALID = () => "JS object could not be parsed";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+export const EDITOR_INVALID_NAME = () => "Invalid name";
 
 //undo redo
 export const WIDGET_REMOVED = (widgetName: string) =>
@@ -596,6 +599,9 @@ export const PASTE_SSH_URL_INFO = () =>
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
+
+// Drag and Drop component
+export const DRAG_AND_DROP_TEXT = () => "Drag and drop a widget here";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -790,13 +796,13 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 export const DEPLOY_MENU_OPTION = () => "Deploy";
 export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current Deployed Version";
 export const CONNECT_TO_GIT_OPTION = () => "Connect to Git Repository";
-//
 export const GO_TO_PAGE = () => "Go to page";
 export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
 export const HIDDEN_TOOLTIP = () => "Hidden";
 export const CLONE_TOOLTIP = () => "Clone";
 export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
+
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () => "We will notify you once we are done!";
@@ -807,8 +813,32 @@ export const RESTART_ERROR_HEADER = () => "Restart failed";
 export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
   "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";
 
+// Welcome messages
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
+
+// Map widget
+export const MAP_WIDGET_PLACEHOLDER = () => "Enter location to search";
+
+// Filepicker widget
+export const FILEPICKER_WIDGET_FILES_SELECTED = (filesQty: number) =>
+  `${filesQty} files selected`;
+
+// Autocomplete
+export const AUTOCOMPLETE_NO_SUGGESTIONS = () => "No suggestions";
+
+// Validation messages
+export const VALIDATION_ISO_8601_DATE_STRING = () => "ISO 8601 date string";
+export const VALIDATION_ENTER_VALID_NAME = () => "Please enter a valida name.";
+export const VALIDATION_ALREADY_BEING_USED = (name: string) =>
+  `${name} is already being used.`;
+
+// Organization messages
+export const ORGANIZATION_LEAVE_ORGANIZATION = () => "Leave organization";
+export const ORGANIZATION_ARE_YOU_SURE = () => "Are you sure?";
+
+// Product updates modal
+export const PRODUCT_UPDATES_TITLE = () => "Product Updates";

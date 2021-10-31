@@ -17,6 +17,10 @@ import { Classes } from "@blueprintjs/core";
 import log from "loglevel";
 import { Action } from "entities/Action";
 import { saveJSObjectName } from "actions/jsActionActions";
+import {
+  VALIDATION_ALREADY_BEING_USED,
+  VALIDATION_ENTER_VALID_NAME,
+} from "constants/messages";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -102,12 +106,12 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
   const isInvalidJSObjectName = useCallback(
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
-        return "Please enter a valid name";
+        return VALIDATION_ENTER_VALID_NAME();
       } else if (
         name !== currentJSObjectConfig?.name &&
         hasNameConflict(name)
       ) {
-        return `${name} is already being used.`;
+        return VALIDATION_ALREADY_BEING_USED(name);
       }
       return false;
     },

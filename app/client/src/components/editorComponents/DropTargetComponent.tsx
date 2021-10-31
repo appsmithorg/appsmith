@@ -27,6 +27,7 @@ import {
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
+import { DRAG_AND_DROP_TEXT } from "constants/messages";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -57,9 +58,7 @@ const StyledOnboardingMessage = styled.h2`
 function Onboarding() {
   return (
     <StyledOnboardingWrapper>
-      <StyledOnboardingMessage>
-        Drag and drop a widget here
-      </StyledOnboardingMessage>
+      <StyledOnboardingMessage>{DRAG_AND_DROP_TEXT()}</StyledOnboardingMessage>
     </StyledOnboardingWrapper>
   );
 }

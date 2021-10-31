@@ -3,6 +3,8 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 import homePage from "../../../../locators/HomePage.json";
 import datasource from "../../../../locators/DatasourcesEditor.json";
 
+import { FAKE_DATASOURCE_OPTION } from "../../../../../src/pages/Editor/GeneratePage/components/GeneratePageForm/hooks";
+
 describe("Generate New CRUD Page Inside from entity explorer", function() {
   let datasourceName;
 
@@ -87,7 +89,9 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
     cy.get(generatePage.selectDatasourceDropdown).click();
 
-    cy.contains("Connect New Datasource").click();
+    cy.contains(
+      FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION.label,
+    ).click();
 
     cy.get(datasource.PostgreSQL).click();
 

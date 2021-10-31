@@ -55,7 +55,7 @@ describe("Organization Import Application", function() {
               );
               cy.get(homePage.toastMessage).should(
                 "contain",
-                "Application imported successfully",
+                Cypress.env("MESSAGES").APPLICATION_IMPORTED_SUCCESSFULLY(),
               );
               cy.url().should(
                 "include",

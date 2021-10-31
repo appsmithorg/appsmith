@@ -19,7 +19,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Navigate to")
+      .contains(Cypress.env("MESSAGES").NAVIGATE_TO())
       .click();
     cy.enterNavigatePageName(pageid);
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
