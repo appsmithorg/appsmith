@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select, { SelectProps } from "rc-select";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
@@ -13,6 +14,8 @@ import {
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import { Classes } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import _ from "lodash";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -30,6 +33,8 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  dropDownWidth: number;
+  width: number;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -37,6 +42,7 @@ const DEBOUNCE_TIMEOUT = 800;
 function MultiSelectComponent({
   disabled,
   dropdownStyle,
+  dropDownWidth,
   loading,
   onChange,
   onFilterChange,
@@ -44,6 +50,7 @@ function MultiSelectComponent({
   placeholder,
   serverSideFiltering,
   value,
+  width,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
   const _menu = useRef<HTMLElement | null>(null);
@@ -121,12 +128,18 @@ function MultiSelectComponent({
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
+  const id = _.uniqueId();
+  console.log("dropDownWidth", dropDownWidth);
   return (
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
       <Select
         animation="slide-up"
         // TODO: Make Autofocus a variable in the property pane
@@ -134,7 +147,7 @@ function MultiSelectComponent({
         choiceTransitionName="rc-select-selection__choice-zoom"
         className="rc-select"
         disabled={disabled}
-        dropdownClassName="multi-select-dropdown"
+        dropdownClassName={`multi-select-dropdown multiselect-popover-width-${id}`}
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}

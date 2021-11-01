@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -212,6 +213,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
+    console.log("dropDownWidth Select", dropDownWidth);
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (

@@ -28,7 +28,18 @@ const rcSelectDropdownSlideUpOut = keyframes`
 	}
 `;
 
-export const DropdownStyles = createGlobalStyle`
+export const DropdownStyles = createGlobalStyle<{
+  parentWidth: number;
+  dropDownWidth: number;
+  id: string;
+}>`
+${({ dropDownWidth, id, parentWidth }) => `
+  .multiselect-popover-width-${id} {
+    min-width: ${
+      parentWidth > dropDownWidth ? parentWidth : dropDownWidth
+    }px !important;
+  }
+`}
 .rc-select-dropdown-hidden {
 	display: none;
 }
@@ -150,17 +161,15 @@ export const DropdownStyles = createGlobalStyle`
 
   .multi-select-dropdown {
     min-height: 100px;
-    min-width: 170px !important;
-
-	position: absolute;
-	background: #fff;
-	width: auto;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	border-radius: 0px;
-	margin-top: 8px;
-	padding: 8px;
-	background: white;
-	box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px !important;
+    position: absolute;
+    background: #fff;
+    width: auto;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0px;
+    margin-top: 8px;
+    padding: 8px;
+    background: white;
+    box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px !important;
     &&&& .${Classes.ALIGN_LEFT} {
         font-size: 14px;
         padding-bottom: 10px;

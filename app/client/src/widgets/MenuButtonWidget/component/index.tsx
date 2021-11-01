@@ -22,6 +22,7 @@ import {
   getCustomTextColor,
   WidgetContainerDiff,
 } from "widgets/WidgetUtils";
+import _ from "lodash";
 
 export const MenuButtonContainer = styled.div`
   width: 100%;
@@ -36,16 +37,18 @@ export const MenuButtonContainer = styled.div`
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
   menuDropDownWidth: number;
+  id: string;
 }>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
-  .menu-button-popover {
-     min-width:${({ menuDropDownWidth, parentWidth }) =>
-       parentWidth > menuDropDownWidth
-         ? `${parentWidth}px`
-         : `${menuDropDownWidth}px`} ;
+  ${({ id, menuDropDownWidth, parentWidth }) => `
+  .menu-button-width-${id} {
+    min-width: ${
+      parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
+    }px !important;
   }
+`}
 `;
 
 export interface BaseStyleProps {
@@ -193,6 +196,7 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
 
 const StyledMenu = styled(Menu)`
   padding: 0;
+  min-width: 0px;
 `;
 
 export interface PopoverContentProps {
@@ -378,10 +382,12 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     onItemClicked,
     width,
   } = props;
+  const id = _.uniqueId();
 
   return (
     <MenuButtonContainer>
       <PopoverStyles
+        id={id}
         menuDropDownWidth={menuDropDownWidth}
         parentWidth={width - WidgetContainerDiff}
       />
@@ -397,7 +403,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
         fill
         minimal
         placement="bottom-end"
-        popoverClassName="menu-button-popover"
+        popoverClassName={`menu-button-popover menu-button-width-${id}`}
       >
         <PopoverTargetButton
           borderRadius={borderRadius}

@@ -22,6 +22,8 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import _ from "lodash";
 
 export interface TreeSelectProps
   extends Required<
@@ -43,6 +45,8 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  dropDownWidth: number;
+  width: number;
 }
 
 const getSvg = (style = {}) => (
@@ -93,6 +97,7 @@ function SingleSelectTreeComponent({
   compactMode,
   disabled,
   dropdownStyle,
+  dropDownWidth,
   expandAll,
   labelStyle,
   labelText,
@@ -103,6 +108,7 @@ function SingleSelectTreeComponent({
   options,
   placeholder,
   value,
+  width,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const _menu = useRef<HTMLElement | null>(null);
@@ -123,13 +129,18 @@ function SingleSelectTreeComponent({
     return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
   }, []);
   const onClear = useCallback(() => onChange([], []), []);
+  const id = _.uniqueId();
 
   return (
     <TreeSelectContainer
       compactMode={compactMode}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
-      <DropdownStyles />
+      <DropdownStyles
+        dropDownWidth={dropDownWidth}
+        id={id}
+        parentWidth={width - WidgetContainerDiff}
+      />
       {labelText && (
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
@@ -152,7 +163,7 @@ function SingleSelectTreeComponent({
         choiceTransitionName="rc-tree-select-selection__choice-zoom"
         className="rc-tree-select"
         disabled={disabled}
-        dropdownClassName="tree-select-dropdown single-tree-select-dropdown"
+        dropdownClassName={`tree-select-dropdown single-tree-select-dropdown treeselect-popover-width-${id}`}
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
         inputIcon={inputIcon}

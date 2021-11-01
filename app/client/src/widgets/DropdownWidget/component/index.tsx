@@ -107,12 +107,12 @@ const DropdownStyles = createGlobalStyle<{
   id: string;
 }>`
 ${({ dropDownWidth, id, parentWidth }) => `
-  .popover-width-${id} {
+  .select-popover-width-${id} {
     min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
   }
 `}
   .select-popover-wrapper {
-    width: 100%;    
+    width: auto;    
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
     border-color: rgba(0, 0, 0, 0.2);
@@ -123,9 +123,11 @@ ${({ dropDownWidth, id, parentWidth }) => `
     && .${Classes.MENU} {
       max-width: 100%;
       max-height: auto;
+      min-width: 0px !important;
     }
     &&&& .${Classes.MENU_ITEM} {
       border-radius: ${(props) => props.theme.radii[1]}px;
+
       &:hover{
         background: ${Colors.POLAR};
       }
@@ -229,7 +231,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                   enabled: false,
                 },
               },
-              popoverClassName: `select-popover-wrapper popover-width-${id}`,
+              popoverClassName: `select-popover-wrapper select-popover-width-${id}`,
             }}
           >
             <Button
