@@ -12,6 +12,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
+import { EvalResult } from "workers/evaluate";
 
 const ctx: Worker = self as any;
 
@@ -75,12 +76,13 @@ const promisifyAction = (actionDescription: ActionDescription) => {
 
 // To indicate the main thread that the processing of the trigger is done
 // we send a finished message
-export const completePromise = () => {
+export const completePromise = (result: EvalResult) => {
   debugger;
   ctx.postMessage({
     type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
     responseData: {
       finished: true,
+      result,
     },
     requestId: self.REQUEST_ID,
   });

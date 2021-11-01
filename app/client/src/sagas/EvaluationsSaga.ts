@@ -77,6 +77,7 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -190,6 +191,12 @@ export function* evaluateDynamicTrigger(
     log.debug({ requestData });
     if (requestData.finished) {
       keepAlive = false;
+      // Handle errors during evaluation
+      if (requestData.result.errors.length) {
+        throw new TriggerEvaluationError(
+          requestData.result.errors[0].errorMessage,
+        );
+      }
       continue;
     }
     yield call(evalErrorHandler, requestData.errors);
@@ -210,6 +217,8 @@ export function* evaluateDynamicTrigger(
           success: true,
         });
       } catch (e) {
+        // When error occurs in execution of triggers,
+        // a success: false is sent to reject the promise
         responseChannel.put({
           method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
           data: {

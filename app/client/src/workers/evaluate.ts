@@ -226,9 +226,7 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     }
-    completePromise();
-
-    return { result, errors };
+    completePromise({ result, errors });
   })();
 }
 
