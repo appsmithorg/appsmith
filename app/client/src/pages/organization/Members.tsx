@@ -381,6 +381,7 @@ export default function MemberSettings(props: PageProps) {
                     <Dropdown
                       boundary="viewport"
                       className="t--user-status"
+                      defaultIcon="downArrow"
                       height="31px"
                       onSelect={(value) => {
                         selectRole(value, user.username);
