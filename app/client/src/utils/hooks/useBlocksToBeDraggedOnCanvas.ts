@@ -18,7 +18,7 @@ import {
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { XYCord } from "utils/hooks/useCanvasDragging";
-import { isEmpty } from "lodash";
+import { isEmpty, isEqual } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -51,6 +51,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
   snapRowSpace,
   widgetId,
 }: CanvasDraggingArenaProps) => {
+  // eslint-disable-next-line no-console
+  console.log("useBlocksToBeDraggedOnCanvas");
   const dispatch = useDispatch();
   const showPropertyPane = useShowPropertyPane();
   const { selectWidget } = useWidgetSelection();
@@ -78,7 +80,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const occupiedSpaces = useSelector(getOccupiedSpaces) || {};
+  const occupiedSpaces = useSelector(getOccupiedSpaces, isEqual) || {};
   const isNewWidget = !!newWidget && !dragParent;
   const childrenOccupiedSpaces: OccupiedSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];
@@ -321,5 +323,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
     relativeStartPoints,
     rowRef,
     updateRows,
+    widgetOccupiedSpace: childrenOccupiedSpaces.filter(
+      (each) => each.id === dragCenter?.widgetId,
+    )[0],
   };
 };

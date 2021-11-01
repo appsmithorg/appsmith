@@ -15,6 +15,7 @@ const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
     z-index: ${(props) => props.zIndexOnHover} !important;
   }
+  transition: transform 100ms ease-in-out;
 `;
 export type PositionedContainerProps = {
   style: BaseStyle;

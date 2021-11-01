@@ -32,6 +32,7 @@ export interface CanvasDraggingArenaProps {
   snapColumnSpace: number;
   snapRows: number;
   snapRowSpace: number;
+  parentId?: string;
   widgetId: string;
 }
 
@@ -39,6 +40,7 @@ export function CanvasDraggingArena({
   canExtend,
   dropDisabled = false,
   noPad,
+  parentId = "",
   snapColumnSpace,
   snapRows,
   snapRowSpace,
@@ -50,10 +52,13 @@ export function CanvasDraggingArena({
 
   const canvasRef = React.useRef<HTMLDivElement>(null);
   const canvasDrawRef = React.useRef<HTMLCanvasElement>(null);
+  // eslint-disable-next-line no-console
+  console.log("Hey hi");
   const { showCanvas } = useCanvasDragging(canvasRef, canvasDrawRef, {
     canExtend,
     dropDisabled,
     noPad,
+    parentId,
     snapColumnSpace,
     snapRows,
     snapRowSpace,
@@ -73,3 +78,6 @@ export function CanvasDraggingArena({
   ) : null;
 }
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
+CanvasDraggingArena.whyDidYouRender = {
+  logOnDifferentValues: false,
+};

@@ -4,9 +4,15 @@ import {
 } from "constants/WidgetConstants";
 import { debounce, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { AppState } from "reducers";
+import { widgetReflowState } from "reducers/uiReducers/reflowReducer";
+import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
+import { useDragReflow } from "resizable/resizenreflow/useDragReflow";
+import { getReflowWidgetSelector } from "selectors/widgetReflowSelectors";
+import { useSelector } from "store";
 import { getNearestParentCanvas } from "utils/generators";
-import { noCollision } from "utils/WidgetPropsUtils";
+import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
 import { useWidgetDragResize } from "./dragResizeHooks";
 import {
   useBlocksToBeDraggedOnCanvas,
@@ -18,7 +24,6 @@ export interface XYCord {
   x: number;
   y: number;
 }
-
 export const useCanvasDragging = (
   canvasRef: React.RefObject<HTMLDivElement>,
   canvasDrawRef: React.RefObject<HTMLCanvasElement>,
@@ -26,6 +31,7 @@ export const useCanvasDragging = (
     canExtend,
     dropDisabled,
     noPad,
+    parentId,
     snapColumnSpace,
     snapRows,
     snapRowSpace,
@@ -33,7 +39,6 @@ export const useCanvasDragging = (
   }: CanvasDraggingArenaProps,
 ) => {
   const { devicePixelRatio: scale = 1 } = window;
-
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -50,6 +55,7 @@ export const useCanvasDragging = (
     relativeStartPoints,
     rowRef,
     updateRows,
+    widgetOccupiedSpace,
   } = useBlocksToBeDraggedOnCanvas({
     canExtend,
     noPad,
@@ -58,6 +64,29 @@ export const useCanvasDragging = (
     snapRowSpace,
     widgetId,
   });
+  const widgetParentSpaces = {
+    parentColumnSpace: snapColumnSpace,
+    parentRowSpace: snapRowSpace,
+    paddingOffset: 0,
+  };
+  const reflowStateRef = useRef<any>();
+  // const reflowStateChange = useSelector(
+  //   (state: AppState): widgetReflowState => state.ui.widgetReflow,
+  // );
+  // const widgetReflowSelector = getReflowWidgetSelector(widgetId);
+  // const reflowState = useSelector(widgetReflowSelector);
+  // useEffect(() => {
+  //   reflowStateRef.current = reflowState;
+  // }, [reflowStateChange]);
+  const reflow = useRef<any>();
+  reflow.current = useDragReflow(
+    widgetOccupiedSpace ? widgetOccupiedSpace.id : "",
+    widgetId || "",
+    canvasRef,
+    false,
+    widgetParentSpaces,
+  );
+  const debouncedReflow = debounce(reflow.current);
 
   const {
     setDraggingCanvas,
@@ -145,6 +174,11 @@ export const useCanvasDragging = (
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
       const scrollObj: any = {};
+      let last_position = {
+        x: 0,
+        y: 0,
+      };
+      let currentDirection = ResizeDirection.UNSET;
 
       const resetCanvasState = () => {
         if (canvasDrawRef.current && canvasRef.current) {
@@ -203,8 +237,35 @@ export const useCanvasDragging = (
             onMouseMove(e);
           }
         };
+        const getMouseMoveDirection = (event: any) => {
+          if (last_position) {
+            const deltaX = last_position.x - event.clientX,
+              deltaY = last_position.y - event.clientY;
+            const movements = [];
+            last_position = {
+              x: event.clientX,
+              y: event.clientY,
+            };
+            if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
+              movements.push("TOP");
+            } else if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
+              movements.push("BOTTOM");
+            }
+            if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 0) {
+              movements.push("LEFT");
+            } else if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
+              movements.push("RIGHT");
+            }
+            return movements.length
+              ? (movements.join("|") as ResizeDirection)
+              : currentDirection;
+          }
+          return currentDirection;
+        };
         const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && canvasRef.current) {
+            currentDirection = getMouseMoveDirection(e);
+
             const delta = {
               left: e.offsetX - startPoints.left - parentDiff.left,
               top: e.offsetY - startPoints.top - parentDiff.top,
@@ -242,6 +303,60 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               renderBlocks();
+              // width: number;
+              // height: number;
+              // x: number;
+              // y: number;
+              // reset?: boolean;
+              // direction: ResizeDirection;
+              // X?: number;
+              // Y?: number;
+              const currentBlock = currentRectanglesToDraw[0];
+
+              const snappedXY = getSnappedXY(
+                snapColumnSpace,
+                snapRowSpace,
+                {
+                  x: currentBlock.left,
+                  y: currentBlock.top,
+                },
+                {
+                  x: 0,
+                  y: 0,
+                },
+              );
+              const [leftColumn, topRow] = getDropZoneOffsets(
+                snapColumnSpace,
+                snapRowSpace,
+                {
+                  x: currentBlock.left,
+                  y: currentBlock.top,
+                },
+                {
+                  x: 0,
+                  y: 0,
+                },
+              );
+
+              const block: DimensionProps = {
+                width: currentBlock.width,
+                height: currentBlock.height,
+                x: 0,
+                y: 0,
+                X: (leftColumn - widgetOccupiedSpace.left) * snapColumnSpace,
+                Y: (topRow - widgetOccupiedSpace.top) * snapRowSpace,
+                // width: number;
+                // height: number;
+                // x: number;
+                // y:
+                direction: currentDirection,
+              };
+              debouncedReflow(
+                block,
+                widgetOccupiedSpace,
+                { ...currentBlock, left: leftColumn, top: topRow },
+                reflowStateRef.current,
+              );
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
