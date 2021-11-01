@@ -58,7 +58,7 @@ const ToastBody = styled.div<{
   dispatchableAction?: { type: ReduxActionType; payload: any };
   width?: string;
 }>`
-  width: ${(props) => props.width || "264px"};
+  width: ${(props) => props.width || "fit-content"};
   background: ${(props) => props.theme.colors.toast.bg};
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[5]}px;
