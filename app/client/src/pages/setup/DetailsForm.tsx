@@ -50,7 +50,10 @@ export default function DetailsForm(
         <FormHeaderLabel>{createMessage(WELCOME_FORM_HEADER)}</FormHeaderLabel>
       </FormHeaderWrapper>
       <StyledFormBodyWrapper>
-        <StyledFormGroup label={createMessage(WELCOME_FORM_FULL_NAME)}>
+        <StyledFormGroup
+          className="t--welcome-form-full-name"
+          label={createMessage(WELCOME_FORM_FULL_NAME)}
+        >
           <FormTextField
             autoFocus
             name="name"
@@ -58,28 +61,40 @@ export default function DetailsForm(
             type="text"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(WELCOME_FORM_EMAIL_ID)}>
+        <StyledFormGroup
+          className="t--welcome-form-email"
+          label={createMessage(WELCOME_FORM_EMAIL_ID)}
+        >
           <FormTextField
             name="email"
             placeholder="How can we reach you?"
             type="email"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}>
+        <StyledFormGroup
+          className="t--welcome-form-password"
+          label={createMessage(WELCOME_FORM_CREATE_PASSWORD)}
+        >
           <FormTextField
             name="password"
             placeholder="Make it strong!"
             type="password"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}>
+        <StyledFormGroup
+          className="t--welcome-form-verify-password"
+          label={createMessage(WELCOME_FORM_VERIFY_PASSWORD)}
+        >
           <FormTextField
             name="verifyPassword"
             placeholder="Type correctly"
             type="password"
           />
         </StyledFormGroup>
-        <DropdownWrapper label={createMessage(WELCOME_FORM_ROLE_DROPDOWN)}>
+        <DropdownWrapper
+          className="t--welcome-form-role-dropdown"
+          label={createMessage(WELCOME_FORM_ROLE_DROPDOWN)}
+        >
           <Field
             asyncControl
             component={withDropdown(roleOptions, "260px")}
@@ -89,11 +104,17 @@ export default function DetailsForm(
           />
         </DropdownWrapper>
         {props.role == "other" && (
-          <StyledFormGroup label={createMessage(WELCOME_FORM_ROLE)}>
+          <StyledFormGroup
+            className="t--welcome-form-role-input"
+            label={createMessage(WELCOME_FORM_ROLE)}
+          >
             <FormTextField name="role_name" placeholder="" type="text" />
           </StyledFormGroup>
         )}
-        <DropdownWrapper label={createMessage(WELCOME_FORM_USE_CASE)}>
+        <DropdownWrapper
+          className="t--welcome-form-role-usecase"
+          label={createMessage(WELCOME_FORM_USE_CASE)}
+        >
           <Field
             asyncControl
             component={withDropdown(useCaseOptions, "260px")}
@@ -105,6 +126,7 @@ export default function DetailsForm(
         <ButtonWrapper>
           <Button
             category={Category.tertiary}
+            className="t--welcome-form-next-button"
             disabled={props.invalid}
             onClick={props.onNext}
             size={Size.medium}

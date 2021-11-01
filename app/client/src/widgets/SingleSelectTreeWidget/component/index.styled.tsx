@@ -101,6 +101,16 @@ export const DropdownStyles = createGlobalStyle`
 	text-align: center;
 	color: #999;
 }
+.rc-tree-select-dropdown-empty {
+  color: rgba(92, 112, 128, 0.6) !important
+}
+.single-tree-select-dropdown.rc-tree-select-dropdown-empty {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid #E7E7E7;
+  border-color: rgba(0,0,0,0.2);
+  min-height: fit-content;
+}
+
 .rc-tree-select-selection__choice-zoom {
 	transition: all 0s;
 }
