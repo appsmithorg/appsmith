@@ -122,4 +122,9 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
                 });
 
     }
+
+    @Override
+    public Flux<ActionCollection> findByPageId(String pageId) {
+        return this.findByPageId(pageId, null);
+    }
 }
