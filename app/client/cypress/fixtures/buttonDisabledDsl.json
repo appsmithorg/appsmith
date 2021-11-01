@@ -1,0 +1,53 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 590,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 41,
+        "minHeight": 360,
+        "parentColumnSpace": 1,
+        "dynamicTriggerPathList": [],
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "text": "Submit",
+                "buttonColor": "#03B365",
+                "buttonVariant": "SOLID",
+                "widgetName": "Button1",
+                "isDisabled": true,
+                "isDefaultClickDisabled": true,
+                "recaptchaV2": false,
+                "version": 1,
+                "type": "BUTTON_WIDGET",
+                "hideCard": false,
+                "displayName": "Button",
+                "key": "by8ylm6j8s",
+                "iconSVG": "/static/media/icon.cca02633.svg",
+                "widgetId": "7t0pgnw62q",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 14.90625,
+                "parentRowSpace": 10,
+                "leftColumn": 15,
+                "rightColumn": 31,
+                "topRow": 10,
+                "bottomRow": 14,
+                "parentId": "0",
+                "dynamicBindingPathList": [],
+                "dynamicTriggerPathList": []
+            }
+        ]
+    }
+}
