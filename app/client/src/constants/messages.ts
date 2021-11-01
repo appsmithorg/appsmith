@@ -812,3 +812,5 @@ export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
+export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
+  "Are you sure you want to perform this action?";
