@@ -3880,7 +3880,7 @@ public class DatabaseChangelog {
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("SMTP");
-        plugin.setType(PluginType.REMOTE);
+        plugin.setType(PluginType.DB);
         plugin.setPackageName("smtp-plugin");
         plugin.setUiComponent("UQIDbEditorForm");
         plugin.setDatasourceComponent("AutoForm");

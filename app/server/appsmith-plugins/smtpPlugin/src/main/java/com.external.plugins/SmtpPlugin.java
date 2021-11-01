@@ -11,7 +11,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
@@ -142,24 +141,22 @@ public class SmtpPlugin extends BasePlugin {
                 // Send the email now
                 System.out.println("Going to send the email");
                 Transport.send(message);
-                System.out.println("Sent the email successfully");
 
                 result.setIsExecutionSuccess(true);
                 Map<String, String> responseBody = new HashMap<>();
                 responseBody.put("message", "Sent the email successfully");
+                result.setBody(objectMapper.valueToTree(responseBody));
 
-                result.setBody(objectMapper.writeValueAsString(responseBody));
+                System.out.println("Sent the email successfully");
             } catch (AddressException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to " + e.getMessage()));
             } catch (MessagingException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to send email because of error: " + e.getMessage()));
-            } catch (JsonProcessingException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to parse the email body/attachments because it was an invalid JSON object."));
             } catch (IOException e) {
-                e.printStackTrace();
+                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Unable to parse the email body/attachments because it was an invalid object."));
             }
 
             return Mono.just(result);
@@ -254,8 +251,8 @@ public class SmtpPlugin extends BasePlugin {
                 } catch (AuthenticationFailedException e) {
                     invalids.add("Authentication failed with the SMTP server. Please check your username/password settings.");
                 } catch (MessagingException e) {
-                    invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
                     e.printStackTrace();
+                    invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
                 }
                 return invalids;
             }).map(invalids -> new DatasourceTestResult(invalids));
