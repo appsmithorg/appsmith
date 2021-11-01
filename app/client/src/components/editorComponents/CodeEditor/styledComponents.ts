@@ -120,10 +120,7 @@ export const EditorWrapper = styled.div<{
             return Colors.GREY_5;
         }
       }};
-      background: ${(props) =>
-        props.isFocused
-          ? props.theme.colors.apiPane.requestTree.header.bg
-          : props.theme.colors.apiPane.bg};
+      background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
