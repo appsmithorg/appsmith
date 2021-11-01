@@ -87,7 +87,7 @@ describe("Form Widget Functionality", function() {
     cy.PublishtheApp();
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
-      .and("eq", "rgb(3, 179, 101)");
+      .and("eq", "rgb(128, 128, 128)");
   });
   it("Form Widget Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("formwidget");
