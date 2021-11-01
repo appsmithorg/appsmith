@@ -59,6 +59,10 @@ import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
+import TooltipComponent from "components/ads/Tooltip";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { Position } from "@blueprintjs/core/lib/esnext/common";
+import { Classes as BluePrintClasses } from "@blueprintjs/core";
 
 const Form = styled.form`
   display: flex;
@@ -290,12 +294,62 @@ const Flex = styled.div<{ size: number }>`
   color: #4b4848;
   display: flex;
   align-items: center;
+
+  &.possible-overflow-key {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: fit-content;
+    max-width: 100%;
+
+    .${BluePrintClasses.POPOVER_WRAPPER} {
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .${BluePrintClasses.POPOVER_TARGET} > span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: fit-content;
+      max-width: 100%;
+      padding-right: 8px;
+    }
+  }
+
+  &.possible-overflow {
+    width: 0;
+    max-height: 32px;
+
+    & > span.cs-text {
+      width: 100%;
+    }
+
+    .${BluePrintClasses.POPOVER_TARGET} {
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .${BluePrintClasses.POPOVER_TARGET} > span {
+      max-height: 32px;
+      padding: 6px 12px;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-left: 2px;
+      width: fit-content;
+      max-width: 100%;
+    }
+  }
 `;
 
 const FlexContainer = styled.div`
   display: flex;
   align-items: center;
   width: calc(100% - 30px);
+
+  &.header {
+    margin-bottom: 8px;
+  }
 
   .key-value {
     .${Classes.TEXT} {
@@ -337,11 +391,28 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
         return (
           <FormRowWithLabel key={index}>
             <FlexContainer>
-              <Flex className="key-value disabled" size={1}>
-                <Text type={TextType.H6}>{header.key}</Text>
+              <Flex
+                className="key-value disabled possible-overflow-key"
+                size={1}
+              >
+                <TooltipComponent
+                  content={header.key}
+                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                  position={Position.BOTTOM_LEFT}
+                >
+                  <Text type={TextType.H6}>{header.key}</Text>
+                </TooltipComponent>
               </Flex>
-              <Flex className="key-value disabled" size={3}>
-                <Text type={TextType.H6}>{header.value}</Text>
+              <Flex className="key-value disabled possible-overflow" size={3}>
+                <Text type={TextType.H6}>
+                  <TooltipComponent
+                    content={header.value}
+                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                    position={Position.BOTTOM_LEFT}
+                  >
+                    {header.value}
+                  </TooltipComponent>
+                </Text>
               </Flex>
             </FlexContainer>
           </FormRowWithLabel>
@@ -426,7 +497,7 @@ function ImportedHeaders(props: { headers: any }) {
       )}
       <KeyValueStackContainer>
         <FormRowWithLabel>
-          <FlexContainer>
+          <FlexContainer className="header">
             <Flex className="key-value" size={1}>
               <Text case={Case.CAPITALIZE} type={TextType.H6}>
                 Key
@@ -527,10 +598,10 @@ function ApiEditorForm(props: Props) {
                 className="t--apiFormHttpMethod"
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
-                optionWidth={"102px"}
+                optionWidth={"110px"}
                 options={HTTP_METHOD_OPTIONS}
                 placeholder="Method"
-                width={"102px"}
+                width={"110px"}
               />
             </BoundaryContainer>
             <DatasourceWrapper className="t--dataSourceField">
