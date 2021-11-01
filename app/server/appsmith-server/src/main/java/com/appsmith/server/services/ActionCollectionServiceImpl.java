@@ -168,6 +168,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
                     actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
                     actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+                    actionCollectionViewDTO.setBody(publishedCollection.getBody());
                     return Flux.fromIterable(publishedCollection.getActionIds())
                             .flatMap(actionId -> {
                                 return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
@@ -303,8 +304,8 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId, AclPermission permission) {
-        return repository.findByPageId(pageId, permission);
+    public Flux<ActionCollection> findByPageId(String pageId) {
+        return repository.findByPageId(pageId);
     }
 
     @Override

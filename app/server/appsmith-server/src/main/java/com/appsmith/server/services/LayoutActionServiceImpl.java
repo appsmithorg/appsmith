@@ -5,7 +5,6 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
@@ -51,13 +50,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.appsmith.external.helpers.MustacheHelper.extractWordsAndAddToSet;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static java.lang.Boolean.FALSE;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -411,7 +411,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      *
      * @param dsl
      * @param widgetNames
-     * @param dynamicBindings
+     * @param widgetDynamicBindingsMap
      * @param pageId
      * @param layoutId
      * @param escapedWidgetNames
@@ -419,7 +419,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      */
     private JSONObject extractAllWidgetNamesAndDynamicBindingsFromDSL(JSONObject dsl,
                                                                       Set<String> widgetNames,
-                                                                      Set<String> dynamicBindings,
+                                                                      Map<String, Set<String>> widgetDynamicBindingsMap,
                                                                       String pageId,
                                                                       String layoutId,
                                                                       Set<String> escapedWidgetNames) throws AppsmithException {
@@ -480,24 +480,31 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
                     }
-                }
-                // Only extract mustache keys from leaf nodes
-                if (isLeafNode) {
 
-                    // We found the path. But if the path does not have any mustache bindings, throw the error
-                    if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
-                        try {
-                            String bindingAsString = objectMapper.writeValueAsString(parent);
-                            throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                    widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
-                        } catch (JsonProcessingException e) {
-                            throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
+                    // Only extract mustache keys from leaf nodes
+                    if (isLeafNode) {
+
+                        // We found the path. But if the path does not have any mustache bindings, throw the error
+                        if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
+                            try {
+                                String bindingAsString = objectMapper.writeValueAsString(parent);
+                                throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
+                                        widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                            } catch (JsonProcessingException e) {
+                                throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
+                            }
                         }
-                    }
 
-                    // Stricter extraction of dynamic bindings
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
-                    dynamicBindings.addAll(mustacheKeysFromFields);
+                        // Stricter extraction of dynamic bindings
+                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+
+                        String completePath = widgetName + "." + fieldPath;
+                        if (widgetDynamicBindingsMap.containsKey(completePath)) {
+                            Set<String> mustacheKeysForWidget = widgetDynamicBindingsMap.get(completePath);
+                            mustacheKeysFromFields.addAll(mustacheKeysForWidget);
+                        }
+                        widgetDynamicBindingsMap.put(completePath, mustacheKeysFromFields);
+                    }
                 }
             }
         }
@@ -515,7 +522,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 // If the children tag exists and there are entries within it
                 if (!CollectionUtils.isEmpty(data)) {
                     object.putAll(data);
-                    JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, dynamicBindings, pageId, layoutId, escapedWidgetNames);
+                    JSONObject child = extractAllWidgetNamesAndDynamicBindingsFromDSL(object, widgetNames, widgetDynamicBindingsMap, pageId, layoutId, escapedWidgetNames);
                     newChildren.add(child);
                 }
             }
@@ -730,10 +737,10 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         Set<String> widgetNames = new HashSet<>();
-        Set<String> jsSnippetsInDynamicBindings = new HashSet<>();
+        Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
-            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, jsSnippetsInDynamicBindings, pageId, layoutId, escapedWidgetNames);
+            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(dsl, widgetNames, widgetDynamicBindingsMap, pageId, layoutId, escapedWidgetNames);
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, dsl, false, t)
                     .then(Mono.error(t));
@@ -745,16 +752,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
             layout.setMongoEscapedWidgetNames(escapedWidgetNames);
         }
 
-        // dynamicBindingNames is a set of all words extracted from js snippets which could also contain the names
-        // of the actions 
-        Map<String, DynamicBinding> dynamicBindingNames = new HashMap<>();
-        if (!CollectionUtils.isEmpty(jsSnippetsInDynamicBindings)) {
-            for (String mustacheKey : jsSnippetsInDynamicBindings) {
-                // Extract all the words in the dynamic bindings
-                extractWordsAndAddToSet(dynamicBindingNames, mustacheKey);
-            }
-        }
-
         Set<String> actionNames = new HashSet<>();
         Set<ActionDependencyEdge> edges = new HashSet<>();
         Set<String> actionsUsedInDSL = new HashSet<>();
@@ -762,13 +759,25 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         List<LayoutActionUpdateDTO> actionUpdates = new ArrayList<>();
         List<String> messages = new ArrayList<>();
 
-        Mono<List<HashSet<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
-                .findAllOnLoadActions(dynamicBindingNames, actionNames, pageId, edges, actionsUsedInDSL, flatmapPageLoadActions);
+        AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
+
+        Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
+                .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
+                .onErrorResume(AppsmithException.class, error -> {
+                    log.info(error.getMessage());
+                    validOnPageLoadActions.set(FALSE);
+                    return Mono.just(new ArrayList<>());
+                });
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
         return allOnLoadActionsMono
                 .flatMap(allOnLoadActions -> {
+                    // If there has been an error (e.g. cyclical dependency), then dont update any actions.
+                    // This is so that unnecessary updates don't happen to actions while the page is in invalid state.
+                    if (!validOnPageLoadActions.get()) {
+                        return Mono.just(allOnLoadActions);
+                    }
                     // Update these actions to be executed on load, unless the user has touched the executeOnLoad setting for this
                     return newActionService
                             .updateActionsExecuteOnLoad(flatmapPageLoadActions, pageId, actionUpdates, messages)
@@ -779,7 +788,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                                 FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
                 // Now update the page layout with the page load actions and the graph.
                 .flatMap(tuple -> {
-                    List<HashSet<DslActionDTO>> onLoadActions = tuple.getT1();
+                    List<Set<DslActionDTO>> onLoadActions = tuple.getT1();
                     PageDTO page = tuple.getT2();
 
                     List<Layout> layoutList = page.getLayouts();
@@ -792,6 +801,9 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             layout.setAllOnPageLoadActionNames(actionNames);
                             layout.setAllOnPageLoadActionEdges(edges);
                             layout.setActionsUsedInDynamicBindings(actionsUsedInDSL);
+                            // The below field is to ensure that we record if the page load actions computation was valid
+                            // when last stored in the database.
+                            layout.setValidOnPageLoadActions(validOnPageLoadActions.get());
 
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);

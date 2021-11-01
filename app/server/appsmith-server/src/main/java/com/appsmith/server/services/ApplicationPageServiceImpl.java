@@ -319,10 +319,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return applicationMono
                 .flatMapMany(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
-                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                        String repoName = gitApplicationMetadata.getRepoName();
-                        Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
+                        String repoName = gitData.getRepoName();
+                        Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
                         // Delete git repo from local and delete the applications from DB
                         return gitFileUtils.detachRemote(repoPath)
                                 .flatMapMany(isCleared -> applicationService
@@ -593,7 +592,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.
                      */
-                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId())
                             .flatMap(actionCollection -> {
                                 log.debug("Going to archive actionCollectionId: {} for applicationId: {}", actionCollection.getId(), id);
                                 return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
