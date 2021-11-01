@@ -35,6 +35,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Role;
@@ -46,6 +47,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -3579,5 +3581,43 @@ public class DatabaseChangelog {
         }
         // Now that the actions have completed the migrations, update the plugin to use the new UI form.
         mongockTemplate.save(s3Plugin);
+    }
+
+    @ChangeSet(order = "094", id = "set-slug-to-application-and-page", author = "")
+    public void setSlugToApplicationAndPage(MongockTemplate mongockTemplate) {
+        // update applications
+        List<Application> applications = mongockTemplate.findAll(Application.class);
+        for(Application application : applications) {
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QApplication.application.id)).is(application.getId())
+                            .and(fieldName(QApplication.application.deleted)).is(false)),
+                    new Update().set(fieldName(QApplication.application.slug), TextUtils.makeSlug(application.getName())),
+                    Application.class
+            );
+        }
+
+        // update pages
+        List<NewPage> pages = mongockTemplate.findAll(NewPage.class);
+        for(NewPage page : pages) {
+            Update update = new Update();
+            if(page.getUnpublishedPage() != null) {
+                String fieldName = String.format("%s.%s",
+                        fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug)
+                );
+                update = update.set(fieldName, TextUtils.makeSlug(page.getUnpublishedPage().getName()));
+            }
+            if(page.getPublishedPage() != null) {
+                String fieldName = String.format("%s.%s",
+                        fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug)
+                );
+                update = update.set(fieldName, TextUtils.makeSlug(page.getPublishedPage().getName()));
+            }
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QNewPage.newPage.id)).is(page.getId())
+                            .and(fieldName(QNewPage.newPage.deleted)).is(false)),
+                    update,
+                    NewPage.class
+            );
+        }
     }
 }
