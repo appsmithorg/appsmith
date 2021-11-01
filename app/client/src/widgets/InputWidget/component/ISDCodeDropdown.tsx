@@ -4,30 +4,37 @@ import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import Icon, { IconSize } from "components/ads/Icon";
 import { countryToFlag } from "./utilities";
 import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
+import { Colors } from "constants/Colors";
 
 const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
-  padding: 9px 0px 9px 12px;
-  width: 85px;
-  min-width: 85px;
+  padding: 7px;
+  width: 92px;
+  min-width: 92px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  height: 32px;
-  line-height: ${(props) => (props.disabled ? 32 : 18)}px;
+  height: 36px;
+  line-height: ${(props) => (props.disabled ? 36 : 18)}px;
   letter-spacing: -0.24px;
   color: #090707;
   position: ${(props) => props.disabled && "absolute"};
-  .code {
-    margin-right: 4px;
-    pointer-events: none;
+
+  .dropdown {
+    svg {
+      width: 14px;
+      height: 14px;
+
+      path {
+        fill: ${Colors.GREY_10} !important;
+      }
+    }
   }
-  .icon-dropdown {
-    opacity: ${(props) => props.disabled && "0.6"};
-    display: flex;
-    width: 30px;
-    justify-content: space-between;
-  }
+`;
+
+const FlagWrapper = styled.span`
+  font-size: 20px;
+  line-height: 19px;
 `;
 
 const getISDCodeOptions = (): Array<DropdownOption> => {
@@ -80,11 +87,11 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
       className="t--input-country-code-change"
       disabled={props.disabled}
     >
-      <div className="icon-dropdown">
+      <FlagWrapper>
         {selectedCountry.value && countryToFlag(selectedCountry.value)}
-        <Icon name="downArrow" size={IconSize.XXS} />
-      </div>
+      </FlagWrapper>
       <div className="code">{selectedCountry.id && selectedCountry.id}</div>
+      <Icon className="dropdown" name="down-arrow" size={IconSize.XXS} />
     </DropdownTriggerIconWrapper>
   );
   if (props.disabled) {
@@ -93,12 +100,12 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   return (
     <Dropdown
       containerClassName="country-type-filter"
-      dropdownHeight="195px"
+      dropdownHeight="139px"
       dropdownTriggerIcon={dropdownTrigger}
       enableSearch
-      height="32px"
+      height="36px"
       onSelect={props.onISDCodeChange}
-      optionWidth="260px"
+      optionWidth="340px"
       options={props.options}
       searchPlaceholder="Search by ISD code or country"
       selected={props.selected}
