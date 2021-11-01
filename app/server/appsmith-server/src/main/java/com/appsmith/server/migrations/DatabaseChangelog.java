@@ -3580,4 +3580,24 @@ public class DatabaseChangelog {
         // Now that the actions have completed the migrations, update the plugin to use the new UI form.
         mongockTemplate.save(s3Plugin);
     }
+
+    @ChangeSet(order = "095", id = "add-ssh-plugin", author = "")
+    public void addSSHPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("SSH");
+        plugin.setType(PluginType.DB);
+        plugin.setPackageName("ssh-plugin");
+        plugin.setUiComponent("UQIDbEditorForm");
+        plugin.setDatasourceComponent("AutoForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://assets.appsmith.com/ssh-icon.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-ssh-plugin");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
 }

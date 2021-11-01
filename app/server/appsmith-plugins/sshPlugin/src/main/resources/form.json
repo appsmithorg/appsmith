@@ -1,0 +1,105 @@
+{
+  "form": [
+    {
+      "sectionName": "Connection",
+      "id": 1,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Host Address",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "controlType": "KEYVALUE_ARRAY",
+              "validationMessage": "Please enter a valid host",
+              "validationRegex": "^((?![/:]).)*$"
+            },
+            {
+              "label": "Port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "dataType": "NUMBER",
+              "controlType": "KEYVALUE_ARRAY"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "id": 2,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Authentication Type",
+              "configProperty": "datasourceConfiguration.authentication.authType",
+              "controlType": "DROP_DOWN",
+              "initialValue": "PASSWORD",
+              "options": [
+                {
+                  "label": "Use password based authentication",
+                  "value": "PASSWORD"
+                },
+                {
+                  "label": "Use identity file based authentication",
+                  "value": "IDENTITY_FILE"
+                }
+              ]
+            },
+            {
+              "label": "authentication subtype",
+              "configProperty": "datasourceConfiguration.authentication.authenticationType",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "ssh",
+              "hidden": true
+            },
+            {
+              "label": "Username",
+              "configProperty": "datasourceConfiguration.authentication.username",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username"
+            },
+            {
+              "label": "Password",
+              "configProperty": "datasourceConfiguration.authentication.password",
+              "dataType": "PASSWORD",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Password",
+              "encrypted": true,
+              "hidden": {
+                "path": "datasourceConfiguration.authentication.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "PASSWORD"
+              }
+            },
+            {
+              "label": "Upload private key",
+              "configProperty": "datasourceConfiguration.authentication.privateKey.keyFile",
+              "controlType": "FILE_PICKER",
+              "placeholderText": "Choose private key file to upload",
+              "hidden": {
+                "path": "datasourceConfiguration.authentication.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "IDENTITY_FILE"
+              }
+            },
+            {
+              "label": "Private key passphrase",
+              "configProperty": "datasourceConfiguration.authentication.privateKey.passphrase",
+              "dataType": "PASSWORD",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Passphrase for your private key",
+              "encrypted": true,
+              "hidden": {
+                "path": "datasourceConfiguration.authentication.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "PASSWORD"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

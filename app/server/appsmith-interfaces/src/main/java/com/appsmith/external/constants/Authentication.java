@@ -10,6 +10,7 @@ public class Authentication {
     public static final String API_KEY_AUTH_TYPE_QUERY_PARAMS = "queryParams";
     public static final String API_KEY_AUTH_TYPE_HEADER = "header";
     public static final String BEARER_TOKEN = "bearerToken";
+    public static final String SSH = "ssh";
 
     // Request parameter names
     public static final String CLIENT_ID = "client_id";
