@@ -9,7 +9,7 @@ WORKDIR /opt/appsmith
 ENV LANG C.UTF-8  
 ENV LC_ALL C.UTF-8 
 
-# Update APK packages - Base Layer
+# Update APT packages - Base Layer
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
   supervisor curl cron certbot nginx gnupg wget \
   software-properties-common gettext openjdk-11-jre \

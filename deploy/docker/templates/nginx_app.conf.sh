@@ -49,8 +49,8 @@ $MONITORING_CMNT    return 301 /monitoring/;
 $MONITORING_CMNT  }
 $MONITORING_CMNT
 $MONITORING_CMNT  location /monitoring/ {
-$MONITORING_CMNT    proxy_set_header X-Forwarded-Host \$host;
-$MONITORING_CMNT    proxy_set_header X-Forwarded-Server \$host;
+$MONITORING_CMNT    proxy_set_header X-Forwarded-Host \$http_host;
+$MONITORING_CMNT    proxy_set_header X-Forwarded-Server \$http_host;
 $MONITORING_CMNT    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
 $MONITORING_CMNT    proxy_pass http://localhost:19999/;
 $MONITORING_CMNT    proxy_http_version 1.1;
@@ -148,8 +148,8 @@ $NGINX_SSL_CMNT    	   auth_basic_user_file /etc/nginx/passwords;
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT $MONITORING_CMNT  	 location /monitoring/ {
-$NGINX_SSL_CMNT $MONITORING_CMNT 	     proxy_set_header X-Forwarded-Host \$host;
-$NGINX_SSL_CMNT $MONITORING_CMNT 	     proxy_set_header X-Forwarded-Server \$host;
+$NGINX_SSL_CMNT $MONITORING_CMNT 	     proxy_set_header X-Forwarded-Host \$http_host;
+$NGINX_SSL_CMNT $MONITORING_CMNT 	     proxy_set_header X-Forwarded-Server \$http_host;
 $NGINX_SSL_CMNT $MONITORING_CMNT 	     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
 $NGINX_SSL_CMNT $MONITORING_CMNT 	     proxy_pass http://localhost:19999/;
 $NGINX_SSL_CMNT $MONITORING_CMNT 	     proxy_http_version 1.1;
