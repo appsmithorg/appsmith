@@ -18,6 +18,8 @@ export const APP_LEVEL_SOCKET_EVENTS = {
   INSERT_NOTIFICATION: "insert:notification",
 
   LIST_ONLINE_APP_EDITORS: "collab:online_editors", // user presence
+
+  RELEASE_VERSION_NOTIFICATION: "info:release_version", // release version
 };
 
 export const PAGE_LEVEL_SOCKET_EVENTS = {

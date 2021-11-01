@@ -2574,7 +2574,7 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[0],
+    bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
     dividerBg: lightShades[13],
