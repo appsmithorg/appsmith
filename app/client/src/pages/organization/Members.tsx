@@ -85,6 +85,7 @@ const UserCard = styled(Card)`
   box-shadow: none;
   background-color: ${Colors.GREY_1};
   border: 1px solid ${Colors.GREY_3};
+  border-radius: 0px;
   padding: ${(props) =>
     `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
   width: 343px;
