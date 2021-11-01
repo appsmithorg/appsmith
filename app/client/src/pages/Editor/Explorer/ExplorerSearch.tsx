@@ -11,9 +11,9 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
   height: 48px;
   justify-content: flex-start;
   align-items: center;
-  position: sticky;
+  // for the input underline
+  position: relative;
   font-size: 14px;
-  top: 0;
   z-index: 1;
   background: ${Colors.ALABASTER_ALT};
   & {
@@ -46,6 +46,9 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
       background: none;
       padding: 0px 10px 0px 10px;
       color: ${Colors.DOVE_GRAY2};
+      // normalize.css adds a line-height which clips the placeholder text on windows
+      // so setting it back to normal
+      line-height: normal;
       &::placeholder {
         color: ${Colors.DOVE_GRAY2};
       }

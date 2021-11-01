@@ -465,7 +465,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
                 ))
-                .flatMap(tuple -> analyticsService.trackNewUser(tuple.getT1(), tuple.getT2()));
+                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
     /**
@@ -685,7 +685,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 return emailMono
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, organization, currentUser));
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, organization, currentUser, inviteUsersDTO.getRoleName()));
                 })
                 .cache();
 
@@ -746,16 +746,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         );
     }
 
-    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter) {
+    private Mono<User> createNewUserAndSendInviteEmail(String email, String originHeader, Organization organization, User inviter, String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
         // This is a new user. Till the user signs up, this user would be disabled.
         newUser.setIsEnabled(false);
 
-        // Create an invite token for the user. This token is linked to the email ID and the organization to which the
-        // user was invited.
-        newUser.setInviteToken(UUID.randomUUID().toString());
+        // The invite token is not used today and doesn't need to be verified. We still save the invite token with the
+        // role information to classify the user persona.
+        newUser.setInviteToken(role + ":" + UUID.randomUUID());
 
         // Call user service's userCreate function so that the default organization, etc are also created along with assigning basic permissions.
         return userCreate(newUser)
@@ -823,6 +823,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         List<Mono<Void>> monos = new ArrayList<>();
 
         Mono<User> updatedUserMono;
+        Mono<UserData> updatedUserDataMono;
 
         if (allUpdates.hasUserUpdates()) {
             final User updates = new User();
@@ -846,10 +847,19 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             final UserData updates = new UserData();
             updates.setRole(allUpdates.getRole());
             updates.setUseCase(allUpdates.getUseCase());
-            monos.add(userDataService.updateForCurrentUser(updates).then());
+            updatedUserDataMono = userDataService.updateForCurrentUser(updates).cache();
+            monos.add(updatedUserDataMono.then());
+        } else {
+            updatedUserDataMono = userDataService.getForCurrentUser();
         }
 
-        return Mono.whenDelayError(monos).then(updatedUserMono);
+        return Mono.whenDelayError(monos)
+                .then(Mono.zip(updatedUserMono, updatedUserDataMono))
+                .flatMap(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    return analyticsService.identifyUser(user, userData).thenReturn(user);
+                });
     }
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
@@ -892,14 +902,14 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                     final UserProfileDTO profile = new UserProfileDTO();
 
-                    profile.setEmail(user.getEmail());
-                    profile.setOrganizationIds(user.getOrganizationIds());
-                    profile.setUsername(user.getUsername());
-                    profile.setName(user.getName());
-                    profile.setGender(user.getGender());
+                    profile.setEmail(userFromDb.getEmail());
+                    profile.setOrganizationIds(userFromDb.getOrganizationIds());
+                    profile.setUsername(userFromDb.getUsername());
+                    profile.setName(userFromDb.getName());
+                    profile.setGender(userFromDb.getGender());
                     profile.setEmptyInstance(isUsersEmpty);
-                    profile.setAnonymous(user.isAnonymous());
-                    profile.setEnabled(user.isEnabled());
+                    profile.setAnonymous(userFromDb.isAnonymous());
+                    profile.setEnabled(userFromDb.isEnabled());
                     profile.setCommentOnboardingState(userData.getCommentOnboardingState());
                     profile.setRole(userData.getRole());
                     profile.setUseCase(userData.getUseCase());
