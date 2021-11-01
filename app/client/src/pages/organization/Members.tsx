@@ -105,10 +105,15 @@ const UserCard = styled(Card)`
 
   .${AppClass.TEXT} {
     color: ${Colors.GREY_10};
-    margin-top: ${(props) => props.theme.spaces[4]}px;
-    &.email {
+    margin-top: ${(props) => props.theme.spaces[1]}px;
+    &.user-name {
+      margin-top: ${(props) => props.theme.spaces[4]}px;
+    }
+    &.user-email {
       color: ${Colors.GREY_7};
-      margin-top: ${(props) => props.theme.spaces[1]}px;
+    }
+    &.user-role {
+      margin-bottom: ${(props) => props.theme.spaces[3]}px;
     }
   }
 
@@ -255,10 +260,7 @@ export default function MemberSettings(props: PageProps) {
           (role: { name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
-        if (
-          cellProps.cell.row.values.username ===
-          useSelector(getCurrentUser)?.username
-        ) {
+        if (cellProps.cell.row.values.username === currentUser?.username) {
           return cellProps.cell.value;
         }
         return (
@@ -366,6 +368,7 @@ export default function MemberSettings(props: PageProps) {
                 const role =
                   roles.find((role) => role.value === user.roleName) ||
                   roles[0];
+                const isOwner = user.username === currentUser?.username;
                 return (
                   <UserCard key={index}>
                     <ProfileImage
@@ -374,22 +377,31 @@ export default function MemberSettings(props: PageProps) {
                       source={`/api/${USER_PHOTO_URL}/${user.username}`}
                       userName={user.name || user.username}
                     />
-                    <Text type={TextType.P1}>{user.name || user.username}</Text>
-                    <Text className="email" type={TextType.P1}>
+                    <Text className="user-name" type={TextType.P1}>
+                      {user.name || user.username}
+                    </Text>
+                    <Text className="user-email" type={TextType.P1}>
                       {user.username}
                     </Text>
-                    <Dropdown
-                      boundary="viewport"
-                      className="t--user-status"
-                      defaultIcon="downArrow"
-                      height="31px"
-                      onSelect={(value) => {
-                        selectRole(value, user.username);
-                      }}
-                      options={roles}
-                      selected={role}
-                      width="140px"
-                    />
+                    {isOwner && (
+                      <Text className="user-role" type={TextType.P1}>
+                        {user.roleName}
+                      </Text>
+                    )}
+                    {!isOwner && (
+                      <Dropdown
+                        boundary="viewport"
+                        className="t--user-status"
+                        defaultIcon="downArrow"
+                        height="31px"
+                        onSelect={(value) => {
+                          selectRole(value, user.username);
+                        }}
+                        options={roles}
+                        selected={role}
+                        width="140px"
+                      />
+                    )}
                     <Button
                       category={Category.primary}
                       className="approve-btn"
