@@ -11,7 +11,7 @@ export const PortalStyles = createGlobalStyle`
   #tooltip-root {
     position: absolute;
     top: 0;
-    width: 100vw;
+    width: 100%;
     z-index: ${Layers.max};
   }
 

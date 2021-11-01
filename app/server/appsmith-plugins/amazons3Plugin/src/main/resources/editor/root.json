@@ -1,0 +1,27 @@
+{
+  "command" : {
+    "label": "Commands",
+    "description": "Choose method you would like to use",
+    "configProperty": "actionConfiguration.formData.command",
+    "controlType": "DROP_DOWN",
+    "initialValue": "LIST",
+    "options": [
+      {
+        "label": "List files in bucket",
+        "fileName" : "list.json"
+      },
+      {
+        "label": "Create a new file",
+        "fileName" : "create.json"
+      },
+      {
+        "label": "Read file",
+        "fileName" : "read.json"
+      },
+      {
+        "label": "Delete file",
+        "fileName" : "delete.json"
+      }
+    ]
+  }
+}

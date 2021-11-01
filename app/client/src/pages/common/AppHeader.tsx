@@ -8,6 +8,7 @@ import {
   BASE_URL,
   BUILDER_URL,
   SETUP,
+  SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
 } from "constants/routes";
 import { withRouter, RouteComponentProps } from "react-router";
@@ -34,6 +35,7 @@ class AppHeader extends React.Component<Props, any> {
         <Route component={AppViewerHeader} exact path={VIEWER_URL} />
         <Route component={LoginHeader} path={USER_AUTH_URL} />
         <Route path={SETUP} />
+        <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={PageHeader} path={BASE_URL} />
       </Switch>
     );

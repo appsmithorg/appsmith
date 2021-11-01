@@ -24,6 +24,7 @@ import {
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
+import getFeatureFlags from "utils/featureFlags";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -98,11 +99,13 @@ export default function ProfileDropdown(props: TagProps) {
       position={Position.BOTTOM_RIGHT}
     >
       <ProfileImage
+        className="t--profile-menu-icon"
         source={props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
         userName={props.name || props.userName}
       />
     </TooltipComponent>
   );
+  const isAdminSettingsEnabled = getFeatureFlags().ADMIN_SETTINGS;
 
   return (
     <Menu
@@ -138,7 +141,7 @@ export default function ProfileDropdown(props: TagProps) {
         }}
         text="Edit Profile"
       />
-      {user?.isSuperUser && (
+      {user?.isSuperUser && isAdminSettingsEnabled && (
         <StyledMenuItem
           className={`t--settings ${BlueprintClasses.POPOVER_DISMISS}`}
           icon="setting"
