@@ -3586,18 +3586,30 @@ public class DatabaseChangelog {
     @ChangeSet(order = "094", id = "set-slug-to-application-and-page", author = "")
     public void setSlugToApplicationAndPage(MongockTemplate mongockTemplate) {
         // update applications
-        List<Application> applications = mongockTemplate.findAll(Application.class);
+        final Query applicationQuery = query(where("deletedAt").is(null));
+        applicationQuery.fields()
+                .include(fieldName(QApplication.application.name));
+
+        List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
         for(Application application : applications) {
             mongockTemplate.updateFirst(
-                    query(where(fieldName(QApplication.application.id)).is(application.getId())
-                            .and(fieldName(QApplication.application.deleted)).is(false)),
+                    query(where(fieldName(QApplication.application.id)).is(application.getId())),
                     new Update().set(fieldName(QApplication.application.slug), TextUtils.makeSlug(application.getName())),
                     Application.class
             );
         }
 
         // update pages
-        List<NewPage> pages = mongockTemplate.findAll(NewPage.class);
+        final Query pageQuery = query(where("deletedAt").is(null));
+        pageQuery.fields()
+                .include(String.format("%s.%s",
+                        fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.name)
+                ))
+                .include(String.format("%s.%s",
+                        fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.name)
+                ));
+
+        List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
         for(NewPage page : pages) {
             Update update = new Update();
             if(page.getUnpublishedPage() != null) {
@@ -3613,8 +3625,7 @@ public class DatabaseChangelog {
                 update = update.set(fieldName, TextUtils.makeSlug(page.getPublishedPage().getName()));
             }
             mongockTemplate.updateFirst(
-                    query(where(fieldName(QNewPage.newPage.id)).is(page.getId())
-                            .and(fieldName(QNewPage.newPage.deleted)).is(false)),
+                    query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
                     update,
                     NewPage.class
             );
