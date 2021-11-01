@@ -1,4 +1,4 @@
-import { cloneDeep, difference, omit, startCase } from "lodash";
+import { cloneDeep, difference, maxBy, omit, startCase } from "lodash";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
@@ -101,6 +101,19 @@ const getKeysFromSchema = (schema: Schema) => {
   }, []);
 };
 
+const applyPositions = (schema: Schema, newKeys?: string[]) => {
+  if (!newKeys) {
+    return;
+  }
+  const schemaItems = Object.values(schema);
+  const lastSchemaItem = maxBy(schemaItems, ({ position }) => position);
+  const lastSchemaItemPosition = lastSchemaItem?.position || -1;
+
+  newKeys.forEach((newKey, index) => {
+    schema[newKey].position = lastSchemaItemPosition + index + 1;
+  });
+};
+
 class SchemaParser {
   static nameAndLabel = (key: string) => {
     return {
@@ -185,6 +198,7 @@ class SchemaParser {
       isVisible: true,
       label,
       name,
+      position: -1,
       props,
     };
   };
@@ -282,6 +296,10 @@ class SchemaParser {
       });
     });
 
+    if (newKeys.length) {
+      applyPositions(schema, newKeys);
+    }
+    // return sortSchemaBy(schema, { newKeys, removedKeys });
     return schema;
   };
 }

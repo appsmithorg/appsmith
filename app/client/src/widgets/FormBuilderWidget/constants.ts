@@ -41,7 +41,6 @@ export enum DataType {
 }
 
 export type SchemaItem<TProps = any> = {
-  // position: number;
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
@@ -50,6 +49,7 @@ export type SchemaItem<TProps = any> = {
   isVisible: boolean;
   label: string;
   name: string;
+  position: number;
   props: TProps;
   tooltip?: string;
 };

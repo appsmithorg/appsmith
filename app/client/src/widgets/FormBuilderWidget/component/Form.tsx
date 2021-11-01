@@ -32,8 +32,8 @@ type StyledFormBodyProps = {
   stretchBodyVertically: boolean;
 };
 
-const FOOTER_BUTTON_GAP = 10;
 const BUTTON_WIDTH = 110;
+const FOOTER_BUTTON_GAP = 10;
 const FORM_FOOTER_PADDING_TOP = 10;
 const TITLE_MARGIN_BOTTOM = 16;
 

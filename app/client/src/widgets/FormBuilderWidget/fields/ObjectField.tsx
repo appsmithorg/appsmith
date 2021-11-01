@@ -6,6 +6,7 @@ import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
 import { SchemaItem } from "../constants";
+import { sortBy } from "lodash";
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
@@ -27,13 +28,14 @@ function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
   const { isVisible = true, label, props, tooltip } = schemaItem;
   const { isDisabled } = props;
   const children = Object.values(schemaItem.children);
+  const sortedChildren = sortBy(children, ({ position }) => position);
 
   if (!isVisible) {
     return null;
   }
 
   const renderFields = () => {
-    return children.map((schemaItem) => {
+    return sortedChildren.map((schemaItem) => {
       const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
 
       return fieldRenderer(

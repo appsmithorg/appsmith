@@ -1,14 +1,11 @@
-import React, { useState, useCallback } from "react";
-import { debounce, noop } from "lodash";
+import React, { useState, useCallback, useEffect } from "react";
+import { cloneDeep, debounce, isEmpty, sortBy } from "lodash";
 
-import styled from "constants/DefaultTheme";
 import BaseControl, { ControlProps } from "./BaseControl";
+import EmptyDataState from "components/utils/EmptyDataState";
 import SchemaParser from "widgets/FormBuilderWidget/schemaParser";
-import {
-  ARRAY_ITEM_KEY,
-  Schema,
-  SchemaItem,
-} from "widgets/FormBuilderWidget/constants";
+import styled from "constants/DefaultTheme";
+import { ARRAY_ITEM_KEY, Schema } from "widgets/FormBuilderWidget/constants";
 import { Category, Size } from "components/ads/Button";
 import {
   BaseItemProps,
@@ -85,12 +82,22 @@ function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
     updateOption,
   } = props;
   const { id, isCustomField, isVisible, label = "" } = item;
-
   const [value, setValue] = useState(label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && label) {
+      setValue(label);
+    }
+  }, [label]);
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
+  const debouncedUpdate = debounce(updateOption, 1000);
 
   const onLabelChange = useCallback(
     (index: number, value: string) => {
-      const debouncedUpdate = debounce(updateOption, 1000);
       setValue(value);
       debouncedUpdate(index, value);
     },
@@ -141,9 +148,11 @@ function DroppableRenderComponent(props: RenderComponentProps<DroppableItem>) {
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
+        onBlur={onBlur}
         onChange={(value: string) => {
           onLabelChange(index, value);
         }}
+        onFocus={onFocus}
         placeholder="Column Title"
         value={value}
       />
@@ -165,22 +174,28 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     return Boolean(schema?.[ARRAY_ITEM_KEY]);
   };
 
-  onEdit = (index: number) => {
-    const schema: Schema = this.props.propertyValue || {};
-    const entries = Object.values(schema) || [];
+  findSchemaItem = (index: number) => {
+    const schema: Schema = this.props.propertyValue;
+    const schemaItems = Object.values(schema);
+    const sortedSchemaItems = sortBy(schemaItems, ({ position }) => position);
+    return sortedSchemaItems[index];
+  };
 
-    this.props.openNextPanel({
-      ...entries[index],
-      propPaneId: this.props.widgetProperties.widgetId,
-    });
+  onEdit = (index: number) => {
+    const schemaItem = this.findSchemaItem(index);
+
+    if (schemaItem) {
+      this.props.openNextPanel({
+        ...schemaItem,
+        propPaneId: this.props.widgetProperties.widgetId,
+      });
+    }
   };
 
   onDeleteOption = (index: number) => {
-    const { propertyName, propertyValue } = this.props;
-    const schema: Schema = propertyValue || {};
-    const entries = Object.values(schema) || [];
+    const { propertyName } = this.props;
 
-    const schemaItem: SchemaItem = entries[index];
+    const schemaItem = this.findSchemaItem(index);
 
     if (schemaItem) {
       const itemToDeletePath = `${propertyName}.${schemaItem.name}`;
@@ -190,21 +205,25 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const { propertyName, propertyValue } = this.props;
-    const schema: Schema = propertyValue;
-    const entries = Object.values(schema);
-    const { name } = entries[index];
+    const { propertyName } = this.props;
+    const schemaItem = this.findSchemaItem(index);
 
-    this.updateProperty(`${propertyName}.${name}.label`, updatedLabel);
+    if (schemaItem) {
+      const { name } = schemaItem;
+
+      this.updateProperty(`${propertyName}.${name}.label`, updatedLabel);
+    }
   };
 
   toggleVisibility = (index: number) => {
-    const { propertyName, propertyValue } = this.props;
-    const schema: Schema = propertyValue;
-    const entries = Object.values(schema);
-    const { isVisible, name } = entries[index];
+    const { propertyName } = this.props;
+    const schemaItem = this.findSchemaItem(index);
 
-    this.updateProperty(`${propertyName}.${name}.isVisible`, !isVisible);
+    if (schemaItem) {
+      const { isVisible, name } = schemaItem;
+
+      this.updateProperty(`${propertyName}.${name}.isVisible`, !isVisible);
+    }
   };
 
   addNewColumn = () => {
@@ -219,6 +238,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     });
 
     schemaItem.isCustomField = true;
+    schemaItem.position = existingKeys.length;
 
     this.updateProperty(`${propertyName}.${nextFieldKey}`, schemaItem);
   };
@@ -237,14 +257,31 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
     }
   };
 
+  updateItems = (items: DroppableItem[]) => {
+    const { propertyName, propertyValue } = this.props;
+    const clonedSchema: Schema = cloneDeep(propertyValue);
+
+    items.forEach((item, index) => {
+      clonedSchema[item.id].position = index;
+    });
+
+    this.updateProperty(propertyName, clonedSchema);
+  };
+
   render() {
     const { propertyValue = {}, panelConfig } = this.props;
     const schema: Schema = propertyValue;
-    const entries = Object.values(schema) || [];
+    const schemaItems = Object.values(schema);
+
+    if (isEmpty(schema)) {
+      return <EmptyDataState />;
+    }
+
+    const sortedSchemaItems = sortBy(schemaItems, ({ position }) => position);
 
     const isMaxLevelReached = Boolean(!panelConfig);
 
-    const draggableComponentColumns: DroppableItem[] = entries.map(
+    const draggableComponentColumns: DroppableItem[] = sortedSchemaItems.map(
       ({ isCustomField, isVisible, label, name }, index) => ({
         id: name,
         index,
@@ -289,7 +326,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
           onEdit={this.onEdit}
           renderComponent={DroppableRenderComponent}
           toggleVisibility={this.toggleVisibility}
-          updateItems={noop}
+          updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
         {!this.isArrayItem() && (
