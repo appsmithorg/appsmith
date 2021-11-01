@@ -78,7 +78,7 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { AppVersion } from "api/ApplicationApi";
+import { EvaluationVersion } from "api/ApplicationApi";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -495,10 +495,12 @@ export function* evaluateArgumentSaga(action: any) {
 
 export function* setAppVersionOnWorkerSaga(action: {
   type: ReduxActionType;
-  payload: AppVersion;
+  payload: EvaluationVersion;
 }) {
-  const version: AppVersion = action.payload;
-  yield call(worker.request, EVAL_WORKER_ACTIONS.SET_APP_VERSION, { version });
+  const version: EvaluationVersion = action.payload;
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
+    version,
+  });
 }
 
 export default function* evaluationSagaListeners() {

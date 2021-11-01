@@ -140,7 +140,7 @@ export default function evaluate(
   // so that eval can happen
   const trimmedJS = js.replace(beginsWithLineBreakRegex, "");
   const unescapedJS =
-    self.appVersion === "v1" ? unescapeJS(trimmedJS) : trimmedJS;
+    self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
   const scriptType = getScriptType(evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
