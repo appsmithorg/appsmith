@@ -165,7 +165,7 @@ function MultiTreeSelectComponent({
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
         multiple
-        notFoundContent="No item Found"
+        notFoundContent="No Results Found"
         onChange={onChange}
         onClear={onClear}
         placeholder={placeholder}
