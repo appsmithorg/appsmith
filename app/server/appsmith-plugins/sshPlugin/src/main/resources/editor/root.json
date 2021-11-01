@@ -1,0 +1,15 @@
+{
+  "command" : {
+    "label": "Commands",
+    "description": "Choose method you would like to use to execute a command on your remote SSH server",
+    "configProperty": "actionConfiguration.formData.command",
+    "controlType": "DROP_DOWN",
+    "initialValue": "RUN",
+    "options": [
+      {
+        "label": "Run Command(s)",
+        "fileName" : "run.json"
+      }
+    ]
+  }
+}
