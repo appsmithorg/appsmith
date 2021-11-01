@@ -820,7 +820,7 @@ export function* getParentWidgetIdForGrouping(
 }
 
 /**
- * this saga clears out the enhancementMap, template and dynamicBindingPathList when a child
+ * this saga clears out the enhancementMap, template, dynamicBindingPathList and dynamicTriggerPathList when a child
  * is deleted in list widget
  *
  * @param widgets
