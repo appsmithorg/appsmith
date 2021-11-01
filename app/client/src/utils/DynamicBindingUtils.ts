@@ -134,6 +134,7 @@ export type EvalError = {
 };
 
 export enum EVAL_WORKER_ACTIONS {
+  SETUP = "SETUP",
   EVAL_TREE = "EVAL_TREE",
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
@@ -289,6 +290,7 @@ export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",
   "setInterval",
+  "clearInterval",
   "setImmediate",
   "XMLHttpRequest",
   "importScripts",

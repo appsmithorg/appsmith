@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
@@ -11,15 +12,18 @@ import com.appsmith.external.models.PEMCertificate;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -33,6 +37,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
@@ -111,6 +116,9 @@ public class ExamplesOrganizationClonerTests {
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
 
+    @MockBean
+    PluginExecutor pluginExecutor;
+
     @Autowired
     private LayoutActionService layoutActionService;
 
@@ -128,11 +136,15 @@ public class ExamplesOrganizationClonerTests {
 
     private Plugin installedPlugin;
 
+    @Autowired
+    private LayoutCollectionService layoutCollectionService;
+
     private static class OrganizationData {
         Organization organization;
         List<Application> applications = new ArrayList<>();
         List<Datasource> datasources = new ArrayList<>();
         List<ActionDTO> actions = new ArrayList<>();
+        List<ActionCollectionDTO> actionCollections = new ArrayList<>();
     }
 
     public Mono<OrganizationData> loadOrganizationData(Organization organization) {
@@ -148,7 +160,9 @@ public class ExamplesOrganizationClonerTests {
                                 .findAllByOrganizationId(organization.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInOrganization(organization)
-                                .map(data.actions::add)
+                                .map(data.actions::add),
+                        getActionCollectionsInOrganization(organization)
+                                .map(data.actionCollections::add)
                 )
                 .thenReturn(data);
     }
@@ -180,6 +194,7 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(data.applications).isEmpty();
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
+                    assertThat(data.actionCollections).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -233,6 +248,7 @@ public class ExamplesOrganizationClonerTests {
 
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
+                    assertThat(data.actionCollections).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -303,6 +319,7 @@ public class ExamplesOrganizationClonerTests {
 
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
+                    assertThat(data.actionCollections).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -345,6 +362,7 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(data.applications).isEmpty();
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
+                    assertThat(data.actionCollections).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -453,6 +471,7 @@ public class ExamplesOrganizationClonerTests {
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.applications).isEmpty();
                     assertThat(data.actions).isEmpty();
+                    assertThat(data.actionCollections).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -514,6 +533,7 @@ public class ExamplesOrganizationClonerTests {
 
                     assertThat(data.applications).isEmpty();
                     assertThat(data.actions).isEmpty();
+                    assertThat(data.actionCollections).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -582,144 +602,136 @@ public class ExamplesOrganizationClonerTests {
 
                     assertThat(data.datasources).isEmpty();
                     assertThat(data.actions).isEmpty();
+                    assertThat(data.actionCollections).isEmpty();
                 })
                 .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneOrganizationWithDatasourcesAndApplicationsAndActions() {
+    public void cloneOrganizationWithDatasourcesAndApplicationsAndActionsAndCollections() {
         Organization newOrganization = new Organization();
         newOrganization.setName("Template Organization 2");
-        final Mono<OrganizationData> resultMono = Mono
-                .zip(
-                        organizationService.create(newOrganization),
-                        sessionUserService.getCurrentUser()
-                )
-                .flatMap(tuple -> {
-                    final Organization organization = tuple.getT1();
+        final Organization organization = organizationService.create(newOrganization).block();
+        final User user = sessionUserService.getCurrentUser().block();
 
-                    final Application app1 = new Application();
-                    app1.setName("first application");
-                    app1.setOrganizationId(organization.getId());
-                    app1.setIsPublic(true);
+        final Application app1 = new Application();
+        app1.setName("first application");
+        app1.setOrganizationId(organization.getId());
+        app1.setIsPublic(true);
 
-                    final Application app2 = new Application();
-                    app2.setName("second application");
-                    app2.setOrganizationId(organization.getId());
-                    app2.setIsPublic(true);
+        final Application app2 = new Application();
+        app2.setName("second application");
+        app2.setOrganizationId(organization.getId());
+        app2.setIsPublic(true);
 
-                    final Datasource ds1 = new Datasource();
-                    ds1.setName("datasource 1");
-                    ds1.setOrganizationId(organization.getId());
-                    ds1.setPluginId(installedPlugin.getId());
+        final Datasource ds1 = new Datasource();
+        ds1.setName("datasource 1");
+        ds1.setOrganizationId(organization.getId());
+        ds1.setPluginId(installedPlugin.getId());
 
-                    final Datasource ds2 = new Datasource();
-                    ds2.setName("datasource 2");
-                    ds2.setOrganizationId(organization.getId());
-                    ds2.setPluginId(installedPlugin.getId());
+        final Datasource ds2 = new Datasource();
+        ds2.setName("datasource 2");
+        ds2.setOrganizationId(organization.getId());
+        ds2.setPluginId(installedPlugin.getId());
 
-                    return Mono
-                            .zip(
-                                    applicationPageService.createApplication(app1),
-                                    applicationPageService.createApplication(app2),
-                                    datasourceService.create(ds1),
-                                    datasourceService.create(ds2)
-                            )
-                            .flatMap(tuple1 -> {
-                                final Application app = tuple1.getT1();
-                                final String pageId1 = app.getPages().get(0).getId();
-                                final Datasource ds1WithId = tuple1.getT3();
+        final Application app = applicationPageService.createApplication(app1).block();
+        final Application app2Again = applicationPageService.createApplication(app2).block();
+        final Datasource ds1WithId = datasourceService.create(ds1).block();
+        final Datasource ds2WithId = datasourceService.create(ds2).block();
 
-                                final PageDTO newPage = new PageDTO();
-                                newPage.setName("A New Page");
-                                newPage.setApplicationId(app.getId());
-                                newPage.setLayouts(new ArrayList<>());
-                                final Layout layout = new Layout();
-                                layout.setId(new ObjectId().toString());
-                                JSONObject dsl = new JSONObject();
-                                dsl.put("widgetName", "testWidget");
-                                JSONArray temp = new JSONArray();
-                                temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
-                                dsl.put("dynamicBindingPathList", temp);
-                                dsl.put("testField", "draft {{ newPageAction.data }}");
-                                layout.setDsl(dsl);
-                                JSONObject publishedDsl = new JSONObject(dsl);
-                                publishedDsl.put("testField", "published {{ newPageAction.data }}");
-                                layout.setPublishedDsl(publishedDsl);
-                                final DslActionDTO actionDTO = new DslActionDTO();
-                                final HashSet<DslActionDTO> dslActionDTOS = new HashSet<>(List.of(actionDTO));
-                                layout.setLayoutOnLoadActions(List.of(dslActionDTOS));
-                                newPage.getLayouts().add(layout);
+        final String pageId1 = app.getPages().get(0).getId();
 
-                                final ActionDTO newPageAction = new ActionDTO();
-                                newPageAction.setName("newPageAction");
-                                newPageAction.setOrganizationId(organization.getId());
-                                newPageAction.setDatasource(ds1WithId);
-                                newPageAction.setPluginId(installedPlugin.getId());
-                                newPageAction.setActionConfiguration(new ActionConfiguration());
-                                newPageAction.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+        final PageDTO newPage = new PageDTO();
+        newPage.setName("A New Page");
+        newPage.setApplicationId(app.getId());
+        newPage.setLayouts(new ArrayList<>());
+        final Layout layout = new Layout();
+        layout.setId(new ObjectId().toString());
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "testWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "draft {{ newPageAction.data }}");
+        layout.setDsl(dsl);
+        JSONObject publishedDsl = new JSONObject(dsl);
+        publishedDsl.put("testField", "published {{ newPageAction.data }}");
+        layout.setPublishedDsl(publishedDsl);
+        final DslActionDTO actionDTO = new DslActionDTO();
+        final HashSet<DslActionDTO> dslActionDTOS = new HashSet<>(List.of(actionDTO));
+        layout.setLayoutOnLoadActions(List.of(dslActionDTOS));
+        newPage.getLayouts().add(layout);
 
-                                final ActionDTO action1 = new ActionDTO();
-                                action1.setName("action1");
-                                action1.setPageId(pageId1);
-                                action1.setOrganizationId(organization.getId());
-                                action1.setDatasource(ds1WithId);
-                                action1.setPluginId(installedPlugin.getId());
+        final ActionDTO newPageAction = new ActionDTO();
+        newPageAction.setName("newPageAction");
+        newPageAction.setOrganizationId(organization.getId());
+        newPageAction.setDatasource(ds1WithId);
+        newPageAction.setPluginId(installedPlugin.getId());
+        newPageAction.setActionConfiguration(new ActionConfiguration());
+        newPageAction.getActionConfiguration().setHttpMethod(HttpMethod.GET);
 
-                                final ActionDTO action2 = new ActionDTO();
-                                action2.setPageId(pageId1);
-                                action2.setName("action2");
-                                action2.setOrganizationId(organization.getId());
-                                action2.setDatasource(ds1WithId);
-                                action2.setPluginId(installedPlugin.getId());
+        final ActionDTO action1 = new ActionDTO();
+        action1.setName("action1");
+        action1.setPageId(pageId1);
+        action1.setOrganizationId(organization.getId());
+        action1.setDatasource(ds1WithId);
+        action1.setPluginId(installedPlugin.getId());
 
-                                final Application app2Again = tuple1.getT2();
-                                final String pageId2 = app2Again.getPages().get(0).getId();
-                                final Datasource ds2WithId = tuple1.getT4();
+        final String pageId2 = app2Again.getPages().get(0).getId();
 
-                                final ActionDTO action3 = new ActionDTO();
-                                action3.setName("action3");
-                                action3.setPageId(pageId2);
-                                action3.setOrganizationId(organization.getId());
-                                action3.setDatasource(ds2WithId);
-                                action3.setPluginId(installedPlugin.getId());
+        final ActionDTO action3 = new ActionDTO();
+        action3.setName("action3");
+        action3.setPageId(pageId2);
+        action3.setOrganizationId(organization.getId());
+        action3.setDatasource(ds2WithId);
+        action3.setPluginId(installedPlugin.getId());
 
-                                final ActionDTO action4 = new ActionDTO();
-                                action4.setPageId(pageId2);
-                                action4.setName("action4");
-                                action4.setOrganizationId(organization.getId());
-                                action4.setDatasource(ds2WithId);
-                                action4.setPluginId(installedPlugin.getId());
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
-                                return Mono.when(
-                                        applicationPageService.createPage(newPage)
-                                                .flatMap(page -> {
-                                                    newPageAction.setPageId(page.getId());
-                                                    return applicationPageService.addPageToApplication(app, page, false)
-                                                            .then(layoutActionService.createSingleAction(newPageAction))
-                                                            .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
-                                                            .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
-                                                })
-                                                .map(tuple2 -> {
-                                                    log.info("Created action and added page to app {}", tuple2);
-                                                    return tuple2;
-                                                }),
-                                        layoutActionService.createSingleAction(action1),
-                                        layoutActionService.createSingleAction(action2),
-                                        layoutActionService.createSingleAction(action3),
-                                        layoutActionService.createSingleAction(action4)
-                                ).thenReturn(List.of(tuple1.getT1(), tuple1.getT2()));
-                            })
-                            .flatMap(applications ->
-                                    examplesOrganizationCloner.cloneOrganizationForUser(
-                                            organization.getId(),
-                                            tuple.getT2(),
-                                            Flux.fromIterable(applications),
-                                            Flux.empty()
-                                    )
-                            );
+        Datasource jsDatasource = new Datasource();
+        jsDatasource.setName("Default Database");
+        jsDatasource.setOrganizationId(organization.getId());
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        assert installedJsPlugin != null;
+        jsDatasource.setPluginId(installedJsPlugin.getId());
+
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setPageId(app.getPages().get(0).getId());
+        actionCollectionDTO1.setApplicationId(app.getId());
+        actionCollectionDTO1.setOrganizationId(organization.getId());
+        actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+        ActionDTO action5 = new ActionDTO();
+        action5.setName("run");
+        action5.setActionConfiguration(new ActionConfiguration());
+        action5.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO1.setActions(List.of(action5));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+
+        applicationPageService.createPage(newPage)
+                .flatMap(page -> {
+                    newPageAction.setPageId(page.getId());
+                    return applicationPageService.addPageToApplication(app, page, false)
+                            .then(layoutActionService.createSingleAction(newPageAction))
+                            .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
+                            .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
                 })
+                .map(tuple2 -> {
+                    log.info("Created action and added page to app {}", tuple2);
+                    return tuple2;
+                }).block();
+        layoutActionService.createSingleAction(action1).block();
+        layoutActionService.createSingleAction(action3).block();
+        layoutCollectionService.createCollection(actionCollectionDTO1).block();
+
+        final Mono<OrganizationData> resultMono = examplesOrganizationCloner.cloneOrganizationForUser(
+                        organization.getId(),
+                        user,
+                        Flux.fromIterable(List.of(app, app2Again)),
+                        Flux.empty())
                 .doOnError(error -> log.error("Error preparing data for test", error))
                 .flatMap(this::loadOrganizationData);
 
@@ -736,16 +748,15 @@ public class ExamplesOrganizationClonerTests {
                             "second application"
                     );
 
-                    final Application firstApplication = data.applications.stream().filter(app -> app.getName().equals("first application")).findFirst().orElse(null);
+                    final Application firstApplication = data.applications.stream().filter(appFirst -> appFirst.getName().equals("first application")).findFirst().orElse(null);
                     assert firstApplication != null;
                     assertThat(firstApplication.getPages().stream().filter(ApplicationPage::isDefault).count()).isEqualTo(1);
-                    final NewPage newPage = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("unpublishedPage.name").is("A New Page")), NewPage.class);
-                    assert newPage != null;
-                    log.debug("new page is : {}", newPage.toString());
-                    final String actionId = newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
-                    final NewAction newPageAction = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), NewAction.class);
-                    assert newPageAction != null;
-                    assertThat(newPageAction.getOrganizationId()).isEqualTo(data.organization.getId());
+                    final NewPage newPage1 = mongoTemplate.findOne(Query.query(Criteria.where("applicationId").is(firstApplication.getId()).and("unpublishedPage.name").is("A New Page")), NewPage.class);
+                    assert newPage1 != null;
+                    final String actionId = newPage1.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActions().get(0).iterator().next().getId();
+                    final NewAction newPageAction1 = mongoTemplate.findOne(Query.query(Criteria.where("id").is(actionId)), NewAction.class);
+                    assert newPageAction1 != null;
+                    assertThat(newPageAction1.getOrganizationId()).isEqualTo(data.organization.getId());
 
                     assertThat(data.datasources).hasSize(2);
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
@@ -753,16 +764,18 @@ public class ExamplesOrganizationClonerTests {
                             "datasource 2"
                     );
 
-                    assertThat(data.actions).hasSize(5);
+                    assertThat(data.actions).hasSize(4);
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "newPageAction",
                             "action1",
-                            "action2",
                             "action3",
-                            "action4"
+                            "run"
                     );
+                    assertThat(data.actionCollections).hasSize(1);
+                    assertThat(data.actionCollections.get(0).getActionIds()).hasSize(1);
                 })
                 .verifyComplete();
+
     }
 
     @Test
@@ -1013,5 +1026,14 @@ public class ExamplesOrganizationClonerTests {
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
+    }
+
+    private Flux<ActionCollectionDTO> getActionCollectionsInOrganization(Organization organization) {
+        return applicationService
+                .findByOrganizationId(organization.getId(), READ_APPLICATIONS)
+                // fetch the unpublished pages
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(page -> actionCollectionService.getActionCollectionsByViewMode(new LinkedMultiValueMap<>(
+                        Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), false));
     }
 }
