@@ -6,6 +6,7 @@ import {
   select,
   take,
   all,
+  spawn,
 } from "redux-saga/effects";
 
 import {
@@ -78,6 +79,8 @@ import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
+import { Channel } from "redux-saga";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -201,34 +204,47 @@ export function* evaluateDynamicTrigger(
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
-      try {
-        const response = yield call(
-          executeActionTriggers,
-          requestData.trigger,
-          eventType,
-          {},
-        );
-        responseChannel.put({
-          method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-          data: {
-            resolve: response,
-            subRequestId: requestData.subRequestId,
-          },
-          success: true,
-        });
-      } catch (e) {
-        // When error occurs in execution of triggers,
-        // a success: false is sent to reject the promise
-        responseChannel.put({
-          method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-          data: {
-            reason: e,
-            subRequestId: requestData.subRequestId,
-          },
-          success: false,
-        });
-      }
+      yield spawn(
+        executeTriggerRequestSaga,
+        requestData,
+        eventType,
+        responseChannel,
+      );
     }
+  }
+}
+
+function* executeTriggerRequestSaga(
+  requestData: { trigger: ActionDescription; subRequestId: string },
+  eventType: EventType,
+  responseChannel: Channel<unknown>,
+) {
+  try {
+    const response = yield call(
+      executeActionTriggers,
+      requestData.trigger,
+      eventType,
+      {},
+    );
+    responseChannel.put({
+      method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+      data: {
+        resolve: response,
+        subRequestId: requestData.subRequestId,
+      },
+      success: true,
+    });
+  } catch (e) {
+    // When error occurs in execution of triggers,
+    // a success: false is sent to reject the promise
+    responseChannel.put({
+      method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+      data: {
+        reason: e,
+        subRequestId: requestData.subRequestId,
+      },
+      success: false,
+    });
   }
 }
 

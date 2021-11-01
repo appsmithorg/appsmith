@@ -59,6 +59,9 @@ export class GracefulWorkerService {
     this.biDirectionalRequestHandler = this.biDirectionalRequestHandler.bind(
       this,
     );
+    this.biDirectionalResponseHandler = this.biDirectionalResponseHandler.bind(
+      this,
+    );
 
     // Do not buffer messages on this channel
     this._readyChan = channel(buffers.none());
@@ -192,6 +195,7 @@ export class GracefulWorkerService {
       requestChannel,
       responseChannel,
     );
+    yield spawn(this.biDirectionalResponseHandler, requestId, responseChannel);
 
     this._evaluationWorker.postMessage({
       method,
@@ -219,10 +223,36 @@ export class GracefulWorkerService {
         requestChannel.put({ requestData: responseData });
         if (responseData.finished) {
           keepAlive = false;
+          responseChannel.put({
+            finished: true,
+          });
+        }
+      }
+    } catch (e) {
+      // handle
+    } finally {
+      // Cleanup
+      requestChannel.close();
+      mainChannel.close();
+      this._channels.delete(requestId);
+    }
+  }
+
+  *biDirectionalResponseHandler(
+    requestId: string,
+    responseChannel: Channel<any>,
+  ) {
+    const mainChannel = this._channels.get(requestId);
+    if (!mainChannel) return;
+    if (!this._evaluationWorker) return;
+    try {
+      let keepAlive = true;
+      while (keepAlive) {
+        const response = yield take(responseChannel);
+        if (response.finished) {
+          keepAlive = false;
           continue;
         }
-        // wait for response
-        const response = yield take(responseChannel);
         // send response to worker
         this._evaluationWorker.postMessage({
           ...response,
@@ -232,10 +262,7 @@ export class GracefulWorkerService {
     } catch (e) {
       // handle
     } finally {
-      // Cleanup
-      requestChannel.close();
-      mainChannel.close();
-      this._channels.delete(requestId);
+      responseChannel.close();
     }
   }
 

@@ -44,13 +44,14 @@ const promisifyAction = (actionDescription: ActionDescription) => {
   return new Promise((resolve, reject) => {
     // We create a new sub request id for each request going on so that we can resolve the correct one later on
     const subRequestId = _.uniqueId(`${self.REQUEST_ID}_`);
+    const responseData = {
+      trigger: actionDescription,
+      errors: [],
+      subRequestId,
+    };
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-      responseData: {
-        trigger: actionDescription,
-        errors: [],
-        subRequestId,
-      },
+      responseData,
       requestId: self.REQUEST_ID,
     });
     const processResponse = function(event: MessageEvent) {
@@ -77,7 +78,6 @@ const promisifyAction = (actionDescription: ActionDescription) => {
 // To indicate the main thread that the processing of the trigger is done
 // we send a finished message
 export const completePromise = (result: EvalResult) => {
-  debugger;
   ctx.postMessage({
     type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
     responseData: {
