@@ -97,6 +97,10 @@ const UserCard = styled(Card)`
 
   .avatar {
     min-height: 71px;
+
+    .${AppClass.TEXT} {
+      margin: auto;
+    }
   }
 
   .${AppClass.TEXT} {
@@ -119,7 +123,10 @@ const UserCard = styled(Card)`
   .t--user-status {
     background: transparent;
     border: 0px;
+    width: fit-content;
+    margin: auto;
     .${AppClass.TEXT} {
+      width: fit-content;
       margin-top: 0px;
       color: ${Colors.GREY_10};
     }
@@ -372,6 +379,7 @@ export default function MemberSettings(props: PageProps) {
                       {user.username}
                     </Text>
                     <Dropdown
+                      boundary="viewport"
                       className="t--user-status"
                       height="31px"
                       onSelect={(value) => {
