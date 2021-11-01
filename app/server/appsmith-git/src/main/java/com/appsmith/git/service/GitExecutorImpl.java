@@ -329,11 +329,10 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey) {
+    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String defaultBranch) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
-            TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
             List<Ref> refList;
             if (listMode == null) {
@@ -351,21 +350,15 @@ public class GitExecutorImpl implements GitExecutor {
                 gitBranchListDTO.setDefault(true);
                 branchList.add(gitBranchListDTO);
             } else {
-                // Get default branch name from the remote
-                String defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
-                GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
-                gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
-                gitBranchListDTO.setDefault(true);
-                branchList.add(gitBranchListDTO);
-
                 for(Ref ref : refList) {
-                    if(!ref.getName().equals(defaultBranch)) {
-                        gitBranchListDTO = new GitBranchListDTO();
-                        gitBranchListDTO.setBranchName(ref.getName()
-                                .replace("refs/heads/",""));
-                        gitBranchListDTO.setDefault(false);
-                        branchList.add(gitBranchListDTO);
+                    GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+                    gitBranchListDTO.setBranchName(ref.getName()
+                            .replace("refs/heads/",""));
+                    gitBranchListDTO.setDefault(false);
+                    if(gitBranchListDTO.getBranchName().equals(defaultBranch)) {
+                        gitBranchListDTO.setDefault(true);
                     }
+                    branchList.add(gitBranchListDTO);
                 }
             }
             git.close();
