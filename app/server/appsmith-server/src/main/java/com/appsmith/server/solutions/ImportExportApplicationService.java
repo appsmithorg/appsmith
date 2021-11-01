@@ -671,13 +671,13 @@ public class ImportExportApplicationService {
                                                 NewAction update = new NewAction();
                                                 update.setDefaultResources(
                                                         DefaultResourcesUtils
-                                                                .updateDefaultResources(action, branchName).getDefaultResources());
+                                                                .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action, branchName).getDefaultResources());
                                                 if (action.getUnpublishedAction() != null) {
                                                     update.setUnpublishedAction(action.getUnpublishedAction());
                                                     update.getUnpublishedAction()
                                                             .setDefaultResources(
                                                                     DefaultResourcesUtils
-                                                                            .updateDefaultResources(action.getUnpublishedAction(), branchName)
+                                                                            .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getUnpublishedAction(), branchName)
                                                                             .getDefaultResources()
                                                             );
                                                 }
@@ -686,7 +686,7 @@ public class ImportExportApplicationService {
                                                     update.getPublishedAction()
                                                             .setDefaultResources(
                                                                     DefaultResourcesUtils
-                                                                            .updateDefaultResources(action.getPublishedAction(), branchName)
+                                                                            .createPristineDefaultIdsAndUpdateWithGivenResourceIds(action.getPublishedAction(), branchName)
                                                                             .getDefaultResources()
                                                             );
                                                 }
@@ -768,7 +768,7 @@ public class ImportExportApplicationService {
                                                 ActionCollection update = new ActionCollection();
                                                 update.setDefaultResources(
                                                         DefaultResourcesUtils
-                                                                .updateDefaultResources(actionCollection1, branchName)
+                                                                .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1, branchName)
                                                                 .getDefaultResources()
                                                 );
                                                 if (actionCollection1.getUnpublishedCollection() != null) {
@@ -776,7 +776,7 @@ public class ImportExportApplicationService {
                                                     update.getUnpublishedCollection()
                                                             .setDefaultResources(
                                                                     DefaultResourcesUtils
-                                                                            .updateDefaultResources(actionCollection1.getUnpublishedCollection(), branchName)
+                                                                            .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getUnpublishedCollection(), branchName)
                                                                             .getDefaultResources()
                                                             );
                                                 }
@@ -785,7 +785,7 @@ public class ImportExportApplicationService {
                                                     update.getPublishedCollection()
                                                             .setDefaultResources(
                                                                     DefaultResourcesUtils
-                                                                            .updateDefaultResources(actionCollection1.getPublishedCollection(), branchName)
+                                                                            .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getPublishedCollection(), branchName)
                                                                             .getDefaultResources()
                                                             );
                                                 }
@@ -926,7 +926,7 @@ public class ImportExportApplicationService {
                                 .flatMap(page -> {
                                     if (page.getDefaultResources() == null) {
                                         NewPage update = new NewPage();
-                                        update.setDefaultResources(DefaultResourcesUtils.updateDefaultResources(page, branchName).getDefaultResources());
+                                        update.setDefaultResources(DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
                                         return newPageService.update(page.getId(), update);
                                     }
                                     return Mono.just(page);

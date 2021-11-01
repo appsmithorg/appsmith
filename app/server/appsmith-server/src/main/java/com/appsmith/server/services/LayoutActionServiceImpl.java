@@ -24,6 +24,7 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.appsmith.server.solutions.SanitiseResponse;
@@ -1046,10 +1047,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         }
 
         if (action.getDefaultResources() == null) {
-            DefaultResources defaultResources = new DefaultResources();
-            defaultResources.setPageId(action.getPageId());
-            defaultResources.setCollectionId(action.getCollectionId());
-            action.setDefaultResources(defaultResources);
+            DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(action, null);
         }
 
         NewAction newAction = new NewAction();

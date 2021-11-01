@@ -72,7 +72,7 @@ public class ActionCollectionDTO {
     // This list is currently used to record constants
     List<JSValue> variables;
 
-    // This will be used to store the defaultPageId and branchName for branching model in git sync
+    // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as transient
     @JsonIgnore
     DefaultResources defaultResources;
 
