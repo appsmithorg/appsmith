@@ -89,7 +89,7 @@ class ImageAnnotatorWidget extends BaseWidget<
       (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING;
 
     return (
-      <div onFocus={this.disableDrag} tabIndex={1}>
+      <div onBlur={this.enableDrag} onFocus={this.disableDrag} tabIndex={1}>
         <ImageAnnotatorComponent
           annotation={annotation}
           annotations={annotations}

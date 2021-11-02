@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Annotation, IAnnotation } from "react-image-annotation-ts";
 
@@ -10,8 +10,9 @@ const ImageAnnotatorContainer = styled.div`
 
 function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
   const { annotation, annotations, imageUrl, onSubmit } = props;
-
+  const [annotationState, setannotationState] = useState(annotation);
   const handleChange = (annotation: IAnnotation) => {
+    setannotationState(annotation);
     console.error("annotation is changed");
   };
 
@@ -27,7 +28,7 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
         onChange={handleChange}
         onSubmit={handleSubmit}
         src={imageUrl}
-        value={annotation}
+        value={annotationState}
       />
     </ImageAnnotatorContainer>
   );
