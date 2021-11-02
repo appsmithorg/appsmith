@@ -62,11 +62,13 @@ import evaluate, {
   EvaluationScriptType,
   getScriptToEval,
   evaluateAsync,
+  isFunctionAsync,
 } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
 import { JSUpdate } from "utils/JSPaneUtils";
+
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
   sortedDependencies: Array<string> = [];
@@ -941,10 +943,12 @@ export default class DataTreeEvaluator {
             const unEvalValue = result[unEvalFunc];
             if (typeof unEvalValue === "function") {
               const params = getParams(unEvalValue);
+              const functionString = unEvalValue.toString();
               actions.push({
                 name: unEvalFunc,
-                body: unEvalValue.toString(),
+                body: functionString,
                 arguments: params,
+                isAsync: isFunctionAsync(unEvalValue, unEvalDataTree),
               });
               _.set(
                 this.resolvedFunctions,
@@ -954,7 +958,7 @@ export default class DataTreeEvaluator {
               _.set(
                 this.currentJSCollectionState,
                 `${entityName}.${unEvalFunc}`,
-                unEvalValue.toString(),
+                functionString,
               );
             } else {
               variables.push({

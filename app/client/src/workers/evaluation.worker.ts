@@ -218,22 +218,21 @@ ctx.addEventListener(
         replayDSL.clearLogs();
         return replayResult;
       }
-      case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {
-        const { action, collectionName } = requestData;
+      case EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS: {
+        const { functionCall } = requestData;
 
         if (!dataTreeEvaluator) {
           return true;
         }
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-        const path = collectionName + "." + action.name + "()";
-        const { result } = evaluate(
-          path,
+        const { errors, result } = evaluate(
+          functionCall,
           evalTree,
           resolvedFunctions,
           undefined,
         );
-        return result;
+        return { errors, result };
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
         const { expression, isTrigger } = requestData;

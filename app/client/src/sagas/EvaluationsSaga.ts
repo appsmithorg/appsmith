@@ -203,7 +203,7 @@ export function* evaluateDynamicTrigger(
           requestData.result.errors[0].errorMessage,
         );
       }
-      continue;
+      return requestData.result;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
@@ -313,13 +313,29 @@ export function* clearEvalPropertyCache(propertyPath: string) {
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
-  const dynamicTrigger = collectionName + "." + action.name + "()";
+  const functionCall = collectionName + "." + action.name + "()";
+  const { isAsync } = action.actionConfiguration;
+  let response;
+  if (isAsync) {
+    try {
+      response = yield call(
+        evaluateDynamicTrigger,
+        functionCall,
+        EventType.ON_JS_FUNCTION_EXECUTE,
+      );
+    } catch (e) {
+      response = { errors: [e], result: undefined };
+    }
+  } else {
+    response = yield call(worker.request, EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS, {
+      functionCall,
+    });
+  }
 
-  yield call(evaluateDynamicTrigger, dynamicTrigger, EventType.ON_CLICK);
-
-  // const { errors, result, triggers } = workerResponse;
-  // yield call(evalErrorHandler, errors);
-  // return { triggers, result };
+  const { errors, result } = response;
+  debugger;
+  yield call(evalErrorHandler, errors);
+  return result;
 }
 
 /**
