@@ -26,7 +26,6 @@ import {
 } from "./Constants";
 import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
-import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -271,6 +270,7 @@ interface RenderActionProps {
   columnActions?: ColumnAction[];
   backgroundColor: string;
   buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -319,6 +319,7 @@ export const renderActions = (
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
+            buttonVariant={props.buttonVariant}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}
@@ -403,6 +404,7 @@ function TableAction(props: {
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -410,6 +412,12 @@ function TableAction(props: {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
     setLoading(false);
+  };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
   };
 
   return (
@@ -423,15 +431,13 @@ function TableAction(props: {
       }}
     >
       {props.isCellVisible ? (
-        <Button
+        <StyledButton
+          buttonColor={props.backgroundColor}
+          buttonVariant={props.buttonVariant}
           disabled={props.isDisabled}
           filled
-          intent="PRIMARY_BUTTON"
           loading={loading}
-          onClick={() => {
-            setLoading(true);
-            props.onCommandClick(props.action.dynamicTrigger, onComplete);
-          }}
+          onClick={handleClick}
           size="small"
           text={props.action.label}
         />

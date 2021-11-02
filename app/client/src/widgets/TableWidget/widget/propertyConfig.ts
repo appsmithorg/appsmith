@@ -780,10 +780,12 @@ export default [
                   label: "Button Variant",
                   controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultValue: ButtonVariantTypes.PRIMARY,
                   isJSConvertible: true,
-                  helpText: "Sets the variant of the icon button",
+                  helpText: "Sets the variant",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.BUTTON,
                       ColumnTypes.ICON_BUTTON,
                     ]);
                   },

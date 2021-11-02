@@ -4,6 +4,7 @@ import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ButtonVariantTypes } from "components/constants";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -161,6 +162,8 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabel":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonVariant":
+          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonColor":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
@@ -196,6 +199,17 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         isVisible: {
           type: "BOOLEAN",
+        },
+        "primaryColumns.status.buttonVariant": {
+          params: {
+            allowedValues: [
+              ButtonVariantTypes.PRIMARY,
+              ButtonVariantTypes.SECONDARY,
+              ButtonVariantTypes.TERTIARY,
+            ],
+            default: ButtonVariantTypes.PRIMARY,
+          },
+          type: "TEXT",
         },
         tableData: {
           type: "OBJECT_ARRAY",

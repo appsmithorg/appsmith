@@ -49,6 +49,7 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
+import { ButtonVariantTypes } from "components/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -167,6 +168,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 this.onCommandClick(rowIndex, action, onComplete),
               backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
+              buttonVariant:
+                cellProperties.buttonVariant || ButtonVariantTypes.PRIMARY,
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
               columnActions: [

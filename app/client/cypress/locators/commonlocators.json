@@ -134,5 +134,6 @@
   "lintError": ".CodeMirror-lint-mark-error",
   "debugger": ".t--debugger svg",
   "errorTab": "[data-cy=t--tab-ERROR]",
-  "debugErrorMsg": ".t--debugger-message"
+  "debugErrorMsg": ".t--debugger-message",
+  "tableButtonVariant": ".t--property-control-buttonvariant .bp3-popover-target"
 }
