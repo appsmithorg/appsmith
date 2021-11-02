@@ -82,6 +82,7 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         ArrayList<Property> properties = new ArrayList<>();
+        properties.add(null); // since index 0 is not used anymore.
         properties.add(new Property("s3 service provider", serviceProvider));
         properties.add(new Property("custom endpoint region", region));
         dsConfig.setProperties(properties);
@@ -140,8 +141,8 @@ public class AmazonS3PluginTest {
     @Test
     public void testValidateDatasourceWithMissingRegionWithOtherS3ServiceProvider() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getProperties().get(0).setValue("other");
-        datasourceConfiguration.getProperties().get(1).setValue("");
+        datasourceConfiguration.getProperties().get(1).setValue("other");
+        datasourceConfiguration.getProperties().get(2).setValue("");
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
@@ -162,7 +163,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testValidateDatasourceWithMissingRegionWithListedProvider() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getProperties().get(1).setValue("");
+        datasourceConfiguration.getProperties().get(2).setValue("");
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
         Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
@@ -178,8 +179,8 @@ public class AmazonS3PluginTest {
     @Test
     public void testValidateDatasourceWithMissingUrlWithNonAmazonProvider() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getProperties().get(0).setValue("upcloud");
-        datasourceConfiguration.getProperties().get(1).setValue("");
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(2).setValue("");
         datasourceConfiguration.getEndpoints().get(0).setHost("");
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
@@ -936,28 +937,28 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         // Test for Upcloud
-        datasourceConfiguration.getProperties().get(0).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
         datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2.de-fra1.upcloudobjects.com");
 
         AmazonS3ClientBuilder s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
         assertEquals("de-fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
 
         // Test for Wasabi
-        datasourceConfiguration.getProperties().get(0).setValue("wasabi");
+        datasourceConfiguration.getProperties().get(1).setValue("wasabi");
         datasourceConfiguration.getEndpoints().get(0).setHost("s3.ap-northeast-1.wasabisys.com");
 
         s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
         assertEquals("ap-northeast-1", s3ClientBuilder.getEndpoint().getSigningRegion());
 
         // Test for Digital Ocean Spaces
-        datasourceConfiguration.getProperties().get(0).setValue("digital-ocean-spaces");
+        datasourceConfiguration.getProperties().get(1).setValue("digital-ocean-spaces");
         datasourceConfiguration.getEndpoints().get(0).setHost("fra1.digitaloceanspaces.com");
 
         s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
         assertEquals("fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
 
         // Test for Dream Objects
-        datasourceConfiguration.getProperties().get(0).setValue("dream-objects");
+        datasourceConfiguration.getProperties().get(1).setValue("dream-objects");
         datasourceConfiguration.getEndpoints().get(0).setHost("objects-us-east-1.dream.io");
 
         s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
@@ -969,7 +970,7 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         // Testing for Upcloud here. Flow for other listed service providers is same, hence not testing separately.
-        datasourceConfiguration.getProperties().get(0).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
         datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2..de-fra1.upcloudobjects.com");
 
         StepVerifier.create(Mono.fromCallable(() -> getS3ClientBuilder(datasourceConfiguration)))
