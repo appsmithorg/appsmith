@@ -22,7 +22,10 @@ import Switcher from "components/ads/Switcher";
 import { trimQueryString } from "utils/helpers";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import AppComments from "comments/AppComments/AppComments";
-import { setExplorerActive, setExplorerPinned } from "actions/explorerActions";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
 import {
   getExplorerActive,
   getExplorerPinned,
@@ -147,12 +150,12 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     if (!pinned) {
       if (!active) {
         if (currentX <= 5) {
-          dispatch(setExplorerActive(true));
+          dispatch(setExplorerActiveAction(true));
         }
       }
 
       if (currentX >= props.width + 20 && !resizer.resizing) {
-        dispatch(setExplorerActive(false));
+        dispatch(setExplorerActiveAction(false));
       }
     }
   };
@@ -161,8 +164,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
    * toggles the pinned state of sidebar
    */
   const onPin = useCallback(() => {
-    dispatch(setExplorerPinned(!pinned));
-  }, [pinned, dispatch, setExplorerPinned]);
+    dispatch(setExplorerPinnedAction(!pinned));
+  }, [pinned, dispatch, setExplorerPinnedAction]);
 
   return (
     <div

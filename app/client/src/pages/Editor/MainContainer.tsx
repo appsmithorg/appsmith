@@ -11,7 +11,7 @@ import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar
 
 import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
-import { updateExplorerWidth } from "actions/explorerActions";
+import { updateExplorerWidthAction } from "actions/explorerActions";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
@@ -43,7 +43,7 @@ function MainContainer() {
    * @return void
    */
   const onLeftSidebarDragEnd = useCallback(() => {
-    dispatch(updateExplorerWidth(sidebarWidth));
+    dispatch(updateExplorerWidthAction(sidebarWidth));
   }, [sidebarWidth]);
 
   /**
@@ -52,7 +52,7 @@ function MainContainer() {
    * @return void
    */
   const onRightSidebarDragEnd = useCallback(() => {
-    dispatch(updateExplorerWidth(propertyPaneWidth));
+    dispatch(updateExplorerWidthAction(propertyPaneWidth));
   }, [propertyPaneWidth]);
 
   /**

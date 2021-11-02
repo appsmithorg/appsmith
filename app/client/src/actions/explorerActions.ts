@@ -15,7 +15,7 @@ export const initExplorerEntityNameEdit = (actionId: string) => {
  * @param shouldPin
  * @returns
  */
-export const setExplorerPinned = (shouldPin: boolean) => {
+export const setExplorerPinnedAction = (shouldPin: boolean) => {
   return {
     type: ReduxActionTypes.SET_EXPLORER_PINNED,
     payload: {
@@ -30,7 +30,7 @@ export const setExplorerPinned = (shouldPin: boolean) => {
  * @param shouldPin
  * @returns
  */
-export const setExplorerActive = (active: boolean) => {
+export const setExplorerActiveAction = (active: boolean) => {
   return {
     type: ReduxActionTypes.SET_EXPLORER_ACTIVE,
     payload: active,
@@ -43,7 +43,7 @@ export const setExplorerActive = (active: boolean) => {
  * @param shouldPin
  * @returns
  */
-export const updateExplorerWidth = (width: number | undefined) => {
+export const updateExplorerWidthAction = (width: number | undefined) => {
   return {
     type: ReduxActionTypes.UPDATE_EXPLORER_WIDTH,
     payload: {

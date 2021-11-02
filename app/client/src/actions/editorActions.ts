@@ -7,7 +7,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
  * @returns
  */
 
-export const setPreviewMode = (payload: boolean) => ({
+export const setPreviewModeAction = (payload: boolean) => ({
   type: ReduxActionTypes.SET_PREVIEW_MODE,
   payload,
 });
@@ -19,7 +19,7 @@ export const setPreviewMode = (payload: boolean) => ({
  * @param height
  * @returns
  */
-export const updateCanvasLayout = (
+export const updateCanvasLayoutAction = (
   width: number,
   height: number | undefined,
 ) => {

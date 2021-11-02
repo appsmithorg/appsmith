@@ -114,7 +114,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       }
       addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
       alwaysShowRightIcon
-      className="mt-0 group pages"
+      className="group pages"
       disabled
       entityId="Pages"
       icon={pageGroupIcon}

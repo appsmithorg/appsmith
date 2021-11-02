@@ -82,7 +82,10 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
-import { setExplorerActive, setExplorerPinned } from "actions/explorerActions";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -309,15 +312,15 @@ export function EditorHeader(props: EditorHeaderProps) {
    * on hovering the menu, make the explorer active
    */
   const onMenuHover = useCallback(() => {
-    dispatch(setExplorerActive(true));
-  }, [setExplorerActive]);
+    dispatch(setExplorerActiveAction(true));
+  }, [setExplorerActiveAction]);
 
   /**
    * toggles the pinned state of sidebar
    */
   const onPin = useCallback(() => {
-    dispatch(setExplorerPinned(!pinned));
-  }, [pinned, dispatch, setExplorerPinned]);
+    dispatch(setExplorerPinnedAction(!pinned));
+  }, [pinned, dispatch, setExplorerPinnedAction]);
 
   //Fetch all users for the application to show the share button tooltip
   useEffect(() => {

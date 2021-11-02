@@ -42,10 +42,10 @@ import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
-import { setPreviewMode } from "actions/editorActions";
+import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
-import { setExplorerPinned } from "actions/explorerActions";
+import { setExplorerPinnedAction } from "actions/explorerActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -70,9 +70,9 @@ type Props = {
   appMode?: APP_MODE;
   isCommentMode: boolean;
   isPreviewMode: boolean;
-  setPreviewMode: (shouldSet: boolean) => void;
+  setPreviewModeAction: (shouldSet: boolean) => void;
   explorerPinned: boolean;
-  setExplorerPinned: (shouldPinned: boolean) => void;
+  setExplorerPinnedAction: (shouldPinned: boolean) => void;
 };
 
 @HotkeysTarget
@@ -262,7 +262,7 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.closeProppane();
             this.props.closeTableFilterProppane();
             e.preventDefault();
-            this.props.setPreviewMode(false);
+            this.props.setPreviewModeAction(false);
           }}
         />
         <Hotkey
@@ -358,7 +358,7 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Preview Mode"
           onKeyDown={() => {
             setCommentModeInUrl(false);
-            this.props.setPreviewMode(!this.props.isPreviewMode);
+            this.props.setPreviewModeAction(!this.props.isPreviewMode);
           }}
         />
         <Hotkey
@@ -366,7 +366,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Preview Mode"
           onKeyDown={() => {
-            this.props.setExplorerPinned(!this.props.explorerPinned);
+            this.props.setExplorerPinnedAction(!this.props.explorerPinned);
           }}
         />
       </Hotkeys>
@@ -406,9 +406,10 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
-    setPreviewMode: (shouldSet: boolean) => dispatch(setPreviewMode(shouldSet)),
-    setExplorerPinned: (shouldSet: boolean) =>
-      dispatch(setExplorerPinned(shouldSet)),
+    setPreviewModeAction: (shouldSet: boolean) =>
+      dispatch(setPreviewModeAction(shouldSet)),
+    setExplorerPinnedAction: (shouldSet: boolean) =>
+      dispatch(setExplorerPinnedAction(shouldSet)),
   };
 };
 

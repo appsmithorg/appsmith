@@ -44,7 +44,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "../../selectors/editorSelectors";
 import { getAppMode } from "../../selectors/applicationSelectors";
-import { setPreviewMode } from "actions/editorActions";
+import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 const ModeButton = styled.div<{
@@ -362,7 +362,7 @@ function ToggleCommentModeButton({
       source: "CLICK",
     });
     setCommentModeInUrl(true);
-    dispatch(setPreviewMode(false));
+    dispatch(setPreviewModeAction(false));
     proceedToNextTourStep();
   }, [proceedToNextTourStep]);
 
@@ -370,9 +370,9 @@ function ToggleCommentModeButton({
   const isHideComments = useHideComments();
 
   const onClickPreviewModeButton = useCallback(() => {
-    dispatch(setPreviewMode(true));
+    dispatch(setPreviewModeAction(true));
     setCommentModeInUrl(false);
-  }, [dispatch, setPreviewMode]);
+  }, [dispatch, setPreviewModeAction]);
 
   if (isHideComments) return null;
 
@@ -389,7 +389,7 @@ function ToggleCommentModeButton({
                 source: "CLICK",
               });
               setCommentModeInUrl(false);
-              dispatch(setPreviewMode(false));
+              dispatch(setPreviewModeAction(false));
             }}
             showSelectedMode={showSelectedMode}
             type="fill"

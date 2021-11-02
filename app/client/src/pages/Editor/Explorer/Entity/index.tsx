@@ -56,6 +56,7 @@ export const EntityItem = styled.div<{
   position: relative;
   font-size: 14px;
   user-select: none;
+  padding-left: ${(props) => `calc(0.75rem + (0.25 * ${props.step}rem))`};
   background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
   height: 30px;
   width: 100%;
@@ -241,7 +242,7 @@ export const Entity = forwardRef(
           alwaysShowRightIcon={props.alwaysShowRightIcon}
           className={`${props.highlight ? "highlighted" : ""} ${
             props.active ? "active" : ""
-          } pl-3`}
+          }`}
           highlight={!!props.highlight}
           onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}

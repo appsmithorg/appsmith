@@ -21,7 +21,7 @@ import { APP_MODE } from "entities/App";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
-import { updateCanvasLayout } from "actions/editorActions";
+import { updateCanvasLayoutAction } from "actions/editorActions";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 
 const BORDERS_WIDTH = 2;
@@ -134,7 +134,9 @@ export const useDynamicAppLayout = () => {
     const { rightColumn } = mainContainer || {};
 
     if (rightColumn !== calculatedWidth) {
-      dispatch(updateCanvasLayout(calculatedWidth, mainContainer?.minHeight));
+      dispatch(
+        updateCanvasLayoutAction(calculatedWidth, mainContainer?.minHeight),
+      );
     }
   };
 
@@ -149,7 +151,10 @@ export const useDynamicAppLayout = () => {
   useEffect(() => {
     if (calculatedMinHeight !== mainContainer?.minHeight) {
       dispatch(
-        updateCanvasLayout(mainContainer?.rightColumn, calculatedMinHeight),
+        updateCanvasLayoutAction(
+          mainContainer?.rightColumn,
+          calculatedMinHeight,
+        ),
       );
     }
   }, [screenHeight, mainContainer?.minHeight]);

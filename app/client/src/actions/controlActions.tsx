@@ -85,7 +85,7 @@ export interface UpdateWidgetPropertyPayload {
   shouldReplay?: boolean;
 }
 
-export interface UpdateCanvasLayout {
+export interface updateCanvasLayoutAction {
   width: number;
   height: number;
 }
