@@ -58,7 +58,7 @@ public class TemplateUtils {
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
          * properties like `actionConfiguration.path` cannot be configured via the config map since the config map only
-         * models the bodyFormData attribute. Such properties are configured via ActionConfiguration object.
+         * models the formData attribute. Such properties are configured via ActionConfiguration object.
          */
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath(TEST_FILE_NAME);
@@ -75,7 +75,7 @@ public class TemplateUtils {
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
          * properties like `actionConfiguration.path` cannot be configured via the config map since the config map only
-         * models the bodyFormData attribute. Such properties are configured via ActionConfiguration object.
+         * models the formData attribute. Such properties are configured via ActionConfiguration object.
          */
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath(TEST_FILE_NAME);
@@ -92,7 +92,7 @@ public class TemplateUtils {
         /**
          * Since S3 uses UQI interface, a config map is used to indicate the required template. However, some
          * properties like `actionConfiguration.path` cannot be configured via the config map since the config map only
-         * models the bodyFormData attribute. Such properties are configured via ActionConfiguration object.
+         * models the formData attribute. Such properties are configured via ActionConfiguration object.
          */
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath(TEST_FILE_NAME);
