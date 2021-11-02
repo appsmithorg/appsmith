@@ -26,7 +26,6 @@ import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
 // import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
-import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
 // import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
@@ -80,6 +79,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
 import ArrowLeftRightIcon from "remixicon-react/ArrowLeftRightLineIcon";
 import BookIcon from "remixicon-react/BookOpenLineIcon";
+import ChevronRight from "remixicon-react/ArrowRightSFillIcon";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
@@ -103,11 +103,13 @@ import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
+import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
 import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
@@ -226,6 +228,7 @@ export const IconCollection = [
   "guide",
   "help",
   "invite-user",
+  "left-arrow-2",
   "lightning",
   "line-dashed",
   "line-dotted",
@@ -246,6 +249,7 @@ export const IconCollection = [
   "reaction-2",
   "read-pin",
   "right-arrow",
+  "right-arrow-2",
   "rocket",
   "search",
   "send-button",
@@ -496,6 +500,9 @@ const Icon = forwardRef(
       case "invite-user":
         returnIcon = <InviteUserIcon />;
         break;
+      case "left-arrow-2":
+        returnIcon = <LeftArrowIcon2 />;
+        break;
       case "lightning":
         returnIcon = <LightningIcon />;
         break;
@@ -555,6 +562,9 @@ const Icon = forwardRef(
         break;
       case "right-arrow":
         returnIcon = <RightArrowIcon />;
+        break;
+      case "right-arrow-2":
+        returnIcon = <RightArrowIcon2 />;
         break;
       case "rocket":
         returnIcon = <RocketIcon />;
