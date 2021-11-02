@@ -37,6 +37,7 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
 
   &.bp3-control input:checked ~ .bp3-control-indicator,
   &.bp3-control input:indeterminate ~ .bp3-control-indicator,
+  &.bp3-control.bp3-checkbox:hover input:indeterminate ~ .bp3-control-indicator,
   &.bp3-control input:indeterminate ~ .bp3-control-indicator:hover,
   &.bp3-control input:active:indeterminate ~ .bp3-control-indicator,
   &.bp3-control input:disabled:indeterminate ~ .bp3-control-indicator {
@@ -56,6 +57,11 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
 
   &.bp3-control.bp3-checkbox {
     color: ${({ checked }) => (checked ? Colors.GREY_10 : Colors.GREY_9)};
+  }
+
+  &.bp3-control.bp3-checkbox:hover ~ .bp3-control-indicator {
+    background-image: none;
+    background: none;
   }
 `;
 

@@ -27,12 +27,12 @@ describe("Checkbox Group Widget Functionality", function() {
      */
     cy.radioInput(0, this.data.radio1);
     cy.get(formWidgetsPage.labelCheckboxGroup)
-      .eq(0)
+      .eq(1)
       .should("have.text", "test1");
     cy.radioInput(1, "1");
     cy.radioInput(2, this.data.radio2);
     cy.get(formWidgetsPage.labelCheckboxGroup)
-      .eq(1)
+      .eq(2)
       .should("have.text", this.data.radio2);
     cy.radioInput(3, "2");
     cy.get(formWidgetsPage.radioAddButton).click({ force: true });
@@ -73,7 +73,7 @@ describe("Checkbox Group Widget Functionality", function() {
   });
   it("Checkbox Group Functionality To Button Text", function() {
     cy.get(publish.checkboxGroupWidget + " " + "label")
-      .eq(1)
+      .eq(2)
       .should("have.text", "test2");
     cy.get(publish.backToEditor).click();
   });
