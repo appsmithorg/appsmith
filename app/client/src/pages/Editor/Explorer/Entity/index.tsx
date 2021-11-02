@@ -133,6 +133,11 @@ export const EntityItem = styled.div<{
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
   color: ${Colors.CHARCOAL};
+
+  div {
+    cursor: pointer;
+  }
+
   svg {
     width: 16px;
     height: 16px;
@@ -245,7 +250,6 @@ export const Entity = forwardRef(
             props.active ? "active" : ""
           }`}
           highlight={!!props.highlight}
-          onClick={toggleChildren}
           rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
           step={props.step}
