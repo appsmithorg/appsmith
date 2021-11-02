@@ -978,6 +978,7 @@ function getMovementMapInDirection(
       map: widgetMovementMap,
       direction,
       accessors,
+      dimensions,
     }),
   );
 
