@@ -47,7 +47,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import { JSAction, JSCollection } from "entities/JSCollection";
+import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
@@ -78,6 +78,7 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
@@ -111,6 +112,7 @@ function* evaluateTreeSaga(
     dependencies,
     errors,
     evaluationOrder,
+    jsUpdates,
     logs,
     unEvalUpdates,
   } = workerResponse;
@@ -130,12 +132,13 @@ function* evaluateTreeSaga(
   );
 
   const updatedDataTree = yield select(getDataTree);
-
+  log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
   const appMode = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
+    yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
       unevalTree,
@@ -307,24 +310,6 @@ export function* clearEvalPropertyCache(propertyPath: string) {
   yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE, {
     propertyPath,
   });
-}
-
-export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const path = jsAction.name + ".body";
-  const workerResponse = yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
-    {
-      body,
-      jsAction,
-    },
-  );
-  const { evalTree, result } = workerResponse;
-  const dataTree = yield select(getDataTree);
-  const updates = diff(dataTree, evalTree) || [];
-  yield put(setEvaluatedTree(evalTree, updates));
-  yield call(evalErrorHandler, [], evalTree, [path]);
-  return result;
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
