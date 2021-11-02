@@ -358,6 +358,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         /**
          * Note : Currently this API is ONLY used to fetch datasources for an organization.
          */
+        // Remove branch name as datasources are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(FieldName.ORGANIZATION_ID) != null) {
             return findAllByOrganizationId(params.getFirst(FieldName.ORGANIZATION_ID), AclPermission.READ_DATASOURCES);
         }

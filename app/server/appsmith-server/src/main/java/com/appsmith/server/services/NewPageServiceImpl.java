@@ -493,4 +493,19 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                 );
     }
+
+    @Override
+    public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
+        if (StringUtils.isEmpty(branchName)) {
+            if (StringUtils.isEmpty(defaultPageId)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
+            }
+            return Mono.just(defaultPageId);
+        }
+        return repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName))
+                )
+                .map(NewPage::getId);
+    }
 }

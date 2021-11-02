@@ -37,14 +37,14 @@ public class CommentController extends BaseController<CommentService, Comment, S
         super(service);
     }
 
-    @Override
-    @PostMapping
+    @PostMapping("/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Comment>> create(@Valid @RequestBody Comment resource,
-                                             @RequestParam String threadId,
-                                             ServerWebExchange exchange) {
+    public Mono<ResponseDTO<Comment>> createComment(@Valid @RequestBody Comment resource,
+                                                    @RequestParam String threadId,
+                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                    ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin())
+        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin(), branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

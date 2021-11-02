@@ -815,7 +815,7 @@ public class GitServiceImpl implements GitService {
                         gitApplicationMetadata.getRemoteUrl(),
                         gitApplicationMetadata.getGitAuth().getPrivateKey(),
                         gitApplicationMetadata.getGitAuth().getPublicKey(),
-                        true)
+                        false)
                         .onErrorResume(error -> Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
                                 "branch --list",

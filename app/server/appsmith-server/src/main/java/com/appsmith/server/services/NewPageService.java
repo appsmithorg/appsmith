@@ -63,4 +63,7 @@ public interface NewPageService extends CrudService<NewPage, String> {
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
     Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
+
+    Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission);
+
 }

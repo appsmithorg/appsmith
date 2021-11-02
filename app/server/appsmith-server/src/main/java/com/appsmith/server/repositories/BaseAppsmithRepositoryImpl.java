@@ -85,6 +85,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return where("id").is(id);
     }
 
+    private Criteria getBranchCriteria(String branchName) {
+        return where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME).is(branchName);
+    }
+
     protected DBObject getDbObject(Object o) {
         BasicDBObject basicDBObject = new BasicDBObject();
         mongoConverter.write(o, basicDBObject);
