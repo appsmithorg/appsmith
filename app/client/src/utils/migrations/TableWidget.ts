@@ -372,9 +372,18 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
 
       const newPrimaryColumns: Record<string, ColumnProperties> = {};
       if (primaryColumnEntries.length) {
-        for (const [key, value] of primaryColumnEntries) {
+        // eslint-disable-next-line prefer-const
+        for (let [key, value] of primaryColumnEntries) {
           const sanitizedKey = removeSpecialChars(key, 200);
-          const id = removeSpecialChars(value.id, 200);
+          let id = "";
+          if (value.id) {
+            id = removeSpecialChars(value.id, 200);
+          } else if (Object.keys(value)) {
+            const onlyKey = Object.keys(value)[0] as keyof ColumnProperties;
+            const obj = value[onlyKey] as any;
+            value = obj as ColumnProperties;
+            id = removeSpecialChars(value.id, 200);
+          }
 
           // Sanitizes "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.$$$random_header))}}"
           // to "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._random_header))}}"
