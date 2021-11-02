@@ -337,6 +337,7 @@ function AddCommentInput({
             <Button
               category={Category.tertiary}
               className={"cancel-button"}
+              data-cy="add-comment-cancel"
               onClick={_onCancel}
               text={createMessage(CANCEL)}
             />
