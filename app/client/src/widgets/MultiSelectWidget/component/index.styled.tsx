@@ -74,6 +74,16 @@ export const DropdownStyles = createGlobalStyle`
 	text-align: center;
 	color: #999;
 }
+.rc-select-item-empty {
+	text-align: left;
+  color: rgba(92, 112, 128, 0.6) !important
+}
+.multi-select-dropdown.rc-select-dropdown-empty {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid #E7E7E7;
+  border-color: rgba(0,0,0,0.2);
+  min-height: fit-content;
+}
 .rc-select-selection__choice-zoom {
 	transition: all 0s;
 }
