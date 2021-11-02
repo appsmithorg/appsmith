@@ -275,47 +275,47 @@ export default {
         column && column.columnType ? column.columnType : "text";
       const inputFormat = column.inputFormat;
       sortedTableData = derivedTableData.sort((a, b) => {
-        if (
-          _.isPlainObject(a) &&
-          _.isPlainObject(b) &&
-          !_.isNil(a[sortedColumn]) &&
-          !_.isNil(b[sortedColumn])
-        ) {
-          switch (columnType) {
-            case "number":
-              return sortOrder
-                ? Number(a[sortedColumn]) > Number(b[sortedColumn])
-                  ? 1
-                  : -1
-                : Number(b[sortedColumn]) > Number(a[sortedColumn])
-                ? 1
-                : -1;
-            case "date":
-              try {
+        if (_.isPlainObject(a) && _.isPlainObject(b)) {
+          if (!_.isNil(a[sortedColumn]) || !_.isNil(b[sortedColumn])) {
+            //push the null and undefined values to the bottom.
+            return _.isNil(a[sortedColumn]) ? 1 : -1;
+          } else {
+            switch (columnType) {
+              case "number":
                 return sortOrder
-                  ? moment(a[sortedColumn], inputFormat).isAfter(
-                      moment(b[sortedColumn], inputFormat),
-                    )
+                  ? Number(a[sortedColumn]) > Number(b[sortedColumn])
                     ? 1
                     : -1
-                  : moment(b[sortedColumn], inputFormat).isAfter(
-                      moment(a[sortedColumn], inputFormat),
-                    )
+                  : Number(b[sortedColumn]) > Number(a[sortedColumn])
                   ? 1
                   : -1;
-              } catch (e) {
-                return -1;
-              }
-            default:
-              return sortOrder
-                ? a[sortedColumn].toString().toUpperCase() >
-                  b[sortedColumn].toString().toUpperCase()
+              case "date":
+                try {
+                  return sortOrder
+                    ? moment(a[sortedColumn], inputFormat).isAfter(
+                        moment(b[sortedColumn], inputFormat),
+                      )
+                      ? 1
+                      : -1
+                    : moment(b[sortedColumn], inputFormat).isAfter(
+                        moment(a[sortedColumn], inputFormat),
+                      )
+                    ? 1
+                    : -1;
+                } catch (e) {
+                  return -1;
+                }
+              default:
+                return sortOrder
+                  ? a[sortedColumn].toString().toUpperCase() >
+                    b[sortedColumn].toString().toUpperCase()
+                    ? 1
+                    : -1
+                  : b[sortedColumn].toString().toUpperCase() >
+                    a[sortedColumn].toString().toUpperCase()
                   ? 1
-                  : -1
-                : b[sortedColumn].toString().toUpperCase() >
-                  a[sortedColumn].toString().toUpperCase()
-                ? 1
-                : -1;
+                  : -1;
+            }
           }
         } else {
           return sortOrder ? 1 : 0;
