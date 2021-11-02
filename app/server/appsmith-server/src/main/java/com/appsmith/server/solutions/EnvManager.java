@@ -70,7 +70,7 @@ public class EnvManager {
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
 
-    private enum Vars {
+    public enum Vars {
         APPSMITH_INSTANCE_NAME,
         APPSMITH_MONGODB_URI,
         APPSMITH_REDIS_URL,
@@ -286,7 +286,14 @@ public class EnvManager {
                         return Mono.error(e);
                     }
 
-                    return Mono.justOrEmpty(parseToMap(originalContent));
+                    // set the default values to response
+                    Map<String, String> envKeyValueMap = parseToMap(originalContent);
+                    if(!envKeyValueMap.containsKey(Vars.APPSMITH_INSTANCE_NAME.name())) {
+                        // no APPSMITH_INSTANCE_NAME set in env file, set the default value
+                        envKeyValueMap.put(Vars.APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
+                    }
+
+                    return Mono.justOrEmpty(envKeyValueMap);
                 });
     }
 
