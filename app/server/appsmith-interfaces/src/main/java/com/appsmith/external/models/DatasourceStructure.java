@@ -135,10 +135,10 @@ public class DatasourceStructure {
          *
          * For integrations that use UQI interface, a config map is used to indicate the required template. However,
          * some properties like `actionConfiguration.path` cannot be configured via the config map since the config
-         * map only models the bodyFormData attribute. Such properties are configured via ActionConfiguration object.
+         * map only models the formData attribute. Such properties are configured via ActionConfiguration object.
          *
          * This seemed like a good choice over only using the ActionConfiguration object and skipping out on the
-         * UQI/bodyFormData configuration map - as it would allow the Client application to re-use the UQI related
+         * UQI/formData configuration map - as it would allow the Client application to re-use the UQI related
          * template code and augment the remaining fields with ActionConfiguration object.
          */
         public Template(String title, Map<String, ?> configuration, ActionConfiguration actionConfiguration) {
