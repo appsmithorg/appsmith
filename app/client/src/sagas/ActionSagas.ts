@@ -656,7 +656,9 @@ function getDynamicBindingsChangesSaga(
   const bindingField = field.replace("actionConfiguration.", "");
   let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
-  if (typeof value === "object") {
+  const valueType = getType(value);
+
+  if (valueType === Types.OBJECT) {
     dynamicBindings = dynamicBindings.filter((dynamicPath) => {
       if (isChildPropertyPath(bindingField, dynamicPath.key)) {
         const childPropertyValue = _.get(value, dynamicPath.key);
