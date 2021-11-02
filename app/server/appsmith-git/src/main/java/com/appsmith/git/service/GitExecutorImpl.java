@@ -455,7 +455,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
-            Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+            Git git = Git.open(repoPath.toFile());
             try {
                 //checkout the branch on which the merge command is run
                 git.checkout().setName(destinationBranch).setCreateBranch(false).call();
