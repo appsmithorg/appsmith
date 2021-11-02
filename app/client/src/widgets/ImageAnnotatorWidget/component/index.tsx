@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import ReactImageAnnotate from "react-image-annotate";
+import { Annotation, IAnnotation } from "react-image-annotation-ts";
 
 const ImageAnnotatorContainer = styled.div`
   display: flex;
@@ -9,31 +9,35 @@ const ImageAnnotatorContainer = styled.div`
 `;
 
 function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
-  const { imageUrl, onSave } = props;
+  const { annotation, annotations, imageUrl, onSubmit } = props;
 
-  const images = [
-    {
-      src: imageUrl,
-      regions: [],
-    },
-  ];
+  const handleChange = (annotation: IAnnotation) => {
+    console.error("annotation is changed");
+  };
 
-  const regionClsList = ["A"];
+  const handleSubmit = (annotation: IAnnotation) => {
+    const { data, geometry } = annotation;
+    console.error(geometry);
+  };
 
   return (
     <ImageAnnotatorContainer>
-      <ReactImageAnnotate
-        images={images}
-        onExit={onSave}
-        regionClsList={regionClsList}
+      <Annotation
+        annotations={annotations}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+        src={imageUrl}
+        value={annotation}
       />
     </ImageAnnotatorContainer>
   );
 }
 
 export interface ImageAnnotatorComponentProps {
+  annotation: IAnnotation;
+  annotations?: IAnnotation[];
   imageUrl: string;
-  onSave: (value: any) => void;
+  onSubmit: (annotation: IAnnotation) => void;
 }
 
 export default ImageAnnotatorComponent;

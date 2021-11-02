@@ -1,9 +1,11 @@
 import React from "react";
+import { IAnnotation } from "react-image-annotation-ts";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import ImageAnnotatorComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ImageAnnotatorWidget extends BaseWidget<
   ImageAnnotatorWidgetProps,
@@ -30,9 +32,9 @@ class ImageAnnotatorWidget extends BaseWidget<
         sectionName: "Actions",
         children: [
           {
-            helpText: "Triggers an action when annotations are saved",
-            propertyName: "onAnnotationSaved",
-            label: "onAnnotationSaved",
+            helpText: "Triggers an action when an annotation is submitted",
+            propertyName: "onAnnotationSubmit",
+            label: "onAnnotationSubmit",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -45,27 +47,56 @@ class ImageAnnotatorWidget extends BaseWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: undefined,
+      annotation: {},
+      annotations: [],
     };
   }
 
-  handleAnnotationSave = (value: any) => {
-    this.props.updateWidgetMetaProperty("value", value, {
-      triggerPropertyName: "onAnnotationSaved",
-      dynamicString: this.props.onAnnotationSaved,
+  handleAnnotationSubmit = (annotation: IAnnotation) => {
+    const newAnnotations = this.props.annotations.concat(annotation);
+
+    this.props.updateWidgetMetaProperty("annotations", newAnnotations, {
+      triggerPropertyName: "onAnnotationSubmit",
+      dynamicString: this.props.onAnnotationSubmit,
       event: {
-        type: EventType.ON_IMAGE_ANNOTATION_SAVED,
+        type: EventType.ON_IMAGE_ANNOTATOR_ANNOTATION_SUBMIT,
       },
     });
   };
 
+  disableDrag = () => {
+    this.props.updateWidgetMetaProperty("dragDisabled", true);
+  };
+  enableDrag = () => {
+    this.props.updateWidgetMetaProperty("dragDisabled", false);
+  };
+
   getPageView() {
-    const { imageUrl } = this.props;
+    const {
+      annotation,
+      annotations,
+      bottomRow,
+      imageUrl,
+      leftColumn,
+      parentColumnSpace,
+      parentRowSpace,
+      rightColumn,
+      topRow,
+    } = this.props;
+
+    const height = (bottomRow - topRow) * parentRowSpace - WIDGET_PADDING;
+    const width =
+      (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING;
+
     return (
-      <ImageAnnotatorComponent
-        imageUrl={imageUrl}
-        onSave={this.handleAnnotationSave}
-      />
+      <div onFocus={this.disableDrag} tabIndex={1}>
+        <ImageAnnotatorComponent
+          annotation={annotation}
+          annotations={annotations}
+          imageUrl={imageUrl}
+          onSubmit={this.handleAnnotationSubmit}
+        />
+      </div>
     );
   }
 
@@ -75,6 +106,8 @@ class ImageAnnotatorWidget extends BaseWidget<
 }
 
 export interface ImageAnnotatorWidgetProps extends WidgetProps {
+  annotation: IAnnotation;
+  annotations: IAnnotation[];
   imageUrl: string;
   onAnnotationSaved?: string;
 }
