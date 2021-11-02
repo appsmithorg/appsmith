@@ -97,10 +97,8 @@ const HeaderWrapper = styled(StyledHeader)`
   }
 `;
 
-// looks offset by 1px even though, checking bounding rect values
 const HeaderSection = styled.div`
   position: relative;
-  top: -1px;
   display: flex;
   flex: 1;
   overflow: visible;
