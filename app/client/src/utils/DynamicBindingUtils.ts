@@ -14,6 +14,7 @@ import {
 } from "workers/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { getType, Types } from "./TypeHelpers";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -393,3 +394,36 @@ export const PropertyEvalErrorTypeDebugMessage: Record<
   [PropertyEvaluationErrorType.PARSE]: () => `Could not parse the binding`,
   [PropertyEvaluationErrorType.LINT]: () => `Errors found while evaluating`,
 };
+
+export function getDynamicBindingsChangesSaga(
+  action: Action,
+  value: unknown,
+  field: string,
+) {
+  const bindingField = field.replace("actionConfiguration.", "");
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
+
+  const valueType = getType(value);
+
+  if (valueType === Types.OBJECT) {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
+  }
+
+  return dynamicBindings;
+}
