@@ -74,8 +74,8 @@ import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODIN
 public class AmazonS3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
-    public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 0;
-    public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 1;
+    public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
+    public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
     public static final int CUSTOM_ENDPOINT_INDEX = 0;
     private static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
     private static final String YES = "YES";
