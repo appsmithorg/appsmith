@@ -368,7 +368,7 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 })
                 .flatMap(savedComment ->
                         commentThreadRepository.findById(savedComment.getThreadId())
@@ -581,7 +581,7 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 });
 
         StepVerifier.create(commentMono).assertNext(comment -> {

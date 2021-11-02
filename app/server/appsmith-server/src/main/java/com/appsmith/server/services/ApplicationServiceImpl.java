@@ -82,7 +82,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
-        return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS));
+        return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS))
+                .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
     @Override

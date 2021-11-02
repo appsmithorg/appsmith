@@ -1,8 +1,8 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.domains.AbstractCommentDomain;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -143,15 +143,16 @@ public class SanitiseResponse {
         return application;
     }
 
-    public CommentThread updateCommentThreadDTOWithDefaultResources(CommentThread commentThread) {
-        DefaultResources defaults = commentThread.getDefaultResources();
+    public <T extends AbstractCommentDomain> T updatePageAndAppIdWithDefaultResourcesForComments(T resource) {
+        DefaultResources defaults = resource.getDefaultResources();
         if (defaults == null
                 || StringUtils.isEmpty(defaults.getApplicationId())
                 || StringUtils.isEmpty(defaults.getPageId())) {
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "commentThread", commentThread.getId());
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, resource.getType(), resource.getId());
         }
-        commentThread.setApplicationId(defaults.getApplicationId());
-        commentThread.setPageId(defaults.getPageId());
-        return commentThread;
+        resource.setApplicationId(defaults.getApplicationId());
+        resource.setPageId(defaults.getPageId());
+        resource.setBranchName(defaults.getBranchName());
+        return resource;
     }
 }

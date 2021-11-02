@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -8,7 +9,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -52,6 +53,7 @@ import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_COMMENT;
 import static com.appsmith.server.acl.AclPermission.READ_THREAD;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_NAME;
 import static com.appsmith.server.constants.CommentConstants.APPSMITH_BOT_USERNAME;
@@ -115,10 +117,26 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     @Override
-    public Mono<Comment> create(String threadId, Comment comment, String originHeader) {
+    public Mono<Comment> create(String threadId, Comment comment, String originHeader, String branchName) {
+
+        String defaultPageId, defaultApplicationId;
         if (StringUtils.isWhitespace(comment.getAuthorName())) {
             // Error: User can't explicitly set the author name. It will be the currently logged in user.
             return Mono.empty();
+        }
+
+        if (comment.getDefaultResources() != null) {
+            defaultPageId = comment.getDefaultResources().getPageId();
+            defaultApplicationId = comment.getDefaultResources().getApplicationId();
+            comment.getDefaultResources().setBranchName(branchName);
+        } else {
+            defaultPageId = comment.getPageId();
+            defaultApplicationId = comment.getApplicationId();
+            DefaultResources defaultResources = new DefaultResources();
+            defaultResources.setPageId(defaultPageId);
+            defaultResources.setApplicationId(defaultApplicationId);
+            defaultResources.setBranchName(branchName);
+            comment.setDefaultResources(defaultResources);
         }
 
         final Mono<User> userMono = sessionUserService.getCurrentUser().flatMap(user -> {
@@ -134,13 +152,31 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 })
         );
 
-        return userMono.flatMap(user ->
-            threadRepository
-                    .findById(threadId, AclPermission.COMMENT_ON_THREAD)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
-                    .flatMap(commentThread -> updateThreadOnAddComment(commentThread, comment, user))
-                    .flatMap(commentThread -> create(commentThread, user, comment, originHeader))
-        );
+        return Mono.zip(
+                applicationService.findBranchedApplicationId(branchName, defaultApplicationId, COMMENT_ON_APPLICATIONS),
+                newPageService.findBranchedPageId(branchName, defaultPageId, MANAGE_PAGES),
+                userMono
+        )
+                .flatMap(tuple -> {
+                    String branchedApplicationId = tuple.getT1();
+                    String branchedPageId = tuple.getT2();
+                    User user = tuple.getT3();
+                    comment.setPageId(branchedPageId);
+                    comment.setApplicationId(branchedApplicationId);
+                    return threadRepository
+                            .findById(threadId, AclPermission.COMMENT_ON_THREAD)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.COMMENT_THREAD, threadId)))
+                            .flatMap(commentThread -> updateThreadOnAddComment(commentThread, comment, user))
+                            .flatMap(commentThread -> create(commentThread, user, comment, originHeader));
+                })
+                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
+    }
+
+    @Override
+    public Mono<Comment> findByIdAndBranchName(String id, String branchName) {
+        // Ignore branch name as comments are not shared across git branches
+        return repository.findById(id, READ_COMMENT)
+                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     /**
@@ -335,6 +371,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     }
 
     public Mono<CommentThread> createThread(CommentThread commentThread, String originHeader, String branchName) {
+        // We can safely consider the client will always send the default IDs for page and application as client is not
+        // aware of branched IDs for these resources
         final String defaultAppId = commentThread.getApplicationId();
         final String defaultPageId = commentThread.getPageId();
         return Mono.zip(
@@ -343,29 +381,47 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(tuple -> {
                     String branchedApplicationId = tuple.getT1();
                     String branchedPageId = tuple.getT2().getId();
-                    if (commentThread.getDefaultResources() == null) {
-                        DefaultResources defaultResources = new DefaultResources();
-                        defaultResources.setPageId(commentThread.getPageId());
-                        defaultResources.setApplicationId(commentThread.getApplicationId());
-                        commentThread.setDefaultResources(defaultResources);
-                    }
+                    // DefaultResource field will be empty always as client is not aware of this and server is not
+                    // sharing the comments or comment threads across branches
+
+                    DefaultResources defaultResources = new DefaultResources();
+                    defaultResources.setPageId(commentThread.getPageId());
+                    defaultResources.setApplicationId(commentThread.getApplicationId());
+                    defaultResources.setBranchName(branchName);
+                    commentThread.setDefaultResources(defaultResources);
 
                     commentThread.setApplicationId(branchedApplicationId);
                     commentThread.setPageId(branchedPageId);
+                    if (!CollectionUtils.isEmpty(commentThread.getComments())) {
+                        for(Comment comment: commentThread.getComments()) {
+                            comment.setPageId(branchedPageId);
+                            comment.setApplicationId(branchedApplicationId);
+                            comment.setDefaultResources(defaultResources);
+                        }
+                    }
                     return createThread(commentThread, originHeader);
                 })
-                .map(sanitiseResponse::updateCommentThreadDTOWithDefaultResources);
+                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
 
     }
 
     @Override
     public Mono<Comment> update(String id, Comment comment) {
+        // Comments and threads can't be moved between the pages and applications.
+        comment.setApplicationId(null);
+        comment.setPageId(null);
         return repository.updateById(id, comment, AclPermission.MANAGE_COMMENT)
-                .flatMap(analyticsService::sendUpdateEvent);
+                .flatMap(analyticsService::sendUpdateEvent)
+                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     @Override
     public Mono<CommentThread> updateThread(String threadId, CommentThread commentThread, String originHeader) {
+
+        // Comments and threads can't be moved between the pages and applications.
+        commentThread.setApplicationId(null);
+        commentThread.setPageId(null);
+
         return sessionUserService.getCurrentUser().flatMap(user -> {
             if (user.getId() == null) {
                 return userService.findByEmail(user.getEmail());
@@ -417,6 +473,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             .updateById(threadId, commentThread, AclPermission.READ_THREAD)
                             .flatMap(updatedThread -> {
                                 updatedThread.setIsViewed(true);
+                                // Update branched applicationId and pageId with default Ids
+                                sanitiseResponse.updatePageAndAppIdWithDefaultResourcesForComments(updatedThread);
                                 // send email if comment thread is resolved
                                 CommentThread.CommentThreadState resolvedState = commentThread.getResolvedState();
                                 if (resolvedState != null && resolvedState.getActive()) {
@@ -437,6 +495,14 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                 return Mono.just(updatedThread);
                             });
                 });
+    }
+
+    @Override
+    public Flux<Comment> get(MultiValueMap<String, String> params) {
+        // Remove branch name as comments are not shared across branches
+        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
+        return super.getWithPermission(params, READ_COMMENT)
+                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     private Mono<Boolean> triggerBotThreadResolved(CommentThread resolvedThread, User user) {
@@ -516,7 +582,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     return getThreadsByApplicationId(commentThreadFilterDTO);
                 })
                 .map(commentThreads -> {
-                    commentThreads.forEach(sanitiseResponse::updateCommentThreadDTOWithDefaultResources);
+                    commentThreads.forEach(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
                     return commentThreads;
                 });
     }
@@ -536,7 +602,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     sendCommentNotifications(commentThread.getSubscribers(), comment, CommentNotificationEvent.DELETED)
                             .thenReturn(comment)
                 ))
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(analyticsService::sendDeleteEvent)
+                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     @Override
@@ -548,7 +615,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                             commentThread, CommentNotificationEvent.DELETED, commentThread.getAuthorUsername()
                     ).collectList().thenReturn(commentThread)
                 )
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(analyticsService::sendDeleteEvent)
+                .map(sanitiseResponse::updatePageAndAppIdWithDefaultResourcesForComments);
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
+import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.external.models.DefaultResources;
@@ -37,6 +38,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
@@ -3818,6 +3820,29 @@ public class DatabaseChangelog {
                     query(where(fieldName(QCommentThread.commentThread.id)).is(thread.getId())),
                     defaultResourceUpdates,
                     CommentThread.class
+            );
+        }
+
+        // Update comment
+        final Query commentQuery = query(where(fieldName(QComment.comment.deleted)).ne(true));
+        commentQuery.fields()
+                .include(fieldName(QComment.comment.applicationId))
+                .include(fieldName((QComment.comment.pageId)));
+
+        List<Comment> comments = mongockTemplate.find(commentQuery, Comment.class);
+
+        for (Comment comment : comments) {
+            DefaultResources defaults = new DefaultResources();
+            defaults.setPageId(comment.getPageId());
+            defaults.setApplicationId(comment.getApplicationId());
+
+            final Update defaultResourceUpdates = new Update();
+
+            defaultResourceUpdates.set(fieldName(QComment.comment.defaultResources), defaults);
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QComment.comment.id)).is(comment.getId())),
+                    defaultResourceUpdates,
+                    Comment.class
             );
         }
 

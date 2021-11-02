@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.UpdateIsReadNotificationByIdDTO;
 import com.appsmith.server.dtos.UpdateIsReadNotificationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.NotificationRepository;
+import com.appsmith.server.solutions.SanitiseResponse;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +48,8 @@ public class NotificationServiceImplTest {
     private AnalyticsService analyticsService;
     @MockBean
     private SessionUserService sessionUserService;
+    @MockBean
+    private SanitiseResponse sanitiseResponse;
 
     NotificationService notificationService;
     private User currentUser;
@@ -55,8 +58,7 @@ public class NotificationServiceImplTest {
     public void setUp() {
         notificationService = new NotificationServiceImpl(
                 scheduler, validator, mongoConverter, reactiveMongoTemplate,
-                repository, analyticsService, sessionUserService
-        );
+                repository, analyticsService, sessionUserService, sanitiseResponse);
         currentUser = new User();
         currentUser.setEmail("sample-email");
 

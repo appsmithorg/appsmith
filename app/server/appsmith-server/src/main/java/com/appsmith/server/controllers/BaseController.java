@@ -7,7 +7,9 @@ import com.appsmith.server.services.CrudService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,9 +50,14 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
      * @return
      */
     @GetMapping("")
-    public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+    public Mono<ResponseDTO<List<T>>> getAll(@RequestParam MultiValueMap<String, String> params,
+                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get all resources from base controller {}", params);
-        return service.get(params).collectList()
+        MultiValueMap<String, String> modifiableParams = new LinkedMultiValueMap<>(params);
+        if (StringUtils.isEmpty(branchName)) {
+            modifiableParams.add(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
+        }
+        return service.get(modifiableParams).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
