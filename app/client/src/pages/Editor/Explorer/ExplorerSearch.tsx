@@ -46,6 +46,9 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
       background: none;
       padding: 0px 10px 0px 10px;
       color: ${Colors.DOVE_GRAY2};
+      // normalize.css adds a line-height which clips the placeholder text on windows
+      // so setting it back to normal
+      line-height: normal;
       &::placeholder {
         color: ${Colors.DOVE_GRAY2};
       }

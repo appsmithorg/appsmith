@@ -40,7 +40,7 @@ const is404orAuthPath = () => {
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   const branch = getCurrentGitBranch(store.getState());
   if (branch) {
-    config.headers.branch = branch;
+    config.headers.branchName = branch;
   }
   return { ...config, timer: performance.now() };
 };
