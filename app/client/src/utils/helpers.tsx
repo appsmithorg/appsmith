@@ -471,7 +471,8 @@ export function bootIntercom(user?: User) {
     let name;
     if (!cloudHosting) {
       username = sha256(username || "");
-      email = sha256(email || "");
+      // keep email undefined so that users are prompted to enter it when they reach out on intercom
+      email = undefined;
     } else {
       name = user?.name;
     }

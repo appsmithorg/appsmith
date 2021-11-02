@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { ThemeProp, Classes, CommonComponentProps } from "./common";
+import { Theme } from "constants/DefaultTheme";
+import { TypographyKeys } from "../../constants/typography";
 
 export enum TextType {
   P1 = "p1",
@@ -31,9 +33,10 @@ export type TextProps = CommonComponentProps & {
   italic?: boolean;
   case?: Case;
   className?: string;
-  weight?: FontWeight;
+  weight?: FontWeight | string;
   highlight?: boolean;
   textAlign?: string;
+  color?: string;
 };
 
 const typeSelector = (props: TextProps & ThemeProp): string => {
@@ -55,6 +58,29 @@ const typeSelector = (props: TextProps & ThemeProp): string => {
   return color;
 };
 
+const getFontWeight = ({
+  theme,
+  type,
+  weight,
+}: {
+  theme: Theme;
+  weight: string | undefined;
+  type: TypographyKeys;
+}) => {
+  if (weight) {
+    switch (weight) {
+      case FontWeight.BOLD:
+        return theme.fontWeights[2];
+      case FontWeight.NORMAL:
+        return "normal";
+      default:
+        return weight;
+    }
+  } else {
+    return theme.typography[type].fontWeight;
+  }
+};
+
 const Text = styled.span.attrs((props: TextProps) => ({
   className: props.className ? props.className + Classes.TEXT : Classes.TEXT,
   "data-cy": props.cypressSelector,
@@ -62,17 +88,21 @@ const Text = styled.span.attrs((props: TextProps) => ({
   text-decoration: ${(props) => (props.underline ? "underline" : "unset")};
   font-style: ${(props) => (props.italic ? "italic" : "normal")};
   font-weight: ${(props) =>
-    props.weight
-      ? props.weight === FontWeight.BOLD
-        ? props.theme.fontWeights[2]
-        : "normal"
-      : props.theme.typography[props.type].fontWeight};
+    getFontWeight({
+      theme: props.theme,
+      type: props.type,
+      weight: props.weight,
+    })};
   font-size: ${(props) => props.theme.typography[props.type].fontSize}px;
   line-height: ${(props) => props.theme.typography[props.type].lineHeight}px;
   letter-spacing: ${(props) =>
     props.theme.typography[props.type].letterSpacing}px;
   color: ${(props) =>
-    props.highlight ? props.theme.colors.text.highlight : typeSelector(props)};
+    props.highlight
+      ? props.theme.colors.text.highlight
+      : props.color
+      ? props.color
+      : typeSelector(props)};
   text-transform: ${(props) => (props.case ? props.case : "none")};
   text-align: ${(props) => (props.textAlign ? props.textAlign : "normal")};
 `;

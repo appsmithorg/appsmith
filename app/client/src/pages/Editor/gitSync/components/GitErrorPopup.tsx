@@ -7,7 +7,7 @@ import {
   showCreateBranchPopup,
 } from "actions/gitSyncActions";
 import {
-  getGitError,
+  getGitPushError,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
 import Icon from "components/ads/Icon";
@@ -76,7 +76,7 @@ function GitErrorPopup() {
   const hidePopup = () => {
     dispatch(setIsGitErrorPopupVisible({ isVisible: false }));
   };
-  const gitError = useSelector(getGitError);
+  const gitError = useSelector(getGitPushError);
 
   return (
     <StyledGitErrorPopup>

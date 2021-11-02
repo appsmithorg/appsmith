@@ -2,7 +2,7 @@ import {
   createMessage,
   GIT_CONNECTION,
   DEPLOY,
-  // MERGE,
+  MERGE,
 } from "constants/messages";
 
 export enum MENU_ITEM {
@@ -17,7 +17,7 @@ export const MENU_ITEMS_MAP = {
     title: createMessage(GIT_CONNECTION),
   },
   [MENU_ITEM.DEPLOY]: { key: MENU_ITEM.DEPLOY, title: createMessage(DEPLOY) },
-  // [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
+  [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
   // Hide Merge Tab till basic functionality is not ready
 };
 

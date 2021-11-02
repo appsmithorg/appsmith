@@ -446,8 +446,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
 
-                    DecryptedSensitiveFields decryptedFields =
-                            applicationJson.getDecryptedFields().get(datasource.getName());
+                    DecryptedSensitiveFields decryptedFields = applicationJson.getDecryptedFields().get(datasource.getName());
 
                     DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
                     assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());

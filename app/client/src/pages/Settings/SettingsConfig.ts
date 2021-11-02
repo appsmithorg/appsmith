@@ -1,3 +1,5 @@
+import { apiRequestConfig } from "api/Api";
+import UserApi from "api/UserApi";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   EMAIL_SETUP_DOC,
@@ -5,6 +7,7 @@ import {
   GOOGLE_MAPS_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
+import { Dispatch } from "react";
 import { isEmail } from "utils/formhelpers";
 
 export enum SettingTypes {
@@ -37,7 +40,7 @@ export type Setting = {
   subCategory?: string;
   value?: string;
   text?: string;
-  action?: () => Partial<ReduxAction<any>>;
+  action?: (dispatch?: Dispatch<ReduxAction<any>>) => void;
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
@@ -133,14 +136,6 @@ SettingsFactory.register("APPSMITH_MAIL_HOST", {
   controlSubType: SettingSubtype.TEXT,
   label: "SMTP Host",
   placeholder: "email-smtp.us-east-2.amazonaws.com",
-  validate: (value: string) => {
-    if (
-      value &&
-      !/^(smtps?):\/\/([\d.a-z-]+\.[a-z]{2,63}):(\d{1,5})/.test(value)
-    ) {
-      return "please enter a valid SMTP host";
-    }
-  },
 });
 
 SettingsFactory.register("APPSMITH_MAIL_PORT", {
@@ -227,25 +222,30 @@ SettingsFactory.register("APPSMITH_ADMIN_EMAILS", {
   },
 });
 
-//To be uncommented when api is available
-// SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
-//   action: () => ({ type: ReduxActionTypes.DOWNLOAD_DOCKER_COMPOSE_FILE }),
-//   category: "general",
-//   controlType: SettingTypes.BUTTON,
-//   label: "Generated Docker Compose File",
-//   text: "Download",
-// });
+SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
+  action: () => {
+    const { host, protocol } = window.location;
+    window.open(
+      `${protocol}//${host}${apiRequestConfig.baseURL}${UserApi.downloadConfigURL}`,
+      "_blank",
+    );
+  },
+  category: "general",
+  controlType: SettingTypes.BUTTON,
+  label: "Generated Docker Compose File",
+  text: "Download",
+});
 
 SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
   category: "general",
   controlType: SettingTypes.TOGGLE,
-  label: "Share Anonymous Usage Data",
+  label: "Disable Sharing Anonymous Usage Data",
   subText: "Share anonymous usage data to help improve the product",
   toggleText: (value: boolean) => {
     if (value) {
-      return "Share data & make appsmith better!";
-    } else {
       return "Don't share any data";
+    } else {
+      return "Share data & make appsmith better!";
     }
   },
 });
@@ -273,9 +273,9 @@ SettingsFactory.register("APPSMITH_SIGNUP_DISABLED", {
   label: "Signup",
   toggleText: (value: boolean) => {
     if (value) {
-      return " Allow all users to signup";
-    } else {
       return "Allow invited users to signup";
+    } else {
+      return " Allow all users to signup";
     }
   },
 });
@@ -296,20 +296,21 @@ SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID", {
   label: "Client ID",
 });
 
-SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
-  category: "authentication",
-  subCategory: "google signup",
-  controlType: SettingTypes.TEXTINPUT,
-  controlSubType: SettingSubtype.TEXT,
-  label: "Allowed Domains",
-});
-
 SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET", {
   category: "authentication",
   subCategory: "google signup",
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Client Secret",
+});
+
+SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
+  category: "authentication",
+  subCategory: "google signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Allowed Domains",
+  placeholder: "domain1.com, domain2.com",
 });
 
 SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_READ_MORE", {
@@ -328,6 +329,14 @@ SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_ID", {
   label: "Client ID",
 });
 
+SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET", {
+  category: "authentication",
+  subCategory: "github signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Client Secret",
+});
+
 //version
 SettingsFactory.register("APPSMITH_CURRENT_VERSION", {
   category: "version",
@@ -336,10 +345,13 @@ SettingsFactory.register("APPSMITH_CURRENT_VERSION", {
 });
 
 SettingsFactory.register("APPSMITH_VERSION_READ_MORE", {
-  action: () => ({
-    type: ReduxActionTypes.TOGGLE_RELEASE_NOTES,
-    payload: true,
-  }),
+  action: (dispatch?: Dispatch<ReduxAction<boolean>>) => {
+    dispatch &&
+      dispatch({
+        type: ReduxActionTypes.TOGGLE_RELEASE_NOTES,
+        payload: true,
+      });
+  },
   category: "version",
   controlType: SettingTypes.LINK,
   label: "Release Notes",
