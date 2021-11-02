@@ -19,4 +19,5 @@ public class ActionCollectionViewDTO {
     String applicationId;
     List<JSValue> variables;
     List<ActionDTO> actions;
+    String body;
 }
