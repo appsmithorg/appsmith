@@ -293,6 +293,16 @@ export function* inviteUsers(
         orgId: data.orgId,
       },
     });
+    yield put({
+      type: ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION,
+      payload: {
+        orgId: data.orgId,
+        users: data.usernames.map((name: string) => ({
+          username: name,
+          roleName: data.roleName,
+        })),
+      },
+    });
     yield call(resolve);
     yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {
