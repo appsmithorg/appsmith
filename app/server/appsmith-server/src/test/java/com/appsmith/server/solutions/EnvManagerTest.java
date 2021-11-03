@@ -291,4 +291,38 @@ public class EnvManagerTest {
         assertThat(headers.getContentType().toString()).isEqualTo("application/zip");
         assertThat(headers.getContentDisposition().toString()).containsIgnoringCase("appsmith-config.zip");
     }
+
+    @Test
+    public void sendTestEmail_WhenUserNotSuperUser_ThrowsException() {
+        User user = new User();
+        user.setEmail("sample-super-user");
+        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
+        Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
+        Mockito.when(policyUtils.isPermissionPresentForUser(
+                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
+        ).thenReturn(false);
+
+        StepVerifier.create(envManager.sendTestEmail())
+                .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
+                .verify();
+    }
+
+    @Test
+    public void sendTestEmail_WhenUserIsSuperUser_MailSent() {
+        User user = new User();
+        user.setEmail("sample-super-user");
+        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
+        Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
+        Mockito.when(policyUtils.isPermissionPresentForUser(
+                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
+        ).thenReturn(true);
+        Mockito.when(emailSender.sendMail(any(String.class), any(String.class), any(String.class)))
+                .thenReturn(Mono.just(true));
+
+        StepVerifier.create(envManager.sendTestEmail())
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isTrue();
+                })
+                .verifyComplete();
+    }
 }
