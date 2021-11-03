@@ -276,7 +276,7 @@ export default {
       const inputFormat = column.inputFormat;
       sortedTableData = derivedTableData.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
-          if (!_.isNil(a[sortedColumn]) || !_.isNil(b[sortedColumn])) {
+          if (_.isNil(a[sortedColumn]) || _.isNil(b[sortedColumn])) {
             //push the null and undefined values to the bottom.
             return _.isNil(a[sortedColumn]) ? 1 : -1;
           } else {
