@@ -15,6 +15,7 @@ import {
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
   DEPLOY_KEY_TITLE,
   REMOTE_URL_INPUT_PLACEHOLDER,
+  CONNECTING_REPO,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -54,6 +55,7 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -174,6 +176,9 @@ const RemoteUrlInfoWrapper = styled.div`
 `;
 
 const Section = styled.div``;
+const StatusbarWrapper = styled.div`
+  width: 252px;
+`;
 
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
@@ -188,6 +193,7 @@ function GitConnection({ isImport }: Props) {
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore);
+  const [processingGit, setProcessingGit] = useState(false);
 
   const isGitConnected = !!remoteUrlInStore;
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
@@ -325,6 +331,7 @@ function GitConnection({ isImport }: Props) {
       emailValidator(authorInfo.authorEmail).isValid
     ) {
       // Also check if useDefaultConfig switch is changed
+      setProcessingGit(true);
       if (isGitConnected && !isRemoteUrlUpdated()) {
         if (isAuthorInfoUpdated()) {
           // just update local config
@@ -415,6 +422,9 @@ function GitConnection({ isImport }: Props) {
     setUseGlobalConfig(!useGlobalConfig);
   }, [setUseGlobalConfig, useGlobalConfig]);
 
+  const hideStatusBar = useCallback(() => {
+    setProcessingGit(false);
+  }, []);
   return (
     <Container>
       <Section>
@@ -527,20 +537,34 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>
-            <Button
-              category={isGitConnected ? Category.secondary : Category.primary}
-              className="t--connect-submit-btn"
-              disabled={submitButtonDisabled}
-              isLoading={submitButtonIsLoading}
-              onClick={onSubmit}
-              size={Size.large}
-              tag="button"
-              text={
-                isGitConnected
-                  ? createMessage(UPDATE_CONFIG)
-                  : createMessage(CONNECT_BTN_LABEL)
-              }
-            />
+            {processingGit && (
+              <StatusbarWrapper>
+                <Statusbar
+                  completed={!submitButtonIsLoading}
+                  message={createMessage(CONNECTING_REPO)}
+                  onHide={hideStatusBar}
+                  period={4}
+                />
+              </StatusbarWrapper>
+            )}
+            {!processingGit && (
+              <Button
+                category={
+                  isGitConnected ? Category.secondary : Category.primary
+                }
+                className="t--connect-submit-btn"
+                disabled={submitButtonDisabled}
+                isLoading={submitButtonIsLoading}
+                onClick={onSubmit}
+                size={Size.large}
+                tag="button"
+                text={
+                  isGitConnected
+                    ? createMessage(UPDATE_CONFIG)
+                    : createMessage(CONNECT_BTN_LABEL)
+                }
+              />
+            )}
           </ButtonContainer>
         </>
       ) : null}
