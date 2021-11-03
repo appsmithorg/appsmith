@@ -14,6 +14,11 @@ import { validateResponse } from "./ErrorSagas";
 import { getAppsmithConfigs } from "configs";
 
 import { ApiResponse } from "api/ApiResponses";
+import {
+  createMessage,
+  TEST_EMAIL_FAILURE,
+  TEST_EMAIL_SUCCESS,
+} from "constants/messages";
 
 function* FetchAdminSettingsSaga() {
   const response = yield call(UserApi.fetchAdminSettings);
@@ -92,12 +97,22 @@ function* RestartServerPoll() {
 }
 
 function* SendTestEmail() {
-  yield call(UserApi.sendTestEmail);
-  Toaster.show({
-    text: "Test email sent successfully",
-    hideProgressBar: false,
-    variant: Variant.success,
-  });
+  try {
+    const response = yield call(UserApi.sendTestEmail);
+    Toaster.show({
+      text: createMessage(
+        response.data ? TEST_EMAIL_SUCCESS : TEST_EMAIL_FAILURE,
+      ),
+      hideProgressBar: true,
+      variant: response.data ? Variant.success : Variant.danger,
+    });
+  } catch (e) {
+    Toaster.show({
+      text: createMessage(TEST_EMAIL_FAILURE),
+      hideProgressBar: true,
+      variant: Variant.danger,
+    });
+  }
 }
 
 function* InitSuperUserSaga(action: ReduxAction<User>) {

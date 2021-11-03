@@ -806,6 +806,8 @@ export const RESTART_ERROR_BODY = () =>
 export const RESTART_ERROR_HEADER = () => "Restart failed";
 export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
   "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";
+export const TEST_EMAIL_SUCCESS = () => "Test Email Sent Successfully";
+export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
