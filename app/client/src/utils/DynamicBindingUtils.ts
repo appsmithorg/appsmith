@@ -403,9 +403,22 @@ export function getDynamicBindingsChangesSaga(
   const bindingField = field.replace("actionConfiguration.", "");
   let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
-  const valueType = getType(value);
+  if (Array.isArray(value)) {
+    dynamicBindings = dynamicBindings.filter(
+      (binding) => !isChildPropertyPath(bindingField, binding.key),
+    );
+    value.forEach((keyValueRow, index) => {
+      if (!keyValueRow) return;
 
-  if (valueType === Types.OBJECT) {
+      const { key, value } = keyValueRow;
+      key &&
+        isDynamicValue(key) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].key` });
+      value &&
+        isDynamicValue(value) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].value` });
+    });
+  } else if (getType(value) === Types.OBJECT) {
     dynamicBindings = dynamicBindings.filter((dynamicPath) => {
       if (isChildPropertyPath(bindingField, dynamicPath.key)) {
         const childPropertyValue = _.get(value, dynamicPath.key);
