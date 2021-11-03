@@ -287,6 +287,7 @@ export function* evalErrorHandler(
           text: `${error.message} at: ${error.context?.propertyPath}`,
         });
         break;
+      }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
         Sentry.captureException(new Error(error.message), {
           extra: error.context,
