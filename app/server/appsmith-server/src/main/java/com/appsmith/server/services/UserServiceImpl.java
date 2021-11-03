@@ -89,12 +89,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final OrganizationRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
-    private final ConfigService configService;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
-    private final ApplicationPageService applicationPageService;
     private final UserDataService userDataService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
@@ -139,12 +137,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.organizationRepository = organizationRepository;
         this.userOrganizationService = userOrganizationService;
         this.roleGraph = roleGraph;
-        this.configService = configService;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
-        this.applicationPageService = applicationPageService;
         this.userDataService = userDataService;
     }
 
@@ -920,6 +916,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             AclPermission.MANAGE_INSTANCE_ENV.getValue(),
                             userFromDb.getUsername()
                     ));
+                    profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
 
                     return profile;
                 });

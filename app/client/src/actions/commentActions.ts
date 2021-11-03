@@ -86,9 +86,10 @@ export const fetchApplicationCommentsRequest = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
 });
 
-export const fetchApplicationCommentsSuccess = (
-  payload: Array<CommentThread>,
-) => ({
+export const fetchApplicationCommentsSuccess = (payload: {
+  commentThreads: CommentThread[];
+  applicationId: string;
+}) => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS,
   payload,
 });

@@ -3605,6 +3605,7 @@ public class DatabaseChangelog {
                 .include(fieldName(QApplication.application.name));
 
         List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
+
         for (Application application : applications) {
             mongockTemplate.updateFirst(
                     query(where(fieldName(QApplication.application.id)).is(application.getId())),
@@ -3624,6 +3625,7 @@ public class DatabaseChangelog {
                 ));
 
         List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
+
         for (NewPage page : pages) {
             Update update = new Update();
             if (page.getUnpublishedPage() != null) {
