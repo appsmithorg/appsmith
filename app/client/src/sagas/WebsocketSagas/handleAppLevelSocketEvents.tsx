@@ -6,35 +6,39 @@ import {
   newCommentThreadEvent,
   updateCommentThreadEvent,
   updateCommentEvent,
-  incrementThreadUnreadCount,
-  decrementThreadUnreadCount,
   deleteCommentThreadEvent,
   deleteCommentEvent,
 } from "actions/commentActions";
 import { collabSetAppEditors } from "actions/appCollabActions";
 import { newNotificationEvent } from "actions/notificationActions";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { commentThreadsSelector } from "selectors/commentsSelectors";
-import { AppState } from "reducers";
-import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import { Toaster } from "components/ads/Toast";
+import {
+  createMessage,
+  INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
+} from "constants/messages";
+import { Variant } from "components/ads/common";
+import React from "react";
+import { getAppsmithConfigs } from "../../configs";
 
 export default function* handleAppLevelSocketEvents(event: any) {
   const currentUser = yield select(getCurrentUser);
-  const currentApplication = yield select(getCurrentApplication);
 
   switch (event.type) {
     // comments
     case APP_LEVEL_SOCKET_EVENTS.INSERT_COMMENT_THREAD: {
-      yield put(newCommentThreadEvent(event.payload[0]));
-
       const { thread } = event.payload[0];
-      const isForCurrentApplication =
-        thread?.applicationId === currentApplication?.id;
-
-      const isCreatedByMe = thread?.authorUsername === currentUser.username;
-      if (!isCreatedByMe && isForCurrentApplication)
-        yield put(incrementThreadUnreadCount());
+      const isThreadFromEventViewed = thread?.viewedByUsers?.includes(
+        currentUser?.username,
+      );
+      yield put(
+        newCommentThreadEvent({
+          ...thread,
+          // This is necessary to be done from the start, as client depends on
+          // these values to find if there is an unread thread.
+          isViewed: isThreadFromEventViewed || thread?.resolvedState?.active,
+        }),
+      );
       return;
     }
     case APP_LEVEL_SOCKET_EVENTS.INSERT_COMMENT: {
@@ -44,14 +48,6 @@ export default function* handleAppLevelSocketEvents(event: any) {
     case APP_LEVEL_SOCKET_EVENTS.REPLACE_COMMENT_THREAD:
     case APP_LEVEL_SOCKET_EVENTS.UPDATE_COMMENT_THREAD: {
       const { thread } = event.payload[0];
-      const threadInStore: CommentThread = yield select((state: AppState) =>
-        commentThreadsSelector(thread?._id)(state),
-      );
-
-      const isThreadInStoreViewed = threadInStore?.isViewed;
-
-      const isNowResolved =
-        !threadInStore?.resolvedState?.active && thread?.resolvedState?.active;
 
       const isThreadFromEventViewed = thread?.viewedByUsers?.includes(
         currentUser?.username,
@@ -63,16 +59,6 @@ export default function* handleAppLevelSocketEvents(event: any) {
           isViewed: isThreadFromEventViewed || thread?.resolvedState?.active, // resolved threads can't be unread
         }),
       );
-
-      if (isThreadInStoreViewed && !isThreadFromEventViewed) {
-        yield put(incrementThreadUnreadCount());
-      } else if (
-        !isThreadInStoreViewed &&
-        (isThreadFromEventViewed || isNowResolved)
-      ) {
-        yield put(decrementThreadUnreadCount());
-      }
-
       return;
     }
     case APP_LEVEL_SOCKET_EVENTS.UPDATE_COMMENT: {
@@ -95,6 +81,21 @@ export default function* handleAppLevelSocketEvents(event: any) {
     // Collab V2 - Realtime Editing
     case APP_LEVEL_SOCKET_EVENTS.LIST_ONLINE_APP_EDITORS: {
       yield put(collabSetAppEditors(event.payload[0]));
+      return;
+    }
+    // notification on release version
+    case APP_LEVEL_SOCKET_EVENTS.RELEASE_VERSION_NOTIFICATION: {
+      const { appVersion } = getAppsmithConfigs();
+      if (appVersion.id != event.payload[0]) {
+        Toaster.show({
+          text: createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST),
+          variant: Variant.info,
+          actionElement: (
+            <span onClick={() => location.reload(true)}>REFRESH</span>
+          ),
+          autoClose: false,
+        });
+      }
       return;
     }
   }

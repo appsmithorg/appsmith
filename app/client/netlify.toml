@@ -21,6 +21,7 @@
     SENTRY_ORG = "appsmith"
     SENTRY_PROJECT = "appsmith"
     SENTRY_LOG_LEVEL = "info"
+    REACT_APP_CLOUD_SERVICES_BASE_URL = "https://release-cs.appsmith.com"
 
 [context.deploy-preview]
   [context.deploy-preview.environment]

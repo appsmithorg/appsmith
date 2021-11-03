@@ -30,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -173,6 +174,7 @@ public class ApplicationServiceTest {
                 .create(applicationMono)
                 .assertNext(application -> {
                     assertThat(application).isNotNull();
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
@@ -325,6 +327,7 @@ public class ApplicationServiceTest {
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.makeSlug(t.getName()));
                 })
                 .verifyComplete();
     }
@@ -1308,14 +1311,12 @@ public class ApplicationServiceTest {
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
         unsavedApplication.setOrganizationId(orgId);
-        unsavedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        unsavedApplication.getGitApplicationMetadata().setRemoteUrl("sample-remote-url");
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
         unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
 
         Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
-                .flatMap(savedApplication -> applicationService.generateSshKeyPair(savedApplication.getId())
+                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId())
                         .thenReturn(savedApplication.getId())
                 ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
 
@@ -1325,7 +1326,7 @@ public class ApplicationServiceTest {
                     assertThat(gitAuth.getPublicKey()).isNotNull();
                     assertThat(gitAuth.getPrivateKey()).isNotNull();
                     assertThat(gitAuth.getGeneratedAt()).isNotNull();
-                    assertThat(testApplication.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("sample-remote-url");
+                    assertThat(testApplication.getGitApplicationMetadata().getDefaultApplicationId()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -1343,6 +1344,7 @@ public class ApplicationServiceTest {
         unsavedMainApp.setOrganizationId(orgId);
 
         Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
+                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId()).thenReturn(savedApplication))
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
                     unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
@@ -1353,7 +1355,7 @@ public class ApplicationServiceTest {
                     return applicationRepository.save(unsavedChildApp);
                 })
                 .flatMap(savedChildApp ->
-                        applicationService.generateSshKeyPair(savedChildApp.getId()).thenReturn(savedChildApp)
+                        applicationService.createOrUpdateSshKeyPair(savedChildApp.getId()).thenReturn(savedChildApp)
                 )
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
@@ -1435,6 +1437,48 @@ public class ApplicationServiceTest {
         StepVerifier
                 .create(resultMono)
                 // Since the action should be deleted, we exmpty the Mono to complete empty.
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_withNullGitData_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_withNullGitData_Success";
+        testApplication.setName(appName);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_WithDeployKeysNotConnectedToRemote_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_WithDeployKeysNotConnectedToRemote_Success";
+        testApplication.setName(appName);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPrivateKey("privateKey");
+        gitAuth.setPublicKey("publicKey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
                 .verifyComplete();
     }
 
