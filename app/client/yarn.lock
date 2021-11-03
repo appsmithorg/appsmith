@@ -12984,11 +12984,6 @@ react-paginating@^1.4.0:
   dependencies:
     paging-algorithm "^1.0.1"
 
-react-picture-annotation@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/react-picture-annotation/-/react-picture-annotation-1.2.0.tgz#52b8b65dd36793235ffc6eba4628b777bcd82a72"
-  integrity sha512-gtp2y//GOlTWgiJsdKiUKNt9hk5LpW4pPsIYHHoAfPnqtmRZ1A9TtN6IT3MEFWXN+PvJl4+hD7n2rpz8zjmEXA==
-
 react-player@^2.3.1:
   version "2.6.2"
   resolved "https://registry.npmjs.org/react-player/-/react-player-2.6.2.tgz"
