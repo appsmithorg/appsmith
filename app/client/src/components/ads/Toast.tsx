@@ -129,6 +129,7 @@ const StyledDebugButton = styled(DebugButton)`
 const StyledActionText = styled(Text)`
   color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
   cursor: pointer;
+  margin-left: ${(props) => props.theme.spaces[3]}px;
 `;
 
 export function ToastComponent(
