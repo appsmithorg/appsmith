@@ -2,7 +2,6 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
-
 class DocumentViewerWidget extends BaseWidget<
   DocumentViewerWidgetProps,
   WidgetState

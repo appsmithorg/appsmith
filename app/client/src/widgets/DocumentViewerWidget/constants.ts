@@ -10,3 +10,14 @@ export const SUPPORTED_EXTENSIONS = [
   "pptx",
   "xlsx",
 ];
+
+export const Renderers = {
+  DOCUMENT_VIEWER: "DOCUMENT_VIEWER",
+  DOCX_VIEWER: "DOCX_VIEWER",
+  XLSX_VIEWER: "XLSX_VIEWER",
+  ERROR: "ERROR",
+};
+
+export type Renderer = typeof Renderers[keyof typeof Renderers];
+
+export type ViewerType = "google" | "office" | "mammoth" | "pdf" | "url";
