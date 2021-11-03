@@ -12,6 +12,14 @@ import {
 import { collabSetAppEditors } from "actions/appCollabActions";
 import { newNotificationEvent } from "actions/notificationActions";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { Toaster } from "components/ads/Toast";
+import {
+  createMessage,
+  INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
+} from "constants/messages";
+import { Variant } from "components/ads/common";
+import React from "react";
+import { getAppsmithConfigs } from "../../configs";
 
 export default function* handleAppLevelSocketEvents(event: any) {
   const currentUser = yield select(getCurrentUser);
@@ -73,6 +81,21 @@ export default function* handleAppLevelSocketEvents(event: any) {
     // Collab V2 - Realtime Editing
     case APP_LEVEL_SOCKET_EVENTS.LIST_ONLINE_APP_EDITORS: {
       yield put(collabSetAppEditors(event.payload[0]));
+      return;
+    }
+    // notification on release version
+    case APP_LEVEL_SOCKET_EVENTS.RELEASE_VERSION_NOTIFICATION: {
+      const { appVersion } = getAppsmithConfigs();
+      if (appVersion.id != event.payload[0]) {
+        Toaster.show({
+          text: createMessage(INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST),
+          variant: Variant.info,
+          actionElement: (
+            <span onClick={() => location.reload(true)}>REFRESH</span>
+          ),
+          autoClose: false,
+        });
+      }
       return;
     }
   }
