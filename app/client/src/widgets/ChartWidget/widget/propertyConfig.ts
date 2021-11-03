@@ -86,7 +86,8 @@ export default [
         dependencies: ["chartType"],
       },
       {
-        helpText: "Configure a Custom FusionChart see docs.appsmith.com",
+        helpText:
+          "You can configure a custom chart from the FusionCharts library. However, the configuration format has changed. The old configuration will be deprecated soon. See documentation for more info.",
         placeholderText: `Fusion Chart Config`,
         propertyName: "customFusionChartConfig",
         label: "Custom chart config",
