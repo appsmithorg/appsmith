@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
+import Interweave from "interweave";
 import {
   IButtonProps,
   MaybeElement,
@@ -7,9 +8,9 @@ import {
   Alignment,
   Position,
 } from "@blueprintjs/core";
+import { Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 
-import Tooltip from "components/ads/Tooltip";
 import { ComponentProps } from "widgets/BaseComponent";
 
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
@@ -48,10 +49,22 @@ const RecaptchaWrapper = styled.div`
 
 const ToolTipWrapper = styled.div`
   height: 100%;
-  && .bp3-popover-target {
+  && .bp3-popover2-target {
     height: 100%;
+    width: 100%;
     & > div {
       height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .btnTooltipContainer {
+    .bp3-popover2-content {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
     }
   }
 `;
@@ -431,14 +444,18 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
   if (props.tooltip) {
     return (
       <ToolTipWrapper>
-        <Tooltip
-          content={props.tooltip}
+        <TooltipStyles />
+        <Popover2
+          autoFocus={false}
+          content={<Interweave content={props.tooltip} />}
           disabled={props.isDisabled}
           hoverOpenDelay={200}
+          interactionKind="hover"
+          portalClassName="btnTooltipContainer"
           position={Position.TOP}
         >
           {btnWrapper}
-        </Tooltip>
+        </Popover2>
       </ToolTipWrapper>
     );
   } else {
