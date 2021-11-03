@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -186,7 +187,9 @@ public class UserDataServiceTest {
     @WithUserDetails(value = "api_user")
     public void testUpdateLastUsedOrgList_WhenListIsEmpty_orgIdPrepended() {
         String sampleOrgId = "abcd";
-        final Mono<UserData> saveMono = userDataService.updateLastUsedOrgList(sampleOrgId);
+        Application application = new Application();
+        application.setOrganizationId(sampleOrgId);
+        final Mono<UserData> saveMono = userDataService.updateLastUsedAppAndOrgList(application);
         StepVerifier.create(saveMono).assertNext(userData -> {
             Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
@@ -203,7 +206,9 @@ public class UserDataServiceTest {
         }).flatMap(userData -> {
             // Now check whether a new org id is put at first.
             String sampleOrgId = "sample-org-id";
-            return userDataService.updateLastUsedOrgList(sampleOrgId);
+            Application application = new Application();
+            application.setOrganizationId(sampleOrgId);
+            return userDataService.updateLastUsedAppAndOrgList(application);
         });
 
         StepVerifier.create(resultMono).assertNext(userData -> {

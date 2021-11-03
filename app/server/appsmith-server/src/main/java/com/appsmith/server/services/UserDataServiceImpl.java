@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
@@ -234,19 +235,31 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     /**
      * The {@code currentOrgId} is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
      * If {@link UserData#getRecentlyUsedOrgIds} is null or empty, a new list will be created first.
-     * @param currentOrgId currently accessed organization
-     * @return Updated {@link UserData}
+     *
+     * @param application@return Updated {@link UserData}
      */
     @Override
-    public Mono<UserData> updateLastUsedOrgList(String currentOrgId) {
+    public Mono<UserData> updateLastUsedAppAndOrgList(Application application) {
         return this.getForCurrentUser().flatMap(userData -> {
+            // set recently used organization ids
             List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
             if(recentlyUsedOrgIds == null) {
                 recentlyUsedOrgIds = new ArrayList<>();
+            } else {
+                CollectionUtils.removeDuplicates(recentlyUsedOrgIds);
             }
-            CollectionUtils.removeDuplicates(recentlyUsedOrgIds);
-            CollectionUtils.putAtFirst(recentlyUsedOrgIds, currentOrgId);
+            CollectionUtils.putAtFirst(recentlyUsedOrgIds, application.getOrganizationId());
             userData.setRecentlyUsedOrgIds(recentlyUsedOrgIds);
+
+            // set recently used application ids
+            List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
+            if(recentlyUsedAppIds == null) {
+                recentlyUsedAppIds = new ArrayList<>();
+            } else {
+                CollectionUtils.removeDuplicates(recentlyUsedAppIds);
+            }
+            CollectionUtils.putAtFirst(recentlyUsedAppIds, application.getId());
+            userData.setRecentlyUsedAppIds(recentlyUsedAppIds);
             return repository.save(userData);
         });
     }

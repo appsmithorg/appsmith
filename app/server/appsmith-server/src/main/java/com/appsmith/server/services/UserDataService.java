@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import org.springframework.http.codec.multipart.Part;
@@ -36,7 +37,7 @@ public interface UserDataService {
 
     Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange);
 
-    Mono<UserData> updateLastUsedOrgList(String currentOrgId);
+    Mono<UserData> updateLastUsedAppAndOrgList(Application application);
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
