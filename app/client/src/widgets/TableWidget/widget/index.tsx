@@ -712,7 +712,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         oldTableData,
         newTableData,
         this.props.defaultSelectedRow,
-        this.props.selectedRowIndex,
+        this.props.selectedRowIndices,
+        this.props.primaryColumnId,
       );
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
