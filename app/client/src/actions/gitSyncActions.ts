@@ -4,6 +4,7 @@ import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import { ReduxActionErrorTypes } from "../constants/ReduxActionConstants";
 
 // test comment
 
@@ -177,4 +178,19 @@ export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
 export const updateBranchLocally = (payload: string) => ({
   type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
   payload,
+});
+
+type MergeBranchPayload = { sourceBranch: string; destinationBranch: string };
+
+export const mergeBranchInit = (payload: MergeBranchPayload) => ({
+  type: ReduxActionTypes.MERGE_BRANCH_INIT,
+  payload,
+});
+
+export const mergeBranchSuccess = () => ({
+  type: ReduxActionTypes.MERGE_BRANCH_SUCCESS,
+});
+
+export const mergeBranchFailure = () => ({
+  type: ReduxActionErrorTypes.MERGE_BRANCH_ERROR,
 });

@@ -40,6 +40,7 @@ import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
+import { DSLWidget } from "widgets/constants";
 
 /**
  * adds logBlackList key for all list widget children
@@ -290,6 +291,24 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     }
     return children;
   });
+  return currentDSL;
+};
+
+const mapAllowHorizontalScrollMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+    if (child.type === "CHART_WIDGET") {
+      child.allowScroll = child.allowHorizontalScroll;
+      delete child.allowHorizontalScroll;
+    }
+
+    if (Array.isArray(child.children) && child.children.length > 0)
+      child = mapAllowHorizontalScrollMigration(child);
+
+    return child;
+  });
+
   return currentDSL;
 };
 
@@ -954,6 +973,12 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 43) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
+    currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 44) {
     currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

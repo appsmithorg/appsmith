@@ -312,6 +312,19 @@ export const getParentWidgetIdForPasting = function*(
   return newWidgetParentId;
 };
 
+export const isCopiedModalWidget = function(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  widgets: CanvasWidgetsReduxState,
+) {
+  if (copiedWidgetGroups.length !== 1) return false;
+
+  const copiedWidget = widgets[copiedWidgetGroups[0].widgetId];
+
+  if (copiedWidget && copiedWidget.type === "MODAL_WIDGET") return true;
+
+  return false;
+};
+
 export const checkIfPastingIntoListWidget = function(
   canvasWidgets: CanvasWidgetsReduxState,
   selectedWidget: FlattenedWidgetProps | undefined,

@@ -15,6 +15,12 @@ export type PushToGitPayload = {
   branch: string;
 };
 
+export type MergeBranchPayload = {
+  applicationId: string;
+  sourceBranch: string;
+  destinationBranch: string;
+};
+
 export type ConnectToGitPayload = {
   remoteUrl: string;
   gitProfile: {
@@ -57,6 +63,16 @@ class GitSyncAPI extends Api {
     );
   }
 
+  static merge({
+    applicationId,
+    destinationBranch,
+    sourceBranch,
+  }: MergeBranchPayload): AxiosPromise<ApiResponse> {
+    return Api.post(
+      `${GitSyncAPI.baseURL}/merge/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
+    );
+  }
+
   static connect(payload: ConnectToGitPayload, applicationId: string) {
     return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
@@ -77,15 +93,13 @@ class GitSyncAPI extends Api {
     return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
   }
 
-  static checkoutBranch(applicationId: string, branch: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`, {
-      branch,
-    });
+  static checkoutBranch(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/checkout-branch/${applicationId}`);
   }
 
   static createNewBranch(applicationId: string, branch: string) {
     return Api.post(`${GitSyncAPI.baseURL}/create-branch/${applicationId}`, {
-      branch,
+      branchName: branch,
     });
   }
 
