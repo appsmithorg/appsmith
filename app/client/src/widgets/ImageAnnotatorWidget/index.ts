@@ -10,8 +10,8 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "ImageAnnotator",
-    rows: 11 * GRID_DENSITY_MIGRATION_V1,
-    columns: 12.5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 9 * GRID_DENSITY_MIGRATION_V1,
+    columns: 7 * GRID_DENSITY_MIGRATION_V1,
     imageUrl: "https://placekitten.com/408/287",
     isDisabled: false,
     isVisible: true,

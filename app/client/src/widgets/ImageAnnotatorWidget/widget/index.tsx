@@ -5,7 +5,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import ImageAnnotatorComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 class ImageAnnotatorWidget extends BaseWidget<
   ImageAnnotatorWidgetProps,
@@ -26,11 +25,40 @@ class ImageAnnotatorWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.IMAGE_URL },
           },
+          {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
         sectionName: "Actions",
         children: [
+          {
+            helpText: "Triggers an action when an annotation is changed",
+            propertyName: "onAnnotationChange",
+            label: "onAnnotationChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
           {
             helpText: "Triggers an action when an annotation is submitted",
             propertyName: "onAnnotationSubmit",
@@ -52,8 +80,25 @@ class ImageAnnotatorWidget extends BaseWidget<
     };
   }
 
+  handleAnnotationChange = (annotation: IAnnotation) => {
+    this.props.updateWidgetMetaProperty("annotation", annotation, {
+      triggerPropertyName: "onAnnotationChange",
+      dynamicString: this.props.onAnnotationChange,
+      event: {
+        type: EventType.ON_IMAGE_ANNOTATOR_ANNOTATION_CHANGE,
+      },
+    });
+  };
+
   handleAnnotationSubmit = (annotation: IAnnotation) => {
-    const newAnnotations = this.props.annotations.concat(annotation);
+    const { data, geometry } = annotation;
+    const newAnnotations = this.props.annotations.concat({
+      geometry,
+      data: {
+        ...data,
+        id: Math.random(),
+      },
+    });
 
     this.props.updateWidgetMetaProperty("annotations", newAnnotations, {
       triggerPropertyName: "onAnnotationSubmit",
@@ -64,6 +109,11 @@ class ImageAnnotatorWidget extends BaseWidget<
     });
   };
 
+  handleResetAnnotations = () => {
+    this.props.updateWidgetMetaProperty("annotation", {});
+    this.props.updateWidgetMetaProperty("annotations", []);
+  };
+
   disableDrag = () => {
     this.props.updateWidgetMetaProperty("dragDisabled", true);
   };
@@ -72,28 +122,17 @@ class ImageAnnotatorWidget extends BaseWidget<
   };
 
   getPageView() {
-    const {
-      annotation,
-      annotations,
-      bottomRow,
-      imageUrl,
-      leftColumn,
-      parentColumnSpace,
-      parentRowSpace,
-      rightColumn,
-      topRow,
-    } = this.props;
-
-    const height = (bottomRow - topRow) * parentRowSpace - WIDGET_PADDING;
-    const width =
-      (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING;
+    const { annotation, annotations, imageUrl, isDisabled } = this.props;
 
     return (
       <div onBlur={this.enableDrag} onFocus={this.disableDrag} tabIndex={1}>
         <ImageAnnotatorComponent
           annotation={annotation}
           annotations={annotations}
+          disabled={isDisabled}
           imageUrl={imageUrl}
+          onChange={this.handleAnnotationChange}
+          onReset={this.handleResetAnnotations}
           onSubmit={this.handleAnnotationSubmit}
         />
       </div>
@@ -109,7 +148,10 @@ export interface ImageAnnotatorWidgetProps extends WidgetProps {
   annotation: IAnnotation;
   annotations: IAnnotation[];
   imageUrl: string;
-  onAnnotationSaved?: string;
+  isDisabled: boolean;
+  isVisible: boolean;
+  onAnnotationChange?: string;
+  onAnnotationSubmit?: string;
 }
 
 export default ImageAnnotatorWidget;

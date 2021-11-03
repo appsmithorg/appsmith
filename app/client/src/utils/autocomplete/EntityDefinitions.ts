@@ -397,7 +397,7 @@ export const entityDefinitions: Record<string, unknown> = {
       "Image annotator widget can be used to label objects inside images.",
     "!url": "https://docs.appsmith.com/widget-reference/image-annotator",
     isVisible: isVisible,
-    value: generateTypeDef(widget.value),
+    annotations: generateTypeDef(widget.annotations),
   }),
 };
 
