@@ -1,6 +1,6 @@
-package com.external.plugins;
+package com.external.plugins.constants;
 
-enum AmazonS3Action {
+public enum AmazonS3Action {
     LIST,
     UPLOAD_FILE_FROM_BODY,
     READ_FILE,
