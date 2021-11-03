@@ -205,6 +205,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           params: {
             default: true,
           },
+        },
         primaryColumnId: {
           type: "TEXT",
         },

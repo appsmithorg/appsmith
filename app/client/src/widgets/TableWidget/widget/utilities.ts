@@ -49,13 +49,15 @@ export const selectRowIndices = (
   oldTableData: Array<Record<string, unknown>>,
   newTableData: Array<Record<string, unknown>>,
   defaultSelectedRow: string | number | number[] | undefined,
-  selectedRowIndicesProp: number | undefined,
+  selectedRowIndicesProp: number[] | undefined,
+  primaryColumnId: string | undefined,
 ) => {
-  const rowIndices: number[] = Array.isArray(selectedRowIndicesProp)
-    ? selectedRowIndicesProp
-    : Array.isArray(defaultSelectedRow)
-    ? defaultSelectedRow
-    : [];
+  const rowIndices: number[] =
+    Array.isArray(selectedRowIndicesProp) && primaryColumnId
+      ? selectedRowIndicesProp
+      : Array.isArray(defaultSelectedRow)
+      ? defaultSelectedRow
+      : [];
   const selectedRowIndices = rowIndices
     .map((index: number) => {
       const rowIndex = getOriginalRowIndex(oldTableData, newTableData, index);
