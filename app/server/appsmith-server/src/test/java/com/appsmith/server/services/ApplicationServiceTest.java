@@ -30,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -173,6 +174,7 @@ public class ApplicationServiceTest {
                 .create(applicationMono)
                 .assertNext(application -> {
                     assertThat(application).isNotNull();
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
@@ -325,6 +327,7 @@ public class ApplicationServiceTest {
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.makeSlug(t.getName()));
                 })
                 .verifyComplete();
     }
@@ -1434,6 +1437,48 @@ public class ApplicationServiceTest {
         StepVerifier
                 .create(resultMono)
                 // Since the action should be deleted, we exmpty the Mono to complete empty.
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_withNullGitData_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_withNullGitData_Success";
+        testApplication.setName(appName);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteApplication_WithDeployKeysNotConnectedToRemote_Success() {
+        Application testApplication = new Application();
+        String appName = "deleteApplication_WithDeployKeysNotConnectedToRemote_Success";
+        testApplication.setName(appName);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPrivateKey("privateKey");
+        gitAuth.setPublicKey("publicKey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        Mono<Application> applicationMono = applicationPageService.deleteApplication(application.getId());
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.isDeleted()).isTrue();
+                })
                 .verifyComplete();
     }
 

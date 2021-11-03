@@ -59,6 +59,8 @@ public class Application extends BaseDomain {
 
     String icon;
 
+    private String slug;
+
     @JsonIgnore
     AppLayout unpublishedAppLayout;
 
