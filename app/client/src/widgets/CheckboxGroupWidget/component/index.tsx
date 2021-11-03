@@ -67,9 +67,16 @@ const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
   }
 
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
-    border: ${({ theme }) =>
-      `1.5px solid ${theme.colors.button.disabled.bgColor}`};
+    ${({ disabled, theme }) =>
+      !disabled &&
+      `border: 1.5px solid ${theme.colors.button.disabled.bgColor}`};
     border-radius: 0;
+  }
+
+  &.bp3-control.bp3-checkbox
+    input:disabled:indeterminate
+    ~ .bp3-control-indicator {
+    background: ${({ theme }) => theme.colors.checkbox.unchecked};
   }
 `;
 
@@ -114,6 +121,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           <StyledCheckbox
             checked={(selectedValues || []).includes(option.value)}
             disabled={isDisabled}
+            indeterminate={isDisabled ? true : undefined}
             inline={isInline}
             key={generateReactKey()}
             label={option.label}
