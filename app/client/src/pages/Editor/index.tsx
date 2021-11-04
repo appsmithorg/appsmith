@@ -142,10 +142,12 @@ class Editor extends Component<Props> {
     const isBranchUpdated = this.getIsBranchUpdated(this.props, prevProps);
 
     const branch = getSearchQuery(this.props.location.search, "branch");
+    const prevBranch = getSearchQuery(prevProps.location.search, "branch");
 
     const isPageIdUpdated = pageId !== prevPageId;
 
-    if (isBranchUpdated && applicationId) {
+    // to prevent re-init during connect
+    if (prevBranch && isBranchUpdated && applicationId) {
       this.props.initEditor(applicationId, pageId, branch);
     } else {
       /**

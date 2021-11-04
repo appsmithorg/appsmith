@@ -1,4 +1,5 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
+import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { keyBy } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
@@ -8,12 +9,15 @@ import { CommentsReduxState } from "./interfaces";
  */
 const handleFetchApplicationCommentsSuccess = (
   state: CommentsReduxState,
-  action: ReduxAction<any>,
+  action: ReduxAction<{
+    commentThreads: CommentThread[];
+    applicationId: string;
+  }>,
 ) => {
-  const applicationCommentsMap = keyBy(action.payload, "id");
-  if (action.payload.length === 0) return state;
-  const applicationId = action.payload[0].applicationId;
-  const applicationCommentIdsByRefId = action.payload.reduce(
+  const { applicationId, commentThreads } = action.payload;
+  const applicationCommentsMap = keyBy(commentThreads, "id");
+
+  const applicationCommentIdsByRefId = commentThreads.reduce(
     (res: any, curr: any) => {
       if (!res[curr.refId]) res[curr.refId] = [];
       res[curr.refId].push(curr.id);
