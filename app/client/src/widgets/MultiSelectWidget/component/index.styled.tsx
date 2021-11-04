@@ -69,7 +69,9 @@ ${({ dropDownWidth, id, parentWidth }) => `
 .rc-select-item-option-content {
 	flex: 1 1 0;
   overflow-wrap: break-word;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
   color: ${Colors.CHARCOAL}
 }
 .rc-select-item-option-active {
@@ -172,7 +174,7 @@ ${({ dropDownWidth, id, parentWidth }) => `
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px !important;
     overflow-x: scroll;
     > div {
-      width: max-content;
+      min-width: ${({ dropDownWidth }) => dropDownWidth}px;
     }
     &&&& .${Classes.ALIGN_LEFT} {
         font-size: 14px;
@@ -426,6 +428,9 @@ export const MultiSelectContainer = styled.div`
 export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 
