@@ -44,6 +44,12 @@ const PopoverStyles = createGlobalStyle<{
   }
   ${({ id, menuDropDownWidth, parentWidth }) => `
   .menu-button-width-${id} {
+
+    max-width: ${
+      menuDropDownWidth > parentWidth
+        ? `${menuDropDownWidth}px`
+        : `${parentWidth}px`
+    } !important;
     min-width: ${
       parentWidth > menuDropDownWidth ? parentWidth : menuDropDownWidth
     }px !important;

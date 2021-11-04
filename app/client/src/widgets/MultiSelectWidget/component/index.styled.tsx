@@ -170,6 +170,10 @@ ${({ dropDownWidth, id, parentWidth }) => `
     padding: 8px;
     background: white;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px !important;
+    overflow-x: scroll;
+    > div {
+      width: max-content;
+    }
     &&&& .${Classes.ALIGN_LEFT} {
         font-size: 14px;
         padding-bottom: 10px;
@@ -199,18 +203,18 @@ ${({ dropDownWidth, id, parentWidth }) => `
 						outline: none !important;
     }
     .rc-select-item {
-	font-size: 14px;
-	line-height: 1.5;
-	padding: 5px 16px;
-	align-items: center;
-	cursor: pointer;
-  width: 100%;
-}
-.rc-select-item-option-state {
-	.bp3-control.bp3-checkbox {
-		margin-bottom: 0;
-	}
-}
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 5px 16px;
+      align-items: center;
+      cursor: pointer;
+      width: 100%;
+    }
+    .rc-select-item-option-state {
+      .bp3-control.bp3-checkbox {
+        margin-bottom: 0;
+      }
+    }
   }
 `;
 
