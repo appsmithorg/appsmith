@@ -974,7 +974,7 @@ export const transformDSL = (
 
   if (currentDSL.version === 43) {
     currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 44;
   }
   if (currentDSL.version === 44) {
     currentDSL = isSortableMigration(currentDSL);
