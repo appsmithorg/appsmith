@@ -10,4 +10,5 @@ export default {
   gitConfigEmailInput: ".t--git-config-email-input",
   branchSearchInput: ".t--branch-search-input",
   branchListItem: ".t--branch-item",
+  closeGitSyncModal: ".t--close-git-sync-modal",
 };
