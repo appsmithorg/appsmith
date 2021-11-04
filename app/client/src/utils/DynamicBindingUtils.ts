@@ -403,6 +403,9 @@ export function getDynamicBindingsChangesSaga(
   const bindingField = field.replace("actionConfiguration.", "");
   let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
+  // When a key-value pair is added or deleted from a fieldArray
+  // Value is an Array representing the new fieldArray.
+
   if (Array.isArray(value)) {
     dynamicBindings = dynamicBindings.filter(
       (binding) => !isChildPropertyPath(bindingField, binding.key),
