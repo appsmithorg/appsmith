@@ -16,6 +16,9 @@ import {
   DEPLOY_KEY_TITLE,
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
+  ERROR_CONNECTING,
+  CONFIRM_SSH_KEY,
+  READ_DOCUMENTATION,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -28,11 +31,11 @@ import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Classes, Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import Text, { TextType } from "components/ads/Text";
+import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import { getGlobalGitConfig } from "selectors/gitSyncSelectors";
 import {
   fetchGlobalGitConfigInit,
@@ -56,6 +59,9 @@ import {
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import AdsIcon, { IconSize } from "components/ads/Icon";
+import ScrollIndicator from "components/ads/ScrollIndicator";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -163,6 +169,15 @@ const LintText = styled.a`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
 `;
 
 const TooltipWrapper = styled.div`
@@ -178,6 +193,20 @@ const RemoteUrlInfoWrapper = styled.div`
 const Section = styled.div``;
 const StatusbarWrapper = styled.div`
   width: 252px;
+`;
+
+const ErrorWrapper = styled.div`
+  padding: 24px 0px;
+  .${Classes.TEXT} {
+    display: block;
+    margin-bottom: ${(props) => props.theme.spaces[3]}px;
+    &.t--read-document {
+      display: inline-flex;
+      .${Classes.ICON} {
+        margin-left: ${(props) => props.theme.spaces[3]}px;
+      }
+    }
+  }
 `;
 
 // v1 only support SSH
@@ -264,7 +293,7 @@ function GitConnection({ isImport }: Props) {
 
   const {
     connectToGit,
-    // failedConnectingToGit,
+    failedConnectingToGit,
     isConnectingToGit,
   } = useGitConnect();
 
@@ -425,8 +454,16 @@ function GitConnection({ isImport }: Props) {
   const hideStatusBar = useCallback(() => {
     setProcessingGit(false);
   }, []);
+  const scrollWrapperRef = React.createRef<HTMLDivElement>();
+  useEffect(() => {
+    if (failedConnectingToGit && scrollWrapperRef.current) {
+      const top = scrollWrapperRef.current.scrollHeight;
+      scrollWrapperRef.current?.scrollTo({ top: top, behavior: "smooth" });
+    }
+  }, [failedConnectingToGit]);
+
   return (
-    <Container>
+    <Container ref={scrollWrapperRef}>
       <Section>
         <Title>{createMessage(CONNECT_TO_GIT)}</Title>
         <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
@@ -537,7 +574,7 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>
-            {processingGit && (
+            {!failedConnectingToGit && processingGit && (
               <StatusbarWrapper>
                 <Statusbar
                   completed={!submitButtonIsLoading}
@@ -565,9 +602,37 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
+            {failedConnectingToGit && (
+              <ErrorWrapper>
+                <Text
+                  case={Case.UPPERCASE}
+                  color={Colors.ERROR_RED}
+                  type={TextType.P1}
+                  weight={FontWeight.BOLD}
+                >
+                  {createMessage(ERROR_CONNECTING)}
+                </Text>
+                <Text color={Colors.ERROR_RED} type={TextType.P2}>
+                  {createMessage(CONFIRM_SSH_KEY)}
+                </Text>
+                <LintText href={DOCS_BASE_URL} target="_blank">
+                  <Text
+                    case={Case.UPPERCASE}
+                    className="t--read-document"
+                    color={Colors.CHARCOAL}
+                    type={TextType.P3}
+                    weight={FontWeight.BOLD}
+                  >
+                    {createMessage(READ_DOCUMENTATION)}
+                    <AdsIcon name="right-arrow" size={IconSize.SMALL} />
+                  </Text>
+                </LintText>
+              </ErrorWrapper>
+            )}
           </ButtonContainer>
         </>
       ) : null}
+      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="47px" />
     </Container>
   );
 }

@@ -33,10 +33,12 @@ const Container = styled.div`
 
 const BodyContainer = styled.div`
   flex: 3;
-  height: 100%;
+  height: calc(100% - 47px);
 `;
 
-const MenuContainer = styled.div``;
+const MenuContainer = styled.div`
+  height: 47px;
+`;
 
 const CloseBtnContainer = styled.div`
   position: absolute;

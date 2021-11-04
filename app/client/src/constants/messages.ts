@@ -597,7 +597,9 @@ export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
-
+export const ERROR_CONNECTING = () => "Error while connecting";
+export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
+export const READ_DOCUMENTATION = () => "Read documentation";
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and insert code snippets to perform complex actions quickly.`;
