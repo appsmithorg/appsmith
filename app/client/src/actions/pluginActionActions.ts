@@ -107,7 +107,7 @@ export const acceptRunActionConfirmModal = () => {
   };
 };
 
-export const updateAction = (payload: { id: string }) => {
+export const updateAction = (payload: { id: string; action?: Action }) => {
   return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_INIT,
     payload,

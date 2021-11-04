@@ -822,5 +822,6 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 }, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
+    enableReinitialize: true,
   })(ApiEditorForm),
 );

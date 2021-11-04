@@ -20,15 +20,22 @@ import {
   parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import ReplayDSL from "workers/ReplayDSL";
+import ReplayEntity from "workers/ReplayDSL";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
+import { Action } from "entities/Action";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { JSAction } from "entities/JSCollection";
 
 const ctx: Worker = self as any;
 
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
-let replayDSL: ReplayDSL | undefined;
+
+let replayMap: Record<
+  string,
+  ReplayEntity<CanvasWidgetsReduxState | Action | JSAction>
+>;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
@@ -77,6 +84,8 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
+          actions,
+          jsObjects,
           shouldReplay = true,
           unevalTree,
           widgets,
@@ -90,7 +99,20 @@ ctx.addEventListener(
         let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
-            replayDSL = new ReplayDSL(widgets);
+            replayMap = replayMap || {};
+            replayMap["canvas"] = new ReplayEntity<CanvasWidgetsReduxState>(
+              widgets,
+            );
+            actions.forEach((action: any) => {
+              replayMap[action.config.id] = new ReplayEntity<Action>(
+                action.config,
+              );
+            });
+            jsObjects.forEach((jsObject: any) => {
+              replayMap[jsObject.config.id] = new ReplayEntity<JSAction>(
+                jsObject.config,
+              );
+            });
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -99,7 +121,21 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
-            shouldReplay && replayDSL?.update(widgets);
+            if (shouldReplay) {
+              replayMap["canvas"]?.update(widgets);
+              actions.forEach((action: any) => {
+                replayMap[action.config.id] =
+                  replayMap[action.config.id] ||
+                  new ReplayEntity<Action>(action.config);
+                replayMap[action.config.id]?.update(action.config);
+              });
+              jsObjects.forEach((jsObject: any) => {
+                replayMap[jsObject.config.id] =
+                  replayMap[jsObject.config.id] ||
+                  new ReplayEntity<JSAction>(jsObject.config);
+                replayMap[jsObject.config.id]?.update(jsObject.config);
+              });
+            }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
@@ -109,8 +145,9 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
-          if (replayDSL?.logs) logs = logs.concat(replayDSL?.logs);
-          replayDSL?.clearLogs();
+          if (replayMap["canvas"]?.logs)
+            logs = logs.concat(replayMap["canvas"]?.logs);
+          replayMap["canvas"]?.clearLogs();
           dataTreeEvaluator.clearLogs();
         } catch (e) {
           if (dataTreeEvaluator !== undefined) {
@@ -225,17 +262,17 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
-        if (!replayDSL) return;
-
-        const replayResult = replayDSL.replay("UNDO");
-        replayDSL.clearLogs();
+        const { entityId } = requestData;
+        if (!replayMap[entityId || "canvas"]) return;
+        const replayResult = replayMap[entityId || "canvas"].replay("UNDO");
+        replayMap[entityId || "canvas"].clearLogs();
         return replayResult;
       }
       case EVAL_WORKER_ACTIONS.REDO: {
-        if (!replayDSL) return;
-
-        const replayResult = replayDSL.replay("REDO");
-        replayDSL.clearLogs();
+        const { entityId } = requestData;
+        if (!replayMap[entityId ?? "canvas"]) return;
+        const replayResult = replayMap[entityId ?? "canvas"].replay("REDO");
+        replayMap[entityId ?? "canvas"].clearLogs();
         return replayResult;
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {

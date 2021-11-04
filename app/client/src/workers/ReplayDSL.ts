@@ -1,24 +1,27 @@
 import { Doc, Map, UndoManager } from "yjs";
 import { captureException } from "@sentry/react";
-import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
+import { diff as deepDiff, applyChange, revertChange, Diff } from "deep-diff";
 
-import { processDiff, DSLDiff, getPathsFromDiff } from "./replayUtils";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  processDiff,
+  getPathsFromDiff,
+  getReplayEntityType,
+} from "./replayUtils";
 
 const _DIFF_ = "diff";
 type ReplayType = "UNDO" | "REDO";
 
-export default class ReplayDSL {
+export default class ReplayEntity<T> {
   private diffMap: any;
   private undoManager: UndoManager;
-  private dsl: CanvasWidgetsReduxState;
-  private prevRedoDiff: Array<DSLDiff> | undefined;
+  private entity: T;
+  private prevRedoDiff: Array<Diff<T, T>> | undefined;
   logs: any[] = [];
 
-  constructor(widgets: CanvasWidgetsReduxState) {
+  constructor(entity: T) {
     const doc = new Doc();
     this.diffMap = doc.get("map", Map);
-    this.dsl = widgets;
+    this.entity = entity;
     this.diffMap.set(_DIFF_, []);
     this.undoManager = new UndoManager(this.diffMap, { captureTimeout: 100 });
   }
@@ -85,7 +88,8 @@ export default class ReplayDSL {
       });
 
       return {
-        replayWidgetDSL: this.dsl,
+        replayEntity: this.entity,
+        replayEntityType: getReplayEntityType(this.entity),
         replay,
         logs: this.logs,
         event: `REPLAY_${replayType}`,
@@ -103,11 +107,11 @@ export default class ReplayDSL {
    *
    * @param widgets
    */
-  update(widgets: CanvasWidgetsReduxState) {
+  update(entity: T) {
     const startTime = performance.now();
-    const diffs = deepDiff(this.dsl, widgets);
+    const diffs = deepDiff(this.entity, entity);
     if (diffs && diffs.length) {
-      this.dsl = widgets;
+      this.entity = entity;
       this.diffMap.set(_DIFF_, diffs);
     }
     const endTime = performance.now();
@@ -127,7 +131,7 @@ export default class ReplayDSL {
    * @param diffs
    * @param isUndo
    */
-  applyDiffs(diffs: Array<DSLDiff>, replayType: ReplayType) {
+  applyDiffs(diffs: Array<Diff<T, T>>, replayType: ReplayType) {
     const replay = {};
     const isUndo = replayType === "UNDO";
     const applyDiff = isUndo ? revertChange : applyChange;
@@ -137,8 +141,8 @@ export default class ReplayDSL {
         continue;
       }
       try {
-        processDiff(this.dsl, diff, replay, isUndo);
-        applyDiff(this.dsl, true, diff);
+        processDiff(this.entity, diff, replay, isUndo);
+        applyDiff(this.entity, true, diff);
       } catch (e) {
         captureException(e, {
           extra: {

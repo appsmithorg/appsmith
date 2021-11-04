@@ -77,6 +77,18 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { getActions } from "selectors/entitiesSelector";
+import { createBrowserHistory } from "history";
+import { ReplayEntityType } from "workers/replayUtils";
+import { updateAction } from "actions/pluginActionActions";
+import { AppState } from "reducers";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
+import { changeQuery } from "actions/queryPaneActions";
+import { isAPIAction } from "./ActionSagas";
+import { changeApi } from "actions/apiPaneActions";
+import { updateJSCollection } from "actions/jsPaneActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -88,6 +100,10 @@ function* evaluateTreeSaga(
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
+  const actions: ActionDataState = yield select(getActions);
+  const jsObjects: JSCollectionDataState = yield select(
+    (state: AppState) => state.entities.jsActions,
+  );
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -99,6 +115,8 @@ function* evaluateTreeSaga(
       unevalTree,
       widgetTypeConfigMap,
       widgets,
+      actions,
+      jsObjects,
       shouldReplay,
     },
   );
@@ -206,10 +224,13 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   // if the app is in snipping or comments mode, don't do anything
   if (isCommentMode || isSnipingMode) return;
   try {
+    const history = createBrowserHistory();
+    const pathname = history.location.pathname;
+    const { id, type } = getEntityInCurrentPath(pathname);
     const workerResponse: any = yield call(
       worker.request,
       action.payload.operation,
-      {},
+      { entityId: type === "page" ? "canvas" : id },
     );
 
     // if there is no change, then don't do anything
@@ -220,21 +241,35 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       logs,
       paths,
       replay,
-      replayWidgetDSL,
+      replayEntity,
+      replayEntityType,
       timeTaken,
     } = workerResponse;
 
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
 
-    const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
-
-    AnalyticsUtil.logEvent(event, { paths, timeTaken });
-
-    if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-
-    yield put(updateAndSaveLayout(replayWidgetDSL, false, false));
-
-    if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+    switch (replayEntityType) {
+      case ReplayEntityType.CANVAS: {
+        const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
+        AnalyticsUtil.logEvent(event, { paths, timeTaken });
+        if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
+        yield put(updateAndSaveLayout(replayEntity, false, false));
+        if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+        break;
+      }
+      case ReplayEntityType.ACTION:
+        yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
+        yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+        if (isAPIAction(replayEntity))
+          yield put(changeApi(replayEntity.id, false));
+        else yield put(changeQuery(replayEntity.id));
+        break;
+      case ReplayEntityType.DATASOURCE:
+        break;
+      case ReplayEntityType.JSACTION:
+        yield put(updateJSCollection(replayEntity.body, replayEntity.id));
+        break;
+    }
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);

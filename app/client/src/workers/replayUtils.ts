@@ -2,8 +2,10 @@ import { get, set } from "lodash";
 import { Diff } from "deep-diff";
 
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { Action, PluginType } from "entities/Action";
 
 export type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
+export type ActionDiff = Diff<Action, Action>;
 
 const positionProps = [
   "leftColumn",
@@ -37,53 +39,53 @@ export const WIDGETS = "widgets";
  * @param isUndo
  * @returns
  */
-export function processDiff(
-  dsl: CanvasWidgetsReduxState,
-  diff: DSLDiff,
+export function processDiff<T>(
+  entity: T,
+  diff: Diff<T, T>,
   replay: any,
   isUndo: boolean,
 ) {
   if (!diff || !diff.path || !diff.path.length || diff.path[0] === "0") return;
 
-  const widgetId = diff.path[0];
+  const entityId = diff.path[0];
 
   switch (diff.kind) {
     // new elements is added in dsl
     case "N":
       if (diff.path.length == 1) {
-        const toast = createToast(
+        const toast = createToast<T>(
           diff.rhs,
-          dsl[widgetId],
-          widgetId,
+          entity,
+          entityId,
           isUndo,
           !isUndo,
         );
         addToArray(replay, TOASTS, toast);
       } else {
-        setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
+        setPropertyUpdate(replay, [WIDGETS, entityId, UPDATES], diff.path);
       }
       break;
     // element is deleted in dsl
     case "D":
       if (diff.path.length == 1) {
-        const toast = createToast(
+        const toast = createToast<T>(
           diff.lhs,
-          dsl[widgetId],
-          widgetId,
+          entity,
+          entityId,
           isUndo,
           isUndo,
         );
         addToArray(replay, TOASTS, toast);
       } else {
-        setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
+        setPropertyUpdate(replay, [WIDGETS, entityId, UPDATES], diff.path);
       }
       break;
     // element is edited
     case "E":
       if (isPositionUpdate(diff.path[diff.path.length - 1])) {
-        set(replay, [WIDGETS, widgetId, FOCUSES], true);
+        set(replay, [WIDGETS, entityId, FOCUSES], true);
       } else {
-        setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
+        setPropertyUpdate(replay, [WIDGETS, entityId, UPDATES], diff.path);
       }
       break;
     default:
@@ -101,14 +103,16 @@ export function processDiff(
  * @param isCreated
  * @returns
  */
-function createToast(
-  diffWidget: CanvasWidgetsReduxState,
-  dslWidget: CanvasWidgetsReduxState | undefined,
+function createToast<T>(
+  diffWidget: T,
+  dslWidget: T,
   widgetId: string,
   isUndo: boolean,
   isCreated: boolean,
 ) {
-  const widgetName = isCreated ? diffWidget.widgetName : dslWidget?.widgetName;
+  const widgetName = isCreated
+    ? (diffWidget as any).widgetName
+    : (dslWidget as any)[widgetId]?.widgetName;
   return {
     isCreated,
     isUndo,
@@ -176,4 +180,19 @@ export function getPathsFromDiff(diffs: any) {
   }
 
   return paths;
+}
+
+export enum ReplayEntityType {
+  CANVAS,
+  ACTION,
+  DATASOURCE,
+  JSACTION,
+}
+
+export function getReplayEntityType(entity: any) {
+  if (entity && entity.pluginType === PluginType.JS)
+    return ReplayEntityType.JSACTION;
+  if (entity && entity.hasOwnProperty("actionConfiguration"))
+    return ReplayEntityType.ACTION;
+  return ReplayEntityType.CANVAS;
 }
