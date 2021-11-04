@@ -168,6 +168,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
                     actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
                     actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+                    actionCollectionViewDTO.setBody(publishedCollection.getBody());
                     return Flux.fromIterable(publishedCollection.getActionIds())
                             .flatMap(actionId -> {
                                 return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);

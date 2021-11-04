@@ -82,6 +82,7 @@ describe("Create new org and share with a user", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.wait(3000);
     cy.get(publish.pageInfo)
       .invoke("text")
       .then((text) => {
