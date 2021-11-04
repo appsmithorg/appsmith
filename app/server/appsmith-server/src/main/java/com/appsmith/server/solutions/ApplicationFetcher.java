@@ -10,7 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.OrganizationService;
-import com.appsmith.server.services.SessionUserServiceImpl;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class ApplicationFetcher {
      * TODO: Return applications shared with the user as part of this.
      */
 
-    private final SessionUserServiceImpl sessionUserService;
+    private final SessionUserService sessionUserService;
     private final UserService userService;
     private final UserDataService userDataService;
     private final OrganizationService organizationService;
@@ -65,8 +65,10 @@ public class ApplicationFetcher {
                 .flatMap(userService::findByEmail)
                 .cache();
 
+        Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData()).cache();
+
         return userMono
-                .zipWith(userDataService.getForCurrentUser().defaultIfEmpty(new UserData()))
+                .zipWith(userDataMono)
                 .flatMap(userAndUserDataTuple -> {
                     User user = userAndUserDataTuple.getT1();
                     UserData userData = userAndUserDataTuple.getT2();
@@ -137,7 +139,7 @@ public class ApplicationFetcher {
                                 // In case of an error or empty response from CS Server, continue without this data.
                                 .onErrorResume(error -> Mono.empty())
                                 .defaultIfEmpty(Collections.emptyList()),
-                        userDataService.getForUser(userHomepageDTO.getUser())
+                        userDataMono
                 ))
                 .flatMap(tuple -> {
                     final UserHomepageDTO userHomepageDTO = tuple.getT1();
