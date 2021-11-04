@@ -533,3 +533,25 @@ export const getPageActions = (pageId = "") => {
     });
   };
 };
+
+export function getCurrentEntitySelector(
+  state: AppState,
+  basicDetails: {
+    id: string;
+    type?: string;
+  },
+) {
+  const { id, type } = basicDetails;
+  let entity: Action | Datasource | JSCollection | undefined;
+  switch (type) {
+    case "action":
+      entity = getAction(state, id);
+      break;
+    case "datasource":
+      entity = getDatasource(state, id);
+      break;
+    case "jsAction":
+      entity = getJSCollection(state, id);
+  }
+  return entity;
+}

@@ -77,18 +77,15 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { getActions } from "selectors/entitiesSelector";
-import { createBrowserHistory } from "history";
 import { ReplayEntityType } from "workers/replayUtils";
 import { updateAction } from "actions/pluginActionActions";
-import { AppState } from "reducers";
-import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 import { changeQuery } from "actions/queryPaneActions";
 import { isAPIAction } from "./ActionSagas";
 import { changeApi } from "actions/apiPaneActions";
 import { updateJSCollection } from "actions/jsPaneActions";
+import { createBrowserHistory } from "history";
+import { getCurrentEntitySelector } from "selectors/entitiesSelector";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -100,10 +97,10 @@ function* evaluateTreeSaga(
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
-  const actions: ActionDataState = yield select(getActions);
-  const jsObjects: JSCollectionDataState = yield select(
-    (state: AppState) => state.entities.jsActions,
-  );
+  const history = createBrowserHistory();
+  const pathname = history.location.pathname;
+  const { id, type } = getEntityInCurrentPath(pathname);
+  const currentEntity = yield select(getCurrentEntitySelector, { id, type });
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -115,8 +112,7 @@ function* evaluateTreeSaga(
       unevalTree,
       widgetTypeConfigMap,
       widgets,
-      actions,
-      jsObjects,
+      currentEntity,
       shouldReplay,
     },
   );

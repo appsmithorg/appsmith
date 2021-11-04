@@ -84,8 +84,7 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
-          actions,
-          jsObjects,
+          currentEntity,
           shouldReplay = true,
           unevalTree,
           widgets,
@@ -103,16 +102,11 @@ ctx.addEventListener(
             replayMap["canvas"] = new ReplayEntity<CanvasWidgetsReduxState>(
               widgets,
             );
-            actions.forEach((action: any) => {
-              replayMap[action.config.id] = new ReplayEntity<Action>(
-                action.config,
+            if (!_.isEmpty(currentEntity)) {
+              replayMap[currentEntity.id] = new ReplayEntity<JSAction>(
+                currentEntity,
               );
-            });
-            jsObjects.forEach((jsObject: any) => {
-              replayMap[jsObject.config.id] = new ReplayEntity<JSAction>(
-                jsObject.config,
-              );
-            });
+            }
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -123,18 +117,12 @@ ctx.addEventListener(
             dataTree = {};
             if (shouldReplay) {
               replayMap["canvas"]?.update(widgets);
-              actions.forEach((action: any) => {
-                replayMap[action.config.id] =
-                  replayMap[action.config.id] ||
-                  new ReplayEntity<Action>(action.config);
-                replayMap[action.config.id]?.update(action.config);
-              });
-              jsObjects.forEach((jsObject: any) => {
-                replayMap[jsObject.config.id] =
-                  replayMap[jsObject.config.id] ||
-                  new ReplayEntity<JSAction>(jsObject.config);
-                replayMap[jsObject.config.id]?.update(jsObject.config);
-              });
+              if (!_.isEmpty(currentEntity)) {
+                replayMap[currentEntity.id] =
+                  replayMap[currentEntity.id] ||
+                  new ReplayEntity<JSAction>(currentEntity);
+                replayMap[currentEntity.id]?.update(currentEntity);
+              }
             }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
