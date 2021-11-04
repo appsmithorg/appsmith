@@ -116,7 +116,8 @@ const DropdownTriggerWrapper = styled.div<{
     props.isOpen && !props.disabled
       ? `
       box-sizing: border-box;
-      border: 1px solid #80bdff;
+      border: 1px solid ${Colors.GREEN_1};
+      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
     `
       : null};
   .${Classes.TEXT} {
@@ -205,6 +206,35 @@ export const DropdownWrapper = styled.div<{
   background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
   border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
+  .dropdown-search {
+    margin: 4px 12px 8px;
+    width: calc(100% - 24px);
+
+    input {
+      height: 36px;
+      font-size: 14px !important;
+      color: ${Colors.GREY_10} !important;
+      padding-left: 36px !important;
+
+      &:focus {
+        border: 1.2px solid ${Colors.GREEN_1};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_2};
+      }
+    }
+
+    .bp3-icon-search {
+      width: 36px;
+      height: 36px;
+      margin: 0px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 14px;
+      }
+    }
+  }
 `;
 
 const SearchComponentWrapper = styled.div`
@@ -231,9 +261,8 @@ const OptionWrapper = styled.div<{
   cursor: pointer;
   display: flex;
   align-items: center;
-
-  background-color: ${(props) =>
-    props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
+  min-height: 36px;
+  background-color: ${(props) => (props.selected ? Colors.GREEN_3 : null)};
 
   &&& svg {
     rect {
@@ -261,7 +290,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.dropdown.menu.hover};
+    background-color: ${Colors.GREEN_3};
 
     &&& svg {
       rect {
@@ -312,7 +341,9 @@ const StyledSubText = styled(Text)<{
 `;
 
 const LeftIconWrapper = styled.span`
-  margin-right: 15px;
+  font-size: 20px;
+  line-height: 19px;
+  margin-right: 10px;
   height: 100%;
   position: relative;
   top: 1px;

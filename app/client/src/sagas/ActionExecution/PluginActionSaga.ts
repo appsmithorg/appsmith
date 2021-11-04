@@ -667,6 +667,10 @@ function* executePluginActionSaga(
   if (pluginAction.confirmBeforeExecute) {
     const confirmed = yield call(confirmRunActionSaga);
     if (!confirmed) {
+      yield put({
+        type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+        payload: { id: actionId },
+      });
       throw new UserCancelledActionExecutionError();
     }
   }
