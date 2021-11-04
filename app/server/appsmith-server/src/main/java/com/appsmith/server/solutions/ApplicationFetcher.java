@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -27,9 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ORGANIZATIONS;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 @RequiredArgsConstructor
@@ -92,12 +95,30 @@ public class ApplicationFetcher {
                     orgIdSortedSet.addAll(orgIds); // add all other if not added already
 
                     // Collect all the applications as a map with organization id as a key
-                    Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationRepository
+                    Flux<Application> applicationFlux = applicationRepository
                             .findByMultipleOrganizationIds(orgIds, READ_APPLICATIONS)
                             // TODO only fetch the latest application branch instead of default one
                             .filter(application -> application.getGitApplicationMetadata() == null
-                                || (StringUtils.equals(application.getId(),application.getGitApplicationMetadata().getDefaultApplicationId())))
-                            .collectMultimap(Application::getOrganizationId, Function.identity());
+                                    || (StringUtils.equals(application.getId(), application.getGitApplicationMetadata().getDefaultApplicationId())));
+
+                    // sort the list of applications if user has recent applications
+                    if(!CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())) {
+                        // creating a map of applicationId and corresponding index to reduce sorting time
+                        Map<String, Integer> idToIndexMap = IntStream.range(0, userData.getRecentlyUsedAppIds().size())
+                                .boxed()
+                                .collect(toMap(userData.getRecentlyUsedAppIds()::get, i -> i));
+
+                        applicationFlux = applicationFlux.sort((o1, o2) -> {
+                            String o1Id = o1.getId(), o2Id = o2.getId();
+                            Integer idx1 = idToIndexMap.get(o1Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o1Id);
+                            Integer idx2 = idToIndexMap.get(o2Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o2Id);
+                            return (idx1-idx2);
+                        });
+                    }
+
+                    Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationFlux.collectMultimap(
+                            Application::getOrganizationId, Function.identity()
+                    );
 
                     return organizationService
                             .findByIdsIn(orgIds, READ_ORGANIZATIONS)
