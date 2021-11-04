@@ -170,6 +170,43 @@ public class ApplicationFetcherUnitTest {
                 }).verifyComplete();
     }
 
+    @Test
+    public void getAllApplications_WhenUserHasRecentOrgButNoRecentApp_AppsAreSortedInDefaultOrder() {
+        initMocks();
+        // mock the user data to return recently used orgs and apps
+        UserData userData = new UserData();
+        userData.setRecentlyUsedOrgIds(List.of("org-3", "org-1"));
+        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(userData));
+
+        // mock the list of applications
+        Mockito.when(applicationRepository.findByMultipleOrganizationIds(
+                testUser.getOrganizationIds(), READ_APPLICATIONS)
+        ).thenReturn(Flux.fromIterable(createDummyApplications(3,3)));
+
+        StepVerifier.create(applicationFetcher.getAllApplications())
+                .assertNext(userHomepageDTO -> {
+                    List<OrganizationApplicationsDTO> organizationApplications = userHomepageDTO.getOrganizationApplications();
+                    assertThat(organizationApplications).isNotNull();
+                    assertThat(organizationApplications.size()).isEqualTo(4);
+
+                    // apps under first org should be sorted as 1,2,3
+                    checkAppsAreSorted(organizationApplications.get(0).getApplications(),
+                            List.of("org-3-app-1", "org-3-app-2", "org-3-app-3")
+                    );
+
+                    // apps under second org should be sorted as 1,2,3
+                    checkAppsAreSorted(organizationApplications.get(1).getApplications(),
+                            List.of("org-1-app-1", "org-1-app-2", "org-1-app-3")
+                    );
+
+                    // apps under third org should be sorted as 1,2,3
+                    checkAppsAreSorted(organizationApplications.get(2).getApplications(),
+                            List.of("org-2-app-1", "org-2-app-2", "org-2-app-3")
+                    );
+                    assertThat(organizationApplications.get(3).getApplications().size()).isZero();
+                }).verifyComplete();
+    }
+
     /**
      * Asserts that provided list of applications are sorted as per the provided id list
      * @param appIds list of string as application ids
