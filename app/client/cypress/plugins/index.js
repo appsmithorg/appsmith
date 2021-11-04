@@ -7,7 +7,6 @@ const chalk = require("chalk");
 const cypressLogToOutput = require("cypress-log-to-output");
 const { isFileExist } = require("cy-verify-downloads");
 
-
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -32,13 +31,12 @@ module.exports = (on, config) => {
     }
     return false;
   });
+};
 
-  module.exports = (on, config) => {
-      on('task', {
-          isFileExist
-      })
-
-  }
+module.exports = (on, config) => {
+  on("task", {
+    isFileExist,
+  });
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on("before:browser:launch", (browser = {}, launchOptions) => {
@@ -106,10 +104,10 @@ module.exports = (on, config) => {
     console.error(
       chalk.yellow(
         "\n====================================================================================================\n" +
-          chalk.red(e.message) +
-          "\n\n" +
-          "Could not load env variables from .env file, make sure you have one!\n" +
-          "====================================================================================================\n",
+        chalk.red(e.message) +
+        "\n\n" +
+        "Could not load env variables from .env file, make sure you have one!\n" +
+        "====================================================================================================\n",
       ),
     );
   }

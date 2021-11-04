@@ -49,5 +49,4 @@
   "addFilter": ".t--add-filter-btn",
   "operatorsDropdown": ".t--table-filter-operators-dropdown",
   "attributesDropdown": ".t--table-filter-columns-dropdown"
-
 }

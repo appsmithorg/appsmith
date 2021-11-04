@@ -4,7 +4,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
 
-describe("Table Widget Functionality", function() {
+describe("Table Widget Filter Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -32,14 +32,15 @@ describe("Table Widget Functionality", function() {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
-      cy.downloadData('Download as CSV')
+      cy.downloadData("Download as CSV");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(5000);
-      cy.verifyDownload('Table1.csv');
-      cy.downloadData('Download as Excel')
+      //cy.validateDownload('Table1.csv');
+      cy.verifyDownload("Table1.csv");
+      cy.downloadData("Download as Excel");
       cy.wait(5000);
-      cy.verifyDownload('Table1.xlsx');
-
+      //cy.validateDownload('Table1.xlsx');
+      cy.verifyDownload("Table1.xlsx");
       cy.get(publish.searchInput)
         .first()
         .within(() => {
@@ -109,11 +110,16 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.attributeValue)
         .contains("contains")
         .click();
-    cy.get(publish.inputValue).type("Tobias Funke");
+      cy.get(publish.inputValue).type("Tobias Funke");
 
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.AddFilterWithOperator("OR","email","contains","tobias.funke@reqres.in");
+      cy.AddFilterWithOperator(
+        "OR",
+        "email",
+        "contains",
+        "tobias.funke@reqres.in",
+      );
       cy.wait(500);
       cy.get(widgetsPage.filterApplyBtn).click({ force: true });
       cy.wait(500);
@@ -123,8 +129,12 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
-      cy.get(publish.removeFilter).first().click({ force: true });
-      cy.get(publish.removeFilter).last().click({ force: true });
+      cy.get(publish.removeFilter)
+        .first()
+        .click({ force: true });
+      cy.get(publish.removeFilter)
+        .last()
+        .click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
@@ -136,7 +146,6 @@ describe("Table Widget Functionality", function() {
         .click({ force: true });
     });
   });
-
 
   it("Table Widget Functionality To Filter The Data using AND operator ", function() {
     cy.isSelectRow(1);
@@ -153,11 +162,16 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.attributeValue)
         .contains("contains")
         .click();
-    cy.get(publish.inputValue).type("Tobias Funke");
+      cy.get(publish.inputValue).type("Tobias Funke");
 
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.AddFilterWithOperator("AND","email","contains","tobias.funke@reqres.in");
+      cy.AddFilterWithOperator(
+        "AND",
+        "email",
+        "contains",
+        "tobias.funke@reqres.in",
+      );
       cy.wait(500);
       cy.get(widgetsPage.filterApplyBtn).click({ force: true });
       cy.wait(500);
@@ -167,8 +181,12 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
-      cy.get(publish.removeFilter).first().click({ force: true });
-      cy.get(publish.removeFilter).last().click({ force: true });
+      cy.get(publish.removeFilter)
+        .first()
+        .click({ force: true });
+      cy.get(publish.removeFilter)
+        .last()
+        .click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
@@ -196,11 +214,16 @@ describe("Table Widget Functionality", function() {
       cy.get(publish.attributeValue)
         .contains("contains")
         .click();
-    cy.get(publish.inputValue).type("Lindsay Ferguson");
+      cy.get(publish.inputValue).type("Lindsay Ferguson");
 
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.AddFilterWithOperator("OR","email","contains","tobias.funke@reqres.in");
+      cy.AddFilterWithOperator(
+        "OR",
+        "email",
+        "contains",
+        "tobias.funke@reqres.in",
+      );
       cy.wait(500);
       cy.get(widgetsPage.filterApplyBtn).click({ force: true });
       cy.wait(500);
@@ -214,8 +237,12 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(widgetsPage.filterCloseBtn).click({ force: true });
       cy.get(publish.filterBtn).click();
-      cy.get(publish.removeFilter).first().click({ force: true });
-      cy.get(publish.removeFilter).last().click({ force: true });
+      cy.get(publish.removeFilter)
+        .first()
+        .click({ force: true });
+      cy.get(publish.removeFilter)
+        .last()
+        .click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
