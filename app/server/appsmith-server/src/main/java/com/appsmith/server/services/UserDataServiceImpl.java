@@ -240,8 +240,8 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     }
 
     /**
-     * The {@code currentOrgId} is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
-     * If {@link UserData#getRecentlyUsedOrgIds} is null or empty, a new list will be created first.
+     * The application.organizationId is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
+     * The application.id is prepended to the list {@link UserData#getRecentlyUsedAppIds()}.
      *
      * @param application@return Updated {@link UserData}
      */

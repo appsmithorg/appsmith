@@ -145,7 +145,7 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     }
 
     /**
-     * Returns a list of application ids which are under the provided application
+     * Returns a list of application ids which are under the organization with provided organizationId
      * @param organizationId organization id
      * @return list of String
      */
