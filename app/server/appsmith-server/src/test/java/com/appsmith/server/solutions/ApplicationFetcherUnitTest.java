@@ -147,25 +147,23 @@ public class ApplicationFetcherUnitTest {
                     assertThat(organizationApplications.size()).isEqualTo(4);
 
                     // apps under first org should be sorted as org-2-app-2, org-2-app-1, org-2-app-3, org-2-app-4
-                    checkAppsAreSorted(
-                            organizationApplications.get(0).getApplications(),
+                    checkAppsAreSorted(organizationApplications.get(0).getApplications(),
                             List.of("org-2-app-2", "org-2-app-1", "org-2-app-3", "org-2-app-4")
                     );
 
                     // apps should be sorted as org-4-app-3, org-4-app-1, org-4-app-2, org-4-app-4
-                    checkAppsAreSorted(
-                            organizationApplications.get(1).getApplications(),
+                    checkAppsAreSorted(organizationApplications.get(1).getApplications(),
                             List.of("org-4-app-3", "org-4-app-1", "org-4-app-2", "org-4-app-4")
                     );
 
                     // rest two orgs should have apps sorted in default order e.g. 1,2,3,4
-                    checkAppsAreSorted(
-                            organizationApplications.get(2).getApplications(),
-                            List.of("org-1-app-1", "org-1-app-2", "org-1-app-3", "org-1-app-4")
+                    String org3AppPrefix = organizationApplications.get(2).getOrganization().getId() + "-app-";
+                    checkAppsAreSorted(organizationApplications.get(2).getApplications(),
+                            List.of(org3AppPrefix+"1", org3AppPrefix+"2", org3AppPrefix+"3", org3AppPrefix+"4")
                     );
-                    checkAppsAreSorted(
-                            organizationApplications.get(3).getApplications(),
-                            List.of("org-3-app-1", "org-3-app-2", "org-3-app-3", "org-3-app-4")
+                    String org4AppPrefix = organizationApplications.get(3).getOrganization().getId() + "-app-";
+                    checkAppsAreSorted(organizationApplications.get(3).getApplications(),
+                            List.of(org4AppPrefix+"1", org4AppPrefix+"2", org4AppPrefix+"3", org4AppPrefix+"4")
                     );
                 }).verifyComplete();
     }
@@ -198,12 +196,6 @@ public class ApplicationFetcherUnitTest {
                     checkAppsAreSorted(organizationApplications.get(1).getApplications(),
                             List.of("org-1-app-1", "org-1-app-2", "org-1-app-3")
                     );
-
-                    // apps under third org should be sorted as 1,2,3
-                    checkAppsAreSorted(organizationApplications.get(2).getApplications(),
-                            List.of("org-2-app-1", "org-2-app-2", "org-2-app-3")
-                    );
-                    assertThat(organizationApplications.get(3).getApplications().size()).isZero();
                 }).verifyComplete();
     }
 
