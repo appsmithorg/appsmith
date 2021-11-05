@@ -103,17 +103,17 @@ describe("Map Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
-  it("Action: onEntityClick, Show Alert Modal", function() {
-    // Create the Alert Modal and verify Modal name
-    cy.createModal("Alert Modal", this.data.AlertModalName);
-    cy.PublishtheApp();
-    cy.get(widgetsPage.mapChartPlot)
-      .children()
-      .first()
-      .click();
-    cy.get(modalWidgetPage.modelTextField).should(
-      "have.text",
-      this.data.AlertModalName,
-    );
-  });
+  // it("Action: onEntityClick, Show Alert Modal", function() {
+  //   // Create the Alert Modal and verify Modal name
+  //   cy.createModal("Alert Modal", this.data.AlertModalName);
+  //   cy.PublishtheApp();
+  //   cy.get(widgetsPage.mapChartPlot)
+  //     .children()
+  //     .first()
+  //     .click();
+  //   cy.get(modalWidgetPage.modelTextField).should(
+  //     "have.text",
+  //     this.data.AlertModalName,
+  //   );
+  // });
 });
