@@ -329,7 +329,7 @@ public class EnvManager {
     }
 
     public Mono<Boolean> sendTestEmail() {
-        return sessionUserService.getCurrentUser()
+        return verifyCurrentUserIsSuper()
                 .flatMap(user -> emailSender.sendMail(
                         user.getEmail(),
                         "Test email from Appsmith",

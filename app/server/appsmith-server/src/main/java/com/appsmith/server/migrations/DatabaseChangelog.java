@@ -3467,7 +3467,7 @@ public class DatabaseChangelog {
         return new HashMap<>();
     }
 
-    @ChangeSet(order = "093", id = "migrate-s3-to-uqi", author = "")
+    @ChangeSet(order = "094", id = "migrate-s3-to-uqi", author = "")
     public void migrateS3PluginToUqi(MongockTemplate mongockTemplate) {
 
         ObjectMapper objectMapper = new ObjectMapper();
