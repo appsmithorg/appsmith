@@ -129,7 +129,10 @@ function GitSyncModal() {
           <BodyContainer>
             <BodyComponent />
           </BodyContainer>
-          <CloseBtnContainer onClick={handleClose}>
+          <CloseBtnContainer
+            className="t--close-git-sync-modal"
+            onClick={handleClose}
+          >
             <Icon
               fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
               name="close-modal"
