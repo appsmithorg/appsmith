@@ -337,7 +337,7 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                     // remove the organization from recent org list of UserData
                     // we also need to remove the org id from User.orgIdList
                     finalUpdatedOrganizationMono = userDataRepository
-                            .removeOrgFromRecentlyUsedList(user.getId(), organization.getId())
+                            .removeIdFromRecentlyUsedList(user.getId(), organization.getId(), List.of())
                             .then(userRemovedOrganizationMono)
                             .flatMap(organization1 -> {
                                     if(user.getOrganizationIds() != null) {
