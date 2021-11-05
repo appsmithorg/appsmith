@@ -567,6 +567,7 @@ const darkShades = [
   "#FFFFFF",
   "#157A96",
   "#090707",
+  "#FFDEDE",
 ] as const;
 
 const lightShades = [
@@ -588,6 +589,7 @@ const lightShades = [
   "#858282",
   "#000000",
   "#F86A2B",
+  "#FFDEDE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -898,6 +900,7 @@ type ColorType = {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
+    iconBg: ShadeColor;
     user: {
       textColor: ShadeColor;
     };
@@ -1864,6 +1867,7 @@ export const dark: ColorType = {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
+    iconBg: darkShades[12],
     user: {
       textColor: darkShades[7],
     },
@@ -2502,6 +2506,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: lightShades[5],
+    iconBg: lightShades[18],
     user: {
       textColor: lightShades[9],
     },
