@@ -1,8 +1,52 @@
 import { ChartWidgetProps } from "widgets/ChartWidget/widget";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 import { isLabelOrientationApplicableFor } from "../component";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+function customChartTypeValidaion(
+  value: any,
+  props: ChartWidgetProps,
+  _?: any,
+  moment?: any,
+  chartTypes?: string[],
+): ValidationResponse {
+  let chartConfig = props.customFusionChartConfig;
+  if (_.isString(props.customFusionChartConfig)) {
+    try {
+      chartConfig = JSON.parse(chartConfig);
+    } catch (e) {
+      chartConfig = {};
+    }
+  }
+  if ("type" in chartConfig) {
+    return {
+      isValid: true,
+      parsed: "",
+    };
+  }
+  if (value === "" || value === undefined || value === null) {
+    return {
+      isValid: false,
+      parsed: "",
+      messages: ["This value is required"],
+    };
+  }
+  if (chartTypes && !chartTypes.includes(value.trim()))
+    return {
+      isValid: false,
+      parsed: "",
+      messages: ["Value is not allowed"],
+    };
+  return {
+    isValid: true,
+    parsed: value,
+  };
+}
 
 export default [
   {
@@ -75,9 +119,15 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
-          type: ValidationTypes.TEXT,
+          type: ValidationTypes.FUNCTION,
           params: {
-            allowedValues: CUSTOM_CHART_TYPES,
+            fn: customChartTypeValidaion,
+            fnArgs: CUSTOM_CHART_TYPES,
+            expected: {
+              type: "string",
+              example: `column2d`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
           },
         },
         hidden: (props: ChartWidgetProps) => {

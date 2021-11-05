@@ -797,6 +797,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           props,
           _,
           moment,
+          config.params?.fnArgs,
         ]);
         return result;
       } catch (e) {
