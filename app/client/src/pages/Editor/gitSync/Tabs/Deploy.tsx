@@ -28,7 +28,7 @@ import DeployPreview from "../components/DeployPreview";
 import { fetchGitStatusInit } from "actions/gitSyncActions";
 // import { getGitPushError } from "selectors/gitSyncSelectors";
 // import Text, { TextType } from "components/ads/Text";
-import { getIsCommitSuccessful } from "../../../../selectors/gitSyncSelectors";
+import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
