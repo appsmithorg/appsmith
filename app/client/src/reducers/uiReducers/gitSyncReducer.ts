@@ -233,6 +233,12 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isDisconnectingGit: false,
   }),
+  [ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isConnectingToGit: false,
+  }),
 });
 
 export type GitStatusData = {

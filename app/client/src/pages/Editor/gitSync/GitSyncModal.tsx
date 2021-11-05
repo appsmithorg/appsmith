@@ -8,12 +8,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import Menu from "./Menu";
-import { MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
+import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
 import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "./constants";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
@@ -33,11 +32,11 @@ const Container = styled.div`
 
 const BodyContainer = styled.div`
   flex: 3;
-  height: calc(100% - 47px);
+  height: calc(100% - ${MENU_HEIGHT}px);
 `;
 
 const MenuContainer = styled.div`
-  height: 47px;
+  height: ${MENU_HEIGHT}px;
 `;
 
 const CloseBtnContainer = styled.div`

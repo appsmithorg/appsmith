@@ -16,9 +16,6 @@ import {
   DEPLOY_KEY_TITLE,
   REMOTE_URL_INPUT_PLACEHOLDER,
   CONNECTING_REPO,
-  ERROR_CONNECTING,
-  CONFIRM_SSH_KEY,
-  READ_DOCUMENTATION,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -31,11 +28,11 @@ import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import { Toaster } from "components/ads/Toast";
-import { Classes, Variant } from "components/ads/common";
+import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import Text, { Case, FontWeight, TextType } from "components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import { getGlobalGitConfig } from "selectors/gitSyncSelectors";
 import {
   fetchGlobalGitConfigInit,
@@ -59,9 +56,9 @@ import {
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
-import AdsIcon, { IconSize } from "components/ads/Icon";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import GitSyncError from "../components/GitError";
+import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -193,20 +190,15 @@ const RemoteUrlInfoWrapper = styled.div`
 const Section = styled.div``;
 const StatusbarWrapper = styled.div`
   width: 252px;
+  height: 38px;
 `;
 
-const ErrorWrapper = styled.div`
-  padding: 24px 0px;
-  .${Classes.TEXT} {
-    display: block;
-    margin-bottom: ${(props) => props.theme.spaces[3]}px;
-    &.t--read-document {
-      display: inline-flex;
-      .${Classes.ICON} {
-        margin-left: ${(props) => props.theme.spaces[3]}px;
-      }
-    }
-  }
+const StickyMenuWrapper = styled.div`
+  position: sticky;
+  top: 0px;
+  height: fit-content;
+  z-index: 9999;
+  background: white;
 `;
 
 // v1 only support SSH
@@ -222,8 +214,6 @@ function GitConnection({ isImport }: Props) {
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore);
-  const [processingGit, setProcessingGit] = useState(false);
-
   const isGitConnected = !!remoteUrlInStore;
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
@@ -294,6 +284,7 @@ function GitConnection({ isImport }: Props) {
   const {
     connectToGit,
     failedConnectingToGit,
+    gitError,
     isConnectingToGit,
   } = useGitConnect();
 
@@ -360,7 +351,6 @@ function GitConnection({ isImport }: Props) {
       emailValidator(authorInfo.authorEmail).isValid
     ) {
       // Also check if useDefaultConfig switch is changed
-      setProcessingGit(true);
       if (isGitConnected && !isRemoteUrlUpdated()) {
         if (isAuthorInfoUpdated()) {
           // just update local config
@@ -451,9 +441,6 @@ function GitConnection({ isImport }: Props) {
     setUseGlobalConfig(!useGlobalConfig);
   }, [setUseGlobalConfig, useGlobalConfig]);
 
-  const hideStatusBar = useCallback(() => {
-    setProcessingGit(false);
-  }, []);
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
   useEffect(() => {
     if (failedConnectingToGit && scrollWrapperRef.current) {
@@ -465,8 +452,10 @@ function GitConnection({ isImport }: Props) {
   return (
     <Container ref={scrollWrapperRef}>
       <Section>
-        <Title>{createMessage(CONNECT_TO_GIT)}</Title>
-        <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
+        <StickyMenuWrapper>
+          <Title>{createMessage(CONNECT_TO_GIT)}</Title>
+          <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
+        </StickyMenuWrapper>
         <UrlOptionContainer>
           <Text color={Colors.GREY_9} type={TextType.P1}>
             {createMessage(REMOTE_URL)}
@@ -574,17 +563,16 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>
-            {!failedConnectingToGit && processingGit && (
+            {!failedConnectingToGit && isConnectingToGit && (
               <StatusbarWrapper>
                 <Statusbar
                   completed={!submitButtonIsLoading}
                   message={createMessage(CONNECTING_REPO)}
-                  onHide={hideStatusBar}
                   period={4}
                 />
               </StatusbarWrapper>
             )}
-            {!processingGit && (
+            {!isConnectingToGit && (
               <Button
                 category={
                   isGitConnected ? Category.secondary : Category.primary
@@ -602,33 +590,11 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            {failedConnectingToGit && (
-              <ErrorWrapper>
-                <Text
-                  case={Case.UPPERCASE}
-                  color={Colors.ERROR_RED}
-                  type={TextType.P1}
-                  weight={FontWeight.BOLD}
-                >
-                  {createMessage(ERROR_CONNECTING)}
-                </Text>
-                <Text color={Colors.ERROR_RED} type={TextType.P2}>
-                  {createMessage(CONFIRM_SSH_KEY)}
-                </Text>
-                <LintText href={DOCS_BASE_URL} target="_blank">
-                  <Text
-                    case={Case.UPPERCASE}
-                    className="t--read-document"
-                    color={Colors.CHARCOAL}
-                    type={TextType.P3}
-                    weight={FontWeight.BOLD}
-                  >
-                    {createMessage(READ_DOCUMENTATION)}
-                    <AdsIcon name="right-arrow" size={IconSize.SMALL} />
-                  </Text>
-                </LintText>
-              </ErrorWrapper>
-            )}
+            <GitSyncError
+              active={failedConnectingToGit}
+              error={gitError.message}
+              type={ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR}
+            />
           </ButtonContainer>
         </>
       ) : null}

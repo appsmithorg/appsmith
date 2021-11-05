@@ -82,15 +82,21 @@ export const useGitConnect = () => {
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
   const [failedConnectingToGit, setFailedConnectingToGit] = useState(false);
+  const [gitError, setGitError] = useState({ message: null });
 
   const onGitConnectSuccess = useCallback(() => {
+    setGitError({ message: null });
     setIsConnectingToGit(false);
   }, [setIsConnectingToGit]);
 
-  const onGitConnectFailure = useCallback(() => {
-    setIsConnectingToGit(false);
-    setFailedConnectingToGit(true);
-  }, [setIsConnectingToGit]);
+  const onGitConnectFailure = useCallback(
+    (error: any) => {
+      setGitError({ message: error.message });
+      setIsConnectingToGit(false);
+      setFailedConnectingToGit(true);
+    },
+    [setIsConnectingToGit],
+  );
 
   const connectToGit = useCallback(
     (payload: ConnectToGitPayload) => {
@@ -112,6 +118,7 @@ export const useGitConnect = () => {
   return {
     isConnectingToGit,
     failedConnectingToGit,
+    gitError,
     connectToGit,
   };
 };
