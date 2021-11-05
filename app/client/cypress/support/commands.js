@@ -1163,10 +1163,10 @@ Cypress.Commands.add("createModal", (ModalName) => {
     .click({ force: true });
   cy.selectOnClickOption("Open modal");
   cy.get(modalWidgetPage.selectModal).click();
+  cy.wait(2000);
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
-
+  cy.wait(3000);
   cy.assertPageSave();
-
   // changing the model name verify
   cy.widgetText(
     ModalName,
@@ -2670,17 +2670,13 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/plugins").as("getPlugins");
   cy.route("POST", "/api/v1/logout").as("postLogout");
 
-  cy.route("GET", "/api/v1/datasources?organizationId=*").as(
-    "getDataSources",
-  );
+  cy.route("GET", "/api/v1/datasources?organizationId=*").as("getDataSources");
   cy.route("GET", "/api/v1/pages/application/*").as("getPagesForCreateApp");
   cy.route("GET", "/api/v1/applications/view/*").as("getPagesForViewApp");
 
   cy.route("POST");
   cy.route("GET", "/api/v1/pages/*").as("getPage");
-  cy.route("GET", "/api/v1/applications/*/pages/*/edit").as(
-    "getAppPageEdit",
-  );
+  cy.route("GET", "/api/v1/applications/*/pages/*/edit").as("getAppPageEdit");
   cy.route("GET", "/api/v1/actions*").as("getActions");
   cy.route("GET", "api/v1/providers/categories").as("getCategories");
   cy.route("GET", "api/v1/import/templateCollections").as(
@@ -2699,9 +2695,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "datasourceQuery",
   );
 
-  cy.route("PUT", "/api/v1/pages/crud-page/*").as(
-    "replaceLayoutWithCRUDPage",
-  );
+  cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
   cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
 
   cy.route("GET", "/api/v1/organizations").as("organizations");
@@ -2715,14 +2709,11 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.route("POST", "/api/v1/actions").as("createNewApi");
-  cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as(
-    "curlImport",
-  );
+  cy.route("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as("curlImport");
   cy.route("DELETE", "/api/v1/actions/*").as("deleteAction");
-  cy.route(
-    "GET",
-    "/api/v1/marketplace/providers?category=*&page=*&size=*",
-  ).as("get3PProviders");
+  cy.route("GET", "/api/v1/marketplace/providers?category=*&page=*&size=*").as(
+    "get3PProviders",
+  );
   cy.route("GET", "/api/v1/marketplace/templates?providerId=*").as(
     "get3PProviderTemplates",
   );
@@ -2732,17 +2723,13 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/datasources").as("createDatasource");
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.route("POST", "/api/v1/applications/?orgId=*").as(
-    "createNewApplication",
-  );
+  cy.route("POST", "/api/v1/applications/?orgId=*").as("createNewApplication");
   cy.route("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.route("PUT", "/api/v1/actions/*").as("saveAction");
   cy.route("PUT", "/api/v1/actions/move").as("moveAction");
 
   cy.route("POST", "/api/v1/organizations").as("createOrg");
-  cy.route("POST", "api/v1/applications/import/*").as(
-    "importNewApplication",
-  );
+  cy.route("POST", "api/v1/applications/import/*").as("importNewApplication");
   cy.route("GET", "api/v1/applications/export/*").as("exportApplication");
   cy.route("GET", "/api/v1/organizations/roles?organizationId=*").as(
     "getRoles",
@@ -2757,9 +2744,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
-  cy.route("PUT", "/api/v1/users/leaveOrganization/*").as(
-    "leaveOrgApiCall",
-  );
+  cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
@@ -2767,16 +2752,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
   cy.route("POST", "api/v1/git/commit/*").as("commit");
 
-  cy.route("PUT", "api/v1/collections/actions/refactor").as(
-    "renameJsAction",
-  );
+  cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
-  cy.route("POST", "/api/v1/collections/actions").as(
-    "createNewJSCollection",
-  );
-  cy.route("DELETE", "/api/v1/collections/actions/*").as(
-    "deleteJSCollection",
-  );
+  cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
+  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
 
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
 });

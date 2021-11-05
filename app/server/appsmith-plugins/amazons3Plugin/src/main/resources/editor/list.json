@@ -57,10 +57,8 @@
           "configProperty": "actionConfiguration.formData.list.expiry",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": "5",
-          "show": {
-            "path": "actionConfiguration.formData.list.signedUrl",
-            "comparison": "EQUALS",
-            "value": "YES"
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.list.signedUrl === 'YES'}}"
           }
         },
         {
