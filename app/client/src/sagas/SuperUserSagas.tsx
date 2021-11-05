@@ -1,3 +1,4 @@
+import React from "react";
 import UserApi from "api/UserApi";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
@@ -8,7 +9,7 @@ import {
 } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import { User } from "constants/userConstants";
-import { takeLatest, all, call, put, delay } from "redux-saga/effects";
+import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "./ErrorSagas";
 import { getAppsmithConfigs } from "configs";
@@ -18,7 +19,10 @@ import {
   createMessage,
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
+  TEST_EMAIL_SUCCESS_TROUBLESHOOT,
 } from "constants/messages";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 function* FetchAdminSettingsSaga() {
   const response = yield call(UserApi.fetchAdminSettings);
@@ -99,12 +103,27 @@ function* RestartServerPoll() {
 function* SendTestEmail() {
   try {
     const response = yield call(UserApi.sendTestEmail);
+    const currentUser = yield select(getCurrentUser);
+    let actionElement;
+    if (response.data) {
+      actionElement = (
+        <>
+          <br />
+          <span onClick={() => window.open(EMAIL_SETUP_DOC, "blank")}>
+            {createMessage(TEST_EMAIL_SUCCESS_TROUBLESHOOT)}
+          </span>
+        </>
+      );
+    }
     Toaster.show({
+      actionElement,
       text: createMessage(
-        response.data ? TEST_EMAIL_SUCCESS : TEST_EMAIL_FAILURE,
+        response.data
+          ? TEST_EMAIL_SUCCESS(currentUser?.email)
+          : TEST_EMAIL_FAILURE,
       ),
       hideProgressBar: true,
-      variant: response.data ? Variant.success : Variant.danger,
+      variant: response.data ? Variant.info : Variant.danger,
     });
   } catch (e) {
     Toaster.show({
