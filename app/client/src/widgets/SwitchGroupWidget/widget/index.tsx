@@ -1,5 +1,5 @@
 import React from "react";
-import { compact } from "lodash";
+import _, { compact } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -8,7 +8,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import SwitchGroupComponent, { OptionProps } from "../component";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isArrayEqual } from "utils/AppsmithUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -169,7 +168,13 @@ class SwitchGroupWidget extends BaseWidget<
     const prevOptionsLength = prevProps.options.length;
     const optionsLength = this.props.options.length;
 
-    if (!isArrayEqual(this.props.options, prevProps.options)) {
+    // Update if an option is added or removed and any value inside options changes
+    if (
+      optionsLength !== prevOptionsLength ||
+      !_(this.props.options)
+        .differenceWith(prevProps.options, _.isEqual)
+        .isEmpty()
+    ) {
       const prevOptions = compact(prevProps.options).map(
         (prevOption) => prevOption.value,
       );
