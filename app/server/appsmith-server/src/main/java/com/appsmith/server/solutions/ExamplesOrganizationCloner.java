@@ -4,14 +4,15 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -20,11 +21,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -38,7 +41,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +66,8 @@ public class ExamplesOrganizationCloner {
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final LayoutActionService layoutActionService;
+    private final ActionCollectionService actionCollectionService;
+    private final LayoutCollectionService layoutCollectionService;
 
     public Mono<Organization> cloneExamplesOrganization() {
         return sessionUserService
@@ -223,7 +227,7 @@ public class ExamplesOrganizationCloner {
                                             ? applicationPageService.makePageDefault(savedPage).thenReturn(savedPage)
                                             : Mono.just(savedPage))
                             .flatMap(savedPage -> newPageRepository.findById(savedPage.getId()))
-                            .flatMapMany(savedPage -> {
+                            .flatMap(savedPage -> {
                                 clonedPages.add(savedPage);
                                 return newActionService
                                         .findByPageId(templatePageId)
@@ -232,45 +236,83 @@ public class ExamplesOrganizationCloner {
                                             log.info("Preparing action for cloning {} {}.", action.getName(), newAction.getId());
                                             action.setPageId(savedPage.getId());
                                             return newAction;
+                                        })
+                                        .flatMap(newAction -> {
+                                            final String originalActionId = newAction.getId();
+                                            log.info("Creating clone of action {}", originalActionId);
+                                            makePristine(newAction);
+                                            newAction.setOrganizationId(toOrganizationId);
+                                            ActionDTO action = newAction.getUnpublishedAction();
+                                            final String originalCollectionId = action.getCollectionId();
+                                            action.setCollectionId(null);
+
+                                            Mono<ActionDTO> actionMono = Mono.just(action);
+                                            final Datasource datasourceInsideAction = action.getDatasource();
+                                            if (datasourceInsideAction != null) {
+                                                if (datasourceInsideAction.getId() != null) {
+                                                    final String datasourceId = datasourceInsideAction.getId();
+                                                    if (!cloneDatasourceMonos.containsKey(datasourceId)) {
+                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toOrganizationId).cache());
+                                                    }
+                                                    actionMono = cloneDatasourceMonos.get(datasourceId)
+                                                            .map(newDatasource -> {
+                                                                action.setDatasource(newDatasource);
+                                                                return action;
+                                                            });
+                                                } else {
+                                                    datasourceInsideAction.setOrganizationId(toOrganizationId);
+                                                }
+                                            }
+                                            return Mono.zip(actionMono
+                                                            .flatMap(actionDTO -> layoutActionService.createAction(
+                                                                    actionDTO, new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE))
+                                                            )
+                                                            .map(ActionDTO::getId),
+                                                    Mono.justOrEmpty(originalActionId));
+                                        })
+                                        // This call to `collectMap` will wait for all actions in all pages to have been processed, and so the
+                                        // `clonedPages` list will also contain all pages cloned.
+                                        .collect(HashMap<String, String>::new, (map, tuple3) -> map.put(tuple3.getT2(), tuple3.getT1()))
+                                        .flatMap(actionIdsMap -> {
+                                            // Pick all action collections
+                                            return actionCollectionService
+                                                    .findByPageId(templatePageId)
+                                                    .flatMap(actionCollection -> {
+                                                        // Keep a record of the original collection id
+                                                        final String originalCollectionId = actionCollection.getId();
+                                                        log.info("Creating clone of action collection {}", originalCollectionId);
+                                                        // Sanitize them
+                                                        makePristine(actionCollection);
+                                                        final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+                                                        unpublishedCollection.setPageId(savedPage.getId());
+                                                        actionCollection.setOrganizationId(toOrganizationId);
+                                                        actionCollection.setApplicationId(savedPage.getApplicationId());
+                                                        actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
+
+                                                        // Replace all action Ids from map
+                                                        final HashSet<String> newActionIds = new HashSet<>();
+                                                        unpublishedCollection
+                                                                .getActionIds()
+                                                                .stream()
+                                                                .forEach(oldActionId -> newActionIds.add(actionIdsMap.get(oldActionId)));
+                                                        unpublishedCollection.setActionIds(newActionIds);
+                                                        return actionCollectionService.create(actionCollection)
+                                                                .flatMap(newlyCreatedActionCollection -> {
+                                                                    return Flux.fromIterable(newActionIds)
+                                                                            .flatMap(newActionService::findById)
+                                                                            .flatMap(newlyCreatedAction -> {
+                                                                                newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedAction.getId());
+                                                                                return newActionService.update(newlyCreatedAction.getId(), newlyCreatedAction);
+                                                                            })
+                                                                            .collectList();
+                                                                });
+                                                    })
+                                                    .collectList()
+                                                    .thenReturn(actionIdsMap);
                                         });
                             });
                 })
-                .flatMap(newAction -> {
-                    final String originalActionId = newAction.getId();
-                    log.info("Creating clone of action {}", originalActionId);
-                    makePristine(newAction);
-                    newAction.setOrganizationId(toOrganizationId);
-                    ActionDTO action = newAction.getUnpublishedAction();
-                    action.setCollectionId(null);
-
-                    Mono<ActionDTO> actionMono = Mono.just(action);
-                    final Datasource datasourceInsideAction = action.getDatasource();
-                    if (datasourceInsideAction != null) {
-                        if (datasourceInsideAction.getId() != null) {
-                            final String datasourceId = datasourceInsideAction.getId();
-                            if (!cloneDatasourceMonos.containsKey(datasourceId)) {
-                                cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toOrganizationId).cache());
-                            }
-                            actionMono = cloneDatasourceMonos.get(datasourceId)
-                                    .map(newDatasource -> {
-                                        action.setDatasource(newDatasource);
-                                        return action;
-                                    });
-                        } else {
-                            datasourceInsideAction.setOrganizationId(toOrganizationId);
-                        }
-                    }
-                    return actionMono
-                            .flatMap(actionDTO -> layoutActionService.createAction(
-                                    actionDTO, new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE))
-                            )
-                            .map(ActionDTO::getId)
-                            .zipWith(Mono.justOrEmpty(originalActionId));
-                })
-                // This call to `collectMap` will wait for all actions in all pages to have been processed, and so the
-                // `clonedPages` list will also contain all pages cloned.
-                .collectMap(Tuple2::getT2, Tuple2::getT1)
-                .flatMapMany(actionIdsMap -> updateActionIdsInClonedPages(clonedPages, actionIdsMap))
+                .flatMap(actionIdsMap -> updateActionIdsInClonedPages(clonedPages, actionIdsMap))
                 // Now publish all the example applications which have been cloned to ensure that there is a
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
@@ -451,8 +493,8 @@ public class ExamplesOrganizationCloner {
         return applicationService.createDefault(application)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            // organization_application_deleted_gitRepo_gitBranch_compound_index
-                            && error.getMessage().contains("organization_application_deleted_gitRepo_gitBranch_compound_index")) {
+                            // organization_application_deleted_gitApplicationMetadata_compound_index
+                            && error.getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedApplication(application, name, 1 + suffix);
                     }
@@ -464,6 +506,7 @@ public class ExamplesOrganizationCloner {
         // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
         // updating an existing document). If it contains any policies, they are also reset.
         domain.setId(null);
+        domain.setUpdatedAt(null);
         if (domain.getPolicies() != null) {
             domain.getPolicies().clear();
         }

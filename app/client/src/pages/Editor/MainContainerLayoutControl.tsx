@@ -70,6 +70,19 @@ const LayoutControlWrapper = styled.div`
     border: none;
     box-shadow: none;
   }
+
+  .bp3-popover-content {
+    width: 329px;
+    background-color: ${Colors.CODE_GRAY};
+  }
+
+  & div.bp3-popover-arrow {
+    display: block;
+    path {
+      fill: ${Colors.CODE_GRAY};
+      stroke: ${Colors.CODE_GRAY};
+    }
+  }
 `;
 
 export function MainContainerLayoutControl() {
@@ -111,6 +124,7 @@ export function MainContainerLayoutControl() {
               <TooltipComponent
                 boundary="viewport"
                 content={createMessage(LAYOUT_DROPDOWN_TOOLTIP)}
+                donotUsePortal
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                 position={Position.BOTTOM}
               >

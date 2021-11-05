@@ -1,4 +1,5 @@
 const pages = require("../../../../locators/Pages.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 
 describe("Pages", function() {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
@@ -24,11 +25,9 @@ describe("Pages", function() {
       .its("length")
       .should("be.gt", 1);
 
-    cy.get(
-      `.t--entity-name:contains(Datasources) ~ .bp3-popover-wrapper .t--entity-add-btn`,
-    ).click({
-      multiple: true,
-    });
+    cy.get(explorerLocators.addEntityAPI)
+      .last()
+      .click();
     cy.get(`.t--entity-name:contains(${apiName})`).should("have.length", 2);
   });
 

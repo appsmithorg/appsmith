@@ -24,6 +24,7 @@ import ReplayDSL from "workers/ReplayDSL";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
+import * as log from "loglevel";
 
 const ctx: Worker = self as any;
 
@@ -46,7 +47,7 @@ function messageEventListener(
         timeTaken: (endTime - startTime).toFixed(2),
       });
     } catch (e) {
-      console.error(e);
+      log.error(e);
       // we dont want to log dataTree because it is huge.
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { dataTree, ...rest } = requestData;
@@ -122,7 +123,7 @@ ctx.addEventListener(
               type: EvalErrorTypes.UNKNOWN_ERROR,
               message: e.message,
             });
-            console.error(e);
+            log.error(e);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
@@ -184,6 +185,7 @@ ctx.addEventListener(
           fullPropertyPath,
         );
         const cleanTriggers = removeFunctions(triggers);
+        const cleanResult = removeFunctions(result);
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
         const errors = evalErrors
@@ -195,7 +197,7 @@ ctx.addEventListener(
             message: error.errorMessage,
             type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
           }));
-        return { triggers: cleanTriggers, errors, result };
+        return { triggers: cleanTriggers, errors, result: cleanResult };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
@@ -305,7 +307,7 @@ ctx.addEventListener(
           ? evaluate(expression, evalTree, {}, [], true)
           : evaluate(expression, evalTree, {});
       default: {
-        console.error("Action not registered on worker", method);
+        log.error("Action not registered on worker", method);
       }
     }
   }),

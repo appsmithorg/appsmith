@@ -235,7 +235,7 @@ export default function OnboardingChecklist() {
     getEnableFirstTimeUserOnboarding,
   );
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
-    return <Redirect to={BUILDER_PAGE_URL(applicationId, pageId)} />;
+    return <Redirect to={BUILDER_PAGE_URL({ applicationId, pageId })} />;
   }
   const {
     completedTasks,
@@ -258,14 +258,16 @@ export default function OnboardingChecklist() {
         }),
       );
     } else {
-      history.push(BUILDER_PAGE_URL(applicationId, pageId));
+      history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
     }
     AnalyticsUtil.logEvent("SIGNPOSTING_CONNECT_WIDGET_CLICK");
   };
   return (
     <Wrapper data-testid="checklist-wrapper">
       <Backbutton
-        onClick={() => history.push(BUILDER_PAGE_URL(applicationId, pageId))}
+        onClick={() =>
+          history.push(BUILDER_PAGE_URL({ applicationId, pageId }))
+        }
       >
         <Icon color={Colors.DIESEL} icon="chevron-left" iconSize={16} />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
@@ -442,7 +444,7 @@ export default function OnboardingChecklist() {
                 });
                 dispatch(toggleInOnboardingWidgetSelection(true));
                 dispatch(forceOpenWidgetPanel(true));
-                history.push(BUILDER_PAGE_URL(applicationId, pageId));
+                history.push(BUILDER_PAGE_URL({ applicationId, pageId }));
               }}
               text={createMessage(
                 () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,

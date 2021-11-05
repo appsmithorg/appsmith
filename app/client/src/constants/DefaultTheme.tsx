@@ -43,43 +43,6 @@ export enum Skin {
   DARK,
 }
 
-export const hideScrollbar = css`
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-    -webkit-appearance: none;
-  }
-`;
-
-export const thinScrollbar = css`
-  ::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    border-radius: 10px;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-  }
-  &:hover {
-    ::-webkit-scrollbar-thumb {
-      background: ${Colors.PORCELAIN};
-      border-radius: 10px;
-    }
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.PORCELAIN};
-  }
-`;
-
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -322,6 +285,20 @@ export const BlueprintInputTransform = css`
   }
 `;
 
+const iconSizes = {
+  XXS: 8,
+  XS: 10,
+  SMALL: 12,
+  MEDIUM: 14,
+  LARGE: 15,
+  XL: 16,
+  XXL: 18,
+  XXXL: 20,
+  XXXXL: 22,
+};
+
+type IconSizeType = typeof iconSizes;
+
 export type ThemeBorder = {
   thickness: number;
   style: "dashed" | "solid";
@@ -461,17 +438,11 @@ export type Theme = {
   onboarding: {
     statusBarHeight: number;
   };
-};
-
-type IconSizeType = {
-  XXS: number;
-  XS: number;
-  SMALL: number;
-  MEDIUM: number;
-  LARGE: number;
-  XL: number;
-  XXL: number;
-  XXXL: number;
+  settings: {
+    footerHeight: number;
+    footerShadow: string;
+    linkBg: string;
+  };
 };
 
 export const getColorWithOpacity = (color: Color, opacity: number) => {
@@ -497,6 +468,42 @@ export const labelStyle = css`
   font-weight: ${(props) => props.theme.fontWeights[3]};
 `;
 
+export const hideScrollbar = css`
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+    -webkit-appearance: none;
+  }
+`;
+
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${getColorWithOpacity(Colors.CHARCOAL, 0.5)};
+  }
+`;
 // export const adsTheme: any = {
 //   space: [0, 3, 14, 7, 16, 11, 26, 10, 4, 26, 30, 36, 4, 6, 11],
 // };
@@ -560,6 +567,7 @@ const darkShades = [
   "#FFFFFF",
   "#157A96",
   "#090707",
+  "#FFDEDE",
 ] as const;
 
 const lightShades = [
@@ -581,6 +589,7 @@ const lightShades = [
   "#858282",
   "#000000",
   "#F86A2B",
+  "#FFDEDE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -746,6 +755,7 @@ type ColorType = {
       disabledBg: ShadeColor;
     };
     menu: {
+      border: ShadeColor;
       bg: ShadeColor;
       hover: ShadeColor;
       text: ShadeColor;
@@ -890,6 +900,7 @@ type ColorType = {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
+    iconBg: ShadeColor;
     user: {
       textColor: ShadeColor;
     };
@@ -1254,14 +1265,18 @@ type ColorType = {
   numberedStep: {
     line: string;
   };
-  gitSyncModal: {
-    menuBackgroundColor: string;
-    separator: string;
-  };
+  gitSyncModal: GitSyncModalColors;
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
     branchBtnText: string;
+  };
+  link: string;
+  welcomePage?: {
+    text: string;
+  };
+  settings: {
+    link: string;
   };
 };
 
@@ -1274,7 +1289,9 @@ const editorBottomBar = {
 const gitSyncModal = {
   menuBackgroundColor: Colors.ALABASTER_ALT,
   separator: Colors.ALTO2,
+  closeIcon: "rgba(29, 28, 29, 0.7);",
 };
+type GitSyncModalColors = typeof gitSyncModal;
 
 const tabItemBackgroundFill = {
   highlightBackground: Colors.Gallery,
@@ -1371,7 +1388,7 @@ const comments = {
   activeModeIconCircleStroke: "#090707",
 };
 
-const auth: any = {
+const auth = {
   background: lightShades[11],
   cardBackground: lightShades[0],
   btnPrimary: Colors.CRUSTA,
@@ -1706,6 +1723,7 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menu: {
+      border: darkShades[3],
       bg: darkShades[3],
       text: darkShades[9],
       hover: darkShades[4],
@@ -1849,6 +1867,7 @@ export const dark: ColorType = {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
+    iconBg: darkShades[12],
     user: {
       textColor: darkShades[7],
     },
@@ -2081,6 +2100,13 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const light: ColorType = {
@@ -2335,7 +2361,8 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menu: {
-      bg: lightShades[11],
+      border: lightShades[13],
+      bg: lightShades[0],
       text: lightShades[8],
       hover: lightShades[2],
       hoverText: lightShades[10],
@@ -2479,6 +2506,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: lightShades[5],
+    iconBg: lightShades[18],
     user: {
       textColor: lightShades[9],
     },
@@ -2551,7 +2579,7 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[0],
+    bg: lightShades[11],
     tabBg: lightShades[11],
     text: lightShades[16],
     dividerBg: lightShades[13],
@@ -2712,6 +2740,13 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
+  settings: {
+    link: "#716E6E",
+  },
 };
 
 export const theme: Theme = {
@@ -2720,16 +2755,7 @@ export const theme: Theme = {
   spaces: [0, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 30, 36, 38, 40, 42, 44],
   fontWeights: [0, 400, 500, 700],
   typography: typography,
-  iconSizes: {
-    XXS: 8,
-    XS: 10,
-    SMALL: 12,
-    MEDIUM: 14,
-    LARGE: 15,
-    XL: 16,
-    XXL: 18,
-    XXXL: 20,
-  },
+  iconSizes: iconSizes,
   propertyPane: {
     width: 270,
     titleHeight: 40,
@@ -2982,6 +3008,11 @@ export const theme: Theme = {
   },
   onboarding: {
     statusBarHeight: 83,
+  },
+  settings: {
+    footerHeight: 84,
+    footerShadow: "0px 0px 18px -6px rgb(0, 0, 0, 0.25)",
+    linkBg: lightShades[2],
   },
 };
 

@@ -45,6 +45,7 @@ export const appInitializer = () => {
   const appsmithConfigs = getAppsmithConfigs();
 
   if (appsmithConfigs.sentry.enabled) {
+    window.Sentry = Sentry;
     Sentry.init({
       ...appsmithConfigs.sentry,
       beforeBreadcrumb(breadcrumb) {

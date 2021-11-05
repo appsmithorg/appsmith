@@ -14,6 +14,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -82,6 +83,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -350,6 +352,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         // Add JS function body to jsonPathKeys field.
         if (PluginType.JS.equals(actionDTO.getPluginType()) && actionConfiguration.getBody() != null) {
             keys.add(actionConfiguration.getBody());
+
+            // Since this is a JS function, we should also set the dynamic binding path list if absent
+            List<Property> dynamicBindingPathList = actionDTO.getDynamicBindingPathList();
+            if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
+                dynamicBindingPathList = new ArrayList<>();
+                // Add a key static the key `body` contains JS
+                dynamicBindingPathList.add(new Property("body", null));
+                actionDTO.setDynamicBindingPathList(dynamicBindingPathList);
+            }
         }
 
         return keys;
@@ -1094,10 +1105,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
-            return repository
-                    .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, READ_ACTIONS)
-                    .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                    .flatMap(this::setTransientFieldsInUnpublishedAction);
+            return applicationService
+                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                .flatMapMany(applicationId -> repository.findByApplicationIdAndViewMode(applicationId, false, READ_ACTIONS))
+                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
+                .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
