@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.UserChangedHandler;
@@ -60,6 +61,9 @@ public class UserDataServiceTest {
 
     @Autowired
     private AssetService assetService;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     private Mono<User> userMono;
 
@@ -297,5 +301,10 @@ public class UserDataServiceTest {
         StepVerifier.create(userDataMono2).assertNext(userData -> {
             assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.ONBOARDED);
         }).verifyComplete();
+    }
+
+    @Test
+    public void removeRecentOrgAndApps_WhenUserHasRecentOrgAndApp_RecentsRemoved() {
+
     }
 }

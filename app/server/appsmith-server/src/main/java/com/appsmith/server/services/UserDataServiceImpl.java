@@ -9,11 +9,13 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -50,7 +52,10 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final UserChangedHandler userChangedHandler;
 
+    private final ApplicationRepository applicationRepository;
+
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
+
 
     @Autowired
     public UserDataServiceImpl(Scheduler scheduler,
@@ -64,7 +69,8 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                AssetService assetService,
                                ReleaseNotesService releaseNotesService,
                                FeatureFlagService featureFlagService,
-                               UserChangedHandler userChangedHandler) {
+                               UserChangedHandler userChangedHandler,
+                               ApplicationRepository applicationRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
@@ -72,6 +78,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
         this.userChangedHandler = userChangedHandler;
+        this.applicationRepository = applicationRepository;
     }
 
     @Override
@@ -278,5 +285,17 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
             userData.setCommentOnboardingState(commentOnboardingState);
             return repository.save(userData);
         });
+    }
+
+    /**
+     * Removes provided organization id and all other application id under that organization from the user data
+     * @param organizationId organization id
+     * @return update result obtained from DB
+     */
+    @Override
+    public Mono<UpdateResult> removeRecentOrgAndApps(String userId, String organizationId) {
+        return applicationRepository.getAllApplicationId(organizationId).flatMap(appIdsList ->
+            repository.removeIdFromRecentlyUsedList(userId, organizationId, appIdsList)
+        );
     }
 }

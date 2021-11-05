@@ -4,6 +4,7 @@ import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -42,4 +43,6 @@ public interface UserDataService {
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
     Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState);
+
+    Mono<UpdateResult> removeRecentOrgAndApps(String userId, String organizationId);
 }
