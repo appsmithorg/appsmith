@@ -145,7 +145,6 @@ const TextContainer = styled.div<{
     height: ${(props) => props.theme.spaces[14] + 1}px;
     padding: ${(props) => props.theme.spaces[4]}px
       ${(props) => props.theme.spaces[5]}px;
-    width: calc(100% - 40px);
     background-color: ${(props) => props.bgColor};
   }
 
