@@ -1,8 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/newFormDsl.json");
-const pages = require("../../../../locators/Pages.json");
+const dsl = require("../../../../fixtures/SwitchGroupWidgetDsl.json");
 
 describe("Switch Group Widget Functionality", function() {
   before(() => {
@@ -14,6 +13,7 @@ describe("Switch Group Widget Functionality", function() {
   });
 
   afterEach(() => {
+    cy.closePropertyPane();
     cy.goToEditFromPublish();
   });
 
@@ -31,28 +31,42 @@ describe("Switch Group Widget Functionality", function() {
   });
 
   it("Property: options", function() {
-    /**
-     * @param{IndexValue} Provide Input Index Value
-     * @param{Text} Index Text Value.
-     *
-     */
-    cy.radioInput(0, this.data.radio1);
+    // Add a new option
+    const optionToAdd = { label: "Yellow", value: "YELLOW" };
+    cy.get(".t--property-control-options .CodeMirror textarea")
+      .first()
+      .focus({ force: true })
+      .type("{ctrl}{end}", { force: true })
+      .type("{ctrl}{uparrow}", { force: true })
+      .type("{end}", { force: true })
+      .type(",{enter}")
+      .type(JSON.stringify(optionToAdd), {
+        parseSpecialCharSequences: false,
+      });
+    // Assert
     cy.get(formWidgetsPage.labelSwitchGroup)
-      .eq(0)
-      .should("have.text", "test1");
-    cy.radioInput(1, "1");
-    cy.radioInput(2, this.data.radio2);
-    cy.get(formWidgetsPage.labelSwitchGroup)
+      .should("have.length", 4)
+      .eq(3)
+      .contains("Yellow");
+  });
+
+  it("Property: defaultSelectedValues", function() {
+    // Add a new option
+    const valueToAdd = "GREEN";
+    cy.get(".t--property-control-defaultselectedvalues .CodeMirror textarea")
+      .first()
+      .focus({ force: true })
+      .type("{ctrl}{end}", { force: true })
+      .type("{ctrl}{uparrow}", { force: true })
+      .type("{end}", { force: true })
+      .type(",{enter}")
+      .type(`"${valueToAdd}"`);
+    // Assert
+    cy.get(`${formWidgetsPage.labelSwitchGroup} input:checked`)
+      .should("have.length", 2)
       .eq(1)
-      .should("have.text", this.data.radio2);
-    cy.radioInput(3, "2");
-    cy.get(formWidgetsPage.radioAddButton).click({ force: true });
-    cy.radioInput(4, this.data.radio4);
-    cy.get(formWidgetsPage.deleteradiovalue)
-      .eq(2)
-      .click({ force: true });
-    cy.wait(200);
-    cy.get(formWidgetsPage.labelSwitchGroup).should("not.have.value", "test4");
+      .parent()
+      .contains("Green");
   });
 
   it("Property: onSelectionChange", function() {
@@ -79,12 +93,5 @@ describe("Switch Group Widget Functionality", function() {
     cy.get(publish.checkboxGroupWidget + " " + "input")
       .eq(0)
       .should("exist");
-  });
-
-  it("Check on text label for the control", function() {
-    cy.PublishtheApp();
-    cy.get(publish.switchGroupWidget + " " + "label")
-      .eq(1)
-      .should("have.text", "test2");
   });
 });

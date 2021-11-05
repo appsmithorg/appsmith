@@ -364,3 +364,18 @@ export const getCamelCaseString = (sourceString: string) => {
 
   return out;
 };
+
+/**
+ * Deeply compare two arrays
+ * @param array1 array1
+ * @param array2 array2
+ * @returns boolean
+ */
+export const isArrayEqual = (array1: any[] = [], array2: any[] = []) => {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+  return _(array1)
+    .differenceWith(array2, _.isEqual)
+    .isEmpty();
+};

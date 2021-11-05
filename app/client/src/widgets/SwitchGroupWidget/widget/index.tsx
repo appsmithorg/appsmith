@@ -1,4 +1,5 @@
 import React from "react";
+import { compact } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -7,6 +8,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import SwitchGroupComponent, { OptionProps } from "../component";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isArrayEqual } from "utils/AppsmithUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -22,8 +24,8 @@ class SwitchGroupWidget extends BaseWidget<
               "Displays a list of options for a user to select. Values must be unique",
             propertyName: "options",
             label: "Options",
-            controlType: "OPTION_INPUT",
-            isJSConvertible: true,
+            controlType: "INPUT_TEXT",
+            placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -32,11 +34,14 @@ class SwitchGroupWidget extends BaseWidget<
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    // required: true,
                     allowedKeys: [
                       {
                         name: "label",
                         type: ValidationTypes.TEXT,
                         params: {
+                          default: "",
+                          required: true,
                           unique: true,
                         },
                       },
@@ -44,6 +49,8 @@ class SwitchGroupWidget extends BaseWidget<
                         name: "value",
                         type: ValidationTypes.TEXT,
                         params: {
+                          default: "",
+                          required: true,
                           unique: true,
                         },
                       },
@@ -159,23 +166,35 @@ class SwitchGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: SwitchGroupWidgetProps) {
-    if (
-      Array.isArray(prevProps.options) &&
-      Array.isArray(this.props.options) &&
-      this.props.options.length !== prevProps.options.length
-    ) {
-      const prevOptions = prevProps.options.map(
+    const prevOptionsLength = prevProps.options.length;
+    const optionsLength = this.props.options.length;
+
+    if (!isArrayEqual(this.props.options, prevProps.options)) {
+      const prevOptions = compact(prevProps.options).map(
         (prevOption) => prevOption.value,
       );
-      const options = this.props.options.map((option) => option.value);
+      const options = compact(this.props.options).map((option) => option.value);
 
-      const diffOptions = prevOptions.filter(
+      let diffOptions = prevOptions.filter(
         (prevOption) => !options.includes(prevOption),
       );
 
-      const selectedValues = this.props.selectedValues.filter(
+      if (optionsLength >= prevOptionsLength) {
+        diffOptions = options.filter((option) => !prevOptions.includes(option));
+      }
+
+      let selectedValues = this.props.selectedValues.filter(
         (selectedValue: string) => !diffOptions.includes(selectedValue),
       );
+
+      if (optionsLength >= prevOptionsLength) {
+        const defaultSelectedValues = this.props.defaultSelectedValues;
+        selectedValues = selectedValues.concat(
+          defaultSelectedValues.filter((defaultSelectedValue: string) =>
+            diffOptions.includes(defaultSelectedValue),
+          ),
+        );
+      }
 
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
         triggerPropertyName: "onSelectionChange",
@@ -237,6 +256,7 @@ class SwitchGroupWidget extends BaseWidget<
 
 export interface SwitchGroupWidgetProps extends WidgetProps {
   options: OptionProps[];
+  defaultSelectedValues: string[];
   isInline: boolean;
   isRequired?: boolean;
   isValid?: boolean;
