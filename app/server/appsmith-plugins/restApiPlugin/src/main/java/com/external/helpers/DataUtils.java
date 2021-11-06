@@ -155,7 +155,10 @@ public class DataUtils {
                             try {
                                 populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
                             } catch (JsonProcessingException e) {
-                                e.printStackTrace();
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        "Unable to parse content. Expected to receive an array or object of multipart data"
+                                );
                             }
                         }
                     }
