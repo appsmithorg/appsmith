@@ -95,7 +95,7 @@ function AppInviteUsersForm(props: any) {
       <Title>
         <Text type={TextType.H5}>Get shareable link for this application</Text>
       </Title>
-      <CopyToClipBoard copyText={getViewApplicationURL()} />
+      <CopyToClipBoard btnWidth="87px" copyText={getViewApplicationURL()} />
 
       {canInviteToOrg && (
         <OrgInviteUsersForm isApplicationInvite orgId={props.orgId} />

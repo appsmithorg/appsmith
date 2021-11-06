@@ -18,8 +18,8 @@ import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
 import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
-import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
-import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
+// import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
+// import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
 // import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 // import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
@@ -104,6 +104,8 @@ import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import Link2 from "remixicon-react/LinkIcon";
+import LeftArrowIcon from "remixicon-react/ArrowLeftLineIcon";
+import NewsPaperLine from "remixicon-react/NewspaperLineIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
@@ -226,6 +228,7 @@ export const IconCollection = [
   "guide",
   "help",
   "invite-user",
+  "left-arrow",
   "lightning",
   "line-dashed",
   "line-dotted",
@@ -234,6 +237,7 @@ export const IconCollection = [
   "logout",
   "manage",
   "mobile",
+  "news-paper",
   "no-response",
   "open",
   "oval-check",
@@ -520,6 +524,9 @@ const Icon = forwardRef(
       case "mobile":
         returnIcon = <MobileIcon />;
         break;
+      case "news-paper":
+        returnIcon = <NewsPaperLine />;
+        break;
       case "no-response":
         returnIcon = <NoResponseIcon />;
         break;
@@ -620,10 +627,10 @@ const Icon = forwardRef(
         returnIcon = <UserV2Icon />;
         break;
       case "view-all":
-        returnIcon = <ViewAllIcon />;
+        returnIcon = <RightArrowIcon />;
         break;
       case "view-less":
-        returnIcon = <ViewLessIcon />;
+        returnIcon = <LeftArrowIcon />;
         break;
       case "wand":
         returnIcon = <WandIcon />;

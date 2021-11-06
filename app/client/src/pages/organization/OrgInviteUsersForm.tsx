@@ -80,7 +80,7 @@ const StyledInviteFieldGroup = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-right: 5px;
+    margin-right: ${(props) => props.theme.spaces[3]}px;
     border-right: 0px;
   }
 `;
@@ -313,6 +313,7 @@ function OrgInviteUsersForm(props: any) {
             tag="button"
             text="Invite"
             variant={Variant.info}
+            width="87px"
           />
         </StyledInviteFieldGroup>
         {isLoading ? (
