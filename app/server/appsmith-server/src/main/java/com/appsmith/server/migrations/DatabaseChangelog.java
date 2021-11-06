@@ -3631,4 +3631,48 @@ public class DatabaseChangelog {
             );
         }
     }
+
+    @ChangeSet(order = "095", id = "update-s3-action-configuration-for-type", author = "")
+    public void updateS3ActionConfigurationForType(MongockTemplate mongockTemplate) {
+        // Find all S3 actions
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        List<NewAction> s3Actions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction s3Action : s3Actions) {
+            // First migrate the plugin specified templates to form data
+            ActionDTO unpublishedAction = s3Action.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            final String oldUnpublishedBody = unpublishedAction.getActionConfiguration().getBody();
+            final String newUnpublishedBody = "{\n\t\"data\": \"" + oldUnpublishedBody + "\"\n}";
+            unpublishedAction.getActionConfiguration().setBody(newUnpublishedBody);
+
+            ActionDTO publishedAction = s3Action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                final String oldPublishedBody = publishedAction.getActionConfiguration().getBody();
+                final String newPublishedBody = "{\n\t\"data\": \"" + oldPublishedBody + "\"\n}";
+                publishedAction.getActionConfiguration().setBody(newPublishedBody);
+            }
+            actionsToSave.add(s3Action);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction s3Action : actionsToSave) {
+            mongockTemplate.save(s3Action);
+        }
+    }
 }

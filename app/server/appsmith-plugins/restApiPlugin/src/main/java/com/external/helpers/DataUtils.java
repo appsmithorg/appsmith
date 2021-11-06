@@ -3,7 +3,7 @@ package com.external.helpers;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Property;
-import com.external.dtos.MultipartFormDataDTO;
+import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
