@@ -39,7 +39,6 @@ const LintText = styled.a`
 `;
 
 type ErrorProps = {
-  active: boolean;
   error: string | null;
   type: ReduxActionErrorType;
 };
@@ -52,7 +51,7 @@ export default function GitSyncError(props: ErrorProps) {
       break;
   }
 
-  return props.active ? (
+  return props.error?.length ? (
     <ErrorWrapper>
       <Text
         case={Case.UPPERCASE}

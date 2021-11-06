@@ -281,12 +281,7 @@ function GitConnection({ isImport }: Props) {
     SSHKeyPair,
   } = useSSHKeyPair();
 
-  const {
-    connectToGit,
-    failedConnectingToGit,
-    gitError,
-    isConnectingToGit,
-  } = useGitConnect();
+  const { connectToGit, gitError, isConnectingToGit } = useGitConnect();
 
   const stopShowingCopiedAfterDelay = () => {
     timerRef.current = setTimeout(() => {
@@ -443,11 +438,11 @@ function GitConnection({ isImport }: Props) {
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
   useEffect(() => {
-    if (failedConnectingToGit && scrollWrapperRef.current) {
+    if (gitError.message && scrollWrapperRef.current) {
       const top = scrollWrapperRef.current.scrollHeight;
       scrollWrapperRef.current?.scrollTo({ top: top, behavior: "smooth" });
     }
-  }, [failedConnectingToGit]);
+  }, [gitError]);
 
   return (
     <Container ref={scrollWrapperRef}>
@@ -563,7 +558,7 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>
-            {!failedConnectingToGit && isConnectingToGit && (
+            {!gitError.message && isConnectingToGit && (
               <StatusbarWrapper>
                 <Statusbar
                   completed={!submitButtonIsLoading}
@@ -591,7 +586,6 @@ function GitConnection({ isImport }: Props) {
               />
             )}
             <GitSyncError
-              active={failedConnectingToGit}
               error={gitError.message}
               type={ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR}
             />
