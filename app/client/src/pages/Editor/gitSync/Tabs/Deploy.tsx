@@ -28,8 +28,7 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
 import { fetchGitStatusInit } from "actions/gitSyncActions";
 import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
-import SpinnerLoader from "pages/common/SpinnerLoader";
-import Text, { TextType } from "components/ads/Text";
+import StatusLoader from "../components/StatusLoader";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -53,12 +52,6 @@ const Container = styled.div`
   && ${LabelContainer} span {
     color: ${Colors.CHARCOAL};
   }
-`;
-
-const LoaderWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin-top: ${(props) => `${props.theme.spaces[3]}px`};
 `;
 
 const INITIAL_COMMIT = "Initial Commit";
@@ -136,14 +129,8 @@ function Deploy() {
           value={commitMessageDisplay}
         />
         {isFetchingGitStatus && (
-          <LoaderWrapper>
-            <SpinnerLoader height="50px" width="50px" />
-            <Text style={{ marginLeft: 8 }} type={TextType.P3}>
-              {createMessage(FETCH_GIT_STATUS)}
-            </Text>
-          </LoaderWrapper>
+          <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
         )}
-
         <Space size={11} />
         {showCommitButton && (
           <Button

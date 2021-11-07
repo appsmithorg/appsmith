@@ -590,6 +590,7 @@ export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
+export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>

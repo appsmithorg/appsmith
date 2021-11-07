@@ -194,3 +194,17 @@ export const mergeBranchSuccess = () => ({
 export const mergeBranchFailure = () => ({
   type: ReduxActionErrorTypes.MERGE_BRANCH_ERROR,
 });
+
+export const fetchMergeStatusInit = (payload: MergeBranchPayload) => ({
+  type: ReduxActionTypes.FETCH_MERGE_STATUS_INIT,
+  payload,
+});
+
+export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
+  type: ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS,
+  payload,
+});
+
+export const fetchMergeStatusFailure = () => ({
+  type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
+});
