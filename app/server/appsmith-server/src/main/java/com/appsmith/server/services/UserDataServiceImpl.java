@@ -256,6 +256,11 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 CollectionUtils.removeDuplicates(recentlyUsedOrgIds);
             }
             CollectionUtils.putAtFirst(recentlyUsedOrgIds, application.getOrganizationId());
+            // keeping the last 10 org ids, there may be a lot of deleted organization ids which are not used anymore
+            if(recentlyUsedOrgIds.size() > 10) {
+                recentlyUsedOrgIds = recentlyUsedOrgIds.subList(0, 10);
+            }
+
             userData.setRecentlyUsedOrgIds(recentlyUsedOrgIds);
 
             // set recently used application ids
@@ -266,6 +271,10 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 CollectionUtils.removeDuplicates(recentlyUsedAppIds);
             }
             CollectionUtils.putAtFirst(recentlyUsedAppIds, application.getId());
+            // keeping the last 20 app ids, there may be a lot of deleted application ids which are not used
+            if(recentlyUsedAppIds.size() > 20) {
+                recentlyUsedAppIds = recentlyUsedAppIds.subList(0, 20);
+            }
             userData.setRecentlyUsedAppIds(recentlyUsedAppIds);
             return repository.save(userData);
         });
