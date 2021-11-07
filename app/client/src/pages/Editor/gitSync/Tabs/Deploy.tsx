@@ -29,6 +29,7 @@ import DeployPreview from "../components/DeployPreview";
 import { fetchGitStatusInit } from "actions/gitSyncActions";
 import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
+import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -88,6 +89,10 @@ function Deploy() {
 
   useEffect(() => {
     dispatch(fetchGitStatusInit());
+
+    return () => {
+      dispatch(clearCommitSuccessfulState());
+    };
   }, []);
 
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;

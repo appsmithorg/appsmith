@@ -30,6 +30,10 @@ export const commitToRepoSuccess = () => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_SUCCESS,
 });
 
+export const clearCommitSuccessfulState = () => ({
+  type: ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE,
+});
+
 export const pushToRepoInit = () => ({
   type: ReduxActionTypes.PUSH_TO_GIT_INIT,
 });

@@ -69,6 +69,12 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isCommitting: false,
   }),
+  [ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isCommitSuccessful: false,
+  }),
   [ReduxActionTypes.PUSH_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isPushingToGit: true,
