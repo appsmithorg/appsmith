@@ -5,6 +5,7 @@ import {
   COMMIT_TO,
   createMessage,
   COMMIT_AND_PUSH,
+  FETCH_GIT_STATUS,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -26,9 +27,9 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
 import { fetchGitStatusInit } from "actions/gitSyncActions";
-// import { getGitPushError } from "selectors/gitSyncSelectors";
-// import Text, { TextType } from "components/ads/Text";
 import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
+import SpinnerLoader from "pages/common/SpinnerLoader";
+import Text, { TextType } from "components/ads/Text";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -54,8 +55,17 @@ const Container = styled.div`
   }
 `;
 
+const LoaderWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin-top: ${(props) => `${props.theme.spaces[3]}px`};
+`;
+
+const INITIAL_COMMIT = "Initial Commit";
+const NO_CHANGES_TO_COMMIT = "No changes to commit";
+
 function Deploy() {
-  const [commitMessage, setCommitMessage] = useState("Initial Commit");
+  const [commitMessage, setCommitMessage] = useState(INITIAL_COMMIT);
   // const [showCompleteError, setShowCompleteError] = useState(false);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
@@ -88,7 +98,7 @@ function Deploy() {
   }, []);
 
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
-  const commitButtonLoading = isCommittingInProgress || isFetchingGitStatus;
+  const commitButtonLoading = isCommittingInProgress;
 
   // const errorMsgShowMoreEnabled = useMemo(() => {
   //   let showMoreEnabled = false;
@@ -100,6 +110,11 @@ function Deploy() {
   //   }
   //   return showMoreEnabled;
   // }, [errorMsgRef.current, gitPushError]);
+
+  const showCommitButton = hasChangesToCommit && !isFetchingGitStatus;
+  const commitMessageDisplay = hasChangesToCommit
+    ? commitMessage
+    : NO_CHANGES_TO_COMMIT;
 
   return (
     <Container>
@@ -114,23 +129,34 @@ function Deploy() {
         <Space size={3} />
         <TextInput
           autoFocus
-          defaultValue={commitMessage}
-          disabled={!hasChangesToCommit}
+          disabled={!hasChangesToCommit || isFetchingGitStatus}
           fill
           onChange={setCommitMessage}
+          trimValue={false}
+          value={commitMessageDisplay}
         />
+        {isFetchingGitStatus && (
+          <LoaderWrapper>
+            <SpinnerLoader height="50px" width="50px" />
+            <Text style={{ marginLeft: 8 }} type={TextType.P3}>
+              {createMessage(FETCH_GIT_STATUS)}
+            </Text>
+          </LoaderWrapper>
+        )}
 
         <Space size={11} />
-        <Button
-          className="t--commit-button"
-          disabled={commitButtonDisabled}
-          isLoading={commitButtonLoading}
-          onClick={handleCommit}
-          size={Size.medium}
-          tag="button"
-          text={commitButtonText}
-          width="max-content"
-        />
+        {showCommitButton && (
+          <Button
+            className="t--commit-button"
+            disabled={commitButtonDisabled}
+            isLoading={commitButtonLoading}
+            onClick={handleCommit}
+            size={Size.medium}
+            tag="button"
+            text={commitButtonText}
+            width="max-content"
+          />
+        )}
       </Section>
 
       <DeployPreview showSuccess={isCommitAndPushSuccessful} />
