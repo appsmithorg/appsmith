@@ -187,7 +187,6 @@ const InputComponentWrapper = styled((props) => (
         color: #5c7080;
       }
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
-        pointer-events: none;
         button {
           background: ${Colors.GREY_1};
         }
@@ -227,6 +226,7 @@ const StyledNumericInput = styled(NumericInput)`
         background: ${(props) =>
           props.disabled ? Colors.GREY_1 : Colors.WHITE};
         border: 1.2px solid ${Colors.GREY_3};
+        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
         border-right: 0;
       }
       input:not(:first-child) {
