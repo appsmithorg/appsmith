@@ -363,7 +363,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INTERNAL_SERVER_ERROR.getMessage()))
+                        && throwable.getMessage().contains("Error while accessing the file system"))
                 .verify();
     }
 
@@ -598,7 +598,7 @@ public class GitServiceTest {
         branchList.add(gitBranchListDTO);
 
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString()))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
@@ -646,7 +646,7 @@ public class GitServiceTest {
         branchList.add(gitBranchListDTO);
 
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.listBranches(Mockito.any(Path.class), eq(null), Mockito.anyString()))
                 .thenReturn(Mono.just(branchList));
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
