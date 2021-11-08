@@ -769,6 +769,10 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_ChangesInRemote_SuccessMessage() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("NoChangesInRemote");
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("2 commits pulled");
+        mergeStatusDTO.setMerge(true);
+
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
@@ -777,14 +781,14 @@ public class GitServiceTest {
                 .thenReturn(Mono.justOrEmpty(applicationJson));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("2 commits pulled"));
+                .thenReturn(Mono.just(mergeStatusDTO));
 
         Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
         StepVerifier
                 .create(applicationMono)
                 .assertNext(gitPullDTO -> {
-                    assertThat(gitPullDTO.getPullStatus()).isEqualTo("2 commits pulled");
+                    assertThat(gitPullDTO.getMergeStatus().getStatus()).isEqualTo("2 commits pulled");
                     assertThat(gitPullDTO.getApplication()).isNotNull();
                     assertThat(gitPullDTO.getApplication().getId()).isEqualTo(application.getId());
                 })
@@ -795,6 +799,9 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_FileSystemAccessError_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("FileSystemAccessError");
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("2 commits pulled");
+        mergeStatusDTO.setMerge(true);
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
@@ -803,7 +810,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.justOrEmpty(applicationJson));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("2 commits pulled"));
+                .thenReturn(Mono.just(mergeStatusDTO));
 
         Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -818,6 +825,9 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_NoChangesInRemotePullException_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("pullChanges_NoChangesInRemotePullException_ShowError");
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
+        mergeStatusDTO.setMerge(true);
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
@@ -830,7 +840,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(gitPullDTO -> {
-                    assertThat(gitPullDTO.getPullStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
+                    assertThat(gitPullDTO.getMergeStatus().getStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
                 });
     }
 
@@ -850,7 +860,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(gitPullDTO -> {
-                    assertThat(gitPullDTO.getPullStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
+                    assertThat(gitPullDTO.getMergeStatus().getStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
                 });
     }
 
