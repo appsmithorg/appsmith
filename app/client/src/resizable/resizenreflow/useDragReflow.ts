@@ -357,15 +357,13 @@ function getWidgetCollisionGraph(
 
   const possiblyAffectedWidgets = occupiedSpacesBySiblingWidgets.filter(
     (widgetDetails) => {
-      const directionalComparator =
-        accessors.directionIndicator < 0
-          ? widgetDetails[accessors.oppositeDirection] <
-            widgetCollisionGraph[accessors.oppositeDirection]
-          : widgetDetails[accessors.oppositeDirection] >
-            widgetCollisionGraph[accessors.oppositeDirection];
-      return (
-        widgetDetails.id !== widgetCollisionGraph.id && directionalComparator
-      );
+      // const directionalComparator =
+      //   accessors.directionIndicator < 0
+      //     ? widgetDetails[accessors.oppositeDirection] <
+      //       widgetCollisionGraph[accessors.oppositeDirection]
+      //     : widgetDetails[accessors.oppositeDirection] >
+      //       widgetCollisionGraph[accessors.oppositeDirection];
+      return widgetDetails.id !== widgetCollisionGraph.id;
     },
   );
 
