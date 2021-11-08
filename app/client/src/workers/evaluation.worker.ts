@@ -20,13 +20,17 @@ import {
   parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import ReplayEntity from "workers/ReplayDSL";
+import ReplayEntity from "workers/ReplayEntity";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
 import { Action } from "entities/Action";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { JSAction } from "entities/JSCollection";
+import ReplayCanvas from "./ReplayCanvas";
+import ReplayAction from "./ReplayAction";
+
+const CANVAS = "canvas";
 
 const ctx: Worker = self as any;
 
@@ -99,13 +103,9 @@ ctx.addEventListener(
         try {
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
-            replayMap["canvas"] = new ReplayEntity<CanvasWidgetsReduxState>(
-              widgets,
-            );
+            replayMap[CANVAS] = new ReplayCanvas(widgets);
             if (!_.isEmpty(currentEntity)) {
-              replayMap[currentEntity.id] = new ReplayEntity<JSAction>(
-                currentEntity,
-              );
+              replayMap[currentEntity.id] = new ReplayAction(currentEntity);
             }
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
@@ -116,11 +116,11 @@ ctx.addEventListener(
           } else {
             dataTree = {};
             if (shouldReplay) {
-              replayMap["canvas"]?.update(widgets);
+              replayMap[CANVAS]?.update(widgets);
               if (!_.isEmpty(currentEntity)) {
                 replayMap[currentEntity.id] =
                   replayMap[currentEntity.id] ||
-                  new ReplayEntity<JSAction>(currentEntity);
+                  new ReplayAction(currentEntity);
                 replayMap[currentEntity.id]?.update(currentEntity);
               }
             }
@@ -133,9 +133,9 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
-          if (replayMap["canvas"]?.logs)
-            logs = logs.concat(replayMap["canvas"]?.logs);
-          replayMap["canvas"]?.clearLogs();
+          if (replayMap[CANVAS]?.logs)
+            logs = logs.concat(replayMap[CANVAS]?.logs);
+          replayMap[CANVAS]?.clearLogs();
           dataTreeEvaluator.clearLogs();
         } catch (e) {
           if (dataTreeEvaluator !== undefined) {

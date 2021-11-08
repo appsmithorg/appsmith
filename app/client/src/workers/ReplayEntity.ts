@@ -2,21 +2,18 @@ import { Doc, Map, UndoManager } from "yjs";
 import { captureException } from "@sentry/react";
 import { diff as deepDiff, applyChange, revertChange, Diff } from "deep-diff";
 
-import {
-  processDiff,
-  getPathsFromDiff,
-  getReplayEntityType,
-} from "./replayUtils";
+import { getPathsFromDiff, getReplayEntityType } from "./replayUtils";
 
 const _DIFF_ = "diff";
 type ReplayType = "UNDO" | "REDO";
 
-export default class ReplayEntity<T> {
+export default abstract class ReplayEntity<T> {
   private diffMap: any;
   private undoManager: UndoManager;
-  private entity: T;
+  protected entity: T;
   private prevRedoDiff: Array<Diff<T, T>> | undefined;
   logs: any[] = [];
+  abstract processDiff(diff: Diff<T, T>, replay: any, isUndo: boolean): void;
 
   constructor(entity: T) {
     const doc = new Doc();
@@ -141,7 +138,7 @@ export default class ReplayEntity<T> {
         continue;
       }
       try {
-        processDiff(this.entity, diff, replay, isUndo);
+        this.processDiff(diff, replay, isUndo);
         applyDiff(this.entity, true, diff);
       } catch (e) {
         captureException(e, {

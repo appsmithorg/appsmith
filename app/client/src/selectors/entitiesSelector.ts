@@ -535,7 +535,7 @@ export const getPageActions = (pageId = "") => {
 };
 
 export function getCurrentEntitySelector(
-  state: AppState,
+  state: any,
   basicDetails: {
     id: string;
     type?: string;
@@ -548,7 +548,8 @@ export function getCurrentEntitySelector(
       entity = getAction(state, id);
       break;
     case "datasource":
-      entity = getDatasource(state, id);
+      const key = Object.keys(state.form)[0];
+      entity = state.form[key]?.values;
       break;
     case "jsAction":
       entity = getJSCollection(state, id);

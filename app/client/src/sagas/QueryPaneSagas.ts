@@ -27,8 +27,10 @@ import {
   getDatasource,
   getPluginTemplates,
   getPlugin,
+  getEditorConfig,
+  getSettingConfig,
 } from "selectors/entitiesSelector";
-import { PluginType, QueryAction } from "entities/Action";
+import { Action, PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/pluginActionActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";
@@ -47,18 +49,9 @@ import {
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const state = yield select();
-  const editorConfigs = state.entities.plugins.editorConfigs;
-  const settingConfigs = state.entities.plugins.settingConfigs;
   let configInitialValues = {};
-  // // Typescript says Element does not have blur function but it does;
-  // document.activeElement &&
-  //   "blur" in document.activeElement &&
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore: No types available
-  //   document.activeElement.blur();
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
   if (!applicationId || !pageId) {
     history.push(APPLICATIONS_URL);
     return;
@@ -71,8 +64,14 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     return;
   }
 
-  const currentEditorConfig = editorConfigs[action.datasource.pluginId];
-  const currentSettingConfig = settingConfigs[action.datasource.pluginId];
+  const currentEditorConfig: any[] = yield select(
+    getEditorConfig,
+    action.datasource.pluginId,
+  );
+  const currentSettingConfig: any[] = yield select(
+    getSettingConfig,
+    action.datasource.pluginId,
+  );
 
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane

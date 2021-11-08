@@ -86,6 +86,9 @@ import { changeApi } from "actions/apiPaneActions";
 import { updateJSCollection } from "actions/jsPaneActions";
 import { createBrowserHistory } from "history";
 import { getCurrentEntitySelector } from "selectors/entitiesSelector";
+import { initialize } from "redux-form";
+import { DATASOURCE_DB_FORM } from "constants/forms";
+import { changeDatasource } from "actions/datasourceActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -261,6 +264,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         else yield put(changeQuery(replayEntity.id));
         break;
       case ReplayEntityType.DATASOURCE:
+        yield put(changeDatasource(replayEntity));
         break;
       case ReplayEntityType.JSACTION:
         yield put(updateJSCollection(replayEntity.body, replayEntity.id));
