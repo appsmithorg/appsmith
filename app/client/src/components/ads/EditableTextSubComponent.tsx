@@ -17,6 +17,7 @@ import Text, { TextType } from "./Text";
 import Spinner from "./Spinner";
 import { CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";
+import { UNFILLED_WIDTH } from "./EditableText";
 
 export enum EditInteractionKind {
   SINGLE = "SINGLE",
@@ -60,7 +61,7 @@ export const EditableTextWrapper = styled.div<{
   ${(props) =>
     !props.filled
       ? `
-    width: 243px;
+    width: ${UNFILLED_WIDTH}px;
   `
       : `
     width: 100%;
