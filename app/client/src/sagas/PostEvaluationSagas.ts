@@ -278,6 +278,16 @@ export function* evalErrorHandler(
         });
         break;
       }
+      case EvalErrorTypes.PARSE_JS_ERROR: {
+        Toaster.show({
+          text: `${error.message} at: ${error.context?.entity.name}`,
+          variant: Variant.danger,
+        });
+        AppsmithConsole.error({
+          text: `${error.message} at: ${error.context?.propertyPath}`,
+        });
+        break;
+      }
       case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
         Sentry.captureException(new Error(error.message), {
           extra: error.context,

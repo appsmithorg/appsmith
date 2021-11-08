@@ -67,6 +67,8 @@ import evaluate, {
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
+import { JSUpdate } from "utils/JSPaneUtils";
+import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
 
@@ -696,7 +698,7 @@ export default class DataTreeEvaluator {
           diffs,
         },
       });
-      console.error("CYCLICAL DEPENDENCY MAP", dependencyMap);
+      logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
       throw new CrashingError(e.message);
     }
   }
@@ -742,6 +744,7 @@ export default class DataTreeEvaluator {
     evaluationSubstitutionType: EvaluationSubstitutionType,
     fullPropertyPath?: string,
   ) {
+    // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
     let propertyPath: string;
     if (fullPropertyPath) {
