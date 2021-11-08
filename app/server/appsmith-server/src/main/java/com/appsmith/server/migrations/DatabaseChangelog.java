@@ -3632,14 +3632,21 @@ public class DatabaseChangelog {
         }
     }
 
+    /**
+     * Updates all existing S3 actions to modify the body parameter.
+     * Earlier, the body used to be a base64 encoded or a blob of file data.
+     * With this migration, the structure is expected to follow the
+     * {@link com.appsmith.external.dtos.MultipartFormDataDTO} format
+     * @param mongockTemplate
+     */
     @ChangeSet(order = "095", id = "update-s3-action-configuration-for-type", author = "")
-    public void updateS3ActionConfigurationForType(MongockTemplate mongockTemplate) {
-        // Find all S3 actions
+    public void updateS3ActionConfigurationBodyForContentTypeSupport(MongockTemplate mongockTemplate) {
         Plugin s3Plugin = mongockTemplate.findOne(
                 query(where("packageName").is("amazons3-plugin")),
                 Plugin.class
         );
 
+        // Find all S3 actions
         List<NewAction> s3Actions = mongockTemplate.find(
                 query(new Criteria().andOperator(
                         where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),

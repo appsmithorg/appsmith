@@ -197,7 +197,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 throws InterruptedException, AppsmithPluginException {
 
             byte[] payload;
-            MultipartFormDataDTO multipartFormDataDTO = null;
+            MultipartFormDataDTO multipartFormDataDTO;
             try {
                 multipartFormDataDTO = objectMapper.readValue(
                         body,
@@ -208,7 +208,12 @@ public class AmazonS3Plugin extends BasePlugin {
                         "Unable to parse content. Expected to receive an object with `data` and `type`"
                 );
             }
-            assert multipartFormDataDTO != null;
+            if (multipartFormDataDTO != null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Could not find any data. Expected to receive an object with `data` and `type`"
+                );
+            }
             if (Boolean.TRUE.equals(usingFilePicker)) {
 
                 String encodedPayload = (String) multipartFormDataDTO.getData();
