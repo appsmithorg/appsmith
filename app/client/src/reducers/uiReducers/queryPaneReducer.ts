@@ -127,6 +127,19 @@ const queryPaneReducer = createReducer(initialState, {
     };
   },
 
+  [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    state: any,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    return {
+      ...state,
+      isRunning: {
+        ...state.isRunning,
+        [action.payload.id]: false,
+      },
+    };
+  },
+
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: any,
     action: ReduxAction<{ [id: string]: ActionResponse }>,

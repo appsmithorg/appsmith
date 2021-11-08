@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CommentMode;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -26,6 +27,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
@@ -74,6 +76,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
+    private final CommentThreadRepository commentThreadRepository;
+
+    public static final Integer EVALUATION_VERSION = 2;
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -244,6 +249,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         application.setPublishedPages(new ArrayList<>());
 
+        // For all new applications being created, set it to use the latest evaluation version.
+        application.setEvaluationVersion(EVALUATION_VERSION);
+
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
@@ -319,10 +327,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         return applicationMono
                 .flatMapMany(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
-                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                        String repoName = gitApplicationMetadata.getRepoName();
-                        Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
+                    if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
+                        String repoName = gitData.getRepoName();
+                        Path repoPath = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), repoName);
                         // Delete git repo from local and delete the applications from DB
                         return gitFileUtils.detachRemote(repoPath)
                                 .flatMapMany(isCleared -> applicationService
@@ -590,16 +597,20 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 return newActionService.deleteUnpublishedAction(action.getId());
                             }).collectList();
 
+                    Mono<UpdateResult> archiveCommentThreadMono = commentThreadRepository.archiveByPageId(
+                            id, CommentMode.EDIT
+                    );
+
                     /**
                      *  Only delete unpublished action collection and not the entire action collection.
                      */
-                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                    Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService.findByPageId(page.getId())
                             .flatMap(actionCollection -> {
                                 log.debug("Going to archive actionCollectionId: {} for applicationId: {}", actionCollection.getId(), id);
                                 return actionCollectionService.deleteUnpublishedActionCollection(actionCollection.getId());
                             }).collectList();
 
-                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono)
+                    return Mono.zip(archivedPageMono, archivedActionsMono, archivedActionCollectionsMono, applicationMono, archiveCommentThreadMono)
                             .map(tuple -> {
                                 PageDTO page1 = tuple.getT1();
                                 List<ActionDTO> actions = tuple.getT2();
@@ -657,7 +668,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Mono<List<Boolean>> archivePageListMono;
                     if (!publishedPageIds.isEmpty()) {
                         archivePageListMono = Flux.fromStream(publishedPageIds.stream())
-                                .flatMap(id -> newPageService.archiveById(id))
+                                .flatMap(id -> commentThreadRepository.archiveByPageId(id, CommentMode.PUBLISHED)
+                                        .then(newPageService.archiveById(id))
+                                )
                                 .collectList();
                     } else {
                         archivePageListMono = Mono.just(new ArrayList<>());
