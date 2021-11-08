@@ -357,7 +357,10 @@ class InputComponent extends React.Component<
       } else {
         this.props.onValueChange(valueAsString);
       }
-    } else if (this.props.inputType === InputTypes.PHONE_NUMBER) {
+    } else if (
+      this.props.inputType === InputTypes.PHONE_NUMBER &&
+      valueAsString !== ""
+    ) {
       // phone number will valid for number and space, e.g "123 123"
       if (!PHONE_NUMBER_REGEX.test(valueAsString)) {
         return;
