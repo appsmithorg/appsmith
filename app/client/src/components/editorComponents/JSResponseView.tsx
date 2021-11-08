@@ -11,6 +11,8 @@ import {
   EXECUTING_FUNCTION,
   EMPTY_JS_OBJECT,
   PARSING_ERROR,
+  EMPTY_RESPONSE_FIRST_HALF,
+  EMPTY_RESPONSE_LAST_HALF,
 } from "constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -37,6 +39,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
+import Icon from "components/ads/Icon";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -60,6 +63,9 @@ const ResponseTabWrapper = styled.div`
     opacity: 0.8;
     pointer-events: none;
   }
+  .response-run {
+    margin: 0 10px;
+  }
 `;
 
 const ResponseTabActionsList = styled.ul`
@@ -71,6 +77,7 @@ const ResponseTabActionsList = styled.ul`
   scrollbar-width: thin;
   overflow: auto;
   padding-bottom: 40px;
+  margin-top: 0;
 `;
 
 const ResponseTabAction = styled.li`
@@ -240,8 +247,11 @@ function JSResponseView(props: Props) {
                     </LoadingOverlayScreen>
                   ) : !responses.hasOwnProperty(selectActionId) ? (
                     <NoResponseContainer className="empty">
+                      <Icon name="no-response" />
                       <Text type={TextType.P1}>
-                        Click <RunFunction /> to get response
+                        {EMPTY_RESPONSE_FIRST_HALF()}
+                        <RunFunction className="response-run" />
+                        {EMPTY_RESPONSE_LAST_HALF()}
                       </Text>
                     </NoResponseContainer>
                   ) : (
