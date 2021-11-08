@@ -1,7 +1,13 @@
 const pages = require("../../../../locators/Pages.json");
 // const jsActions = require("../../../../locators/jsActionLocators.json");
 const commonLocators = require("../../../../locators/commonLocators.json");
+const explorer = require("../../../../locators/explorerlocators.json");
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
+import homePage from "../../../../locators/HomePage";
+
+const parentBranchKey = "ParentBranch";
+const childBranchKey = "ChildBranch";
+const branchQueryKey = "branch";
 
 describe("Git sync connect to repo", function() {
   before(() => {
@@ -14,7 +20,7 @@ describe("Git sync connect to repo", function() {
 
   it("creates a new branch", function() {
     cy.get(commonLocators.canvas).click({ force: true });
-    cy.createGitBranch("ParentBranch");
+    cy.createGitBranch(parentBranchKey);
   });
 
   it("creates branch specific resources", function() {
@@ -42,7 +48,7 @@ describe("Git sync connect to repo", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     // cy.wait(2000);
 
-    cy.createGitBranch("ChildBranch");
+    cy.createGitBranch(childBranchKey);
 
     cy.Createpage("ChildPage1");
     cy.get(pages.addEntityAPI)
@@ -71,7 +77,7 @@ describe("Git sync connect to repo", function() {
     cy.contains("ParentPage1").click();
     cy.get(commonLocators.canvas);
 
-    cy.switchGitBranch("ParentBranch");
+    cy.switchGitBranch(parentBranchKey);
 
     cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
     cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
@@ -80,7 +86,7 @@ describe("Git sync connect to repo", function() {
 
   // rename entities
   it("makes branch specific resource updates", function() {
-    cy.switchGitBranch("ChildBranch");
+    cy.switchGitBranch(childBranchKey);
 
     cy.GlobalSearchEntity("ParentPage1");
     cy.RenameEntity("ParentPageRenamed", true);
@@ -89,7 +95,7 @@ describe("Git sync connect to repo", function() {
     // cy.GlobalSearchEntity("ChildJsAction1");
     // cy.RenameEntity("ParentJsActionRenamed");
 
-    cy.switchGitBranch("ParentBranch");
+    cy.switchGitBranch(parentBranchKey);
 
     cy.GlobalSearchEntity("ParentPageRenamed", true);
     cy.get(`.t--entity-name:contains("ParentPageRenamed")`).should("not.exist");
@@ -98,6 +104,48 @@ describe("Git sync connect to repo", function() {
     // cy.get(`.t--entity-name:contains("ParentJsActionRenamed")`).should(
     //   "not.exist",
     // );
+  });
+
+  it("enables switching branch from the URL", () => {
+    cy.url().then((url) => {
+      cy.GlobalSearchEntity("ParentPage1");
+      cy.contains("ParentPage1").click();
+      cy.contains("ParentPage1").click(); // to unfurl
+      cy.get(explorer.addWidget).click();
+      cy.dragAndDropToCanvas("tablewidget", { x: 200, y: 200 });
+      cy.get(".t--widget-tablewidget").should("exist");
+      cy.commitAndPush();
+
+      const urlObject = new URL(url);
+      urlObject.searchParams.set(branchQueryKey, childBranchKey);
+      cy.visit(urlObject.toString());
+
+      cy.get(".bp3-spinner").should("exist");
+      cy.get(".bp3-spinner").should("not.exist");
+
+      cy.get(".t--widget-tablewidget").should("not.exist");
+
+      cy.commitAndPush();
+
+      cy.get(homePage.deployPopupOptionTrigger).click();
+
+      cy.get(homePage.currentDeployedPreviewBtn)
+        .invoke("removeAttr", "target")
+        .click();
+
+      cy.wait("@viewPage");
+
+      cy.get(".t--widget-tablewidget").should("not.exist");
+
+      cy.url().then((url) => {
+        const urlObject = new URL(url);
+        urlObject.searchParams.set(branchQueryKey, parentBranchKey);
+        cy.visit(urlObject.toString());
+        cy.wait("@viewPage");
+
+        cy.get(".t--widget-tablewidget").should("exist");
+      });
+    });
   });
 
   after(() => {

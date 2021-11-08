@@ -2754,6 +2754,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("PUT", "/api/v1/organizations/*").as("updateOrganization");
   cy.route("GET", "/api/v1/pages/view/application/*").as("viewApp");
+  cy.route("GET", "/api/v1/pages/*/view").as("viewPage");
   cy.route("POST", "/api/v1/organizations/*/logo").as("updateLogo");
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
@@ -3182,8 +3183,6 @@ Cypress.Commands.add("connectToGitRepo", () => {
       201,
     );
 
-    // cy.get("body").type("{esc}");
-    // cy.get(commonLocators.canvas).click({ force: true });
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 });
@@ -3230,4 +3229,18 @@ Cypress.Commands.add("deleteTestGithubRepo", () => {
       Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
     },
   });
+});
+
+Cypress.Commands.add("commitAndPush", () => {
+  cy.get(homePage.publishButton).click();
+  cy.get(gitSyncLocators.commitButton).click();
+
+  // check for commit success
+  cy.wait("@commit").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+
+  cy.get(gitSyncLocators.closeGitSyncModal).click();
 });
