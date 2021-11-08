@@ -105,13 +105,14 @@ import SingleSelectTreeWidget, {
 import MultiSelectTreeWidget, {
   CONFIG as MULTI_SELECT_TREE_WIDGET_CONFIG,
 } from "widgets/MultiSelectTreeWidget";
-
+import JSONWidget, { CONFIG as JSON_WIDGET_CONFIG } from "widgets/JSONWidget";
 export const registerWidgets = () => {
   const start = performance.now();
   registerWidget(CanvasWidget, CANVAS_WIDGET_CONFIG);
   registerWidget(SkeletonWidget, SKELETON_WIDGET_CONFIG);
   registerWidget(ContainerWidget, CONTAINER_WIDGET_CONFIG);
   registerWidget(TextWidget, TEXT_WIDGET_CONFIG);
+  registerWidget(JSONWidget, JSON_WIDGET_CONFIG);
   registerWidget(TableWidget, TABLE_WIDGET_CONFIG);
   registerWidget(CheckboxWidget, CHECKBOX_WIDGET_CONFIG);
   registerWidget(RadioGroupWidget, RADIO_GROUP_WIDGET_CONFIG);
