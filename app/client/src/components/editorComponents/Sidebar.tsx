@@ -45,6 +45,7 @@ type Props = {
 };
 
 export const EntityExplorerSidebar = memo((props: Props) => {
+  let tooltipTimeout: number;
   const dispatch = useDispatch();
   const active = useSelector(getExplorerActive);
   const pageId = useSelector(getCurrentPageId);
@@ -95,6 +96,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     },
   ];
   const [activeSwitch, setActiveSwitch] = useState(switches[0]);
+  const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
   const isForceOpenWidgetPanel = useSelector(
     (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
   );
@@ -167,6 +169,23 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     dispatch(setExplorerPinnedAction(!pinned));
   }, [pinned, dispatch, setExplorerPinnedAction]);
 
+  /**
+   * on hover of resizer, show tooltip
+   */
+  const onHoverResizer = useCallback(() => {
+    tooltipTimeout = setTimeout(() => {
+      setTooltipIsOpen(true);
+    }, 1000);
+  }, [setTooltipIsOpen]);
+
+  /**
+   * on hover end of resizer, hide tooltip
+   */
+  const onHoverEndResizer = useCallback(() => {
+    clearTimeout(tooltipTimeout);
+    setTooltipIsOpen(false);
+  }, [setTooltipIsOpen]);
+
   return (
     <div
       className={classNames({
@@ -179,7 +198,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 overflow-y-auto bg-white t--sidebar min-w-48 max-w-96"
+        className="flex flex-col p-0 overflow-y-auto bg-white t--sidebar min-w-48 max-w-96 group"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
@@ -187,14 +206,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         {/* ENTITY EXPLORE HEADER */}
         <div className="sticky top-0 flex items-center justify-between px-3 py-3 z-1">
-          <h3 className="text-sm font-medium text-gray-800 uppercase">
+          <h3 className="text-sm font-medium text-gray-800 uppercase min-h-7">
             Navigation
           </h3>
           <div
             className={classNames({
-              "flex items-center transition-all duration-300 transform": true,
+              "items-center transition-all duration-300 transform ": true,
               "opacity-0 pointer-events-none scale-50": pinned === false,
-              "opacity-100 scale-100": pinned,
+              "opacity-0 scale-100 group-hover:opacity-100": pinned,
             })}
           >
             <TooltipComponent
@@ -232,6 +251,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       <div
         className="absolute z-10 w-2 h-full -mr-1 group cursor-ew-resize"
         onMouseDown={resizer.onMouseDown}
+        onMouseEnter={onHoverResizer}
+        onMouseLeave={onHoverEndResizer}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}
         style={{
@@ -241,10 +262,23 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       >
         <div
           className={classNames({
-            "w-1 h-full bg-transparent group-hover:bg-blue-500 transform transition": true,
+            "w-1 h-full bg-transparent group-hover:bg-gray-300 transform transition flex items-center": true,
             "bg-blue-500": resizer.resizing,
           })}
-        />
+        >
+          <TooltipComponent
+            content={
+              <div className="flex items-center justify-between">
+                <span>Drag to resize</span>
+              </div>
+            }
+            hoverOpenDelay={500}
+            isOpen={tooltipIsOpen && !resizer.resizing}
+            position="right"
+          >
+            <div />
+          </TooltipComponent>
+        </div>
       </div>
     </div>
   );

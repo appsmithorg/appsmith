@@ -578,11 +578,13 @@ module.exports = {
       prose: "65ch",
       ...breakpoints(theme("screens")),
     }),
-    minHeight: {
+    minHeight: (theme, { breakpoints }) => ({
+      ...theme("spacing"),
       0: "0px",
       full: "100%",
       screen: "100vh",
-    },
+      ...breakpoints(theme("screens")),
+    }),
     minWidth: (theme) => ({
       0: "0px",
       auto: "auto",
@@ -982,7 +984,7 @@ module.exports = {
     dropShadow: ["responsive"],
     fill: ["responsive"],
     filter: ["responsive"],
-    flex: ["responsive"],
+    flex: ["responsive", "group-hover", "hover"],
     flexDirection: ["responsive"],
     flexGrow: ["responsive"],
     flexShrink: ["responsive"],
