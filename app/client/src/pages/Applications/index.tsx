@@ -661,7 +661,7 @@ function ApplicationsSection(props: any) {
   } else {
     organizationsListComponent = updatedOrgs.map(
       (organizationObject: any, index: number) => {
-        const { applications, organization, userRoles } = organizationObject;
+        const { applications, organization } = organizationObject;
         const hasManageOrgPermissions = isPermitted(
           organization.userPermissions,
           PERMISSION_TYPE.MANAGE_ORGANIZATION,
@@ -700,7 +700,7 @@ function ApplicationsSection(props: any) {
               ) &&
                 !isFetchingApplications && (
                   <OrgShareUsers>
-                    <SharedUserList userRoles={userRoles} />
+                    <SharedUserList orgId={organization.id} />
                     <FormDialogComponent
                       Form={OrgInviteUsersForm}
                       canOutsideClickClose

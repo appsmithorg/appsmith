@@ -47,6 +47,8 @@ import { getAppMode } from "../../selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+
 const ModeButton = styled.div<{
   active: boolean;
   showSelectedMode: boolean;
@@ -115,6 +117,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
       dispatch(setCommentModeAction(updatedIsCommentMode)),
     [],
   );
+  const currentBranch = useSelector(getCurrentGitBranch);
 
   const handleLocationUpdate = async () => {
     if (!currentUser) return;
@@ -153,15 +156,8 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
   // fetch applications comments when comment mode is turned on
   useEffect(() => {
-    if (isCommentMode) {
-      dispatch(fetchApplicationCommentsRequest());
-    }
-  }, [isCommentMode]);
-
-  // Need to fetch the comments on app edit for the first time.
-  useEffect(() => {
     dispatch(fetchApplicationCommentsRequest());
-  }, []);
+  }, [isCommentMode, currentBranch]);
 };
 
 export const setCommentModeInUrl = (isCommentMode: boolean) => {

@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
@@ -63,6 +64,7 @@ public class UserSignup {
     private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
     private final EnvManager envManager;
+    private final CommonConfig commonConfig;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -218,8 +220,12 @@ public class UserSignup {
                                         analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
                                     }),
                             envManager.applyChanges(Map.of(
-                                    "APPSMITH_DISABLE_TELEMETRY",
-                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData())
+                                    EnvManager.Vars.APPSMITH_DISABLE_TELEMETRY.name(),
+                                    String.valueOf(!userFromRequest.isAllowCollectingAnonymousData()),
+                                    EnvManager.Vars.APPSMITH_INSTANCE_NAME.name(),
+                                    commonConfig.getInstanceName(),
+                                    EnvManager.Vars.APPSMITH_ADMIN_EMAILS.name(),
+                                    user.getEmail()
                             )),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);

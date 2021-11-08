@@ -38,7 +38,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
                 expected: {
                   type: "Audio URL",
                   example:
-                    "https://cdn.simplecast.com/audio/10488ddf-3ca4-4300-9391-c2967d806334/episodes/8c8341f0-0a3a-4f2c-bfe0-0abb6b3c1c87/audio/03e2e3d8-e703-4953-adc0-e72687f31178/default_tc.mp3",
+                    "https://assets.appsmith.com/widgets/birds_chirping.mp3",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
