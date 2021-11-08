@@ -45,7 +45,12 @@ export default memo(function NewsletterForm() {
       <FormBodyWrapper>
         <AllowToggleWrapper>
           <AllowToggle>
-            <Toggle name="signupForNewsletter" onToggle={() => noop} value />
+            <Toggle
+              className="t--welcome-form-newsletter"
+              name="signupForNewsletter"
+              onToggle={() => noop}
+              value
+            />
           </AllowToggle>
           <AllowToggleLabel>
             {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
@@ -54,6 +59,7 @@ export default memo(function NewsletterForm() {
         <ButtonWrapper>
           <StyledButton
             category={Category.primary}
+            className="t--welcome-form-create-button"
             size={Size.medium}
             tag="button"
             text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}
