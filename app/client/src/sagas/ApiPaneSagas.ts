@@ -217,17 +217,12 @@ function* initializeExtraFormDataSaga() {
 }
 
 function* changeApiSaga(
-  actionPayload: ReduxAction<{ id: string; isSaas: boolean }>,
+  actionPayload: ReduxAction<{ id: string; isSaas: boolean; action?: any }>,
 ) {
-  // // Typescript says Element does not have blur function but it does;
-  // document.activeElement &&
-  //   "blur" in document.activeElement &&
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-ignore: No types available
-  //   document.activeElement.blur();
   PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id, isSaas } = actionPayload.payload;
-  const action = yield select(getAction, id);
+  let { action } = actionPayload.payload;
+  if (!action) action = yield select(getAction, id);
   if (!action) return;
   if (isSaas) {
     yield put(initialize(SAAS_EDITOR_FORM, action));

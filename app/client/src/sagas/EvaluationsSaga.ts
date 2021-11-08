@@ -49,13 +49,6 @@ import {
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import {
-  UndoRedoPayload,
-  openPropertyPaneSaga,
-  postUndoRedoSaga,
-} from "./ReplaySaga";
-
-import { updateAndSaveLayout } from "actions/pageActions";
 import { get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
@@ -73,22 +66,9 @@ import {
 } from "constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
-
-import AnalyticsUtil from "../utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
-import { snipingModeSelector } from "selectors/editorSelectors";
-import { ReplayEntityType } from "workers/replayUtils";
-import { updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
-import { changeQuery } from "actions/queryPaneActions";
-import { isAPIAction } from "./ActionSagas";
-import { changeApi } from "actions/apiPaneActions";
-import { updateJSCollection } from "actions/jsPaneActions";
 import { createBrowserHistory } from "history";
 import { getCurrentEntitySelector } from "selectors/entitiesSelector";
-import { initialize } from "redux-form";
-import { DATASOURCE_DB_FORM } from "constants/forms";
-import { changeDatasource } from "actions/datasourceActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -207,73 +187,6 @@ export function* clearEvalCache() {
   yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
 
   return true;
-}
-
-/**
- * saga that listen for UNDO_REDO_OPERATION
- * it won't do anything in case of sniping/comment mode
- *
- * @param action
- * @returns
- */
-export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode: boolean = yield select(commentModeSelector);
-  const isSnipingMode: boolean = yield select(snipingModeSelector);
-
-  // if the app is in snipping or comments mode, don't do anything
-  if (isCommentMode || isSnipingMode) return;
-  try {
-    const history = createBrowserHistory();
-    const pathname = history.location.pathname;
-    const { id, type } = getEntityInCurrentPath(pathname);
-    const workerResponse: any = yield call(
-      worker.request,
-      action.payload.operation,
-      { entityId: type === "page" ? "canvas" : id },
-    );
-
-    // if there is no change, then don't do anything
-    if (!workerResponse) return;
-
-    const {
-      event,
-      logs,
-      paths,
-      replay,
-      replayEntity,
-      replayEntityType,
-      timeTaken,
-    } = workerResponse;
-
-    logs && logs.forEach((evalLog: any) => log.debug(evalLog));
-
-    switch (replayEntityType) {
-      case ReplayEntityType.CANVAS: {
-        const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
-        AnalyticsUtil.logEvent(event, { paths, timeTaken });
-        if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        yield put(updateAndSaveLayout(replayEntity, false, false));
-        if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
-        break;
-      }
-      case ReplayEntityType.ACTION:
-        yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
-        yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
-        if (isAPIAction(replayEntity))
-          yield put(changeApi(replayEntity.id, false));
-        else yield put(changeQuery(replayEntity.id));
-        break;
-      case ReplayEntityType.DATASOURCE:
-        yield put(changeDatasource(replayEntity));
-        break;
-      case ReplayEntityType.JSACTION:
-        yield put(updateJSCollection(replayEntity.body, replayEntity.id));
-        break;
-    }
-  } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
-  }
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {
@@ -524,6 +437,25 @@ export function* evaluateArgumentSaga(action: any) {
     log.error(e);
     Sentry.captureException(e);
   }
+}
+
+export function* updateReplayObject(entityId: string, entity: any) {
+  const workerResponse: any = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
+    {
+      entityId,
+      entity,
+    },
+  );
+  return workerResponse;
+}
+
+export function* workerComputeUndoRedo(operation: string, entityId: string) {
+  const workerResponse: any = yield call(worker.request, operation, {
+    entityId,
+  });
+  return workerResponse;
 }
 
 export default function* evaluationSagaListeners() {

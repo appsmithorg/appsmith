@@ -2,6 +2,7 @@ import {
   all,
   call,
   put,
+  delay,
   select,
   take,
   takeEvery,
@@ -87,6 +88,7 @@ import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 
 import { trimQueryString } from "utils/helpers";
+import { updateReplayObject } from "./EvaluationsSaga";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -639,19 +641,23 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
       payload: { id: values.id, draft: values },
     });
+    yield delay(400);
+    yield call(updateReplayObject, values.id, values);
   }
 }
 
-function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
-  const { id } = actionPayload.payload;
-  const datasource = actionPayload.payload;
+function* changeDatasourceSaga(
+  actionPayload: ReduxAction<{ datasource: Datasource; isReplay?: boolean }>,
+) {
+  const { datasource, isReplay } = actionPayload.payload;
+  const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
   let data;
 
-  if (_.isEmpty(draft)) {
-    data = actionPayload.payload;
+  if (_.isEmpty(draft) || isReplay) {
+    data = datasource;
   } else {
     data = draft;
   }
@@ -671,6 +677,8 @@ function* changeDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         getQueryParams(),
       ),
     );
+
+  // yield call(updateReplayObject, datasource.id, datasource);
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
@@ -681,7 +689,7 @@ function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
     ),
   );
   if (datasource) {
-    yield put(changeDatasource(datasource));
+    yield put(changeDatasource({ datasource }));
   }
 }
 
@@ -749,7 +757,7 @@ function* storeAsDatasourceSaga() {
     },
   });
 
-  yield put(changeDatasource(createdDatasource));
+  yield put(changeDatasource({ datasource: createdDatasource }));
 }
 
 function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
@@ -994,6 +1002,8 @@ export function* watchDatasourcesSagas() {
       executeDatasourceQuerySaga,
     ),
     // Intercepting the redux-form change actionType
-    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeLatest(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeLatest(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeLatest(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
   ]);
 }

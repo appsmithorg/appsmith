@@ -30,7 +30,7 @@ import {
   getEditorConfig,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { Action, PluginType, QueryAction } from "entities/Action";
+import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/pluginActionActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";
@@ -47,7 +47,9 @@ import {
 } from "actions/evaluationActions";
 
 // Called whenever the query being edited is changed via the URL or query pane
-function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
+function* changeQuerySaga(
+  actionPayload: ReduxAction<{ id: string; action?: any }>,
+) {
   const { id } = actionPayload.payload;
   let configInitialValues = {};
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -56,7 +58,8 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
     history.push(APPLICATIONS_URL);
     return;
   }
-  const action = yield select(getAction, id);
+  let { action } = actionPayload.payload;
+  if (!action) action = yield select(getAction, id);
   if (!action) {
     history.push(
       INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.ACTIVE),

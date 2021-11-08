@@ -1,6 +1,6 @@
 import { Diff } from "deep-diff";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import ReplayDSL from "./ReplayEntity";
+import ReplayEntity from "./ReplayEntity";
 import { set } from "lodash";
 import { addToArray, setPropertyUpdate, UPDATES } from "./replayUtils";
 
@@ -36,7 +36,9 @@ export const TOASTS = "toasts";
 export const FOCUSES = "needsFocus";
 export const WIDGETS = "widgets";
 
-export default class ReplayCanvas extends ReplayDSL<CanvasWidgetsReduxState> {
+export default class ReplayCanvas extends ReplayEntity<
+  CanvasWidgetsReduxState
+> {
   public constructor(entity: CanvasWidgetsReduxState) {
     super(entity);
   }

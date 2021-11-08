@@ -24,11 +24,9 @@ import ReplayEntity from "workers/ReplayEntity";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
-import { Action } from "entities/Action";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { JSAction } from "entities/JSCollection";
 import ReplayCanvas from "./ReplayCanvas";
 import ReplayAction from "./ReplayAction";
+import ReplayDatasource from "./ReplayDatasource";
 
 const CANVAS = "canvas";
 
@@ -36,10 +34,7 @@ const ctx: Worker = self as any;
 
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
-let replayMap: Record<
-  string,
-  ReplayEntity<CanvasWidgetsReduxState | Action | JSAction>
->;
+let replayMap: Record<string, ReplayEntity<any>>;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
@@ -330,6 +325,15 @@ ctx.addEventListener(
         return isTrigger
           ? evaluate(expression, evalTree, {}, [], true)
           : evaluate(expression, evalTree, {});
+      case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
+        const { entity, entityId } = requestData;
+        const replayObject = replayMap[entityId];
+        if (replayObject) {
+          replayObject.update(entity);
+        } else {
+          replayMap[entityId] = new ReplayDatasource(entity);
+        }
+        break;
       default: {
         console.error("Action not registered on worker", method);
       }

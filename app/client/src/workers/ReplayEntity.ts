@@ -13,7 +13,7 @@ export default abstract class ReplayEntity<T> {
   protected entity: T;
   private prevRedoDiff: Array<Diff<T, T>> | undefined;
   logs: any[] = [];
-  abstract processDiff(diff: Diff<T, T>, replay: any, isUndo: boolean): void;
+  abstract processDiff(diff: Diff<T, T>, replay: any, isUndo: boolean): any;
 
   constructor(entity: T) {
     const doc = new Doc();
@@ -108,6 +108,7 @@ export default abstract class ReplayEntity<T> {
     const startTime = performance.now();
     const diffs = deepDiff(this.entity, entity);
     if (diffs && diffs.length) {
+      debugger;
       this.entity = entity;
       this.diffMap.set(_DIFF_, diffs);
     }

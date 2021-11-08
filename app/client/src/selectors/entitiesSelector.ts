@@ -542,14 +542,13 @@ export function getCurrentEntitySelector(
   },
 ) {
   const { id, type } = basicDetails;
-  let entity: Action | Datasource | JSCollection | undefined;
+  let entity: any = {};
   switch (type) {
     case "action":
       entity = getAction(state, id);
       break;
     case "datasource":
-      const key = Object.keys(state.form)[0];
-      entity = state.form[key]?.values;
+      entity = getDatasourceDraft(state, id);
       break;
     case "jsAction":
       entity = getJSCollection(state, id);

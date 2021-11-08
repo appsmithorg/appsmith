@@ -1,6 +1,4 @@
 import { get, set } from "lodash";
-
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PluginType } from "entities/Action";
 export const UPDATES = "propertyUpdates";
 
@@ -71,5 +69,17 @@ export function getReplayEntityType(entity: any) {
     return ReplayEntityType.JSACTION;
   if (entity && entity.hasOwnProperty("actionConfiguration"))
     return ReplayEntityType.ACTION;
+  if (entity && entity.hasOwnProperty("datasourceConfiguration"))
+    return ReplayEntityType.DATASOURCE;
   return ReplayEntityType.CANVAS;
+}
+
+export function pathArrayToString(path?: string[]) {
+  let stringPath = "";
+  if (!path) return;
+  stringPath = path[0];
+  for (let i = 1; i < path.length; i++) {
+    stringPath += isNaN(parseInt(path[i])) ? `.${path[i]}` : `[${path[i]}]`;
+  }
+  return stringPath;
 }
