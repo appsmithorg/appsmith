@@ -235,7 +235,7 @@ const StyledNumericInput = styled(NumericInput)`
         z-index: 16;
         line-height: 16px;
 
-        &:hover:not(:focus) {
+        &:hover:not(:focus):not(:disabled) {
           border-left: 1px solid ${Colors.GREY_5};
         }
       }
