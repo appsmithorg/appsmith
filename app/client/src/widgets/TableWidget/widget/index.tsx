@@ -618,9 +618,20 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // It is switched ON:
       if (this.props.multiRowSelection) {
         // Use the selectedRowIndex if available as default selected index
-        const selectedRowIndices = this.props.selectedRowIndex
-          ? [this.props.selectedRowIndex]
-          : []; // Else use an empty array
+        let selectedRowIndices: number[] = [];
+        // Check if selectedRowIndex is valid
+        if (this.props.selectedRowIndex && this.props.selectedRowIndex > -1) {
+          selectedRowIndices = [this.props.selectedRowIndex];
+        }
+        // Else use the defaultSelectedRow if available
+        else if (
+          isNumber(this.props.defaultSelectedRow) ||
+          Array.isArray(this.props.defaultSelectedRow)
+        ) {
+          selectedRowIndices = isNumber(this.props.defaultSelectedRow)
+            ? [this.props.defaultSelectedRow]
+            : this.props.defaultSelectedRow;
+        }
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
           selectedRowIndices,

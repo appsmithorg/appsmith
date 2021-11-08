@@ -15,6 +15,7 @@ import { generateReactKey } from "./generators";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { RenderMode } from "constants/WidgetConstants";
+import * as log from "loglevel";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -82,7 +83,7 @@ function validateValidationStructure(
   ) {
     config.params.fnString = config.params.fn.toString();
     if (!config.params.expected)
-      console.error(
+      log.error(
         `Error in configuration ${JSON.stringify(config)}: For a ${
           ValidationTypes.FUNCTION
         } type validation, expected type and example are mandatory`,
@@ -181,7 +182,7 @@ class WidgetFactory {
         message:
           "Widget Builder not registered for widget type" + widgetData.type,
       };
-      console.error(ex);
+      log.error(ex);
       return null;
     }
   }
@@ -195,7 +196,7 @@ class WidgetFactory {
   ): DerivedPropertiesMap {
     const map = this.derivedPropertiesMap.get(widgetType);
     if (!map) {
-      console.error("Widget type validation is not defined");
+      log.error("Widget type validation is not defined");
       return {};
     }
     return map;
@@ -217,7 +218,7 @@ class WidgetFactory {
   ): Record<string, string> {
     const map = this.defaultPropertiesMap.get(widgetType);
     if (!map) {
-      console.error("Widget default properties not defined", widgetType);
+      log.error("Widget default properties not defined", widgetType);
       return {};
     }
     return map;
@@ -228,7 +229,7 @@ class WidgetFactory {
   ): Record<string, string> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
-      console.error("Widget meta properties not defined: ", widgetType);
+      log.error("Widget meta properties not defined: ", widgetType);
       return {};
     }
     return map;
@@ -239,7 +240,7 @@ class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneConfigsMap.get(type);
     if (!map) {
-      console.error("Widget property pane configs not defined", type);
+      log.error("Widget property pane configs not defined", type);
       return [];
     }
     return map;
