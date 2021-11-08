@@ -207,7 +207,7 @@ class WidgetFactory {
   ): SnipedWidgetPropertyDataType | void {
     const config = this.snipingConfigsMap.get(widgetType);
     if (!config) {
-      console.error("Widget sniping config not defined", widgetType);
+      log.error("Widget sniping config not defined", widgetType);
       return;
     }
     return config;
