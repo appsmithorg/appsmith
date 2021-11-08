@@ -2,14 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import {
-  Page,
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import {
-  getApplicationEditorPageURL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { getApplicationViewerPageURL } from "constants/routes";
 import { isEllipsisActive } from "utils/helpers";
 import TooltipComponent from "components/ads/Tooltip";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -17,9 +13,9 @@ import { Position } from "@blueprintjs/core";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
-import { APP_MODE } from "entities/App";
 
 import { trimQueryString } from "utils/helpers";
+import { getPageURL } from "utils/AppsmithUtils";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -148,30 +144,6 @@ export function PageTabs(props: Props) {
     setQuery(window.location.search);
   }, [location]);
 
-  /**
-   * gets the page url
-   *
-   * Note: for edit mode, the page will have different url ( contains '/edit' at the end )
-   *
-   * @param page
-   * @returns
-   */
-  const getPageURL = (page: Page) => {
-    if (appMode === APP_MODE.PUBLISHED) {
-      return trimQueryString(
-        getApplicationViewerPageURL({
-          applicationId: currentApplicationDetails?.id,
-          pageId: page.pageId,
-        }),
-      );
-    }
-
-    return getApplicationEditorPageURL(
-      currentApplicationDetails?.id,
-      page.pageId,
-    );
-  };
-
   return (
     <div
       className="flex w-full overflow-auto scrollbar-none"
@@ -196,7 +168,7 @@ export function PageTabs(props: Props) {
             activeClassName="is-active"
             className="t--page-switch-tab"
             to={{
-              pathname: getPageURL(page),
+              pathname: getPageURL(page, appMode, currentApplicationDetails),
               search: query,
             }}
           >

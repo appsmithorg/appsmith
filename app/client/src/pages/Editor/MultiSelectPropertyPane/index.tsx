@@ -1,5 +1,9 @@
-import * as Sentry from "@sentry/react";
 import React from "react";
+import * as Sentry from "@sentry/react";
+import {
+  createMessage,
+  MULTI_SELECT_PROPERTY_PANE_MESSAGE,
+} from "constants/messages";
 import { useSelector } from "react-redux";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";
@@ -18,7 +22,7 @@ function MultiSelectPropertyPane() {
 
       <div className="px-3 space-y-3 t--layout-control-wrapper">
         <p className="text-sm text-gray-700">
-          Select a widget to see it&apos;s propertyies
+          {createMessage(MULTI_SELECT_PROPERTY_PANE_MESSAGE)}
         </p>
         <div className="flex flex-col space-y-3">
           {selectedWidgets.map((selectedWidgetId) => {

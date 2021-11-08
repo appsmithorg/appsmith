@@ -25,7 +25,8 @@ export const setExplorerPinnedAction = (shouldPin: boolean) => {
 };
 
 /**
- * action that make explorer pin/unpin
+ * action that make explorer active/inactive
+ * NOTE: active state is used to slide the sidebar in unpinned state on hover.
  *
  * @param shouldPin
  * @returns

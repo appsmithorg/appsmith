@@ -308,6 +308,8 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
 
 TriggerNode.displayName = "TriggerNode";
 
+const selectedOption = { label: "", value: "" };
+
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
@@ -350,10 +352,10 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         renderOption={(optionProps) => {
           return <OptionNode option={optionProps.option} />;
         }}
-        selected={{ label: "", value: "" }}
+        selected={selectedOption}
         showDropIcon={false}
         showLabelOnly
-        width={`100%`}
+        width="100%"
       />
       {/* <PopperDragHandle /> */}
       <Dropdown

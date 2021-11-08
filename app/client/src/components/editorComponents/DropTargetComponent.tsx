@@ -45,6 +45,14 @@ const StyledDropTarget = styled.div`
   z-index: 1;
 `;
 
+function Onboarding() {
+  return (
+    <h2 className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-2xl font-bold text-gray-300">
+      Drag and drop a widget here
+    </h2>
+  );
+}
+
 /*
   This context will provide the function which will help the draglayer and resizablecomponents trigger
   an update of the main container's rows
@@ -172,11 +180,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         {props.children}
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
-          !props.parentId && (
-            <h2 className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-2xl font-bold text-gray-300">
-              Drag and drop a widget here
-            </h2>
-          )}
+          !props.parentId && <Onboarding />}
         {((isDragging && draggedOn === props.widgetId) || isResizing) && (
           <DragLayerComponent
             noPad={props.noPad || false}

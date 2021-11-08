@@ -1,9 +1,16 @@
+import React, {
+  memo,
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+  useMemo,
+} from "react";
 import classNames from "classnames";
 import history from "utils/history";
 import * as Sentry from "@sentry/react";
 import { PanelStack } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
-import React, { memo, useEffect, useRef, useCallback, useState } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -30,14 +37,15 @@ import {
   getExplorerActive,
   getExplorerPinned,
 } from "selectors/explorerSelector";
+import { tailwindLayers } from "constants/Layers";
 import TooltipComponent from "components/ads/Tooltip";
-import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
+import { createMessage, ENTITY_EXPLORER_TITLE } from "constants/messages";
 
 type Props = {
   width: number;
@@ -150,15 +158,19 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   ) => {
     const currentX = event.touches[0].clientX;
 
+    // only calculate the following in unpin mode
     if (!pinned) {
-      if (!active) {
+      if (active) {
+        // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
+        // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
+        if (currentX >= props.width + 20 && !resizer.resizing) {
+          dispatch(setExplorerActiveAction(false));
+        }
+      } else {
+        // check if user cursor is at extreme left when the explorer is inactive, if yes, make the explorer active
         if (currentX <= 5) {
           dispatch(setExplorerActiveAction(true));
         }
-      }
-
-      if (currentX >= props.width + 20 && !resizer.resizing) {
-        dispatch(setExplorerActiveAction(false));
       }
     }
   };
@@ -187,10 +199,17 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     setTooltipIsOpen(false);
   }, [setTooltipIsOpen]);
 
+  /**
+   * resizer left position
+   */
+  const resizerLeft = useMemo(() => {
+    return !pinned && !active ? 0 : props.width;
+  }, [pinned, active]);
+
   return (
     <div
       className={classNames({
-        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full  duration-400 border-r border-gray-200 ${zIndexLayers.ENTITY_EXPLORER}`]: true,
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full  duration-400 border-r border-gray-200 ${tailwindLayers.entityExplorer}`]: true,
         "relative ": pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
@@ -207,8 +226,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         {/* ENTITY EXPLORE HEADER */}
         <div className="sticky top-0 flex items-center justify-between px-3 py-3 z-1">
-          <h3 className="text-sm font-medium text-gray-800 uppercase min-h-7">
-            Navigation
+          <h3 className="flex items-center text-sm font-medium text-gray-800 uppercase min-h-7">
+            {createMessage(ENTITY_EXPLORER_TITLE)}
           </h3>
           <div
             className={classNames({
@@ -250,14 +269,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       </div>
       {/* RESIZER */}
       <div
-        className={`absolute w-2 h-full -mr-1 ${zIndexLayers.RESIZER} group cursor-ew-resize`}
+        className={`absolute w-2 h-full -mr-1 ${tailwindLayers.resizer} group cursor-ew-resize`}
         onMouseDown={resizer.onMouseDown}
         onMouseEnter={onHoverResizer}
         onMouseLeave={onHoverEndResizer}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}
         style={{
-          left: !pinned && !active ? 0 : props.width,
+          left: resizerLeft,
           display: isPreviewMode ? "none" : "initial",
         }}
       >
@@ -273,7 +292,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
                 <span>Drag to resize</span>
               </div>
             }
-            hoverOpenDelay={500}
+            hoverOpenDelay={200}
             isOpen={tooltipIsOpen && !resizer.resizing}
             position="right"
           >

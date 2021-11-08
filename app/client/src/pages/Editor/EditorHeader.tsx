@@ -73,6 +73,7 @@ import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
+  LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
@@ -346,7 +347,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             <TooltipComponent
               content={
                 <div className="flex items-center justify-between">
-                  <span>Lock sidebar open</span>
+                  <span>{createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)}</span>
                   <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
                 </div>
               }

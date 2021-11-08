@@ -7,14 +7,14 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getSelectedWidgets } from "selectors/ui";
+import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
-import { commentModeSelector } from "selectors/commentsSelectors";
-import { zIndexLayers } from "constants/CanvasEditorConstants";
 
 type Props = {
   width: number;
@@ -62,14 +62,16 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         return <CanvasPropertyPane />;
       case selectedWidgets.length === 1:
         return <WidgetPropertyPane />;
+      default:
+        return <CanvasPropertyPane />;
     }
-  }, [selectedWidgets, isDraggingForSelection]);
+  }, [selectedWidgets.length, isDraggingForSelection]);
 
   return (
     <div className="relative">
       {/* RESIZOR */}
       <div
-        className={`absolute top-0 left-0 w-2 h-full -ml-2 group  cursor-ew-resize ${zIndexLayers.RESIZER}`}
+        className={`absolute top-0 left-0 w-2 h-full -ml-2 group  cursor-ew-resize ${tailwindLayers.resizer}`}
         onMouseDown={onMouseDown}
         onTouchEnd={onMouseUp}
         onTouchStart={onTouchStart}
@@ -84,7 +86,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       {/* PROPERTY PANE */}
       <div
         className={classNames({
-          [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${zIndexLayers.PROPERTY_PANE}`]: true,
+          [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${tailwindLayers.propertyPane}`]: true,
           "relative ": !isPreviewMode,
           "fixed translate-x-full right-0": isPreviewMode || isCommentMode,
         })}

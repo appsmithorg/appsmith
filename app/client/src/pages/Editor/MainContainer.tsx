@@ -1,17 +1,22 @@
-import React, { useState, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch } from "react-redux";
+import React, { useState, useCallback, useMemo } from "react";
 import { Route, Switch, matchPath, useLocation } from "react-router";
+
 import EditorsRouter from "./routes";
-import WidgetsEditor from "./WidgetsEditor";
 import BottomBar from "./BottomBar";
+import {
+  DEFAULT_ENTITY_EXPLORER_WIDTH,
+  DEFAULT_PROPERTY_PANE_WIDTH,
+} from "constants/AppConstants";
+import WidgetsEditor from "./WidgetsEditor";
+import { updateExplorerWidthAction } from "actions/explorerActions";
+import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
+import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
 
-import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
-import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
-import { updateExplorerWidthAction } from "actions/explorerActions";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
@@ -25,8 +30,12 @@ const Container = styled.div`
 function MainContainer() {
   const dispatch = useDispatch();
   const location = useLocation();
-  const [sidebarWidth, setSidebarWidth] = useState(256);
-  const [propertyPaneWidth, setPropertyPaneWidth] = useState(256);
+  const [sidebarWidth, setSidebarWidth] = useState(
+    DEFAULT_ENTITY_EXPLORER_WIDTH,
+  );
+  const [propertyPaneWidth, setPropertyPaneWidth] = useState(
+    DEFAULT_PROPERTY_PANE_WIDTH,
+  );
 
   /**
    * on entity explorer sidebar width change

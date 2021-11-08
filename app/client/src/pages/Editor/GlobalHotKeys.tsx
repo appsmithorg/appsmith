@@ -71,7 +71,7 @@ type Props = {
   isCommentMode: boolean;
   isPreviewMode: boolean;
   setPreviewModeAction: (shouldSet: boolean) => void;
-  explorerPinned: boolean;
+  isExplorerPinned: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
 };
 
@@ -366,7 +366,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Preview Mode"
           onKeyDown={() => {
-            this.props.setExplorerPinnedAction(!this.props.explorerPinned);
+            this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
           }}
         />
       </Hotkeys>
@@ -385,7 +385,7 @@ const mapStateToProps = (state: AppState) => ({
   appMode: getAppMode(state),
   isCommentMode: commentModeSelector(state),
   isPreviewMode: previewModeSelector(state),
-  explorerPinned: getExplorerPinned(state),
+  isExplorerPinned: getExplorerPinned(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

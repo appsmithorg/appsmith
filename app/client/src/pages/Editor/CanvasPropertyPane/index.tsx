@@ -1,9 +1,9 @@
 import * as Sentry from "@sentry/react";
-import React, { memo } from "react";
+import React from "react";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 
-export const CanvasPropertyPane = memo(() => {
+export function CanvasPropertyPane() {
   return (
     <div className="relative space-y-3">
       <div className="px-3 py-3">
@@ -13,7 +13,7 @@ export const CanvasPropertyPane = memo(() => {
       <MainContainerLayoutControl />
     </div>
   );
-});
+}
 
 CanvasPropertyPane.displayName = "CanvasPropertyPane";
 

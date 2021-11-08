@@ -414,7 +414,7 @@ function LeftPane() {
   const initiateOnboarding = useIntiateOnboarding();
 
   return (
-    <LeftPaneWrapper className="">
+    <LeftPaneWrapper>
       <LeftPaneSection
         heading={createMessage(ORGANIZATIONS_HEADING)}
         isFetchingApplications={isFetchingApplications}

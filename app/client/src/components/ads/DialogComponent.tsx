@@ -94,8 +94,6 @@ const HeaderIconWrapper = styled.div`
   background: ${(props) => props.theme.colors.modal.iconBg};
 `;
 
-const TriggerWrapper = styled.div``;
-
 type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
@@ -150,7 +148,7 @@ export function DialogComponent(props: DialogComponentProps) {
   return (
     <>
       {props.trigger && (
-        <TriggerWrapper
+        <div
           className="ads-dialog-trigger"
           onClick={() => {
             setIsOpen(true);
@@ -158,7 +156,7 @@ export function DialogComponent(props: DialogComponentProps) {
           style={{ zIndex: props.triggerZIndex }}
         >
           {props.trigger}
-        </TriggerWrapper>
+        </div>
       )}
       <StyledDialog
         canEscapeKeyClose={!!props.canEscapeKeyClose}
