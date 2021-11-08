@@ -398,7 +398,7 @@ function* getOAuthAccessTokenSaga(
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   if (!appsmithToken) {
     // Error out because auth token should been here
-    console.error(SAAS_APPSMITH_TOKEN_NOT_FOUND);
+    log.error(SAAS_APPSMITH_TOKEN_NOT_FOUND);
     Toaster.show({
       text: SAAS_AUTHORIZATION_APPSMITH_ERROR,
       variant: Variant.danger,

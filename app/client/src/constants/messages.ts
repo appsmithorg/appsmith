@@ -589,6 +589,13 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
+export const COPIED_SSH_KEY = () => "Copied SSH Key";
+export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
+export const PASTE_SSH_URL_INFO = () =>
+  "Please paste SSH URL of your repository";
+export const GENERATE_KEY = () => "Generate Key";
+export const UPDATE_CONFIG = () => "UPDATE CONFIG";
+export const CONNECT_BTN_LABEL = () => "CONNECT";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
@@ -797,9 +804,13 @@ export const RESTART_BANNER_HEADER = () => "Restarting Server";
 export const RESTART_ERROR_BODY = () =>
   "Something went wrong. Please contact your administrator.";
 export const RESTART_ERROR_HEADER = () => "Restart failed";
+export const INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST = () =>
+  "Hey! There is a new version of Appsmith available. Please consider refreshing your window.";
 
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
 export const WELCOME_FORM_NON_SUPER_USER_ROLE = () => "Role";
 export const WELCOME_FORM_NON_SUPER_USER_USE_CASE = () =>
   "What are you planning to use Appsmith for?";
+export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
+  "Are you sure you want to perform this action?";

@@ -44,6 +44,9 @@ export const Colors = {
   GREEN: "#03B365",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
+  FERN_GREEN: "#50AF6C",
+  NARVIK_GREEN: "#ECF9F3",
+  JAGGED_ICE: "#CAECDC",
   EUCALYPTUS: "#218358",
   RED: "#B30338",
   ERROR_RED: "#E22C2C",
@@ -136,5 +139,10 @@ export const Colors = {
 
   PRIMARY_ORANGE: "#F86A2B",
   MIRAGE: "#182026",
+
+  GREEN_1: "#50AF6C",
+  GREEN_2: "#D5EFE3",
+  GREEN_3: "#ECF9F3",
+  MASALA: "#43403D",
 };
 export type Color = typeof Colors[keyof typeof Colors];

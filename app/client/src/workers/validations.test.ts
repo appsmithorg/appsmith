@@ -942,11 +942,11 @@ describe("Validate Validators", () => {
     const config = {
       type: ValidationTypes.SAFE_URL,
       params: {
-        default: "https://wikipedia.org",
+        default: "https://www.example.com",
       },
     };
     const inputs = [
-      "https://wikipedia.org",
+      "https://www.example.com",
       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
       "javascript:alert(document.cookie)",
       "data:text/html,<svg onload=alert(1)>",
@@ -954,7 +954,7 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: true,
-        parsed: "https://wikipedia.org",
+        parsed: "https://www.example.com",
       },
       {
         isValid: true,
@@ -964,12 +964,12 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         messages: [`${WIDGET_TYPE_VALIDATION_ERROR}: URL`],
-        parsed: "https://wikipedia.org",
+        parsed: "https://www.example.com",
       },
       {
         isValid: false,
         messages: [`${WIDGET_TYPE_VALIDATION_ERROR}: URL`],
-        parsed: "https://wikipedia.org",
+        parsed: "https://www.example.com",
       },
     ];
 

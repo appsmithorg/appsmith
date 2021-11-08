@@ -27,5 +27,6 @@ public enum FeatureFlagEnum {
     JS_EDITOR,
     LINTING,
     MULTIPLAYER,
-    GIT;
+    GIT,
+    ADMIN_SETTINGS;
 }

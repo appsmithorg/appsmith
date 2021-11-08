@@ -6,19 +6,27 @@ import datasource from "../../../../locators/DatasourcesEditor.json";
 describe("Generate New CRUD Page Inside from entity explorer", function() {
   let datasourceName;
 
-  before(() => {
+  this.beforeEach(() => {
     cy.startRoutesForDatasource();
-    cy.createPostgresDatasource();
 
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
     // TODO
     // 1. Add INVALID credential for a datasource and test the invalid datasource structure flow.
     // 2. Add 2 supported datasource and 1 not supported datasource with a fixed name to search.
   });
 
   it("Add new Page and generate CRUD template using existing supported datasource", function() {
+    cy.NavigateToDatasourceEditor();
+    cy.get(datasource.PostgreSQL).click({ force: true });
+    cy.fillPostgresDatasourceForm();
+
+    cy.generateUUID().then((UUID) => {
+      datasourceName = `PostgresSQL CRUD Demo ${UUID}`;
+      cy.renameDatasource(datasourceName);
+      cy.wrap(datasourceName).as("dSName");
+    });
+
+    cy.testSaveDatasource();
+
     cy.get(pages.AddPage)
       .first()
       .click();
@@ -28,13 +36,13 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       201,
     );
 
-    cy.get(generatePage.generateCRUDPageActionCard).click();
-
-    cy.get(generatePage.selectDatasourceDropdown).click();
-
-    cy.get(generatePage.datasourceDropdownOption)
-      .contains(datasourceName)
-      .click();
+    cy.get("@dSName").then((dbName) => {
+      cy.get(generatePage.generateCRUDPageActionCard).click();
+      cy.get(generatePage.selectDatasourceDropdown).click();
+      cy.get(generatePage.datasourceDropdownOption)
+        .contains(dbName)
+        .click();
+    });
 
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -65,7 +73,6 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
 
   it("Create new app and Generate CRUD page using a new datasource", function() {
     cy.NavigateToHome();
-
     cy.get(homePage.createNew)
       .first()
       .click({ force: true });
@@ -91,7 +98,6 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       cy.renameDatasource(datasourceName);
     });
 
-    cy.startRoutesForDatasource();
     cy.get(".t--save-datasource").click();
     cy.wait("@saveDatasource").should(
       "have.nested.property",
@@ -124,6 +130,8 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       "response.body.responseMeta.status",
       200,
     );
+
+    cy.get("span:contains('GOT IT')").click();
   });
 
   it("Generate CRUD page from datasource ACTIVE section", function() {
