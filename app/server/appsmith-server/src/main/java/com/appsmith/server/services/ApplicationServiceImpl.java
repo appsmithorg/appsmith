@@ -457,6 +457,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> saveLastEditInformation(String applicationId) {
         Application application = new Application();
+        // need to set isPublic=null because it has a `false` as it's default value in domain class
+        application.setIsPublic(null);
         /*
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
