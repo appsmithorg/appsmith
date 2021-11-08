@@ -1435,6 +1435,42 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.wait(1000);
 });
 
+/**
+ * Usage:
+ * Find the element which has a code editor input and then pass it in the function
+ *
+ * cy.get(...).then(el => cy.updateCodeInput(el, "test"));
+ *
+ */
+Cypress.Commands.add("updateCodeInput", ($selector, value) => {
+  cy.get($selector)
+    .find(".CodeMirror textarea")
+    .first()
+    .as("codeEditor");
+
+  cy.get("@codeEditor")
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is empty");
+      cy.get("@codeEditor")
+        .click({ force: true })
+        .focused({ force: true })
+        .clear({
+          force: true,
+        });
+    }
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get("@codeEditor").type(value, {
+      force: true,
+      parseSpecialCharSequences: false,
+    });
+  });
+});
+
 Cypress.Commands.add("selectColor", (GivenProperty) => {
   // Property pane of the widget is opened, and click given property.
   cy.get(
