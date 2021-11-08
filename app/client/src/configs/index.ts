@@ -52,6 +52,7 @@ declare global {
     APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
     Intercom: any;
     evaluationVersion: EvaluationVersion;
+    Sentry: any;
   }
 }
 
