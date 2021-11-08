@@ -1515,8 +1515,8 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
       primary: {
@@ -2153,8 +2153,8 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
       primary: {

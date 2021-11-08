@@ -157,6 +157,11 @@ const StyledRecorderLeftButton = styled(Button)<
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      > svg {
+        path, circle {
+          fill: ${theme.colors.button.disabled.textColor};
+        }
+      } 
     }
   `}
 `;
