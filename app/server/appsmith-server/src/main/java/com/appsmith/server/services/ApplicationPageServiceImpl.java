@@ -78,6 +78,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final GitFileUtils gitFileUtils;
     private final CommentThreadRepository commentThreadRepository;
 
+    public static final Integer EVALUATION_VERSION = 2;
+
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -246,6 +248,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         application.setPublishedPages(new ArrayList<>());
+
+        // For all new applications being created, set it to use the latest evaluation version.
+        application.setEvaluationVersion(EVALUATION_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);

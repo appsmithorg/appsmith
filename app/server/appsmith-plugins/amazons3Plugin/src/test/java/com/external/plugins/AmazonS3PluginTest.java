@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
@@ -44,6 +45,7 @@ import static com.external.plugins.constants.FieldName.LIST_PREFIX;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
+import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -80,7 +82,7 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setAuthentication(authDTO);
         ArrayList<Property> properties = new ArrayList<>();
-        properties.add(new Property("amazon s3 region", region));
+        properties.add(null); // since index 0 is not used anymore.
         properties.add(new Property("s3 service provider", serviceProvider));
         properties.add(new Property("custom endpoint region", region));
         dsConfig.setProperties(properties);
@@ -137,30 +139,9 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void testValidateDatasourceWithMissingRegionWithAmazonS3() {
+    public void testValidateDatasourceWithMissingRegionWithOtherS3ServiceProvider() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getProperties().get(0).setValue("");
-
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
-
-        StepVerifier.create(pluginExecutorMono)
-                .assertNext(executor -> {
-                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    assertNotEquals(0, res.size());
-
-                    List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
-                            "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
-                            "region where your AWS S3 instance is hosted."));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testValidateDatasourceWithMissingRegionWithNonAmazonProvider() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getProperties().get(1).setValue("other");
         datasourceConfiguration.getProperties().get(2).setValue("");
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
@@ -175,6 +156,22 @@ public class AmazonS3PluginTest {
                     assertTrue(errorList.get(0).contains("Required parameter 'Region' is empty. Did you forget to " +
                             "edit the 'Region' field in the datasource creation form ? You need to fill it with the " +
                             "region where your S3 instance is hosted."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasourceWithMissingRegionWithListedProvider() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        datasourceConfiguration.getProperties().get(2).setValue("");
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    assertEquals(0, res.size());
                 })
                 .verifyComplete();
     }
@@ -935,4 +932,53 @@ public class AmazonS3PluginTest {
             .verifyComplete();
     }
 
+    @Test
+    public void testExtractRegionFromEndpoint() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        // Test for Upcloud
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2.de-fra1.upcloudobjects.com");
+
+        AmazonS3ClientBuilder s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("de-fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
+
+        // Test for Wasabi
+        datasourceConfiguration.getProperties().get(1).setValue("wasabi");
+        datasourceConfiguration.getEndpoints().get(0).setHost("s3.ap-northeast-1.wasabisys.com");
+
+        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("ap-northeast-1", s3ClientBuilder.getEndpoint().getSigningRegion());
+
+        // Test for Digital Ocean Spaces
+        datasourceConfiguration.getProperties().get(1).setValue("digital-ocean-spaces");
+        datasourceConfiguration.getEndpoints().get(0).setHost("fra1.digitaloceanspaces.com");
+
+        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
+
+        // Test for Dream Objects
+        datasourceConfiguration.getProperties().get(1).setValue("dream-objects");
+        datasourceConfiguration.getEndpoints().get(0).setHost("objects-us-east-1.dream.io");
+
+        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
+        assertEquals("us-east-1", s3ClientBuilder.getEndpoint().getSigningRegion());
+    }
+
+    @Test
+    public void testExtractRegionFromEndpointWithBadEndpointFormat() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        // Testing for Upcloud here. Flow for other listed service providers is same, hence not testing separately.
+        datasourceConfiguration.getProperties().get(1).setValue("upcloud");
+        datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2..de-fra1.upcloudobjects.com");
+
+        StepVerifier.create(Mono.fromCallable(() -> getS3ClientBuilder(datasourceConfiguration)))
+                .expectErrorSatisfies(error -> {
+                    String expectedErrorMessage = "Your S3 endpoint URL seems to be incorrect for the selected S3 " +
+                            "service provider. Please check your endpoint URL and the selected S3 service provider.";
+                    assertEquals(expectedErrorMessage, error.getMessage());
+                })
+                .verify();
+    }
 }

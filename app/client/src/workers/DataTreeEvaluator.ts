@@ -66,6 +66,7 @@ import { substituteDynamicBindingWithValues } from "workers/evaluationSubstituti
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 
 export default class DataTreeEvaluator {
@@ -696,7 +697,7 @@ export default class DataTreeEvaluator {
           diffs,
         },
       });
-      console.error("CYCLICAL DEPENDENCY MAP", dependencyMap);
+      logError("CYCLICAL DEPENDENCY MAP", dependencyMap);
       throw new CrashingError(e.message);
     }
   }

@@ -20,6 +20,7 @@ import {
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
+import * as log from "loglevel";
 
 const ctx: Worker = self as any;
 
@@ -42,7 +43,7 @@ function messageEventListener(
         timeTaken: (endTime - startTime).toFixed(2),
       });
     } catch (e) {
-      console.error(e);
+      log.error(e);
       // we dont want to log dataTree because it is huge.
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { dataTree, ...rest } = requestData;
@@ -124,7 +125,7 @@ ctx.addEventListener(
               type: EvalErrorTypes.UNKNOWN_ERROR,
               message: e.message,
             });
-            console.error(e);
+            log.error(e);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
@@ -267,7 +268,7 @@ ctx.addEventListener(
           ? evaluate(expression, evalTree, {}, [], true)
           : evaluate(expression, evalTree, {});
       default: {
-        console.error("Action not registered on worker", method);
+        log.error("Action not registered on worker", method);
       }
     }
   }),

@@ -79,6 +79,7 @@ export type DropdownProps = CommonComponentProps &
     dontUsePortal?: boolean;
     hideSubText?: boolean;
     boundary?: PopperBoundary;
+    defaultIcon?: IconName;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -685,7 +686,7 @@ export default function Dropdown(props: DropdownProps) {
             <DropdownIcon
               fillColor={downIconColor}
               hoverFillColor={downIconColor}
-              name="expand-more"
+              name={props.defaultIcon || "expand-more"}
               size={IconSize.XXL}
             />
           )
