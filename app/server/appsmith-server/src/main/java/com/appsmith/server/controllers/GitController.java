@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
-import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -162,9 +162,9 @@ public class GitController {
     }
 
     @GetMapping("/merge/status/{defaultApplicationId}")
-    public Mono<ResponseDTO<MergeStatus>> mergeStatus(@PathVariable String defaultApplicationId,
-                                                      @RequestParam String sourceBranch,
-                                                      @RequestParam String destinationBranch) {
+    public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(@PathVariable String defaultApplicationId,
+                                                         @RequestParam String sourceBranch,
+                                                         @RequestParam String destinationBranch) {
         log.debug("Check if branch {} can be merged with branch {} for application {}", sourceBranch, destinationBranch, defaultApplicationId);
         return service.isBranchMergeable(defaultApplicationId, sourceBranch, destinationBranch)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
