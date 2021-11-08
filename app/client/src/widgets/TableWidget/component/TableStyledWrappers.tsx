@@ -229,7 +229,8 @@ export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
 }>`
-  background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
+  background: ${(props) =>
+    props.disabled ? Colors.BUTTON_DISABLED : Colors.WHITE};
   border: 1px solid ${Colors.ALTO2};
   box-sizing: border-box;
   width: 24px;
@@ -242,6 +243,9 @@ export const PaginationItemWrapper = styled.div<{
   cursor: pointer;
   &:hover {
     border-color: ${Colors.GREEN};
+  }
+  .bp3-icon svg {
+    fill: ${(props) => (props.disabled ? Colors.WHITE : "")};
   }
 `;
 
@@ -278,8 +282,7 @@ export const ActionWrapper = styled.div<{
       text-decoration: none;
     }
     &&& .bp3-disabled {
-      color: ${Colors.SLATE_GRAY};
-      background: ${Colors.MERCURY};
+      background: ${Colors.BUTTON_DISABLED};
     }
   }
 `;
