@@ -34,9 +34,20 @@ describe("evaluate", () => {
     setupEvaluationEnvironment();
   });
   it("unescapes string before evaluation", () => {
-    const js = '"Hello!"';
+    const js = '\\"Hello!\\"';
     const response = evaluate(js, {}, {});
     expect(response.result).toBe("Hello!");
+  });
+  it("evaluate string post unescape in v1", () => {
+    const js = '[1, 2, 3].join("\\\\n")';
+    const response = evaluate(js, {}, {});
+    expect(response.result).toBe("1\n2\n3");
+  });
+  it("evaluate string without unescape in v2", () => {
+    self.evaluationVersion = 2;
+    const js = '[1, 2, 3].join("\\n")';
+    const response = evaluate(js, {}, {});
+    expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
