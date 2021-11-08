@@ -99,6 +99,7 @@ export default function ProfileDropdown(props: TagProps) {
       position={Position.BOTTOM_RIGHT}
     >
       <ProfileImage
+        className="t--profile-menu-icon"
         source={props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
         userName={props.name || props.userName}
       />

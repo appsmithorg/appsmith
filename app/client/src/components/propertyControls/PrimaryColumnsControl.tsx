@@ -6,13 +6,13 @@ import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
-  StyledInputGroup,
   StyledDragIcon,
   StyledEditIcon,
   StyledDeleteIcon,
   StyledVisibleIcon,
   StyledHiddenIcon,
   StyledPropertyPaneButton,
+  StyledOptionControlInputGroup,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { Indices } from "constants/Layers";
@@ -54,27 +54,6 @@ const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
-  margin-bottom: 2px;
-  width: 100%;
-  padding-left: 10px;
-  padding-right: 60px;
-  text-overflow: ellipsis;
-  background: inherit;
-  &&& {
-    input {
-      padding-left: 24px;
-      border: none;
-      color: ${(props) => props.theme.colors.textOnDarkBG};
-      &:focus {
-        border: none;
-        color: ${(props) => props.theme.colors.textOnDarkBG};
-      }
-    }
-  }
 `;
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`
