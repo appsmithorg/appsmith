@@ -380,7 +380,10 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
             id = removeSpecialChars(value.id, 200);
           } else if (Object.keys(value)) {
             const onlyKey = Object.keys(value)[0] as keyof ColumnProperties;
-            const obj = value[onlyKey] as any;
+            const obj: ColumnProperties = value[onlyKey] as any;
+            if (!obj.id && !obj.columnType) {
+              continue;
+            }
             value = obj as ColumnProperties;
             id = removeSpecialChars(value.id, 200);
           }
