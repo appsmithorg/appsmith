@@ -9,6 +9,7 @@ import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import * as log from "loglevel";
 
 export type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -195,11 +196,11 @@ export function ToastComponent(
 export const Toaster = {
   show: (config: ToastProps) => {
     if (typeof config.text !== "string") {
-      console.error("Toast message needs to be a string");
+      log.error("Toast message needs to be a string");
       return;
     }
     if (config.variant && !Object.values(Variant).includes(config.variant)) {
-      console.error(
+      log.error(
         "Toast type needs to be a one of " + Object.values(Variant).join(", "),
       );
       return;
