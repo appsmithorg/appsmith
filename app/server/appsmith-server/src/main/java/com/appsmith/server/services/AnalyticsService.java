@@ -52,7 +52,7 @@ public class AnalyticsService {
         return value == null ? "" : DigestUtils.sha256Hex(value);
     }
 
-    public Mono<User> trackNewUser(User user, UserData userData) {
+    public Mono<User> identifyUser(User user, UserData userData) {
         if (!isActive()) {
             return Mono.just(user);
         }
@@ -87,6 +87,18 @@ public class AnalyticsService {
                     analytics.flush();
                     return savedUser;
                 });
+    }
+
+    public void identifyInstance(String instanceId, String role, String useCase) {
+        analytics.enqueue(IdentifyMessage.builder()
+                .userId(instanceId)
+                .traits(Map.of(
+                        "isInstance", true,  // Is this "identify" data-point for a user or an instance?
+                        "role", ObjectUtils.defaultIfNull(role, ""),
+                        "goal", ObjectUtils.defaultIfNull(useCase, "")
+                ))
+        );
+        analytics.flush();
     }
 
     public void sendEvent(String event, String userId, Map<String, Object> properties) {
