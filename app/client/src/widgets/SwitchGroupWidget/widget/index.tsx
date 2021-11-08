@@ -1,13 +1,12 @@
 import React from "react";
-import _, { compact } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import SwitchGroupComponent, { OptionProps } from "../component";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -33,7 +32,6 @@ class SwitchGroupWidget extends BaseWidget<
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
-                    // required: true,
                     allowedKeys: [
                       {
                         name: "label",
@@ -144,71 +142,29 @@ class SwitchGroupWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedValues: "defaultSelectedValues",
+      selectedValuesArray: "defaultSelectedValues",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedValues: undefined,
+      selectedValuesArray: undefined,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
+      selectedValues: `{{
+        this.selectedValuesArray.filter(
+          selectedValue => this.options.map(option => option.value).includes(selectedValue)
+        )
+      }}`,
     };
   }
 
   static getWidgetType(): string {
     return "SWITCH_GROUP_WIDGET";
-  }
-
-  componentDidUpdate(prevProps: SwitchGroupWidgetProps) {
-    const prevOptionsLength = prevProps.options.length;
-    const optionsLength = this.props.options.length;
-
-    // Update if an option is added or removed and any value inside options changes
-    if (
-      optionsLength !== prevOptionsLength ||
-      !_(this.props.options)
-        .differenceWith(prevProps.options, _.isEqual)
-        .isEmpty()
-    ) {
-      const prevOptions = compact(prevProps.options).map(
-        (prevOption) => prevOption.value,
-      );
-      const options = compact(this.props.options).map((option) => option.value);
-
-      let diffOptions = prevOptions.filter(
-        (prevOption) => !options.includes(prevOption),
-      );
-
-      if (optionsLength >= prevOptionsLength) {
-        diffOptions = options.filter((option) => !prevOptions.includes(option));
-      }
-
-      let selectedValues = this.props.selectedValues.filter(
-        (selectedValue: string) => !diffOptions.includes(selectedValue),
-      );
-
-      if (optionsLength >= prevOptionsLength) {
-        const defaultSelectedValues = this.props.defaultSelectedValues;
-        selectedValues = selectedValues.concat(
-          defaultSelectedValues.filter((defaultSelectedValue: string) =>
-            diffOptions.includes(defaultSelectedValue),
-          ),
-        );
-      }
-
-      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
-        triggerPropertyName: "onSelectionChange",
-        dynamicString: this.props.onSelectionChange,
-        event: {
-          type: EventType.ON_SWITCH_GROUP_SELECTION_CHANGE,
-        },
-      });
-    }
   }
 
   getPageView() {
@@ -238,23 +194,27 @@ class SwitchGroupWidget extends BaseWidget<
 
   private handleSwitchStateChange = (value: string) => {
     return (event: React.FormEvent<HTMLElement>) => {
-      let { selectedValues } = this.props;
+      let { selectedValuesArray } = this.props;
       const isChecked = (event.target as HTMLInputElement).checked;
       if (isChecked) {
-        selectedValues = [...selectedValues, value];
+        selectedValuesArray = [...selectedValuesArray, value];
       } else {
-        selectedValues = selectedValues.filter(
+        selectedValuesArray = selectedValuesArray.filter(
           (item: string) => item !== value,
         );
       }
 
-      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
-        triggerPropertyName: "onSelectionChange",
-        dynamicString: this.props.onSelectionChange,
-        event: {
-          type: EventType.ON_SWITCH_GROUP_SELECTION_CHANGE,
+      this.props.updateWidgetMetaProperty(
+        "selectedValuesArray",
+        selectedValuesArray,
+        {
+          triggerPropertyName: "onSelectionChange",
+          dynamicString: this.props.onSelectionChange,
+          event: {
+            type: EventType.ON_SWITCH_GROUP_SELECTION_CHANGE,
+          },
         },
-      });
+      );
     };
   };
 }
