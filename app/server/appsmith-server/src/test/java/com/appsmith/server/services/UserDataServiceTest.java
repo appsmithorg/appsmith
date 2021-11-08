@@ -36,6 +36,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -191,10 +192,17 @@ public class UserDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateLastUsedOrgList_WhenListIsEmpty_orgIdPrepended() {
-        String sampleOrgId = "abcd";
+        String sampleOrgId = UUID.randomUUID().toString();
         Application application = new Application();
         application.setOrganizationId(sampleOrgId);
-        final Mono<UserData> saveMono = userDataService.updateLastUsedAppAndOrgList(application);
+
+        final Mono<UserData> saveMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // set recently used org ids to null
+            userData.setRecentlyUsedOrgIds(null);
+            return userDataRepository.save(userData);
+        }).then(userDataService.updateLastUsedAppAndOrgList(application));
+
+        userDataService.updateLastUsedAppAndOrgList(application);
         StepVerifier.create(saveMono).assertNext(userData -> {
             Assert.assertEquals(1, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals(sampleOrgId, userData.getRecentlyUsedOrgIds().get(0));
