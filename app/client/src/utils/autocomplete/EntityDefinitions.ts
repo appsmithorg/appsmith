@@ -390,8 +390,8 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/recorder",
     isVisible: isVisible,
     blobUrl: "string",
-    dataAsDataURL: "string",
-    dataAsRawBinary: "string",
+    dataURL: "string",
+    rawBinary: "string",
   },
 };
 
