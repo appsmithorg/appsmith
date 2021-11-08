@@ -23,10 +23,11 @@ import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
-import { parseJSCollection, executeFunction } from "./EvaluationsSaga";
+import { executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 import {
   getDifferenceInJSCollection,
+  JSUpdate,
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
 } from "../utils/JSPaneUtils";
@@ -34,6 +35,7 @@ import JSActionAPI, { RefactorAction } from "../api/JSActionAPI";
 import {
   updateJSCollectionSuccess,
   refactorJSCollectionAction,
+  updateJSCollectionBodySuccess,
 } from "actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -113,18 +115,15 @@ function* handleJSCollectionCreatedSaga(
   history.push(JS_COLLECTION_ID_URL(applicationId, pageId, id, {}));
 }
 
-function* handleUpdateJSCollection(
-  actionPayload: ReduxAction<{ body: string }>,
-) {
-  const { body } = actionPayload.payload;
-  const jsActionId = getJSCollectionIdFromURL();
+function* handleEachUpdateJSCollection(update: JSUpdate) {
+  const jsActionId = update.id;
   const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
-    const parsedBody = yield call(parseJSCollection, body, jsAction);
+    const parsedBody = update.parsedBody;
     const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
     if (parsedBody) {
-      jsActionTobeUpdated.body = body;
+      // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
       if (data.nameChangedActions.length) {
         for (let i = 0; i < data.nameChangedActions.length; i++) {
@@ -145,8 +144,11 @@ function* handleUpdateJSCollection(
         let newActions: Partial<JSAction>[] = [];
         let updateActions: JSAction[] = [];
         let deletedActions: JSAction[] = [];
-        if (parsedBody.variables) {
+        let updateCollection = false;
+        const changedVariables = data.changedVariables;
+        if (changedVariables.length) {
           jsActionTobeUpdated.variables = parsedBody.variables;
+          updateCollection = true;
         }
         if (data.newActions.length) {
           newActions = data.newActions;
@@ -156,6 +158,7 @@ function* handleUpdateJSCollection(
               organizationId: organizationId,
             });
           }
+          updateCollection = true;
         }
         if (data.updateActions.length > 0) {
           updateActions = data.updateActions;
@@ -168,6 +171,7 @@ function* handleUpdateJSCollection(
                 ) || js,
             );
           }
+          updateCollection = true;
           jsActionTobeUpdated.actions = changedActions;
         }
         if (data.deletedActions.length > 0) {
@@ -179,24 +183,35 @@ function* handleUpdateJSCollection(
               });
             },
           );
+          updateCollection = true;
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
-        yield call(updateJSCollection, {
-          jsCollection: jsActionTobeUpdated,
-          newActions: newActions,
-          updatedActions: updateActions,
-          deletedActions: deletedActions,
-        });
+        if (updateCollection) {
+          yield call(updateJSCollection, {
+            jsCollection: jsActionTobeUpdated,
+            newActions: newActions,
+            updatedActions: updateActions,
+            deletedActions: deletedActions,
+          });
+        }
       }
     }
   }
 }
 
+export function* makeUpdateJSCollection(jsUpdates: Record<string, JSUpdate>) {
+  yield all(
+    Object.keys(jsUpdates).map((key) =>
+      call(handleEachUpdateJSCollection, jsUpdates[key]),
+    ),
+  );
+}
+
 function* updateJSCollection(data: {
   jsCollection: JSCollection;
-  newActions: Partial<JSAction>[];
-  updatedActions: JSAction[];
-  deletedActions: JSAction[];
+  newActions?: Partial<JSAction>[];
+  updatedActions?: JSAction[];
+  deletedActions?: JSAction[];
 }) {
   let jsAction = {};
   const jsActionId = getJSCollectionIdFromURL();
@@ -209,21 +224,21 @@ function* updateJSCollection(data: {
       const response = yield JSActionAPI.updateJSCollection(jsCollection);
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
-        if (newActions.length) {
+        if (newActions && newActions.length) {
           pushLogsForObjectUpdate(
             newActions,
             jsCollection,
             createMessage(JS_FUNCTION_CREATE_SUCCESS),
           );
         }
-        if (updatedActions.length) {
+        if (updatedActions && updatedActions.length) {
           pushLogsForObjectUpdate(
             updatedActions,
             jsCollection,
             createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
         }
-        if (deletedActions.length) {
+        if (deletedActions && deletedActions.length) {
           pushLogsForObjectUpdate(
             deletedActions,
             jsCollection,
@@ -337,6 +352,27 @@ function* handleExecuteJSFunctionSaga(
   }
 }
 
+function* handleUpdateJSCollectionBody(
+  actionPayload: ReduxAction<{ body: string; id: string }>,
+) {
+  const jsCollection = yield select(getJSCollection, actionPayload.payload.id);
+  jsCollection.body = actionPayload.payload.body;
+  try {
+    if (jsCollection) {
+      const response = yield JSActionAPI.updateJSCollection(jsCollection);
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put(updateJSCollectionBodySuccess({ data: response?.data }));
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_JS_ACTION_BODY_ERROR,
+      payload: { error, data: jsCollection },
+    });
+  }
+}
+
 function* handleRefactorJSActionNameSaga(
   data: ReduxAction<{
     refactorAction: RefactorAction;
@@ -399,11 +435,6 @@ export default function* root() {
       ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
       handleJSCollectionCreatedSaga,
     ),
-    debounce(
-      100,
-      ReduxActionTypes.UPDATE_JS_ACTION_INIT,
-      handleUpdateJSCollection,
-    ),
     takeEvery(
       ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
       handleJSObjectNameChangeSuccessSaga,
@@ -415,6 +446,11 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
       handleRefactorJSActionNameSaga,
+    ),
+    debounce(
+      100,
+      ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT,
+      handleUpdateJSCollectionBody,
     ),
   ]);
 }

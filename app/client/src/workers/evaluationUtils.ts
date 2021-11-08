@@ -18,13 +18,14 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   DataTreeJSAction,
+  EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { JSCollection, Variable } from "entities/JSCollection";
-import evaluate from "workers/evaluate";
+import { Variable } from "entities/JSCollection";
+import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -532,79 +533,178 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
   );
 };
 
-/*
-  after every update  get js object body to parse into actions and variables 
-*/
-export const parseJSCollection = (
-  body: string,
-  jsCollection: JSCollection,
-  evalTree: DataTree,
-): Record<string, any> => {
-  const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
-  const correctFormat = regex.test(body);
-  if (correctFormat) {
-    const toBeParsedBody = body.replace(/export default/g, "");
-    try {
-      const { errors, result } = evaluate(
-        toBeParsedBody,
-        evalTree,
-        {},
-        undefined,
-        true,
-      );
-      const errorsList = errors && errors.length ? errors : [];
-      _.set(
-        evalTree,
-        `${jsCollection.name}.${EVAL_ERROR_PATH}.body`,
-        errorsList,
-      );
-      const parsedLength = Object.keys(result).length;
-      const actions = [];
-      const variables = [];
-      if (parsedLength > 0) {
-        for (const key in result) {
-          if (result.hasOwnProperty(key)) {
-            if (typeof result[key] === "function") {
-              const value = result[key];
-              const params = getParams(value);
-              actions.push({
-                name: key,
-                body: result[key].toString(),
-                arguments: params,
-              });
-            } else {
-              variables.push({
-                name: key,
-                value: result[key],
-              });
-            }
-          }
+export const updateJSCollectionInDataTree = (
+  parsedBody: ParsedBody,
+  jsCollection: DataTreeJSAction,
+  dataTree: DataTree,
+) => {
+  const modifiedDataTree: any = dataTree;
+  const functionsList: Array<string> = [];
+  const varList: Array<string> = jsCollection.variables;
+  Object.keys(jsCollection.meta).forEach((action) => {
+    functionsList.push(action);
+  });
+
+  const reg = /this\./g;
+
+  if (parsedBody.actions && parsedBody.actions.length > 0) {
+    for (let i = 0; i < parsedBody.actions.length; i++) {
+      const action = parsedBody.actions[i];
+      if (jsCollection.hasOwnProperty(action.name)) {
+        if (jsCollection[action.name] !== action.body) {
+          _.set(
+            modifiedDataTree,
+            `${jsCollection.name}.${action.name}`,
+            action.body.toString(),
+          );
         }
+      } else {
+        const bindingPaths = jsCollection.bindingPaths;
+        bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+        _.set(modifiedDataTree, `${jsCollection}.bindingPaths`, bindingPaths);
+        const dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList.push({ key: action.name });
+        _.set(
+          modifiedDataTree,
+          `${jsCollection}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+        const dependencyMap = jsCollection.dependencyMap;
+        dependencyMap["body"].push(action.name);
+        _.set(modifiedDataTree, `${jsCollection}.dependencyMap`, dependencyMap);
+        const meta = jsCollection.meta;
+        meta[action.name] = { arguments: action.arguments };
+        _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        const actionBody = action.body.replaceAll(reg, `${jsCollection.name}.`);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.${action.name}`,
+          actionBody,
+        );
       }
-      return {
-        evalTree,
-        result: {
-          actions: actions,
-          variables: variables,
-        },
-      };
-    } catch (e) {
-      return {
-        evalTree,
-      };
     }
-  } else {
-    const errors = [
-      {
-        errorType: PropertyEvaluationErrorType.PARSE,
-        raw: "",
-        severity: Severity.ERROR,
-        errorMessage: "Start object with export default",
-      },
-    ];
-    _.set(evalTree, `${jsCollection.name}.${EVAL_ERROR_PATH}.body`, errors);
-    return {
-      evalTree,
-    };
   }
+  if (functionsList && functionsList.length > 0) {
+    for (let i = 0; i < functionsList.length; i++) {
+      const preAction = functionsList[i];
+      const existed = parsedBody.actions.find(
+        (js: ParsedJSSubAction) => js.name === preAction,
+      );
+      if (!existed) {
+        const bindingPaths = jsCollection.bindingPaths;
+        delete bindingPaths[preAction];
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.bindingPaths`,
+          bindingPaths,
+        );
+        let dynamicBindingPathList = jsCollection.dynamicBindingPathList;
+        dynamicBindingPathList = dynamicBindingPathList.filter(
+          (path) => path["key"] !== preAction,
+        );
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.dynamicBindingPathList`,
+          dynamicBindingPathList,
+        );
+        const dependencyMap = jsCollection.dependencyMap["body"];
+        const removeIndex = dependencyMap.indexOf(preAction);
+        if (removeIndex > -1) {
+          const updatedDMap = dependencyMap.filter(
+            (item) => item !== preAction,
+          );
+          _.set(
+            modifiedDataTree,
+            `${jsCollection.name}.dependencyMap.body`,
+            updatedDMap,
+          );
+        }
+        const meta = jsCollection.meta;
+        delete meta[preAction];
+        _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
+        delete modifiedDataTree[`${jsCollection.name}`][`${preAction}`];
+      }
+    }
+  }
+  if (parsedBody.variables.length) {
+    for (let i = 0; i < parsedBody.variables.length; i++) {
+      const newVar = parsedBody.variables[i];
+      const existedVar = varList.indexOf(newVar.name);
+      if (existedVar > -1) {
+        const existedVarVal = jsCollection[newVar.name];
+        if (existedVarVal.toString() !== newVar.value.toString()) {
+          _.set(
+            modifiedDataTree,
+            `${jsCollection.name}.${newVar.name}`,
+            newVar.value,
+          );
+        }
+      } else {
+        varList.push(newVar.name);
+        _.set(modifiedDataTree, `${jsCollection.name}.variables`, varList);
+        _.set(
+          modifiedDataTree,
+          `${jsCollection.name}.${newVar.name}`,
+          newVar.value,
+        );
+      }
+    }
+    let newVarList: Array<string> = [];
+    for (let i = 0; i < varList.length; i++) {
+      const varListItem = varList[i];
+      const existsInParsed = parsedBody.variables.find(
+        (item) => item.name === varListItem,
+      );
+      if (!existsInParsed) {
+        delete modifiedDataTree[`${jsCollection.name}`][`${varListItem}`];
+        newVarList = varList.filter((item) => item !== varListItem);
+      }
+    }
+    if (newVarList.length) {
+      _.set(modifiedDataTree, `${jsCollection.name}.variables`, newVarList);
+    }
+  }
+  return modifiedDataTree;
+};
+
+export const removeFunctionsAndVariableJSCollection = (
+  dataTree: DataTree,
+  entity: DataTreeJSAction,
+) => {
+  const modifiedDataTree: any = dataTree;
+  const functionsList: Array<string> = [];
+  Object.keys(entity.meta).forEach((action) => {
+    functionsList.push(action);
+  });
+  //removed variables
+  const varList: Array<string> = entity.variables;
+  _.set(modifiedDataTree, `${entity.name}.variables`, []);
+  for (let i = 0; i < varList.length; i++) {
+    const varName = varList[i];
+    delete modifiedDataTree[`${entity.name}`][`${varName}`];
+  }
+  //remove functions
+  let dynamicBindingPathList = entity.dynamicBindingPathList;
+  const bindingPaths = entity.bindingPaths;
+  const meta = entity.meta;
+  let dependencyMap = entity.dependencyMap["body"];
+  for (let i = 0; i < functionsList.length; i++) {
+    const actionName = functionsList[i];
+    delete bindingPaths[actionName];
+    delete meta[actionName];
+    delete modifiedDataTree[`${entity.name}`][`${actionName}`];
+    dynamicBindingPathList = dynamicBindingPathList.filter(
+      (path: any) => path["key"] !== actionName,
+    );
+    dependencyMap = dependencyMap.filter((item: any) => item !== actionName);
+  }
+  _.set(modifiedDataTree, `${entity.name}.bindingPaths`, bindingPaths);
+  _.set(
+    modifiedDataTree,
+    `${entity.name}.dynamicBindingPathList`,
+    dynamicBindingPathList,
+  );
+  _.set(modifiedDataTree, `${entity.name}.dependencyMap.body`, dependencyMap);
+  _.set(modifiedDataTree, `${entity.name}.meta`, meta);
+  return modifiedDataTree;
 };
