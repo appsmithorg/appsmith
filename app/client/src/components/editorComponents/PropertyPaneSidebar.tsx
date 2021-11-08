@@ -14,6 +14,7 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { zIndexLayers } from "constants/CanvasEditorConstants";
 
 type Props = {
   width: number;
@@ -68,7 +69,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     <div className="relative">
       {/* RESIZOR */}
       <div
-        className="absolute top-0 left-0 w-2 h-full -ml-2 group z-4 cursor-ew-resize"
+        className={`absolute top-0 left-0 w-2 h-full -ml-2 group  cursor-ew-resize ${zIndexLayers.RESIZER}`}
         onMouseDown={onMouseDown}
         onTouchEnd={onMouseUp}
         onTouchStart={onTouchStart}
@@ -83,7 +84,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       {/* PROPERTY PANE */}
       <div
         className={classNames({
-          "js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full z-3 border-l border-gray-200 transform transition duration-300": true,
+          [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${zIndexLayers.PROPERTY_PANE}`]: true,
           "relative ": !isPreviewMode,
           "fixed translate-x-full right-0": isPreviewMode || isCommentMode,
         })}

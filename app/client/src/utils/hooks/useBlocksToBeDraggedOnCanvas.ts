@@ -9,7 +9,7 @@ import { AppState } from "reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import {
   getDropZoneOffsets,

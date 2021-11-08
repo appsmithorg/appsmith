@@ -1,8 +1,8 @@
 import classNames from "classnames";
 import history from "utils/history";
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
 import { PanelStack } from "@blueprintjs/core";
+import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useRef, useCallback, useState } from "react";
 
 import PerformanceTracker, {
@@ -30,13 +30,14 @@ import {
   getExplorerActive,
   getExplorerPinned,
 } from "selectors/explorerSelector";
+import TooltipComponent from "components/ads/Tooltip";
+import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { previewModeSelector } from "selectors/editorSelectors";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import TooltipComponent from "components/ads/Tooltip";
 
 type Props = {
   width: number;
@@ -189,7 +190,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        "js-entity-explorer t--entity-explorer transform transition-all flex h-full z-3 duration-400 border-r border-gray-200": true,
+        [`js-entity-explorer t--entity-explorer transform transition-all flex h-full  duration-400 border-r border-gray-200 ${zIndexLayers.ENTITY_EXPLORER}`]: true,
         "relative ": pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         "shadow-xl": !pinned,
@@ -249,7 +250,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       </div>
       {/* RESIZER */}
       <div
-        className="absolute z-10 w-2 h-full -mr-1 group cursor-ew-resize"
+        className={`absolute w-2 h-full -mr-1 ${zIndexLayers.RESIZER} group cursor-ew-resize`}
         onMouseDown={resizer.onMouseDown}
         onMouseEnter={onHoverResizer}
         onMouseLeave={onHoverEndResizer}
