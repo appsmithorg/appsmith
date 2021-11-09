@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -60,6 +62,8 @@ public class FileUtilsImpl implements FileInterface {
     private static final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
     private static final Pattern FILE_EXTENSION_PATTERN = Pattern.compile("([^/]*|LICENSE).(md|git|gitignore|)$");
+
+    private final Scheduler scheduler = Schedulers.elastic();
 
 
     /**
@@ -266,18 +270,20 @@ public class FileUtilsImpl implements FileInterface {
     @Override
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
                                         String viewModeUrl,
-                                        String editModeUrl) throws IOException {
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
+                                        String editModeUrl) {
+        return Mono.fromCallable(() -> {
+            ClassLoader classLoader = getClass().getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getReadmeTemplatePath());
 
-        StringWriter stringWriter = new StringWriter();
-        IOUtils.copy(inputStream, stringWriter, "UTF-8");
-        String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
+            StringWriter stringWriter = new StringWriter();
+            IOUtils.copy(inputStream, stringWriter, "UTF-8");
+            String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
 
-        File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
-        FileUtils.writeStringToFile(file, data, "UTF-8", true);
+            File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
+            FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
-        return Mono.just(baseRepoSuffix);
+            return baseRepoSuffix;
+        }).subscribeOn(scheduler);
     }
 
     @Override
@@ -303,7 +309,7 @@ public class FileUtilsImpl implements FileInterface {
                 }
             }
             return true;
-        });
+        }).subscribeOn(scheduler);
     }
 
     /**

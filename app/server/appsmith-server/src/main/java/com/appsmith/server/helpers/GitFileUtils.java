@@ -197,7 +197,7 @@ public class GitFileUtils {
      */
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
                                         String viewModeUrl,
-                                        String editModeUrl) throws IOException {
+                                        String editModeUrl) {
         return fileUtils.initializeGitRepo(baseRepoSuffix,viewModeUrl, editModeUrl);
     }
 

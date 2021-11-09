@@ -408,7 +408,8 @@ public class GitServiceImpl implements GitService {
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
                                         application.setGitApplicationMetadata(gitApplicationMetadata);
-                                        return applicationService.save(application);
+                                        return Mono.just(application);
+                                        //return applicationService.save(application);
                                     }
                                 });
                     } catch (IOException e) {
@@ -430,18 +431,27 @@ public class GitServiceImpl implements GitService {
                     String viewModeUrl = Paths.get("/", application.getId(),
                             Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
                     String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
+
                     //Initialize the repo with readme file
-                    try {
-                        fileUtils.initializeGitRepo(
-                                Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
-                                originHeader + viewModeUrl,
-                                originHeader + editModeUrl
-                        );
-                    } catch (IOException e) {
-                        log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-                    }
-                    return Mono.just(application);
+                    Mono<Path> filePath = fileUtils.initializeGitRepo(
+                            Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
+                            originHeader + viewModeUrl,
+                            originHeader + editModeUrl
+                    );
+                    return Mono.zip(filePath, Mono.just(application))
+                            .onErrorResume(throwable -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
+                })
+                .flatMap(tuple -> {
+                    //Commit and push the changes to remote repo
+                    Application application = tuple.getT2();
+                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, application.getGitApplicationMetadata().getRepoName());
+                    GitCommitDTO gitCommitDTO = new GitCommitDTO();
+                    gitCommitDTO.setDoPush(true);
+                    gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
+                    MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
+                    valueMap.add(FieldName.BRANCH_NAME, application.getGitApplicationMetadata().getBranchName());
+                    return commitApplication(gitCommitDTO, defaultApplicationId, valueMap)
+                            .then(applicationService.save(application));
                 });
     }
 
