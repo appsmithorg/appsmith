@@ -182,11 +182,8 @@ export function* evaluateDynamicTrigger(
   const unEvalTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
 
-  const {
-    requestChannel,
-    responseChannel,
-  } = yield call(
-    worker.startBiDirectionalRequest,
+  const { requestChannel, responseChannel } = yield call(
+    worker.duplexRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     { dataTree: unEvalTree, dynamicTrigger, callbackData },
   );
