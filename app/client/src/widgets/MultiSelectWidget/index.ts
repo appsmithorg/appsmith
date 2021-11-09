@@ -22,7 +22,7 @@ export const CONFIG = {
     version: 1,
     isRequired: false,
     isDisabled: false,
-    placeholderText: "Select Option(s)",
+    placeholderText: "Select option(s)",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

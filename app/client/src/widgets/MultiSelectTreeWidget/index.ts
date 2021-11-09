@@ -37,7 +37,7 @@ export const CONFIG = {
     isDisabled: false,
     allowClear: false,
     expandAll: false,
-    placeholderText: "select option(s)",
+    placeholderText: "Select option(s)",
     labelText: "Label",
   },
   properties: {

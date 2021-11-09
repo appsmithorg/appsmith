@@ -419,7 +419,6 @@ border: 1px solid #E8E8E8;
     width: 14px;
     height: 14px;
     direction: ltr;
-    background-color: #fff;
     border: 1px solid ${Colors.GREY_3};
     border-radius: 0px;
     border-collapse: separate;
@@ -533,6 +532,12 @@ border: 1px solid #E8E8E8;
 }
 .rc-tree-select-tree-treenode:hover {
 	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  .rc-tree-select-tree-title {
+    color: ${Colors.GREY_9};
+  }
+  .rc-tree-select-tree-checkbox-inner {
+    background-color: transparent;
+  }
 }
 .rc-tree-select-tree-treenode-checkbox-checked {
 	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};

@@ -59,10 +59,14 @@ export const DropdownStyles = createGlobalStyle`
 	flex: 1 1 0;
   overflow-wrap: break-word;
   overflow: hidden;
-  color: ${Colors.GREY_8}
+  color: ${Colors.GREY_8};
+  font-weight: 400;
 }
 .rc-select-item-option-active {
 	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  & .rc-select-item-option-content {
+    color: ${Colors.GREY_9};
+  }
 }
 .rc-select-item-option-selected {
 	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
@@ -446,6 +450,7 @@ export const StyledCheckbox = styled(Checkbox)`
     align-items: center;
     &:hover {
       background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_9} !important;
     }
   }
 `;
