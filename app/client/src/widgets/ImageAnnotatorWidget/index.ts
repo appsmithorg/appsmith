@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { AnnotationSelectorTypes } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -15,6 +16,8 @@ export const CONFIG = {
     imageUrl: "https://placekitten.com/408/287",
     isDisabled: false,
     isVisible: true,
+    defaultAnnotations: [],
+    selector: AnnotationSelectorTypes.RECTANGLE,
     version: 1,
   },
   properties: {

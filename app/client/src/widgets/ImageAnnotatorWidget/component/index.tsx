@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { Annotation, IAnnotation } from "react-image-annotation-ts";
+import { AnnotationSelector } from "../constants";
 
 const ImageAnnotatorContainer = styled.div`
   display: flex;
@@ -34,6 +35,7 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
     onChange,
     onReset,
     onSubmit,
+    selector,
   } = props;
 
   useEffect(() => {
@@ -62,6 +64,7 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
         onChange={handleChange}
         onSubmit={handleSubmit}
         src={imageUrl}
+        type={selector}
         value={annotation}
       />
     </ImageAnnotatorContainer>
@@ -76,6 +79,7 @@ export interface ImageAnnotatorComponentProps {
   onChange: (annotation: IAnnotation) => void;
   onReset: () => void;
   onSubmit: (annotation: IAnnotation) => void;
+  selector: AnnotationSelector;
 }
 
 export default ImageAnnotatorComponent;

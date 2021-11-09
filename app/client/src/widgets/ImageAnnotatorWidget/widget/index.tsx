@@ -2,9 +2,12 @@ import React from "react";
 import { IAnnotation } from "react-image-annotation-ts";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import ImageAnnotatorComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { AnnotationSelector, AnnotationSelectorTypes } from "../constants";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
+import ImageAnnotatorComponent from "../component";
 
 class ImageAnnotatorWidget extends BaseWidget<
   ImageAnnotatorWidgetProps,
@@ -45,20 +48,162 @@ class ImageAnnotatorWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "defaultAnnotations",
+            helpText: "Array of annotations",
+            label: "Default Annotations",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "selection",
+                        type: ValidationTypes.OBJECT,
+                        params: {
+                          allowedKeys: [
+                            {
+                              name: "mode",
+                              type: ValidationTypes.TEXT,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "showEditor",
+                              type: ValidationTypes.BOOLEAN,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "anchorX",
+                              type: ValidationTypes.NUMBER,
+                            },
+                            {
+                              name: "anchorY",
+                              type: ValidationTypes.NUMBER,
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        name: "geometry",
+                        type: ValidationTypes.OBJECT,
+                        params: {
+                          allowedKeys: [
+                            {
+                              name: "type",
+                              type: ValidationTypes.TEXT,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "x",
+                              type: ValidationTypes.NUMBER,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "y",
+                              type: ValidationTypes.NUMBER,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "height",
+                              type: ValidationTypes.NUMBER,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "width",
+                              type: ValidationTypes.NUMBER,
+                              params: {
+                                required: true,
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        name: "data",
+                        type: ValidationTypes.OBJECT,
+                        params: {
+                          allowedKeys: [
+                            {
+                              name: "text",
+                              type: ValidationTypes.TEXT,
+                              params: {
+                                required: true,
+                              },
+                            },
+                            {
+                              name: "id",
+                              type: ValidationTypes.NUMBER,
+                              params: {
+                                unique: true,
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            propertyName: "selector",
+            helpText: "Sets the selector of the widget",
+            label: "Selector",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Rectangle",
+                value: AnnotationSelectorTypes.RECTANGLE,
+              },
+              {
+                label: "Point",
+                value: AnnotationSelectorTypes.POINT,
+              },
+              {
+                label: "Oval",
+                value: AnnotationSelectorTypes.OVAL,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  AnnotationSelectorTypes.RECTANGLE,
+                  AnnotationSelectorTypes.POINT,
+                  AnnotationSelectorTypes.OVAL,
+                ],
+                default: AnnotationSelectorTypes.RECTANGLE,
+              },
+            },
+          },
         ],
       },
       {
         sectionName: "Actions",
         children: [
-          {
-            helpText: "Triggers an action when an annotation is changed",
-            propertyName: "onAnnotationChange",
-            label: "onAnnotationChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
           {
             helpText: "Triggers an action when an annotation is submitted",
             propertyName: "onAnnotationSubmit",
@@ -73,21 +218,21 @@ class ImageAnnotatorWidget extends BaseWidget<
     ];
   }
 
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      annotations: "defaultAnnotations",
+    };
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       annotation: {},
-      annotations: [],
+      annotations: undefined,
     };
   }
 
   handleAnnotationChange = (annotation: IAnnotation) => {
-    this.props.updateWidgetMetaProperty("annotation", annotation, {
-      triggerPropertyName: "onAnnotationChange",
-      dynamicString: this.props.onAnnotationChange,
-      event: {
-        type: EventType.ON_IMAGE_ANNOTATOR_ANNOTATION_CHANGE,
-      },
-    });
+    this.props.updateWidgetMetaProperty("annotation", annotation);
   };
 
   handleAnnotationSubmit = (annotation: IAnnotation) => {
@@ -122,7 +267,13 @@ class ImageAnnotatorWidget extends BaseWidget<
   };
 
   getPageView() {
-    const { annotation, annotations, imageUrl, isDisabled } = this.props;
+    const {
+      annotation,
+      annotations,
+      imageUrl,
+      isDisabled,
+      selector,
+    } = this.props;
 
     return (
       <div onBlur={this.enableDrag} onFocus={this.disableDrag} tabIndex={1}>
@@ -134,6 +285,7 @@ class ImageAnnotatorWidget extends BaseWidget<
           onChange={this.handleAnnotationChange}
           onReset={this.handleResetAnnotations}
           onSubmit={this.handleAnnotationSubmit}
+          selector={selector}
         />
       </div>
     );
@@ -150,8 +302,8 @@ export interface ImageAnnotatorWidgetProps extends WidgetProps {
   imageUrl: string;
   isDisabled: boolean;
   isVisible: boolean;
-  onAnnotationChange?: string;
   onAnnotationSubmit?: string;
+  selector: AnnotationSelector;
 }
 
 export default ImageAnnotatorWidget;
