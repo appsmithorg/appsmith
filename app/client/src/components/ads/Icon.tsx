@@ -103,11 +103,13 @@ import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
+import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
 import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
@@ -226,6 +228,7 @@ export const IconCollection = [
   "guide",
   "help",
   "invite-user",
+  "left-arrow-2",
   "lightning",
   "line-dashed",
   "line-dotted",
@@ -246,6 +249,7 @@ export const IconCollection = [
   "reaction-2",
   "read-pin",
   "right-arrow",
+  "right-arrow-2",
   "rocket",
   "search",
   "send-button",
@@ -496,6 +500,9 @@ const Icon = forwardRef(
       case "invite-user":
         returnIcon = <InviteUserIcon />;
         break;
+      case "left-arrow-2":
+        returnIcon = <LeftArrowIcon2 />;
+        break;
       case "lightning":
         returnIcon = <LightningIcon />;
         break;
@@ -555,6 +562,9 @@ const Icon = forwardRef(
         break;
       case "right-arrow":
         returnIcon = <RightArrowIcon />;
+        break;
+      case "right-arrow-2":
+        returnIcon = <RightArrowIcon2 />;
         break;
       case "rocket":
         returnIcon = <RocketIcon />;

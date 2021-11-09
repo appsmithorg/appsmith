@@ -76,7 +76,7 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
         if (orgId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organization id"));
         }
-        log.debug("Going to create resource {}", resource.getClass().getName());
+        log.debug("Going to create application in org {}", orgId);
         return applicationPageService.createApplication(resource, orgId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
