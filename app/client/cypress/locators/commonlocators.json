@@ -126,6 +126,7 @@
   "dropDownOptSelected": "//span[@type='p1']",
   "generalChevran":".t--property-pane-section-collapse-general  [icon=chevron-right]",
   "generalSection":".t--property-pane-section-general",
+  "isSortable": ".t--property-control-sortable input[type='checkbox']",
   "labelSection": ".cm-keyword",
   "lintWarning": ".CodeMirror-lint-mark-warning",
   "lintErrorMsg": ".CodeMirror-lint-message-error",
