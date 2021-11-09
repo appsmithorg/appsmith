@@ -611,6 +611,7 @@ function getWidgetMovementMap(
   direction: ResizeDirection,
   whiteSpace = 0,
   prevWidgetdistance: number,
+  dimensionBeforeCollision = 0,
   first = false,
 ) {
   if (widgetMovementMap[widgetPosition.id]) {
@@ -632,10 +633,14 @@ function getWidgetMovementMap(
     const childNodes = Object.values(widgetPosition.children);
     for (const childNode of childNodes) {
       let nextWhiteSpaces = 0;
+      let currentDimensionBeforeCollision = dimensionBeforeCollision;
       if (!first) {
         nextWhiteSpaces =
           whiteSpace +
           Math.abs(prevWidgetdistance - childNode[accessors.oppositeDirection]);
+      } else {
+        currentDimensionBeforeCollision =
+          childNode[accessors.oppositeDirection] - prevWidgetdistance;
       }
       const {
         currentWhiteSpace: childWhiteSpace,
@@ -650,6 +655,7 @@ function getWidgetMovementMap(
         direction,
         nextWhiteSpaces,
         childNode[accessors.direction],
+        currentDimensionBeforeCollision,
       );
       if (maxOccupiedSpace < occupiedSpace) currentWhiteSpace = childWhiteSpace;
       maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace || 0);
@@ -678,8 +684,8 @@ function getWidgetMovementMap(
       maxOccupiedSpace,
       depth,
       dimensionXBeforeCollision:
-        dimensions.X -
-        accessors.directionIndicator * widgetParentSpaces.parentColumnSpace,
+        dimensions.X +
+        dimensionBeforeCollision * widgetParentSpaces.parentColumnSpace,
       whiteSpaces: currentWhiteSpace,
       get X() {
         const originalWidth =
@@ -781,8 +787,8 @@ function getWidgetMovementMap(
       maxOccupiedSpace,
       depth,
       dimensionYBeforeCollision:
-        dimensions.Y -
-        accessors.directionIndicator * widgetParentSpaces.parentRowSpace,
+        dimensions.Y +
+        dimensionBeforeCollision * widgetParentSpaces.parentRowSpace,
       whiteSpaces: currentWhiteSpace,
       get Y() {
         const value =
@@ -1070,6 +1076,7 @@ function getMovementMapInDirection(
     direction,
     0,
     widgetPosition[accessors.direction],
+    0,
     true,
   );
   if (!widgetMovementMap && !widgetMovementMap[widgetCollisionGraph.id])

@@ -1,10 +1,8 @@
 import { reflowMove, startReflow, stopReflow } from "actions/reflowActions";
-import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { GridDefaults } from "constants/WidgetConstants";
-import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { OccupiedSpace } from "constants/editorConstants";
-import { ceil, cloneDeep } from "lodash";
-import { RefObject, useRef, useContext, useMemo } from "react";
+import { cloneDeep } from "lodash";
+import { RefObject, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Reflow,
@@ -14,11 +12,7 @@ import {
 } from "reducers/uiReducers/reflowReducer";
 import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { generateClassName } from "utils/generators";
-import { XYCord } from "utils/hooks/useCanvasDragging";
-import { getSnapColumns, Rect } from "utils/WidgetPropsUtils";
-import { WidgetRowCols } from "widgets/BaseWidget";
-import { getReflowWidgetSelector } from "selectors/widgetReflowSelectors";
+import { Rect } from "utils/WidgetPropsUtils";
 import { WidgetDraggingBlock } from "utils/hooks/useBlocksToBeDraggedOnCanvas";
 
 type WidgetCollisionGraph = OccupiedSpace & {
@@ -29,30 +23,6 @@ type WidgetCollisionGraph = OccupiedSpace & {
 
 const HORIZONTAL_RESIZE_LIMIT = 2;
 const VERTICAL_RESIZE_LIMIT = 4;
-
-const computeRowCols = (
-  delta: UIElementSize,
-  position: XYCord,
-  widgetPosition: OccupiedSpace,
-  widgetParentSpaces: WidgetParentSpaces,
-) => {
-  return {
-    leftColumn: Math.round(
-      widgetPosition.left + position.x / widgetParentSpaces.parentColumnSpace,
-    ),
-    topRow: Math.round(
-      widgetPosition.top + position.y / widgetParentSpaces.parentRowSpace,
-    ),
-    rightColumn: Math.round(
-      widgetPosition.right +
-        (delta.width + position.x) / widgetParentSpaces.parentColumnSpace,
-    ),
-    bottomRow: Math.round(
-      widgetPosition.bottom +
-        (delta.height + position.y) / widgetParentSpaces.parentRowSpace,
-    ),
-  };
-};
 
 export type WidgetParentSpaces = {
   parentColumnSpace: number;
@@ -116,7 +86,7 @@ export const useDragReflow = (
       bottom: newDimensions.top + newDimensions.height,
       id: newDimensions.widgetId,
     };
-
+    // const isRetracing = positonmetrics;
     const { collidingWidgets } = getCollidingWidgets(
       resizedPositions,
       widgetId,
@@ -267,13 +237,13 @@ export const useDragReflow = (
         reflowing.staticWidget = newStaticWidget;
       } else {
         //eslint-disable-next-line
-        const reflowingWidgets = reflowing.reflowingWidgets!;
+        const reflowingWidgets = reflowing.reflowingWidgets || {};
         const affectedwidgetIds = Object.keys(reflowingWidgets);
         ({ horizontalMove, verticalMove } = getShouldResize(newStaticWidget, {
           X,
           Y,
         }));
-        const widgetMovementMap: reflowWidgets = {};
+        const widgetMovementMap: reflowWidgets = reflowingWidgets;
         newStaticWidget = getMovementMapInDirection(
           widgetMovementMap,
           occupiedSpacesBySiblingWidgets,
@@ -375,6 +345,8 @@ function getWidgetCollisionGraphInDirection(
   widgetPosition: WidgetCollisionGraph,
   collidingWidgets: OccupiedSpace[],
   accessors: CollisionAccessors,
+  widgetMovementMap: reflowWidgets,
+  widgetParentSpaces: WidgetParentSpaces,
 ) {
   const widgetCollisionGraph: WidgetCollisionGraph = {
     ...widgetPosition,
@@ -399,8 +371,34 @@ function getWidgetCollisionGraphInDirection(
   if (collidingWidgetsInDirection.length <= 0) return;
   for (const collidingWidget of collidingWidgetsInDirection) {
     const collidingWidgetGraph = { ...collidingWidget, children: {} };
+    const reflowingWidget = widgetMovementMap[collidingWidget.id];
+    const reflowIndicator = accessors.isHorizontal ? "X" : "Y";
+    const reflowResizeIndicator = accessors.isHorizontal ? "x" : "y";
+    const movement = reflowingWidget
+      ? reflowingWidget[reflowIndicator] || 0
+      : 0;
+    const sizeUpdate = reflowingWidget
+      ? reflowingWidget[reflowResizeIndicator] || 0
+      : 0;
+    const isRetracing =
+      reflowingWidget &&
+      ((accessors.directionIndicator === 1 ? movement < 0 : movement > 0) ||
+        sizeUpdate < 0);
+    // if (Object.keys(widgetMovementMap).length && reflowingWidget && movement) {
+    //   debugger;
+    // }
+
+    const filteredOccSpaces = isRetracing
+      ? occupiedSpacesBySiblingWidgets.filter((each) => {
+          return accessors.directionIndicator === 1
+            ? each[accessors.oppositeDirection] <
+                widgetPosition[accessors.oppositeDirection]
+            : each[accessors.oppositeDirection] >
+                widgetPosition[accessors.oppositeDirection];
+        })
+      : occupiedSpacesBySiblingWidgets;
     getWidgetCollisionGraph(
-      occupiedSpacesBySiblingWidgets,
+      filteredOccSpaces,
       collidingWidgetGraph,
       {},
       accessors,
@@ -940,6 +938,8 @@ function getMovementMapInDirection(
     widgetPosition,
     collidingWidgets,
     accessors,
+    widgetMovementMap,
+    widgetParentSpaces,
   );
 
   // if (initialCollidingWidget) {
