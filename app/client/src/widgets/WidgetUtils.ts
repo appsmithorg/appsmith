@@ -79,7 +79,7 @@ export const generateReactKey = ({
 
 export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
   if (!backgroundColor)
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].solid
+    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].primary
       .textColor;
   const isDark = tinycolor(backgroundColor).isDark();
   if (isDark) {
@@ -105,21 +105,21 @@ export const getCustomHoverColor = (
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
-        : theme.colors.button.primary.outline.hoverColor;
+        : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
-        : theme.colors.button.primary.ghost.hoverColor;
+        : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .darken(10)
             .toString()
-        : theme.colors.button.primary.solid.hoverColor;
+        : theme.colors.button.primary.primary.hoverColor;
   }
 };
 

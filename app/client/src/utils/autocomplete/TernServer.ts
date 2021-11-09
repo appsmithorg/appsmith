@@ -332,7 +332,8 @@ class TernServer {
             if (
               !entityType ||
               ENTITY_TYPE.ACTION === entityType ||
-              ENTITY_TYPE.JSACTION === entityType
+              ENTITY_TYPE.JSACTION === entityType ||
+              ENTITY_TYPE.WIDGET === entityType
             ) {
               completionType.MATCHING_TYPE.push(completion);
               completionType.DATA_TREE.push(completion);

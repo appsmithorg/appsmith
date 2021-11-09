@@ -20,6 +20,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
+import * as log from "loglevel";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 
 const flat = (array: Record<string, any>[], uniqueParam: string) => {
@@ -800,7 +801,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         ]);
         return result;
       } catch (e) {
-        console.error("Validation function error: ", { e });
+        log.error("Validation function error: ", { e });
       }
     }
     return invalidResponse;
