@@ -261,6 +261,7 @@ function* changeApiSaga(
   }
 
   PerformanceTracker.stopTracking();
+  yield fork(updateReplayObject, id, action);
 }
 
 function* setHeaderFormat(apiId: string, headers?: Property[]) {
