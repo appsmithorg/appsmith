@@ -22,11 +22,5 @@ jobs:
       - name: Slash Command Dispatch
         uses: peter-evans/slash-command-dispatch@v1
         env:
-          TOKEN: ${{ steps.generate_token.outputs.token }}
-        with:
-          token: ${{ env.TOKEN }} # GitHub App installation access token
-          reaction-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-type: pull-request
-          commands: ok-to-test
-          named-args: true
-          permission: write
+          TOKEN: ${{ env.mytoken}}
+    
