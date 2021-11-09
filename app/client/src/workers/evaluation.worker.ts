@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
