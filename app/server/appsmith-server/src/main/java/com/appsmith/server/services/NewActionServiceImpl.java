@@ -1440,6 +1440,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
     }
 
     @Override
+    public Mono<NewAction> deleteByIdAndBranchName(String id, String branchName) {
+        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, MANAGE_ACTIONS);
+
+        return branchedActionMono
+                .flatMap(newAction -> this.delete(newAction.getId()))
+                .map(sanitiseResponse::updateNewActionWithDefaultResources);
+    }
+
+    @Override
     public Mono<NewAction> archive(String id) {
         Mono<NewAction> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));

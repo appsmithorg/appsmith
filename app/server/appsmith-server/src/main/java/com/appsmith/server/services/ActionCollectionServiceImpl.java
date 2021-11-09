@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -48,6 +49,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     private final NewActionService newActionService;
     private final PolicyGenerator policyGenerator;
     private final ApplicationService applicationService;
+    private final SanitiseResponse sanitiseResponse;
 
     @Autowired
     public ActionCollectionServiceImpl(Scheduler scheduler,
@@ -58,11 +60,13 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                        AnalyticsService analyticsService,
                                        NewActionService newActionService,
                                        PolicyGenerator policyGenerator,
-                                       ApplicationService applicationService) {
+                                       ApplicationService applicationService,
+                                       SanitiseResponse sanitiseResponse) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
         this.policyGenerator = policyGenerator;
         this.applicationService = applicationService;
+        this.sanitiseResponse = sanitiseResponse;
     }
 
     @Override
@@ -347,6 +351,16 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 .flatMap(actionList -> actionCollectionMono)
                 .flatMap(actionCollection -> repository.delete(actionCollection).thenReturn(actionCollection))
                 .flatMap(analyticsService::sendDeleteEvent);
+    }
+
+    @Override
+    public Mono<ActionCollection> deleteByIdAndBranchName(String id, String branchName) {
+        Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS);
+
+        return branchedCollectionMono
+                .map(ActionCollection::getId)
+                .flatMap(this::delete)
+                .map(sanitiseResponse::updateActionCollectionWithDefaultResources);
     }
 
     @Override

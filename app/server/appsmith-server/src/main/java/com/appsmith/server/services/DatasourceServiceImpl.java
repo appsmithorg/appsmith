@@ -398,4 +398,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
                 .flatMap(analyticsService::sendDeleteEvent);
     }
+
+    @Override
+    public Mono<Datasource> deleteByIdAndBranchName(String id, String branchName) {
+        // Ignore branchName as datasources are branch independent entity
+        return this.delete(id);
+    }
 }

@@ -68,10 +68,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
-    private Criteria getBranchCriteria(String branchName) {
-        return where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME).is(branchName);
-    }
-
     @Override
     public Mono<T> findById(ID id) {
         Assert.notNull(id, "The given id must not be null!");
@@ -91,20 +87,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     @Override
     public Mono<T> findByIdAndBranchName(ID id, String branchName) {
-        Assert.notNull(id, "The given id must not be null!");
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-                    query.addCriteria(getBranchCriteria(branchName));
-
-                    return mongoOperations.query(entityInformation.getJavaType())
-                            .inCollection(entityInformation.getCollectionName())
-                            .matching(query)
-                            .one();
-                });
+        // branchName will be ignored and this method is overridden for the services which are shared across branches
+        return this.findById(id);
     }
 
     @Override
