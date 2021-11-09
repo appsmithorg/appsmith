@@ -4,5 +4,6 @@
   "postButtonAddComment": "[data-cy='add-comment-submit']",
   "inlineCommentThreadPin": ".t--inline-comment-pin-trigger-",
   "toggleCommentModeOnUnread": ".t--toggle-comment-mode-on--unread",
-  "toggleCommentModeOn": ".t--toggle-comment-mode-on"
+  "toggleCommentModeOn": ".t--toggle-comment-mode-on",
+  "cancelCommentButton": "[data-cy='add-comment-cancel']"
 }
