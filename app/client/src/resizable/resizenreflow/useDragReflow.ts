@@ -237,13 +237,13 @@ export const useDragReflow = (
         reflowing.staticWidget = newStaticWidget;
       } else {
         //eslint-disable-next-line
-        const reflowingWidgets = reflowing.reflowingWidgets!;
+        const reflowingWidgets = reflowing.reflowingWidgets || {};
         const affectedwidgetIds = Object.keys(reflowingWidgets);
         ({ horizontalMove, verticalMove } = getShouldResize(newStaticWidget, {
           X,
           Y,
         }));
-        const widgetMovementMap: reflowWidgets = {};
+        const widgetMovementMap: reflowWidgets = reflowingWidgets;
         newStaticWidget = getMovementMapInDirection(
           widgetMovementMap,
           occupiedSpacesBySiblingWidgets,
@@ -345,6 +345,8 @@ function getWidgetCollisionGraphInDirection(
   widgetPosition: WidgetCollisionGraph,
   collidingWidgets: OccupiedSpace[],
   accessors: CollisionAccessors,
+  widgetMovementMap: reflowWidgets,
+  widgetParentSpaces: WidgetParentSpaces,
 ) {
   const widgetCollisionGraph: WidgetCollisionGraph = {
     ...widgetPosition,
@@ -369,8 +371,34 @@ function getWidgetCollisionGraphInDirection(
   if (collidingWidgetsInDirection.length <= 0) return;
   for (const collidingWidget of collidingWidgetsInDirection) {
     const collidingWidgetGraph = { ...collidingWidget, children: {} };
+    const reflowingWidget = widgetMovementMap[collidingWidget.id];
+    const reflowIndicator = accessors.isHorizontal ? "X" : "Y";
+    const reflowResizeIndicator = accessors.isHorizontal ? "x" : "y";
+    const movement = reflowingWidget
+      ? reflowingWidget[reflowIndicator] || 0
+      : 0;
+    const sizeUpdate = reflowingWidget
+      ? reflowingWidget[reflowResizeIndicator] || 0
+      : 0;
+    const isRetracing =
+      reflowingWidget &&
+      ((accessors.directionIndicator === 1 ? movement < 0 : movement > 0) ||
+        sizeUpdate < 0);
+    // if (Object.keys(widgetMovementMap).length && reflowingWidget && movement) {
+    //   debugger;
+    // }
+
+    const filteredOccSpaces = isRetracing
+      ? occupiedSpacesBySiblingWidgets.filter((each) => {
+          return accessors.directionIndicator === 1
+            ? each[accessors.oppositeDirection] <
+                widgetPosition[accessors.oppositeDirection]
+            : each[accessors.oppositeDirection] >
+                widgetPosition[accessors.oppositeDirection];
+        })
+      : occupiedSpacesBySiblingWidgets;
     getWidgetCollisionGraph(
-      occupiedSpacesBySiblingWidgets,
+      filteredOccSpaces,
       collidingWidgetGraph,
       {},
       accessors,
@@ -910,6 +938,8 @@ function getMovementMapInDirection(
     widgetPosition,
     collidingWidgets,
     accessors,
+    widgetMovementMap,
+    widgetParentSpaces,
   );
 
   // if (initialCollidingWidget) {
