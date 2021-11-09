@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useCallback, useEffect } from "react";
 import { generateSSHKeyPair, getSSHKeyPair } from "actions/applicationActions";
-import { connectToGitInit } from "actions/gitSyncActions";
+import { commitToRepoInit, connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
@@ -117,5 +117,39 @@ export const useGitConnect = () => {
     isConnectingToGit,
     gitError,
     connectToGit,
+  };
+};
+
+export const useGitCommit = () => {
+  const dispatch = useDispatch();
+
+  const [gitError, setGitError] = useState({ message: null });
+
+  const onGitCommitSuccess = useCallback(() => {
+    setGitError({ message: null });
+  }, []);
+
+  const onGitCommitFailure = useCallback((error: any) => {
+    setGitError({ message: error.message });
+  }, []);
+  const commitToGit = useCallback(
+    (payload: { commitMessage: string; doPush: boolean }) => {
+      setGitError({ message: null });
+
+      // Here after the ssh key pair generation, we fetch the application data again and on success of it
+      dispatch(
+        commitToRepoInit({
+          payload,
+          onSuccessCallback: onGitCommitSuccess,
+          onErrorCallback: onGitCommitFailure,
+        }),
+      );
+    },
+    [onGitCommitSuccess, onGitCommitFailure],
+  );
+
+  return {
+    gitError,
+    commitToGit,
   };
 };

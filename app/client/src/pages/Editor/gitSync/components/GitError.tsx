@@ -11,6 +11,7 @@ import {
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
+  ERROR_COMMITTING,
   ERROR_CONNECTING,
   READ_DOCUMENTATION,
 } from "constants/messages";
@@ -48,6 +49,9 @@ export default function GitSyncError(props: ErrorProps) {
   switch (props.type) {
     case ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR:
       titleMessage = createMessage(ERROR_CONNECTING);
+      break;
+    case ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR:
+      titleMessage = createMessage(ERROR_COMMITTING);
       break;
   }
 

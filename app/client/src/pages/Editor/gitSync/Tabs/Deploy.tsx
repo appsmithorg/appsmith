@@ -5,6 +5,7 @@ import {
   COMMIT_TO,
   createMessage,
   COMMIT_AND_PUSH,
+  COMMITTING_CHANGE,
   FETCH_GIT_STATUS,
 } from "constants/messages";
 import styled from "styled-components";
@@ -18,7 +19,6 @@ import {
   getIsCommittingInProgress,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { commitToRepoInit } from "actions/gitSyncActions";
 
 import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
@@ -30,6 +30,10 @@ import { fetchGitStatusInit } from "actions/gitSyncActions";
 import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
 import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
+import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import { useGitCommit } from "../hooks";
+import GitSyncError from "../components/GitError";
+import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -55,6 +59,11 @@ const Container = styled.div`
   }
 `;
 
+const StatusbarWrapper = styled.div`
+  width: 252px;
+  height: 38px;
+`;
+
 const INITIAL_COMMIT = "Initial Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
@@ -66,22 +75,20 @@ function Deploy() {
   const gitStatus = useSelector(getGitStatus);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
-  // const gitPushError = useSelector(getGitPushError);
   // const errorMsgRef = useRef<HTMLDivElement>(null);
 
   const hasChangesToCommit = !gitStatus?.isClean;
 
   const currentBranch = gitMetaData?.branchName;
+  const { commitToGit, gitError } = useGitCommit();
   const dispatch = useDispatch();
 
   const handleCommit = () => {
     if (currentBranch) {
-      dispatch(
-        commitToRepoInit({
-          commitMessage,
-          doPush: true, // to push with commit
-        }),
-      );
+      commitToGit({
+        commitMessage,
+        doPush: true,
+      });
     }
   };
 
@@ -108,7 +115,6 @@ function Deploy() {
   //   }
   //   return showMoreEnabled;
   // }, [errorMsgRef.current, gitPushError]);
-
   const showCommitButton = hasChangesToCommit && !isFetchingGitStatus;
   const commitMessageDisplay = hasChangesToCommit
     ? commitMessage
@@ -137,7 +143,7 @@ function Deploy() {
           <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
         )}
         <Space size={11} />
-        {showCommitButton && (
+        {showCommitButton && !commitButtonLoading && (
           <Button
             className="t--commit-button"
             disabled={commitButtonDisabled}
@@ -149,6 +155,19 @@ function Deploy() {
             width="max-content"
           />
         )}
+        {showCommitButton && commitButtonLoading && (
+          <StatusbarWrapper>
+            <Statusbar
+              completed={!commitButtonLoading}
+              message={createMessage(COMMITTING_CHANGE)}
+              period={2}
+            />
+          </StatusbarWrapper>
+        )}
+        <GitSyncError
+          error={gitError.message}
+          type={ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR}
+        />
       </Section>
 
       <DeployPreview showSuccess={isCommitAndPushSuccessful} />

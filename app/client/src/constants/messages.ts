@@ -571,6 +571,7 @@ export const COMMIT_AND_PUSH = () => "Commit and push";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
+export const COMMITTING_CHANGE = () => "COMMITTING CHANGES...";
 
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
@@ -594,6 +595,7 @@ export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";
+export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
 // JS Snippets

@@ -23,6 +23,7 @@ import {
   updateBranchLocally,
 } from "actions/gitSyncActions";
 import {
+  CommitToGitReduxAction,
   connectToGitSuccess,
   ConnectToGitReduxAction,
 } from "../actions/gitSyncActions";
@@ -51,12 +52,7 @@ import {
   mergeBranchFailure,
 } from "../actions/gitSyncActions";
 
-function* commitToGitRepoSaga(
-  action: ReduxAction<{
-    commitMessage: string;
-    doPush: boolean;
-  }>,
-) {
+function* commitToGitRepoSaga(action: CommitToGitReduxAction) {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const gitMetaData: GitApplicationMetadata = yield select(
@@ -71,6 +67,9 @@ function* commitToGitRepoSaga(
 
     if (isValidResponse) {
       yield put(commitToRepoSuccess());
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback(response.data);
+      }
       Toaster.show({
         text: action.payload.doPush
           ? "Committed and pushed Successfully"
@@ -80,6 +79,9 @@ function* commitToGitRepoSaga(
       yield put(fetchGitStatusInit());
     }
   } catch (error) {
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error as string);
+    }
     yield put({
       type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
       payload: { error, logToSentry: true },
@@ -108,7 +110,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error);
+      action.onErrorCallback(error as string);
     }
     yield put({
       type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
