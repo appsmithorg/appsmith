@@ -752,8 +752,12 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
     pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
 
-  // to avoid invoking old copied widgets
-  if (!copiedWidgetGroups.length) return;
+  if (
+    // to avoid invoking old way of copied widgets implementaion
+    !Array.isArray(copiedWidgetGroups) ||
+    !copiedWidgetGroups.length
+  )
+    return;
 
   const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
     copiedWidgetGroups,
