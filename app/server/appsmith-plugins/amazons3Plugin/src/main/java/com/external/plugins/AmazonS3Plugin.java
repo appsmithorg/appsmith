@@ -208,7 +208,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         "Unable to parse content. Expected to receive an object with `data` and `type`"
                 );
             }
-            if (multipartFormDataDTO != null) {
+            if (multipartFormDataDTO == null) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Could not find any data. Expected to receive an object with `data` and `type`"
