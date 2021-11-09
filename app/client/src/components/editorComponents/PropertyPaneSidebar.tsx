@@ -58,8 +58,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         return <CanvasPropertyPane />;
       case selectedWidgets.length > 1:
         return <MultiSelectPropertyPane />;
-      case isDraggingForSelection === true:
-        return <CanvasPropertyPane />;
       case selectedWidgets.length === 1:
         return <WidgetPropertyPane />;
       default:
@@ -78,8 +76,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       >
         <div
           className={classNames({
-            "w-1 h-full ml-1 bg-transparent group-hover:bg-blue-500 transform transition": true,
-            "bg-blue-500": resizing,
+            "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
+            "bg-gray-300": resizing,
           })}
         />
       </div>

@@ -26,6 +26,7 @@ import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
+import { Position } from "@blueprintjs/core";
 
 const CONNECTION_HEIGHT = 28;
 
@@ -170,6 +171,7 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
   justifyContent: string;
+  tooltipPosition?: Position;
 };
 
 const doConnectionsHaveErrors = (
@@ -289,7 +291,11 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
         />
       )}
       <span>
-        <Tooltip content={tooltipText} disabled={props.isOpen}>
+        <Tooltip
+          content={tooltipText}
+          disabled={props.isOpen}
+          position={props.tooltipPosition}
+        >
           {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
         </Tooltip>
       </span>
@@ -340,6 +346,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
             connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
             hasError={errorIncomingConnections}
+            tooltipPosition="bottom-left"
           />
         )}
         className={`connection-dropdown ${
@@ -367,6 +374,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
             connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
             hasError={errorOutgoingConnections}
+            tooltipPosition="bottom-right"
           />
         )}
         className={`connection-dropdown ${

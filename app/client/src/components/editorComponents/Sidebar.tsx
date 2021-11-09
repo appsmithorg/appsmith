@@ -204,7 +204,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
    */
   const resizerLeft = useMemo(() => {
     return !pinned && !active ? 0 : props.width;
-  }, [pinned, active]);
+  }, [pinned, active, props.width]);
 
   return (
     <div
