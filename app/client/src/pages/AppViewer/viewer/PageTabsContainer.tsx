@@ -4,9 +4,10 @@ import {
   CurrentApplicationData,
   PageListPayload,
 } from "constants/ReduxActionConstants";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 import PageTabs from "./PageTabs";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
+import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   width: 100%;
@@ -16,7 +17,7 @@ const Container = styled.div`
   & {
     svg path,
     svg:hover path {
-      fill: transparent;
+      fill: ${Colors.BLACK};
       stroke: ${(props) => props.theme.colors.header.tabText};
     }
   }
@@ -126,7 +127,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
         onTouchStart={() => startScrolling(true)}
         visible={shouldShowLeftArrow}
       >
-        <Icon name="chevron-left" />
+        <Icon name="left-arrow-2" size={IconSize.MEDIUM} />
       </ScrollBtnContainer>
       <PageTabs
         appPages={appPages}
@@ -143,7 +144,7 @@ export function PageTabsContainer(props: AppViewerHeaderProps) {
         onTouchStart={() => startScrolling(false)}
         visible={shouldShowRightArrow}
       >
-        <Icon name="chevron-right" />
+        <Icon name="right-arrow-2" size={IconSize.MEDIUM} />
       </ScrollBtnContainer>
     </Container>
   ) : null;

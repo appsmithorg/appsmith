@@ -10,7 +10,6 @@ import {
   CellCheckboxWrapper,
   CellCheckbox,
   ActionWrapper,
-  SortIconWrapper,
   DraggableHeaderWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -544,12 +543,12 @@ export const renderEmptyRows = (
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  top: 12px;
+  top: 3px;
   cursor: pointer;
   transform: rotate(180deg);
   && svg {
     path {
-      fill: ${(props) => props.theme.colors.secondary};
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
 `;
@@ -561,7 +560,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   && svg {
     path {
-      fill: ${(props) => props.theme.colors.secondary};
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
 `;
@@ -574,8 +573,10 @@ export function TableHeaderCell(props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
+  editMode?: boolean;
+  isSortable?: boolean;
 }) {
-  const { column } = props;
+  const { column, editMode, isSortable } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -586,34 +587,29 @@ export function TableHeaderCell(props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
+  const disableSort = editMode === false && isSortable === false;
 
   return (
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
-      onClick={handleSortColumn}
+      onClick={!disableSort && props ? handleSortColumn : undefined}
     >
+      <DraggableHeaderWrapper
+        className={!props.isHidden ? `draggable-header` : "hidden-header"}
+        horizontalAlignment={column.columnProperties.horizontalAlignment}
+      >
+        {props.columnName}
+      </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper>
+        <div>
           {props.isAscOrder ? (
             <AscendingIcon height={16} width={16} />
           ) : (
             <DescendingIcon height={16} width={16} />
           )}
-        </SortIconWrapper>
+        </div>
       ) : null}
-      <DraggableHeaderWrapper
-        className={
-          !props.isHidden
-            ? `draggable-header ${
-                props.isAscOrder !== undefined ? "sorted" : ""
-              }`
-            : "hidden-header"
-        }
-        horizontalAlignment={column.columnProperties.horizontalAlignment}
-      >
-        {props.columnName}
-      </DraggableHeaderWrapper>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}

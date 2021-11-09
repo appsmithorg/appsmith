@@ -72,6 +72,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -183,6 +184,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getOrganizationId().equals(orgId));
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
                 })
                 .verifyComplete();
     }
