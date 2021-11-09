@@ -232,6 +232,7 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
     case ValidationTypes.FUNCTION:
       return config.params?.expected?.type || "unknown";
     case ValidationTypes.TEXT:
+    case ValidationTypes.TEXT_OR_ARRAY:
       let result = "string";
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
@@ -861,5 +862,59 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     } else {
       return invalidResponse;
     }
+  },
+  [ValidationTypes.TEXT_OR_ARRAY]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    const invalidResponse = {
+      isValid: false,
+      parsed: config.params?.default || "",
+      messages: [`${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`],
+    };
+    const whiteList = config.params?.allowedValues;
+    if (
+      value === undefined ||
+      value === null ||
+      (isString(value) && value.trim().length === 0)
+    ) {
+      if (config.params && config.params.required) return invalidResponse;
+      if (whiteList && !whiteList.includes(value)) {
+        return {
+          isValid: false,
+          parsed: value,
+          messages: [`Disallowed value: ${value}`],
+        };
+      }
+      return { isValid: true, parsed: value };
+    }
+    if (isString(value)) {
+      return VALIDATORS.TEXT(config, value, props);
+    }
+    if (Array.isArray(value)) {
+      if (whiteList) {
+        const disallowedValue = new Set();
+        value.forEach((entry) => {
+          if (!whiteList.includes(entry)) {
+            disallowedValue.add(entry);
+          }
+        });
+        if (disallowedValue.size) {
+          return {
+            isValid: false,
+            parsed: value,
+            messages: [
+              `Disallowed value: ${Array.from(disallowedValue).join("  ")}`,
+            ],
+          };
+        }
+        return {
+          isValid: true,
+          parsed: value,
+        };
+      }
+    }
+    return invalidResponse;
   },
 };

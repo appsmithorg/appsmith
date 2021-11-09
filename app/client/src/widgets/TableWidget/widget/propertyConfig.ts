@@ -806,10 +806,10 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.TEXT,
+                    type: ValidationTypes.TEXT_OR_ARRAY,
                     params: {
                       default: ButtonVariantTypes.PRIMARY,
                       allowedValues: [

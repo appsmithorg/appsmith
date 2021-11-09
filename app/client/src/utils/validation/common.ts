@@ -40,6 +40,7 @@ export function getExpectedValue(
           AutocompleteDataType.UNKNOWN,
       };
     case ValidationTypes.TEXT:
+    case ValidationTypes.TEXT_OR_ARRAY:
       const result: CodeEditorExpected = {
         type: "string",
         example: "abc",
