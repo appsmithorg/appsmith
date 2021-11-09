@@ -1,4 +1,12 @@
-import { takeEvery, put, select, call, take } from "redux-saga/effects";
+import {
+  takeEvery,
+  put,
+  select,
+  call,
+  take,
+  takeLatest,
+  all,
+} from "redux-saga/effects";
 
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
@@ -37,7 +45,10 @@ import { isAPIAction } from "./ActionSagas";
 import { changeApi } from "actions/apiPaneActions";
 import { updateJSCollection } from "actions/jsPaneActions";
 import { changeDatasource } from "actions/datasourceActions";
-import { workerComputeUndoRedo } from "./EvaluationsSaga";
+import {
+  updateReplayEnitiySaga,
+  workerComputeUndoRedo,
+} from "./EvaluationsSaga";
 import { createBrowserHistory } from "history";
 import { getEditorConfig, getSettingConfig } from "selectors/entitiesSelector";
 import { isArray } from "lodash";
@@ -49,7 +60,10 @@ export type UndoRedoPayload = {
 };
 
 export default function* undoRedoListenerSaga() {
-  yield takeEvery(ReduxActionTypes.UNDO_REDO_OPERATION, undoRedoSaga);
+  yield all([
+    takeEvery(ReduxActionTypes.UNDO_REDO_OPERATION, undoRedoSaga),
+    takeLatest(ReduxActionTypes.UPDATE_REPLAY_ENTITY, updateReplayEnitiySaga),
+  ]);
 }
 
 /**

@@ -385,6 +385,13 @@ export const generateTemplateToUpdatePage = ({
   };
 };
 
+export function updateReplayEntity(entityId: string, entity: any) {
+  return {
+    type: ReduxActionTypes.UPDATE_REPLAY_ENTITY,
+    payload: { entityId, entity },
+  };
+}
+
 export function undoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,

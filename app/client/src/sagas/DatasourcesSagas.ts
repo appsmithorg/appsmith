@@ -2,7 +2,6 @@ import {
   all,
   call,
   put,
-  delay,
   select,
   take,
   takeEvery,
@@ -88,8 +87,7 @@ import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 
 import { trimQueryString } from "utils/helpers";
-import { updateReplayObject } from "./EvaluationsSaga";
-import { REPLAY_DELAY } from "entities/Replay/replayUtils";
+import { updateReplayEntity } from "actions/pageActions";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -642,8 +640,7 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
       payload: { id: values.id, draft: values },
     });
-    yield delay(REPLAY_DELAY);
-    yield call(updateReplayObject, values.id, values);
+    yield put(updateReplayEntity(values.id, values));
   }
 }
 
@@ -678,8 +675,6 @@ function* changeDatasourceSaga(
         getQueryParams(),
       ),
     );
-
-  // yield call(updateReplayObject, datasource.id, datasource);
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
@@ -1003,8 +998,8 @@ export function* watchDatasourcesSagas() {
       executeDatasourceQuerySaga,
     ),
     // Intercepting the redux-form change actionType
-    takeLatest(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
-    takeLatest(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
-    takeLatest(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
   ]);
 }

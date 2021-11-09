@@ -20,8 +20,6 @@ import {
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
-import { Severity } from "entities/AppsmithConsole";
-import _ from "lodash";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayAction from "entities/Replay/ReplayEntity/ReplayAction";
 import {

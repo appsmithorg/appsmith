@@ -13,6 +13,7 @@ import {
   call,
   take,
   fork,
+  delay,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
@@ -85,7 +86,7 @@ import {
   parseUrlForQueryParams,
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
-import { updateReplayObject } from "./EvaluationsSaga";
+import { updateReplayEntity } from "actions/pageActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -261,7 +262,7 @@ function* changeApiSaga(
   }
 
   PerformanceTracker.stopTracking();
-  yield fork(updateReplayObject, id, action);
+  yield put(updateReplayEntity(id, action));
 }
 
 function* setHeaderFormat(apiId: string, headers?: Property[]) {
@@ -381,13 +382,12 @@ function* formValueChangeSaga(
       }),
     );
   }
-
-  yield fork(updateReplayObject, values.id, values);
-
   yield all([
     call(syncApiParamsSaga, actionPayload, values.id),
     call(updateFormFields, actionPayload),
   ]);
+
+  yield put(updateReplayEntity(values.id, values));
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
@@ -397,8 +397,8 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
-    const applicationId = yield select(getCurrentApplicationId);
-    const pageId = yield select(getCurrentPageId);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const pageId: string = yield select(getCurrentPageId);
     history.push(
       API_EDITOR_ID_URL(applicationId, pageId, id, {
         editName: "true",

@@ -6,6 +6,7 @@ import {
   select,
   take,
   all,
+  delay,
 } from "redux-saga/effects";
 
 import {
@@ -67,6 +68,7 @@ import {
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -416,8 +418,15 @@ export function* evaluateArgumentSaga(action: any) {
   }
 }
 
-export function* updateReplayObject(entityId: string, entity: any) {
-  const workerResponse: any = yield call(
+export function* updateReplayEnitiySaga(
+  actionPayload: ReduxAction<{
+    entityId: string;
+    entity: any;
+  }>,
+) {
+  yield delay(REPLAY_DELAY);
+  const { entity, entityId } = actionPayload.payload;
+  const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT,
     {

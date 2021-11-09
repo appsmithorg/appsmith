@@ -1,12 +1,4 @@
-import {
-  all,
-  put,
-  select,
-  takeEvery,
-  fork,
-  takeLatest,
-  delay,
-} from "redux-saga/effects";
+import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -32,8 +24,7 @@ import { setActionProperty } from "actions/pluginActionActions";
 import { autofill } from "redux-form";
 
 import { get } from "lodash";
-import { updateReplayObject } from "./EvaluationsSaga";
-import { REPLAY_DELAY } from "entities/Replay/replayUtils";
+import { updateReplayEntity } from "actions/pageActions";
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
@@ -117,8 +108,7 @@ function* formValueChangeSaga(
       }),
     );
   }
-  yield delay(REPLAY_DELAY);
-  yield fork(updateReplayObject, values.id, values);
+  yield put(updateReplayEntity(values.id, values));
 }
 
 export default function* root() {
@@ -129,9 +119,9 @@ export default function* root() {
     ),
     takeEvery(ReduxActionTypes.CREATE_ACTION_SUCCESS, handleActionCreatedSaga),
     // Intercepting the redux-form change actionType
-    takeLatest(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     // Calling form valye change on adding/removing where clause statement
-    takeLatest(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
-    takeLatest(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
   ]);
 }
