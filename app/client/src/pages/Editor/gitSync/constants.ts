@@ -36,3 +36,4 @@ export const Classes = {
 };
 
 export const DEFAULT_REMOTE = "origin";
+export const MENU_HEIGHT = 47;
