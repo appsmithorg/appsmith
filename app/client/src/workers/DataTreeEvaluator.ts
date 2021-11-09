@@ -67,7 +67,6 @@ import evaluate, {
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 import { getLintingErrors } from "workers/lint";
-import { JSUpdate } from "utils/JSPaneUtils";
 import { error as logError } from "loglevel";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { JSUpdate } from "utils/JSPaneUtils";
