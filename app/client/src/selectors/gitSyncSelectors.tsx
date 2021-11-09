@@ -61,6 +61,9 @@ export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
 
+export const getIsFetchingMergeStatus = (state: AppState) =>
+  state.ui.gitSync.isFetchingMergeStatus;
+
 export const getIsDisconnectingGit = (state: AppState) =>
   state.ui.gitSync.isDisconnectingGit;
 
