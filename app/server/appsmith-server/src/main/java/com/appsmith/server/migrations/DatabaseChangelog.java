@@ -3720,7 +3720,7 @@ public class DatabaseChangelog {
                 }
 
                 // Check if the newly computed trigger paths are different from the existing ones and if true, set it in the dsl
-                if (dynamicTriggerPaths.size() != newTriggerPaths.size() && !newTriggerPaths.containsAll(dynamicTriggerPaths)) {
+                if (dynamicTriggerPaths.size() != newTriggerPaths.size() || !newTriggerPaths.containsAll(dynamicTriggerPaths)) {
                     updated = Boolean.TRUE;
                     List<Object> finalTriggerPaths = new ArrayList<>();
                     for (String triggerPath : newTriggerPaths) {
