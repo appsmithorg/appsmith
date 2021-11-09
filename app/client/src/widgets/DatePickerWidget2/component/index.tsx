@@ -20,20 +20,32 @@ import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 enum KEYS {
   Tab = "Tab",
   Escape = "Escape",
 }
 
-const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
+const StyledControlGroup = styled(ControlGroup)<{
+  isValid: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+}>`
   &&& {
     .${Classes.INPUT} {
-      box-shadow: none;
-      border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[1]}px;
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.WHITE}`};
+      border-radius: ${({ borderRadius }) =>
+        getBorderRadiusValue(borderRadius)};
+      box-shadow: ${({ boxShadow, boxShadowColor }) =>
+        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
       width: 100%;
       height: inherit;
       align-items: center;
@@ -142,6 +154,10 @@ class DatePickerComponent extends React.Component<
         : null;
     return (
       <StyledControlGroup
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         fill
         isValid={isValid}
         onClick={(e: any) => {
@@ -303,6 +319,10 @@ interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 interface DatePickerComponentState {

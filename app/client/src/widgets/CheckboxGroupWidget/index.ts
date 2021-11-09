@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Colors } from "constants/Colors";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -21,6 +22,7 @@ export const CONFIG = {
     isVisible: true,
     widgetName: "CheckboxGroup",
     version: 1,
+    backgroundColor: Colors.GREEN,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

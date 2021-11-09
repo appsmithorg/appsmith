@@ -10,11 +10,16 @@ import generate from "nanoid/generate";
 import { WidgetPositionProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadow,
+  ButtonBoxShadowTypes,
   ButtonStyleTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
 import tinycolor from "tinycolor2";
+import { Colors } from "constants/Colors";
 
 export function getDisplayName(WrappedComponent: {
   displayName: any;
@@ -139,4 +144,54 @@ export const getCustomBorderColor = (
   return buttonVariant === ButtonVariantTypes.SECONDARY
     ? backgroundColor
     : "none";
+};
+
+/**
+ * maps border radius names to actual value
+ *
+ * @param borderRadius
+ * @returns
+ */
+export const getBorderRadiusValue = (borderRadius: ButtonBorderRadius) => {
+  switch (borderRadius) {
+    case ButtonBorderRadiusTypes.CIRCLE:
+      return "50%";
+    case ButtonBorderRadiusTypes.ROUNDED:
+      return "5px";
+    case ButtonBorderRadiusTypes.SHARP:
+      return 0;
+    default:
+      return 0;
+  }
+};
+
+/**
+ * maps box shadow names to actual box shadow css value
+ *
+ * @param borderRadius
+ * @returns
+ */
+export const getBoxShadowValue = (
+  boxShadowColor: string | undefined,
+  boxShadow: ButtonBoxShadow | undefined,
+) => {
+  switch (boxShadow) {
+    case ButtonBoxShadowTypes.VARIANT1:
+      return `0px 0px 4px 3px ${boxShadowColor ||
+        Colors.BOX_SHADOW_DEFAULT_VARIANT1}`;
+    case ButtonBoxShadowTypes.VARIANT2:
+      return `3px 3px 4px ${boxShadowColor ||
+        Colors.BOX_SHADOW_DEFAULT_VARIANT2}`;
+    case ButtonBoxShadowTypes.VARIANT3:
+      return `0px 1px 3px ${boxShadowColor ||
+        Colors.BOX_SHADOW_DEFAULT_VARIANT3}`;
+    case ButtonBoxShadowTypes.VARIANT4:
+      return `2px 2px 0px ${boxShadowColor ||
+        Colors.BOX_SHADOW_DEFAULT_VARIANT4}`;
+    case ButtonBoxShadowTypes.VARIANT5:
+      return `2px -2px 0px  ${boxShadowColor ||
+        Colors.BOX_SHADOW_DEFAULT_VARIANT5}`;
+    default:
+      return "0px 0px 0px transparent";
+  }
 };

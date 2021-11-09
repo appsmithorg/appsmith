@@ -14,6 +14,8 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import CheckboxGroupComponent, { OptionProps } from "../component";
+import { ButtonBorderRadiusTypes } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -179,6 +181,76 @@ class CheckboxGroupWidget extends BaseWidget<
           },
         ],
       },
+
+      {
+        sectionName: "Style",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["SHARP", "ROUNDED", "CIRCLE"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+        ],
+      },
     ];
   }
 
@@ -232,6 +304,10 @@ class CheckboxGroupWidget extends BaseWidget<
   getPageView() {
     return (
       <CheckboxGroupComponent
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         isDisabled={this.props.isDisabled}
         isInline={this.props.isInline}
         isRequired={this.props.isRequired}
@@ -280,6 +356,10 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   isValid?: boolean;
   onCheckChanged?: string;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default CheckboxGroupWidget;

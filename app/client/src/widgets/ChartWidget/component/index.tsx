@@ -14,6 +14,9 @@ import {
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
 import log from "loglevel";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
+import { Colors } from "constants/Colors";
 const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
   Charts: require("fusioncharts/fusioncharts.charts"),
@@ -56,16 +59,23 @@ export interface ChartComponentProps {
   widgetId: string;
   xAxisName: string;
   yAxisName: string;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 const CanvasContainer = styled.div<
   Omit<ChartComponentProps, "onDataPointClick">
 >`
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: 0;
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+
   height: 100%;
   width: 100%;
-  background: white;
+  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
   overflow: hidden;
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
@@ -260,6 +270,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionAlignment: "left",
       captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
+      bgColor: this.props.backgroundColor || "#ffffff",
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
 

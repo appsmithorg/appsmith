@@ -9,6 +9,11 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import moment from "moment";
 import { DatePickerType } from "../constants";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadow,
+} from "components/constants";
 
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
@@ -210,6 +215,76 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
         ],
       },
+
+      {
+        sectionName: "Style",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["SHARP", "ROUNDED", "CIRCLE"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+        ],
+      },
     ];
   }
 
@@ -236,6 +311,10 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   getPageView() {
     return (
       <DatePickerComponent
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         closeOnSelection={this.props.closeOnSelection}
         dateFormat={this.props.dateFormat}
         datePickerType={"DATE_PICKER"}
@@ -282,6 +361,10 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default DatePickerWidget;
