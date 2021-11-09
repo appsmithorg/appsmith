@@ -127,6 +127,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
+            themePropertyMap: "mainColor",
           },
           {
             propertyName: "buttonVariant",

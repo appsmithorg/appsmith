@@ -55,6 +55,7 @@ import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 import SettingsReducer, { SettingsReduxState } from "./settingsReducer";
+import ThemeReducer, { ThemeReduxState } from "./ThemeReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -62,6 +63,7 @@ const appReducer = combineReducers({
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
+  theme: ThemeReducer,
 });
 
 export default appReducer;
@@ -125,4 +127,5 @@ export interface AppState {
     formEvaluation: FormEvaluationState;
   };
   settings: SettingsReduxState;
+  theme: ThemeReduxState;
 }
