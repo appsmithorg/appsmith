@@ -1,12 +1,7 @@
 package com.external.plugins;
 
 import com.amazonaws.HttpMethod;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
@@ -32,6 +27,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.external.plugins.constants.AmazonS3Action;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -61,6 +57,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
+import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
@@ -78,15 +75,15 @@ import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODIN
 public class AmazonS3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
-    private static final int AWS_S3_REGION_PROPERTY_INDEX = 0;
-    private static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
-    private static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
-    private static final int CUSTOM_ENDPOINT_INDEX = 0;
+    public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
+    public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
+    public static final int CUSTOM_ENDPOINT_INDEX = 0;
     private static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
     private static final String YES = "YES";
     private static final String NO = "NO";
     private static final String BASE64_DELIMITER = ";base64,";
-    private static final String AMAZON_S3_SERVICE_PROVIDER = "amazon-s3";
+    private static final String OTHER_S3_SERVICE_PROVIDER = "other";
+    private static final String AWS_S3_SERVICE_PROVIDER = "amazon-s3";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -270,7 +267,6 @@ public class AmazonS3Plugin extends BasePlugin {
             Map<String, Object> requestProperties = new HashMap<>();
             List<RequestParamDTO> requestParams = new ArrayList<>();
 
-
             return Mono.fromCallable(() -> {
 
                 /*
@@ -280,16 +276,6 @@ public class AmazonS3Plugin extends BasePlugin {
                  */
                 if (connection == null) {
                     return Mono.error(new StaleConnectionException());
-                }
-
-                if (datasourceConfiguration == null) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "At least one of the mandatory fields in S3 datasource creation form is empty - " +
-                                            "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
-                            )
-                    );
                 }
 
                 if (actionConfiguration == null) {
@@ -580,7 +566,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         return Mono.just(result);
 
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setQuery(query[0]);
@@ -595,16 +581,6 @@ public class AmazonS3Plugin extends BasePlugin {
         @Override
         public Mono<AmazonS3> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
-            if (datasourceConfiguration == null) {
-                return Mono.error(
-                        new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                "Mandatory fields 'Access Key', 'Secret Key', 'Region' missing. Did you forget to edit " +
-                                        "the 'Access Key'/'Secret Key'/'Region' fields in the datasource creation form?"
-                        )
-                );
-            }
-
             try {
                 Class.forName(S3_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -617,137 +593,8 @@ public class AmazonS3Plugin extends BasePlugin {
                 );
             }
 
-            return (Mono<AmazonS3>) Mono.fromCallable(() -> {
-                List<Property> properties = datasourceConfiguration.getProperties();
-
-                /*
-                 * - Ideally, properties must never be null because the fields contained in the properties list have a
-                 *   default value defined.
-                 * - Ideally, properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) must never be null/empty, because the
-                 *   `S3 Service Provider` dropdown has a default value.
-                 */
-                if (properties == null
-                        || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
-                        || StringUtils.isNullOrEmpty((String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
-                                            "reach out to Appsmith customer support to resolve this."
-                            )
-                    );
-                }
-
-                final boolean usingCustomEndpoint =
-                        !AMAZON_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
-
-                if (!usingCustomEndpoint
-                        && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
-                        || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
-                        || StringUtils.isNullOrEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                                            " in the datasource creation form ? You need to fill it with the region where " +
-                                            "your AWS S3 instance is hosted."
-                            )
-                    );
-                }
-
-                if (usingCustomEndpoint
-                        && (datasourceConfiguration.getEndpoints() == null
-                        || CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())
-                        || datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX) == null
-                        || StringUtils.isNullOrEmpty(datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost()))) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint" +
-                                            " URL' field in the datasource creation form ? You need to fill it with " +
-                                            "the endpoint URL of your S3 instance."
-                            )
-                    );
-                }
-
-                if (usingCustomEndpoint
-                        && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
-                        || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
-                        || StringUtils.isNullOrEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                                            " in the datasource creation form ? You need to fill it with the region where " +
-                                            "your S3 instance is hosted."
-                            )
-                    );
-                }
-
-                final String region = (String) (usingCustomEndpoint ?
-                                        properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue() :
-                                        properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue());
-
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (authentication == null
-                        || StringUtils.isNullOrEmpty(authentication.getUsername())
-                        || StringUtils.isNullOrEmpty(authentication.getPassword())) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Mandatory parameters 'Access Key' and/or 'Secret Key' are missing. Did you " +
-                                            "forget to edit the 'Access Key'/'Secret Key' fields in the datasource creation form ?"
-                            )
-                    );
-                }
-
-                String accessKey = authentication.getUsername();
-                String secretKey = authentication.getPassword();
-
-                BasicAWSCredentials awsCreds;
-                try {
-                    awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-                } catch (IllegalArgumentException e) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                    "Appsmith server has encountered an error when " +
-                                            "parsing AWS credentials from datasource: " + e.getMessage()
-                            )
-                    );
-                }
-
-                AmazonS3ClientBuilder s3ClientBuilder = AmazonS3ClientBuilder
-                        .standard()
-                        .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
-
-                if (!usingCustomEndpoint) {
-                    Regions clientRegion = null;
-
-                    try {
-                        clientRegion = Regions.fromName(region);
-                    } catch (IllegalArgumentException e) {
-                        return Mono.error(
-                                new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                                        "Appsmith server has encountered an error when " +
-                                                "parsing AWS S3 instance region from the AWS S3 datasource configuration " +
-                                                "provided: " + e.getMessage()
-                                )
-                        );
-                    }
-
-                    s3ClientBuilder = s3ClientBuilder.withRegion(clientRegion);
-                } else {
-                    String endpoint = datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost();
-                    s3ClientBuilder = s3ClientBuilder
-                            .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region));
-                }
-
-                return Mono.just(s3ClientBuilder.build());
-
-            })
-                    .flatMap(obj -> obj)
+            return Mono.fromCallable(() -> getS3ClientBuilder(datasourceConfiguration).build())
+                    .flatMap(client -> Mono.just(client))
                     .onErrorResume(e -> {
                                 if (e instanceof AppsmithPluginException) {
                                     return Mono.error(e);
@@ -757,7 +604,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                         new AppsmithPluginException(
                                                 AppsmithPluginError.PLUGIN_ERROR,
                                                 "Appsmith server has encountered an error when " +
-                                                        "connecting to AWS S3 server: " + e.getMessage()
+                                                        "connecting to your S3 server: " + e.getMessage()
                                         )
                                 );
                             }
@@ -817,21 +664,11 @@ public class AmazonS3Plugin extends BasePlugin {
                 invalids.add("Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
                         "reach out to Appsmith customer support to resolve this.");
             }
-            final boolean usingCustomEndpoint =
-                    !AMAZON_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
 
-            if (!usingCustomEndpoint
-                    && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
-                    || properties.get(AWS_S3_REGION_PROPERTY_INDEX) == null
-                    || StringUtils.isNullOrEmpty((String) properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue()))) {
-                invalids.add("Required parameter 'Region' is empty. Did you forget to edit the 'Region' field" +
-                        " in the datasource creation form ? You need to fill it with the region where " +
-                        "your AWS S3 instance is hosted.");
-            }
-
-            if (usingCustomEndpoint
-                    && (datasourceConfiguration.getEndpoints() == null
-                    || CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())
+            final boolean usingAWSS3ServiceProvider =
+                    AWS_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
+            if (!usingAWSS3ServiceProvider
+                    && (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())
                     || datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX) == null
                     || StringUtils.isNullOrEmpty(datasourceConfiguration.getEndpoints().get(CUSTOM_ENDPOINT_INDEX).getHost()))) {
                 invalids.add("Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint" +
@@ -839,7 +676,9 @@ public class AmazonS3Plugin extends BasePlugin {
                         "the endpoint URL of your S3 instance.");
             }
 
-            if (usingCustomEndpoint
+            final boolean usingCustomServiceProvider =
+                    OTHER_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
+            if (usingCustomServiceProvider
                     && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                     || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
                     || StringUtils.isNullOrEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
@@ -853,14 +692,6 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            if (datasourceConfiguration == null) {
-                return Mono.just(
-                        new DatasourceTestResult(
-                                "At least one of the mandatory fields in S3 datasource creation form is empty - " +
-                                        "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again."
-                        )
-                );
-            }
 
             return datasourceCreate(datasourceConfiguration)
                     .map(connection -> {
