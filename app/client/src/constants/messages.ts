@@ -566,15 +566,8 @@ export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
-export const PUSH_TO = () => "Push to";
-export const PUSH_CHANGES = () => "PUSH CHANGES";
-export const PUSHED_SUCCESSFULLY = () => "PUSHED SUCCESSFULLY";
 export const PULL = () => "PULL";
-export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
-export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
-  "Committed and pushed Successfully";
-export const COMMITTED_SUCCESSFULLY = () => "Committed successfully";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
@@ -596,7 +589,13 @@ export const PASTE_SSH_URL_INFO = () =>
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
+export const FETCH_GIT_STATUS = () => "fetching status...";
+export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 
+export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
+export const ERROR_CONNECTING = () => "Error while connecting";
+export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
+export const READ_DOCUMENTATION = () => "Read documentation";
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and insert code snippets to perform complex actions quickly.`;
