@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { isString } from "lodash";
+import _, { isString, remove } from "lodash";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -29,6 +29,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
+import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -310,6 +311,19 @@ export const getParentWidgetIdForPasting = function*(
     }
   }
   return newWidgetParentId;
+};
+
+export const isCopiedModalWidget = function(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  widgets: CanvasWidgetsReduxState,
+) {
+  if (copiedWidgetGroups.length !== 1) return false;
+
+  const copiedWidget = widgets[copiedWidgetGroups[0].widgetId];
+
+  if (copiedWidget && copiedWidget.type === "MODAL_WIDGET") return true;
+
+  return false;
 };
 
 export const checkIfPastingIntoListWidget = function(
@@ -642,7 +656,7 @@ export const isSelectedWidgetsColliding = function*(
   copiedWidgetGroups: CopiedWidgetGroup[],
   pastingIntoWidgetId: string,
 ) {
-  if (!Array.isArray(copiedWidgetGroups)) return false;
+  if (!copiedWidgetGroups.length) return false;
 
   const {
     bottomMostWidget,
@@ -803,4 +817,46 @@ export function* getParentWidgetIdForGrouping(
   }
 
   return pastingIntoWidgetId;
+}
+
+/**
+ * this saga clears out the enhancementMap, template, dynamicBindingPathList and dynamicTriggerPathList when a child
+ * is deleted in list widget
+ *
+ * @param widgets
+ * @param widgetId
+ * @param widgetName
+ * @param parentId
+ */
+export function updateListWidgetPropertiesOnChildDelete(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  widgetName: string,
+) {
+  const clone = JSON.parse(JSON.stringify(widgets));
+
+  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, clone);
+
+  if (parentWithEnhancementFn?.type === "LIST_WIDGET") {
+    const listWidget = parentWithEnhancementFn;
+
+    // delete widget in template of list
+    if (listWidget && widgetName in listWidget.template) {
+      listWidget.template[widgetName] = undefined;
+    }
+
+    // delete dynamic binding path if any
+    remove(listWidget?.dynamicBindingPathList || [], (path: any) =>
+      path.key.startsWith(`template.${widgetName}`),
+    );
+
+    // delete dynamic trigger path if any
+    remove(listWidget?.dynamicTriggerPathList || [], (path: any) =>
+      path.key.startsWith(`template.${widgetName}`),
+    );
+
+    return clone;
+  }
+
+  return clone;
 }

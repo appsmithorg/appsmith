@@ -103,7 +103,7 @@ public interface GitExecutor {
      * @param repoSuffix repo suffix path in local repo
      * @return List of branches for the application
      */
-    Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey);
+    Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String defaultBranch);
 
     /**
      * This method will handle the git-status functionality
@@ -140,4 +140,12 @@ public interface GitExecutor {
      * @return Whether the two branches can be merged or not with list of files where the conflicts are present
      */
     Mono<MergeStatus> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
+
+    /**
+     *
+     * @param repoSuffix Path of the repoSuffix
+     * @param branchName Name of the remote branch
+     * @return created branch name
+     */
+    Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName);
 }

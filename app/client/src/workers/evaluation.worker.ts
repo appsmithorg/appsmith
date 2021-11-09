@@ -9,7 +9,6 @@ import {
   EvalErrorTypes,
   EvaluationError,
   PropertyEvaluationErrorType,
-  EVAL_ERROR_PATH,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -17,13 +16,11 @@ import {
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
-  parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
-import { Severity } from "entities/AppsmithConsole";
-import _ from "lodash";
+import * as log from "loglevel";
 
 const ctx: Worker = self as any;
 
@@ -46,7 +43,7 @@ function messageEventListener(
         timeTaken: (endTime - startTime).toFixed(2),
       });
     } catch (e) {
-      console.error(e);
+      log.error(e);
       // we dont want to log dataTree because it is huge.
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { dataTree, ...rest } = requestData;
@@ -88,12 +85,17 @@ ctx.addEventListener(
         let dependencies: DependencyMap = {};
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
+        let jsUpdates: Record<string, any> = {};
         try {
           if (!dataTreeEvaluator) {
             replayDSL = new ReplayDSL(widgets);
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
-            dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
+            const dataTreeResponse = dataTreeEvaluator.createFirstTree(
+              unevalTree,
+            );
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
+            dataTree = dataTreeResponse.evalTree;
+            jsUpdates = dataTreeResponse.jsUpdates;
             // We need to clean it to remove any possible functions inside the tree.
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
@@ -104,6 +106,7 @@ ctx.addEventListener(
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
             dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
+            jsUpdates = updateResponse.jsUpdates;
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
@@ -122,7 +125,7 @@ ctx.addEventListener(
               type: EvalErrorTypes.UNKNOWN_ERROR,
               message: e.message,
             });
-            console.error(e);
+            log.error(e);
           }
           dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
           dataTreeEvaluator = undefined;
@@ -134,6 +137,7 @@ ctx.addEventListener(
           evaluationOrder,
           logs,
           unEvalUpdates,
+          jsUpdates,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -238,48 +242,6 @@ ctx.addEventListener(
         replayDSL.clearLogs();
         return replayResult;
       }
-      case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
-        const { body, jsAction } = requestData;
-        /**
-         * In case of a cyclical dependency, the dataTreeEvaluator will not
-         * be present. This causes an issue because evalTree is needed to resolve
-         * the cyclical dependency in a JS Collection
-         *
-         * By setting evalTree to an empty object, the parsing can still take place
-         * and it would resolve the cyclical dependency
-         * **/
-        const currentEvalTree = dataTreeEvaluator
-          ? dataTreeEvaluator.evalTree
-          : {};
-        try {
-          const { evalTree, result } = parseJSCollection(
-            body,
-            jsAction,
-            currentEvalTree,
-          );
-          return {
-            evalTree,
-            result,
-          };
-        } catch (e) {
-          const errors = [
-            {
-              errorType: PropertyEvaluationErrorType.PARSE,
-              raw: "",
-              severity: Severity.ERROR,
-              errorMessage: e.message,
-            },
-          ];
-          _.set(
-            currentEvalTree,
-            `${jsAction.name}.${EVAL_ERROR_PATH}.body`,
-            errors,
-          );
-          return {
-            currentEvalTree,
-          };
-        }
-      }
       case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {
         const { action, collectionName } = requestData;
 
@@ -306,7 +268,7 @@ ctx.addEventListener(
           ? evaluate(expression, evalTree, {}, [], true)
           : evaluate(expression, evalTree, {});
       default: {
-        console.error("Action not registered on worker", method);
+        log.error("Action not registered on worker", method);
       }
     }
   }),

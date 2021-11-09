@@ -329,11 +329,10 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey) {
+    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String defaultBranch) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
-            TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
             List<Ref> refList;
             if (listMode == null) {
@@ -351,21 +350,15 @@ public class GitExecutorImpl implements GitExecutor {
                 gitBranchListDTO.setDefault(true);
                 branchList.add(gitBranchListDTO);
             } else {
-                // Get default branch name from the remote
-                String defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
-                GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
-                gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
-                gitBranchListDTO.setDefault(true);
-                branchList.add(gitBranchListDTO);
-
                 for(Ref ref : refList) {
-                    if(!ref.getName().equals(defaultBranch)) {
-                        gitBranchListDTO = new GitBranchListDTO();
-                        gitBranchListDTO.setBranchName(ref.getName()
-                                .replace("refs/heads/",""));
-                        gitBranchListDTO.setDefault(false);
-                        branchList.add(gitBranchListDTO);
+                    GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+                    gitBranchListDTO.setBranchName(ref.getName()
+                            .replace("refs/heads/",""));
+                    gitBranchListDTO.setDefault(false);
+                    if(gitBranchListDTO.getBranchName().equals(defaultBranch)) {
+                        gitBranchListDTO.setDefault(true);
                     }
+                    branchList.add(gitBranchListDTO);
                 }
             }
             git.close();
@@ -495,6 +488,32 @@ public class GitExecutorImpl implements GitExecutor {
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
             }
             return mergeStatus;
+        }).subscribeOn(scheduler);
+    }
+
+
+    public Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName) {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+        return Mono.fromCallable(() -> {
+            log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/" + branchName + " for the repo " + repoSuffix);
+            // open the repo
+            Path baseRepoPath = createRepoPath(repoSuffix);
+            Git git = Git.open(baseRepoPath.toFile());
+            // Create and checkout to new branch
+            git.checkout()
+                    .setCreateBranch(Boolean.TRUE)
+                    .setName(branchName)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .setStartPoint("origin/"+branchName)
+                    .call();
+
+            StoredConfig config = git.getRepository().getConfig();
+            config.setString("branch", branchName, "remote", "origin");
+            config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
+            config.save();
+            git.close();
+            return git.getRepository().getBranch();
         }).subscribeOn(scheduler);
     }
 }
