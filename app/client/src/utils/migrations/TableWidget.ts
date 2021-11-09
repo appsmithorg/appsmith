@@ -372,19 +372,23 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
 
       const newPrimaryColumns: Record<string, ColumnProperties> = {};
       if (primaryColumnEntries.length) {
-        // eslint-disable-next-line prefer-const
-        for (let [key, value] of primaryColumnEntries) {
+        for (const [, primaryColumnEntry] of primaryColumnEntries.entries()) {
+          // Value is reassigned when its invalid(Faulty DSL  https://github.com/appsmithorg/appsmith/issues/8979)
+          const [key] = primaryColumnEntry;
+          let [, value] = primaryColumnEntry;
           const sanitizedKey = removeSpecialChars(key, 200);
           let id = "";
           if (value.id) {
             id = removeSpecialChars(value.id, 200);
-          } else if (Object.keys(value)) {
+          }
+          // When id is undefined it's likely value isn't correct and needs fixing
+          else if (Object.keys(value)) {
             const onlyKey = Object.keys(value)[0] as keyof ColumnProperties;
             const obj: ColumnProperties = value[onlyKey] as any;
             if (!obj.id && !obj.columnType) {
               continue;
             }
-            value = obj as ColumnProperties;
+            value = obj;
             id = removeSpecialChars(value.id, 200);
           }
 
