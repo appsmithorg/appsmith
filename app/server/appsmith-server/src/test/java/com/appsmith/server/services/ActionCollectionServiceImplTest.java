@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.solutions.SanitiseResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -84,6 +85,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     ApplicationService applicationService;
 
+    @MockBean
+    private SanitiseResponse sanitiseResponse;
+
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
     @Before
@@ -97,7 +101,8 @@ public class ActionCollectionServiceImplTest {
                 analyticsService,
                 newActionService,
                 policyGenerator,
-                applicationService
+                applicationService,
+                sanitiseResponse
         );
 
         layoutCollectionService = new LayoutCollectionServiceImpl(

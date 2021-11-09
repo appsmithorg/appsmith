@@ -78,7 +78,7 @@ public enum AppsmithError {
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR),
     INVALID_LOGIN_METHOD(401, 4030, "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     INVALID_GIT_CONFIGURATION(400, 4031, "Git configuration is invalid. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
-    INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH Key is not configured properly. Did you forget to add SSH key to remote? Can you please try again by reconfiguring the SSH key", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
+    INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH Key is not configured properly. Did you forget to add SSH key to remote? Can you please try again by reconfiguring the SSH key with write access", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     INVALID_GIT_REPO(400, 4033, "The remote repo is not empty. Please create a new empty repo and configure the SSH keys. " +
             "If you want to clone from remote repo and build application, please go to the Clone Application option.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     DEFAULT_RESOURCES_UNAVAILABLE(400, 4033, "Unexpected state. Default resources are unavailable for {0} with id {1}. Please reach out to Appsmith customer support to resolve this.",

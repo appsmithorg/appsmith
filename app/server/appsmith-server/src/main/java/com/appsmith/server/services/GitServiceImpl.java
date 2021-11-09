@@ -375,7 +375,7 @@ public class GitServiceImpl implements GitService {
                                 gitApplicationMetadata.getGitAuth().getPublicKey()
                         ).onErrorResume(error -> {
                             if (error instanceof TransportException) {
-                                return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE, "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"));
+                                return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                             }
                             if (error instanceof InvalidRemoteException) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));

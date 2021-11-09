@@ -2,6 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.AbstractCommentDomain;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -128,6 +129,22 @@ public class SanitiseResponse {
         return newAction;
     }
 
+    public ActionCollection updateActionCollectionWithDefaultResources(ActionCollection actionCollection) {
+        DefaultResources defaultResources = actionCollection.getDefaultResources();
+        if (defaultResources == null) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", actionCollection.getId());
+        }
+//        actionCollection.setId(defaultResources.getActionId());
+//        actionCollection.setApplicationId(defaultResources.getApplicationId());
+//        if (actionCollection.getUnpublishedAction() != null) {
+//            actionCollection.setUnpublishedAction(this.updateActionDTOWithDefaultResources(actionCollection.getUnpublishedAction()));
+//        }
+//        if (actionCollection.getPublishedAction() != null) {
+//            actionCollection.setPublishedAction(this.updateActionDTOWithDefaultResources(actionCollection.getPublishedAction()));
+//        }
+        return actionCollection;
+    }
+
     public Application updateApplicationWithDefaultResources(Application application) {
         if (application.getGitApplicationMetadata() != null
                 && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
@@ -145,14 +162,15 @@ public class SanitiseResponse {
 
     public <T extends AbstractCommentDomain> T updatePageAndAppIdWithDefaultResourcesForComments(T resource) {
         DefaultResources defaults = resource.getDefaultResources();
-        if (defaults == null
-                || StringUtils.isEmpty(defaults.getApplicationId())
-                || StringUtils.isEmpty(defaults.getPageId())) {
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, resource.getType(), resource.getId());
+        if (defaults != null) {
+            if(!StringUtils.isEmpty(defaults.getPageId())) {
+                resource.setPageId(defaults.getPageId());
+            }
+            if (!StringUtils.isEmpty(defaults.getApplicationId())) {
+                resource.setApplicationId(defaults.getApplicationId());
+            }
+            resource.setBranchName(defaults.getBranchName());
         }
-        resource.setApplicationId(defaults.getApplicationId());
-        resource.setPageId(defaults.getPageId());
-        resource.setBranchName(defaults.getBranchName());
         return resource;
     }
 }

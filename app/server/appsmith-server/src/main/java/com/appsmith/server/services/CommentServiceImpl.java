@@ -152,14 +152,18 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 })
         );
 
-        return Mono.zip(
-                applicationService.findBranchedApplicationId(branchName, defaultApplicationId, COMMENT_ON_APPLICATIONS),
-                newPageService.findBranchedPageId(branchName, defaultPageId, MANAGE_PAGES),
-                userMono
-        )
+        final Mono<String> branchedAppIdMono = StringUtils.isEmpty(defaultApplicationId)
+                ? Mono.just("")
+                : applicationService.findBranchedApplicationId(branchName, defaultApplicationId, COMMENT_ON_APPLICATIONS);
+
+        final Mono<String> branchedPageIdMono = StringUtils.isEmpty(defaultPageId)
+                ? Mono.just("")
+                : newPageService.findBranchedPageId(branchName, defaultPageId, MANAGE_PAGES);
+
+        return Mono.zip(branchedAppIdMono, branchedPageIdMono, userMono)
                 .flatMap(tuple -> {
-                    String branchedApplicationId = tuple.getT1();
-                    String branchedPageId = tuple.getT2();
+                    String branchedApplicationId = StringUtils.isEmpty(tuple.getT1()) ? null : tuple.getT1();
+                    String branchedPageId = StringUtils.isEmpty(tuple.getT2()) ? null : tuple.getT2();
                     User user = tuple.getT3();
                     comment.setPageId(branchedPageId);
                     comment.setApplicationId(branchedApplicationId);
@@ -232,10 +236,16 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     private Mono<Comment> create(CommentThread commentThread, User user, Comment comment, String originHeader) {
         comment.setAuthorId(user.getId());
         comment.setThreadId(commentThread.getId());
-        comment.setApplicationId(commentThread.getApplicationId());
-        comment.setApplicationName(commentThread.getApplicationName());
-        comment.setPageId(commentThread.getPageId());
+        DefaultResources defaultResources = commentThread.getDefaultResources();
+        if (defaultResources != null) {
+            comment.setPageId(defaultResources.getPageId());
+            comment.setApplicationId(defaultResources.getApplicationId());
+        } else {
+            comment.setApplicationId(commentThread.getApplicationId());
+            comment.setPageId(commentThread.getPageId());
+        }
         comment.setOrgId(commentThread.getOrgId());
+        comment.setApplicationName(commentThread.getApplicationName());
         comment.setAuthorUsername(user.getUsername());
         String authorName = user.getName() != null ? user.getName() : user.getUsername();
         comment.setAuthorName(authorName);

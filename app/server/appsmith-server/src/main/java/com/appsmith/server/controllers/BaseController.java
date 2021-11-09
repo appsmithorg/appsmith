@@ -54,7 +54,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get all resources from base controller {}", params);
         MultiValueMap<String, String> modifiableParams = new LinkedMultiValueMap<>(params);
-        if (StringUtils.isEmpty(branchName)) {
+        if (!StringUtils.isEmpty(branchName)) {
             modifiableParams.add(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
         }
         return service.get(modifiableParams).collectList()
@@ -62,7 +62,7 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
     }
 
     @GetMapping("/{id}")
-    public Mono<ResponseDTO<T>> getById(@PathVariable ID id,
+    public Mono<ResponseDTO<T>> getByIdAndBranchName(@PathVariable ID id,
                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get resource from base controller for id: {}", id);
         return service.findByIdAndBranchName(id, branchName)
@@ -70,16 +70,19 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<T>> update(@PathVariable ID id, @RequestBody T resource) {
+    public Mono<ResponseDTO<T>> update(@PathVariable ID id,
+                                       @RequestBody T resource,
+                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update resource from base controller with id: {}", id);
         return service.update(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<T>> delete(@PathVariable ID id) {
+    public Mono<ResponseDTO<T>> delete(@PathVariable ID id,
+                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to delete resource from base controller with id: {}", id);
-        return service.delete(id)
+        return service.deleteByIdAndBranchName(id, branchName)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 

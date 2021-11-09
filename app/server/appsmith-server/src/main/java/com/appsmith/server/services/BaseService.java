@@ -17,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -124,17 +123,6 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
-    }
-
-    @Override
-    public Mono<T> findByIdAndBranchName(ID id, String branchName) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        } else if(StringUtils.isEmpty(branchName)) {
-            return repository.findById(id)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
-        }
-        return repository.findByIdAndBranchName(id, branchName);
     }
 
     @Override

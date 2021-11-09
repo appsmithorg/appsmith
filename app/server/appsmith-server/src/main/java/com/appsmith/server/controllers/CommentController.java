@@ -37,14 +37,14 @@ public class CommentController extends BaseController<CommentService, Comment, S
         super(service);
     }
 
-    @PostMapping("/comments")
+    @Override
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Comment>> createComment(@Valid @RequestBody Comment resource,
+    public Mono<ResponseDTO<Comment>> create(@Valid @RequestBody Comment resource,
                                                     @RequestParam String threadId,
-                                                    @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
                                                     ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin(), branchName)
+        return service.create(threadId, resource, exchange.getRequest().getHeaders().getOrigin(), exchange.getRequest().getHeaders().getFirst(FieldName.BRANCH_NAME))
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -77,7 +77,7 @@ public class CommentController extends BaseController<CommentService, Comment, S
 
     @Override
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Comment>> delete(@PathVariable String id) {
+    public Mono<ResponseDTO<Comment>> delete(@PathVariable String id, String ignoreBranchName) {
         log.debug("Going to delete comment with id: {}", id);
         return service.deleteComment(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));

@@ -82,6 +82,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     @Override
     public Flux<Application> get(MultiValueMap<String, String> params) {
+        if (!StringUtils.isEmpty(params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME))) {
+            params.add("gitApplicationMetadata.branchName", params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME));
+            params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
+        }
         return setTransientFields(super.getWithPermission(params, READ_APPLICATIONS))
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
@@ -174,22 +178,32 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
-        return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
-            .onErrorResume(error -> {
-                if (error instanceof DuplicateKeyException) {
-                    // Error message : E11000 duplicate key error collection: appsmith.application index:
-                    // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
-                    // { organizationId: "******", name: "AppName", deletedAt: null }
-                    if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
-                        return Mono.error(
-                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
-                        );
-                    }
-                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, error.getCause().getMessage()));
-                }
-                return Mono.error(error);
-            })
-            .flatMap(analyticsService::sendUpdateEvent);
+        Mono<String> applicationIdMono;
+        GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+        if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+            applicationIdMono = this.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
+                    .map(Application::getId);
+        } else {
+            applicationIdMono = Mono.just(id);
+        }
+        return applicationIdMono
+                .flatMap(appId -> repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
+                    .onErrorResume(error -> {
+                        if (error instanceof DuplicateKeyException) {
+                            // Error message : E11000 duplicate key error collection: appsmith.application index:
+                            // organization_application_deleted_gitApplicationMetadata_compound_index dup key:
+                            // { organizationId: "******", name: "AppName", deletedAt: null }
+                            if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
+                                return Mono.error(
+                                    new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
+                                );
+                            }
+                            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, error.getCause().getMessage()));
+                        }
+                        return Mono.error(error);
+                    })
+                    .flatMap(analyticsService::sendUpdateEvent)
+                );
     }
 
     @Override
