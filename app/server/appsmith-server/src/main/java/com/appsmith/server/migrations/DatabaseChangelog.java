@@ -3658,7 +3658,7 @@ public class DatabaseChangelog {
         }
 
         String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
-        if (widgetType.equals("LIST_WIDGET")) {
+        if ("LIST_WIDGET".equals(widgetType)) {
             // Only List Widget would go through the following processing
 
             // Start by picking all fields where we expect to find dynamic triggers for this particular widget
