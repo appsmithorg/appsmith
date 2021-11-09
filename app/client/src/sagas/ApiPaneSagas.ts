@@ -4,7 +4,16 @@
 import get from "lodash/get";
 import omit from "lodash/omit";
 import cloneDeep from "lodash/cloneDeep";
-import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
+import {
+  all,
+  select,
+  put,
+  takeEvery,
+  takeLatest,
+  call,
+  take,
+  fork,
+} from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
@@ -76,6 +85,7 @@ import {
   parseUrlForQueryParams,
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
+import { updateReplayObject } from "./EvaluationsSaga";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -371,6 +381,8 @@ function* formValueChangeSaga(
     );
   }
 
+  yield fork(updateReplayObject, values.id, values);
+
   yield all([
     call(syncApiParamsSaga, actionPayload, values.id),
     call(updateFormFields, actionPayload),
@@ -591,8 +603,8 @@ export default function* root() {
       redirectToNewIntegrations,
     ),
     // Intercepting the redux-form change actionType
-    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
-    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
-    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeLatest(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeLatest(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeLatest(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
   ]);
 }

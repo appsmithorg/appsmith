@@ -29,7 +29,7 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { ReplayEntityType } from "workers/replayUtils";
+import { ReplayEntityType } from "entities/Replay/replayUtils";
 import { updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 import { changeQuery } from "actions/queryPaneActions";

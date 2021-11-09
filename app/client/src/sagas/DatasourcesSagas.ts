@@ -89,6 +89,7 @@ import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 
 import { trimQueryString } from "utils/helpers";
 import { updateReplayObject } from "./EvaluationsSaga";
+import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -641,7 +642,7 @@ function* updateDraftsSaga() {
       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
       payload: { id: values.id, draft: values },
     });
-    yield delay(400);
+    yield delay(REPLAY_DELAY);
     yield call(updateReplayObject, values.id, values);
   }
 }

@@ -10,6 +10,7 @@ import {
   matchJSObjectPath,
 } from "constants/routes";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { matchSaasPath } from "pages/Editor/SaaSEditor/constants";
 
 export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);
@@ -18,6 +19,14 @@ export const getEntityInCurrentPath = (pathName: string) => {
       type: "page",
       id: builderMatch?.params?.pageId,
       params: builderMatch?.params,
+    };
+
+  const saasMatch = matchSaasPath(pathName);
+  if (saasMatch)
+    return {
+      type: "action",
+      id: saasMatch?.params?.apiId,
+      params: saasMatch?.params,
     };
 
   const apiMatch = matchApiPath(pathName);

@@ -66,9 +66,6 @@ import {
 } from "constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
-import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
-import { createBrowserHistory } from "history";
-import { getCurrentEntitySelector } from "selectors/entitiesSelector";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -80,10 +77,6 @@ function* evaluateTreeSaga(
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
-  const history = createBrowserHistory();
-  const pathname = history.location.pathname;
-  const { id, type } = getEntityInCurrentPath(pathname);
-  const currentEntity = yield select(getCurrentEntitySelector, { id, type });
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -95,7 +88,6 @@ function* evaluateTreeSaga(
       unevalTree,
       widgetTypeConfigMap,
       widgets,
-      currentEntity,
       shouldReplay,
     },
   );

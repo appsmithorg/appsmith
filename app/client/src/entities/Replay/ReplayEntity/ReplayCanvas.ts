@@ -1,8 +1,8 @@
 import { Diff } from "deep-diff";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import ReplayEntity from "./ReplayEntity";
+import ReplayEntity from "../index";
 import { set } from "lodash";
-import { addToArray, setPropertyUpdate, UPDATES } from "./replayUtils";
+import { addToArray, setPropertyUpdate, UPDATES } from "../replayUtils";
 
 export type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
 

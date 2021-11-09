@@ -1,6 +1,6 @@
 import { Diff } from "deep-diff";
 import { Datasource } from "entities/Datasource";
-import ReplayEntity from "./ReplayEntity";
+import ReplayEntity from "../index";
 
 export default class ReplayDatasource extends ReplayEntity<Datasource> {
   constructor(entity: Datasource) {

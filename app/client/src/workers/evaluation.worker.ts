@@ -20,13 +20,17 @@ import {
   parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import ReplayEntity from "workers/ReplayEntity";
+import ReplayEntity from "entities/Replay";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import { Severity } from "entities/AppsmithConsole";
 import _ from "lodash";
-import ReplayCanvas from "./ReplayCanvas";
-import ReplayAction from "./ReplayAction";
-import ReplayDatasource from "./ReplayDatasource";
+import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
+import ReplayAction from "entities/Replay/ReplayEntity/ReplayAction";
+import {
+  getReplayEntityType,
+  ReplayEntityType,
+} from "entities/Replay/replayUtils";
+import ReplayDatasource from "entities/Replay/ReplayEntity/ReplayDatasource";
 
 const CANVAS = "canvas";
 
@@ -83,7 +87,6 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const {
-          currentEntity,
           shouldReplay = true,
           unevalTree,
           widgets,
@@ -99,9 +102,6 @@ ctx.addEventListener(
           if (!dataTreeEvaluator) {
             replayMap = replayMap || {};
             replayMap[CANVAS] = new ReplayCanvas(widgets);
-            if (!_.isEmpty(currentEntity)) {
-              replayMap[currentEntity.id] = new ReplayAction(currentEntity);
-            }
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -112,12 +112,6 @@ ctx.addEventListener(
             dataTree = {};
             if (shouldReplay) {
               replayMap[CANVAS]?.update(widgets);
-              if (!_.isEmpty(currentEntity)) {
-                replayMap[currentEntity.id] =
-                  replayMap[currentEntity.id] ||
-                  new ReplayAction(currentEntity);
-                replayMap[currentEntity.id]?.update(currentEntity);
-              }
             }
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
@@ -246,16 +240,16 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
         const { entityId } = requestData;
-        if (!replayMap[entityId || "canvas"]) return;
-        const replayResult = replayMap[entityId || "canvas"].replay("UNDO");
-        replayMap[entityId || "canvas"].clearLogs();
+        if (!replayMap[entityId || CANVAS]) return;
+        const replayResult = replayMap[entityId || CANVAS].replay("UNDO");
+        replayMap[entityId || CANVAS].clearLogs();
         return replayResult;
       }
       case EVAL_WORKER_ACTIONS.REDO: {
         const { entityId } = requestData;
-        if (!replayMap[entityId ?? "canvas"]) return;
-        const replayResult = replayMap[entityId ?? "canvas"].replay("REDO");
-        replayMap[entityId ?? "canvas"].clearLogs();
+        if (!replayMap[entityId ?? CANVAS]) return;
+        const replayResult = replayMap[entityId ?? CANVAS].replay("REDO");
+        replayMap[entityId ?? CANVAS].clearLogs();
         return replayResult;
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
@@ -331,7 +325,13 @@ ctx.addEventListener(
         if (replayObject) {
           replayObject.update(entity);
         } else {
-          replayMap[entityId] = new ReplayDatasource(entity);
+          const replayEntityType = getReplayEntityType(entity);
+          if (replayEntityType === ReplayEntityType.ACTION)
+            replayMap[entityId] = new ReplayAction(entity);
+          if (replayEntityType === ReplayEntityType.JSACTION)
+            replayMap[entityId] = new ReplayAction(entity);
+          if (replayEntityType === ReplayEntityType.DATASOURCE)
+            replayMap[entityId] = new ReplayDatasource(entity);
         }
         break;
       default: {

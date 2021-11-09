@@ -1,4 +1,13 @@
-import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  select,
+  take,
+  takeEvery,
+  fork,
+  delay,
+} from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
@@ -45,6 +54,8 @@ import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
+import { updateReplayObject } from "./EvaluationsSaga";
+import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(
@@ -104,6 +115,8 @@ function* changeQuerySaga(
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
   // Once the initial values are set, we can run the evaluations based on them.
   yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
+
+  yield fork(updateReplayObject, formInitialValues.id, formInitialValues);
 }
 
 function* formValueChangeSaga(
@@ -153,6 +166,8 @@ function* formValueChangeSaga(
       }),
     );
   }
+  yield delay(REPLAY_DELAY);
+  yield fork(updateReplayObject, values.id, values);
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {

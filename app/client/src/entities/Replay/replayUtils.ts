@@ -1,7 +1,7 @@
 import { get, set } from "lodash";
 import { PluginType } from "entities/Action";
 export const UPDATES = "propertyUpdates";
-
+export const REPLAY_DELAY = 300;
 /**
  * checks the existing value and sets he propertyUpdate if required
  *

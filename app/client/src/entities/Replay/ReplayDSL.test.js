@@ -1,4 +1,4 @@
-import ReplayDSL from "./ReplayEntity";
+import ReplayDSL from "../entities/Replay/ReplayEntity";
 import { diff as deepDiff } from "deep-diff";
 
 describe("Checks ReplayDSL functionality", () => {

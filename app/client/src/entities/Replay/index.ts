@@ -108,7 +108,6 @@ export default abstract class ReplayEntity<T> {
     const startTime = performance.now();
     const diffs = deepDiff(this.entity, entity);
     if (diffs && diffs.length) {
-      debugger;
       this.entity = entity;
       this.diffMap.set(_DIFF_, diffs);
     }

@@ -1,8 +1,8 @@
 import { Diff } from "deep-diff";
 import { Action } from "entities/Action";
 import { TOASTS } from "./ReplayCanvas";
-import ReplayEntity from "./ReplayEntity";
-import { addToArray, pathArrayToString } from "./replayUtils";
+import ReplayEntity from "..";
+import { addToArray, pathArrayToString } from "../replayUtils";
 
 export default class ReplayAction extends ReplayEntity<Action> {
   constructor(entity: Action) {
