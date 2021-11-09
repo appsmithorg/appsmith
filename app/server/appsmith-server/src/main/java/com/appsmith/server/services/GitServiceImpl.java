@@ -939,7 +939,9 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
+    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
+        String sourceBranch = gitMergeDTO.getSourceBranch();
+        String destinationBranch = gitMergeDTO.getDestinationBranch();
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();

@@ -163,10 +163,9 @@ public class GitController {
 
     @GetMapping("/merge/status/{defaultApplicationId}")
     public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(@PathVariable String defaultApplicationId,
-                                                         @RequestParam String sourceBranch,
-                                                         @RequestParam String destinationBranch) {
-        log.debug("Check if branch {} can be merged with branch {} for application {}", sourceBranch, destinationBranch, defaultApplicationId);
-        return service.isBranchMergeable(defaultApplicationId, sourceBranch, destinationBranch)
+                                                         @RequestBody GitMergeDTO gitMergeDTO) {
+        log.debug("Check if branch {} can be merged with branch {} for application {}", gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
+        return service.isBranchMergeable(defaultApplicationId, gitMergeDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

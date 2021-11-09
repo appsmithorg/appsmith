@@ -12,6 +12,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -878,6 +879,10 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void isMergeBranch_ConflictingChanges_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("isMergeBranch_ConflictingChanges_Success");
+        GitMergeDTO gitMergeDTO = new GitMergeDTO();
+        gitMergeDTO.setSourceBranch("branch1");
+        gitMergeDTO.setDestinationBranch("branch2");
+
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMerge(true);
 
@@ -886,7 +891,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1","branch2");
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -898,6 +903,10 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void isMergeBranch_NonConflictingChanges_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("isMergeBranch_NonConflictingChanges_Success");
+        GitMergeDTO gitMergeDTO = new GitMergeDTO();
+        gitMergeDTO.setSourceBranch("branch1");
+        gitMergeDTO.setDestinationBranch("branch2");
+
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMerge(true);
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
@@ -905,7 +914,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1","branch2");
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
 
         StepVerifier
                 .create(applicationMono)
