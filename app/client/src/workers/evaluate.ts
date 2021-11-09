@@ -259,6 +259,7 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
         userFunction();
       }
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
     }
     return self.IS_ASYNC;

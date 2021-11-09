@@ -167,9 +167,9 @@ export class GracefulWorkerService {
     }
   }
 
-  /*
+  /**
    * When there needs to be a back and forth between both the threads,
-   * you can use bidirectional request to avoid closing a channel
+   * you can use duplex request to avoid closing a channel
    * */
   *duplexRequest(method: string, requestData = {}): any {
     yield this.ready(false);

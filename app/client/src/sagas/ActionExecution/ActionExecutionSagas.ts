@@ -18,7 +18,6 @@ import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
 import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
 import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
-import executePromiseSaga from "sagas/ActionExecution/PromiseActionSaga";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -57,9 +56,6 @@ export function* executeActionTriggers(
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
   switch (trigger.type) {
-    case ActionTriggerType.PROMISE:
-      yield call(executePromiseSaga, trigger.payload, eventType, triggerMeta);
-      break;
     case ActionTriggerType.RUN_PLUGIN_ACTION:
       response = yield call(
         executePluginActionTriggerSaga,

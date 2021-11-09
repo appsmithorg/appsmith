@@ -1,3 +1,4 @@
+// Workers do not have access to log.error
 /* eslint-disable no-console */
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {

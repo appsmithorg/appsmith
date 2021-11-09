@@ -2,7 +2,6 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { TypeOptions } from "react-toastify";
 
 export enum ActionTriggerType {
-  PROMISE = "PROMISE",
   RUN_PLUGIN_ACTION = "RUN_PLUGIN_ACTION",
   CLEAR_PLUGIN_ACTION = "CLEAR_PLUGIN_ACTION",
   NAVIGATE_TO = "NAVIGATE_TO",
@@ -16,16 +15,6 @@ export enum ActionTriggerType {
   SET_INTERVAL = "SET_INTERVAL",
   CLEAR_INTERVAL = "CLEAR_INTERVAL",
 }
-
-export type PromiseActionDescription = {
-  type: ActionTriggerType.PROMISE;
-  payload: {
-    executor: ActionDescription[];
-    then: string[];
-    catch?: string;
-    finally?: string;
-  };
-};
 
 export type RunPluginActionDescription = {
   type: ActionTriggerType.RUN_PLUGIN_ACTION;
@@ -120,7 +109,6 @@ export type ClearIntervalDescription = {
 };
 
 export type ActionDescription =
-  | PromiseActionDescription
   | RunPluginActionDescription
   | ClearPluginActionDescription
   | NavigateActionDescription
