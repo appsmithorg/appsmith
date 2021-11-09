@@ -12,6 +12,7 @@ import { ReactComponent as RecorderNoPermissionIcon } from "assets/icons/widget/
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { hexToRgb, ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 export enum RecorderStatusTypes {
   PERMISSION_PROMPT = "PERMISSION_PROMPT",
@@ -59,6 +60,10 @@ const RightContainer = styled.div`
       border: none;
     }
   }
+`;
+
+const TimerContainer = styled.div<ThemeProp>`
+  color: ${Colors.GREY_4};
 `;
 
 interface RecorderLeftButtonStyleProps {
@@ -495,12 +500,12 @@ function RecorderRight(props: RecorderRightProps) {
     seconds: number,
   ) => {
     return (
-      <div>
+      <TimerContainer>
         {!!days && <span>{`${getFormattedDigit(days)}:`}</span>}
         {!!hours && <span>{`${getFormattedDigit(hours)}:`}</span>}
         <span>{`${getFormattedDigit(minutes)}:`}</span>
         <span>{`${getFormattedDigit(seconds)}`}</span>
-      </div>
+      </TimerContainer>
     );
   };
 
