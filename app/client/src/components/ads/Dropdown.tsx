@@ -338,6 +338,7 @@ const StyledSubText = styled(Text)<{
     color: ${(props) => props.theme.colors.dropdown.selected.subtext};
     position: absolute;
     right: ${(props) => (props.showDropIcon ? "39px" : "12px")};
+    width: unset;
   }
 `;
 
