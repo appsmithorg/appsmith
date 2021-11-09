@@ -656,7 +656,7 @@ export const isSelectedWidgetsColliding = function*(
   copiedWidgetGroups: CopiedWidgetGroup[],
   pastingIntoWidgetId: string,
 ) {
-  if (!Array.isArray(copiedWidgetGroups)) return false;
+  if (!copiedWidgetGroups.length) return false;
 
   const {
     bottomMostWidget,
