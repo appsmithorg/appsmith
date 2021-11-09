@@ -3764,7 +3764,7 @@ public class DatabaseChangelog {
                 where("deletedAt").is(null),
                 where("unpublishedPage.layouts.0.dsl").exists(true)
         );
-        // Fetch only the layouts to try to conse
+
         Query pageQuery = query(possibleCandidatePagesCriteria);
         pageQuery.fields()
                 .include(fieldName(QNewPage.newPage.id));
