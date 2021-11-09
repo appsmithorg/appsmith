@@ -267,6 +267,11 @@ function InlineCommentPin(props: Props) {
           if (nextOpenState) {
             dispatch(setVisibleThread(commentThreadId));
           } else {
+            const currentURL = new URL(window.location.href);
+            const searchParams = currentURL.searchParams;
+            const isInviting = searchParams.get("inviting");
+            // Don't close the comment thread if user goes on to invite someone else.
+            if (isInviting) return;
             const shouldPersistComment = e?.type === "mousedown";
             dispatch(resetVisibleThread(commentThreadId, shouldPersistComment));
             resetCommentThreadIdInURL(commentThreadId);

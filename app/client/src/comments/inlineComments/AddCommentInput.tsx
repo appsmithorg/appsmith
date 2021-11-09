@@ -12,7 +12,13 @@ import Button, { Category } from "components/ads/Button";
 
 import { BaseEmoji } from "emoji-mart";
 import styled from "styled-components";
-import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
+import {
+  EditorState,
+  convertToRaw,
+  convertFromRaw,
+  Modifier,
+  SelectionState,
+} from "draft-js";
 import { MentionData } from "@draft-js-plugins/mention";
 
 import { OrgUser } from "constants/orgConstants";
@@ -215,9 +221,43 @@ function AddCommentInput({
   );
 
   const setEditorState = useCallback((updatedEditorState: EditorState) => {
-    setEditorStateInState(updatedEditorState);
+    const currentURL = new URL(window.location.href);
+    const searchParams = currentURL.searchParams;
+    const isInviting = searchParams.get("inviting");
+    let modifiedState = updatedEditorState;
+    if (isInviting) {
+      // Updated the content object to make sure that the latest invite email to be invited
+      // is not interpreted as mention. When user goes back to the comment they'll be able
+      // to select this user from the suggestion list triggered by default.
+      const contentState = convertToRaw(updatedEditorState.getCurrentContent());
+      const models = contentState.entityMap;
+      const data = contentState.blocks;
+
+      const latestModelKey = Object.keys(models).length - 1;
+      if (latestModelKey > -1) delete models[latestModelKey];
+      data.every((block) => {
+        const idx = block.entityRanges.findIndex(
+          (range) => range.key === latestModelKey,
+        );
+        if (idx > -1) {
+          const config = block.entityRanges[idx];
+          block.text =
+            block.text.slice(0, config.offset) +
+            "@" +
+            block.text.slice(config.offset).trim();
+          block.entityRanges.splice(idx, 1);
+          return false;
+        }
+      });
+      modifiedState = EditorState.createWithContent(
+        convertFromRaw(contentState),
+        updatedEditorState.getDecorator(),
+      );
+    }
+
+    setEditorStateInState(modifiedState);
     if (typeof onChange === "function") {
-      onChange(updatedEditorState);
+      onChange(modifiedState);
     }
   }, []);
 

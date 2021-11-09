@@ -40,6 +40,7 @@ import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import UserApi from "api/UserApi";
+import history from "utils/history";
 
 const OrgInviteTitle = styled.div`
   padding: 10px 0px;
@@ -203,6 +204,28 @@ const validate = (values: any) => {
 
 const { mailEnabled } = getAppsmithConfigs();
 
+export const initializeInviteFromComment = () => {
+  const currentURL = new URL(window.location.href);
+  const searchParams = currentURL.searchParams;
+  searchParams.append("inviting", "true");
+  history.replace({
+    ...window.location,
+    pathname: currentURL.pathname,
+    search: searchParams.toString(),
+  });
+};
+
+export const finalizeInviteFromComment = () => {
+  const currentURL = new URL(window.location.href);
+  const searchParams = currentURL.searchParams;
+  searchParams.delete("inviting");
+  history.replace({
+    ...window.location,
+    pathname: currentURL.pathname,
+    search: searchParams.toString(),
+  });
+};
+
 function OrgInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const userRef = React.createRef<HTMLDivElement>();
@@ -231,6 +254,12 @@ function OrgInviteUsersForm(props: any) {
     userOrgPermissions,
     PERMISSION_TYPE.MANAGE_ORGANIZATION,
   );
+
+  // set the "inviting" query param in URL
+  useEffect(() => {
+    initializeInviteFromComment();
+    return () => finalizeInviteFromComment();
+  }, []);
 
   useEffect(() => {
     fetchUser(props.orgId);
