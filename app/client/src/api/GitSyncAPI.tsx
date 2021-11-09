@@ -21,6 +21,12 @@ export type MergeBranchPayload = {
   destinationBranch: string;
 };
 
+export type MergeStatusPayload = {
+  applicationId: string;
+  sourceBranch: string;
+  destinationBranch: string;
+};
+
 export type ConnectToGitPayload = {
   remoteUrl: string;
   gitProfile: {
@@ -69,6 +75,17 @@ class GitSyncAPI extends Api {
     sourceBranch,
   }: MergeBranchPayload): AxiosPromise<ApiResponse> {
     return Api.post(`${GitSyncAPI.baseURL}/merge/${applicationId}`, {
+      sourceBranch,
+      destinationBranch,
+    });
+  }
+
+  static getMergeStatus({
+    applicationId,
+    destinationBranch,
+    sourceBranch,
+  }: MergeStatusPayload) {
+    return Api.get(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
       sourceBranch,
       destinationBranch,
     });
