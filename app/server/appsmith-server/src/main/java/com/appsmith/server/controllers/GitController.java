@@ -11,6 +11,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
@@ -154,10 +155,9 @@ public class GitController {
 
     @PostMapping("/merge/{defaultApplicationId}")
     public Mono<ResponseDTO<GitPullDTO>> merge(@PathVariable String defaultApplicationId,
-                                           @RequestParam String sourceBranch,
-                                           @RequestParam String destinationBranch) {
-        log.debug("Going to get merge branch {} with branch {} for application {}", sourceBranch, destinationBranch, defaultApplicationId);
-        return service.mergeBranch(defaultApplicationId, sourceBranch, destinationBranch)
+                                               @RequestBody GitMergeDTO gitMergeDTO) {
+        log.debug("Going to merge branch {} with branch {} for application {}", gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
+        return service.mergeBranch(defaultApplicationId, gitMergeDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

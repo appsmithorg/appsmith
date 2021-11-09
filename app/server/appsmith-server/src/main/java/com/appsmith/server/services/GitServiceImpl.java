@@ -18,6 +18,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -859,7 +860,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<GitPullDTO> mergeBranch(String defaultApplicationId, String sourceBranch, String destinationBranch) {
+    public Mono<GitPullDTO> mergeBranch(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
         /*
          * 1.Dehydrate the application from Mongodb so that the file system has latest application data for both the source and destination branch application
          * 2.Do git checkout destinationBranch ---> git merge sourceBranch after the rehydration
@@ -867,6 +868,9 @@ public class GitServiceImpl implements GitService {
          * 3.Then rehydrate from the file system to mongodb so that the latest changes from remote are rendered to the application
          * 4.Get the latest application mono from the mongodb and send it back to client
          * */
+
+        String sourceBranch = gitMergeDTO.getSourceBranch();
+        String destinationBranch = gitMergeDTO.getDestinationBranch();
 
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {

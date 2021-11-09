@@ -9,6 +9,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
@@ -50,7 +51,7 @@ public interface GitService {
 
     Mono<Map<String, Object>> getStatus(String defaultApplicationId, MultiValueMap<String, String> params);
 
-    Mono<GitPullDTO> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
+    Mono<GitPullDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
     Mono<MergeStatusDTO> isBranchMergeable(String applicationId, String sourceBranch, String destinationBranch);
 }
