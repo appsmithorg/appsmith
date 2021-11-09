@@ -44,6 +44,7 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
+import { formatCurrencyNumber, limitDecimalValue } from "./utilities";
 
 /**
  * All design system component specific logic goes here.
@@ -335,29 +336,11 @@ class InputComponent extends React.Component<
         valueAsString.includes(".") &&
         currentIndexOfDecimal <= indexOfDecimal
       ) {
-        let value = valueAsString.split(",").join("");
-        if (value) {
-          const locale = navigator.languages?.[0] || "en-US";
-          const formatter = new Intl.NumberFormat(locale, {
-            style: "decimal",
-            minimumFractionDigits: fractionDigits,
-          });
-          const decimalValueArray = value.split(".");
-          //remove extra digits after decimal point
-          if (
-            this.props.decimalsInCurrency &&
-            decimalValueArray[1].length > this.props.decimalsInCurrency
-          ) {
-            value =
-              decimalValueArray[0] +
-              "." +
-              decimalValueArray[1].substr(0, this.props.decimalsInCurrency);
-          }
-          const formattedValue = formatter.format(parseFloat(value));
-          this.props.onValueChange(formattedValue);
-        } else {
-          this.props.onValueChange("");
-        }
+        const value = limitDecimalValue(
+          this.props.decimalsInCurrency,
+          valueAsString,
+        );
+        this.props.onValueChange(value);
       } else {
         this.props.onValueChange(valueAsString);
       }
@@ -436,6 +419,24 @@ class InputComponent extends React.Component<
     }
   };
 
+  onNumberInputBlur = () => {
+    if (this.props.value) {
+      const formattedValue = formatCurrencyNumber(
+        this.props.decimalsInCurrency,
+        this.props.value,
+      );
+      this.props.onValueChange(formattedValue);
+    }
+
+    this.setFocusState(false);
+  };
+
+  onNumberInputFocus = () => {
+    const deFormattedValue = this.props.value.split(",").join("");
+    this.props.onValueChange(deFormattedValue);
+    this.setFocusState(true);
+  };
+
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon(
       this.props.inputType,
@@ -463,8 +464,8 @@ class InputComponent extends React.Component<
         minorStepSize={
           minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
         }
-        onBlur={() => this.setFocusState(false)}
-        onFocus={() => this.setFocusState(true)}
+        onBlur={this.onNumberInputBlur}
+        onFocus={this.onNumberInputFocus}
         onKeyDown={this.onKeyDown}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
