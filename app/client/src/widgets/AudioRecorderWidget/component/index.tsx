@@ -61,10 +61,6 @@ const RightContainer = styled.div`
   }
 `;
 
-const TimerContainer = styled.div<ThemeProp>`
-  color: ${({ theme }) => theme.colors.button.disabled.bgColor};
-`;
-
 interface RecorderLeftButtonStyleProps {
   backgroundColor: string;
   dimension: number;
@@ -499,12 +495,12 @@ function RecorderRight(props: RecorderRightProps) {
     seconds: number,
   ) => {
     return (
-      <TimerContainer>
+      <div>
         {!!days && <span>{`${getFormattedDigit(days)}:`}</span>}
         {!!hours && <span>{`${getFormattedDigit(hours)}:`}</span>}
         <span>{`${getFormattedDigit(minutes)}:`}</span>
         <span>{`${getFormattedDigit(seconds)}`}</span>
-      </TimerContainer>
+      </div>
     );
   };
 
