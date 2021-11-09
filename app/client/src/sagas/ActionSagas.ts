@@ -121,6 +121,7 @@ import {
 import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import * as log from "loglevel";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -650,7 +651,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       variant: Variant.danger,
     });
-    console.error(e);
+    log.error(e);
   }
 }
 

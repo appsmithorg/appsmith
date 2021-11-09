@@ -4,6 +4,7 @@ import {
   handleSpecificCasesWhilePasting,
   doesTriggerPathsContainPropertyPath,
   checkIfPastingIntoListWidget,
+  updateListWidgetPropertiesOnChildDelete,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {
@@ -455,5 +456,129 @@ describe("WidgetOperationSaga", () => {
     );
 
     expect(result?.type).toStrictEqual("LIST_WIDGET");
+  });
+
+  it("should return widgets after executing updateListWidgetPropertiesOnChildDelete", () => {
+    const result = updateListWidgetPropertiesOnChildDelete(
+      {
+        list1: {
+          widgetId: "list1",
+          type: "LIST_WIDGET",
+          widgetName: "List1",
+          parentId: "0",
+          renderMode: "CANVAS",
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          isLoading: false,
+          listData: [],
+          version: 16,
+          disablePropertyPane: false,
+          template: {},
+          enhancements: {},
+          dynamicBindingPathList: [{ key: "template.ButtonWidget1.text" }],
+          dynamicTriggerPathList: [
+            {
+              key: "template.ButtonWidget1.onClick",
+            },
+          ],
+        },
+        buttonWidget1: {
+          type: "BUTTON_WIDGET",
+          widgetId: "buttonWidget1",
+          widgetName: "buttonWidget1",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+        0: {
+          type: "CANVAS_WIDGET",
+          widgetId: "0",
+          widgetName: "MainContainer",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+      },
+      "buttonWidget1",
+      "ButtonWidget1",
+    );
+
+    const expected = updateListWidgetPropertiesOnChildDelete(
+      {
+        list1: {
+          widgetId: "list1",
+          type: "LIST_WIDGET",
+          widgetName: "List1",
+          parentId: "0",
+          renderMode: "CANVAS",
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          isLoading: false,
+          listData: [],
+          version: 16,
+          disablePropertyPane: false,
+          template: {},
+          enhancements: {},
+          dynamicBindingPathList: [],
+          dynamicTriggerPathList: [],
+        },
+        buttonWidget1: {
+          type: "BUTTON_WIDGET",
+          widgetId: "buttonWidget1",
+          widgetName: "buttonWidget1",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+        0: {
+          type: "CANVAS_WIDGET",
+          widgetId: "0",
+          widgetName: "MainContainer",
+          version: 16,
+          parentColumnSpace: 2,
+          parentRowSpace: 3,
+          leftColumn: 2,
+          rightColumn: 3,
+          topRow: 1,
+          bottomRow: 3,
+          renderMode: "CANVAS",
+          isLoading: false,
+          parentId: "list1",
+        },
+      },
+      "buttonWidget1",
+      "ButtonWidget1",
+    );
+
+    expect(result).toStrictEqual(expected);
   });
 });
