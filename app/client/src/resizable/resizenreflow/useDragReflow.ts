@@ -346,7 +346,6 @@ function getWidgetCollisionGraphInDirection(
   collidingWidgets: OccupiedSpace[],
   accessors: CollisionAccessors,
   widgetMovementMap: reflowWidgets,
-  widgetParentSpaces: WidgetParentSpaces,
 ) {
   const widgetCollisionGraph: WidgetCollisionGraph = {
     ...widgetPosition,
@@ -939,7 +938,6 @@ function getMovementMapInDirection(
     collidingWidgets,
     accessors,
     widgetMovementMap,
-    widgetParentSpaces,
   );
 
   // if (initialCollidingWidget) {
