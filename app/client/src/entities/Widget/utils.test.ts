@@ -31,6 +31,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       type: "TABLE_WIDGET",
       parentId: "0",
       isLoading: false,
+      isSortable: true,
       horizontalAlignment: "LEFT",
       parentColumnSpace: 74,
       version: 1,
@@ -123,6 +124,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
         primaryColumns: "TEMPLATE",
+        isSortable: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
@@ -207,6 +209,12 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
           type: "FUNCTION",
+        },
+        isSortable: {
+          type: "BOOLEAN",
+          params: {
+            default: true,
+          },
         },
         tableData: {
           type: "OBJECT_ARRAY",
