@@ -91,7 +91,7 @@ export const BlueprintControlTransform = css`
         }
       }
       input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${Colors.SWITCH_BACKGROUND};
+        background: ${Colors.GEYSER_GREY};
         border: 1px solid ${Colors.GREY_5};
       }
     }
