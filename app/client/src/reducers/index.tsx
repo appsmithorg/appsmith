@@ -41,7 +41,7 @@ import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
 import { CommentsReduxState } from "./uiReducers/commentsReducer/interfaces";
-import { WebsocketReduxState } from "./uiReducers/websocketReducer";
+import { WebsocketReducerState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
@@ -49,25 +49,25 @@ import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
 import { JSCollectionDataState } from "./entityReducers/jsActionsReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
-import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
 import { JSObjectNameReduxState } from "./uiReducers/jsObjectNameReducer";
 import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
+import SettingsReducer, { SettingsReduxState } from "./settingsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
   evaluations: evaluationsReducer,
   form: formReducer,
+  settings: SettingsReducer,
 });
 
 export default appReducer;
 
 export interface AppState {
   ui: {
-    actionTabs: ActionTabsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     tableFilterPane: TableFilterPaneReduxState;
@@ -96,7 +96,7 @@ export interface AppState {
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
     comments: CommentsReduxState;
-    websocket: WebsocketReduxState;
+    websocket: WebsocketReducerState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
     jsPane: JsPaneReduxState;
@@ -124,4 +124,5 @@ export interface AppState {
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
   };
+  settings: SettingsReduxState;
 }

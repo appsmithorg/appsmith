@@ -118,14 +118,14 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + k"
           global
           label="Show omnibar"
           onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + j"
           global
           label="Show omnibar"
@@ -134,7 +134,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + l"
           global
           label="Show omnibar"
@@ -143,7 +143,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }
         />
         <Hotkey
-          allowInInput={false}
+          allowInInput
           combo="mod + p"
           global
           label="Show omnibar"
@@ -152,6 +152,7 @@ class GlobalHotKeys extends React.Component<Props> {
           }
         />
         <Hotkey
+          allowInInput
           combo="mod + d"
           global
           group="Canvas"
@@ -242,8 +243,8 @@ class GlobalHotKeys extends React.Component<Props> {
                 source: "HOTKEY",
                 combo: "esc",
               });
+              setCommentModeInUrl(false);
             }
-            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
@@ -300,6 +301,14 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           combo="mod + shift + z"
+          global
+          label="Redo change in canvas"
+          onKeyDown={this.props.redo}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          combo="mod + y"
           global
           label="Redo change in canvas"
           onKeyDown={this.props.redo}

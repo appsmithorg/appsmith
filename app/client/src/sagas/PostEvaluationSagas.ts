@@ -32,6 +32,7 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
+  JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
@@ -40,7 +41,6 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
-import getFeatureFlags from "utils/featureFlags";
 import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
@@ -52,6 +52,7 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
  * W117: `x` is undefined
  */
 const errorCodesToIgnoreInDebugger = ["W117"];
+const errorCodesForJSEditorInDebugger = ["E041"]; //how much object parsed error example 90% parsed
 
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
@@ -76,12 +77,15 @@ function logLatestEvalPropertyErrors(
         getEvalErrorPath(evaluatedPath, false),
         [],
       );
-      // If linting flag is not own, filter out all lint errors
-      if (!getFeatureFlags().LINTING) {
-        allEvalErrors = allEvalErrors.filter(
-          (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
-        );
-      }
+
+      allEvalErrors = isJSAction(entity)
+        ? allEvalErrors.filter(
+            (err) => !errorCodesForJSEditorInDebugger.includes(err.code || ""),
+          )
+        : allEvalErrors.filter(
+            (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
+          );
+
       const evaluatedValue = get(
         entity,
         getEvalValuePath(evaluatedPath, false),
@@ -149,29 +153,40 @@ function logLatestEvalPropertyErrors(
                 widgetType: entity.type,
               }
             : {};
-
+          const logPropertyPath = !isJSAction(entity)
+            ? propertyPath
+            : entityName;
           // Add or update
-          AppsmithConsole.addError(
-            {
-              id: debuggerKey,
-              logType: isWarning ? LOG_TYPE.EVAL_WARNING : LOG_TYPE.EVAL_ERROR,
-              // Unless the intention is to change the message shown in the debugger please do not
-              // change the text shown here
-              text: createMessage(VALUE_IS_INVALID, propertyPath),
-              messages: errorMessages,
-              source: {
-                id: idField,
-                name: nameField,
-                type: entityType,
-                propertyPath: propertyPath,
+          if (
+            !isJSAction(entity) ||
+            (isJSAction(entity) && propertyPath === "body")
+          ) {
+            AppsmithConsole.addError(
+              {
+                id: debuggerKey,
+                logType: isWarning
+                  ? LOG_TYPE.EVAL_WARNING
+                  : LOG_TYPE.EVAL_ERROR,
+                // Unless the intention is to change the message shown in the debugger please do not
+                // change the text shown here
+                text: isJSAction(entity)
+                  ? createMessage(JS_OBJECT_BODY_INVALID)
+                  : createMessage(VALUE_IS_INVALID, propertyPath),
+                messages: errorMessages,
+                source: {
+                  id: idField,
+                  name: nameField,
+                  type: entityType,
+                  propertyPath: logPropertyPath,
+                },
+                state: {
+                  [logPropertyPath]: evaluatedValue,
+                },
+                analytics: analyticsData,
               },
-              state: {
-                [propertyPath]: evaluatedValue,
-              },
-              analytics: analyticsData,
-            },
-            isWarning ? Severity.WARNING : Severity.ERROR,
-          );
+              isWarning ? Severity.WARNING : Severity.ERROR,
+            );
+          }
         } else if (debuggerKey in updatedDebuggerErrors) {
           AppsmithConsole.deleteError(debuggerKey);
         }
@@ -260,6 +275,22 @@ export function* evalErrorHandler(
           extra: {
             request: error.context,
           },
+        });
+        break;
+      }
+      case EvalErrorTypes.PARSE_JS_ERROR: {
+        Toaster.show({
+          text: `${error.message} at: ${error.context?.entity.name}`,
+          variant: Variant.danger,
+        });
+        AppsmithConsole.error({
+          text: `${error.message} at: ${error.context?.propertyPath}`,
+        });
+        break;
+      }
+      case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
+        Sentry.captureException(new Error(error.message), {
+          extra: error.context,
         });
         break;
       }

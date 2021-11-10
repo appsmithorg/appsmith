@@ -125,6 +125,7 @@ export enum EvalErrorTypes {
   EVAL_TRIGGER_ERROR = "EVAL_TRIGGER_ERROR",
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
+  EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
 }
 
 export type EvalError = {
@@ -134,6 +135,7 @@ export type EvalError = {
 };
 
 export enum EVAL_WORKER_ACTIONS {
+  SETUP = "SETUP",
   EVAL_TREE = "EVAL_TREE",
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
@@ -146,6 +148,7 @@ export enum EVAL_WORKER_ACTIONS {
   PARSE_JS_FUNCTION_BODY = "PARSE_JS_FUNCTION_BODY",
   EVAL_JS_FUNCTION = "EVAL_JS_FUNCTION",
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
+  SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
 }
 
 export type ExtraLibrary = {
@@ -289,6 +292,7 @@ export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",
   "setInterval",
+  "clearInterval",
   "setImmediate",
   "XMLHttpRequest",
   "importScripts",

@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
@@ -29,7 +30,6 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Flux<ActionCollectionDTO> getActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
 
-
     Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
@@ -40,4 +40,7 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
 
+    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId);
+    
+    Flux<ActionCollection> findByPageId(String pageId);
 }

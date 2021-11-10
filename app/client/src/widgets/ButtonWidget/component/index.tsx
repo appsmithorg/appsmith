@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
-import styled from "styled-components";
-import tinycolor from "tinycolor2";
-
+import styled, { createGlobalStyle } from "styled-components";
+import Interweave from "interweave";
 import {
   IButtonProps,
   MaybeElement,
@@ -9,10 +8,9 @@ import {
   Alignment,
   Position,
 } from "@blueprintjs/core";
+import { Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 
-import Tooltip from "components/ads/Tooltip";
-import { Theme } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
 
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
@@ -28,7 +26,6 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "../../../constants/Colors";
 import _ from "lodash";
 import {
-  ButtonStyleTypes,
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
   ButtonBorderRadius,
@@ -36,68 +33,12 @@ import {
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-
-export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
-  if (!backgroundColor)
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].solid
-      .textColor;
-  const isDark = tinycolor(backgroundColor).isDark();
-  if (isDark) {
-    return theme.colors.button.custom.solid.light.textColor;
-  }
-  return theme.colors.button.custom.solid.dark.textColor;
-};
-
-export const getCustomHoverColor = (
-  theme: Theme,
-  buttonVariant?: ButtonVariant,
-  backgroundColor?: string,
-) => {
-  if (!backgroundColor) {
-    return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()][
-      (buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()
-    ].hoverColor;
-  }
-
-  switch (buttonVariant) {
-    case ButtonVariantTypes.OUTLINE:
-      return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
-        : theme.colors.button.primary.outline.hoverColor;
-
-    case ButtonVariantTypes.GHOST:
-      return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
-        : theme.colors.button.primary.ghost.hoverColor;
-
-    default:
-      return backgroundColor
-        ? tinycolor(backgroundColor)
-            .darken(10)
-            .toString()
-        : theme.colors.button.primary.solid.hoverColor;
-  }
-};
-
-export const getCustomBackgroundColor = (
-  buttonVariant?: ButtonVariant,
-  backgroundColor?: string,
-) => {
-  return buttonVariant === ButtonVariantTypes.SOLID ? backgroundColor : "none";
-};
-
-export const getCustomBorderColor = (
-  buttonVariant?: ButtonVariant,
-  backgroundColor?: string,
-) => {
-  return buttonVariant === ButtonVariantTypes.OUTLINE
-    ? backgroundColor
-    : "none";
-};
+import {
+  getCustomBackgroundColor,
+  getCustomBorderColor,
+  getCustomHoverColor,
+  getCustomTextColor,
+} from "widgets/WidgetUtils";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -106,16 +47,24 @@ const RecaptchaWrapper = styled.div`
   }
 `;
 
-const ToolTipContent = styled.div`
-  max-width: 350px;
-`;
-
 const ToolTipWrapper = styled.div`
   height: 100%;
-  && .bp3-popover-target {
+  && .bp3-popover2-target {
     height: 100%;
+    width: 100%;
     & > div {
       height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .btnTooltipContainer {
+    .bp3-popover2-content {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
     }
   }
 `;
@@ -153,8 +102,8 @@ const StyledButton = styled((props) => (
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SOLID
-          ? theme.colors.button.primary.solid.bgColor
+          : buttonVariant === ButtonVariantTypes.PRIMARY
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
@@ -163,11 +112,11 @@ const StyledButton = styled((props) => (
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.OUTLINE
-          ? theme.colors.button.primary.outline.hoverColor
-          : buttonVariant === ButtonVariantTypes.GHOST
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
+          : buttonVariant === ButtonVariantTypes.SECONDARY
+          ? theme.colors.button.primary.secondary.hoverColor
+          : buttonVariant === ButtonVariantTypes.TERTIARY
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
       } !important;
     }
 
@@ -179,8 +128,8 @@ const StyledButton = styled((props) => (
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-        : buttonVariant === ButtonVariantTypes.OUTLINE
-        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        : buttonVariant === ButtonVariantTypes.SECONDARY
+        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
 
@@ -194,9 +143,9 @@ const StyledButton = styled((props) => (
       -webkit-box-orient: vertical;
 
       color: ${
-        buttonVariant === ButtonVariantTypes.SOLID
+        buttonVariant === ButtonVariantTypes.PRIMARY
           ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
+          : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
       } !important;
     }
   `}
@@ -263,6 +212,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         className={className}
+        data-test-variant={buttonVariant}
         disabled={disabled}
         fill
         icon={icon}
@@ -283,6 +233,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
       className={className}
+      data-test-variant={buttonVariant}
       disabled={disabled}
       fill
       icon={iconName || icon}
@@ -296,7 +247,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
 
 BaseButton.defaultProps = {
   buttonColor: Colors.GREEN,
-  buttonVariant: "SOLID",
+  buttonVariant: ButtonVariantTypes.PRIMARY,
   disabled: false,
   text: "Button Text",
   minimal: true,
@@ -493,13 +444,18 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
   if (props.tooltip) {
     return (
       <ToolTipWrapper>
-        <Tooltip
-          content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
+        <TooltipStyles />
+        <Popover2
+          autoFocus={false}
+          content={<Interweave content={props.tooltip} />}
+          disabled={props.isDisabled}
           hoverOpenDelay={200}
+          interactionKind="hover"
+          portalClassName="btnTooltipContainer"
           position={Position.TOP}
         >
           {btnWrapper}
-        </Tooltip>
+        </Popover2>
       </ToolTipWrapper>
     );
   } else {

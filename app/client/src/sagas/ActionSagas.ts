@@ -120,6 +120,7 @@ import {
 import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import * as log from "loglevel";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -409,8 +410,8 @@ export function* deleteActionSaga(
     if (!!actionPayload.payload.onSuccess) {
       actionPayload.payload.onSuccess();
     } else {
-      const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
+      const applicationId = yield select(getCurrentApplicationId);
 
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
@@ -602,11 +603,16 @@ function* bindDataOnCanvasSaga(
     pageId: string;
   }>,
 ) {
-  const { applicationId, pageId, queryId } = action.payload;
+  const { pageId, queryId } = action.payload;
+  const applicationId = yield select(getCurrentApplicationId);
   history.push(
-    BUILDER_PAGE_URL(applicationId, pageId, {
-      isSnipingMode: "true",
-      bindTo: queryId,
+    BUILDER_PAGE_URL({
+      applicationId,
+      pageId,
+      params: {
+        isSnipingMode: "true",
+        bindTo: queryId,
+      },
     }),
   );
 }
@@ -638,7 +644,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       variant: Variant.danger,
     });
-    console.error(e);
+    log.error(e);
   }
 }
 
@@ -782,18 +788,35 @@ function* buildMetaForSnippets(
   expectedType: string,
   propertyPath: string,
 ) {
+  /*
+    Score is set to sort the snippets in the following order.
+      1. Field (10)
+      2. Entity + (All Queries / All Widgets) +Data Type (9)
+      3. Entity + Data Type (8)
+      4. Entity (5)
+      5. All Queries / All Widgets + Data Type (4)
+      6. All Queries / All Widgets 1
+  */
+  /*
+  UNKNOWN is given priority over other non matching dataTypes.
+  Eg. If there are no snippets matching a dataType criteria, we are promote snippets of type UNKNOWN
+ */
   const refinements: any = {
     entities: [entityType],
   };
-  const fieldMeta: { dataType: string; fields?: string; entities?: string } = {
-    dataType: expectedType,
+  const fieldMeta: {
+    dataType: Array<string>;
+    fields?: Array<string>;
+    entities?: Array<string>;
+  } = {
+    dataType: [`${expectedType}<score=3>`, `UNKNOWN<score=1>`],
   };
   if (propertyPath) {
     const relevantField = propertyPath
       .split(".")
       .slice(-1)
       .pop();
-    fieldMeta.fields = `${relevantField}<score=2>`;
+    fieldMeta.fields = [`${relevantField}<score=10>`];
   }
   if (entityType === ENTITY_TYPE.ACTION && entityId) {
     const currentEntity: Action = yield select(getActionById, {
@@ -802,7 +825,7 @@ function* buildMetaForSnippets(
     const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
     const type: string = plugin.packageName || "";
     refinements.entities = [type, entityType];
-    fieldMeta.entities = type;
+    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
@@ -811,22 +834,15 @@ function* buildMetaForSnippets(
     );
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
-    fieldMeta.entities = type;
+    fieldMeta.entities = [`${type}<score=5>`, `${entityType}<score=1>`];
   }
   return { refinements, fieldMeta };
 }
 
-function* getCurrentEntity(
-  applicationId: string,
-  pageId: string,
-  params: Record<string, string>,
-) {
+function* getCurrentEntity(pageId: string, params: Record<string, string>) {
   let entityId = "",
     entityType = "";
-  if (
-    onApiEditor(applicationId, pageId) ||
-    onQueryEditor(applicationId, pageId)
-  ) {
+  if (onApiEditor() || onQueryEditor()) {
     const id = params.apiId || params.queryId;
     const action: Action = yield select(getAction, id);
     entityId = action?.id;
@@ -841,7 +857,7 @@ function* getCurrentEntity(
 
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
-  const applicationId: string = yield select(getCurrentApplicationId);
+  const applicationId = yield select(getCurrentApplicationId);
   const callback = get(actionPayload, "payload.callback");
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
@@ -858,10 +874,11 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         const currentEntity: {
           entityId: string;
           entityType: string;
-        } = yield getCurrentEntity(applicationId, pageId, params);
+        } = yield getCurrentEntity(pageId, params);
         entityId = currentEntity.entityId;
         entityType = currentEntity.entityType;
       }
+
       const { fieldMeta, refinements } = yield buildMetaForSnippets(
         entityId,
         entityType,
@@ -874,6 +891,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
           fieldMeta,
         }),
       );
+
       yield put(
         toggleShowGlobalSearchModal(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
@@ -885,9 +903,11 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
             typeof callback === "function"
               ? SnippetAction.INSERT
               : SnippetAction.COPY, //Set insertSnippet to true only if values
+          hideOuterBindings: entityType === ENTITY_TYPE.JSACTION,
         }),
       );
-      const effectRaceResult = yield race({
+      AnalyticsUtil.logEvent("SNIPPET_LOOKUP");
+      const effectRaceResult: { failure: any; success: any } = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
       });

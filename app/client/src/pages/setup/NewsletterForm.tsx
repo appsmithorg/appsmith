@@ -14,6 +14,12 @@ import {
   FormHeaderWrapper,
 } from "./common";
 import { memo } from "react";
+import {
+  createMessage,
+  WELCOME_FORM_NEWLETTER_HEADER,
+  WELCOME_FORM_NEWLETTER_LABEL,
+  WELCOME_FORM_SUBMIT_LABEL,
+} from "constants/messages";
 
 export const StyledButton = styled(Button)`
   width: 201px;
@@ -32,23 +38,31 @@ export default memo(function NewsletterForm() {
     <NewsletterContainer>
       <FormHeaderWrapper>
         <FormHeaderIndex>3.</FormHeaderIndex>
-        <FormHeaderLabel>Stay in touch</FormHeaderLabel>
+        <FormHeaderLabel>
+          {createMessage(WELCOME_FORM_NEWLETTER_HEADER)}
+        </FormHeaderLabel>
       </FormHeaderWrapper>
       <FormBodyWrapper>
         <AllowToggleWrapper>
           <AllowToggle>
-            <Toggle name="signupForNewsletter" onToggle={() => noop} value />
+            <Toggle
+              className="t--welcome-form-newsletter"
+              name="signupForNewsletter"
+              onToggle={() => noop}
+              value
+            />
           </AllowToggle>
           <AllowToggleLabel>
-            Get updates about what we are cooking. We do not spam you.
+            {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
           </AllowToggleLabel>
         </AllowToggleWrapper>
         <ButtonWrapper>
           <StyledButton
             category={Category.primary}
+            className="t--welcome-form-create-button"
             size={Size.medium}
             tag="button"
-            text="Make your first App"
+            text={createMessage(WELCOME_FORM_SUBMIT_LABEL)}
           />
         </ButtonWrapper>
       </FormBodyWrapper>

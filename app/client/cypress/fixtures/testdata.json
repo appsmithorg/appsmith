@@ -69,6 +69,7 @@
   "input2": "(//div[@class='bp3-input-group']//input)[1]",
   "input3": "(//div[@class='bp3-input-group']//input)[2]",
   "videoUrl": "https://www.youtube.com/watch?v=S5musXykVs0",
+  "audioUrl": "https://assets.appsmith.com/widgets/birds_chirping.mp3",
   "TablePagination": [
     {
       "id": 2381224,
@@ -115,8 +116,8 @@
   "currentRowWithIdOutside": "#{{currentRow.email}}",
   "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
   "defaultdataBinding": "{'Test','This'}",
-  "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ \"label\": \"string\", \"value\": \"string\" }>\".",
-  "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\".",
+  "dropdownErrorMsg": "This value does not evaluate to type Array<{ \"label\": \"string\", \"value\": \"string\" }>",
+  "tableWidgetErrorMsg": "This value does not evaluate to type Array<Object>",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
   "bindingSeriesTitle": "{{Chart1.selectedDataPoint.seriesTitle",
   "bindChartData": "{{Chart1.selectedDataPoint",

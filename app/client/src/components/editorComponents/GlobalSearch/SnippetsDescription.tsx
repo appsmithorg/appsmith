@@ -33,6 +33,7 @@ import { Snippet, SnippetArgument } from "./utils";
 import {
   createMessage,
   SNIPPET_COPY,
+  SNIPPET_EXECUTE,
   SNIPPET_INSERT,
 } from "constants/messages";
 import { getExpectedValue } from "utils/validation/common";
@@ -155,7 +156,7 @@ const SnippetContainer = styled.div`
 `;
 
 const removeDynamicBinding = (value: string) => {
-  const regex = /{{(.*?)}}/g;
+  const regex = /{{([\s\S]*?)}}/g;
   return value.replace(regex, function(match, capture) {
     return capture;
   });
@@ -164,15 +165,22 @@ const removeDynamicBinding = (value: string) => {
 export const getSnippet = (
   snippet: string,
   args: any,
+  hideOuterBindings = false,
   replaceWithDynamicBinding = false,
 ) => {
   const templateSubstitutionRegex = /%%(.*?)%%/g;
-  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
-    const substitution = removeDynamicBinding(args[capture] || "");
-    return replaceWithDynamicBinding
-      ? `{{${capture}}}`
-      : substitution || capture;
-  });
+  const snippetReplacedWithCustomizedValues = snippet.replace(
+    templateSubstitutionRegex,
+    function(match, capture) {
+      const substitution = removeDynamicBinding(args[capture] || "");
+      return replaceWithDynamicBinding
+        ? `{{${capture}}}`
+        : substitution || capture;
+    },
+  );
+  return hideOuterBindings
+    ? removeDynamicBinding(snippetReplacedWithCustomizedValues)
+    : snippetReplacedWithCustomizedValues;
 };
 
 export default function SnippetDescription({ item }: { item: Snippet }) {
@@ -197,6 +205,10 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     ),
     onEnter = useSelector(
       (state: AppState) => state.ui.globalSearch.filterContext.onEnter,
+    ),
+    hideOuterBindings = useSelector(
+      (state: AppState) =>
+        state.ui.globalSearch.filterContext.hideOuterBindings,
     );
 
   const handleArgsValidation = useCallback(
@@ -245,7 +257,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     );
     dispatch(
       evaluateSnippet({
-        expression: removeDynamicBinding(getSnippet(template, selectedArgs)),
+        expression: getSnippet(template, selectedArgs, true),
         dataType: dataType,
         isTrigger,
       }),
@@ -291,17 +303,22 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           )}
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {getSnippet(snippet, {}, true)}
+              {getSnippet(snippet, {}, hideOuterBindings, true)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
+              <CopyIcon
+                onClick={() =>
+                  handleCopy(getSnippet(snippet, {}, hideOuterBindings))
+                }
+              />
             </div>
           </div>
         </>
       ),
     },
   ];
-  if (template && args && args.length > 0) {
+  const replaceableArgs = (args || []).filter((arg) => !arg.placeholder);
+  if (template && replaceableArgs && replaceableArgs.length > 0) {
     tabs.push({
       key: "Customize",
       title: "Customize",
@@ -309,14 +326,20 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
         <>
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {getSnippet(template, selectedArgs)}
+              {getSnippet(template, selectedArgs, hideOuterBindings)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
+              <CopyIcon
+                onClick={() =>
+                  handleCopy(
+                    getSnippet(template, selectedArgs, hideOuterBindings),
+                  )
+                }
+              />
             </div>
           </div>
           <div className="snippet-group">
-            {args.map((arg: SnippetArgument) => (
+            {replaceableArgs.map((arg: SnippetArgument) => (
               <div
                 className="argument"
                 key={arg.name}
@@ -346,7 +369,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
             <div className="actions-container">
               {language === "javascript" && (
                 <Button
-                  className="t--apiFormRunBtn"
+                  className="t--apiFormRunBtn snippet-execute"
                   disabled={executionInProgress}
                   onClick={handleRun}
                   size={Size.medium}
@@ -380,13 +403,15 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     <SnippetContainer>
       <div className="snippet-title">
         <span>{title}</span>
-        {selectedIndex === 0 && (
-          <span className="action-msg">
-            {createMessage(
-              onEnter === SnippetAction.INSERT ? SNIPPET_INSERT : SNIPPET_COPY,
-            )}
-          </span>
-        )}
+        <span className="action-msg">
+          {createMessage(
+            selectedIndex === 0
+              ? onEnter === SnippetAction.INSERT
+                ? SNIPPET_INSERT
+                : SNIPPET_COPY
+              : SNIPPET_EXECUTE,
+          )}
+        </span>
       </div>
       <div className="snippet-desc">{summary}</div>
       <TabbedViewContainer className="tab-container">

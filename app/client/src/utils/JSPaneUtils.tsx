@@ -1,5 +1,8 @@
 //check difference for after body change and parsing
 import { JSCollection, JSAction, Variable } from "entities/JSCollection";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 export type ParsedJSSubAction = {
   name: string;
@@ -12,13 +15,18 @@ export type ParsedBody = {
   variables: Array<Variable>;
 };
 
+export type JSUpdate = {
+  id: string;
+  parsedBody: ParsedBody | undefined;
+};
+
 export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
   jsAction: JSCollection,
 ) => {
   const newActions: ParsedJSSubAction[] = [];
   const toBearchivedActions: JSAction[] = [];
-  const toBeupdatedActions: JSAction[] = [];
+  const toBeUpdatedActions: JSAction[] = [];
   const nameChangedActions = [];
   const toBeAddedActions: Partial<JSAction>[] = [];
   //check if body is changed and update if exists or
@@ -28,14 +36,16 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        toBeupdatedActions.push({
-          ...preExisted,
-          actionConfiguration: {
-            ...preExisted.actionConfiguration,
-            body: action.body,
-            jsArguments: action.arguments,
-          },
-        });
+        if (preExisted.actionConfiguration.body !== action.body) {
+          toBeUpdatedActions.push({
+            ...preExisted,
+            actionConfiguration: {
+              ...preExisted.actionConfiguration,
+              body: action.body,
+              jsArguments: action.arguments,
+            },
+          });
+        }
       } else {
         newActions.push(action);
       }
@@ -68,7 +78,7 @@ export const getDifferenceInJSCollection = (
             js.id === updateExisting.id;
           });
           //will be part of new nameChangedActions for now
-          toBeupdatedActions.push({
+          toBeUpdatedActions.push({
             ...updateExisting,
             name: newActions[i].name,
           });
@@ -114,10 +124,87 @@ export const getDifferenceInJSCollection = (
       jsAction.actions.splice(deleteArchived, 1);
     }
   }
+  //change in variables
+  const varList = jsAction.variables;
+  let changedVariables: Array<Variable> = [];
+  if (parsedBody.variables.length) {
+    for (let i = 0; i < parsedBody.variables.length; i++) {
+      const newVar = parsedBody.variables[i];
+      const existedVar = varList.find((item) => item.name === newVar.name);
+      if (!!existedVar) {
+        const existedValue = existedVar.value;
+        if (existedValue.toString() !== newVar.value.toString()) {
+          changedVariables.push(newVar);
+        }
+      } else {
+        changedVariables.push(newVar);
+      }
+    }
+  } else {
+    changedVariables = jsAction.variables;
+  }
   return {
     newActions: toBeAddedActions,
-    updateActions: toBeupdatedActions,
+    updateActions: toBeUpdatedActions,
     deletedActions: toBearchivedActions,
     nameChangedActions: nameChangedActions,
+    changedVariables: changedVariables,
+  };
+};
+
+export const pushLogsForObjectUpdate = (
+  actions: Partial<JSAction>[],
+  jsCollection: JSCollection,
+  text: string,
+) => {
+  for (let i = 0; i < actions.length; i++) {
+    AppsmithConsole.info({
+      logType: LOG_TYPE.JS_ACTION_UPDATE,
+      text: text,
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: jsCollection.name + "." + actions[i].name,
+        id: jsCollection.id,
+      },
+    });
+  }
+};
+
+export const createDummyJSCollectionActions = (
+  pageId: string,
+  organizationId: string,
+) => {
+  const body =
+    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: () => {\n\t\t//write code here\n\t}\n}";
+
+  const actions = [
+    {
+      name: "myFun1",
+      pageId,
+      organizationId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "() => {\n\t\t//write code here\n\t}",
+        isAsync: false,
+        timeoutInMilliseconds: 0,
+        jsArguments: [],
+      },
+    },
+    {
+      name: "myFun2",
+      pageId,
+      organizationId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "() => {\n\t\t//write code here\n\t}",
+        isAsync: false,
+        timeoutInMilliseconds: 0,
+        jsArguments: [],
+      },
+    },
+  ];
+  return {
+    actions,
+    body,
   };
 };

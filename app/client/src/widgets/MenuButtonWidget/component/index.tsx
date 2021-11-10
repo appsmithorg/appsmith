@@ -20,7 +20,7 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
-} from "widgets/ButtonWidget/component";
+} from "widgets/WidgetUtils";
 
 export const MenuButtonContainer = styled.div`
   width: 100%;
@@ -65,8 +65,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SOLID
-          ? theme.colors.button.primary.solid.bgColor
+          : buttonVariant === ButtonVariantTypes.PRIMARY
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
@@ -75,11 +75,11 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       background: ${
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.OUTLINE
-          ? theme.colors.button.primary.outline.hoverColor
-          : buttonVariant === ButtonVariantTypes.GHOST
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
+          : buttonVariant === ButtonVariantTypes.SECONDARY
+          ? theme.colors.button.primary.secondary.hoverColor
+          : buttonVariant === ButtonVariantTypes.TERTIARY
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
       } !important;
     }
 
@@ -91,8 +91,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-        : buttonVariant === ButtonVariantTypes.OUTLINE
-        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        : buttonVariant === ButtonVariantTypes.SECONDARY
+        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
     & > span {
@@ -104,12 +104,14 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       max-height: 100%;
       overflow: hidden;
       color: ${
-        buttonVariant === ButtonVariantTypes.SOLID
+        buttonVariant === ButtonVariantTypes.PRIMARY
           ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor) !==
-            "none"
-          ? getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
-          : `${theme.colors.button.primary.outline.textColor}`
+          : getCustomBackgroundColor(
+              ButtonVariantTypes.PRIMARY,
+              buttonColor,
+            ) !== "none"
+          ? getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+          : `${theme.colors.button.primary.secondary.textColor}`
       } !important;
     }
   `}
@@ -152,14 +154,14 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
     background: none !important
       &:hover {
         background-color: ${tinycolor(
-          theme.colors.button.primary.solid.textColor,
+          theme.colors.button.primary.primary.textColor,
         )
           .darken()
           .toString()} !important;
       }
       &:active {
         background-color: ${tinycolor(
-          theme.colors.button.primary.solid.textColor,
+          theme.colors.button.primary.primary.textColor,
         )
           .darken()
           .toString()} !important;
@@ -208,6 +210,7 @@ export interface PopoverContentProps {
 function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
+  if (!itemsObj) return <StyledMenu />;
   const items = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);

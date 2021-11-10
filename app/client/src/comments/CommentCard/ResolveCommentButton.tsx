@@ -27,22 +27,14 @@ const StyledResolveIcon = styled(Icon)<{
   strokeColorPath: string;
   fillColor: string;
 }>`
-  & circle {
-    stroke: ${(props) => props.strokeColorCircle};
-  }
-  && path {
-    stroke: ${(props) => props.strokeColorPath};
-    fill: transparent;
-  }
   && svg {
-    fill: ${(props) => props.fillColor};
+    fill: ${(props) => props.strokeColorCircle};
   }
   ${(props) =>
     !props.resolved &&
     `
-  &:hover circle,
-  &:hover path {
-    stroke: ${Colors.CHARCOAL};
+  &:hover svg {
+    fill: ${Colors.CHARCOAL};
   }
   `}
 `;
@@ -75,7 +67,7 @@ const ResolveCommentButton = withTheme(
           <StyledResolveIcon
             fillColor={fillColor}
             keepColors
-            name="oval-check"
+            name={resolved ? "oval-check-fill" : "oval-check"}
             resolved={resolved}
             size={IconSize.XXL}
             strokeColorCircle={strokeColorCircle}

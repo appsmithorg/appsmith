@@ -10,6 +10,7 @@ import {
   evaluateArgumentSaga,
   evaluateDynamicTrigger,
   evaluateSnippetSaga,
+  setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
 import storeValueLocally from "sagas/ActionExecution/StoreActionSaga";
@@ -33,6 +34,10 @@ import {
   logActionExecutionError,
   TriggerEvaluationError,
 } from "sagas/ActionExecution/errorUtils";
+import {
+  clearIntervalSaga,
+  setIntervalSaga,
+} from "sagas/ActionExecution/SetIntervalSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -90,6 +95,12 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME:
       yield call(resetWidgetActionSaga, trigger.payload, triggerMeta);
+      break;
+    case ActionTriggerType.SET_INTERVAL:
+      yield call(setIntervalSaga, trigger.payload, eventType, triggerMeta);
+      break;
+    case ActionTriggerType.CLEAR_INTERVAL:
+      yield call(clearIntervalSaga, trigger.payload, triggerMeta);
       break;
     default:
       log.error("Trigger type unknown", trigger);
@@ -159,6 +170,10 @@ export function* watchActionExecutionSagas() {
     takeEvery(
       ReduxActionTypes.EXECUTE_TRIGGER_REQUEST,
       initiateActionTriggerExecution,
+    ),
+    takeLatest(
+      ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+      setAppVersionOnWorkerSaga,
     ),
     takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
     takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),

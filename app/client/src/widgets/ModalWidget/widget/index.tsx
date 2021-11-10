@@ -19,6 +19,7 @@ import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { deselectAllInitAction } from "actions/widgetSelectionActions";
 
 const minSize = 100;
 
@@ -29,6 +30,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",
@@ -99,6 +101,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
+    this.props.deselectAllWidgets();
   };
 
   onModalResize = (dimensions: UIElementSize) => {
@@ -119,7 +122,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   closeModal = (e: any) => {
     this.props.showPropertyPane(undefined);
-    this.onModalClose();
     // TODO(abhinav): Create a static property with is a map of widget properties
     // Populate the map on widget load
     this.props.updateWidgetMetaProperty("isVisible", false);
@@ -179,7 +181,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
         enableResize={isResizeEnabled}
-        hasBackDrop
         height={this.props.height}
         isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
@@ -190,7 +191,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
-        usePortal={false}
         widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
       >
@@ -224,6 +224,7 @@ export interface ModalWidgetProps extends WidgetProps {
   width: number;
   height: number;
   showPropertyPane: (widgetId?: string) => void;
+  deselectAllWidgets: () => void;
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;
@@ -246,6 +247,9 @@ const mapDispatchToProps = (dispatch: any) => ({
           : ReduxActionTypes.HIDE_PROPERTY_PANE,
       payload: { widgetId, callForDragOrResize, force },
     });
+  },
+  deselectAllWidgets: () => {
+    dispatch(deselectAllInitAction());
   },
 });
 

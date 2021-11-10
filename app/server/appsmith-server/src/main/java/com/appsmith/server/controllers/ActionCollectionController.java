@@ -3,8 +3,10 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -71,9 +73,9 @@ public class ActionCollectionController {
     }
 
     @GetMapping("/view")
-    public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllPublishedActionCollections(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all published action collections with params : {}", params);
-        return actionCollectionService.getPopulatedActionCollectionsByViewMode(params, true)
+    public Mono<ResponseDTO<List<ActionCollectionViewDTO>>> getAllPublishedActionCollections(@RequestParam String applicationId) {
+        log.debug("Going to get all published action collections with application Id : {}", applicationId);
+        return actionCollectionService.getActionCollectionsForViewMode(applicationId)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
@@ -82,6 +84,13 @@ public class ActionCollectionController {
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(@PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
         log.debug("Going to update action collection with id: {}", id);
         return layoutCollectionService.updateUnpublishedActionCollection(id, resource)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @PutMapping("/refactorAction")
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(@Valid @RequestBody RefactorActionNameInCollectionDTO resource) {
+        log.debug("Going to refactor action collection with id: {}", resource.getActionCollection().getId());
+        return layoutCollectionService.refactorAction(resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

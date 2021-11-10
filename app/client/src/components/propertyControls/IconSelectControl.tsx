@@ -6,6 +6,7 @@ import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import TooltipComponent from "components/ads/Tooltip";
+import { Colors } from "constants/Colors";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -21,8 +22,9 @@ const IconSelectContainerStyles = createGlobalStyle<{
 
 const StyledButton = styled(Button)`
   box-shadow: none !important;
-  border: none !important;
+  border: 1px solid ${Colors.GREY_5};
   border-radius: 0;
+  height: 36px;
   background-color: #ffffff !important;
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);

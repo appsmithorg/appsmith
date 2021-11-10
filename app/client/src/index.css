@@ -7,6 +7,7 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #FFF !important;
 }
 
 body.dragging *{
@@ -45,6 +46,7 @@ div.bp3-popover-arrow {
 .Toastify__toast {
   padding: 0 !important;
   border-radius: 4px !important;
+  box-shadow: none !important;
 }
 .Toastify__toast-body {
   margin: 0 !important;
@@ -79,6 +81,10 @@ div.bp3-popover-arrow {
   margin-top: 8px !important;
 }
 
+.bp3-popover.none-shadow-popover {
+  box-shadow: none;
+  border: 0px;
+}
 
 .bp3-datepicker {
   border-radius: 0 !important;

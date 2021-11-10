@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import Text, { TextType } from "components/ads/Text";
 import styled, { ThemeContext } from "styled-components";
+import { Colors } from "constants/Colors";
 
 export const Profile = styled.div<{ backgroundColor?: string; side?: number }>`
   width: ${(props) => props.side || 34}px;
@@ -13,7 +14,7 @@ export const Profile = styled.div<{ backgroundColor?: string; side?: number }>`
   cursor: pointer;
   background-color: ${(props) => props.backgroundColor};
   && span {
-    color: ${(props) => props.theme.colors.text.highlight};
+    color: ${Colors.BLACK};
     letter-spacing: normal;
   }
 

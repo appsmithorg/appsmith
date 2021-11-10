@@ -21,10 +21,7 @@ import { IPopoverSharedProps } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
-import {
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import { EvaluationError } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
@@ -88,7 +85,7 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   max-height: 300px;
-  min-height: 1rem;
+  min-height: 28px;
   overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
@@ -104,6 +101,7 @@ const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   top: 0;
   cursor: pointer;
   padding: 0;
+  border-radius: 0;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -330,7 +328,7 @@ export const CurrentValueViewer = memo(
         <Collapse isOpen={openEvaluatedValue}>
           <CurrentValueWrapper colorTheme={props.theme}>
             {content}
-            {props.evaluatedValue && (
+            {props.hasOwnProperty("evaluatedValue") && (
               <CopyIconWrapper
                 colorTheme={props.theme}
                 minimal
@@ -387,9 +385,9 @@ function PopoverContent(props: PopoverContentProps) {
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
-            {error.errorType === PropertyEvaluationErrorType.VALIDATION
-              ? `This value does not evaluate to type "${expected?.type}".`
-              : error.errorMessage}
+            {/* errorMessage could be an empty string */}
+            {error.errorMessage ||
+              `This value does not evaluate to type "${expected?.type}".`}
           </span>
           <EvaluatedValueDebugButton
             entity={props.entity}

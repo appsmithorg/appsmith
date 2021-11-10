@@ -21,7 +21,7 @@ import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
 import {
   AuthCardHeader,
-  AuthCardNavLink,
+  BlackAuthCardNavLink,
   FormActions,
 } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
@@ -142,7 +142,7 @@ export function ResetPassword(props: ResetPasswordProps) {
     intent:
       showInvalidMessage || showExpiredMessage || showFailureMessage
         ? "danger"
-        : "success",
+        : "lightSuccess",
     message,
     actions: messageActions,
   };
@@ -160,13 +160,13 @@ export function ResetPassword(props: ResetPasswordProps) {
         <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
       </AuthCardHeader>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <AuthCardNavLink to={AUTH_LOGIN_URL}>
+        <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
           <Icon
             icon="arrow-left"
             style={{ marginRight: props.theme.spaces[3] }}
           />
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
-        </AuthCardNavLink>
+        </BlackAuthCardNavLink>
       </div>
       {(showSuccessMessage || showFailureMessage) && (
         <FormMessage {...messageTagProps} />

@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
-  StyledInputGroup,
   StyledDragIcon,
   StyledEditIcon,
   StyledDeleteIcon,
   StyledVisibleIcon,
   StyledHiddenIcon,
   StyledPropertyPaneButton,
+  StyledOptionControlInputGroup,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
@@ -32,28 +32,6 @@ const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
-  margin-bottom: 2px;
-  width: 100%;
-  padding-left: 30px;
-  padding-right: 60px;
-  text-overflow: ellipsis;
-  &&& {
-    input {
-      padding-left: 24px;
-      border: none;
-      color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
-      &:focus {
-        border: none;
-        color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
-      }
-    }
-  }
 `;
 
 const AddColumnButton = styled(StyledPropertyPaneButton)`

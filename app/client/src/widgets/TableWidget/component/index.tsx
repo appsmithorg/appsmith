@@ -80,6 +80,7 @@ interface ReactTableComponentProps {
   handleRowSave: (rowIndex: number) => void;
   handleRowReset: (rowIndex: number) => void;
   enableInlineEditing?: boolean;
+  isSortable?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -101,6 +102,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     height,
     isLoading,
     isRowEditing,
+    isSortable,
     isVisibleDownload,
     isVisibleFilters,
     isVisiblePagination,
@@ -138,7 +140,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         order.push(item.accessor);
       }
     });
-    return { columnOrder: order, hiddenColumns: hidden };
+    return {
+      columnOrder: order,
+      hiddenColumns: hidden,
+    };
   }, [columns]);
 
   useEffect(() => {
@@ -274,6 +279,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       height={height}
       isLoading={isLoading}
       isRowEditing={isRowEditing}
+      isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
@@ -309,6 +315,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
     prev.enableInlineEditing === next.enableInlineEditing &&
+    prev.isSortable === next.isSortable &&
     prev.filters === next.filters &&
     prev.handleReorderColumn === next.handleReorderColumn &&
     prev.handleResizeColumn === next.handleResizeColumn &&

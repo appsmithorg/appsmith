@@ -17,6 +17,17 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
 
+export const isSortableMigration = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET" && !child.hasOwnProperty("isSortable")) {
+      child["isSortable"] = true;
+    } else if (child.children && child.children.length > 0) {
+      child = isSortableMigration(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
 export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
     let child = cloneDeep(_child);
@@ -325,10 +336,9 @@ const getUpdatedColumns = (
           "currentRow",
         );
       }
-      updatedColumns[sanitizedColumnId] = {
-        ...columnProps,
-        onClick: newOnClickBindingValue,
-      };
+      updatedColumns[sanitizedColumnId] = columnProps;
+      if (newOnClickBindingValue)
+        updatedColumns[sanitizedColumnId].onClick = newOnClickBindingValue;
     }
   }
   return updatedColumns;

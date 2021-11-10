@@ -17,10 +17,11 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import Icon, { IconSize } from "./Icon";
+import { error as logError } from "loglevel";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
 
-const FileEndings = {
+export const FileEndings = {
   IMAGE: ".jpeg,.png,.svg",
   JSON: ".json",
   TEXT: ".txt",
@@ -34,7 +35,7 @@ export enum FileType {
   ANY = "ANY",
 }
 
-type FilePickerProps = {
+export type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
   onFileRemoved?: () => void;
   fileUploader?: FileUploader;
@@ -44,7 +45,7 @@ type FilePickerProps = {
   delayedUpload?: boolean;
 };
 
-const ContainerDiv = styled.div<{
+export const ContainerDiv = styled.div<{
   isUploaded: boolean;
   isActive: boolean;
   canDrop: boolean;
@@ -204,7 +205,7 @@ export function CloudinaryUploader(
       onUpload(data.data.url);
     })
     .catch((error) => {
-      console.error("error in file uploading", error);
+      logError("error in file uploading", error);
     });
 }
 

@@ -18,7 +18,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     return {
       isValid: false,
       parsed: "",
-      message: "This value does not evaluate to type: string",
+      messages: ["This value does not evaluate to type: string"],
     };
   return { isValid: true, parsed: value };
 }

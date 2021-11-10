@@ -16,7 +16,7 @@ import { Color } from "constants/Colors";
 const CloseIcon = HelpIcons.CLOSE_ICON;
 
 const HeaderContents = styled.div`
-  padding: ${(props) => props.theme.spaces[9]}px;
+  padding: 20px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -86,14 +86,20 @@ const Header = withTheme(
           </CloseIconContainer>
         </HeaderRight>
       </HeaderContents>
-      <div style={{ padding: `0 ${theme.spaces[9]}px` }}>
+      <div style={{ padding: `0` }}>
         <StyledSeparator />
       </div>
     </>
   ),
 );
 
-function ProductUpdatesModal() {
+type ProductUpdatesModalProps = {
+  isOpen?: boolean;
+  onClose?: () => void;
+  hideTrigger?: boolean;
+};
+
+function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const { newReleasesCount, releaseItems } = useSelector(
     (state: AppState) => state.ui.releases,
   );
@@ -104,19 +110,29 @@ function ProductUpdatesModal() {
     await ReleasesAPI.markAsRead();
   }, []);
 
+  const onClose = useCallback(() => {
+    props.onClose && props.onClose();
+    setIsOpen(false);
+  }, []);
+
   const Layers = useContext(LayersContext);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
     <Dialog
       canEscapeKeyClose
       canOutsideClickClose
-      getHeader={() => <Header onClose={() => setIsOpen(false)} />}
+      getHeader={() => <Header onClose={onClose} />}
       isOpen={isOpen}
       maxHeight={"80vh"}
+      onClose={onClose}
       onOpening={onOpening}
       showHeaderUnderline
-      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
+      trigger={
+        props.hideTrigger ? null : (
+          <UpdatesButton newReleasesCount={newReleasesCount} />
+        )
+      }
       triggerZIndex={Layers.productUpdates}
       width={"580px"}
     >

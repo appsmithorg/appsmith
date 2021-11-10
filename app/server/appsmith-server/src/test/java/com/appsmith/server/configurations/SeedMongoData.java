@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATIONS;
@@ -177,12 +178,12 @@ public class SeedMongoData {
         Flux<Organization> organizationFlux = mongoTemplate
                 .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])), Plugin.class)
                 .map(plugin -> new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.FREE))
-                .collectList()
+                .collect(Collectors.toSet())
                 .cache()
                 .repeat()
                 .zipWithIterable(List.of(orgData))
                 .map(tuple -> {
-                    final List<OrganizationPlugin> orgPlugins = tuple.getT1();
+                    final Set<OrganizationPlugin> orgPlugins = tuple.getT1();
                     final Object[] orgArray = tuple.getT2();
 
                     Organization organization = new Organization();
