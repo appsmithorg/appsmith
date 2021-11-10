@@ -418,10 +418,6 @@ export default function BranchList(props: {
     }
   };
 
-  const handleCancelCreateNewBranch = () => {
-    changeSearchText("");
-  };
-
   const handleEscKey = () => {
     if (typeof props.setIsPopupOpen === "function") props.setIsPopupOpen(false);
   };

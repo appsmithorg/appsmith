@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactComponent as GitMerge } from "assets/icons/ads/git-merge.svg";
 import styled from "styled-components";
-import { Space } from "../components/StyledComponents";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Popover2 } from "@blueprintjs/popover2";
@@ -9,12 +8,6 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
-import {
-  createMessage,
-  NAME_YOUR_NEW_BRANCH,
-  SWITCH_BRANCHES,
-} from "constants/messages";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
@@ -60,7 +53,7 @@ function BranchButton() {
       isOpen={isOpen}
       minimal
       modifiers={{ offset: { enabled: true, options: { offset: [7, 10] } } }}
-      onInteraction={(nextState: boolean, e: any) => {
+      onInteraction={(nextState: boolean) => {
         setIsOpen(nextState);
       }}
       placement="top-start"
