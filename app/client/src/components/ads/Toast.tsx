@@ -9,6 +9,7 @@ import { ReduxActionType } from "constants/ReduxActionConstants";
 import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import * as log from "loglevel";
 
 export type ToastProps = ToastOptions &
   CommonComponentProps & {
@@ -58,7 +59,8 @@ const ToastBody = styled.div<{
   dispatchableAction?: { type: ReduxActionType; payload: any };
   width?: string;
 }>`
-  width: ${(props) => props.width || "264px"};
+  width: ${(props) => props.width || "fit-content"};
+  margin-left: auto;
   background: ${(props) => props.theme.colors.toast.bg};
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[5]}px;
@@ -128,6 +130,8 @@ const StyledDebugButton = styled(DebugButton)`
 
 const StyledActionText = styled(Text)`
   color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
+  cursor: pointer;
+  margin-left: ${(props) => props.theme.spaces[3]}px;
 `;
 
 export function ToastComponent(
@@ -194,11 +198,11 @@ export function ToastComponent(
 export const Toaster = {
   show: (config: ToastProps) => {
     if (typeof config.text !== "string") {
-      console.error("Toast message needs to be a string");
+      log.error("Toast message needs to be a string");
       return;
     }
     if (config.variant && !Object.values(Variant).includes(config.variant)) {
-      console.error(
+      log.error(
         "Toast type needs to be a one of " + Object.values(Variant).join(", "),
       );
       return;
