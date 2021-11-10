@@ -16,6 +16,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitPullDTO;
@@ -639,11 +640,19 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
-    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
+    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, GitCheckoutBranchDTO gitCheckoutBranchDTO) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
+
+        //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
+        if(Boolean.TRUE.equals(gitCheckoutBranchDTO.getIsRemote())) {
+            return applicationService.getApplicationByBranchNameAndDefaultApplication(branchName, defaultApplicationId, READ_APPLICATIONS)
+                    .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, branchName));
+
+        }
+
         return getApplicationById(defaultApplicationId)
             .flatMap(application -> {
                 if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
@@ -653,6 +662,57 @@ public class GitServiceImpl implements GitService {
                     branchName, defaultApplicationId, READ_APPLICATIONS
                 );
             });
+    }
+
+    private Mono<Application> checkoutRemoteBranch(String defaultApplicationId, String branchName) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    String repoName = gitApplicationMetadata.getRepoName();
+                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
+
+                    return gitExecutor.fetchRemote(repoPath, gitApplicationMetadata.getGitAuth().getPublicKey(), gitApplicationMetadata.getGitAuth().getPrivateKey(), false)
+                            .flatMap(fetchStatus -> gitExecutor.checkoutRemoteBranch(repoPath, branchName).zipWith(Mono.just(application))
+                                    .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " --checkout branch", error.getMessage()))));
+                })
+                .flatMap(tuple -> {
+                    /*
+                    * create a new application(each application => git branch)
+                    * Populate the application from the file system
+                    * Check if the existing branch track the given remote branch using the StoredConfig
+                    * Use the creat branch method with isRemoteFlag or use the setStartPoint ,method in createBranch method
+                    * */
+                    Application srcApplication = tuple.getT2();
+
+                    //Create a new Application
+                    GitApplicationMetadata srcBranchGitData = srcApplication.getGitApplicationMetadata();
+                    final String srcApplicationId = srcApplication.getId();
+                    srcBranchGitData.setBranchName(branchName);
+                    // Save a new application in DB and update from the parent branch application
+                    srcBranchGitData.setGitAuth(null);
+                    srcApplication.setId(null);
+                    srcApplication.setPages(null);
+                    srcApplication.setPublishedPages(null);
+                    srcApplication.setGitApplicationMetadata(srcBranchGitData);
+
+                    return applicationService.save(srcApplication)
+                            .flatMap(application1 -> {
+                                try {
+                                    return fileUtils.reconstructApplicationFromGitRepo(srcApplication.getOrganizationId(), srcApplicationId, srcApplication.getGitApplicationMetadata().getRepoName(), branchName)
+                                            .zipWith(Mono.just(application1));
+                                } catch (GitAPIException | IOException e) {
+                                    log.error("Error while constructing the application from the git repo ", e);
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " checkout -t origin/"+branchName, e.getMessage()));
+                                }
+                            });
+                })
+                .flatMap(tuple -> {
+                    // Get the latest application mono with all the changes
+                    ApplicationJson applicationJson = tuple.getT1();
+                    Application application = tuple.getT2();
+                    return importExportApplicationService
+                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId());
+                });
     }
 
     private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {
