@@ -108,6 +108,7 @@ import Link2 from "remixicon-react/LinkIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
+import QueryIcon from "remixicon-react/CodeSSlashLineIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
 import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
@@ -121,6 +122,7 @@ import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
 import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
+import WidgetIcon from "remixicon-react/FunctionLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -245,6 +247,7 @@ export const IconCollection = [
   "pin-3",
   "play",
   "plus",
+  "query",
   "reaction",
   "reaction-2",
   "read-pin",
@@ -283,6 +286,7 @@ export const IconCollection = [
   "down-arrow",
   "loader",
   "setting",
+  "widget",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -551,6 +555,9 @@ const Icon = forwardRef(
       case "plus":
         returnIcon = <CreateNewIcon />;
         break;
+      case "query":
+        returnIcon = <QueryIcon />;
+        break;
       case "reaction":
         returnIcon = <Reaction />;
         break;
@@ -664,6 +671,9 @@ const Icon = forwardRef(
         break;
       case "loader":
         returnIcon = <LoaderLineIcon />;
+        break;
+      case "widget":
+        returnIcon = <WidgetIcon />;
         break;
       default:
         returnIcon = null;

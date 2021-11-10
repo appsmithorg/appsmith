@@ -34,6 +34,7 @@ import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import { useGitCommit } from "../hooks";
 import GitSyncError from "../components/GitError";
 import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
+import GitChanged, { Kind } from "../components/GitChanged";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -124,6 +125,11 @@ function Deploy() {
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
       <Section>
+        <Row>
+          <GitChanged type={Kind.widget} />
+          <GitChanged type={Kind.query} />
+        </Row>
+        <Space size={11} />
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
