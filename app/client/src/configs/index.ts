@@ -2,6 +2,7 @@ import { AppsmithUIConfigs, FeatureFlagConfig } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
+import { EvaluationVersion } from "api/ApplicationApi";
 const history = createBrowserHistory();
 
 export type INJECTED_CONFIGS = {
@@ -50,6 +51,7 @@ declare global {
   interface Window {
     APPSMITH_FEATURE_CONFIGS: INJECTED_CONFIGS;
     Intercom: any;
+    evaluationVersion: EvaluationVersion;
     Sentry: any;
   }
 }
