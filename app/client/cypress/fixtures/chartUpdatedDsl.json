@@ -91,7 +91,7 @@
                         "widgetId": "rglduihhzk",
                         "containerStyle": "none",
                         "topRow": 0,
-                        "bottomRow": 360,
+                        "bottomRow": 450,
                         "parentRowSpace": 1,
                         "isVisible": true,
                         "type": "CANVAS_WIDGET",
@@ -103,11 +103,11 @@
                         "dynamicBindingPathList": [],
                         "children": [
                             {
-                                "widgetName": "Chart1",
-                                "rightColumn": 48,
+                                "widgetName": "Test",
+                                "rightColumn": 49,
                                 "widgetId": "snzfh3qjo8",
                                 "topRow": 10,
-                                "bottomRow": 31,
+                                "bottomRow": 43,
                                 "parentRowSpace": 10,
                                 "isVisible": true,
                                 "type": "CHART_WIDGET",
@@ -124,7 +124,7 @@
                                 "parentColumnSpace": 14.59375,
                                 "dynamicTriggerPathList": [],
                                 "chartName": "Last week's revenue",
-                                "leftColumn": 6,
+                                "leftColumn": 5,
                                 "dynamicBindingPathList": [],
                                 "xAxisName": "Last Week",
                                 "chartType": "LINE_CHART"
