@@ -21,6 +21,8 @@ import styled, {
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import Fuse from "fuse.js";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -32,7 +34,13 @@ const FUSE_OPTIONS = {
 };
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
+const StyledSingleDropDown = styled(SingleDropDown)<{
+  isSelected: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+}>`
   div {
     flex: 1 1 auto;
   }
@@ -45,8 +53,12 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    box-shadow: none;
-    background: white;
+    background: ${({ backgroundColor }) =>
+      `${backgroundColor || Colors.WHITE}`} !important;
+    border-radius: ${({ borderRadius }) =>
+      getBorderRadiusValue(borderRadius)} !important;
+    box-shadow: ${({ boxShadow, boxShadowColor }) =>
+      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
     min-height: 32px;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
     &:focus {
@@ -100,13 +112,16 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
   }
 `;
 
-const DropdownStyles = createGlobalStyle`
+const DropdownStyles = createGlobalStyle<{
+  borderRadius: ButtonBorderRadius;
+}>`
   .select-popover-wrapper {
     width: 100%;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
     border-color: rgba(0, 0, 0, 0.2);
-    border-radius: 0;
+    border-radius: ${({ borderRadius }) =>
+      getBorderRadiusValue(borderRadius)} !important;
     margin-top: ${(props) => props.theme.spaces[3]}px;
     padding: ${(props) => props.theme.spaces[3]}px;
     background: white;
@@ -168,7 +183,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     return (
       <DropdownContainer>
-        <DropdownStyles />
+        <DropdownStyles borderRadius={this.props.borderRadius} />
         <StyledControlGroup
           fill
           haslabel={!!this.props.label ? "true" : "false"}
@@ -185,6 +200,10 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             </Label>
           )}
           <StyledSingleDropDown
+            backgroundColor={this.props.backgroundColor}
+            borderRadius={this.props.borderRadius}
+            boxShadow={this.props.boxShadow}
+            boxShadowColor={this.props.boxShadowColor}
             className={this.props.isLoading ? Classes.SKELETON : ""}
             disabled={this.props.disabled}
             filterable={this.props.isFilterable}
@@ -289,6 +308,10 @@ export interface DropDownComponentProps extends ComponentProps {
   height: number;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default DropDownComponent;

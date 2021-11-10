@@ -6,6 +6,11 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadow,
+} from "components/constants";
 const showdown = require("showdown");
 
 export enum RTEFormats {
@@ -113,6 +118,66 @@ class RichTextEditorWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Style",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["SHARP", "ROUNDED"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+        ],
+      },
     ];
   }
 
@@ -154,6 +219,9 @@ class RichTextEditorWidget extends BaseWidget<
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          boxShadowColor={this.props.boxShadowColor}
           defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
           isToolbarHidden={!!this.props.isToolbarHidden}
@@ -182,6 +250,9 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   isVisible?: boolean;
   isRequired?: boolean;
   isToolbarHidden?: boolean;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default RichTextEditorWidget;

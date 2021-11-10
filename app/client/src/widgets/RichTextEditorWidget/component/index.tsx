@@ -2,13 +2,26 @@ import React, { useEffect, useState, useRef } from "react";
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
-const StyledRTEditor = styled.div`
+const StyledRTEditor = styled.div<{
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+}>`
   && {
     width: 100%;
     height: 100%;
     .tox .tox-editor-header {
       z-index: 0;
+    }
+
+    .tox-tinymce {
+      border-radius: ${({ borderRadius }) =>
+        getBorderRadiusValue(borderRadius)};
+      box-shadow: ${({ boxShadow, boxShadowColor }) =>
+        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
     }
   }
 `;
@@ -20,6 +33,9 @@ export interface RichtextEditorComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isToolbarHidden: boolean;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
   onValueChange: (valueAsString: string) => void;
 }
 export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
@@ -121,7 +137,11 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   if (status !== ScriptStatus.READY) return null;
 
   return (
-    <StyledRTEditor>
+    <StyledRTEditor
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
+    >
       <textarea id={`rte-${props.widgetId}`} />
     </StyledRTEditor>
   );

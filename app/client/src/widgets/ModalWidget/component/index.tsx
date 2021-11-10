@@ -25,6 +25,9 @@ import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { ButtonBorderRadius } from "components/constants";
+import { getBorderRadiusValue } from "widgets/WidgetUtils";
+import { Colors } from "constants/Colors";
 
 const Container = styled.div<{
   width?: number;
@@ -37,6 +40,9 @@ const Container = styled.div<{
   maxWidth?: number;
   minSize?: number;
   isEditMode?: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadowColor?: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -67,12 +73,15 @@ const Container = styled.div<{
         height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         min-height: ${(props) => `${props.minSize}px`};
         min-width: ${(props) => `${props.minSize}px`};
-        background: white;
         border-radius: ${(props) => props.theme.radii[0]}px;
         top: ${(props) => props.top}px;
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
+        background: ${({ backgroundColor }) =>
+          `${backgroundColor || Colors.WHITE}`};
+        border-radius: ${({ borderRadius }) =>
+          getBorderRadiusValue(borderRadius)};
         ${(props) => {
           if (props.isEditMode)
             return `transform: translate(${parseInt(props.theme.sidebarWidth) /
@@ -127,6 +136,8 @@ export type ModalComponentProps = {
   maxWidth?: number;
   minSize?: number;
   widgetName: string;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
 };
 
 /* eslint-disable react/display-name */
@@ -229,6 +240,8 @@ export default function ModalComponent(props: ModalComponentProps) {
         usePortal={false}
       >
         <Container
+          backgroundColor={props.backgroundColor}
+          borderRadius={props.borderRadius}
           bottom={props.bottom}
           height={props.height}
           isEditMode={props.isEditMode}

@@ -20,6 +20,9 @@ import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
+import { ButtonBorderRadiusTypes } from "components/constants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
 
 const minSize = 100;
 
@@ -58,6 +61,53 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+
+      {
+        sectionName: "Style",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["SHARP", "ROUNDED"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
         ],
       },
@@ -177,6 +227,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <ModalComponent
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
@@ -230,6 +282,8 @@ export interface ModalWidgetProps extends WidgetProps {
   size: string;
   onClose: string;
   mainContainer: WidgetProps;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
