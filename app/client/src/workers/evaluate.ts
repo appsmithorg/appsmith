@@ -216,7 +216,6 @@ export async function evaluateAsync(
     errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS, scriptType);
 
     try {
-      debugger;
       result = await eval(script);
     } catch (e) {
       const errorMessage = `${e.name}: ${e.message}`;
@@ -254,7 +253,6 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
       self[key] = GLOBAL_DATA[key];
     });
     try {
-      debugger;
       if (typeof userFunction === "function") {
         userFunction();
       }

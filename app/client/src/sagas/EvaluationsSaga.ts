@@ -330,7 +330,6 @@ export function* executeFunction(collectionName: string, action: JSAction) {
   }
 
   const { errors, result } = response;
-  debugger;
   yield call(evalErrorHandler, errors);
   return result;
 }

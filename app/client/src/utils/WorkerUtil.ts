@@ -255,7 +255,7 @@ export class GracefulWorkerService {
         // send response to worker
         this._evaluationWorker.postMessage({
           ...response,
-          workerRequestId,
+          requestId: workerRequestId,
         });
       }
     } catch (e) {

@@ -212,22 +212,29 @@ describe("GracefulWorkerService", () => {
 
   test("duplex request starter", async () => {
     const w = new GracefulWorkerService(MockWorker);
-    const requestData = { message: "Hello" };
     await runSaga({}, w.start);
     // Need this to work with eslint
     if (MockWorker.instance === undefined) {
       expect(MockWorker.instance).toBeDefined();
       return;
     }
+    const requestData = { message: "Hello" };
+    const method = "duplex_test";
+    MockWorker.instance.postMessage = jest.fn();
     const duplexRequest = await runSaga(
       {},
       w.duplexRequest,
-      "duplex_test",
+      method,
       requestData,
     );
     const handlers = await duplexRequest.toPromise();
     expect(handlers).toHaveProperty("requestChannel");
     expect(handlers).toHaveProperty("responseChannel");
+    expect(MockWorker.instance.postMessage).toBeCalledWith({
+      method,
+      requestData,
+      requestId: expect.stringContaining(method),
+    });
   });
 
   test("duplex request channel handler", async () => {
@@ -313,7 +320,7 @@ describe("GracefulWorkerService", () => {
       });
       expect(MockWorker.instance.postMessage).toBeCalledWith({
         test: randomRequestCount,
-        workerRequestId,
+        requestId: workerRequestId,
       });
     }
 
