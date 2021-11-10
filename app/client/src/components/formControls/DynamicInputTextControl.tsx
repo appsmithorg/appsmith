@@ -12,7 +12,9 @@ import {
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
+import _ from "lodash";
 import { Colors } from "constants/Colors";
+
 // Enum for the different types of input fields
 export enum INPUT_TEXT_INPUT_TYPES {
   TEXT = "TEXT",
@@ -40,6 +42,7 @@ export function InputText(props: {
   name: string;
   actionName: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
+  customStyles?: any;
 }) {
   const { actionName, inputType, name, placeholder } = props;
   const dataTreePath = actionPathFromName(actionName, name);
@@ -53,8 +56,12 @@ export function InputText(props: {
     };
   }
 
+  let customStyle = { width: "50vh", minHeight: "55px" };
+  if (!!props.customStyles && _.isEmpty(props.customStyles) === false) {
+    customStyle = props.customStyles;
+  }
   return (
-    <div style={{ width: "50vh", minHeight: "34px" }}>
+    <div style={{ ...customStyle, width: "50vh", minHeight: "34px" }}>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         name={name}
@@ -72,6 +79,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
     const {
       actionName,
       configProperty,
+      customStyles,
       inputType,
       label,
       placeholderText,
@@ -85,6 +93,7 @@ class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
     return (
       <InputText
         actionName={actionName}
+        customStyles={customStyles}
         inputType={inputTypeProp}
         label={label}
         name={configProperty}

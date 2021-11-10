@@ -64,6 +64,10 @@ export interface ControlData {
   subtitle?: string;
   url?: string;
   urlText?: string;
+  logicalTypes?: string[];
+  comparisonTypes?: string[];
+  nestedLevels?: number;
+  customStyles?: any;
 }
 
 export interface ControlFunctions {

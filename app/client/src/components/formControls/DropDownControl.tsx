@@ -16,9 +16,14 @@ const DropdownSelect = styled.div`
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
+    let width = "50vh";
+    if (this.props.customStyles && this.props.customStyles.width) {
+      width = this.props.customStyles.width;
+    }
+
     return (
       <div>
-        <DropdownSelect data-cy={this.props.configProperty}>
+        <DropdownSelect data-cy={this.props.configProperty} style={{ width }}>
           <Field
             component={renderDropdown}
             name={this.props.configProperty}
@@ -71,6 +76,8 @@ export interface DropDownControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
+  isDisabled?: boolean;
+  isSearchable?: boolean;
 }
 
 export default DropDownControl;
