@@ -12,6 +12,7 @@ const StyledViewer = styled.div`
 export default function DocViewer(props: { blob?: Blob }) {
   const [state, setState] = useState({ isLoading: false, isError: false });
   const [htmlContent, setHtmlContent] = useState("");
+  // when DocViewer gets new Blob of uploaded file convert it to html for preview
   useEffect(() => {
     setState({ isLoading: true, isError: false });
     setHtmlContent("");
