@@ -50,25 +50,12 @@ init_mongodb() {
   fi
 }
 
-configure_ssl() {
-  NGINX_SSL_CMNT="#"
-
-  echo "Mounting Let's encrypt folder"
+# Keep Let's Encrypt directory persistent 
+mount_letsencrypt_directory() { 
+  echo "Mounting Let's encrypt directory"
   rm -rf /etc/letsencrypt
   mkdir -p /appsmith-stacks/letsencrypt
   ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
-
-  echo "Generating nginx config template without domain"
-  bash "/opt/appsmith/templates/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$APPSMITH_CUSTOM_DOMAIN" > "/etc/nginx/conf.d/nginx_app.conf.template"
-
-  echo "Generating nginx configuration"
-  cat /etc/nginx/conf.d/nginx_app.conf.template | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' > /etc/nginx/sites-available/default
-
-  if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
-    # Load run-nginx.sh script to reuse function init_ssl_cert to register new certificate for custom domain
-    source "/opt/appsmith/init_ssl_cert.sh"
-    init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"
-  fi
 }
 
 configure_supervisord() {
@@ -134,7 +121,7 @@ fi
 
 # Main Section
 init_mongodb
-configure_ssl
+mount_letsencrypt_folder
 configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.

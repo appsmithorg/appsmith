@@ -11,7 +11,7 @@ if [[ -n $APPSMITH_CUSTOM_DOMAIN ]]; then
   NGINX_SSL_CMNT=""
 fi
 
-echo "Re-generating nginx config template with domain"
+echo "Re-generating nginx config template"
 bash "/opt/appsmith/templates/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$APPSMITH_CUSTOM_DOMAIN" >"/etc/nginx/conf.d/nginx_app.conf.template"
 
 echo "Generating nginx configuration"
@@ -23,4 +23,4 @@ if ! [[ -e "/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN" ]]; then
   init_ssl_cert "$APPSMITH_CUSTOM_DOMAIN"
 fi
 
-nginx -g "daemon off;"
+exec nginx -g "daemon off;"
