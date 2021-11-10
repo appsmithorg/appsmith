@@ -87,7 +87,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
               iconSize={theme.fontSizes[9]}
             />
           }
-          title="This page seems to be blanky"
+          title="This page seems to be blank"
         />
       </Centered>
     );

@@ -27,12 +27,12 @@ export class ThemeProvider {
     widgetData: any,
     theme: any = {},
   ) {
-    const dependencies = this.widgetThemeDependencyMap.get(widgetType);
-    if (dependencies) {
+    const themeDependencies = this.widgetThemeDependencyMap.get(widgetType);
+    if (themeDependencies) {
       const injectedValues: any = {};
-      Object.keys(dependencies).forEach((key) => {
+      Object.keys(themeDependencies).forEach((key) => {
         if (!widgetData[key]) {
-          injectedValues[key] = theme[dependencies[key]];
+          injectedValues[key] = theme[themeDependencies[key]];
         }
       });
 
