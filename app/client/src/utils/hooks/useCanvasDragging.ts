@@ -27,7 +27,6 @@ export const useCanvasDragging = (
     canExtend,
     dropDisabled,
     noPad,
-    parentId,
     snapColumnSpace,
     snapRows,
     snapRowSpace,

@@ -4,6 +4,7 @@ import {
   ReduxAction,
   ReflowReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import { OccupiedSpace } from "constants/editorConstants";
 
 const initialState: widgetReflowState = {
   isReflowing: false,
@@ -35,11 +36,18 @@ export type widgetReflowState = {
   reflow: Reflow;
 };
 
+export type CollidingWidgets = {
+  [key: string]: OccupiedSpace & {
+    direction: ResizeDirection;
+  };
+};
+
 export type Reflow = {
   staticWidgetId?: string;
   staticWidget?: StaticReflowWidget | undefined;
   resizeDirections: ResizeDirection;
   reflowingWidgets?: reflowWidgets;
+  initialCollidingWidgets?: CollidingWidgets;
 };
 
 export type StaticReflowWidget = {

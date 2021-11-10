@@ -7,6 +7,7 @@ import { ceil, cloneDeep } from "lodash";
 import { RefObject, useRef, useContext, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  CollidingWidgets,
   Reflow,
   reflowWidgets,
   StaticReflowWidget,
@@ -223,17 +224,9 @@ export const useReflow = (
       bottom: newRowCols.bottomRow,
       right: newRowCols.rightColumn,
     };
-
-    const { collidingWidgets, isColliding } = getCollidingWidgets(
-      resizedPositions,
-      widgetId,
-      occupiedSpacesBySiblingWidgets,
-    );
     // Check if new row cols are occupied by sibling widgets
     return {
       resizedPositions,
-      isColliding,
-      collidingWidgets,
     };
   };
 
@@ -243,11 +236,21 @@ export const useReflow = (
     const { direction, height, width, x, X = 0, y, Y = 0 } = dimensions;
     //eslint-disable-next-line
     console.log({ ...dimensions });
+    const { resizedPositions = { ...widgetPosition } } = isColliding(
+      { width, height },
+      { x, y },
+    );
+
     const {
       collidingWidgets,
       isColliding: isWidgetsColliding,
+    } = getCollidingWidgets(
       resizedPositions,
-    } = isColliding({ width, height }, { x, y });
+      widgetId,
+      direction,
+      occupiedSpacesBySiblingWidgets,
+      reflowState?.reflow?.initialCollidingWidgets,
+    );
 
     const newWidgetPosition = {
       ...widgetPosition,
@@ -280,6 +283,7 @@ export const useReflow = (
       let widgetReflow: Reflow = {
         staticWidgetId: newWidgetPosition.id,
         resizeDirections: direction,
+        initialCollidingWidgets: collidingWidgets,
       };
       if (direction.indexOf("|") > -1) {
         const isHorizontalMove = getIsHorizontalMove(positions.current, {
@@ -306,7 +310,7 @@ export const useReflow = (
         newStaticWidget = getMovementMapInDirection(
           widgetMovementMap,
           occupiedSpacesBySiblingWidgets,
-          collidingWidgets,
+          Object.values(collidingWidgets),
           newWidgetPosition,
           currentDirection as ResizeDirection,
           widgetParentSpaces,
@@ -322,7 +326,7 @@ export const useReflow = (
         newStaticWidget = getMovementMapInDirection(
           widgetMovementMap,
           occupiedSpacesBySiblingWidgets,
-          collidingWidgets,
+          Object.values(collidingWidgets),
           newWidgetPosition,
           direction,
           widgetParentSpaces,
@@ -354,7 +358,7 @@ export const useReflow = (
         const { reflowingWidgets, staticWidget } = reflowState.reflow;
         newStaticWidget = getCompositeMovementMap(
           occupiedSpacesBySiblingWidgets,
-          collidingWidgets,
+          Object.values(collidingWidgets),
           { ...newWidgetPosition, ...resizedPositions },
           direction,
           widgetParentSpaces,
@@ -389,7 +393,7 @@ export const useReflow = (
         newStaticWidget = getMovementMapInDirection(
           widgetMovementMap,
           occupiedSpacesBySiblingWidgets,
-          collidingWidgets,
+          Object.values(collidingWidgets),
           newWidgetPosition,
           direction,
           widgetParentSpaces,
@@ -1176,10 +1180,12 @@ function getDirectionalKeysFromWidgets(
 function getCollidingWidgets(
   offset: Rect,
   widgetId: string,
+  direction: ResizeDirection,
   occupied?: OccupiedSpace[],
+  prevCollidingWidgets?: CollidingWidgets,
 ) {
   let isColliding = false;
-  const collidingWidgets = [];
+  const collidingWidgets: CollidingWidgets = {};
   if (occupied) {
     occupied = occupied.filter((widgetDetails) => {
       return (
@@ -1189,7 +1195,15 @@ function getCollidingWidgets(
     for (let i = 0; i < occupied.length; i++) {
       if (areIntersecting(occupied[i], offset)) {
         isColliding = true;
-        collidingWidgets.push({ ...occupied[i] });
+        const currentWidgetId = occupied[i].id;
+        const movementDirection =
+          prevCollidingWidgets && prevCollidingWidgets[widgetId]
+            ? prevCollidingWidgets[widgetId].direction
+            : direction;
+        collidingWidgets[currentWidgetId] = {
+          ...occupied[i],
+          direction: movementDirection,
+        };
       }
     }
   }
