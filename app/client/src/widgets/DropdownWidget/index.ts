@@ -10,6 +10,7 @@ export const CONFIG = {
   defaults: {
     rows: 1.725 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    placeholderText: "Select option",
     labelText: "Label",
     selectionType: "SINGLE_SELECT",
     options: [

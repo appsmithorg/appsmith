@@ -76,7 +76,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${Colors.GREY_10};
+    color: ${(props) => (props.isSelected ? Colors.GREY_10 : Colors.GREY_6)};
   }
   && {
     .${Classes.ICON} {
@@ -198,7 +198,38 @@ const DropdownContainer = styled.div<{ compactMode: boolean }>`
 `;
 const DEBOUNCE_TIMEOUT = 800;
 
-class DropDownComponent extends React.Component<DropDownComponentProps> {
+interface DropDownComponentState {
+  activeItemIndex: number | undefined;
+}
+class DropDownComponent extends React.Component<
+  DropDownComponentProps,
+  DropDownComponentState
+> {
+  state = {
+    // used to show focused item for keyboard up down key interection
+    activeItemIndex: -1,
+  };
+  componentDidMount = () => {
+    // set default selectedIndex as focused index
+    this.setState({ activeItemIndex: this.props.selectedIndex });
+  };
+
+  componentDidUpdate = (prevProps: DropDownComponentProps) => {
+    if (prevProps.selectedIndex !== this.props.selectedIndex) {
+      // update focus index if selectedIndex changed by property pane
+      this.setState({ activeItemIndex: this.props.selectedIndex });
+    }
+  };
+
+  handleActiveItemChange = (activeItem: DropdownOption | null) => {
+    // find new index from options
+    const activeItemIndex = _.findIndex(this.props.options, [
+      "label",
+      activeItem?.label,
+    ]);
+    this.setState({ activeItemIndex });
+  };
+
   render = () => {
     const {
       compactMode,
@@ -209,6 +240,21 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
       labelTextColor,
       labelTextSize,
     } = this.props;
+    // active focused item
+    const activeItem = !_.isEmpty(this.props.options)
+      ? this.props.options[this.state.activeItemIndex]
+      : undefined;
+    // get selected option label from selectedIndex
+    const selectedOption =
+      !_.isEmpty(this.props.options) &&
+      this.props.selectedIndex !== undefined &&
+      this.props.selectedIndex > -1
+        ? this.props.options[this.props.selectedIndex].label
+        : undefined;
+    // for display selected option, there is no separate option to show placeholder
+    const value = selectedOption
+      ? selectedOption
+      : this.props.placeholder || "-- Select --";
     return (
       <DropdownContainer compactMode={compactMode}>
         <DropdownStyles width={this.props.width} />
@@ -231,6 +277,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
         )}
         <StyledControlGroup fill>
           <StyledSingleDropDown
+            activeItem={activeItem}
             className={isLoading ? Classes.SKELETON : ""}
             disabled={disabled}
             filterable={this.props.isFilterable}
@@ -247,6 +294,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
             noResults={<MenuItem disabled text="No Results Found" />}
+            onActiveItemChange={this.handleActiveItemChange}
             onItemSelect={this.onItemSelect}
             onQueryChange={
               this.props.serverSideFiltering ? this.serverSideSearch : undefined
@@ -274,13 +322,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                   name="dropdown"
                 />
               }
-              text={
-                !_.isEmpty(this.props.options) &&
-                this.props.selectedIndex !== undefined &&
-                this.props.selectedIndex > -1
-                  ? this.props.options[this.props.selectedIndex].label
-                  : this.props.placeholder || "-- Select --"
-              }
+              text={value}
             />
           </StyledSingleDropDown>
         </StyledControlGroup>

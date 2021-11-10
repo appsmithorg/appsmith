@@ -94,7 +94,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             dependencies: ["selectionType"],
           },
           {
-            helpText: "Label Text",
+            helpText: "Sets a Label Text",
             propertyName: "labelText",
             label: "Label Text",
             controlType: "INPUT_TEXT",
@@ -104,6 +104,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
@@ -180,6 +181,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
+            defaultValue: "PARAGRAPH",
             options: [
               {
                 label: "Heading 1",

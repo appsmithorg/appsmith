@@ -164,7 +164,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             },
           },
           {
-            helpText: "Label Text",
+            helpText: "Sets a Label Text",
             propertyName: "labelText",
             label: "Label Text",
             controlType: "INPUT_TEXT",
@@ -174,7 +174,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Input Place Holder",
+            helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
@@ -251,6 +251,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
+            defaultValue: "PARAGRAPH",
             options: [
               {
                 label: "Heading 1",
