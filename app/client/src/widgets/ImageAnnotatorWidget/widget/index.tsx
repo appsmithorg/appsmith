@@ -4,7 +4,11 @@ import { IAnnotation } from "react-image-annotation-ts";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { AnnotationSelector, AnnotationSelectorTypes } from "../constants";
+import {
+  AnnotationSelector,
+  AnnotationSelectorTypes,
+  SelectionMode,
+} from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import ImageAnnotatorComponent from "../component";
@@ -49,6 +53,16 @@ class ImageAnnotatorWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isAnnotationDisabled",
+            helpText: "Set to true to disable creating of annotations",
+            label: "Disable Annotation",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "defaultAnnotations",
             helpText: "Array of annotations",
             label: "Default Annotations",
@@ -66,11 +80,19 @@ class ImageAnnotatorWidget extends BaseWidget<
                         name: "selection",
                         type: ValidationTypes.OBJECT,
                         params: {
+                          required: false,
                           allowedKeys: [
                             {
                               name: "mode",
                               type: ValidationTypes.TEXT,
                               params: {
+                                allowedValues: [
+                                  SelectionMode.New,
+                                  SelectionMode.Selecting,
+                                  SelectionMode.Editing,
+                                  SelectionMode.Final,
+                                ],
+                                default: SelectionMode.Editing,
                                 required: true,
                               },
                             },
@@ -78,6 +100,7 @@ class ImageAnnotatorWidget extends BaseWidget<
                               name: "showEditor",
                               type: ValidationTypes.BOOLEAN,
                               params: {
+                                default: false,
                                 required: true,
                               },
                             },
@@ -96,11 +119,18 @@ class ImageAnnotatorWidget extends BaseWidget<
                         name: "geometry",
                         type: ValidationTypes.OBJECT,
                         params: {
+                          required: true,
                           allowedKeys: [
                             {
                               name: "type",
                               type: ValidationTypes.TEXT,
                               params: {
+                                allowedValues: [
+                                  AnnotationSelectorTypes.RECTANGLE,
+                                  AnnotationSelectorTypes.POINT,
+                                  AnnotationSelectorTypes.OVAL,
+                                ],
+                                default: AnnotationSelectorTypes.RECTANGLE,
                                 required: true,
                               },
                             },
@@ -108,6 +138,7 @@ class ImageAnnotatorWidget extends BaseWidget<
                               name: "x",
                               type: ValidationTypes.NUMBER,
                               params: {
+                                default: 0,
                                 required: true,
                               },
                             },
@@ -115,6 +146,7 @@ class ImageAnnotatorWidget extends BaseWidget<
                               name: "y",
                               type: ValidationTypes.NUMBER,
                               params: {
+                                default: 0,
                                 required: true,
                               },
                             },
@@ -122,6 +154,7 @@ class ImageAnnotatorWidget extends BaseWidget<
                               name: "height",
                               type: ValidationTypes.NUMBER,
                               params: {
+                                default: 0,
                                 required: true,
                               },
                             },
@@ -129,6 +162,7 @@ class ImageAnnotatorWidget extends BaseWidget<
                               name: "width",
                               type: ValidationTypes.NUMBER,
                               params: {
+                                default: 0,
                                 required: true,
                               },
                             },
@@ -139,11 +173,13 @@ class ImageAnnotatorWidget extends BaseWidget<
                         name: "data",
                         type: ValidationTypes.OBJECT,
                         params: {
+                          required: true,
                           allowedKeys: [
                             {
                               name: "text",
                               type: ValidationTypes.TEXT,
                               params: {
+                                default: "",
                                 required: true,
                               },
                             },
@@ -151,6 +187,7 @@ class ImageAnnotatorWidget extends BaseWidget<
                               name: "id",
                               type: ValidationTypes.NUMBER,
                               params: {
+                                default: 0,
                                 unique: true,
                               },
                             },
@@ -271,6 +308,7 @@ class ImageAnnotatorWidget extends BaseWidget<
       annotation,
       annotations,
       imageUrl,
+      isAnnotationDisabled,
       isDisabled,
       selector,
     } = this.props;
@@ -282,6 +320,7 @@ class ImageAnnotatorWidget extends BaseWidget<
           annotations={annotations}
           disabled={isDisabled}
           imageUrl={imageUrl}
+          isAnnotationDisabled={isAnnotationDisabled}
           onChange={this.handleAnnotationChange}
           onReset={this.handleResetAnnotations}
           onSubmit={this.handleAnnotationSubmit}
@@ -300,6 +339,7 @@ export interface ImageAnnotatorWidgetProps extends WidgetProps {
   annotation: IAnnotation;
   annotations: IAnnotation[];
   imageUrl: string;
+  isAnnotationDisabled?: boolean;
   isDisabled: boolean;
   isVisible: boolean;
   onAnnotationSubmit?: string;

@@ -5,3 +5,10 @@ export enum AnnotationSelectorTypes {
 }
 
 export type AnnotationSelector = keyof typeof AnnotationSelectorTypes;
+
+export enum SelectionMode {
+  New = "NEW",
+  Selecting = "SELECTING",
+  Editing = "EDITING",
+  Final = "FINAL",
+}
