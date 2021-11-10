@@ -18,18 +18,13 @@ import {
 } from "constants/messages";
 import Text, { TextType, Case } from "components/ads/Text";
 import { Colors } from "constants/Colors";
+import SuccessTick from "pages/common/SuccessTick";
 
 const Container = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
-  position: absolute;
-
-  
-  /* bottom: ${(props) => `${props.theme.spaces[8]}px`}; */
-  bottom: 30px;
   width: calc(100% - 30px);
- 
 `;
 
 const ButtonWrapper = styled.div`
@@ -37,6 +32,9 @@ const ButtonWrapper = styled.div`
   flex-direction: row;
   padding-top: 2px;
   cursor: pointer;
+  :hover {
+    text-decoration: underline;
+  }
 `;
 
 const IconWrapper = styled.div`
@@ -61,7 +59,7 @@ const CloudIconWrapper = styled.div`
   align-items: center;
 `;
 
-export default function DeployPreview() {
+export default function DeployPreview(props: { showSuccess: boolean }) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
 
@@ -73,7 +71,11 @@ export default function DeployPreview() {
   return (
     <Container>
       <CloudIconWrapper>
-        <CloudyIcon />
+        {props.showSuccess ? (
+          <SuccessTick height="30px" width="30px" />
+        ) : (
+          <CloudyIcon />
+        )}
       </CloudIconWrapper>
       <ContentWrapper>
         <ButtonWrapper onClick={showDeployPreview}>
