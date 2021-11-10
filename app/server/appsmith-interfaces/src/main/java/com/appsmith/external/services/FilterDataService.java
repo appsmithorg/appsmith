@@ -157,8 +157,10 @@ public class FilterDataService {
 
             String whereClause = generateLogicalExpression(conditions, values, schema, operator);
 
-            sb.append(" WHERE ");
-            sb.append(whereClause);
+            if (StringUtils.isNotEmpty(whereClause)) {
+                sb.append(" WHERE ");
+                sb.append(whereClause);
+            }
         }
 
         sb.append(";");
@@ -680,69 +682,68 @@ public class FilterDataService {
 
         StringBuilder sb = new StringBuilder();
 
-        Boolean firstCondition = true;
         for (Condition condition : conditions) {
-            if (firstCondition) {
-                // Append the start bracket before adding the conditions
-                sb.append(" ( ");
-                firstCondition = false;
-            } else {
-                // This is not the first condition. Append the operator before adding the next condition
-                sb.append(" " + logicOp + " ( ");
-            }
-
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
             Object objValue = condition.getValue();
             if (operator.equals(ConditionalOperator.AND) || operator.equals(ConditionalOperator.OR)) {
                 List<Condition> subConditions = (List<Condition>) objValue;
-                sb.append(generateLogicalExpression(subConditions, values, schema, operator));
+                String logicalExpression = generateLogicalExpression(subConditions, values, schema, operator);
+                if (StringUtils.isNotEmpty(logicalExpression)) {
+                    sb.append(" " + logicOp + " ( ");
+                    sb.append(logicalExpression);
+                    sb.append(" ) ");
+                }
             } else {
                 String value = (String) objValue;
 
-                String sqlOp = SQL_OPERATOR_MAP.get(operator);
-                if (sqlOp == null) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            operator + " is not supported currently for filtering.");
-                }
-
-                sb.append("\"" + path + "\"");
-                sb.append(" ");
-                sb.append(sqlOp);
-                sb.append(" ");
-
-                // These are array operations. Convert value into appropriate format and then append
-                if (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN) {
-
-                    StringBuilder valueBuilder = new StringBuilder("(");
-
-                    try {
-                        List<Object> arrayValues = objectMapper.readValue(value, List.class);
-                        List<String> updatedStringValues = arrayValues
-                                .stream()
-                                .map(fieldValue -> {
-                                    values.put(String.valueOf(fieldValue), schema.get(path));
-                                    return "?";
-                                })
-                                .collect(Collectors.toList());
-                        String finalValues = String.join(",", updatedStringValues);
-                        valueBuilder.append(finalValues);
-                    } catch (IOException e) {
+                if (StringUtils.isNotEmpty(path) && StringUtils.isNotEmpty(value)) {
+                    String sqlOp = SQL_OPERATOR_MAP.get(operator);
+                    if (sqlOp == null) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                value + " could not be parsed into an array");
+                                operator + " is not supported currently for filtering.");
+                    }
+                    sb.append(" ( ");
+                    sb.append("\"" + path + "\"");
+                    sb.append(" ");
+                    sb.append(sqlOp);
+                    sb.append(" ");
+
+                    // These are array operations. Convert value into appropriate format and then append
+                    if (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN) {
+
+                        StringBuilder valueBuilder = new StringBuilder("(");
+
+                        try {
+                            List<Object> arrayValues = objectMapper.readValue(value, List.class);
+                            List<String> updatedStringValues = arrayValues
+                                    .stream()
+                                    .map(fieldValue -> {
+                                        values.put(String.valueOf(fieldValue), schema.get(path));
+                                        return "?";
+                                    })
+                                    .collect(Collectors.toList());
+                            String finalValues = String.join(",", updatedStringValues);
+                            valueBuilder.append(finalValues);
+                        } catch (IOException e) {
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    value + " could not be parsed into an array");
+                        }
+
+                        valueBuilder.append(")");
+                        value = valueBuilder.toString();
+                        sb.append(value);
+
+                    } else {
+                        // Not an array. Simply add a placeholder
+                        sb.append("?");
+                        values.put(value, schema.get(path));
                     }
 
-                    valueBuilder.append(")");
-                    value = valueBuilder.toString();
-                    sb.append(value);
-
-                } else {
-                    // Not an array. Simply add a placeholder
-                    sb.append("?");
-                    values.put(value, schema.get(path));
+                    sb.append(" ) ");
                 }
             }
-            sb.append(" ) ");
+
         }
         return sb.toString();
     }
