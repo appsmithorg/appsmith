@@ -16,11 +16,6 @@ import { getExistingPageNames } from "sagas/selectors";
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
-import {
-  EditableText as NewEditableText,
-  EditInteractionKind as NewEditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import log from "loglevel";
