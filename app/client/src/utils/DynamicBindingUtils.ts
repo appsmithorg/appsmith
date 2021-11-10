@@ -192,6 +192,19 @@ export const extraLibraries: ExtraLibrary[] = [
   },
 ];
 
+/**
+ * creates dynamic list of constants based on
+ * current list of extra libraries i.e lodash("_"), moment etc
+ * to be used in widget and entity name validations
+ */
+export const extraLibrariesNames = extraLibraries.reduce(
+  (prev: any, curr: any) => {
+    prev[curr.accessor] = curr.accessor;
+    return prev;
+  },
+  {},
+);
+
 export interface DynamicPath {
   key: string;
   value?: string;
