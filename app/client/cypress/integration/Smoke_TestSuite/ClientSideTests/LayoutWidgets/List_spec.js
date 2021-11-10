@@ -1,7 +1,7 @@
-const commonlocators = require("../../../locators/commonlocators.json");
-const widgetsPage = require("../../../locators/Widgets.json");
-const dsl = require("../../../fixtures/listdsl.json");
-const publishPage = require("../../../locators/publishWidgetspage.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+const dsl = require("../../../../fixtures/listdsl.json");
+const publishPage = require("../../../../locators/publishWidgetspage.json");
 
 describe("Container Widget Functionality", function() {
   const items = JSON.parse(dsl.dsl.children[0].listData);
