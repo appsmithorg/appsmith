@@ -5,6 +5,8 @@ import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
+export type EvaluationVersion = number;
+
 export interface PublishApplicationRequest {
   applicationId: string;
 }
@@ -36,6 +38,7 @@ export interface ApplicationResponsePayload {
   id: string;
   name: string;
   organizationId: string;
+  evaluationVersion?: EvaluationVersion;
   pages?: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
