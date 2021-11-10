@@ -2,7 +2,7 @@
     "addNewQueryBtn": ".dbqueries .t--entity-add-btn",
     "queryEditorIcon": ".t--nav-link-query-editor",
     "templateMenu": ".t--template-menu",
-    "runQuery": ".t--run-query",
+    "runQuery": "//span[text()='Run']/parent::button",
     "saveQuery": ".t--save-query",
     "deleteQuery": ".t--delete-query",
     "queryMoreAction": ".t--more-action-menu",
