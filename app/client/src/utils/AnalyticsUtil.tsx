@@ -206,9 +206,7 @@ class AnalyticsUtil {
       const analytics = (window.analytics = window.analytics || []);
       if (!analytics.initialize) {
         if (analytics.invoked) {
-          window.console &&
-            console.error &&
-            console.error("Segment snippet included twice.");
+          log.error("Segment snippet included twice.");
         } else {
           analytics.invoked = !0;
           analytics.methods = [
