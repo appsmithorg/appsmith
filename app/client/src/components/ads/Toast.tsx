@@ -24,6 +24,7 @@ export type ToastProps = ToastOptions &
     hideProgressBar?: boolean;
     hideActionElementSpace?: boolean;
     width?: string;
+    maxWidth?: string;
   };
 
 const WrappedToastContainer = styled.div`
@@ -58,8 +59,10 @@ const ToastBody = styled.div<{
   isUndo?: boolean;
   dispatchableAction?: { type: ReduxActionType; payload: any };
   width?: string;
+  maxWidth?: string;
 }>`
   width: ${(props) => props.width || "fit-content"};
+  max-width: ${(props) => props.maxWidth || "264px"};
   margin-left: auto;
   background: ${(props) => props.theme.colors.toast.bg};
   padding: ${(props) => props.theme.spaces[4]}px
@@ -144,6 +147,7 @@ export function ToastComponent(
       className="t--toast-action"
       dispatchableAction={props.dispatchableAction}
       isUndo={!!props.onUndo}
+      maxWidth={props.maxWidth}
       variant={props.variant || Variant.info}
       width={props.width}
     >
