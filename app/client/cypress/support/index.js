@@ -65,10 +65,7 @@ before(function() {
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
-  cy.wait("@applications").then((response) => {
-    cy.log(JSON.stringify(response.response.body));
-    expect(response.response.body.responseMeta.status).to.equal(200);
-  });
+  cy.wait("@applications");
 
   cy.generateUUID().then((id) => {
     appId = id;
