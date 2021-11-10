@@ -23,7 +23,7 @@ import {
   TableStyles,
   MenuItems,
 } from "./Constants";
-import { isString, isEmpty, findIndex } from "lodash";
+import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
@@ -168,7 +168,7 @@ export const renderCell = (
         >
           {value && columnType === ColumnTypes.URL && cellProperties.displayText
             ? cellProperties.displayText
-            : !!value
+            : !isNil(value) && !isNaN(value)
             ? value.toString()
             : ""}
         </AutoToolTipComponent>
