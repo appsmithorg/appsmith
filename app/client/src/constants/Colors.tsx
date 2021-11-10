@@ -124,8 +124,6 @@ export const Colors = {
   BOX_SHADOW_DEFAULT_VARIANT4: "rgba(0, 0, 0, 0.25)",
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
 
-  GEYSER_GREY: "#d0d7dd",
-
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
