@@ -188,6 +188,8 @@ describe("Input Widget Functionality", function() {
     cy.get(widgetsPage.innertext)
       .click()
       .clear();
+    cy.openPropertyPane("inputwidget");
+    cy.wait(1000);
     cy.selectDropdownValue(commonlocators.dataType, "Phone Number");
     cy.get(commonlocators.inputCountryCodeChangeType)
       .invoke("text")
