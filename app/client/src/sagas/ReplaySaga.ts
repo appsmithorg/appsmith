@@ -41,7 +41,6 @@ import { ReplayEntityType } from "entities/Replay/replayUtils";
 import { updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 import { changeQuery } from "actions/queryPaneActions";
-import { isAPIAction } from "./ActionSagas";
 import { changeApi } from "actions/apiPaneActions";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
 import { changeDatasource } from "actions/datasourceActions";
@@ -54,6 +53,7 @@ import { getEditorConfig, getSettingConfig } from "selectors/entitiesSelector";
 import { isArray } from "lodash";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { isQueryAction, isSaasAction } from "entities/Action";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -193,9 +193,14 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       }
       case ReplayEntityType.ACTION:
         yield put(
-          isAPIAction(replayEntity)
-            ? changeApi(replayEntity.id, false, false, replayEntity)
-            : changeQuery(replayEntity.id, false, replayEntity),
+          isQueryAction(replayEntity)
+            ? changeQuery(replayEntity.id, false, replayEntity)
+            : changeApi(
+                replayEntity.id,
+                isSaasAction(replayEntity),
+                false,
+                replayEntity,
+              ),
         );
         yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
         yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);

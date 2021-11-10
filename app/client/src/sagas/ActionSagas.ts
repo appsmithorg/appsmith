@@ -52,7 +52,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Action,
   ActionViewMode,
-  ApiAction,
+  isAPIAction,
   PluginType,
   SlashCommand,
   SlashCommandPayload,
@@ -298,10 +298,6 @@ export function* fetchActionsForPageSaga(
       payload: { error },
     });
   }
-}
-
-export function isAPIAction(action: Action): action is ApiAction {
-  return action.pluginType === PluginType.API;
 }
 
 export function* updateActionSaga(
