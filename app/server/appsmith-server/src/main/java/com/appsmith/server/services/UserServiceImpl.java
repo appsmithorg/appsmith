@@ -465,7 +465,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
                 ))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
+                .flatMap(tuple -> analyticsService.trackNewUser(tuple.getT1(), tuple.getT2()));
     }
 
     /**
@@ -823,7 +823,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         List<Mono<Void>> monos = new ArrayList<>();
 
         Mono<User> updatedUserMono;
-        Mono<UserData> updatedUserDataMono;
 
         if (allUpdates.hasUserUpdates()) {
             final User updates = new User();
@@ -847,19 +846,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             final UserData updates = new UserData();
             updates.setRole(allUpdates.getRole());
             updates.setUseCase(allUpdates.getUseCase());
-            updatedUserDataMono = userDataService.updateForCurrentUser(updates).cache();
-            monos.add(updatedUserDataMono.then());
-        } else {
-            updatedUserDataMono = userDataService.getForCurrentUser();
+            monos.add(userDataService.updateForCurrentUser(updates).then());
         }
 
-        return Mono.whenDelayError(monos)
-                .then(Mono.zip(updatedUserMono, updatedUserDataMono))
-                .flatMap(tuple -> {
-                    final User user = tuple.getT1();
-                    final UserData userData = tuple.getT2();
-                    return analyticsService.identifyUser(user, userData).thenReturn(user);
-                });
+        return Mono.whenDelayError(monos).then(updatedUserMono);
     }
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {

@@ -19,13 +19,11 @@ describe("Entity explorer JSEditor structure", function() {
     cy.get(`.t--entity.t--jsaction:contains(JSObject1)`)
       .find(explorer.collapse)
       .click({ multiple: true });
-    // cy.get(jsEditorLocators.propertyList).then(function($lis) {
-    //   expect($lis).to.have.length(4);
-    //   expect($lis.eq(0)).to.contain("{{JSObject1.myFun2()}}");
-    //   expect($lis.eq(0)).to.contain("{{JSObject1.myFun1()}}");
-    //   expect($lis.eq(1)).to.contain("{{JSObject1.myVar1}}");
-    //   expect($lis.eq(1)).to.contain("{{JSObject1.myVar2}}");
-    // });
+    cy.get(jsEditorLocators.propertyList).then(function($lis) {
+      expect($lis).to.have.length(2);
+      expect($lis.eq(0)).to.contain("{{JSObject1.run()}}");
+      expect($lis.eq(1)).to.contain("{{JSObject1.results}}");
+    });
   });
 
   // it("Rename JSObject", function() {

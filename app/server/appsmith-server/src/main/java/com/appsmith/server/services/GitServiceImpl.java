@@ -42,7 +42,6 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -413,7 +412,7 @@ public class GitServiceImpl implements GitService {
                                 });
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                     }
                 })
                 .flatMap(application -> {
@@ -426,6 +425,9 @@ public class GitServiceImpl implements GitService {
                                 .collect(Collectors.toList())
                                 .get(0)
                                 .getId();
+                    } else {
+                        // TODO either throw error message saying invalid application or have a default value
+                        defaultPageId = "defaultPage";
                     }
                     String viewModeUrl = Paths.get("/", application.getId(),
                             Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
@@ -439,7 +441,7 @@ public class GitServiceImpl implements GitService {
                         );
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                     }
                     return Mono.just(application);
                 });
@@ -517,18 +519,7 @@ public class GitServiceImpl implements GitService {
                                     gitAuth.getPublicKey(),
                                     gitAuth.getPrivateKey(),
                                     gitData.getBranchName()))
-                            .onErrorResume(error -> {
-                                if(error instanceof TransportException) {
-                                    return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Please give the write access to the Deploy Key"));
-                                }
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
-                            });
-                })
-                .flatMap(pushResult -> {
-                    if(pushResult.contains("REJECTED")) {
-                        return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", " Remote has changes. Please pull them before pushing to remote branch."));
-                    }
-                    return Mono.just(pushResult);
+                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage())));
                 });
     }
 

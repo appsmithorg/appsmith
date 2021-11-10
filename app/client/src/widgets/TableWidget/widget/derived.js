@@ -1,27 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedRow: (props, moment, _) => {
-    let selectedRowIndices = [];
-    if (
-      Array.isArray(props.selectedRowIndices) &&
-      props.selectedRowIndices.every((el) => typeof el === "number")
-    ) {
-      selectedRowIndices = props.selectedRowIndices;
-    } else if (typeof props.selectedRowIndices === "number") {
-      selectedRowIndices = [props.selectedRowIndices];
-    }
-    let selectedRowIndex;
-    if (props.multiRowSelection) {
-      selectedRowIndex = selectedRowIndices.length
-        ? selectedRowIndices[selectedRowIndices.length - 1]
-        : -1;
-    } else {
-      selectedRowIndex =
-        props.selectedRowIndex === undefined ||
-        Number.isNaN(parseInt(props.selectedRowIndex))
-          ? -1
-          : parseInt(props.selectedRowIndex);
-    }
+    const selectedRowIndex =
+      props.selectedRowIndex === undefined ||
+      Number.isNaN(parseInt(props.selectedRowIndex))
+        ? -1
+        : parseInt(props.selectedRowIndex);
     const filteredTableData =
       props.filteredTableData || props.sanitizedTableData || [];
     if (selectedRowIndex === -1) {

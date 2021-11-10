@@ -270,6 +270,5 @@ export default function* root() {
     // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
-    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
   ]);
 }

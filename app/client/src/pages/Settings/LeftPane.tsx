@@ -1,4 +1,3 @@
-import { Colors } from "constants/Colors";
 import { getAdminSettingsCategoryUrl } from "constants/routes";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
@@ -15,10 +14,8 @@ const Wrapper = styled.div`
 const HeaderContainer = styled.div``;
 
 const StyledHeader = styled.div`
-  font-size: 20px;
-  text-transform: capitalize;
-  margin: 40px 16px 16px;
-  color: ${Colors.MASALA};
+  text-transform: uppercase;
+  margin: 40px 16px 8px;
 `;
 
 const CategoryList = styled.ul`
@@ -61,8 +58,6 @@ function useSettingsCategory() {
     .sort((a, b) => {
       if (a.label == "general") return -1;
       else if (b.label == "general") return 1;
-      if (a.label == "advanced") return 1;
-      else if (b.label == "advanced") return -1;
       return a.label < b.label ? -1 : 1;
     });
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import Text, { TextType } from "components/ads/Text";
 import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
-import ProfileForm, { PROFILE_FORM, fieldNames } from "./ProfileForm";
+import ProfileForm, { PROFILE_FORM } from "./ProfileForm";
 import CommentsCarouselModal from "./CommentsCarouselModal";
 import ProgressiveImage, {
   Container as ProgressiveImageContainer,
@@ -204,23 +204,13 @@ export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
   const isIntroCarouselVisible = useSelector(isIntroCarouselVisibleSelector);
   const profileFormValues = useSelector(getFormValues(PROFILE_FORM));
-  const profileFormErrors = useSelector(
-    getFormSyncErrors("PROFILE_FORM"),
-  ) as Partial<typeof fieldNames>;
+  const profileFormErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
+  const isSubmitDisabled = Object.keys(profileFormErrors).length !== 0;
 
   const [isSkipped, setIsSkipped] = useState(false);
 
   const currentUser = useSelector(getCurrentUser);
   const { email, name } = currentUser || {};
-  const emailDisabled = !!email;
-
-  // don't validate email address if it already exists on the user object
-  // this is to unblock the comments feature for github users where email is
-  // actually the github username
-  const isSubmitDisabled = !!(
-    profileFormErrors.displayName ||
-    (profileFormErrors.emailAddress && !emailDisabled)
-  );
 
   const initialProfileFormValues = { emailAddress: email, displayName: name };
   const onSubmitProfileForm = () => {
@@ -275,7 +265,7 @@ export default function CommentsShowcaseCarousel() {
     isSubmitDisabled,
     finalSubmit,
     initialProfileFormValues,
-    emailDisabled,
+    !!email,
     canManage,
     onSkip,
     isSkipped,

@@ -34,9 +34,6 @@ import InputNumberControl from "components/formControls/InputNumberControl";
 import FieldArrayControl, {
   FieldArrayControlProps,
 } from "components/formControls/FieldArrayControl";
-import WhereClauseControl, {
-  WhereClauseControlProps,
-} from "components/formControls/WhereClauseControl";
 
 class FormControlRegistry {
   static registerFormControlBuilders() {
@@ -102,11 +99,6 @@ class FormControlRegistry {
     FormControlFactory.registerControlBuilder("ARRAY_FIELD", {
       buildPropertyControl(controlProps: FieldArrayControlProps): JSX.Element {
         return <FieldArrayControl {...controlProps} />;
-      },
-    });
-    FormControlFactory.registerControlBuilder("WHERE_CLAUSE", {
-      buildPropertyControl(controlProps: WhereClauseControlProps): JSX.Element {
-        return <WhereClauseControl {...controlProps} />;
       },
     });
   }

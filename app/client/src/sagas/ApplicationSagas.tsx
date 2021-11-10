@@ -117,11 +117,7 @@ export function* publishApplicationSaga(
 
       const showOnboardingCompletionDialog = yield select(showCompletionDialog);
       if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl = getApplicationViewerPageURL({
-          applicationId,
-          pageId: currentPageId,
-          params: { onboardingComplete: "true" },
-        });
+        appicationViewPageUrl += "?onboardingComplete=true";
       }
 
       yield put({

@@ -50,21 +50,8 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const {
-      configProperty,
-      customStyles,
-      isDisabled,
-      isRequired,
-      isSearchable,
-      label,
-      options,
-      subtitle,
-    } = this.props;
+    const { configProperty, isRequired, label, options, subtitle } = this.props;
 
-    let width = "50vh";
-    if (customStyles && customStyles.width) {
-      width = customStyles.width;
-    }
     return (
       <div>
         <FormLabel>
@@ -76,15 +63,13 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
             </>
           )}
         </FormLabel>
-        <DropdownSelect data-cy={configProperty} style={{ width }}>
+        <DropdownSelect data-cy={configProperty}>
           <DropdownField
             customSelectStyles={customSelectStyles}
-            isDisabled={isDisabled}
-            isSearchable={isSearchable}
             name={configProperty}
             options={options}
             placeholder=""
-            width={width}
+            width={"50vh"}
           />
         </DropdownSelect>
       </div>
@@ -121,8 +106,6 @@ export interface DropDownControlProps extends ControlProps {
   placeholderText: string;
   propertyValue: string;
   subtitle?: string;
-  isDisabled?: boolean;
-  isSearchable?: boolean;
 }
 
 export default DropDownControl;

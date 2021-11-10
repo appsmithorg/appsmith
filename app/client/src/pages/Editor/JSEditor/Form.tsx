@@ -23,8 +23,6 @@ import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { EvaluationError } from "utils/DynamicBindingUtils";
-import SearchSnippets from "components/ads/SnippetButton";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 const Form = styled.form`
   display: flex;
@@ -143,10 +141,6 @@ function JSEditorForm(props: Props) {
                 id={currentJSAction.id}
                 name={currentJSAction.name}
                 pageId={pageId}
-              />
-              <SearchSnippets
-                entityId={currentJSAction?.id}
-                entityType={ENTITY_TYPE.JSACTION}
               />
             </ActionButtons>
           </FormRow>

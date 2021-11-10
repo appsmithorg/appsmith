@@ -114,12 +114,6 @@ export const getConfigInitialValues = (config: Record<string, any>[]) => {
       } else {
         set(configInitialValues, section.configProperty, section.initialValue);
       }
-    } else if (section.controlType === "WHERE_CLAUSE") {
-      set(
-        configInitialValues,
-        `${section.configProperty}.condition`,
-        section.logicalTypes[0].value,
-      );
     }
     if ("children" in section) {
       section.children.forEach((section: any) => {
