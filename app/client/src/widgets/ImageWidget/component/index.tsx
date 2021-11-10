@@ -3,6 +3,8 @@ import { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Colors } from "constants/Colors";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 export interface StyledImageProps {
   defaultImageUrl: string;
@@ -34,9 +36,17 @@ export const StyledImage = styled.div<
   width: 100%;
 `;
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+}>`
   height: 100%;
   width: 100%;
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  overflow: hidden;
   .react-transform-element,
   .react-transform-component {
     height: 100%;
@@ -120,6 +130,9 @@ class ImageComponent extends React.Component<
     }
     return (
       <Wrapper
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
       >
@@ -368,6 +381,9 @@ export interface ImageComponentProps extends ComponentProps {
   objectFit: string;
   disableDrag: (disabled: boolean) => void;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default ImageComponent;

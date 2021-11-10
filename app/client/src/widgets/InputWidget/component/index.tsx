@@ -44,6 +44,8 @@ import ISDCodeDropdown, {
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import Icon from "components/ads/Icon";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 /**
  * All design system component specific logic goes here.
@@ -74,6 +76,10 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   disabled?: boolean;
   inputType: InputType;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }>`
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   &&&& {
@@ -110,11 +116,15 @@ const InputComponentWrapper = styled((props) => (
         props.inputType === InputTypes.PHONE_NUMBER &&
         `padding-left: 85px;
         `};
-      box-shadow: none;
       border: 1px solid;
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.WHITE}`};
+      border-radius: ${({ borderRadius }) =>
+        getBorderRadiusValue(borderRadius)};
+      box-shadow: ${({ boxShadow, boxShadowColor }) =>
+        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
       border-color: ${({ hasError }) =>
         hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
-      border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
       ${(props) =>
@@ -543,6 +553,10 @@ class InputComponent extends React.Component<
     return (
       <InputComponentWrapper
         allowCurrencyChange={this.props.allowCurrencyChange}
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         compactMode={this.props.compactMode}
         disabled={this.props.disabled}
         fill
@@ -613,6 +627,10 @@ export interface InputComponentState {
 }
 
 export interface InputComponentProps extends ComponentProps {
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
   value: string;
   inputType: InputType;
   disabled?: boolean;

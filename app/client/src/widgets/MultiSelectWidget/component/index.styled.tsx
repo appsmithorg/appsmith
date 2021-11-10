@@ -3,6 +3,8 @@ import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -132,15 +134,15 @@ export const DropdownStyles = createGlobalStyle`
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-enter.rc-select-dropdown-slide-up-enter-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-appear.rc-select-dropdown-slide-up-appear-active.rc-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-select-dropdown-slide-up-leave.rc-select-dropdown-slide-up-leave-active.rc-select-dropdown-placement-topLeft {
@@ -205,7 +207,12 @@ export const DropdownStyles = createGlobalStyle`
   }
 `;
 
-export const MultiSelectContainer = styled.div`
+export const MultiSelectContainer = styled.div<{
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+}>`
   .rc-select {
     display: inline-block;
     font-size: 12px;
@@ -213,6 +220,7 @@ export const MultiSelectContainer = styled.div`
     height: 100%;
     position: relative;
     cursor: pointer;
+
     .rc-select-selection-placeholder {
       pointer-events: none;
       position: absolute;
@@ -268,9 +276,13 @@ export const MultiSelectContainer = styled.div`
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      box-shadow: none;
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.WHITE}`};
+      border-radius: ${({ borderRadius }) =>
+        getBorderRadiusValue(borderRadius)};
+      box-shadow: ${({ boxShadow, boxShadowColor }) =>
+        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
       border: 1px solid rgb(231, 231, 231);
-      border-radius: 0px;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
@@ -278,7 +290,8 @@ export const MultiSelectContainer = styled.div`
       .rc-select-selection-item {
         background: none;
         border: 1px solid rgb(208, 215, 221);
-        border-radius: 2px;
+        border-radius: ${({ borderRadius }) =>
+          getBorderRadiusValue(borderRadius)};
         margin: 3px 2px;
         max-width: 273.926px;
         height: 24px;
@@ -370,9 +383,13 @@ export const MultiSelectContainer = styled.div`
   .rc-select-show-arrow.rc-select-multiple {
     .rc-select-selector {
       padding-right: 20px;
-      box-shadow: none;
       border: 1px solid rgb(231, 231, 231);
-      border-radius: 0px;
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.WHITE}`};
+      border-radius: ${({ borderRadius }) =>
+        getBorderRadiusValue(borderRadius)};
+      box-shadow: ${({ boxShadow, boxShadowColor }) =>
+        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,

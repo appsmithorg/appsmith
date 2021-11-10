@@ -1,16 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { hexToRgba } from "widgets/WidgetUtils";
+import {
+  getBorderRadiusValue,
+  hexToRgba,
+  getBoxShadowValue,
+} from "widgets/WidgetUtils";
 
 import { ComponentProps } from "widgets/BaseComponent";
 import { AppState } from "reducers";
 import { useSelector } from "store";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 interface IframeContainerProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export const IframeContainer = styled.div<IframeContainerProps>`
@@ -21,11 +29,15 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   height: 100%;
   background-color: #ffffff;
   font-weight: bold;
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
 
   iframe {
     width: 100%;
     height: 100%;
     border-style: solid;
+    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
     border-color: ${(props) =>
       hexToRgba(
         props.borderColor || props.theme.colors.border,
@@ -55,6 +67,9 @@ export interface IframeComponentProps extends ComponentProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 function IframeComponent(props: IframeComponentProps) {
@@ -106,7 +121,10 @@ function IframeComponent(props: IframeComponentProps) {
     <IframeContainer
       borderColor={borderColor}
       borderOpacity={borderOpacity}
+      borderRadius={props.borderRadius}
       borderWidth={borderWidth}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
     >
       {renderMode === RenderModes.CANVAS &&
         !(isPropertyPaneVisible && widgetId === selectedWidgetId) && (

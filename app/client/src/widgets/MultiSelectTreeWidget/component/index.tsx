@@ -23,6 +23,7 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 export interface TreeSelectProps
   extends Required<
     Pick<
@@ -44,6 +45,10 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 const getSvg = (style = {}) => (
@@ -89,23 +94,24 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   return getSvg({ transform: `rotate(${treeNode.expanded ? 90 : 0}deg)` });
 };
 
-function MultiTreeSelectComponent({
-  allowClear,
-  compactMode,
-  disabled,
-  dropdownStyle,
-  expandAll,
-  labelStyle,
-  labelText,
-  labelTextColor,
-  labelTextSize,
-  loading,
-  mode,
-  onChange,
-  options,
-  placeholder,
-  value,
-}: TreeSelectProps): JSX.Element {
+function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
+  const {
+    allowClear,
+    compactMode,
+    disabled,
+    dropdownStyle,
+    expandAll,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
+    loading,
+    mode,
+    onChange,
+    options,
+    placeholder,
+    value,
+  } = props;
   const [key, setKey] = useState(Math.random());
   const _menu = useRef<HTMLElement | null>(null);
 
@@ -130,6 +136,10 @@ function MultiTreeSelectComponent({
   return (
     <TreeSelectContainer
       allowClear={allowClear}
+      backgroundColor={props.backgroundColor}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
       compactMode={compactMode}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >

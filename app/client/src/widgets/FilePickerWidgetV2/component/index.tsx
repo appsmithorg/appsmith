@@ -5,6 +5,7 @@ import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "../../../constants/Colors";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 class FilePickerComponent extends React.Component<
   FilePickerComponentProps,
@@ -30,7 +31,10 @@ class FilePickerComponent extends React.Component<
     }
     return (
       <BaseButton
-        buttonColor={Colors.GREEN}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
+        buttonColor={this.props.backgroundColor}
         disabled={this.props.isDisabled}
         loading={this.props.isLoading}
         onClick={this.openModal}
@@ -53,6 +57,10 @@ export interface FilePickerComponentProps extends ComponentProps {
   uppy: any;
   isLoading: boolean;
   files?: any[];
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default FilePickerComponent;

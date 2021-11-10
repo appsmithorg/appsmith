@@ -8,6 +8,8 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -75,7 +77,7 @@ export const DropdownStyles = createGlobalStyle`
 .rc-tree-select-item-option {
 	position: relative;
 	display: flex;
-  
+
 	flex-direction: row-reverse;
 	.rc-tree-select-item-option-state {
 		pointer-events: all;
@@ -158,15 +160,15 @@ export const DropdownStyles = createGlobalStyle`
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-leave.rc-tree-select-dropdown-slide-up-leave-active.rc-tree-select-dropdown-placement-bottomLeft {
-	animation-name: ${rcSelectDropdownSlideUpOut}; 
+	animation-name: ${rcSelectDropdownSlideUpOut};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-enter.rc-tree-select-dropdown-slide-up-enter-active.rc-tree-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-appear.rc-tree-select-dropdown-slide-up-appear-active.rc-tree-select-dropdown-placement-topLeft {
-	animation-name:  ${rcSelectDropdownSlideUpIn}; 
+	animation-name:  ${rcSelectDropdownSlideUpIn};
 	animation-play-state: running;
 }
 .rc-tree-select-dropdown-slide-up-leave.rc-tree-select-dropdown-slide-up-leave-active.rc-tree-select-dropdown-placement-topLeft {
@@ -232,7 +234,7 @@ border: 1px solid #E8E8E8;
        opacity: 1;
     content: " ";
         border-radius: 100%;
-    
+
     }
   }
 
@@ -608,6 +610,10 @@ border: 1px solid #E8E8E8;
 export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   allowClear: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -683,7 +689,11 @@ export const TreeSelectContainer = styled.div<{
     flex-wrap: wrap;
     padding: 1px;
     padding-right: 20px;
-    box-shadow: none;
+    background: ${({ backgroundColor }) =>
+      `${backgroundColor || Colors.WHITE}`};
+    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+    box-shadow: ${({ boxShadow, boxShadowColor }) =>
+      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
     border: 1px solid rgb(231, 231, 231);
     border-radius: 0px;
     width: 100%;
@@ -729,7 +739,12 @@ export const TreeSelectContainer = styled.div<{
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      box-shadow: none;
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.WHITE}`};
+      border-radius: ${({ borderRadius }) =>
+        getBorderRadiusValue(borderRadius)};
+      box-shadow: ${({ boxShadow, boxShadowColor }) =>
+        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
       border: 1px solid rgb(231, 231, 231);
       border-radius: 0px;
       width: 100%;
@@ -739,7 +754,8 @@ export const TreeSelectContainer = styled.div<{
       .rc-tree-select-selection-item {
         background: none;
         border: 1px solid rgb(208, 215, 221);
-        border-radius: 2px;
+        border-radius: ${({ borderRadius }) =>
+          getBorderRadiusValue(borderRadius)};
         margin: 3px 2px;
         max-width: 273.926px;
         height: 24px;
@@ -846,7 +862,12 @@ export const TreeSelectContainer = styled.div<{
 
       box-shadow: none;
       border: 1px solid rgb(231, 231, 231);
-      border-radius: 0px;
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.WHITE}`};
+      border-radius: ${({ borderRadius }) =>
+        getBorderRadiusValue(borderRadius)};
+      box-shadow: ${({ boxShadow, boxShadowColor }) =>
+        `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,

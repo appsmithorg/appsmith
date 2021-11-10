@@ -1,3 +1,4 @@
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 
 export interface IframeWidgetProps extends WidgetProps {
@@ -8,4 +9,7 @@ export interface IframeWidgetProps extends WidgetProps {
   borderColor?: string;
   borderOpacity?: number;
   borderWidth?: number;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }

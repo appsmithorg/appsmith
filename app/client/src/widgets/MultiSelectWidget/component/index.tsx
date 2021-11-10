@@ -13,6 +13,7 @@ import {
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
 import { Classes } from "@blueprintjs/core";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -30,21 +31,26 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
 
-function MultiSelectComponent({
-  disabled,
-  dropdownStyle,
-  loading,
-  onChange,
-  onFilterChange,
-  options,
-  placeholder,
-  serverSideFiltering,
-  value,
-}: MultiSelectProps): JSX.Element {
+function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
+  const {
+    disabled,
+    dropdownStyle,
+    loading,
+    onChange,
+    onFilterChange,
+    options,
+    placeholder,
+    serverSideFiltering,
+    value,
+  } = props;
   const [isSelectAll, setIsSelectAll] = useState(false);
   const _menu = useRef<HTMLElement | null>(null);
 
@@ -123,6 +129,10 @@ function MultiSelectComponent({
 
   return (
     <MultiSelectContainer
+      backgroundColor={props.backgroundColor}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
       className={loading ? Classes.SKELETON : ""}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >

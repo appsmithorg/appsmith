@@ -6,6 +6,8 @@ import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 interface MapComponentProps {
   apiKey: string;
@@ -34,14 +36,23 @@ interface MapComponentProps {
   selectMarker: (lat: number, long: number, title: string) => void;
   enableDrag: (e: any) => void;
   unselectMarker: () => void;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
-const MapWrapper = styled.div`
+const MapWrapper = styled.div<{
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+}>`
   position: relative;
   width: 100%;
   height: 100%;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: 0;
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
 `;
 
 const MapContainerWrapper = styled.div`
@@ -187,7 +198,12 @@ function MapComponent(props: MapComponentProps) {
     AddScriptTo.HEAD,
   );
   return (
-    <MapWrapper onMouseLeave={props.enableDrag}>
+    <MapWrapper
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
+      onMouseLeave={props.enableDrag}
+    >
       {status === ScriptStatus.READY && (
         <MyMapComponent
           containerElement={<MapContainerWrapper />}
