@@ -598,6 +598,7 @@ export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
+export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and insert code snippets to perform complex actions quickly.`;

@@ -7,6 +7,7 @@ import {
   COMMIT_AND_PUSH,
   COMMITTING_CHANGE,
   FETCH_GIT_STATUS,
+  GIT_NO_UPDATED_TOOLTIP,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -35,6 +36,7 @@ import { useGitCommit } from "../hooks";
 import GitSyncError from "../components/GitError";
 import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
 import GitChanged, { Kind } from "../components/GitChanged";
+import Tooltip from "components/ads/Tooltip";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -57,6 +59,9 @@ const Container = styled.div`
   width: 100%;
   && ${LabelContainer} span {
     color: ${Colors.CHARCOAL};
+  }
+  .bp3-popover-target {
+    width: fit-content;
   }
 `;
 
@@ -149,17 +154,25 @@ function Deploy() {
           <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
         )}
         <Space size={11} />
-        {showCommitButton && !commitButtonLoading && (
-          <Button
-            className="t--commit-button"
-            disabled={commitButtonDisabled}
-            isLoading={commitButtonLoading}
-            onClick={handleCommit}
-            size={Size.medium}
-            tag="button"
-            text={commitButtonText}
-            width="max-content"
-          />
+        {!isFetchingGitStatus && !commitButtonLoading && (
+          <Tooltip
+            autoFocus={false}
+            content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+            disabled={showCommitButton && !commitButtonLoading}
+            donotUsePortal
+            position="top"
+          >
+            <Button
+              className="t--commit-button"
+              disabled={commitButtonDisabled}
+              isLoading={commitButtonLoading}
+              onClick={handleCommit}
+              size={Size.medium}
+              tag="button"
+              text={commitButtonText}
+              width="max-content"
+            />
+          </Tooltip>
         )}
         {showCommitButton && commitButtonLoading && (
           <StatusbarWrapper>
