@@ -1,5 +1,4 @@
 import { get, set } from "lodash";
-import { PluginType } from "entities/Action";
 export const UPDATES = "propertyUpdates";
 export const REPLAY_DELAY = 300;
 /**
@@ -65,12 +64,11 @@ export enum ReplayEntityType {
 }
 
 export function getReplayEntityType(entity: any) {
-  if (entity && entity.pluginType === PluginType.JS)
-    return ReplayEntityType.JSACTION;
   if (entity && entity.hasOwnProperty("actionConfiguration"))
     return ReplayEntityType.ACTION;
   if (entity && entity.hasOwnProperty("datasourceConfiguration"))
     return ReplayEntityType.DATASOURCE;
+  if (entity && entity.hasOwnProperty("body")) return ReplayEntityType.JSACTION;
   return ReplayEntityType.CANVAS;
 }
 

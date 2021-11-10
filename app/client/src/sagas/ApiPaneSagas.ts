@@ -12,8 +12,6 @@ import {
   takeLatest,
   call,
   take,
-  fork,
-  delay,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {

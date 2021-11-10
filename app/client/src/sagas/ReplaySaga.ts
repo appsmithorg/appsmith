@@ -43,7 +43,7 @@ import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 import { changeQuery } from "actions/queryPaneActions";
 import { isAPIAction } from "./ActionSagas";
 import { changeApi } from "actions/apiPaneActions";
-import { updateJSCollection } from "actions/jsPaneActions";
+import { updateJSCollectionBody } from "actions/jsPaneActions";
 import { changeDatasource } from "actions/datasourceActions";
 import {
   updateReplayEnitiySaga,
@@ -207,7 +207,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         );
         break;
       case ReplayEntityType.JSACTION:
-        yield put(updateJSCollection(replayEntity.body, replayEntity.id));
+        yield put(updateJSCollectionBody(replayEntity.body, replayEntity.id));
         break;
     }
   } catch (e) {

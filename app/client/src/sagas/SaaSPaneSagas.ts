@@ -1,4 +1,4 @@
-import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
+import { all, put, select, takeEvery } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
