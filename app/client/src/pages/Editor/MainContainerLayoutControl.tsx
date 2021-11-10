@@ -1,6 +1,6 @@
 import { Position } from "@blueprintjs/core";
 import { updateApplicationLayout } from "actions/applicationActions";
-import Dropdown from "components/ads/Dropdown";
+import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import TooltipComponent from "components/ads/Tooltip";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
@@ -130,8 +130,8 @@ export function MainContainerLayoutControl() {
               >
                 <Icon
                   fillColor={Colors.BLACK}
-                  name={selected.icon}
-                  size={selected.iconSize || IconSize.SMALL}
+                  name={(selected as DropdownOption).icon}
+                  size={(selected as DropdownOption).iconSize || IconSize.SMALL}
                 />
               </TooltipComponent>
             );

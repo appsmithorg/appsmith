@@ -13,7 +13,7 @@ export type CheckboxProps = CommonComponentProps & {
   fill?: boolean;
 };
 
-const Checkmark = styled.span<{
+export const Checkmark = styled.span<{
   disabled?: boolean;
   isChecked?: boolean;
   info?: string;
