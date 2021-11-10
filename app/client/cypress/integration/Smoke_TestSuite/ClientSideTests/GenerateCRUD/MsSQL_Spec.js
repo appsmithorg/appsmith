@@ -179,9 +179,7 @@
 
 //   it.skip("Generate CRUD page from datasource ACTIVE section", function() {
 //     cy.NavigateToQueryEditor();
-//     cy.get(pages.integrationActiveTab)
-//       .should("be.visible")
-//       .click({ force: true });
+//     cy.NavigateToActiveTab();
 //     cy.wait(1000);
 
 //     cy.get(datasource.datasourceCard)

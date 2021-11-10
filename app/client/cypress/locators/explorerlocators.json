@@ -29,5 +29,6 @@
     "addDBQueryEntity": ".datasources .t--entity-add-btn",
     "editEntity": ".t--entity-name input",
     "explorerSwitchId": "#switcher--explorer",
-    "widgetSwitchId": "#switcher--widgets"
+    "widgetSwitchId": "#switcher--widgets",
+    "activeTab": "span:contains('Active')"
 }
