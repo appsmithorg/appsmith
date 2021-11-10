@@ -2385,7 +2385,7 @@ Cypress.Commands.add("deleteDataSource", () => {
 });
 
 Cypress.Commands.add("runAndDeleteQuery", () => {
-  cy.get(queryEditor.runQuery).click();
+  cy.get(queryEditor.runQuery).last().click();
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",
