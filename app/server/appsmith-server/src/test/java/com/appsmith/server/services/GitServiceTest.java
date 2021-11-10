@@ -781,8 +781,6 @@ public class GitServiceTest {
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMerge(true);
 
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
-
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -814,7 +812,6 @@ public class GitServiceTest {
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
         mergeStatusDTO.setStatus("2 commits pulled");
         mergeStatusDTO.setMerge(true);
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenThrow(new IOException("Error accessing the file System"));
@@ -842,7 +839,6 @@ public class GitServiceTest {
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
         mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
         mergeStatusDTO.setMerge(true);
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
