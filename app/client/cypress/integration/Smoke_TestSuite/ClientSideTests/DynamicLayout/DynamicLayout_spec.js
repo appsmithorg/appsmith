@@ -9,7 +9,7 @@ const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 describe("Dynamic Layout Functionality", function() {
   it("Dynamic Layout - Change Layout", function() {
     cy.get(commonlocators.layoutControls)
-      .eq(3)
+      .eq(4)
       .click();
     cy.get(commonlocators.canvas)
       .invoke("width")
