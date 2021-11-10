@@ -26,6 +26,7 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
+const welcomePage = require("../locators/welcomePage.json");
 
 let pageidcopy = " ";
 
