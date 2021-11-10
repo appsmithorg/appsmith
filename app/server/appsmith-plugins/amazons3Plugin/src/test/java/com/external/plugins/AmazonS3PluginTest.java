@@ -302,7 +302,7 @@ public class AmazonS3PluginTest {
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "";
+        String dummyBody = "{\"data\": \"\"}";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
@@ -345,7 +345,7 @@ public class AmazonS3PluginTest {
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "";
+        String dummyBody = "{\"data\": \"\"}";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
@@ -375,6 +375,55 @@ public class AmazonS3PluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testFileUploadFromBody_withMalformedBody_returnsErrorMessage() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "erroneousBody";
+        actionConfiguration.setBody(dummyBody);
+
+        String dummyPath = "path";
+        actionConfiguration.setPath(dummyPath);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+                connection,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    String message = (String) result.getBody();
+                    assertTrue(message.contains("Unable to parse content"));
+                    assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO("command",
+                            "UPLOAD_FILE_FROM_BODY", null, null, null)); // Action
+                    expectedRequestParams.add(new RequestParamDTO("bucket", "bucket_name",
+                            null, null, null)); // Bucket name
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
+                    expectedRequestParams.add(new RequestParamDTO("create.dataType", "Base64", null,
+                            null, null)); // File data type
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+                })
+                .verifyComplete();
+    }
 
     @Test
     public void testFileUploadFromBodyWithFilepickerAndNonBase64() {
@@ -382,7 +431,7 @@ public class AmazonS3PluginTest {
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        String dummyBody = "dummyBody;";
+        String dummyBody = "{\"data\": \"dummyBody;\"}";
         actionConfiguration.setBody(dummyBody);
 
         String dummyPath = "path";
