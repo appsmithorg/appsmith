@@ -152,6 +152,9 @@ describe("Input Widget Functionality", function() {
       .then((text) => {
         expect(text).to.equal("€");
       });
+    // closing property pane to blur the input
+    cy.closePropertyPane("inputwidget");
+    cy.wait(1000);
     cy.get(widgetsPage.innertext)
       .invoke("attr", "value")
       .then((text) => {
@@ -160,7 +163,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input Functionality To check phone number input type", function() {
-    // cy.openPropertyPane("inputwidget");
+    cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.innertext)
       .click()
       .clear();
