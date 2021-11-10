@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitPullDTO;
@@ -116,9 +117,10 @@ public class GitController {
 
     @GetMapping("/checkout-branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
-                                                         @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to push application {}, branch : {}", defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME));
-        return service.checkoutBranch(defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME))
+                                                         @RequestParam MultiValueMap<String, String> params,
+                                                         @RequestBody GitCheckoutBranchDTO gitCheckoutBranchDTO) {
+        log.debug("Going to checkout to branch {} application {} ", params.getFirst(FieldName.BRANCH_NAME), defaultApplicationId);
+        return service.checkoutBranch(defaultApplicationId, params.getFirst(FieldName.BRANCH_NAME), gitCheckoutBranchDTO)
             .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
