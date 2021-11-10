@@ -46,7 +46,8 @@ const AppViewerBody = styled.section<{ hasPages: boolean }>`
   justify-content: flex-start;
   height: calc(
     100vh -
-      ${(props) => (!props.hasPages ? props.theme.smallHeaderHeight : "72px")}
+      ${(props) =>
+        !props.hasPages ? `${props.theme.smallHeaderHeight} - 1px` : "72px"}
   );
 `;
 
