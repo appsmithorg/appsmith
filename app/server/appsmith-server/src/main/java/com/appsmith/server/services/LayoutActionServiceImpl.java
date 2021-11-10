@@ -150,22 +150,29 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     @Override
     public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO) {
         ActionDTO action = actionMoveDTO.getAction();
-
         String oldPageId = actionMoveDTO.getAction().getPageId();
+        final String destinationPageId = actionMoveDTO.getDestinationPageId();
+        action.setPageId(destinationPageId);
 
-        action.setPageId(actionMoveDTO.getDestinationPageId());
+        Mono<NewPage> destinationPageMono = newPageService.findById(destinationPageId, MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)));
 
         /*
          * The following steps are followed here :
-         * 1. Update and save the action
-         * 2. Run updateLayout on the old page
-         * 3. Run updateLayout on the new page.
-         * 4. Return the saved action.
+         * 1. Fetch destination page, update default page ID in actionDTO
+         * 2. Update and save the action
+         * 3. Run updateLayout on the old page
+         * 4. Run updateLayout on the new page.
+         * 5. Return the saved action.
          */
-        return newActionService
-                // 1. Update and save the action
-                .updateUnpublishedAction(action.getId(), action)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())))
+        return destinationPageMono
+                .flatMap(destinationPage -> {
+                    // 1. Update and save the action
+                    action.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
+                    return newActionService
+                            .updateUnpublishedAction(action.getId(), action)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, actionMoveDTO.getAction().getId())));
+                })
                 .flatMap(savedAction ->
                         // fetch the unpublished source page
                         newPageService
@@ -205,7 +212,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     @Override
     public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO, String branchName) {
 
-        final String defaultDestinationPageId = actionMoveDTO.getDestinationPageId();
         Mono<String> toPageMono = newPageService
                 .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
                 .map(NewPage::getId);

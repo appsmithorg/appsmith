@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.BeanCopyUtils;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
@@ -12,9 +14,13 @@ import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -40,6 +46,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
+    private final SanitiseResponse sanitiseResponse;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -56,6 +63,12 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     AppsmithError.INVALID_ACTION_COLLECTION,
                     collection.getName(),
                     validationMessages.toString()));
+        }
+
+        DefaultResources defaultResources = collection.getDefaultResources();
+
+        if (defaultResources == null) {
+            DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(collection, null);
         }
 
         final String pageId = collection.getPageId();
@@ -95,6 +108,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
                         action.setPageId(collection.getPageId());
                         action.setPluginType(collection.getPluginType());
+                        action.setDefaultResources(defaultResources);
                         // Action doesn't exist. Create now.
                         return layoutActionService
                                 .createSingleAction(action)
@@ -121,7 +135,30 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     actionCollection.setApplicationId(collection.getApplicationId());
                     actionCollection.setOrganizationId(collection.getOrganizationId());
                     actionCollection.setUnpublishedCollection(collection);
+                    actionCollection.setDefaultResources(defaultResources);
                     actionCollectionService.generateAndSetPolicies(newPage, actionCollection);
+
+                    // Store the default resource ids
+                    // Only store defaultPageId for collectionDTO level resource
+                    DefaultResources defaultDTOResource =  new DefaultResources();
+                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(collection.getDefaultResources(), defaultDTOResource);
+
+                    defaultDTOResource.setApplicationId(null);
+                    defaultDTOResource.setCollectionId(null);
+                    if(StringUtils.isEmpty(defaultDTOResource.getPageId())) {
+                        defaultDTOResource.setPageId(collection.getPageId());
+                    }
+                    collection.setDefaultResources(defaultDTOResource);
+
+                    // Only store defaultApplicationId and defaultActionCollectionId for ActionCollection level resource
+                    DefaultResources defaults = new DefaultResources();
+                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
+                    defaults.setPageId(null);
+                    defaults.setCollectionId(null);
+                    if(StringUtils.isEmpty(defaults.getApplicationId())) {
+                        defaults.setApplicationId(actionCollection.getApplicationId());
+                    }
+                    actionCollection.setDefaultResources(defaults);
 
                     final Set<String> actionIds = actions
                             .stream()
@@ -129,10 +166,21 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                             .collect(toSet());
                     collection.setActionIds(actionIds);
 
+                    if (actionCollection.getGitSyncId() == null) {
+                        actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
+                    }
                     // Create collection and return with actions
                     final Mono<ActionCollection> actionCollectionMono = actionCollectionService
                             .create(actionCollection)
+                            .flatMap(savedActionCollection -> {
+                                // If the default collection is not set then current collection will be the default one
+                                if (StringUtils.isEmpty(savedActionCollection.getDefaultResources().getCollectionId())) {
+                                    savedActionCollection.getDefaultResources().setCollectionId(savedActionCollection.getId());
+                                }
+                                return actionCollectionService.save(savedActionCollection);
+                            })
                             .cache();
+
                     return actionCollectionMono
                             .map(actionCollection1 -> {
                                 actions.forEach(actionDTO -> {
@@ -159,27 +207,62 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
     }
 
     @Override
-    public Mono<LayoutDTO> refactorCollectionName(RefactorActionCollectionNameDTO refactorActionCollectionNameDTO) {
+    public Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collection, String branchName) {
+        if (collection.getId() != null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        DefaultResources defaultResources = collection.getDefaultResources() == null ? new DefaultResources() : collection.getDefaultResources();
+        // Client will be aware of default Ids only, so we can assign the default Ids for the current resource
+        if (StringUtils.isEmpty(defaultResources.getApplicationId())) {
+            defaultResources.setApplicationId(collection.getApplicationId());
+        }
+        if (StringUtils.isEmpty(defaultResources.getPageId())) {
+            defaultResources.setPageId(collection.getPageId());
+        }
+        defaultResources.setBranchName(branchName);
+        collection.setDefaultResources(defaultResources);
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), MANAGE_PAGES)
+                .flatMap(newPage -> {
+                    // Update the page and application id with branched resource
+                    collection.setApplicationId(newPage.getApplicationId());
+                    collection.setPageId(newPage.getId());
+                    return createCollection(collection);
+                })
+                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+    }
+
+    @Override
+    public Mono<LayoutDTO> refactorCollectionName(RefactorActionCollectionNameDTO refactorActionCollectionNameDTO, String branchName) {
         String pageId = refactorActionCollectionNameDTO.getPageId();
         String layoutId = refactorActionCollectionNameDTO.getLayoutId();
         String oldName = refactorActionCollectionNameDTO.getOldName();
         String newName = refactorActionCollectionNameDTO.getNewName();
         String actionCollectionId = refactorActionCollectionNameDTO.getActionCollectionId();
 
-        return layoutActionService
-                .isNameAllowed(pageId, layoutId, newName)
-                .flatMap(isNameAllowed -> {
-                    // If the name is allowed, return list of actionDTOs for further processing
-                    if (Boolean.TRUE.equals(isNameAllowed)) {
-                        return actionCollectionService
-                                .findActionCollectionDTObyIdAndViewMode(actionCollectionId, false, MANAGE_ACTIONS);
-                    }
-                    // Throw an error since the new action collection's name matches an existing action, widget or collection name.
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.DUPLICATE_KEY_USER_ERROR,
-                            newName,
-                            FieldName.NAME));
-                })
+        Mono<String> branchedPageIdMono = StringUtils.isEmpty(branchName)
+                ? Mono.just(pageId)
+                : newPageService
+                    .findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
+                    .map(NewPage::getId);
+
+        return branchedPageIdMono
+                .flatMap(branchedPageId ->
+                    layoutActionService
+                        .isNameAllowed(branchedPageId, layoutId, newName)
+                        .flatMap(isNameAllowed -> {
+                            // If the name is allowed, return list of actionDTOs for further processing
+                            if (Boolean.TRUE.equals(isNameAllowed)) {
+                                return actionCollectionService
+                                        .findActionCollectionDTObyIdAndViewMode(actionCollectionId, false, MANAGE_ACTIONS);
+                            }
+                            // Throw an error since the new action collection's name matches an existing action, widget or collection name.
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                                    newName,
+                                    FieldName.NAME));
+                        })
+                )
                 .flatMap(actionCollection -> {
                     final Set<String> actionIds = new HashSet<>();
                     if (actionCollection.getActionIds() != null) {
@@ -210,7 +293,8 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                             .collectList()
                             .flatMap(actionDTOs -> actionCollectionService.update(actionCollectionId, actionCollection))
                             .flatMap(actionCollectionDTO -> layoutActionService.refactorName(pageId, layoutId, oldName, newName));
-                });
+                })
+                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
     }
 
     @Override
@@ -218,21 +302,31 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
         final String collectionId = actionCollectionMoveDTO.getCollectionId();
         final String destinationPageId = actionCollectionMoveDTO.getDestinationPageId();
 
-        return actionCollectionService
-                .findActionCollectionDTObyIdAndViewMode(collectionId, false, MANAGE_ACTIONS)
-                .flatMap(actionCollection -> {
+        Mono<NewPage> destinationPageMono = newPageService.findById(actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)))
+                .cache();
+
+        return Mono.zip(
+                destinationPageMono,
+                actionCollectionService
+                        .findActionCollectionDTObyIdAndViewMode(collectionId, false, MANAGE_ACTIONS))
+                .flatMap(tuple -> {
+                    NewPage destinationPage = tuple.getT1();
+                    ActionCollectionDTO actionCollectionDTO = tuple.getT2();
                     final Set<String> actionIds = new HashSet<>();
-                    if (actionCollection.getActionIds() != null) {
-                        actionIds.addAll(actionCollection.getActionIds());
+                    if (actionCollectionDTO.getActionIds() != null) {
+                        actionIds.addAll(actionCollectionDTO.getActionIds());
                     }
-                    if (actionCollection.getArchivedActionIds() != null) {
-                        actionIds.addAll(actionCollection.getArchivedActionIds());
+                    if (actionCollectionDTO.getArchivedActionIds() != null) {
+                        actionIds.addAll(actionCollectionDTO.getArchivedActionIds());
                     }
 
                     final Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds)
                             .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS))
                             .flatMap(actionDTO -> {
                                 actionDTO.setPageId(destinationPageId);
+                                // Update default page ID in actions as per destination page object
+                                actionDTO.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
                                 return newActionService.updateUnpublishedAction(actionDTO.getId(), actionDTO)
                                         .onErrorResume(throwable -> {
                                             log.debug("Failed to update collection name for action {} for collection with id: {}", actionDTO.getName(), actionDTO.getCollectionId());
@@ -241,12 +335,13 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                                         });
                             });
 
-                    final String oldPageId = actionCollection.getPageId();
-                    actionCollection.setPageId(destinationPageId);
+                    final String oldPageId = actionCollectionDTO.getPageId();
+                    actionCollectionDTO.setPageId(destinationPageId);
+                    actionCollectionDTO.getDefaultResources().setPageId(destinationPage.getDefaultResources().getPageId());
 
                     return actionUpdatesFlux
                             .collectList()
-                            .flatMap(actionDTOs -> actionCollectionService.update(collectionId, actionCollection))
+                            .flatMap(actionDTOs -> actionCollectionService.update(collectionId, actionCollectionDTO))
                             .zipWith(Mono.just(oldPageId));
                 })
                 .flatMap(tuple -> {
@@ -288,6 +383,27 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                 });
     }
 
+    @Override
+    public Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO, String branchName) {
+
+        Mono<String> destinationPageMono = newPageService
+                .findByBranchNameAndDefaultPageId(branchName, actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .map(NewPage::getId);
+
+        Mono<String> branchedCollectionMono = actionCollectionService
+                .findByBranchNameAndDefaultCollectionId(branchName, actionCollectionMoveDTO.getCollectionId(), MANAGE_ACTIONS)
+                .map(ActionCollection::getId);
+
+        return Mono.zip(destinationPageMono, branchedCollectionMono)
+                .flatMap(tuple -> {
+                    String destinationPageId = tuple.getT1();
+                    String branchedCollectionId = tuple.getT2();
+                    actionCollectionMoveDTO.setDestinationPageId(destinationPageId);
+                    actionCollectionMoveDTO.setCollectionId(branchedCollectionId);
+                    return this.moveCollection(actionCollectionMoveDTO);
+                })
+                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+    }
 
     @Override
     public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO) {
@@ -333,6 +449,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         actionDTO.setPageId(actionCollectionDTO.getPageId());
                         actionDTO.setPluginType(actionCollectionDTO.getPluginType());
                         actionDTO.setPluginId(actionCollectionDTO.getPluginId());
+                        actionDTO.setDefaultResources(actionCollectionDTO.getDefaultResources());
                         // actionCollectionService is a new action, we need to create one
                         return layoutActionService.createSingleAction(actionDTO);
                     } else {
@@ -369,6 +486,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                 })
                 .map(ActionDTO::getId)
                 .collect(Collectors.toSet());
+
         // First collect all valid action ids from before, and diff against incoming action ids
         return actionCollectionMono
                 .map(actionCollection -> {
@@ -416,6 +534,19 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)));
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO, String branchName) {
+        Mono<String> branchedCollectionIdMono = StringUtils.isEmpty(branchName)
+                ? Mono.just(id)
+                : actionCollectionService
+                    .findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS)
+                    .map(ActionCollection::getId);
+
+        return branchedCollectionIdMono
+                .flatMap(branchedCollectionId -> updateUnpublishedActionCollection(branchedCollectionId, actionCollectionDTO))
+                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
     }
 
     @Override

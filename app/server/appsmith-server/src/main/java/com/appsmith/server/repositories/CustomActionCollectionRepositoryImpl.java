@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -52,7 +53,7 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, boolean viewMode, AclPermission aclPermission, Sort sort) {
+    public Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(String name, List<String> pageIds, boolean viewMode, String branchName, AclPermission aclPermission, Sort sort) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -60,6 +61,10 @@ public class CustomActionCollectionRepositoryImpl extends BaseAppsmithRepository
          */
 
         List<Criteria> criteriaList = new ArrayList<>();
+
+        if (!StringUtils.isEmpty(branchName)) {
+            criteriaList.add(where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME).is(branchName));
+        }
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {

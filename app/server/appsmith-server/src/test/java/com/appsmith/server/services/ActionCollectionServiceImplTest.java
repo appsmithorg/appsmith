@@ -110,7 +110,8 @@ public class ActionCollectionServiceImplTest {
                 layoutActionService,
                 actionCollectionService,
                 newActionService,
-                analyticsService
+                analyticsService,
+                sanitiseResponse
         );
 
         Mockito
@@ -170,10 +171,11 @@ public class ActionCollectionServiceImplTest {
 
         Mockito
                 .when(actionCollectionRepository
-                        .findAllActionCollectionsByNameAndPageIdsAndViewMode(
+                        .findAllActionCollectionsByNamePageIdsViewModeAndBranch(
                                 Mockito.any(),
                                 Mockito.any(),
                                 Mockito.anyBoolean(),
+                                Mockito.any(),
                                 Mockito.any(),
                                 Mockito.any()))
                 .thenReturn(Flux.empty());
@@ -211,10 +213,11 @@ public class ActionCollectionServiceImplTest {
 
         Mockito
                 .when(actionCollectionRepository
-                        .findAllActionCollectionsByNameAndPageIdsAndViewMode(
+                        .findAllActionCollectionsByNamePageIdsViewModeAndBranch(
                                 Mockito.any(),
                                 Mockito.any(),
                                 Mockito.anyBoolean(),
+                                Mockito.any(),
                                 Mockito.any(),
                                 Mockito.any()))
                 .thenReturn(Flux.empty());
@@ -266,10 +269,11 @@ public class ActionCollectionServiceImplTest {
 
         Mockito
                 .when(actionCollectionRepository
-                        .findAllActionCollectionsByNameAndPageIdsAndViewMode(
+                        .findAllActionCollectionsByNamePageIdsViewModeAndBranch(
                                 Mockito.any(),
                                 Mockito.any(),
                                 Mockito.anyBoolean(),
+                                Mockito.any(),
                                 Mockito.any(),
                                 Mockito.any()))
                 .thenReturn(Flux.empty());
@@ -578,10 +582,11 @@ public class ActionCollectionServiceImplTest {
         duplicateActionCollection.setUnpublishedCollection(duplicateUnpublishedCollection);
 
         Mockito
-                .when(actionCollectionRepository.findAllActionCollectionsByNameAndPageIdsAndViewMode(
+                .when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
+                        Mockito.any(),
                         Mockito.any(),
                         Mockito.any()))
                 .thenReturn(Flux.just(oldActionCollection, duplicateActionCollection));
@@ -614,10 +619,11 @@ public class ActionCollectionServiceImplTest {
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
 
         Mockito
-                .when(actionCollectionRepository.findAllActionCollectionsByNameAndPageIdsAndViewMode(
+                .when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
+                        Mockito.any(),
                         Mockito.any(),
                         Mockito.any()))
                 .thenReturn(Flux.just(oldActionCollection));
@@ -674,10 +680,11 @@ public class ActionCollectionServiceImplTest {
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
 
         Mockito
-                .when(actionCollectionRepository.findAllActionCollectionsByNameAndPageIdsAndViewMode(
+                .when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
+                        Mockito.any(),
                         Mockito.any(),
                         Mockito.any()))
                 .thenReturn(Flux.just(oldActionCollection));

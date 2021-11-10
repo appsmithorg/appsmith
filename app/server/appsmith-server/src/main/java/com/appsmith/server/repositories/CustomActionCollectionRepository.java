@@ -14,7 +14,7 @@ public interface CustomActionCollectionRepository extends AppsmithRepository<Act
 
     Flux<ActionCollection> findByApplicationIdAndViewMode(String applicationId, boolean viewMode, AclPermission aclPermission);
 
-    Flux<ActionCollection> findAllActionCollectionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds, boolean viewMode, AclPermission aclPermission, Sort sort);
+    Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(String name, List<String> pageIds, boolean viewMode, String branchName, AclPermission aclPermission, Sort sort);
 
     Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
 
