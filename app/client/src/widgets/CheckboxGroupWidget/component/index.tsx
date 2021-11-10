@@ -38,7 +38,7 @@ const CheckboxGroupContainer = styled.div<
   padding: 2px 4px;
 
   & .select-all {
-    ${({ inline }) => !inline && `height: auto`};
+    white-space: nowrap;
     color: ${Colors.GREY_9} !important;
   }
 `;
