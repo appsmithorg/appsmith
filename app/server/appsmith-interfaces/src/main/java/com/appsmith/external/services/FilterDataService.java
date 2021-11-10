@@ -682,6 +682,7 @@ public class FilterDataService {
 
         StringBuilder sb = new StringBuilder();
 
+        Boolean firstCondition = true;
         for (Condition condition : conditions) {
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
@@ -698,6 +699,12 @@ public class FilterDataService {
                 String value = (String) objValue;
 
                 if (StringUtils.isNotEmpty(path) && StringUtils.isNotEmpty(value)) {
+                    if (firstCondition) {
+                        firstCondition = false;
+                    } else {
+                        // This is not the first valid condition. Append the operator before adding the next condition
+                        sb.append(" " + logicOp);
+                    }
                     String sqlOp = SQL_OPERATOR_MAP.get(operator);
                     if (sqlOp == null) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,

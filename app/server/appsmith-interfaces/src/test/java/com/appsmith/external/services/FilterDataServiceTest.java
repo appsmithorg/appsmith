@@ -586,4 +586,445 @@ public class FilterDataServiceTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testFilterMultipleConditionsNew() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"key\": \"orderStatus\",\n" +
+                "        \"condition\": \"EQ\",\n" +
+                "        \"value\": \"READY\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 1);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFilterInConditionForStringsNew() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"key\": \"orderStatus\",\n" +
+                "        \"condition\": \"IN\",\n" +
+                "        \"value\": \"[\\\"READY\\\", \\\"NOT READY\\\"]\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 2);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFilterInConditionForNumbersNew() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"IN\",\n" +
+                "        \"value\": \"[4.99, 19.99]\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 1);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFilterNotInConditionForNumbersNew() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"NOT_IN\",\n" +
+                "        \"value\": \"[5.99, 19.00]\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 2);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testMultiWordColumnNamesNew() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email id\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email id\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 2);
+
+            Iterator<String> fieldNamesIterator = filteredData.get(0).fieldNames();
+
+            List<String> columnNames = Stream.generate(() -> null)
+                    .takeWhile(x -> fieldNamesIterator.hasNext())
+                    .map(n -> fieldNamesIterator.next())
+                    .collect(Collectors.toList());
+
+            assertThat(columnNames.containsAll(List.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus")));
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testEmptyValuesInSomeColumnsNew() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 2);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testValuesOfUnsupportedDataTypeNew() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email id\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"date\": \"2021-09-01\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"date\": \"2021-09-01\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": \"\",\n" +
+                "    \"email id\": \"\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"date\": \"2021-09-01\"\n" +
+                "  }\n" +
+                "]";
+
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"key\": \"orderAmount\",\n" +
+                "        \"condition\": \"LT\",\n" +
+                "        \"value\": \"15\"\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            ArrayNode filteredData = filterDataService.filterDataNew(items, condition);
+
+            assertEquals(filteredData.size(), 2);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
