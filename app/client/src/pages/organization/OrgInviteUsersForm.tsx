@@ -203,6 +203,8 @@ const validate = (values: any) => {
 
 const { mailEnabled } = getAppsmithConfigs();
 
+export const InviteButtonWidth = "88px";
+
 function OrgInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const userRef = React.createRef<HTMLDivElement>();
@@ -313,7 +315,7 @@ function OrgInviteUsersForm(props: any) {
             tag="button"
             text="Invite"
             variant={Variant.info}
-            width="87px"
+            width={InviteButtonWidth}
           />
         </StyledInviteFieldGroup>
         {isLoading ? (
