@@ -18,8 +18,12 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CRUDPageUiFormType;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.GenerateCRUDPageUiConfig;
+import com.appsmith.server.domains.GeneratePageColumnType;
+import com.appsmith.server.domains.GeneratePageTableType;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -2851,6 +2855,7 @@ public class DatabaseChangelog {
 
         List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
         for (Plugin plugin : plugins) {
+            // This is not required, updates will be addressed from `id = "update-plugin-reference-CRUD-page"`
             if (validPackageNames.contains(plugin.getPackageName())) {
                 if (sqlPackageNames.contains(plugin.getPackageName())) {
                     plugin.setGenerateCRUDPageComponent(templatePageNameForSQLDatasource);
@@ -2976,6 +2981,7 @@ public class DatabaseChangelog {
         Set<String> validPackageNames = Set.of("amazons3-plugin", "google-sheets-plugin");
 
         List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
+        // This is not required, updates will be addressed from `id = "update-plugin-reference-CRUD-page"`
         for (Plugin plugin : plugins) {
             if (validPackageNames.contains(plugin.getPackageName())) {
                 plugin.setGenerateCRUDPageComponent(plugin.getName());
@@ -3852,6 +3858,58 @@ public class DatabaseChangelog {
         // Now save the actions which have been migrated.
         for (NewAction s3Action : actionsToSave) {
             mongockTemplate.save(s3Action);
+        }
+    }
+
+    @ChangeSet(order = "097", id = "update-plugin-reference-CRUD-page", author = "")
+    public void updatePluginReferenceForGenerateCRUDPage(MongockTemplate mongockTemplate) {
+
+        final String templatePageNameForSQLDatasource = "SQL";
+        final Set<String> sqlPackageNames = Set.of("mysql-plugin", "mssql-plugin", "redshift-plugin", "snowflake-plugin");
+        Set<String> validPackageNames = new HashSet<>(sqlPackageNames);
+        validPackageNames.addAll(Set.of("postgres-plugin", "mongo-plugin", "amazons3-plugin", "google-sheets-plugin"));
+
+        List<Plugin> plugins = mongockTemplate.findAll(Plugin.class);
+        for (Plugin plugin : plugins) {
+            // Remove the deprecated reference
+            plugin.setGenerateCRUDPageComponent(null);
+            if (validPackageNames.contains(plugin.getPackageName())) {
+                GenerateCRUDPageUiConfig uiConfig = new GenerateCRUDPageUiConfig();
+                String packageName = plugin.getPackageName();
+                switch (packageName) {
+                    case "postgres-plugin":
+                    case "mysql-plugin":
+                    case "mssql-plugin":
+                    case "redshift-plugin":
+                    case "snowflake-plugin":
+                        uiConfig.setColumnType(GeneratePageColumnType.COLUMN);
+                        uiConfig.setTableType(GeneratePageTableType.TABLE);
+                        uiConfig.setFormType(CRUDPageUiFormType.SQL);
+                        break;
+                    case "mongo-plugin":
+                        uiConfig.setColumnType(GeneratePageColumnType.FIELD);
+                        uiConfig.setTableType(GeneratePageTableType.COLLECTION);
+                        uiConfig.setFormType(CRUDPageUiFormType.SQL);
+                        break;
+                    case "amazons3-plugin":
+                        uiConfig.setColumnType(GeneratePageColumnType.KEY);
+                        uiConfig.setTableType(GeneratePageTableType.BUCKET);
+                        uiConfig.setFormType(CRUDPageUiFormType.S3);
+                        break;
+                    case "google-sheets-plugin":
+                        uiConfig.setColumnType(GeneratePageColumnType.KEY);
+                        uiConfig.setTableType(GeneratePageTableType.SPREADSHEET);
+                        uiConfig.setFormType(CRUDPageUiFormType.GOOGLE_SHEET);
+                        break;
+                }
+                if (sqlPackageNames.contains(plugin.getPackageName())) {
+                    uiConfig.setTemplatePageName(templatePageNameForSQLDatasource);
+                } else {
+                    uiConfig.setTemplatePageName(plugin.getName());
+                }
+                plugin.setGenerateCRUDPageUiConfig(uiConfig);
+            }
+            mongockTemplate.save(plugin);
         }
     }
 }

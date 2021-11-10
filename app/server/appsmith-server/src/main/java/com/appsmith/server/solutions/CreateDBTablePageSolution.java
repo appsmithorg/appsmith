@@ -194,10 +194,11 @@ public class CreateDBTablePageSolution {
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, TEMPLATE_APPLICATION_FILE));
                 }
 
+                // Filter plugin specific template page from json
                 NewPage templatePage = pageList.stream()
                     .filter(newPage -> StringUtils.equalsIgnoreCase(
                             newPage.getUnpublishedPage().getName(),
-                            plugin.getGenerateCRUDPageComponent()
+                            plugin.getGenerateCRUDPageUiConfig().getTemplatePageName()
                         )
                     )
                     .findAny()
@@ -303,7 +304,7 @@ public class CreateDBTablePageSolution {
                     .stream()
                     .filter(newAction -> StringUtils.equalsIgnoreCase(
                         newAction.getUnpublishedAction().getPageId(),
-                        plugin.getGenerateCRUDPageComponent())
+                        plugin.getGenerateCRUDPageUiConfig().getTemplatePageName())
                     )
                     .collect(Collectors.toList());
 
