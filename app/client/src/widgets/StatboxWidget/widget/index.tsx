@@ -20,7 +20,6 @@ class StatboxWidget extends ContainerWidget {
             isJSConvertible: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            themePropertyMap: "mainColor",
           },
           {
             helpText: "Controls the visibility of the widget",

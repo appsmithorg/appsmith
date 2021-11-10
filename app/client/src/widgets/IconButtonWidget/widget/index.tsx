@@ -132,6 +132,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
                 allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
               },
             },
+            themePropertyMap: "borderRadius",
           },
           {
             propertyName: "boxShadow",

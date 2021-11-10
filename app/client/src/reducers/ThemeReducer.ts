@@ -12,6 +12,9 @@ export default createReducer(initialState, {
     state: ThemeReduxState,
     action: ReducerAction<any>,
   ) => {
-    return (action as any).payload;
+    return {
+      ...state,
+      ...(action as any).payload,
+    };
   },
 });

@@ -181,6 +181,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
               },
             },
+            themePropertyMap: "borderRadius",
           },
           {
             propertyName: "boxShadow",

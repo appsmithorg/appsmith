@@ -521,6 +521,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 allowedValues: ["SHARP", "ROUNDED"],
               },
             },
+            themePropertyMap: "borderRadius",
           },
           {
             propertyName: "boxShadow",

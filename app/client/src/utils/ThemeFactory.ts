@@ -31,9 +31,7 @@ export class ThemeProvider {
     if (themeDependencies) {
       const injectedValues: any = {};
       Object.keys(themeDependencies).forEach((key) => {
-        if (!widgetData[key]) {
-          injectedValues[key] = theme[themeDependencies[key]];
-        }
+        injectedValues[key] = theme[themeDependencies[key]];
       });
 
       return {

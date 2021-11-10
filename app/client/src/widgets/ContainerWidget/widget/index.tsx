@@ -66,6 +66,7 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+            themePropertyMap: "backgroundColor",
           },
           {
             helpText: "Use a html color name, HEX, RGB or RGBA value",

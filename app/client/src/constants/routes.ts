@@ -28,7 +28,7 @@ export const ORG_INVITE_USERS_PAGE_URL = `${ORG_URL}/invite`;
 export const ORG_SETTINGS_PAGE_URL = `${ORG_URL}/settings`;
 
 export const BUILDER_URL = `/applications/:applicationId/(pages)?/:pageId?/edit`;
-export const VIEWER_URL = `/applications/:applicationId/(pages)?/:pageId?`;
+export const VIEWER_URL = `/applications/:applicationId/(pages)?/:pageId?/theme`;
 
 export const VIEWER_FORK_PATH = `${VIEWER_URL}/fork`;
 
