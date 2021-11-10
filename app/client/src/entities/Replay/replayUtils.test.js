@@ -1,12 +1,13 @@
-import { processDiff, TOASTS, FOCUSES, UPDATES, WIDGETS } from "./replayUtils";
+import ReplayCanvas from "./ReplayEntity/ReplayCanvas";
+import { TOASTS, FOCUSES, UPDATES, WIDGETS } from "./replayUtils";
 
-describe("check processDiff from replayUtils for type of update", () => {
-  const dsl = {
+describe("check canvas diff from replayUtils for type of update", () => {
+  const canvasReplay = new ReplayCanvas({
     "0": {},
     abcde: {
       widgetName: "abcde",
     },
-  };
+  });
   describe("check diff of kind 'N' and 'D'", () => {
     it("should create toasts on creation of widgets on Undo", () => {
       const replay = {};
@@ -23,8 +24,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetName: "abcde",
         widgetId: "abcde",
       };
-
-      processDiff(dsl, createWidgetDiff, replay, true);
+      canvasReplay.processDiff(createWidgetDiff, replay, true);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(createWidgetToast);
@@ -46,7 +46,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetId: "abcde",
       };
 
-      processDiff(dsl, createWidgetDiff, replay, false);
+      canvasReplay.processDiff(createWidgetDiff, replay, false);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(createWidgetToast);
@@ -67,7 +67,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetId: "abcde",
       };
 
-      processDiff(dsl, deleteWidgetDiff, replay, true);
+      canvasReplay.processDiff(deleteWidgetDiff, replay, true);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(deleteWidgetToast);
@@ -89,7 +89,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         widgetId: "abcde",
       };
 
-      processDiff(dsl, deleteWidgetDiff, replay, false);
+      canvasReplay.processDiff(deleteWidgetDiff, replay, false);
 
       expect(replay[TOASTS]).toHaveLength(1);
       expect(replay[TOASTS][0]).toEqual(deleteWidgetToast);
@@ -102,7 +102,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: path,
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
@@ -116,7 +116,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: path,
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
@@ -131,7 +131,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: ["abcde", "topRow"],
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
       expect(replay[WIDGETS].abcde[FOCUSES]).toBe(true);
@@ -144,7 +144,7 @@ describe("check processDiff from replayUtils for type of update", () => {
         path: path,
       };
 
-      processDiff(dsl, updateWidgetDiff, replay, true);
+      canvasReplay.processDiff(updateWidgetDiff, replay, true);
 
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);

@@ -1,6 +1,9 @@
 import { get, set } from "lodash";
 export const UPDATES = "propertyUpdates";
 export const REPLAY_DELAY = 300;
+export const TOASTS = "toasts";
+export const FOCUSES = "needsFocus";
+export const WIDGETS = "widgets";
 /**
  * checks the existing value and sets he propertyUpdate if required
  *
