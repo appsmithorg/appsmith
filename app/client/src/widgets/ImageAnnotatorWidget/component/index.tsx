@@ -31,6 +31,7 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
     annotation,
     annotations,
     disabled,
+    imageAltText,
     imageUrl,
     isAnnotationDisabled,
     onChange,
@@ -67,6 +68,7 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
     <ImageAnnotatorContainer>
       {disabled && <DisabledOverlay />}
       <Annotation
+        alt={imageAltText}
         annotations={annotations}
         disableAnnotation={isAnnotationDisabled}
         onChange={handleChange}
@@ -83,6 +85,7 @@ export interface ImageAnnotatorComponentProps {
   annotation: IAnnotation;
   annotations: IAnnotation[];
   disabled: boolean;
+  imageAltText?: string;
   imageUrl: string;
   isAnnotationDisabled?: boolean;
   onChange: (annotation: IAnnotation) => void;

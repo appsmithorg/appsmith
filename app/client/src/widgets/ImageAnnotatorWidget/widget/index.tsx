@@ -33,6 +33,21 @@ class ImageAnnotatorWidget extends BaseWidget<
             validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
+            propertyName: "imageAltText",
+            helpText: "Sets image alt attribute",
+            label: "Image Alt Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "A text description of the image",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                default: "",
+              },
+            },
+          },
+          {
             propertyName: "isDisabled",
             helpText: "Disables input to the widget",
             label: "Disabled",
@@ -307,6 +322,7 @@ class ImageAnnotatorWidget extends BaseWidget<
     const {
       annotation,
       annotations,
+      imageAltText,
       imageUrl,
       isAnnotationDisabled,
       isDisabled,
@@ -319,6 +335,7 @@ class ImageAnnotatorWidget extends BaseWidget<
           annotation={annotation}
           annotations={annotations}
           disabled={isDisabled}
+          imageAltText={imageAltText}
           imageUrl={imageUrl}
           isAnnotationDisabled={isAnnotationDisabled}
           onChange={this.handleAnnotationChange}
@@ -338,6 +355,7 @@ class ImageAnnotatorWidget extends BaseWidget<
 export interface ImageAnnotatorWidgetProps extends WidgetProps {
   annotation: IAnnotation;
   annotations: IAnnotation[];
+  imageAltText?: string;
   imageUrl: string;
   isAnnotationDisabled?: boolean;
   isDisabled: boolean;
