@@ -10,6 +10,23 @@ let appName;
 let orgName;
 
 describe("Comments", function() {
+  before(() => {
+    return cy.wrap(null).then(async () => {
+      cy.NavigateToHome();
+
+      cy.generateUUID().then((uid) => {
+        appName = uid;
+        orgName = uid;
+        cy.createOrg();
+        cy.wait("@createOrg").then((interception) => {
+          const newOrganizationName = interception.response.body.data.name;
+          cy.renameOrg(newOrganizationName, orgName);
+        });
+        cy.CreateAppForOrg(orgName, appName);
+        cy.addDsl(dsl);
+      });
+    });
+  });
   /**
    * create new comment thread
    * share app with an admin user
