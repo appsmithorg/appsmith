@@ -47,16 +47,16 @@
           ],
           "comparisonTypes": [
             {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
               "label": "<",
               "value": "LT"
             },
             {
               "label": "<=",
               "value": "LTE"
-            },
-            {
-              "label": "==",
-              "value": "EQ"
             },
             {
               "label": ">=",
