@@ -191,6 +191,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
       <TabsWrapper>
         <DroppableComponent
           deleteOption={this.deleteOption}
+          fixedHeight={370}
           itemHeight={45}
           items={draggableComponentColumns}
           onEdit={this.onEdit}

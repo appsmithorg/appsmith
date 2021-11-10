@@ -15,6 +15,7 @@ type RenderComponentProps = {
 };
 
 interface DroppableComponentProps {
+  fixedHeight?: number | boolean;
   items: Array<Record<string, unknown>>;
   itemHeight: number;
   renderComponent: (props: RenderComponentProps) => JSX.Element;
@@ -77,6 +78,7 @@ export class DroppableComponent extends React.Component<
     return (
       <DraggableList
         ItemRenderer={this.renderItem}
+        fixedHeight={this.props.fixedHeight}
         itemHeight={45}
         items={this.props.items}
         onUpdate={this.onUpdate}
