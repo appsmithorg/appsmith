@@ -193,6 +193,24 @@ SettingsFactory.register("APPSMITH_MAIL_PASSWORD", {
   },
 });
 
+SettingsFactory.register("APPSMITH_MAIL_TEST_EMAIL", {
+  action: (dispatch) => {
+    dispatch &&
+      dispatch({
+        type: ReduxActionTypes.SEND_TEST_EMAIL,
+        payload: true,
+      });
+  },
+  category: "email",
+  controlType: SettingTypes.BUTTON,
+  isVisible: (values: Record<string, any>) => {
+    return (
+      values && values["APPSMITH_MAIL_HOST"] && values["APPSMITH_MAIL_FROM"]
+    );
+  },
+  text: "Send Test Email",
+});
+
 //General
 SettingsFactory.register("APPSMITH_INSTANCE_NAME", {
   category: "general",
