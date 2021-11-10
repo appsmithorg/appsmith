@@ -22,6 +22,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
@@ -529,6 +530,32 @@ public class GitExecutorImpl implements GitExecutor {
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
             }
             return mergeStatus;
+        }).subscribeOn(scheduler);
+    }
+
+
+    public Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName) {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+        return Mono.fromCallable(() -> {
+            log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/" + branchName + " for the repo " + repoSuffix);
+            // open the repo
+            Path baseRepoPath = createRepoPath(repoSuffix);
+            Git git = Git.open(baseRepoPath.toFile());
+            // Create and checkout to new branch
+            git.checkout()
+                    .setCreateBranch(Boolean.TRUE)
+                    .setName(branchName)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .setStartPoint("origin/"+branchName)
+                    .call();
+
+            StoredConfig config = git.getRepository().getConfig();
+            config.setString("branch", branchName, "remote", "origin");
+            config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
+            config.save();
+            git.close();
+            return git.getRepository().getBranch();
         }).subscribeOn(scheduler);
     }
 }

@@ -1163,10 +1163,10 @@ Cypress.Commands.add("createModal", (ModalName) => {
     .click({ force: true });
   cy.selectOnClickOption("Open modal");
   cy.get(modalWidgetPage.selectModal).click();
+  cy.wait(2000);
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
-
+  cy.wait(3000);
   cy.assertPageSave();
-
   // changing the model name verify
   cy.widgetText(
     ModalName,
@@ -1794,7 +1794,14 @@ Cypress.Commands.add("DeleteAppByApi", () => {
 
     if (appId != null) {
       cy.log(appId + "appId");
-      cy.request("DELETE", "api/v1/applications/" + appId);
+      cy.request({
+        method: "DELETE",
+        url: "api/v1/applications/" + appId,
+        failOnStatusCode: false,
+      }).then((response) => {
+        cy.log(response.body);
+        cy.log(response.status);
+      });
     }
   });
 });
