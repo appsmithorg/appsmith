@@ -19,6 +19,7 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import store from "store";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -186,7 +187,11 @@ class ContainerWidget extends BaseWidget<
 
     childWidgetData.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(
+      childWidgetData,
+      this.props.renderMode,
+      store.getState().theme,
+    );
   }
 
   renderChildren = () => {

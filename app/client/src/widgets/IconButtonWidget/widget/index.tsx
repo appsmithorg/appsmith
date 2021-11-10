@@ -89,6 +89,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
+            themePropertyMap: "mainColor",
           },
           {
             propertyName: "buttonVariant",

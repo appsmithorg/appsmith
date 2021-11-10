@@ -40,6 +40,7 @@ class AudioRecorderWidget extends BaseWidget<
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
+            themePropertyMap: "mainColor",
           },
           {
             propertyName: "borderRadius",

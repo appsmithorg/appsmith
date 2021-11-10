@@ -5,6 +5,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { DSLWidget } from "widgets/constants";
 import { RenderModes } from "constants/WidgetConstants";
+import { useSelector } from "store";
+import { connect } from "react-redux";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
@@ -21,6 +23,7 @@ type AppPageProps = {
 };
 
 export function AppPage(props: AppPageProps) {
+  const theme = useSelector((state) => state.theme);
   useDynamicAppLayout();
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
@@ -33,9 +36,9 @@ export function AppPage(props: AppPageProps) {
   return (
     <PageView className="t--app-viewer-page" width={props.dsl.rightColumn}>
       {props.dsl.widgetId &&
-        WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
+        WidgetFactory.createWidget(props.dsl, RenderModes.PAGE, theme)}
     </PageView>
   );
 }
 
-export default AppPage;
+export default connect()(AppPage);

@@ -16,6 +16,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
 import { debug } from "loglevel";
+import { ThemeProvider } from "./ThemeFactory";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -159,16 +160,19 @@ class WidgetFactory {
   static createWidget(
     widgetData: WidgetDataProps,
     renderMode: RenderMode,
+    theme?: any,
   ): React.ReactNode {
-    const widgetProps: WidgetProps = {
-      key: widgetData.widgetId,
-      isVisible: true,
-      ...widgetData,
-      renderMode,
-    };
+    const widgetProps: WidgetProps = ThemeProvider.injectProperties(
+      widgetData.type,
+      {
+        key: widgetData.widgetId,
+        isVisible: true,
+        ...widgetData,
+        renderMode,
+      },
+      theme,
+    );
     const widgetBuilder = this.widgetMap.get(widgetData.type);
-    const widgetProperties = this.propertyPaneConfigsMap.get(widgetData.type);
-    debug(widgetProperties);
     if (widgetBuilder) {
       // TODO validate props here
       const widget = widgetBuilder.buildWidget(widgetProps);

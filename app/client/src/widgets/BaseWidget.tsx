@@ -359,10 +359,7 @@ abstract class BaseWidget<
   // This would involve making all widgets which have "states" to not have states,
   // as they're extending this one.
   shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
-    return (
-      !shallowequal(nextProps, this.props) ||
-      !shallowequal(nextState, this.state)
-    );
+    return true;
   }
 
   /**

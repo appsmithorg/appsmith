@@ -8,6 +8,7 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import store from "store";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -55,7 +56,11 @@ class CanvasWidget extends ContainerWidget {
     if (this.props.noPad) childWidgetData.noContainerOffset = true;
     childWidgetData.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(
+      childWidgetData,
+      this.props.renderMode,
+      store.getState().theme,
+    );
   }
 
   getPageView() {

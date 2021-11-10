@@ -12,6 +12,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
+import { ThemeProvider } from "./ThemeFactory";
 
 export interface WidgetConfiguration {
   type: string;
@@ -56,6 +57,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.meta,
     config.properties.config,
   );
+  ThemeProvider.registerThemeDepencyMap(config.type, config.properties.config);
   configureWidget(config);
 };
 
