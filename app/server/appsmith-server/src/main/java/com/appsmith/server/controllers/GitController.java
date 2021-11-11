@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitPullDTO;
@@ -124,9 +125,10 @@ public class GitController {
 
     @GetMapping("/checkout-branch/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
-                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to checkout application {}, branch {}", defaultApplicationId, branchName);
-        return service.checkoutBranch(defaultApplicationId, branchName)
+                                                         @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                         @RequestBody GitCheckoutBranchDTO gitCheckoutBranchDTO) {
+        log.debug("Going to checkout to branch {} application {} ", branchName, defaultApplicationId);
+        return service.checkoutBranch(defaultApplicationId, branchName, gitCheckoutBranchDTO)
             .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -138,7 +140,7 @@ public class GitController {
     }
 
     @GetMapping("/pull/{defaultApplicationId}")
-    public Mono<ResponseDTO<Object>> pull(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<GitPullDTO>> pull(@PathVariable String defaultApplicationId,
                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to pull the latest for application {}, branch {}", defaultApplicationId, branchName);
         return service.pullApplication(defaultApplicationId, branchName)

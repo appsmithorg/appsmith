@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -118,6 +119,17 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
+    public Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(MultiValueMap<String, String> params,
+                                                                             Boolean viewMode,
+                                                                             String branchName) {
+        if (!StringUtils.isEmpty(branchName)) {
+            params.addIfAbsent(FieldName.BRANCH_NAME, branchName);
+        }
+        return this.getPopulatedActionCollectionsByViewMode(params, viewMode)
+                .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
+    }
+
+    @Override
     public Mono<ActionCollectionDTO> populateActionCollectionByViewMode(ActionCollectionDTO actionCollectionDTO1, Boolean viewMode) {
         return Mono.just(actionCollectionDTO1)
                 .flatMap(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getActionIds())
@@ -164,32 +176,47 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
-    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId) {
+    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId, String branchName) {
         if (applicationId == null || applicationId.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        return repository
-                .findByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS)
-                .flatMap(actionCollection -> {
-                    ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
-                    final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
-                    actionCollectionViewDTO.setId(actionCollection.getId());
-                    actionCollectionViewDTO.setName(publishedCollection.getName());
-                    actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
-                    actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
-                    actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
-                    actionCollectionViewDTO.setBody(publishedCollection.getBody());
-                    return Flux.fromIterable(publishedCollection.getActionIds())
-                            .flatMap(actionId -> {
-                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
-                            })
-                            .collectList()
-                            .map(actionDTOList -> {
-                                actionCollectionViewDTO.setActions(actionDTOList);
-                                return actionCollectionViewDTO;
-                            });
-                });
+        return applicationService.findBranchedApplicationId(branchName, applicationId, READ_APPLICATIONS)
+                .flatMapMany(branchedApplicationId ->
+                    repository
+                        .findByApplicationIdAndViewMode(branchedApplicationId, true, EXECUTE_ACTIONS)
+                        .flatMap(actionCollection -> {
+                            ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
+                            final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+                            actionCollectionViewDTO.setId(actionCollection.getId());
+                            actionCollectionViewDTO.setName(publishedCollection.getName());
+                            actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
+                            actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
+                            actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+                            actionCollectionViewDTO.setBody(publishedCollection.getBody());
+                            // Update default resources :
+                            // actionCollection.defaultResources contains appId, collectionId and branch(optional).
+                            // Default pageId will be taken from publishedCollection.defaultResources
+                            DefaultResources defaults = actionCollection.getDefaultResources();
+                            // Consider a situation when collection is not published but user is viewing in deployed mode
+                            if (publishedCollection.getDefaultResources() != null) {
+                                defaults.setPageId(publishedCollection.getDefaultResources().getPageId());
+                            } else {
+                                defaults.setPageId(null);
+                            }
+                            actionCollectionViewDTO.setDefaultResources(defaults);
+                            return Flux.fromIterable(publishedCollection.getActionIds())
+                                    .flatMap(actionId -> {
+                                        return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
+                                    })
+                                    .collectList()
+                                    .map(actionDTOList -> {
+                                        actionCollectionViewDTO.setActions(actionDTOList);
+                                        return actionCollectionViewDTO;
+                                    });
+                        })
+                        .map(sanitiseResponse::updateActionCollectionViewDTOWithDefaultResources)
+                );
     }
 
     @Override
@@ -210,6 +237,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
         String name = null;
         List<String> pageIds = new ArrayList<>();
+        String branch = null;
 
         // In the edit mode, the actions should be displayed in the order they were created.
         Sort sort = Sort.by(FieldName.CREATED_AT);
@@ -218,10 +246,14 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             name = params.getFirst(FieldName.NAME);
         }
 
+        if (params.getFirst(FieldName.BRANCH_NAME) != null) {
+            branch = params.getFirst(FieldName.BRANCH_NAME);
+        }
+
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
-        return repository.findAllActionCollectionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode, READ_ACTIONS, sort)
+        return repository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(name, pageIds, viewMode, branch, READ_ACTIONS, sort)
                 .flatMap(actionCollection ->
                         generateActionCollectionByViewMode(actionCollection, viewMode));
     }
@@ -367,7 +399,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultCollectionId, AclPermission permission) {
 
         if (StringUtils.isEmpty(defaultCollectionId)) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID));
         } else if (StringUtils.isEmpty(branchName)) {
             return this.findById(defaultCollectionId, permission)
                     .switchIfEmpty(Mono.error(

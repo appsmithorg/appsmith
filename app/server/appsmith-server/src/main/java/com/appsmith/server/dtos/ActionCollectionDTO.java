@@ -49,11 +49,15 @@ public class ActionCollectionDTO {
 //    ActionDTO defaultAction;
 
     // This property is not shared with the client since the reference is only useful to server
+    // As these are not shared with client we can safely ignore handling default action id for each action. Appropriate
+    // default action ID will be sent to client using ActionDTOs in actions
     @JsonIgnore
     Set<String> actionIds = Set.of();
 
     // This property is not shared with the client since the reference is only useful to server
     // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the user
+    // As these are not shared with client we can safely ignore handling default action id for each archived action.
+    // Appropriate default action ID will be sent to client using ActionDTOs in archivedActions
     @JsonIgnore
     Set<String> archivedActionIds = Set.of();
 

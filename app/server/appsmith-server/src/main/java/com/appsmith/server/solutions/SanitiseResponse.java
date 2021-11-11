@@ -7,6 +7,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -132,17 +134,49 @@ public class SanitiseResponse {
     public ActionCollection updateActionCollectionWithDefaultResources(ActionCollection actionCollection) {
         DefaultResources defaultResources = actionCollection.getDefaultResources();
         if (defaultResources == null) {
-            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "action", actionCollection.getId());
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", actionCollection.getId());
         }
-//        actionCollection.setId(defaultResources.getActionId());
-//        actionCollection.setApplicationId(defaultResources.getApplicationId());
-//        if (actionCollection.getUnpublishedAction() != null) {
-//            actionCollection.setUnpublishedAction(this.updateActionDTOWithDefaultResources(actionCollection.getUnpublishedAction()));
-//        }
-//        if (actionCollection.getPublishedAction() != null) {
-//            actionCollection.setPublishedAction(this.updateActionDTOWithDefaultResources(actionCollection.getPublishedAction()));
-//        }
+        actionCollection.setId(defaultResources.getCollectionId());
+        actionCollection.setApplicationId(defaultResources.getApplicationId());
+        if (actionCollection.getUnpublishedCollection() != null) {
+            actionCollection.setUnpublishedCollection(this.updateCollectionDTOWithDefaultResources(actionCollection.getUnpublishedCollection()));
+        }
+        if (actionCollection.getPublishedCollection() != null) {
+            actionCollection.setPublishedCollection(this.updateCollectionDTOWithDefaultResources(actionCollection.getPublishedCollection()));
+        }
         return actionCollection;
+    }
+
+    public ActionCollectionDTO updateCollectionDTOWithDefaultResources(ActionCollectionDTO collection) {
+        DefaultResources defaults = collection.getDefaultResources();
+        if (defaults == null
+                || StringUtils.isEmpty(defaults.getApplicationId())
+                || StringUtils.isEmpty(defaults.getPageId())
+                || StringUtils.isEmpty(defaults.getCollectionId())) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollection", collection.getId());
+        }
+        collection.setApplicationId(defaults.getApplicationId());
+        collection.setPageId(defaults.getPageId());
+        collection.setId(defaults.getCollectionId());
+
+        // Update actions within the collection
+        collection.getActions().forEach(this::updateActionDTOWithDefaultResources);
+        collection.getArchivedActions().forEach(this::updateActionDTOWithDefaultResources);
+        
+        return collection;
+    }
+
+    public ActionCollectionViewDTO updateActionCollectionViewDTOWithDefaultResources(ActionCollectionViewDTO viewDTO) {
+        DefaultResources defaults = viewDTO.getDefaultResources();
+        if (defaults == null
+                || StringUtils.isEmpty(defaults.getCollectionId())) {
+            throw new AppsmithException(AppsmithError.DEFAULT_RESOURCES_UNAVAILABLE, "actionCollectionView", viewDTO.getId());
+        }
+        viewDTO.setId(defaults.getCollectionId());
+        viewDTO.setApplicationId(defaults.getApplicationId());
+        viewDTO.setPageId(defaults.getPageId());
+        viewDTO.getActions().forEach(this::updateActionDTOWithDefaultResources);
+        return viewDTO;
     }
 
     public Application updateApplicationWithDefaultResources(Application application) {

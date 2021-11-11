@@ -24,6 +24,8 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
 
+    Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode, String branchName);
+
     Mono<ActionCollectionDTO> populateActionCollectionByViewMode(ActionCollectionDTO actionCollectionDTO1, Boolean viewMode);
 
     Mono<ActionCollectionDTO> splitValidActionsByViewMode(ActionCollectionDTO actionCollectionDTO, List<ActionDTO> actionsList, Boolean viewMode);
@@ -40,9 +42,9 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
 
-    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId);
+    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId, String branchName);
     
     Flux<ActionCollection> findByPageId(String pageId);
 
-    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultPageId, AclPermission permission);
+    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(String branchName, String defaultCollectionId, AclPermission permission);
 }
