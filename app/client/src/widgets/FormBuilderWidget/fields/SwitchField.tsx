@@ -19,6 +19,8 @@ type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
 
 function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
   return (
+    // eslint-disable-next-line
+    // @ts-ignore
     <Field
       {...rest}
       label={schemaItem.label}

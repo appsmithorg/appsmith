@@ -35,6 +35,8 @@ function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
   const { options = [] } = schemaItem;
 
   return (
+    // eslint-disable-next-line
+    // @ts-ignore
     <Field
       {...rest}
       label={schemaItem.label}

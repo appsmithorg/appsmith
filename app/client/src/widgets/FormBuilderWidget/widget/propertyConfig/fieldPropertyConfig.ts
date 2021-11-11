@@ -9,7 +9,11 @@ import {
   HiddenFnParams,
   hiddenIfArrayItemIsObject,
 } from "./helper";
-import { CHECKBOX_PROPERTIES, INPUT_PROPERTIES } from "./properties";
+import {
+  CHECKBOX_PROPERTIES,
+  DATE_PROPERTIES,
+  INPUT_PROPERTIES,
+} from "./properties";
 
 const COMMON_PROPERTIES = {
   fieldType: [
@@ -178,6 +182,7 @@ function generatePanelPropertyConfig(
           ...COMMON_PROPERTIES.fieldType,
           ...INPUT_PROPERTIES.general,
           ...CHECKBOX_PROPERTIES.general,
+          ...DATE_PROPERTIES.general,
           ...COMMON_PROPERTIES.accessibility,
           {
             propertyName: "children",
@@ -207,6 +212,7 @@ function generatePanelPropertyConfig(
         children: [
           ...INPUT_PROPERTIES.actions,
           ...CHECKBOX_PROPERTIES.actions,
+          ...DATE_PROPERTIES.actions,
           ...COMMON_PROPERTIES.actions,
         ],
       },

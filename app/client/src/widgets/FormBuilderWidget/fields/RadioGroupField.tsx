@@ -16,6 +16,8 @@ type RadioGroupFieldProps = BaseFieldComponentProps<
 
 function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
   return (
+    // eslint-disable-next-line
+    // @ts-ignore
     <Field
       {...rest}
       label={schemaItem.label}

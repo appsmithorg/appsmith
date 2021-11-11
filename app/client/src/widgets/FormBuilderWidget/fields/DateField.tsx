@@ -2,35 +2,42 @@ import React from "react";
 import { pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
-import DateComponent, {
-  DatePickerComponentProps,
-} from "widgets/DatePickerWidget2/component";
-import { BaseFieldComponentProps } from "./types";
-import { CONFIG } from "widgets/DatePickerWidget2";
+import DateComponent from "widgets/DatePickerWidget2/component";
+import { BaseFieldComponentProps, FieldComponentBaseProps } from "./types";
 
-const COMPONENT_DEFAULT_VALUES = pick(CONFIG.defaults, [
-  "closeOnSelection",
-  "dateFormat",
-  "isDisabled",
-  "maxDate",
-  "minDate",
-  "shortcuts",
-]);
+type DateComponentProps = FieldComponentBaseProps & {
+  dateFormat: string;
+  onDateSelected?: string;
+  maxDate: string;
+  minDate: string;
+  closeOnSelection: boolean;
+  shortcuts: boolean;
+};
 
-type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
+const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
+  closeOnSelection: false,
+  dateFormat: "YYYY-MM-DD HH:mm",
+  isDisabled: false,
+  label: "",
+  maxDate: "2121-12-31T18:29:00.000Z",
+  minDate: "1920-12-31T18:30:00.000Z",
+  shortcuts: false,
+};
 
-type DateComponentOwnProps = Pick<
-  DatePickerComponentProps,
-  PICKED_DEFAULT_PROPS
->;
-
-type DateFieldProps = BaseFieldComponentProps<DateComponentOwnProps>;
+type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
 
 function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
+  const labelStyles = pick(schemaItem, [
+    "labelStyle",
+    "labelTextColor",
+    "labelTextSize",
+  ]);
+
   return (
     <Field
       {...rest}
       label={schemaItem.label}
+      labelStyles={labelStyles}
       name={name}
       render={({ field: { onChange, value } }) => (
         <DateComponent

@@ -10,7 +10,7 @@ type FieldProps = {
   name: ControllerProps["name"];
   render: ControllerProps["render"];
   tooltip?: string;
-  labelStyles?: FieldLabelProps["labelStyles"];
+  labelStyles: FieldLabelProps["labelStyles"];
 };
 
 const WRAPPER_MARGIN_BOTTOM = 14;

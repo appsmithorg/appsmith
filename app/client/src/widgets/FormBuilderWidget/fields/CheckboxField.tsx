@@ -1,4 +1,5 @@
 import React from "react";
+import { pick } from "lodash";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import Field from "widgets/FormBuilderWidget/component/Field";
@@ -14,11 +15,17 @@ type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
 
 function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
   const { isRequired, label } = schemaItem;
+  const labelStyles = pick(schemaItem, [
+    "labelStyle",
+    "labelTextColor",
+    "labelTextSize",
+  ]);
 
   return (
     <Field
       {...rest}
       label={label}
+      labelStyles={labelStyles}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <CheckboxComponent

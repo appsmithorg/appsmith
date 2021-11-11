@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
-import { IconName, Alignment } from "@blueprintjs/core";
+import { Alignment, IconName } from "@blueprintjs/core";
+import { pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
 import FormContext from "../FormContext";
@@ -123,11 +124,11 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   const selectedPhoneNumberCountryCode =
     metaPhoneNumberCountryCode || schemaItem.phoneNumberCountryCode;
 
-  const labelStyles = {
-    labelStyle: schemaItem.labelStyle,
-    labelTextColor: schemaItem.labelTextColor,
-    labelTextSize: schemaItem.labelTextSize,
-  };
+  const labelStyles = pick(schemaItem, [
+    "labelStyle",
+    "labelTextColor",
+    "labelTextSize",
+  ]);
 
   return (
     <Field

@@ -34,6 +34,8 @@ function MultiSelectField({
   ...rest
 }: MultiSelectFieldProps) {
   return (
+    // eslint-disable-next-line
+    // @ts-ignore
     <Field
       {...rest}
       label={schemaItem.label}
