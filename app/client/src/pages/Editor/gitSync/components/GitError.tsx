@@ -11,8 +11,8 @@ import {
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
-  ERROR_COMMITTING,
   ERROR_CONNECTING,
+  ERROR_COMMITTING,
   READ_DOCUMENTATION,
 } from "constants/messages";
 

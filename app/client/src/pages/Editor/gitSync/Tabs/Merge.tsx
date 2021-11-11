@@ -19,8 +19,8 @@ import { getGitBranches } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
 import { mergeBranchInit, fetchBranchesInit } from "actions/gitSyncActions";
 import {
-  getFetchingBranches,
   getIsFetchingMergeStatus,
+  getFetchingBranches,
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import StatusLoader from "../components/StatusLoader";
@@ -39,6 +39,7 @@ const DEFAULT_OPTION = "--Select--";
 export default function Merge() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitBranches = useSelector(getGitBranches);
+  const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const dispatch = useDispatch();
   const currentBranch = gitMetaData?.branchName;
@@ -103,8 +104,6 @@ export default function Merge() {
       );
     }
   }, [currentBranch, selectedBranchOption.value, dispatch]);
-
-  const isFetchingBranches = useSelector(getFetchingBranches);
 
   const mergeBtnDisabled =
     DEFAULT_OPTION === selectedBranchOption.value || isFetchingMergeStatus;

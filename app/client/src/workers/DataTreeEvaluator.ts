@@ -1063,6 +1063,26 @@ export default class DataTreeEvaluator {
           ) {
             delete this.resolvedFunctions[diff.payload.propertyPath];
           }
+          if (
+            this.resolvedFunctions &&
+            this.resolvedFunctions[diff.payload.propertyPath]
+          ) {
+            delete this.resolvedFunctions[diff.payload.propertyPath];
+          }
+        }
+        if (!isJSAction(entity)) {
+          return false;
+        }
+        if (
+          (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
+          (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
+        ) {
+          jsUpdates = this.saveResolvedFunctionsAndJSUpdates(
+            entity,
+            jsUpdates,
+            unEvalDataTree,
+            entityName,
+          );
         }
         if (!isJSAction(entity)) {
           return false;
