@@ -4,15 +4,18 @@ import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
+import com.appsmith.server.domains.GitDeployKeys;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitBranchDTO;
@@ -24,7 +27,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.KeyPair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -44,6 +51,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +77,7 @@ public class GitServiceImpl implements GitService {
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
+    private final GitDeployKeysRepository gitDeployKeysRepository;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "Appsmith default generated commit";
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -1006,6 +1015,48 @@ public class GitServiceImpl implements GitService {
                             .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge status", error.getMessage())));
                 })
                 .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch));
+    }
+
+    @Override
+    public Mono<Application> importApplicationFromGit() {
+        return null;
+    }
+
+    @Override
+    public Mono<String> generateSSHKey() {
+        JSch jsch = new JSch();
+        KeyPair kpair;
+        try {
+            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
+        } catch (JSchException e) {
+            log.error("failed to generate RSA key pair", e);
+            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
+        }
+
+        StringOutputStream privateKeyOutput = new StringOutputStream();
+        StringOutputStream publicKeyOutput = new StringOutputStream();
+
+        kpair.writePrivateKey(privateKeyOutput);
+        kpair.writePublicKey(publicKeyOutput, "appsmith");
+
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey(publicKeyOutput.toString());
+        gitAuth.setPrivateKey(privateKeyOutput.toString());
+        gitAuth.setGeneratedAt(Instant.now());
+        gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+
+        GitDeployKeys gitDeployKeys = new GitDeployKeys();
+        gitDeployKeys.setGitAuth(gitAuth);
+
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    gitDeployKeys.setEmail(user.getEmail());
+                    return gitDeployKeysRepository.findByEmail(user.getEmail())
+                            .switchIfEmpty(gitDeployKeysRepository.save(gitDeployKeys))
+                            .flatMap(gitDeployKeys1 -> gitDeployKeysRepository.delete(gitDeployKeys1)
+                                    .then(gitDeployKeysRepository.save(gitDeployKeys1)));
+                })
+                .then(Mono.just(publicKeyOutput.toString()));
     }
 
     private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String sourceBranch, String destinationBranch, Path repoPath) {

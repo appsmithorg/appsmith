@@ -172,5 +172,10 @@ public class GitController {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
+    @GetMapping("/import/keys")
+    public Mono<ResponseDTO<String>> generateKeyForGitImport() {
+        return service.generateSSHKey().map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
 
 }
