@@ -33,6 +33,7 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
+import { ButtonBorderRadius } from "components/constants";
 
 interface TableProps {
   width: number;
@@ -78,6 +79,7 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  borderRadius: ButtonBorderRadius;
 }
 
 const defaultColumn = {
@@ -214,6 +216,7 @@ export function Table(props: TableProps) {
   return (
     <TableWrapper
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      borderRadius={props.borderRadius}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}
@@ -242,6 +245,7 @@ export function Table(props: TableProps) {
             >
               <TableHeader
                 applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}

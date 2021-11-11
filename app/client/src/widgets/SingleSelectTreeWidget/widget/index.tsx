@@ -400,6 +400,10 @@ class SingleSelectTreeWidget extends BaseWidget<
     return (
       <SingleSelectTreeComponent
         allowClear={this.props.allowClear}
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         compactMode={
           !(
             (this.props.bottomRow - this.props.topRow) /

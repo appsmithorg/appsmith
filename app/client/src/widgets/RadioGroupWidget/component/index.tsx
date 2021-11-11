@@ -9,6 +9,7 @@ import {
   Label,
   Classes,
 } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { BlueprintControlTransform, labelStyle } from "constants/DefaultTheme";
 
@@ -25,8 +26,29 @@ const StyledControlGroup = styled(ControlGroup)`
   }
 `;
 
-const StyledRadioGroup = styled(RadioGroup)`
+const StyledRadioGroup = styled(RadioGroup)<{
+  backgroundColor: string;
+}>`
   ${BlueprintControlTransform};
+
+  && {
+    .${Classes.CONTROL} {
+      & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${({ backgroundColor }) =>
+          `${backgroundColor || Colors.GREEN}`};
+        border: 2px solid
+          ${({ backgroundColor }) => `${backgroundColor || Colors.GREEN}`};
+      }
+    }
+
+    .${Classes.SWITCH} {
+      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${({ backgroundColor }) =>
+          `${backgroundColor || Colors.WHITE}`};
+      }
+    }
+  }
+
   label {
     margin: 7px ${WIDGET_PADDING * 2}px 0 0;
   }
@@ -48,6 +70,7 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
           </Label>
         )}
         <StyledRadioGroup
+          backgroundColor={this.props.backgroundColor}
           disabled={this.props.isDisabled}
           onChange={this.onRadioSelectionChange}
           selectedValue={this.props.selectedOptionValue}
@@ -78,6 +101,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   onRadioSelectionChange: (updatedOptionValue: string) => void;
   selectedOptionValue: string;
   isLoading: boolean;
+  backgroundColor: string;
 }
 
 export default RadioGroupComponent;

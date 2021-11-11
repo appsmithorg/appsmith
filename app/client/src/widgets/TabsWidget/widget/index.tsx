@@ -12,6 +12,7 @@ import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { ButtonBorderRadiusTypes } from "components/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -169,6 +170,67 @@ class TabsWidget extends BaseWidget<
           },
         ],
       },
+
+      {
+        sectionName: "Style",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["SHARP", "ROUNDED"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+        ],
+      },
     ];
   }
 
@@ -206,7 +268,13 @@ class TabsWidget extends BaseWidget<
       tabs: this.getVisibleTabs(),
     };
     return (
-      <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>
+      <TabsComponent
+        {...tabsComponentProps}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
+        onTabChange={this.onTabChange}
+      >
         {this.renderComponent()}
       </TabsComponent>
     );

@@ -152,7 +152,9 @@ export const getCustomBorderColor = (
  * @param borderRadius
  * @returns
  */
-export const getBorderRadiusValue = (borderRadius: ButtonBorderRadius) => {
+export const getBorderRadiusValue = (
+  borderRadius: ButtonBorderRadius | number | undefined,
+) => {
   switch (borderRadius) {
     case ButtonBorderRadiusTypes.CIRCLE:
       return "50%";
@@ -161,7 +163,7 @@ export const getBorderRadiusValue = (borderRadius: ButtonBorderRadius) => {
     case ButtonBorderRadiusTypes.SHARP:
       return 0;
     default:
-      return 0;
+      return `${borderRadius}px`;
   }
 };
 

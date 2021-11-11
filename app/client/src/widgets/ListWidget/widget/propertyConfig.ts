@@ -6,6 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ButtonBorderRadiusTypes } from "components/constants";
 
 const PropertyPaneConfig = [
   {
@@ -22,24 +23,6 @@ const PropertyPaneConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.ARRAY },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      {
-        propertyName: "backgroundColor",
-        label: "Background",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            expected: {
-              type: "Color name | hex code",
-              example: "#FFFFFF",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
       },
       {
         propertyName: "itemBackgroundColor",
@@ -149,6 +132,83 @@ const PropertyPaneConfig = [
         hidden: (props: ListWidgetProps<WidgetProps>) =>
           !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
+      },
+    ],
+  },
+  {
+    sectionName: "Style",
+    children: [
+      {
+        propertyName: "backgroundColor",
+        label: "Background",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: {
+              type: "Color name | hex code",
+              example: "#FFFFFF",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+      },
+      {
+        propertyName: "borderRadius",
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        options: [
+          ButtonBorderRadiusTypes.SHARP,
+          ButtonBorderRadiusTypes.ROUNDED,
+        ],
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["SHARP", "ROUNDED"],
+          },
+        },
+      },
+      {
+        propertyName: "boxShadow",
+        label: "Box Shadow",
+        helpText:
+          "Enables you to cast a drop shadow from the frame of the widget",
+        controlType: "BOX_SHADOW_OPTIONS",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: [
+              "NONE",
+              "VARIANT1",
+              "VARIANT2",
+              "VARIANT3",
+              "VARIANT4",
+              "VARIANT5",
+            ],
+          },
+        },
+      },
+      {
+        propertyName: "boxShadowColor",
+        helpText: "Sets the shadow color of the widget",
+        label: "Shadow Color",
+        controlType: "COLOR_PICKER",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+        },
       },
     ],
   },

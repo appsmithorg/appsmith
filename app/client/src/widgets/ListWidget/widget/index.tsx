@@ -36,6 +36,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -331,6 +333,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ...child,
         gap,
         backgroundColor: this.props.itemBackgroundColor,
+        borderRadius: this.props.borderRadius,
         topRow:
           index * children[0].bottomRow +
           index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
@@ -821,6 +824,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return (
       <ListComponent
         {...this.props}
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
         hasPagination={shouldPaginate}
         key={`list-widget-page-${this.state.page}`}
         listData={this.props.listData || []}
@@ -836,6 +843,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             />
           ) : (
             <ListPagination
+              borderRadius={this.props.borderRadius}
+              boxShadow={this.props.boxShadow}
+              boxShadowColor={this.props.boxShadowColor}
               current={this.state.page}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
               onChange={(page: number) => this.setState({ page })}
@@ -861,6 +871,10 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   onListItemClick?: string;
   listData?: Array<Record<string, unknown>>;
   currentItemStructure?: Record<string, string>;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default ListWidget;

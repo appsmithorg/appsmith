@@ -8,7 +8,7 @@ import { generateReactKey } from "utils/generators";
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { ButtonBorderRadius } from "components/constants";
 
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
@@ -56,8 +56,6 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   selectedValues: string[];
   backgroundColor: string;
   borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
 }
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
@@ -78,8 +76,6 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           <StyledCheckbox
             backgroundColor={props.backgroundColor}
             borderRadius={props.borderRadius}
-            boxShadow={props.boxShadow}
-            boxShadowColor={props.boxShadowColor}
             checked={(selectedValues || []).includes(option.value)}
             disabled={isDisabled}
             inline={isInline}

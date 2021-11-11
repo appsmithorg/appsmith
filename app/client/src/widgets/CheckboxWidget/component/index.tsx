@@ -3,16 +3,14 @@ import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
 import { AlignWidget } from "widgets/constants";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { ButtonBorderRadius } from "components/constants";
 import { Colors } from "constants/Colors";
-import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
+import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
 type StyledCheckboxProps = {
   rowSpace: number;
   backgroundColor: string;
   borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
 };
 
 type StyledCheckboxContainerProps = {
@@ -44,8 +42,6 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
     background-color: ${({ backgroundColor }) =>
       `${backgroundColor || Colors.GREEN}`};
     background-image: none;
-    box-shadow: ${({ boxShadow, boxShadowColor }) =>
-      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
   }
 
   &.bp3-control input:disabled ~ .bp3-control-indicator {
@@ -72,8 +68,6 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           alignIndicator={checkboxAlignClass}
           backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
-          boxShadow={this.props.boxShadow}
-          boxShadowColor={this.props.boxShadowColor}
           checked={this.props.isChecked}
           className={
             this.props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT
@@ -102,8 +96,6 @@ export interface CheckboxComponentProps extends ComponentProps {
   rowSpace: number;
   backgroundColor: string;
   borderRadius: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
 }
 
 export default CheckboxComponent;

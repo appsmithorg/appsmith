@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import { Color } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
+import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
 export enum BoxShadowTypes {
   NONE = "NONE",
@@ -68,7 +69,7 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
       props.containerStyle !== "none"
         ? `
     border-width: ${props.borderWidth}px;
-    border-radius: ${props.borderRadius}px;
+    border-radius: ${getBorderRadiusValue(props.borderRadius)};
     border-color: ${props.borderColor || "transparent"};
     border-style: solid;`
         : ""}

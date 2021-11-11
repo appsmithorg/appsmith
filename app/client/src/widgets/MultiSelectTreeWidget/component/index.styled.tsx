@@ -750,7 +750,6 @@ export const TreeSelectContainer = styled.div<{
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
-      background-color: white;
       .rc-tree-select-selection-item {
         background: none;
         border: 1px solid rgb(208, 215, 221);

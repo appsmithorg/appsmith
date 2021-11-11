@@ -733,6 +733,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
           applyFilter={this.applyFilters}
+          borderRadius={this.props.borderRadius}
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}

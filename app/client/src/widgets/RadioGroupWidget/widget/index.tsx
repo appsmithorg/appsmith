@@ -7,6 +7,11 @@ import { RadioOption } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isArray } from "lodash";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadow,
+} from "components/constants";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -113,6 +118,19 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Style",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
     ];
   }
   static getDerivedPropertiesMap() {
@@ -139,6 +157,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
     return (
       <RadioGroupComponent
+        backgroundColor={this.props.backgroundColor}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         key={this.props.widgetId}
@@ -173,6 +192,7 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   onSelectionChange: string;
   defaultOptionValue: string;
   isRequired?: boolean;
+  backgroundColor: string;
 }
 
 export default RadioGroupWidget;

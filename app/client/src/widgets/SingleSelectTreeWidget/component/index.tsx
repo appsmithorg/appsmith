@@ -22,6 +22,7 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 export interface TreeSelectProps
   extends Required<
@@ -43,6 +44,10 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 const getSvg = (style = {}) => (
@@ -90,6 +95,10 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
 
 function SingleSelectTreeComponent({
   allowClear,
+  backgroundColor,
+  borderRadius,
+  boxShadow,
+  boxShadowColor,
   compactMode,
   disabled,
   dropdownStyle,
@@ -126,6 +135,10 @@ function SingleSelectTreeComponent({
 
   return (
     <TreeSelectContainer
+      backgroundColor={backgroundColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
+      boxShadowColor={boxShadowColor}
       compactMode={compactMode}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >

@@ -1,6 +1,8 @@
 import React from "react";
 import Pagination from "rc-pagination";
 import styled, { css } from "styled-components";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
 const locale = {
   // Options.jsx
@@ -300,10 +302,19 @@ const paginatorCss = css`
 
 const StyledPagination = styled(Pagination)<{
   disabled?: boolean;
+  borderRadius: ButtonBorderRadius;
 }>`
   ${paginatorCss}
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
   opacity: ${(props) => (props.disabled ? "0.4" : "1")};
+
+  .rc-pagination-item {
+    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  }
+
+  .rc-pagination-prev .rc-pagination-item-link, .rc-pagination-next .rc-pagination-item-link  {
+    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  }
 `;
 
 interface ListPaginationProps {
@@ -312,11 +323,15 @@ interface ListPaginationProps {
   perPage: number;
   disabled?: boolean;
   onChange: (page: number) => void;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 function ListPagination(props: ListPaginationProps) {
   return (
     <StyledPagination
+      borderRadius={props.borderRadius}
       current={props.current}
       disabled={props.disabled}
       locale={locale}

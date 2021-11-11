@@ -17,14 +17,18 @@ import {
 import TableDataDownload from "./TableDataDownload";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ButtonBorderRadius } from "components/constants";
+import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
-const PageNumberInputWrapper = styled(NumericInput)`
+const PageNumberInputWrapper = styled(NumericInput)<{
+  borderRadius: ButtonBorderRadius;
+}>`
   &&& input {
     box-shadow: none;
     border: 1px solid ${Colors.DANUBE};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
-    border-radius: none;
+    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
     box-sizing: border-box;
     width: 24px;
     height: 24px;
@@ -49,6 +53,7 @@ function PageNumberInput(props: {
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   disabled: boolean;
+  borderRadius: ButtonBorderRadius;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
@@ -78,6 +83,7 @@ function PageNumberInput(props: {
   );
   return (
     <PageNumberInputWrapper
+      borderRadius={props.borderRadius}
       buttonPosition="none"
       clampValueOnBlur
       className="t--table-widget-page-input"
@@ -124,6 +130,7 @@ interface TableHeaderProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  borderRadius: ButtonBorderRadius;
 }
 
 function TableHeader(props: TableHeaderProps) {
@@ -163,6 +170,7 @@ function TableHeader(props: TableHeaderProps) {
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper
+            borderRadius={props.borderRadius}
             className="t--table-widget-prev-page"
             disabled={props.pageNo === 0}
             onClick={() => {
@@ -171,10 +179,15 @@ function TableHeader(props: TableHeaderProps) {
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <PaginationItemWrapper className="page-item" selected>
+          <PaginationItemWrapper
+            borderRadius={props.borderRadius}
+            className="page-item"
+            selected
+          >
             {props.pageNo + 1}
           </PaginationItemWrapper>
           <PaginationItemWrapper
+            borderRadius={props.borderRadius}
             className="t--table-widget-next-page"
             disabled={
               !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
@@ -193,6 +206,7 @@ function TableHeader(props: TableHeaderProps) {
             {props.tableData?.length} Records
           </RowWrapper>
           <PaginationItemWrapper
+            borderRadius={props.borderRadius}
             className="t--table-widget-prev-page"
             disabled={props.currentPageIndex === 0}
             onClick={() => {
@@ -206,6 +220,7 @@ function TableHeader(props: TableHeaderProps) {
           <RowWrapper>
             Page{" "}
             <PageNumberInput
+              borderRadius={props.borderRadius}
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
@@ -214,6 +229,7 @@ function TableHeader(props: TableHeaderProps) {
             of {props.pageCount}
           </RowWrapper>
           <PaginationItemWrapper
+            borderRadius={props.borderRadius}
             className="t--table-widget-next-page"
             disabled={props.currentPageIndex === props.pageCount - 1}
             onClick={() => {

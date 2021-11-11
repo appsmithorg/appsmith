@@ -191,9 +191,6 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
-  // eslint-disable-next-line
-  console.log({ dimension, width, height, WIDGET_PADDING });
-
   return (
     <IconButtonContainer>
       <StyledButton

@@ -1662,6 +1662,24 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        propertyName: "borderRadius",
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        options: [
+          ButtonBorderRadiusTypes.SHARP,
+          ButtonBorderRadiusTypes.ROUNDED,
+        ],
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["SHARP", "ROUNDED"],
+          },
+        },
+      },
     ],
   },
 ] as PropertyPaneConfig[];

@@ -9,6 +9,9 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { Color } from "constants/Colors";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -26,6 +29,11 @@ export const StyledText = styled(Text)<{
   textColor?: string;
   fontStyle?: string;
   fontSize?: TextSize;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  borderColor?: Color;
+  borderWidth?: number;
 }>`
   height: 100%;
   overflow-y: ${(props) => (props.scroll ? "auto" : "hidden")};
@@ -36,6 +44,13 @@ export const StyledText = styled(Text)<{
   justify-content: flex-start;
   align-items: ${(props) => (props.scroll ? "flex-start" : "center")};
   background: ${(props) => props?.backgroundColor};
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
+  border-width: ${(props) => props.borderWidth}px;
+  border-color: ${(props) => props.borderColor || "transparent"};
+  border-style: solid;
+
   color: ${(props) => props?.textColor};
   font-style: ${(props) =>
     props?.fontStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
@@ -62,6 +77,11 @@ export interface TextComponentProps extends ComponentProps {
   textColor?: string;
   fontStyle?: string;
   disableLink: boolean;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  borderColor?: Color;
+  borderWidth?: number;
 }
 
 class TextComponent extends React.Component<TextComponentProps> {
@@ -80,6 +100,11 @@ class TextComponent extends React.Component<TextComponentProps> {
       <TextContainer>
         <StyledText
           backgroundColor={backgroundColor}
+          borderColor={this.props.borderColor}
+          borderRadius={this.props.borderRadius}
+          borderWidth={this.props.borderWidth}
+          boxShadow={this.props.boxShadow}
+          boxShadowColor={this.props.boxShadowColor}
           className={this.props.isLoading ? "bp3-skeleton" : "bp3-ui-text"}
           ellipsize={ellipsize}
           fontSize={fontSize}

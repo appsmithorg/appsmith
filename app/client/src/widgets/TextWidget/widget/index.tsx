@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { pick } from "lodash";
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
@@ -11,6 +11,13 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadow,
+} from "components/constants";
+import { Color } from "constants/Colors";
+import { ContainerStyle } from "widgets/ContainerWidget/component";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -187,6 +194,61 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["SHARP", "ROUNDED"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
         ],
       },
     ];
@@ -194,28 +256,24 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <WidgetStyleContainer
-        {...pick(this.props, [
-          "widgetId",
-          "containerStyle",
-          "borderColor",
-          "borderWidth",
-        ])}
-      >
-        <TextComponent
-          backgroundColor={this.props.backgroundColor}
-          disableLink={this.props.disableLink || false}
-          fontSize={this.props.fontSize}
-          fontStyle={this.props.fontStyle}
-          isLoading={this.props.isLoading}
-          key={this.props.widgetId}
-          shouldScroll={this.props.shouldScroll}
-          text={this.props.text}
-          textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
-          textColor={this.props.textColor}
-          widgetId={this.props.widgetId}
-        />
-      </WidgetStyleContainer>
+      <TextComponent
+        backgroundColor={this.props.backgroundColor}
+        borderColor={this.props.borderColor}
+        borderRadius={this.props.borderRadius}
+        borderWidth={this.props.borderWidth}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
+        disableLink={this.props.disableLink || false}
+        fontSize={this.props.fontSize}
+        fontStyle={this.props.fontStyle}
+        isLoading={this.props.isLoading}
+        key={this.props.widgetId}
+        shouldScroll={this.props.shouldScroll}
+        text={this.props.text}
+        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+        textColor={this.props.textColor}
+        widgetId={this.props.widgetId}
+      />
     );
   }
 
@@ -238,14 +296,19 @@ export interface TextStyles {
   textAlign?: TextAlign;
 }
 
-export interface TextWidgetProps
-  extends WidgetProps,
-    TextStyles,
-    WidgetStyleContainerProps {
+export interface TextWidgetProps extends WidgetProps, TextStyles {
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;
   disableLink: boolean;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  widgetId: string;
+  containerStyle?: ContainerStyle;
+  children?: ReactNode;
+  borderColor?: Color;
+  borderWidth?: number;
+  borderRadius: ButtonBorderRadius;
 }
 
 export default TextWidget;

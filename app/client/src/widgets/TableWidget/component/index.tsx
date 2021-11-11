@@ -10,6 +10,7 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
+import { ButtonBorderRadius } from "components/constants";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -76,11 +77,13 @@ interface ReactTableComponentProps {
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
+  borderRadius: ButtonBorderRadius;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
   const {
     applyFilter,
+    borderRadius,
     columns,
     columnSizeMap,
     compactMode,
@@ -248,6 +251,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   return (
     <Table
       applyFilter={applyFilter}
+      borderRadius={borderRadius}
       columnSizeMap={columnSizeMap}
       columns={columns}
       compactMode={compactMode}

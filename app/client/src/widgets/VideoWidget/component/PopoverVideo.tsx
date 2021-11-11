@@ -22,8 +22,8 @@ const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
 `;
 
 const PlayerWrapper = styled.div`	import React, { Ref } from "react";
-  width: 600px;	
-  height: 400px;	
+  width: 600px;
+  height: 400px;
 `;
 
 function PopoverVideo(props: VideoComponentProps) {
@@ -54,7 +54,13 @@ function PopoverVideo(props: VideoComponentProps) {
       >
         <PlayIcon />
         <PlayerWrapper>
-          <VideoComponent url={props.url} />
+          <VideoComponent
+            backgroundColor={props.backgroundColor}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            boxShadowColor={props.boxShadowColor}
+            url={props.url}
+          />
         </PlayerWrapper>
       </Popover>
     </div>

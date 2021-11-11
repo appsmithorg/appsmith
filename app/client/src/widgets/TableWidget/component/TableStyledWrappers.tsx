@@ -3,6 +3,8 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import { ButtonBorderRadius } from "components/constants";
+import { getBorderRadiusValue } from "widgets/WidgetUtils";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -11,11 +13,13 @@ export const TableWrapper = styled.div<{
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
+  borderRadius: ButtonBorderRadius;
 }>`
   width: 100%;
   height: 100%;
   background: white;
   border: 1px solid ${Colors.GEYSER_LIGHT};
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -225,6 +229,7 @@ export const PaginationWrapper = styled.div`
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
+  borderRadius: ButtonBorderRadius;
 }>`
   background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
   border: 1px solid ${Colors.ALTO2};
@@ -237,6 +242,7 @@ export const PaginationItemWrapper = styled.div<{
   margin: 0 4px;
   pointer-events: ${(props) => props.disabled && "none"};
   cursor: pointer;
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
   &:hover {
     border-color: ${Colors.GREEN};
   }
@@ -435,7 +441,7 @@ export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
           &:hover {
             background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
             ${Colors.FERN_GREEN};
-          } 
+          }
             `
         : `
           border: 1px solid ${Colors.GREY_3};
