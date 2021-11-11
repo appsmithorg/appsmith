@@ -15,6 +15,7 @@ import {
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
   DEPLOY_KEY_TITLE,
   REMOTE_URL_INPUT_PLACEHOLDER,
+  CONNECTING_REPO,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -43,9 +44,21 @@ import { getLocalGitConfig } from "selectors/gitSyncSelectors";
 import { emailValidator } from "components/ads/TextInput";
 import { isEqual } from "lodash";
 import {
+  UPDATE_CONFIG,
+  CONNECT_BTN_LABEL,
+  PASTE_SSH_URL_INFO,
+  GENERATE_KEY,
+  COPIED_SSH_KEY,
+  INVALID_USER_DETAILS_MSG,
+} from "constants/messages";
+import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import ScrollIndicator from "components/ads/ScrollIndicator";
+import GitSyncError from "../components/GitError";
+import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -98,8 +111,9 @@ const Icon = styled.span<{
   }
 `;
 
-const DeployedKeyContainer = styled.div`
-  margin: 8px 0px;
+const DeployedKeyContainer = styled.div<{ $marginTop: number }>`
+  margin-top: ${(props) => `${props.theme.spaces[props.$marginTop]}px`};
+  margin-bottom: 8px;
   height: 50px;
   width: calc(100% - 30px);
   background-color: ${Colors.Gallery};
@@ -152,6 +166,15 @@ const LintText = styled.a`
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
 `;
 
 const TooltipWrapper = styled.div`
@@ -165,6 +188,18 @@ const RemoteUrlInfoWrapper = styled.div`
 `;
 
 const Section = styled.div``;
+const StatusbarWrapper = styled.div`
+  width: 252px;
+  height: 38px;
+`;
+
+const StickyMenuWrapper = styled.div`
+  position: sticky;
+  top: 0px;
+  height: fit-content;
+  z-index: 9999;
+  background: white;
+`;
 
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
@@ -179,7 +214,6 @@ function GitConnection({ isImport }: Props) {
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const [remoteUrl, setRemoteUrl] = useState(remoteUrlInStore);
-
   const isGitConnected = !!remoteUrlInStore;
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
@@ -247,11 +281,7 @@ function GitConnection({ isImport }: Props) {
     SSHKeyPair,
   } = useSSHKeyPair();
 
-  const {
-    connectToGit,
-    // failedConnectingToGit,
-    isConnectingToGit,
-  } = useGitConnect();
+  const { connectToGit, gitError, isConnectingToGit } = useGitConnect();
 
   const stopShowingCopiedAfterDelay = () => {
     timerRef.current = setTimeout(() => {
@@ -275,7 +305,7 @@ function GitConnection({ isImport }: Props) {
       stopShowingCopiedAfterDelay();
 
       Toaster.show({
-        text: "Copied SSH Key",
+        text: createMessage(COPIED_SSH_KEY),
         variant: Variant.success,
       });
     }
@@ -331,7 +361,7 @@ function GitConnection({ isImport }: Props) {
       }
     } else {
       Toaster.show({
-        text: "Please enter valid user details",
+        text: createMessage(INVALID_USER_DETAILS_MSG),
       });
     }
   }, [
@@ -406,11 +436,21 @@ function GitConnection({ isImport }: Props) {
     setUseGlobalConfig(!useGlobalConfig);
   }, [setUseGlobalConfig, useGlobalConfig]);
 
+  const scrollWrapperRef = React.createRef<HTMLDivElement>();
+  useEffect(() => {
+    if (gitError.message && scrollWrapperRef.current) {
+      const top = scrollWrapperRef.current.scrollHeight;
+      scrollWrapperRef.current?.scrollTo({ top: top, behavior: "smooth" });
+    }
+  }, [gitError]);
+
   return (
-    <Container>
+    <Container ref={scrollWrapperRef}>
       <Section>
-        <Title>{createMessage(CONNECT_TO_GIT)}</Title>
-        <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
+        <StickyMenuWrapper>
+          <Title>{createMessage(CONNECT_TO_GIT)}</Title>
+          <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
+        </StickyMenuWrapper>
         <UrlOptionContainer>
           <Text color={Colors.GREY_9} type={TextType.P1}>
             {createMessage(REMOTE_URL)}
@@ -422,9 +462,7 @@ function GitConnection({ isImport }: Props) {
               className="t--git-repo-input"
               disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
               errorMsg={
-                isInvalidRemoteUrl
-                  ? "Please paste SSH URL of your repository"
-                  : ""
+                isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
               }
               fill
               onChange={remoteUrlChangeHandler}
@@ -444,23 +482,23 @@ function GitConnection({ isImport }: Props) {
 
         {!SSHKeyPair ? (
           remoteUrl && (
-            <ButtonContainer topMargin={!isInvalidRemoteUrl ? 10 : 14}>
+            <ButtonContainer topMargin={10}>
               <Button
-                category={Category.secondary}
+                category={Category.primary}
                 className="t--submit-repo-url-button"
                 disabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => generateSSHKey()}
-                size={Size.medium}
+                size={Size.large}
                 tag="button"
-                text="Generate SSH Key"
+                text={createMessage(GENERATE_KEY)}
               />
             </ButtonContainer>
           )
         ) : (
           <>
             <FlexRow>
-              <DeployedKeyContainer>
+              <DeployedKeyContainer $marginTop={8}>
                 <FlexRow>
                   <Flex>
                     <KeySvg />
@@ -520,18 +558,41 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>
-            <Button
-              className="t--connect-submit-btn"
-              disabled={submitButtonDisabled}
-              isLoading={submitButtonIsLoading}
-              onClick={onSubmit}
-              size={Size.large}
-              tag="button"
-              text={isGitConnected ? "UPDATE CONFIG" : "CONNECT"}
+            {!gitError.message && isConnectingToGit && (
+              <StatusbarWrapper>
+                <Statusbar
+                  completed={!submitButtonIsLoading}
+                  message={createMessage(CONNECTING_REPO)}
+                  period={4}
+                />
+              </StatusbarWrapper>
+            )}
+            {!isConnectingToGit && (
+              <Button
+                category={
+                  isGitConnected ? Category.secondary : Category.primary
+                }
+                className="t--connect-submit-btn"
+                disabled={submitButtonDisabled}
+                isLoading={submitButtonIsLoading}
+                onClick={onSubmit}
+                size={Size.large}
+                tag="button"
+                text={
+                  isGitConnected
+                    ? createMessage(UPDATE_CONFIG)
+                    : createMessage(CONNECT_BTN_LABEL)
+                }
+              />
+            )}
+            <GitSyncError
+              error={gitError.message}
+              type={ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR}
             />
           </ButtonContainer>
         </>
       ) : null}
+      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="47px" />
     </Container>
   );
 }

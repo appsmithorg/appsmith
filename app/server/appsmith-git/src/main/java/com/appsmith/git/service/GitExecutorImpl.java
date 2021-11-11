@@ -2,6 +2,7 @@ package com.appsmith.git.service;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.Constraint;
@@ -22,6 +23,7 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -57,6 +59,8 @@ public class GitExecutorImpl implements GitExecutor {
     public static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
     private final Scheduler scheduler = Schedulers.elastic();
+
+    private static final String MERGE_STATUS_BRANCH = "_merge";
 
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
@@ -325,11 +329,10 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String remoteUrl, String privateKey, String publicKey) {
+    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String defaultBranch) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
-            TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
             List<Ref> refList;
             if (listMode == null) {
@@ -347,21 +350,15 @@ public class GitExecutorImpl implements GitExecutor {
                 gitBranchListDTO.setDefault(true);
                 branchList.add(gitBranchListDTO);
             } else {
-                // Get default branch name from the remote
-                String defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
-                GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
-                gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
-                gitBranchListDTO.setDefault(true);
-                branchList.add(gitBranchListDTO);
-
                 for(Ref ref : refList) {
-                    if(!ref.getName().equals(defaultBranch)) {
-                        gitBranchListDTO = new GitBranchListDTO();
-                        gitBranchListDTO.setBranchName(ref.getName()
-                                .replace("refs/heads/",""));
-                        gitBranchListDTO.setDefault(false);
-                        branchList.add(gitBranchListDTO);
+                    GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+                    gitBranchListDTO.setBranchName(ref.getName()
+                            .replace("refs/heads/",""));
+                    gitBranchListDTO.setDefault(false);
+                    if(gitBranchListDTO.getBranchName().equals(defaultBranch)) {
+                        gitBranchListDTO.setDefault(true);
                     }
+                    branchList.add(gitBranchListDTO);
                 }
             }
             git.close();
@@ -428,7 +425,6 @@ public class GitExecutorImpl implements GitExecutor {
                 git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
                 MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
-                git.close();
                 return mergeResult.getMergeStatus().name();
             } catch (GitAPIException e) {
                 //On merge conflicts abort the merge => git merge --abort
@@ -462,5 +458,62 @@ public class GitExecutorImpl implements GitExecutor {
 
     private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
         return Mono.fromCallable(() -> git.reset().setMode(ResetCommand.ResetType.HARD).call()).subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<MergeStatus> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
+        return Mono.fromCallable(() -> {
+            log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
+
+            Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+            //checkout the branch on which the merge command is run
+            git.checkout().setName(destinationBranch).setCreateBranch(false).call();
+
+            MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).setCommit(false).call();
+
+            //On merge conflicts abort the merge => git merge --abort
+            git.getRepository().writeMergeCommitMsg(null);
+            git.getRepository().writeMergeHeads(null);
+            Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
+            git.close();
+
+            MergeStatus mergeStatus = new MergeStatus();
+            if(mergeResult.getMergeStatus().isSuccessful()) {
+                mergeStatus.setMerge(true);
+            } else {
+                //If there aer conflicts add the conflicting file names to the response structure
+                mergeStatus.setMerge(false);
+                List<String> mergeConflictFiles = new ArrayList<>();
+                mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                mergeStatus.setConflictingFiles(mergeConflictFiles);
+            }
+            return mergeStatus;
+        }).subscribeOn(scheduler);
+    }
+
+
+    public Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName) {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+        return Mono.fromCallable(() -> {
+            log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/" + branchName + " for the repo " + repoSuffix);
+            // open the repo
+            Path baseRepoPath = createRepoPath(repoSuffix);
+            Git git = Git.open(baseRepoPath.toFile());
+            // Create and checkout to new branch
+            git.checkout()
+                    .setCreateBranch(Boolean.TRUE)
+                    .setName(branchName)
+                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                    .setStartPoint("origin/"+branchName)
+                    .call();
+
+            StoredConfig config = git.getRepository().getConfig();
+            config.setString("branch", branchName, "remote", "origin");
+            config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
+            config.save();
+            git.close();
+            return git.getRepository().getBranch();
+        }).subscribeOn(scheduler);
     }
 }

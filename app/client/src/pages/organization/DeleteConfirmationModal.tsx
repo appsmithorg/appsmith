@@ -9,6 +9,7 @@ import {
 } from "constants/messages";
 import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_BODY} {
@@ -16,8 +17,8 @@ const StyledDialog = styled(Dialog)`
   }
 `;
 
-const CenteredContainer = styled.div`
-  text-align: center;
+const LeftContainer = styled.div`
+  text-align: left;
 `;
 
 const ImportButton = styled(Button)<{ disabled?: boolean }>`
@@ -28,7 +29,7 @@ const ImportButton = styled(Button)<{ disabled?: boolean }>`
 
 const ButtonWrapper = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: end;
   margin-top: 20px;
 
   & > a {
@@ -52,12 +53,17 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
     <StyledDialog
       canOutsideClickClose
       className={"t--member-delete-confirmation-modal"}
+      headerIcon={{
+        name: "delete",
+        fillColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
+      }}
       isOpen={isOpen}
       maxHeight={"540px"}
       setModalClose={onClose}
       title={DELETE_CONFIRMATION_MODAL_TITLE()}
     >
-      <CenteredContainer>
+      <LeftContainer>
         <Text textAlign="center" type={TextType.P1}>
           {DELETE_CONFIRMATION_MODAL_SUBTITLE(name || username)}
         </Text>
@@ -80,7 +86,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
             variant={Variant.danger}
           />
         </ButtonWrapper>
-      </CenteredContainer>
+      </LeftContainer>
     </StyledDialog>
   );
 }

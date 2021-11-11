@@ -27,6 +27,7 @@ const initialState: GitSyncReducerState = {
   `,
   isImportAppViaGitModalOpen: false,
   isFetchingGitStatus: false,
+  isFetchingMergeStatus: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
   branches: [],
   fetchingBranches: false,
@@ -67,6 +68,12 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isCommitting: false,
+  }),
+  [ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isCommitSuccessful: false,
   }),
   [ReduxActionTypes.PUSH_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
     ...state,
@@ -233,9 +240,28 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isDisconnectingGit: false,
   }),
+  [ReduxActionTypes.FETCH_MERGE_STATUS_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isFetchingMergeStatus: true,
+  }),
+  [ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<unknown>,
+  ) => ({
+    ...state,
+    mergeStatus: action.payload,
+    isFetchingMergeStatus: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingMergeStatus: false,
+  }),
 });
 
 export type GitStatusData = {
+  // This is outdated, update according to updated API response.
   conflicting: Array<string>;
   uncommitted: Array<string>;
   isClean: boolean;
@@ -261,10 +287,11 @@ export type GitSyncReducerState = {
 
   isDisconnectingGit: boolean;
 
-  branches: string[];
+  branches: Array<{ branchName: string; default: boolean }>;
   fetchingBranches: boolean;
   isFetchingLocalGitConfig?: boolean;
   isFetchingGitStatus: boolean;
+  isFetchingMergeStatus: boolean;
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
 };

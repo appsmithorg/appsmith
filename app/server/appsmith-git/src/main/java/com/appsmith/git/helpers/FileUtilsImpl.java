@@ -275,7 +275,7 @@ public class FileUtilsImpl implements FileInterface {
         String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
 
         File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
-        FileUtils.writeStringToFile(file, data, "UTF-8", false);
+        FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
         return Mono.just(baseRepoSuffix);
     }
