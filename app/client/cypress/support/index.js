@@ -16,7 +16,6 @@ require("cypress-xpath");
 let pageid;
 let appId;
 
-import { request } from "http";
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
