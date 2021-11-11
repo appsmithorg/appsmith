@@ -95,6 +95,14 @@ describe("Table Widget property pane feature validation", function() {
         force: true,
       });
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-add").should("exist");
+
+    // disabled icon btn
+    cy.CheckWidgetProperties(commonlocators.disableCheckbox);
+    cy.getTableDataSelector("0", "4").then((selector) => {
+      cy.get(selector + " button.bp3-disabled").should("exist");
+    });
+    cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
+
     //Delete Column
     cy.get(".t--property-pane-back-btn").click({
       force: true,

@@ -47,6 +47,7 @@ export const ExplorerJSCollectionGroup = memo(
         disabled={!props.jsActions && !!props.searchKeyword}
         entityId={props.pageId + "_jsAction"}
         icon={jsIcon}
+        isBeta
         isDefaultExpanded
         key={props.pageId + "_jsAction"}
         name="JS Objects"
