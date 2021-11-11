@@ -162,12 +162,14 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Mono<Application> createDefault(Application application) {
         application.setSlug(TextUtils.makeSlug(application.getName()));
+        application.setLastEditedAt(Instant.now());
         return super.create(application);
     }
 
     @Override
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
+        application.setLastEditedAt(Instant.now());
         if(!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
@@ -459,6 +461,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         Application application = new Application();
         // need to set isPublic=null because it has a `false` as it's default value in domain class
         application.setIsPublic(null);
+        application.setLastEditedAt(Instant.now());
         /*
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
