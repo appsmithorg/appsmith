@@ -5,6 +5,7 @@ import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "./applicationSelectors";
+import { Branch } from "entities/GitSync";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -75,6 +76,12 @@ export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
 
 export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
   branches.map((branchObj) => branchObj.branchName),
+);
+
+export const getDefaultGitBranchName = createSelector(
+  getGitBranches,
+  (branches: Array<Branch>) =>
+    branches.find((branchObj) => branchObj.default)?.branchName,
 );
 
 export const getFetchingBranches = (state: AppState) =>
