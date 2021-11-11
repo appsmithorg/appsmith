@@ -34,6 +34,7 @@ import {
   getIsOnboardingWidgetSelection,
 } from "selectors/entitiesSelector";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import Guide from "./GuidedTour/Guide";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -161,6 +162,7 @@ function WidgetsEditor() {
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
         >
+          <Guide />
           <MainContainerLayoutControl />
           <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
             {node}
