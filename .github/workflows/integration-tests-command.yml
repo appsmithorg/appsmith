@@ -108,6 +108,19 @@ jobs:
 
       - name: Figure out the PR number
         run: echo ${{ github.event.client_payload.pull_request.number }}
+        
+       ###  This workflow creates and comments with PR number and githubusername back to the commit   
+         
+      - name: Comment username and PR Number
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            [1]: https://github.com/peter-evans/create-or-update-comment
+            SHA:  ${{ github.sha }}
+            Github Username:  ${{ github.actor }}
+            PR Number: ${{ github.event.client_payload.pull_request.number }}
+            reactions: hooray
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
