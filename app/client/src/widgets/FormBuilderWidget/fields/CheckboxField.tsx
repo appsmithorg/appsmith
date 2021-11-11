@@ -4,7 +4,7 @@ import { pick } from "lodash";
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import Field from "widgets/FormBuilderWidget/component/Field";
 import { AlignWidget } from "widgets/constants";
-import { BaseFieldComponentProps, FieldComponentBaseProps } from "./types";
+import { FieldComponentBaseProps, BaseFieldComponentProps } from "../constants";
 
 type CheckboxComponentProps = FieldComponentBaseProps & {
   alignWidget: AlignWidget;

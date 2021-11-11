@@ -6,8 +6,8 @@ import {
   SwitchComponent,
   SwitchComponentProps,
 } from "widgets/SwitchWidget/component";
-import { BaseFieldComponentProps } from "./types";
 import { CONFIG } from "widgets/SwitchWidget";
+import { BaseFieldComponentProps } from "../constants";
 
 const COMPONENT_DEFAULT_VALUES = pick(CONFIG.defaults, ["isDisabled"]);
 

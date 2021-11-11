@@ -43,12 +43,12 @@ export const hiddenIfArrayItemIsObject = (
   );
 };
 
-export const getSchemaItem = (
+export const getSchemaItem = <TSchemaItem extends SchemaItem>(
   props: FormBuilderWidgetProps,
   propertyPath: string,
 ) => {
   const parentPropertyPath = getParentPropertyPath(propertyPath);
-  const schemaItem = get(props, parentPropertyPath, {}) as SchemaItem;
+  const schemaItem: TSchemaItem = get(props, parentPropertyPath, {});
 
   const fieldTypeMatches = (fieldType: FieldType) =>
     fieldType === schemaItem.fieldType;

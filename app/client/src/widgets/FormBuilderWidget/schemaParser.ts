@@ -187,16 +187,17 @@ class SchemaParser {
     }
 
     return {
-      ...FieldComponent.componentDefaultValues,
       children,
       dataType,
       fieldType,
       formData: currFormData,
       isCustomField,
+      isDisabled: false,
       isVisible: true,
       label,
       name,
       position: -1,
+      ...FieldComponent.componentDefaultValues,
     };
   };
 

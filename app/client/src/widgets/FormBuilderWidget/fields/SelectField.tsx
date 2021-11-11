@@ -6,9 +6,9 @@ import Field from "widgets/FormBuilderWidget/component/Field";
 import DropDownComponent, {
   DropDownComponentProps,
 } from "widgets/DropdownWidget/component";
-import { BaseFieldComponentProps } from "./types";
 import { CONFIG } from "widgets/DropdownWidget";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
+import { BaseFieldComponentProps } from "../constants";
 
 const COMPONENT_DEFAULT_VALUES = pick(CONFIG.defaults, [
   "serverSideFiltering",

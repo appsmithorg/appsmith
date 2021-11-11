@@ -5,7 +5,6 @@ import { pick } from "lodash";
 import Field from "widgets/FormBuilderWidget/component/Field";
 import FormContext from "../FormContext";
 import InputComponent from "widgets/InputWidget/component";
-import { FieldComponentBaseProps, BaseFieldComponentProps } from "./types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import {
@@ -13,7 +12,12 @@ import {
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
 } from "constants/messages";
-import { INPUT_FIELD_TYPE, INPUT_TYPES } from "../constants";
+import {
+  BaseFieldComponentProps,
+  FieldComponentBaseProps,
+  INPUT_FIELD_TYPE,
+  INPUT_TYPES,
+} from "../constants";
 
 type InputComponentProps = FieldComponentBaseProps & {
   allowCurrencyChange?: boolean;
@@ -40,6 +44,7 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isDisabled: false,
   label: "",
   validation: false,
+  isVisible: true,
 };
 
 function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {

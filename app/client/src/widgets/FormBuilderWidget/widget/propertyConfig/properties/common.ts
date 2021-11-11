@@ -1,24 +1,15 @@
-import { isEmpty } from "lodash";
-
-import { PanelConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
   FieldType,
   FIELD_EXPECTING_OPTIONS,
 } from "widgets/FormBuilderWidget/constants";
 import {
   fieldTypeUpdateHook,
-  getSchemaItem,
   HiddenFnParams,
+  getSchemaItem,
   hiddenIfArrayItemIsObject,
-} from "./helper";
-import {
-  CHECKBOX_PROPERTIES,
-  DATE_PROPERTIES,
-  INPUT_PROPERTIES,
-  RADIO_GROUP_PROPERTIES,
-} from "./properties";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+} from "../helper";
 
 const COMMON_PROPERTIES = {
   fieldType: [
@@ -217,61 +208,4 @@ const COMMON_PROPERTIES = {
   ],
 };
 
-function generatePanelPropertyConfig(
-  nestingLevel: number,
-): PanelConfig | undefined {
-  if (nestingLevel === 0) return;
-
-  return {
-    editableTitle: true,
-    titlePropertyName: "label",
-    panelIdPropertyName: "name",
-    children: [
-      {
-        sectionName: "General",
-        children: [
-          ...COMMON_PROPERTIES.fieldType,
-          ...COMMON_PROPERTIES.options,
-          ...INPUT_PROPERTIES.general,
-          ...CHECKBOX_PROPERTIES.general,
-          ...DATE_PROPERTIES.general,
-          ...RADIO_GROUP_PROPERTIES.general,
-          ...COMMON_PROPERTIES.accessibility,
-          {
-            propertyName: "children",
-            label: "Field Configuration",
-            controlType: "FIELD_CONFIGURATION",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            panelConfig: generatePanelPropertyConfig(nestingLevel - 1),
-            hidden: (...args: HiddenFnParams) => {
-              return getSchemaItem(...args).then((schemaItem) => {
-                return (
-                  schemaItem.fieldType !== FieldType.OBJECT &&
-                  isEmpty(schemaItem.children)
-                );
-              });
-            },
-            dependencies: ["schema"],
-          },
-        ],
-      },
-      {
-        sectionName: "Label Styles",
-        children: [...COMMON_PROPERTIES.labelStyles],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          ...INPUT_PROPERTIES.actions,
-          ...CHECKBOX_PROPERTIES.actions,
-          ...DATE_PROPERTIES.actions,
-          ...RADIO_GROUP_PROPERTIES.actions,
-          ...COMMON_PROPERTIES.actions,
-        ],
-      },
-    ],
-  } as PanelConfig;
-}
-
-export default generatePanelPropertyConfig;
+export default COMMON_PROPERTIES;

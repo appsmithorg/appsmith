@@ -7,11 +7,11 @@ import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
 import {
   ARRAY_ITEM_KEY,
+  BaseFieldComponentProps,
   FIELD_PADDING_X,
   FIELD_PADDING_Y,
   FIELD_TYPE_TO_POTENTIAL_DATA,
 } from "../constants";
-import { BaseFieldComponentProps } from "./types";
 
 type ArrayComponentOwnProps = {
   isDisabled?: boolean;

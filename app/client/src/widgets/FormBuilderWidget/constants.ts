@@ -1,5 +1,6 @@
+import { ControllerRenderProps } from "react-hook-form/dist/types/controller";
+
 import { InputType } from "widgets/InputWidget/constants";
-import { BaseFieldComponentProps } from "./fields/types";
 import {
   ArrayField,
   CheckboxField,
@@ -11,6 +12,7 @@ import {
   SelectField,
   SwitchField,
 } from "./fields";
+import { TextSize } from "constants/WidgetConstants";
 
 export enum FieldType {
   ARRAY = "Array",
@@ -42,17 +44,33 @@ export enum DataType {
   FUNCTION = "function",
 }
 
-export type SchemaItem = {
+export type FieldComponentBaseProps = {
+  defaultValue?: string | number;
+  isDisabled: boolean;
+  isRequired?: boolean;
+  isVisible: boolean;
+  label: string;
+  labelStyle?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  tooltip?: string;
+};
+
+export type BaseFieldComponentProps<TProps = any> = {
+  hideLabel?: boolean;
+  name: ControllerRenderProps["name"];
+  propertyPath: string;
+  schemaItem: SchemaItem & TProps;
+};
+
+export type SchemaItem = FieldComponentBaseProps & {
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
   formData: any;
   isCustomField: boolean;
-  isVisible: boolean;
-  label: string;
   name: string;
   position: number;
-  tooltip?: string;
 };
 
 // This defines a react component with componentDefaultValues property attached to it.

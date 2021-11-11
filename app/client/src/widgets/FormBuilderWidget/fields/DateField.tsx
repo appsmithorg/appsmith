@@ -3,7 +3,7 @@ import { pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
 import DateComponent from "widgets/DatePickerWidget2/component";
-import { BaseFieldComponentProps, FieldComponentBaseProps } from "./types";
+import { FieldComponentBaseProps, BaseFieldComponentProps } from "../constants";
 
 type DateComponentProps = FieldComponentBaseProps & {
   dateFormat: string;
@@ -22,6 +22,7 @@ const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
   maxDate: "2121-12-31T18:29:00.000Z",
   minDate: "1920-12-31T18:30:00.000Z",
   shortcuts: false,
+  isVisible: true,
 };
 
 type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;

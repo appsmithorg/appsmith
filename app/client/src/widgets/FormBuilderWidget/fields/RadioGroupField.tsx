@@ -1,26 +1,42 @@
 import React from "react";
+import { pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
-import { BaseFieldComponentProps } from "./types";
 import { RadioOption } from "widgets/RadioGroupWidget/constants";
+import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 
-type RadioGroupComponentOwnProps = {
+type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
-  isDisabled: false;
+  onSelectionChange?: string;
 };
 
-type RadioGroupFieldProps = BaseFieldComponentProps<
-  RadioGroupComponentOwnProps
+export type RadioGroupFieldProps = BaseFieldComponentProps<
+  RadioGroupComponentProps
 >;
 
+const COMPONENT_DEFAULT_VALUES: RadioGroupComponentProps = {
+  isDisabled: false,
+  label: "",
+  isVisible: true,
+  options: [
+    { label: "Yes", value: "Y" },
+    { label: "No", value: "N" },
+  ],
+};
+
 function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
+  const labelStyles = pick(schemaItem, [
+    "labelStyle",
+    "labelTextColor",
+    "labelTextSize",
+  ]);
+
   return (
-    // eslint-disable-next-line
-    // @ts-ignore
     <Field
       {...rest}
       label={schemaItem.label}
+      labelStyles={labelStyles}
       name={name}
       render={({ field: { onChange, value } }) => (
         <RadioGroupComponent
@@ -36,8 +52,6 @@ function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
   );
 }
 
-RadioGroupField.componentDefaultValues = {
-  isDisabled: false,
-};
+RadioGroupField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default RadioGroupField;
