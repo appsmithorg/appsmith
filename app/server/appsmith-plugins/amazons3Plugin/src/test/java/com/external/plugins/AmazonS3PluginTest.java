@@ -390,7 +390,7 @@ public class AmazonS3PluginTest {
     /*
      * - This method tests the create file program flow till the point where an actual call is made by the AmazonS3
      *   connection to upload a file.
-     * - If this test fails, the point of failure is expected to be the logic for smart substitution
+     * - If this test fails, the point of failure is expected to be the logic for smart substitution 
      * - If everything goes well, then only expected exception is the one thrown by AmazonS3 connection
      *   regarding false credentials.
      */
