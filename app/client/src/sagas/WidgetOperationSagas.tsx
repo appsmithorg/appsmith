@@ -707,7 +707,6 @@ export function calculateNewWidgetPosition(
  */
 function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
-  if (!copiedWidgetGroups.length) return;
   const shouldGroup: boolean = action.payload.groupWidgets;
 
   const newlyCreatedWidgetIds: string[] = [];
