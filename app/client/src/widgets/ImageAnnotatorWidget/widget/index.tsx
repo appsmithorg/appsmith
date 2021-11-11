@@ -48,36 +48,6 @@ class ImageAnnotatorWidget extends BaseWidget<
             },
           },
           {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isAnnotationDisabled",
-            helpText: "Set to true to disable creating of annotations",
-            label: "Disable Annotation",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
             propertyName: "defaultAnnotations",
             helpText: "Array of annotations",
             label: "Default Annotations",
@@ -218,6 +188,26 @@ class ImageAnnotatorWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isAnnotationDisabled",
+            helpText: "Set to true to disable creating of annotations",
+            label: "Disable",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "selector",
             helpText: "Sets the selector of the widget",
             label: "Selector",
@@ -325,7 +315,6 @@ class ImageAnnotatorWidget extends BaseWidget<
       imageAltText,
       imageUrl,
       isAnnotationDisabled,
-      isDisabled,
       selector,
     } = this.props;
 
@@ -334,7 +323,6 @@ class ImageAnnotatorWidget extends BaseWidget<
         <ImageAnnotatorComponent
           annotation={annotation}
           annotations={annotations}
-          disabled={isDisabled}
           imageAltText={imageAltText}
           imageUrl={imageUrl}
           isAnnotationDisabled={isAnnotationDisabled}
@@ -358,7 +346,6 @@ export interface ImageAnnotatorWidgetProps extends WidgetProps {
   imageAltText?: string;
   imageUrl: string;
   isAnnotationDisabled?: boolean;
-  isDisabled: boolean;
   isVisible: boolean;
   onAnnotationSubmit?: string;
   selector: AnnotationSelector;

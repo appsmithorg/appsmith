@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Annotation, IAnnotation } from "react-image-annotation-ts";
 import { AnnotationSelector } from "../constants";
@@ -15,22 +15,10 @@ const ImageAnnotatorContainer = styled.div`
   }
 `;
 
-const DisabledOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 2 !important;
-  opacity: 0.5;
-  background: grey;
-`;
-
 function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
   const {
     annotation,
     annotations,
-    disabled,
     imageAltText,
     imageUrl,
     isAnnotationDisabled,
@@ -50,29 +38,15 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
     onReset();
   }, [imageUrl]);
 
-  const handleChange = useCallback(
-    (annotation: IAnnotation) => {
-      onChange(annotation);
-    },
-    [onChange],
-  );
-
-  const handleSubmit = useCallback(
-    (annotation: IAnnotation) => {
-      onSubmit(annotation);
-    },
-    [onSubmit],
-  );
-
   return (
     <ImageAnnotatorContainer>
-      {disabled && <DisabledOverlay />}
       <Annotation
         alt={imageAltText}
         annotations={annotations}
         disableAnnotation={isAnnotationDisabled}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
+        disableOverlay={isAnnotationDisabled}
+        onChange={onChange}
+        onSubmit={onSubmit}
         src={imageUrl}
         type={selector}
         value={annotation}
@@ -84,7 +58,6 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
 export interface ImageAnnotatorComponentProps {
   annotation: IAnnotation;
   annotations: IAnnotation[];
-  disabled: boolean;
   imageAltText?: string;
   imageUrl: string;
   isAnnotationDisabled?: boolean;

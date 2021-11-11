@@ -14,7 +14,6 @@ export const CONFIG = {
     rows: 9 * GRID_DENSITY_MIGRATION_V1,
     columns: 7 * GRID_DENSITY_MIGRATION_V1,
     imageUrl: "https://placekitten.com/408/287",
-    isDisabled: false,
     isVisible: true,
     defaultAnnotations: [],
     selector: AnnotationSelectorTypes.RECTANGLE,
