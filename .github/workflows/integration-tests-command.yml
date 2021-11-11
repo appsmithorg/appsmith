@@ -108,6 +108,17 @@ jobs:
 
       - name: Figure out the PR number
         run: echo ${{ github.event.client_payload.pull_request.number }}
+        
+      # This step creates a comment on the PR with a link to this workflow run.
+      - name: Add a comment on the PR with link to workflow run
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.client_payload.pull_request.number }}
+          body: |
+            Tests running at: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
+            Workflow: `${{ github.workflow }}`.
+            Commit: `${{ github.sha }}`.
+            PR: ${{ github.event.client_payload.pull_request.number }}.
 
       - name: Use Node.js 14.15.4
         uses: actions/setup-node@v1
