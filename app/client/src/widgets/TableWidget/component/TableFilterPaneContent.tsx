@@ -185,7 +185,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
         <div className="message-text">
           {createMessage(TABLE_FILTER_COLUMN_TYPE_CALLOUT)}
         </div>
-        <div className="close-button" onClick={hideFilter}>
+        <div className="close-button t--close-filter-btn" onClick={hideFilter}>
           <Icon fillColor={Colors.GREY_6} name="close-x" size={IconSize.XXL} />
         </div>
       </ColumnTypeBindingMessage>
@@ -239,7 +239,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
             />
             <ButtonActionsWrapper>
               <Button
-                className="t--close-filter-btn"
+                className="t--clear-all-filter-btn"
                 intent="primary"
                 onClick={clearFilters}
                 outline
