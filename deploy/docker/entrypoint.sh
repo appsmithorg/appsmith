@@ -121,7 +121,7 @@ fi
 
 # Main Section
 init_mongodb
-mount_letsencrypt_folder
+mount_letsencrypt_directory
 configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
