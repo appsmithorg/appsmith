@@ -3804,4 +3804,54 @@ public class DatabaseChangelog {
             }
         }
     }
+  
+    /**
+     * Updates all existing S3 actions to modify the body parameter.
+     * Earlier, the body used to be a base64 encoded or a blob of file data.
+     * With this migration, the structure is expected to follow the
+     * {@link com.appsmith.external.dtos.MultipartFormDataDTO} format
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "096", id = "update-s3-action-configuration-for-type", author = "")
+    public void updateS3ActionConfigurationBodyForContentTypeSupport(MongockTemplate mongockTemplate) {
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        // Find all S3 actions
+        List<NewAction> s3Actions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction s3Action : s3Actions) {
+            ActionDTO unpublishedAction = s3Action.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            final String oldUnpublishedBody = unpublishedAction.getActionConfiguration().getBody();
+            final String newUnpublishedBody = "{\n\t\"data\": \"" + oldUnpublishedBody + "\"\n}";
+            unpublishedAction.getActionConfiguration().setBody(newUnpublishedBody);
+
+            ActionDTO publishedAction = s3Action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                final String oldPublishedBody = publishedAction.getActionConfiguration().getBody();
+                final String newPublishedBody = "{\n\t\"data\": \"" + oldPublishedBody + "\"\n}";
+                publishedAction.getActionConfiguration().setBody(newPublishedBody);
+            }
+            actionsToSave.add(s3Action);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction s3Action : actionsToSave) {
+            mongockTemplate.save(s3Action);
+        }
+    }
 }

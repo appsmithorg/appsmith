@@ -996,7 +996,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
   });
   cy.get(apiwidget.apiTxt).blur();
 });
@@ -1081,7 +1081,7 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
   });
 });
 

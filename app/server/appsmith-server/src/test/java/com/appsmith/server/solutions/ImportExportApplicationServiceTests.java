@@ -225,6 +225,7 @@ public class ImportExportApplicationServiceTests {
                     Application exportedApplication = applicationJson.getExportedApplication();
                     assertThat(exportedApplication.getModifiedBy()).isNull();
                     assertThat(exportedApplication.getLastUpdateTime()).isNull();
+                    assertThat(exportedApplication.getLastEditedAt()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                 })
