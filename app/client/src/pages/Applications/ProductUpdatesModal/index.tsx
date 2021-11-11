@@ -94,12 +94,14 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
       <Footer>
         <Button
           category={Category.tertiary}
+          data-cy="t--product-updates-close-btn"
           onClick={onClose}
           size={Size.large}
           text="CANCEL"
         />
         <Button
           category={Category.primary}
+          data-cy="t--product-updates-ok-btn"
           onClick={onClose}
           size={Size.large}
           text="OK, THANKS"
