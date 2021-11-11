@@ -75,6 +75,7 @@ interface AssignmentPatternNode extends Node {
 interface LiteralNode extends Node {
   type: NodeTypes.Literal;
   value: string | boolean | null | number | RegExp;
+  raw: any;
 }
 
 /* We need these functions to typescript casts the nodes with the correct types */
@@ -146,12 +147,16 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       let candidateTopLevelNode:
         | IdentifierNode
         | MemberExpressionNode = node as IdentifierNode;
+      if (candidateTopLevelNode.name === "SetTaskAsDone") {
+        console.log(code);
+        // debugger;
+      }
       let depth = ancestors.length - 1;
       while (depth > 0) {
         const parent = ancestors[depth - 1];
         if (
           isMemberExpressionNode(parent) &&
-          // We will ignore member expressions that are "computed" (with index [ ]  search)
+          // We will ignore member expressions that are "computed" (with index/string [ ]  search)
           // and the ones that have optional chaining ( a.b?.c ).
           // We will stop looking for further parents and consider this node to be top level
           !parent.computed &&
@@ -160,6 +165,15 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
           candidateTopLevelNode = parent;
           depth = depth - 1;
         } else {
+          // Prioritize as top level - If the node is an array accessor array[index]
+          if (
+            isMemberExpressionNode(parent) &&
+            parent.computed &&
+            isLiteralNode(parent.property) &&
+            !isNaN(parent.property.raw)
+          ) {
+            candidateTopLevelNode = parent;
+          }
           // Top level found
           break;
         }
@@ -211,25 +225,22 @@ const constructFinalMemberExpIdentifier = (
   node: MemberExpressionNode,
   child = "",
 ): string => {
+  const propertyAccessor = getPropertyAccessor(node.property);
   if (isIdentifierNode(node.object)) {
-    const propertyName = getPropertyName(node);
-    return `${node.object.name}.${propertyName}${child ? "." + child : ""}`;
+    return `${node.object.name}${propertyAccessor}${child}`;
   } else {
-    const propertyName = getPropertyName(node);
-    const nestedChild = `${propertyName}${child ? "." + child : ""}`;
+    const propertyAccessor = getPropertyAccessor(node.property);
+    const nestedChild = `${propertyAccessor}${child}`;
     return constructFinalMemberExpIdentifier(node.object, nestedChild);
   }
 };
 
-const getPropertyName = (node: MemberExpressionNode) => {
-  let propertyName = "";
-  if (isIdentifierNode(node.property)) {
-    propertyName = node.property.name;
+const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
+  if (isIdentifierNode(propertyNode)) {
+    return `.${propertyNode.name}`;
+  } else if (isLiteralNode(propertyNode) && isString(propertyNode.value)) {
+    return `.${propertyNode.value}`;
+  } else if (isLiteralNode(propertyNode) && !isNaN(propertyNode.raw)) {
+    return `[${propertyNode.raw}]`;
   }
-  if (isLiteralNode(node.property)) {
-    if (isString(node.property.value)) {
-      propertyName = node.property.value;
-    }
-  }
-  return propertyName;
 };

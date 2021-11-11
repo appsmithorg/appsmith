@@ -58,7 +58,7 @@ describe("getAllIdentifiers", () => {
       {
         // Index literal array search
         script: "Table7.data[4]",
-        expectedResults: ["Table7.data"],
+        expectedResults: ["Table7.data[4]"],
       },
       {
         // Index identifier search
