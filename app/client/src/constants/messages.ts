@@ -600,6 +600,10 @@ export const READ_DOCUMENTATION = () => "Read documentation";
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
 export const SYNC_BRANCHES = () => "Sync branches";
 
+export const CONFLICTS_FOUND = () =>
+  "Conflicts found, please resolve them and pull again";
+export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
+
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and insert code snippets to perform complex actions quickly.`;

@@ -21,6 +21,7 @@ import {
   fetchLocalGitConfigInit,
   switchGitBranchInit,
   updateBranchLocally,
+  gitPullSuccess,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -384,6 +385,22 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
   }
 }
 
+function* gitPullSaga() {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response = yield call(GitSyncAPI.pull, { applicationId });
+    const isValidResponse: boolean = yield validateResponse(response, false);
+    if (isValidResponse) {
+      yield put(gitPullSuccess());
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_PULL_ERROR,
+      payload: { error: e, logToSentry: true, show: false },
+    });
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -416,5 +433,6 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.FETCH_GIT_STATUS_INIT, fetchGitStatusSaga),
     takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
     takeLatest(ReduxActionTypes.FETCH_MERGE_STATUS_INIT, fetchMergeStatusSaga),
+    takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
   ]);
 }

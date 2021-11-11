@@ -14,6 +14,8 @@ import {
   PULL,
   MERGE,
   CONNECT_GIT,
+  UNCOMMITTED_CHANGES,
+  CONFLICTS_FOUND,
   createMessage,
 } from "constants/messages";
 import { noop } from "lodash";
@@ -24,10 +26,10 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import { getGitStatus, getIsGitConnected } from "selectors/gitSyncSelectors";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -87,8 +89,23 @@ function QuickActionButton({
   );
 }
 
+const getPullBtnStatus = (gitStatus: any) => {
+  const { behindCount, conflicting = [], isClean } = gitStatus || {};
+  let message = createMessage(PULL);
+  let disabled = true;
+  if (conflicting.length > 0) message = createMessage(CONFLICTS_FOUND);
+  else if (!isClean) message = createMessage(UNCOMMITTED_CHANGES);
+  else if (behindCount > 0) disabled = false;
+
+  return {
+    disabled,
+    message,
+  };
+};
+
 const getQuickActionButtons = ({
   commit,
+  gitStatus,
   merge,
   pull,
   push,
@@ -97,28 +114,37 @@ const getQuickActionButtons = ({
   push: () => void;
   pull: () => void;
   merge: () => void;
-}) => [
-  {
-    icon: <Plus />,
-    onClick: commit,
-    tooltipText: createMessage(COMMIT),
-  },
-  {
-    icon: <UpArrow />,
-    onClick: push,
-    tooltipText: createMessage(PUSH),
-  },
-  {
-    icon: <DownArrow />,
-    onClick: pull,
-    tooltipText: createMessage(PULL),
-  },
-  {
-    icon: <GitBranch />,
-    onClick: merge,
-    tooltipText: createMessage(MERGE),
-  },
-];
+  gitStatus: any;
+}) => {
+  const {
+    disabled: pullDisabled,
+    message: pullTooltipMessage,
+  } = getPullBtnStatus(gitStatus);
+
+  return [
+    {
+      icon: <Plus />,
+      onClick: commit,
+      tooltipText: createMessage(COMMIT),
+    },
+    {
+      icon: <UpArrow />,
+      onClick: push,
+      tooltipText: createMessage(PUSH),
+    },
+    {
+      count: gitStatus?.behindCount,
+      icon: <DownArrow />,
+      onClick: () => !pullDisabled && pull(),
+      tooltipText: pullTooltipMessage,
+    },
+    {
+      icon: <GitBranch />,
+      onClick: merge,
+      tooltipText: createMessage(MERGE),
+    },
+  ];
+};
 
 const Container = styled.div`
   height: 100%;
@@ -184,6 +210,7 @@ function ConnectGitPlaceholder() {
 export default function QuickGitActions() {
   const isGitConnected = useSelector(getIsGitConnected);
   const dispatch = useDispatch();
+  const gitStatus = useSelector(getGitStatus);
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
@@ -195,7 +222,7 @@ export default function QuickGitActions() {
       );
     },
     push: noop,
-    pull: noop,
+    pull: () => dispatch(gitPullInit()),
     merge: () => {
       dispatch(
         setIsGitSyncModalOpen({
@@ -204,12 +231,13 @@ export default function QuickGitActions() {
         }),
       );
     },
+    gitStatus,
   });
   return getFeatureFlags().GIT && isGitConnected ? (
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (
-        <QuickActionButton key={button.tooltipText} {...button} count={0} />
+        <QuickActionButton key={button.tooltipText} {...button} />
       ))}
     </Container>
   ) : (

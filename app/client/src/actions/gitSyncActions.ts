@@ -212,3 +212,11 @@ export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
 export const fetchMergeStatusFailure = () => ({
   type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
 });
+
+export const gitPullInit = () => ({
+  type: ReduxActionTypes.GIT_PULL_INIT,
+});
+
+export const gitPullSuccess = () => ({
+  type: ReduxActionTypes.GIT_PULL_SUCCESS,
+});
