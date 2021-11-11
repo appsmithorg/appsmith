@@ -996,7 +996,9 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
   cy.get(apiwidget.apiTxt).blur();
 });
@@ -1081,7 +1083,9 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
 });
 
@@ -1406,7 +1410,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents != "") {
-      cy.log("The field is empty");
+      cy.log("The field is not empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
         .click({ force: true })
@@ -1454,7 +1458,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents !== "") {
-      cy.log("The field is empty");
+      cy.log("The field is not empty");
       cy.get("@codeEditor")
         .click({ force: true })
         .focused({ force: true })

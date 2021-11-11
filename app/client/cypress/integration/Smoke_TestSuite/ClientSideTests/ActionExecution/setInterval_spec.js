@@ -25,6 +25,14 @@ describe("Test Create Api and Bind to Table widget", function() {
   });
 
   it("Fill setInterval action creator and test code generated", () => {
+    cy.get(widgetsPage.toggleOnClick)
+      .invoke("attr", "class")
+      .then((classes) => {
+        if (classes.includes("is-active")) {
+          cy.get(widgetsPage.toggleOnClick).click();
+        }
+      });
+
     cy.get("label")
       .contains("Callback function")
       .parent()
