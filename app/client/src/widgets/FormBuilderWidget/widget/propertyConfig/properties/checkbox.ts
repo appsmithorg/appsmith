@@ -1,0 +1,58 @@
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FieldType } from "widgets/FormBuilderWidget/constants";
+import { HiddenFnParams, getSchemaItem } from "../helper";
+
+const PROPERTIES = {
+  general: [
+    {
+      propertyName: "defaultValue",
+      label: "Default Selected",
+      helpText: "Sets the default checked state of the widget",
+      controlType: "SWITCH",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
+      dependencies: ["schema"],
+    },
+    {
+      propertyName: "alignWidget",
+      helpText: "Sets the alignment of the widget",
+      label: "Alignment",
+      controlType: "DROP_DOWN",
+      options: [
+        {
+          label: "Left",
+          value: "LEFT",
+        },
+        {
+          label: "Right",
+          value: "RIGHT",
+        },
+      ],
+      isBindProperty: true,
+      isTriggerProperty: false,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
+      dependencies: ["schema"],
+    },
+  ],
+  actions: [
+    {
+      helpText: "Triggers an action when the check state is changed",
+      propertyName: "onCheckChange",
+      label: "onCheckChange",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
+      dependencies: ["schema"],
+    },
+  ],
+};
+
+export default PROPERTIES;

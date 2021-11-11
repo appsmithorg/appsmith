@@ -2,16 +2,18 @@ import React from "react";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import Field from "widgets/FormBuilderWidget/component/Field";
-import { BaseFieldComponentProps } from "./types";
+import { AlignWidget } from "widgets/constants";
+import { BaseFieldComponentProps, FieldComponentBaseProps } from "./types";
 
-type CheckboxComponentProps = {
-  isDisabled: boolean;
+type CheckboxComponentProps = FieldComponentBaseProps & {
+  alignWidget: AlignWidget;
+  onCheckChange?: string;
 };
 
 type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
 
 function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
-  const { label } = schemaItem;
+  const { isRequired, label } = schemaItem;
 
   return (
     <Field
@@ -24,7 +26,7 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
           inputRef={ref}
           isChecked={value}
           isLoading={false}
-          isRequired={false}
+          isRequired={isRequired}
           label=""
           onBlurHandler={onBlur}
           onCheckChange={onChange}

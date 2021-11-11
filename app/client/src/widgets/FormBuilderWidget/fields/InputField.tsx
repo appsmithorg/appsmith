@@ -1,15 +1,12 @@
 import React, { useContext, useState } from "react";
 import { IconName, Alignment } from "@blueprintjs/core";
-import { pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
 import FormContext from "../FormContext";
 import InputComponent from "widgets/InputWidget/component";
-import { BaseFieldComponentProps } from "./types";
-import { CONFIG } from "widgets/InputWidget";
+import { FieldComponentBaseProps, BaseFieldComponentProps } from "./types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { InputValidator } from "widgets/InputWidget/widget";
-import { RenderModes, TextSize } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
@@ -17,42 +14,32 @@ import {
 } from "constants/messages";
 import { INPUT_FIELD_TYPE, INPUT_TYPES } from "../constants";
 
-const COMPONENT_DEFAULT_VALUES: InputFieldOwnProps = {
-  isDisabled: false,
-  label: "",
-  validation: false,
-};
-
-type InputFieldOwnProps = {
+type InputComponentProps = FieldComponentBaseProps & {
   allowCurrencyChange?: boolean;
-  autoFocus?: boolean;
   currencyCountryCode?: string;
   decimalsInCurrency?: number;
-  defaultText?: string | number;
   errorMessage?: string;
   iconAlign?: Omit<Alignment, "center">;
   iconName?: IconName;
-  isAutoFocusEnabled?: boolean;
-  isDisabled?: boolean;
-  isRequired?: boolean;
-  label: string;
-  labelStyle?: string;
-  labelTextColor?: string;
-  labelTextSize?: TextSize;
   maxChars?: number;
   maxNum?: number;
   minNum?: number;
   noOfDecimals?: number;
-  onSubmit?: string;
+  onEnterKeyPress?: string;
   onTextChanged?: string;
   phoneNumberCountryCode?: string;
   placeholderText?: string;
   regex?: string;
-  tooltip?: string;
   validation: boolean;
 };
 
-type InputFieldProps = BaseFieldComponentProps<InputFieldOwnProps>;
+type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
+
+const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
+  isDisabled: false,
+  label: "",
+  validation: false,
+};
 
 function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   const { executeAction, renderMode, updateWidgetProperty } = useContext(
@@ -93,16 +80,17 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   ) => {
     // TODO: There is a 'isValid' derived prop in the input widget and there is a check if the input is valid
     // then execute onSubmit
-    const { onSubmit } = schemaItem;
+    const { onEnterKeyPress } = schemaItem;
     const isEnterKey = e.key === "Enter";
 
-    if (isEnterKey && onSubmit) {
+    if (isEnterKey && onEnterKeyPress) {
       executeAction({
-        triggerPropertyName: "onSubmit",
-        dynamicString: onSubmit,
+        triggerPropertyName: "onEnterKeyPress",
+        dynamicString: onEnterKeyPress,
         event: {
-          type: EventType.ON_SUBMIT,
-          callback: () => onTextChangeHandler("", onChangeHandler, "onSubmit"),
+          type: EventType.ON_ENTER_KEY_PRESS,
+          callback: () =>
+            onTextChangeHandler("", onChangeHandler, "onEnterKeyPress"),
         },
       });
     }
@@ -152,7 +140,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
       }) => {
         const conditionalProps = (() => {
           const {
-            defaultText,
+            defaultValue,
             errorMessage: errorMsg,
             isRequired,
             maxChars,
@@ -169,8 +157,8 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
           if (
             inputType === "TEXT" &&
             maxChars &&
-            defaultText &&
-            defaultText?.toString()?.length > maxChars
+            defaultValue &&
+            defaultValue?.toString()?.length > maxChars
           ) {
             isInvalid = true;
             errorMessage = createMessage(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR);

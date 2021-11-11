@@ -9,7 +9,7 @@ import {
   HiddenFnParams,
   hiddenIfArrayItemIsObject,
 } from "./helper";
-import { INPUT_PROPERTIES } from "./properties";
+import { CHECKBOX_PROPERTIES, INPUT_PROPERTIES } from "./properties";
 
 const COMMON_PROPERTIES = {
   fieldType: [
@@ -140,6 +140,26 @@ const COMMON_PROPERTIES = {
       validation: { type: ValidationTypes.TEXT },
     },
   ],
+  actions: [
+    {
+      propertyName: "onFocus",
+      helpText: "Triggers an action when focused.",
+      label: "onFocus",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onBlur",
+      helpText: "Triggers an action when the field loses focus.",
+      label: "onBlur",
+      controlType: "ACTION_SELECTOR",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+  ],
 };
 
 function generatePanelPropertyConfig(
@@ -156,7 +176,8 @@ function generatePanelPropertyConfig(
         sectionName: "General",
         children: [
           ...COMMON_PROPERTIES.fieldType,
-          ...INPUT_PROPERTIES,
+          ...INPUT_PROPERTIES.general,
+          ...CHECKBOX_PROPERTIES.general,
           ...COMMON_PROPERTIES.accessibility,
           {
             propertyName: "children",
@@ -180,6 +201,14 @@ function generatePanelPropertyConfig(
       {
         sectionName: "Label Styles",
         children: [...COMMON_PROPERTIES.labelStyles],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          ...INPUT_PROPERTIES.actions,
+          ...CHECKBOX_PROPERTIES.actions,
+          ...COMMON_PROPERTIES.actions,
+        ],
       },
     ],
   } as PanelConfig;
