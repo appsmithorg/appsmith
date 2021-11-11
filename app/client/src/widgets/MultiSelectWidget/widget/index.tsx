@@ -317,6 +317,7 @@ class MultiSelectWidget extends BaseWidget<
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
+        isValid={this.props.isValid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}

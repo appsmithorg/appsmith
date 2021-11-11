@@ -184,6 +184,16 @@ class MultiSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -197,16 +207,6 @@ class MultiSelectTreeWidget extends BaseWidget<
             propertyName: "isDisabled",
             label: "Disabled",
             helpText: "Disables input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -375,6 +375,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
+        isValid={this.props.isValid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}

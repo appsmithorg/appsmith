@@ -45,6 +45,7 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  isValid: boolean;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -88,6 +89,7 @@ function SingleSelectTreeComponent({
   disabled,
   dropdownStyle,
   expandAll,
+  isValid,
   labelStyle,
   labelText,
   labelTextColor,
@@ -121,6 +123,7 @@ function SingleSelectTreeComponent({
   return (
     <TreeSelectContainer
       compactMode={compactMode}
+      isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles />

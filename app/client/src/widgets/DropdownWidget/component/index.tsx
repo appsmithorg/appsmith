@@ -25,7 +25,10 @@ const FUSE_OPTIONS = {
 };
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
+const StyledSingleDropDown = styled(SingleDropDown)<{
+  isSelected: boolean;
+  isValid: boolean;
+}>`
   div {
     flex: 1 1 auto;
   }
@@ -47,20 +50,31 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     background: white;
     min-height: 36px;
     padding-left: 12px;
-    border: 1.2px solid ${Colors.GREY_3};
-    &:hover {
-      border: 1.2px solid ${Colors.GREY_5};
-    }
-    &:focus {
-      border: 1.2px solid ${Colors.GREEN_SOLID};
-      outline: 0;
-    }
+    border: 1.2px solid
+      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+    ${(props) =>
+      props.isValid
+        ? `
+        &:hover {
+          border: 1.2px solid ${Colors.GREY_5};
+        }
+        &:focus {
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          outline: 0;
+        }
+      `
+        : ""};
   }
 
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
-    border: 1.2px solid ${Colors.GREEN_SOLID};
-    box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
     outline: 0;
+    ${(props) =>
+      props.isValid
+        ? `
+        border: 1.2px solid ${Colors.GREEN_SOLID};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+      `
+        : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
   }
   &&&&& .${Classes.DISABLED} {
     background-color: ${Colors.GREY_1};
@@ -286,6 +300,7 @@ class DropDownComponent extends React.Component<
               this.props.selectedIndex !== undefined &&
               this.props.selectedIndex > -1
             }
+            isValid={this.props.isValid}
             itemListPredicate={
               !this.props.serverSideFiltering
                 ? this.itemListPredicate
@@ -386,6 +401,7 @@ export interface DropDownComponentProps extends ComponentProps {
   options: DropdownOption[];
   isLoading: boolean;
   isFilterable: boolean;
+  isValid: boolean;
   width: number;
   height: number;
   serverSideFiltering: boolean;

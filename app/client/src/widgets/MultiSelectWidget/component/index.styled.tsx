@@ -213,7 +213,10 @@ export const DropdownStyles = createGlobalStyle`
 }
 `;
 
-export const MultiSelectContainer = styled.div<{ compactMode: boolean }>`
+export const MultiSelectContainer = styled.div<{
+  compactMode: boolean;
+  isValid: boolean;
+}>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
@@ -408,9 +411,11 @@ export const MultiSelectContainer = styled.div<{ compactMode: boolean }>`
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
-      border: 1.2px solid ${Colors.GREY_3};
+      border: 1.2px solid
+        ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
-        border: 1.2px solid ${Colors.GREY_5};
+        border: 1.2px solid
+          ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       }
     }
   }
@@ -435,9 +440,13 @@ export const MultiSelectContainer = styled.div<{ compactMode: boolean }>`
   }
   .rc-select-show-arrow.rc-select-multiple.rc-select-focused {
     .rc-select-selector {
-      border: 1.2px solid ${Colors.GREEN_SOLID};
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
       outline: 0;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;

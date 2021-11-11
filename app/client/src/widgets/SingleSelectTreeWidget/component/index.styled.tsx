@@ -601,7 +601,10 @@ export const DropdownStyles = createGlobalStyle`
   }
 `;
 
-export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
+export const TreeSelectContainer = styled.div<{
+  compactMode: boolean;
+  isValid: boolean;
+}>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
@@ -679,7 +682,8 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
   .rc-tree-select-single {
     &:hover {
       .rc-tree-select-selector {
-        border: 1.2px solid ${Colors.GREY_5};
+        border: 1.2px solid
+          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
       }
     }
   }
@@ -688,7 +692,8 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
     flex-wrap: wrap;
     padding-right: 42px;
     box-shadow: none;
-    border: 1.2px solid ${Colors.GREY_3};
+    border: 1.2px solid
+      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
     box-sizing: border-box;
     border-radius: 0px;
     width: 100%;
@@ -891,9 +896,13 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
   }
   .rc-tree-select-show-arrow.rc-tree-select-focused {
     .rc-tree-select-selector {
-      border: 1.2px solid ${Colors.GREEN_SOLID};
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
       outline: 0px;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;

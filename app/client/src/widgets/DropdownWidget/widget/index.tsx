@@ -310,6 +310,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
+        isValid={this.props.isValid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}

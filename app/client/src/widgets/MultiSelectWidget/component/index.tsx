@@ -39,6 +39,7 @@ export interface MultiSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  isValid: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -47,6 +48,7 @@ function MultiSelectComponent({
   compactMode,
   disabled,
   dropdownStyle,
+  isValid,
   labelStyle,
   labelText,
   labelTextColor,
@@ -140,6 +142,7 @@ function MultiSelectComponent({
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}
       compactMode={compactMode}
+      isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles />

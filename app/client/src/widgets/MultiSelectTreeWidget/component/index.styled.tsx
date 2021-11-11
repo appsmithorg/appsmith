@@ -586,6 +586,7 @@ border: 1px solid #E8E8E8;
 export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   allowClear: boolean;
+  isValid: boolean;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -848,9 +849,11 @@ export const TreeSelectContainer = styled.div<{
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
-      border: 1.2px solid ${Colors.GREY_3};
+      border: 1.2px solid
+        ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
       &:hover {
-        border: 1.2px solid ${Colors.GREY_5};
+        border: 1.2px solid
+          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
       }
     }
   }
@@ -887,9 +890,13 @@ export const TreeSelectContainer = styled.div<{
   }
   .rc-tree-select-show-arrow.rc-tree-select-focused {
     .rc-tree-select-selector {
-      border: 1.2px solid ${Colors.GREEN_SOLID} !important;
-      box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
       outline: 0px;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1.2px solid ${Colors.GREEN_SOLID} !important;
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;

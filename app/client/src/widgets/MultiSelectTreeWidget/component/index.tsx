@@ -47,6 +47,7 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  isValid: boolean;
 }
 
 const getSvg = (expanded: boolean) => (
@@ -90,6 +91,7 @@ function MultiTreeSelectComponent({
   disabled,
   dropdownStyle,
   expandAll,
+  isValid,
   labelStyle,
   labelText,
   labelTextColor,
@@ -126,6 +128,7 @@ function MultiTreeSelectComponent({
     <TreeSelectContainer
       allowClear={allowClear}
       compactMode={compactMode}
+      isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles />
