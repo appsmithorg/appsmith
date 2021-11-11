@@ -40,6 +40,7 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
+import { ReactComponent as FunctionSettings } from "assets/icons/menu/settings.svg";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -92,9 +93,12 @@ const ResponseTabAction = styled.li`
     margin-left: 5px;
     display: inline-block;
   }
-  .run-button {
+  .function-actions {
     margin-left: auto;
-    margin-right: 15px;
+    order: 2;
+  }
+  .run-button {
+    margin: 0 15px;
   }
   &.active {
     background-color: #f0f0f0;
@@ -229,13 +233,18 @@ function JSResponseView(props: Props) {
                             action.id === selectActionId ? "active" : ""
                           }
                           key={action.id}
-                          onClick={() => {
-                            runAction(action);
-                          }}
                         >
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
-                          <RunFunction className="run-button" />
+                          <div className="function-actions">
+                            <FunctionSettings />
+                            <RunFunction
+                              className="run-button"
+                              onClick={() => {
+                                runAction(action);
+                              }}
+                            />
+                          </div>
                         </ResponseTabAction>
                       );
                     })}
