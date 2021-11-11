@@ -179,8 +179,9 @@ const DATA_TREE_FUNCTIONS: Record<
           },
         });
         if (isOldSignature && typeof onSuccessOrParams === "function") {
-          if (onSuccessOrParams) runActionPromise.then(onSuccessOrParams);
+          // catch is attached first so that we can catch only the main run errors
           if (onError) runActionPromise.catch(onError);
+          if (onSuccessOrParams) runActionPromise.then(onSuccessOrParams);
         }
         return runActionPromise;
       },

@@ -63,7 +63,10 @@ import {
   setEvaluatedSnippet,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
-import { executeActionTriggers } from "./ActionExecution/ActionExecutionSagas";
+import {
+  executeActionTriggers,
+  TriggerMeta,
+} from "./ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -177,6 +180,7 @@ export function* evaluateActionBindings(
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
+  triggerMeta: TriggerMeta,
   callbackData?: Array<any>,
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
@@ -209,6 +213,7 @@ export function* evaluateDynamicTrigger(
         requestData,
         eventType,
         responseChannel,
+        triggerMeta,
       );
     }
   }
@@ -218,13 +223,14 @@ function* executeTriggerRequestSaga(
   requestData: { trigger: ActionDescription; subRequestId: string },
   eventType: EventType,
   responseChannel: Channel<unknown>,
+  triggerMeta: TriggerMeta,
 ) {
   try {
     const response = yield call(
       executeActionTriggers,
       requestData.trigger,
       eventType,
-      {},
+      triggerMeta,
     );
     responseChannel.put({
       method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
@@ -310,7 +316,7 @@ export function* clearEvalPropertyCache(propertyPath: string) {
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
-  const functionCall = collectionName + "." + action.name + "()";
+  const functionCall = `${collectionName}.${action.name}()`;
   const { isAsync } = action.actionConfiguration;
   let response;
   if (isAsync) {
@@ -319,6 +325,7 @@ export function* executeFunction(collectionName: string, action: JSAction) {
         evaluateDynamicTrigger,
         functionCall,
         EventType.ON_JS_FUNCTION_EXECUTE,
+        {},
       );
     } catch (e) {
       response = { errors: [e], result: undefined };
