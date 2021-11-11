@@ -334,6 +334,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         gap,
         backgroundColor: this.props.itemBackgroundColor,
         borderRadius: this.props.borderRadius,
+        boxShadow: this.props.boxShadow,
+        boxShadowColor: this.props.boxShadowColor,
         topRow:
           index * children[0].bottomRow +
           index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
