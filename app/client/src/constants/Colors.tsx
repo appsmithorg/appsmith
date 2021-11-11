@@ -133,7 +133,7 @@ export const Colors = {
 
   INPUT_TEXT_DISABLED: "rgba(92, 112, 128, 0.6)",
   INPUT_DISABLED: "rgba(206, 217, 224, 0.5)",
-
+  //  Following Design System colors
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
@@ -151,5 +151,7 @@ export const Colors = {
   GREEN_2: "#D5EFE3",
   GREEN_3: "#ECF9F3",
   MASALA: "#43403D",
+  // error warning
+  CRIMSON: "#D71010",
 };
 export type Color = typeof Colors[keyof typeof Colors];

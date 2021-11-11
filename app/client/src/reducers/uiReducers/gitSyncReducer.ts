@@ -33,6 +33,8 @@ const initialState: GitSyncReducerState = {
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
   isDisconnectingGit: false,
+  isFetchingLocalGitConfig: false,
+  isFetchingGitConfig: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -277,21 +279,23 @@ export type GitSyncReducerState = {
   isCommitSuccessful: boolean;
   isPushSuccessful: boolean;
   isPushingToGit?: boolean;
+
+  fetchingBranches: boolean;
+  isFetchingGitConfig: boolean;
+  isFetchingLocalGitConfig: boolean;
+  isDisconnectingGit: boolean;
+  isFetchingGitStatus: boolean;
+  isFetchingMergeStatus: boolean;
+
   activeGitSyncModalTab: GitSyncModalTab;
   isImportAppViaGitModalOpen: boolean;
   organizationIdForImport?: string;
   isErrorPopupVisible?: boolean;
   gitPushError?: string;
   globalGitConfig: GitConfig;
-  isFetchingGitConfig?: boolean;
-
-  isDisconnectingGit: boolean;
 
   branches: Array<{ branchName: string; default: boolean }>;
-  fetchingBranches: boolean;
-  isFetchingLocalGitConfig?: boolean;
-  isFetchingGitStatus: boolean;
-  isFetchingMergeStatus: boolean;
+
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
 };

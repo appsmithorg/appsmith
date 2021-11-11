@@ -5,6 +5,9 @@ import StatusLoader from "./StatusLoader";
 import { Space } from "./StyledComponents";
 import { useSelector } from "react-redux";
 import { getIsFetchingMergeStatus } from "selectors/gitSyncSelectors";
+import Text, { TextType } from "components/ads/Text";
+import { ReactComponent as ErrorWarning } from "assets/svg/error-warning-line.svg";
+import { Colors } from "constants/Colors";
 
 const Flex = styled.div`
   display: flex;
@@ -16,6 +19,12 @@ const MERGE_STATUS_STATE = {
   MERGE_CONFLICT: "MERGE_CONFLICT",
   NONE: "NONE",
 };
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin-top: ${(props) => `${props.theme.spaces[3]}px`};
+`;
 
 function MergeStatus() {
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
@@ -35,14 +44,27 @@ function MergeStatus() {
       return (
         <Flex>
           <Space horizontal size={10} />
-          <StatusLoader loaderMsg={createMessage(FETCH_MERGE_STATUS)} />
+          <Wrapper>
+            <Text style={{ marginLeft: 8 }} type={TextType.P3}>
+              {createMessage(FETCH_MERGE_STATUS)}
+            </Text>
+          </Wrapper>
         </Flex>
       );
     case MERGE_STATUS_STATE.MERGE_CONFLICT:
       return (
         <Flex>
           <Space horizontal size={10} />
-          <StatusLoader loaderMsg={createMessage(FETCH_MERGE_STATUS)} />
+          <Wrapper>
+            <ErrorWarning />
+            <Text
+              color={Colors.CRIMSON}
+              style={{ marginLeft: 8 }}
+              type={TextType.P3}
+            >
+              {createMessage(FETCH_MERGE_STATUS)}
+            </Text>
+          </Wrapper>
         </Flex>
       );
     default:
