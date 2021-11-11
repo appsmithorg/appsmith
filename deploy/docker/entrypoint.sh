@@ -140,16 +140,21 @@ configure_ssl() {
 
 configure_supervisord() {
   SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
-  if [[ -f "/etc/supervisor/conf.d/"*.conf ]]; then
+  if [ -z "$(ls -A /etc/supervisor/conf.d)" ]; then
     rm "/etc/supervisor/conf.d/"*
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+
+  # Disable services based on configuration
   if [[ "$APPSMITH_MONGODB_URI" = "mongodb://appsmith:$MONGO_INITDB_ROOT_PASSWORD@localhost/appsmith" ]]; then
     cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
   fi
   if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then
     cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+  fi
+  if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
+    cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
   fi
 }
 
