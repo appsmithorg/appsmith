@@ -670,7 +670,6 @@ export default class DataTreeEvaluator {
 
     try {
       // sort dependencies and remove empty dependencies
-      // debugger;
       return toposort(dependencyTree)
         .reverse()
         .filter((d) => !!d);
@@ -1321,20 +1320,7 @@ export default class DataTreeEvaluator {
           _.flatten(
             this.dependencyMap[key].map((path) => {
               try {
-                if (key.search("SetTaskAsDone") >= 0) {
-                  this.dependencyMap;
-                  debugger;
-                }
-                // if (
-                //   key === "SetTaskAsDone.config.pluginSpecifiedTemplates[9]"
-                // ) {
-                //   return key;
-                // }
-                const references = extractReferencesFromBinding(
-                  path,
-                  this.allKeys,
-                );
-                return references;
+                return extractReferencesFromBinding(path, this.allKeys);
               } catch (e) {
                 this.errors.push({
                   type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,

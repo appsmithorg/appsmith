@@ -147,10 +147,6 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       let candidateTopLevelNode:
         | IdentifierNode
         | MemberExpressionNode = node as IdentifierNode;
-      if (candidateTopLevelNode.name === "SetTaskAsDone") {
-        console.log(code);
-        // debugger;
-      }
       let depth = ancestors.length - 2;
       while (depth > 0) {
         const parent = ancestors[depth];
