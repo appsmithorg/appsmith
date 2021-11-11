@@ -40,7 +40,7 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Mono<ActionCollectionDTO> findActionCollectionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
 
-    Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
-
     Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId);
+    
+    Flux<ActionCollection> findByPageId(String pageId);
 }
