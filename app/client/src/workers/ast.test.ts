@@ -56,7 +56,17 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["Table6"],
       },
       {
+        // Deep literal property search
+        script: "TableDataOptionalReference['data'].details",
+        expectedResults: ["TableDataOptionalReference"],
+      },
+      {
         // Index literal array search
+        script: "array[8]",
+        expectedResults: ["array[8]"],
+      },
+      {
+        // Deep Index literal array search
         script: "Table7.data[4]",
         expectedResults: ["Table7.data[4]"],
       },

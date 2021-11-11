@@ -103,6 +103,15 @@ const isLiteralNode = (node: Node): node is LiteralNode => {
   return node.type === NodeTypes.Literal;
 };
 
+const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
+  return (
+    isMemberExpressionNode(node) &&
+    node.computed &&
+    isLiteralNode(node.property) &&
+    !isNaN(node.property.raw)
+  );
+};
+
 export const getAST = (code: string) =>
   parse(code, { ecmaVersion: ECMA_VERSION });
 
@@ -147,31 +156,25 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       let candidateTopLevelNode:
         | IdentifierNode
         | MemberExpressionNode = node as IdentifierNode;
-      let depth = ancestors.length - 2;
+      let depth = ancestors.length - 2; // start "depth" with first parent
       while (depth > 0) {
         const parent = ancestors[depth];
         if (
           isMemberExpressionNode(parent) &&
-          // We will ignore member expressions that are "computed" (with index/string [ ]  search)
-          // and the ones that have optional chaining ( a.b?.c ).
-          // We will stop looking for further parents and consider this node to be top level
-          !parent.computed &&
+          /* Member expressions that are "computed" (with [ ] search)
+             and the ones that have optional chaining ( a.b?.c )
+             will be considered top level node. 
+             We will stop looking for further parents */
+          /* "computed" exception - isArrayAccessorNode
+             Member expressions that are array accessors with static index - [9]
+             will not be considered top level.
+             We will continue looking further. */
+          (!parent.computed || isArrayAccessorNode(parent)) &&
           !parent.optional
         ) {
           candidateTopLevelNode = parent;
           depth = depth - 1;
         } else {
-          // Prioritize as top level - If the node is an array accessor array[index]
-          if (
-            isMemberExpressionNode(parent) &&
-            parent.computed &&
-            isLiteralNode(parent.property) &&
-            !isNaN(parent.property.raw)
-          ) {
-            candidateTopLevelNode = parent;
-            depth = depth - 1;
-            continue;
-          }
           // Top level found
           break;
         }
@@ -237,8 +240,10 @@ const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
   if (isIdentifierNode(propertyNode)) {
     return `.${propertyNode.name}`;
   } else if (isLiteralNode(propertyNode) && isString(propertyNode.value)) {
+    // is string literal search a['b']
     return `.${propertyNode.value}`;
   } else if (isLiteralNode(propertyNode) && !isNaN(propertyNode.raw)) {
+    // is array index search - a[9]
     return `[${propertyNode.raw}]`;
   }
 };
