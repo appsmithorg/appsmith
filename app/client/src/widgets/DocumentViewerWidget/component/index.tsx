@@ -172,9 +172,11 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
     if (validExtension) {
       if (!(extension === "txt" || extension === "pdf")) {
         viewer = "office";
+        renderer = Renderers.DOCUMENT_VIEWER;
       }
     } else {
       errorMessage = "Current file type is not supported";
+      renderer = Renderers.ERROR;
     }
   }
 
