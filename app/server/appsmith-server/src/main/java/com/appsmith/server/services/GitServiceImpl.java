@@ -26,6 +26,7 @@ import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -62,6 +63,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.helpers.GitDeployKeyGenerator.generateSSHKey;
 
 @Slf4j
 @Service
@@ -1024,26 +1026,7 @@ public class GitServiceImpl implements GitService {
 
     @Override
     public Mono<String> generateSSHKey() {
-        JSch jsch = new JSch();
-        KeyPair kpair;
-        try {
-            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
-        } catch (JSchException e) {
-            log.error("failed to generate RSA key pair", e);
-            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
-        }
-
-        StringOutputStream privateKeyOutput = new StringOutputStream();
-        StringOutputStream publicKeyOutput = new StringOutputStream();
-
-        kpair.writePrivateKey(privateKeyOutput);
-        kpair.writePublicKey(publicKeyOutput, "appsmith");
-
-        GitAuth gitAuth = new GitAuth();
-        gitAuth.setPublicKey(publicKeyOutput.toString());
-        gitAuth.setPrivateKey(privateKeyOutput.toString());
-        gitAuth.setGeneratedAt(Instant.now());
-        gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
+        GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey();
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
         gitDeployKeys.setGitAuth(gitAuth);
@@ -1056,7 +1039,7 @@ public class GitServiceImpl implements GitService {
                             .flatMap(gitDeployKeys1 -> gitDeployKeysRepository.delete(gitDeployKeys1)
                                     .then(gitDeployKeysRepository.save(gitDeployKeys1)));
                 })
-                .then(Mono.just(publicKeyOutput.toString()));
+                .then(Mono.just(gitAuth.getPublicKey()));
     }
 
     private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String sourceBranch, String destinationBranch, Path repoPath) {
