@@ -46,6 +46,7 @@ import { APP_MODE } from "entities/App";
 import history from "utils/history";
 import { addBranchParam } from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
+
 import {
   mergeBranchSuccess,
   mergeBranchFailure,
@@ -367,7 +368,7 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
     const applicationId: string = yield select(getCurrentApplicationId);
 
     const { destinationBranch, sourceBranch } = action.payload;
-    const response: ApiResponse = yield GitSyncAPI.merge({
+    const response: ApiResponse = yield GitSyncAPI.getMergeStatus({
       applicationId,
       sourceBranch,
       destinationBranch,
