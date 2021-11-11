@@ -217,6 +217,7 @@ function GitConnection({ isImport }: Props) {
   const isGitConnected = !!remoteUrlInStore;
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
+  const [triedSubmit, setTriedSubmit] = useState(false);
 
   const globalGitConfig = useSelector(getGlobalGitConfig);
   const localGitConfig = useSelector(getLocalGitConfig);
@@ -340,6 +341,8 @@ function GitConnection({ isImport }: Props) {
   };
 
   const onSubmit = useCallback(() => {
+    setTriedSubmit(true);
+
     if (
       authorInfo.authorName &&
       authorInfo.authorEmail &&
@@ -391,13 +394,16 @@ function GitConnection({ isImport }: Props) {
   );
 
   const submitButtonDisabled = useMemo(() => {
-    const isAuthorInfoEmpty = !authorInfo.authorEmail || !authorInfo.authorName;
-    const isAuthorEmailInvalid = !emailValidator(authorInfo.authorEmail)
-      .isValid;
+    // const isAuthorInfoEmpty = !authorInfo.authorEmail || !authorInfo.authorName;
+    // const isAuthorEmailInvalid = !emailValidator(authorInfo.authorEmail)
+    //   .isValid;
+
     const isAuthInfoUpdated = isAuthorInfoUpdated();
-    let buttonDisabled = isAuthorInfoEmpty || isAuthorEmailInvalid;
+    let buttonDisabled = false;
     if (isGitConnected) {
-      buttonDisabled = buttonDisabled || !isAuthInfoUpdated;
+      const isFetchingConfig: boolean =
+        isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
+      buttonDisabled = buttonDisabled || !isAuthInfoUpdated || isFetchingConfig;
     }
     return buttonDisabled;
   }, [
@@ -405,13 +411,11 @@ function GitConnection({ isImport }: Props) {
     authorInfo.authorName,
     isAuthorInfoUpdated,
     isGitConnected,
+    isFetchingGlobalGitConfig,
+    isFetchingLocalGitConfig,
   ]);
 
-  const submitButtonIsLoading = useMemo(() => {
-    const isFetchingConfig =
-      isGitConnected && (isFetchingGlobalGitConfig || isFetchingLocalGitConfig);
-    return isConnectingToGit || isFetchingConfig;
-  }, [isConnectingToGit, isFetchingGlobalGitConfig, isFetchingLocalGitConfig]);
+  const submitButtonIsLoading = isConnectingToGit;
 
   useEffect(() => {
     // OnMount fetch global and local config
@@ -555,6 +559,7 @@ function GitConnection({ isImport }: Props) {
             isLocalConfigDefined={isLocalConfigDefined}
             setAuthorInfo={setAuthorInfo}
             toggleUseDefaultConfig={toggleHandler}
+            triedSubmit={triedSubmit}
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>

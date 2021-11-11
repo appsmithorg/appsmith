@@ -1297,6 +1297,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("SaveLastEditInformation TestApp");
         testApplication.setModifiedBy("test-user");
+        testApplication.setIsPublic(true);
 
         Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application ->
@@ -1306,6 +1307,7 @@ public class ApplicationServiceTest {
             assertThat(application.getLastUpdateTime()).isNotNull();
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
+            assertThat(application.getIsPublic()).isTrue();
         }).verifyComplete();
     }
 

@@ -6,7 +6,6 @@ import {
   createMessage,
   MERGE_CHANGES,
   SELECT_BRANCH_TO_MERGE,
-  FETCH_MERGE_STATUS,
 } from "constants/messages";
 import { ReactComponent as MergeIcon } from "assets/icons/ads/git-merge.svg";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
@@ -23,15 +22,11 @@ import {
   getFetchingBranches,
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
-import StatusLoader from "../components/StatusLoader";
+import MergeStatus from "../components/MergeStatus";
 
 const Row = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const Flex = styled.div`
-  display: flex;
 `;
 
 const DEFAULT_OPTION = "--Select--";
@@ -143,12 +138,7 @@ export default function Merge() {
           width={"220px"}
         />
       </Row>
-      {isFetchingMergeStatus && (
-        <Flex>
-          <Space horizontal size={10} />
-          <StatusLoader loaderMsg={createMessage(FETCH_MERGE_STATUS)} />
-        </Flex>
-      )}
+      <MergeStatus />
       <Space size={10} />
 
       <Button
