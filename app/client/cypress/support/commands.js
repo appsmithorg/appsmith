@@ -996,7 +996,9 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
   cy.get(apiwidget.apiTxt).blur();
 });
@@ -1081,7 +1083,9 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
 });
 
@@ -1167,6 +1171,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
+  cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
   cy.widgetText(
     ModalName,
