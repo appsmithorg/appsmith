@@ -22,6 +22,7 @@ import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
 import moment from "moment";
 import log from "loglevel";
+import { extraLibrariesNames } from "./DynamicBindingUtils";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -286,6 +287,7 @@ export const isNameValid = (
     name in GLOBAL_FUNCTIONS ||
     name in WINDOW_OBJECT_PROPERTIES ||
     name in WINDOW_OBJECT_METHODS ||
+    name in extraLibrariesNames ||
     name in invalidNames
   );
 };
