@@ -66,6 +66,7 @@ export const getCopiedWidgets = async () => {
     log.error("An error occurred when fetching copied widget: ", error);
     return;
   }
+  return [];
 };
 
 export const setOnboardingState = async (onboardingState: boolean) => {
