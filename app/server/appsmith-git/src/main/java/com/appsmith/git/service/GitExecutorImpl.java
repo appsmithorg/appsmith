@@ -6,6 +6,7 @@ import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.Constraint;
+import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
@@ -420,9 +421,20 @@ public class GitExecutorImpl implements GitExecutor {
             modifiedAssets.addAll(status.getRemoved());
             modifiedAssets.addAll(status.getUncommittedChanges());
             modifiedAssets.addAll(status.getUntracked());
+            long modifiedPages = 0L;
+            long modifiedQueries = 0L;
+            for (String x : modifiedAssets) {
+                if (x.contains(GitDirectories.PAGE_DIRECTORY + "/")) {
+                    modifiedPages++;
+                } else if (x.contains(GitDirectories.ACTION_DIRECTORY + "/")) {
+                    modifiedQueries++;
+                }
+            }
             response.put("modified", modifiedAssets);
             response.put("conflicting", status.getConflicting());
             response.put("isClean", status.isClean());
+            response.put("modifiedPages", modifiedPages);
+            response.put("modifiedQueries", modifiedQueries);
 
             BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
             if (trackingStatus != null) {
@@ -532,7 +544,6 @@ public class GitExecutorImpl implements GitExecutor {
             return mergeStatus;
         }).subscribeOn(scheduler);
     }
-
 
     public Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly

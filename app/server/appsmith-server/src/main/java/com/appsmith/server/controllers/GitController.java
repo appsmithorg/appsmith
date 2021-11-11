@@ -140,7 +140,7 @@ public class GitController {
     }
 
     @GetMapping("/pull/{defaultApplicationId}")
-    public Mono<ResponseDTO<Object>> pull(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<GitPullDTO>> pull(@PathVariable String defaultApplicationId,
                                           @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to pull the latest for application {}, branch {}", defaultApplicationId, branchName);
         return service.pullApplication(defaultApplicationId, branchName)
