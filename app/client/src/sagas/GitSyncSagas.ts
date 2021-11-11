@@ -80,7 +80,7 @@ function* commitToGitRepoSaga(action: CommitToGitReduxAction) {
     }
   } catch (error) {
     if (action.onErrorCallback) {
-      action.onErrorCallback(error as string);
+      action.onErrorCallback(error?.message);
     }
     yield put({
       type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,

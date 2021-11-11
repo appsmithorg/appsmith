@@ -130,13 +130,12 @@ export const useGitCommit = () => {
   }, []);
 
   const onGitCommitFailure = useCallback((error: any) => {
-    setGitError({ message: error.message });
+    setGitError({ message: error });
   }, []);
   const commitToGit = useCallback(
     (payload: { commitMessage: string; doPush: boolean }) => {
       setGitError({ message: null });
 
-      // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         commitToRepoInit({
           payload,

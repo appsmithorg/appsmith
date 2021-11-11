@@ -5,7 +5,7 @@ import {
   COMMIT_TO,
   createMessage,
   COMMIT_AND_PUSH,
-  COMMITTING_CHANGE,
+  COMMITTING_AND_PUSHING_CHANGES,
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
 } from "constants/messages";
@@ -178,7 +178,7 @@ function Deploy() {
           <StatusbarWrapper>
             <Statusbar
               completed={!commitButtonLoading}
-              message={createMessage(COMMITTING_CHANGE)}
+              message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
               period={2}
             />
           </StatusbarWrapper>

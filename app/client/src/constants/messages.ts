@@ -571,7 +571,8 @@ export const COMMIT_AND_PUSH = () => "Commit and push";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
-export const COMMITTING_CHANGE = () => "COMMITTING CHANGES...";
+export const COMMITTING_AND_PUSHING_CHANGES = () =>
+  "COMMITTING AND PUSHING CHANGES...";
 
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
