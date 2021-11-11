@@ -1,4 +1,4 @@
-import { get, set } from "lodash";
+import { get, isArray, set } from "lodash";
 export const UPDATES = "propertyUpdates";
 export const REPLAY_DELAY = 300;
 export const TOASTS = "toasts";
@@ -61,14 +61,18 @@ export function getPathsFromDiff(diffs: any) {
 
 export enum ReplayEntityType {
   CANVAS,
-  ACTION,
+  API,
+  QUERY,
+  SAAS,
   DATASOURCE,
   JSACTION,
+  ACTION,
 }
 
 export function getReplayEntityType(entity: any) {
-  if (entity && entity.hasOwnProperty("actionConfiguration"))
+  if (entity && entity.hasOwnProperty("actionConfiguration")) {
     return ReplayEntityType.ACTION;
+  }
   if (entity && entity.hasOwnProperty("datasourceConfiguration"))
     return ReplayEntityType.DATASOURCE;
   if (entity && entity.hasOwnProperty("body")) return ReplayEntityType.JSACTION;
@@ -77,10 +81,25 @@ export function getReplayEntityType(entity: any) {
 
 export function pathArrayToString(path?: string[]) {
   let stringPath = "";
-  if (!path) return;
+  if (!path || path.length === 0) return stringPath;
   stringPath = path[0];
   for (let i = 1; i < path.length; i++) {
     stringPath += isNaN(parseInt(path[i])) ? `.${path[i]}` : `[${path[i]}]`;
   }
   return stringPath;
+}
+
+export function findFieldLabelFactory(config: any, field: string) {
+  let result = "";
+  if (!config || !isArray(config)) return result;
+  for (const conf of config) {
+    if (conf.configProperty === field) {
+      result = conf.label || conf.internalLabel;
+      break;
+    } else if (conf.children) {
+      result = findFieldLabelFactory(conf.children, field);
+      if (result) break;
+    }
+  }
+  return result;
 }

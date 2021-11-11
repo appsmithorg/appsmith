@@ -6,6 +6,7 @@ import {
   take,
   takeLatest,
   all,
+  delay,
 } from "redux-saga/effects";
 
 import * as Sentry from "@sentry/react";
@@ -37,7 +38,11 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { ReplayEntityType } from "entities/Replay/replayUtils";
+import {
+  findFieldLabelFactory,
+  getReplayEntityType,
+  ReplayEntityType,
+} from "entities/Replay/replayUtils";
 import { updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 import { changeQuery } from "actions/queryPaneActions";
@@ -50,10 +55,7 @@ import {
 } from "./EvaluationsSaga";
 import { createBrowserHistory } from "history";
 import { getEditorConfig, getSettingConfig } from "selectors/entitiesSelector";
-import { isArray } from "lodash";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
-import { isQueryAction, isSaasAction } from "entities/Action";
+import { isAPIAction, isQueryAction, isSaasAction } from "entities/Action";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -176,12 +178,11 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       paths,
       replay,
       replayEntity,
-      replayEntityType,
       timeTaken,
     } = workerResponse;
 
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
-
+    const replayEntityType = getReplayEntityType(replayEntity);
     switch (replayEntityType) {
       case ReplayEntityType.CANVAS: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
@@ -192,6 +193,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         break;
       }
       case ReplayEntityType.ACTION:
+        yield call(replayPreProcess, replayEntity, replay);
         yield put(
           isQueryAction(replayEntity)
             ? changeQuery(replayEntity.id, false, replayEntity)
@@ -204,7 +206,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         );
         yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
         yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
-        yield call(replayPostProcess, replayEntity, replay, replayEntityType);
+        // yield call(replayPostProcess, replayEntity, replay, replayEntityType);
         break;
       case ReplayEntityType.DATASOURCE:
         yield put(
@@ -221,50 +223,45 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   }
 }
 
-export function* replayPostProcess(
-  entity: any,
-  replay: any,
-  replayEntityType: ReplayEntityType,
-) {
-  yield call(displayChangeToast, entity, replay, replayEntityType);
-}
-
-export function* displayChangeToast(
-  entity: any,
-  replay: any,
-  replayEntityType: ReplayEntityType,
-) {
-  const toasts = replay.toasts;
-  if (!toasts || !toasts.length) return;
-  const relevantToast =
-    toasts.length > 1
-      ? toasts.filter((toast: any) => toast.kind === "E")[0]
-      : toasts[0];
-  if (replayEntityType === ReplayEntityType.ACTION) {
-    const pluginId = entity.pluginId;
-    const editorConfig = yield select(getEditorConfig, pluginId);
-    const settingsConfig = yield select(getSettingConfig, pluginId);
-    const fieldLabel =
-      findFieldLabelFactory(editorConfig, relevantToast.modifiedProperty) ||
-      findFieldLabelFactory(settingsConfig, relevantToast.modifiedProperty);
-    Toaster.show({
-      text: fieldLabel,
-      variant: Variant.success,
-    });
-  }
-}
-
-export function findFieldLabelFactory(config: any, field: string) {
-  let result = "";
-  if (!config || !isArray(config)) return result;
-  for (const conf of config) {
-    if (conf.configProperty === field) {
-      result = conf.label || conf.internalLabel;
-      break;
-    } else if (conf.children) {
-      result = findFieldLabelFactory(conf.children, field);
-      if (result) break;
+export function* replayPreProcess(replayEntity: any, replay: any) {
+  let currentTab = "";
+  let fieldLabel = "";
+  const { modifiedProperty } = replay;
+  if (isAPIAction(replayEntity)) {
+    currentTab =
+      modifiedProperty.indexOf("headers") > -1 ? "headers" : currentTab;
+    currentTab =
+      modifiedProperty.indexOf("queryParameters") > -1 ? "params" : currentTab;
+    currentTab = modifiedProperty.indexOf("body") > -1 ? "body" : currentTab;
+    currentTab =
+      modifiedProperty.indexOf("pagination") > -1 ? "pagination" : currentTab;
+    if (!currentTab) {
+      const settingsConfig = yield select(
+        getSettingConfig,
+        replayEntity.pluginId,
+      );
+      fieldLabel = findFieldLabelFactory(settingsConfig, modifiedProperty);
+      if (fieldLabel) currentTab = "settings";
+    }
+  } else {
+    const editorConfig = yield select(getEditorConfig, replayEntity.pluginId);
+    fieldLabel = findFieldLabelFactory(editorConfig, modifiedProperty);
+    if (fieldLabel) {
+      currentTab = "query";
+    } else {
+      const settingsConfig = yield select(
+        getSettingConfig,
+        replayEntity.pluginId,
+      );
+      fieldLabel = findFieldLabelFactory(settingsConfig, modifiedProperty);
+      if (fieldLabel) currentTab = "settings";
     }
   }
-  return result;
+  if (currentTab) {
+    (document.querySelector(
+      `[data-replay-id="${currentTab}"]`,
+    ) as HTMLElement)?.click();
+  }
+  yield delay(100);
+  return { fieldLabel };
 }

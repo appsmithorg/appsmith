@@ -2,7 +2,7 @@ import { Doc, Map, UndoManager } from "yjs";
 import { captureException } from "@sentry/react";
 import { diff as deepDiff, applyChange, revertChange, Diff } from "deep-diff";
 
-import { getPathsFromDiff, getReplayEntityType } from "./replayUtils";
+import { getPathsFromDiff } from "./replayUtils";
 
 const _DIFF_ = "diff";
 type ReplayType = "UNDO" | "REDO";
@@ -13,7 +13,11 @@ export default abstract class ReplayEntity<T> {
   protected entity: T;
   private prevRedoDiff: Array<Diff<T, T>> | undefined;
   logs: any[] = [];
-  abstract processDiff(diff: Diff<T, T>, replay: any, isUndo: boolean): any;
+  protected abstract processDiff(
+    diff: Diff<T, T>,
+    replay: any,
+    isUndo: boolean,
+  ): any;
 
   constructor(entity: T) {
     const doc = new Doc();
@@ -76,7 +80,6 @@ export default abstract class ReplayEntity<T> {
 
       const replay = this.applyDiffs(diffs, replayType);
       const stop = performance.now();
-
       this.logs.push({
         log: `replay ${replayType}`,
         undoTime: `${stop - start} ms`,
@@ -86,7 +89,6 @@ export default abstract class ReplayEntity<T> {
 
       return {
         replayEntity: this.entity,
-        replayEntityType: getReplayEntityType(this.entity),
         replay,
         logs: this.logs,
         event: `REPLAY_${replayType}`,
@@ -129,7 +131,7 @@ export default abstract class ReplayEntity<T> {
    * @param isUndo
    */
   applyDiffs(diffs: Array<Diff<T, T>>, replayType: ReplayType) {
-    const replay = {};
+    const replay: any = {};
     const isUndo = replayType === "UNDO";
     const applyDiff = isUndo ? revertChange : applyChange;
 
