@@ -21,10 +21,9 @@ describe("prevent duplicate column name in table", function() {
     cy.tableColumnPopertyUpdate("userName", "TestUpdated2");
 
     // duplicate column's border should remain red
-    cy.get("[data-rbd-draggable-id='email'] div[value='TestUpdated']").should(
-      "have.css",
-      "border",
-      "1px solid rgb(242, 43, 43)",
+    cy.get("[data-rbd-draggable-id='email'] > div > div").should(
+      "have.class",
+      "has-duplicate-label",
     );
   });
 

@@ -40,13 +40,12 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import { noop } from "utils/AppsmithUtils";
 
-const ItemWrapper = styled.div<{ isInvalid?: boolean }>`
+const ItemWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  & > div:nth-child(2) {
-    ${(props) =>
-      props.isInvalid ? `border: 1px solid ${Colors.DANGER_SOLID};` : ""}
+  &.has-duplicate-label > div:nth-child(2) {
+    border: 1px solid ${Colors.DANGER_SOLID};
   }
 `;
 
@@ -150,7 +149,9 @@ function ColumnControlComponent(props: RenderComponentProps) {
   };
 
   return (
-    <ItemWrapper isInvalid={props.item.isDuplicateLabel}>
+    <ItemWrapper
+      className={props.item.isDuplicateLabel ? "has-duplicate-label" : ""}
+    >
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
