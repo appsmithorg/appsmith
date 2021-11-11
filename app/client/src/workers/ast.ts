@@ -1,6 +1,6 @@
 import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
-import { isString } from "lodash";
+import _ from "lodash";
 import { ECMA_VERSION } from "workers/constants";
 
 /*
@@ -75,7 +75,6 @@ interface AssignmentPatternNode extends Node {
 interface LiteralNode extends Node {
   type: NodeTypes.Literal;
   value: string | boolean | null | number | RegExp;
-  raw: any;
 }
 
 /* We need these functions to typescript casts the nodes with the correct types */
@@ -108,7 +107,7 @@ const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
     isMemberExpressionNode(node) &&
     node.computed &&
     isLiteralNode(node.property) &&
-    !isNaN(node.property.raw)
+    _.isFinite(node.property.value)
   );
 };
 
@@ -239,11 +238,11 @@ const constructFinalMemberExpIdentifier = (
 const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
   if (isIdentifierNode(propertyNode)) {
     return `.${propertyNode.name}`;
-  } else if (isLiteralNode(propertyNode) && isString(propertyNode.value)) {
+  } else if (isLiteralNode(propertyNode) && _.isString(propertyNode.value)) {
     // is string literal search a['b']
     return `.${propertyNode.value}`;
-  } else if (isLiteralNode(propertyNode) && !isNaN(propertyNode.raw)) {
+  } else if (isLiteralNode(propertyNode) && _.isFinite(propertyNode.value)) {
     // is array index search - a[9]
-    return `[${propertyNode.raw}]`;
+    return `[${propertyNode.value}]`;
   }
 };

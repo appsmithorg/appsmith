@@ -51,7 +51,7 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["Table5.data.map", "c.name"],
       },
       {
-        // Index literal property search
+        // Literal property search
         script: "Table6['data']",
         expectedResults: ["Table6"],
       },
@@ -61,19 +61,29 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["TableDataOptionalReference"],
       },
       {
-        // Index literal array search
+        // Array index search
         script: "array[8]",
         expectedResults: ["array[8]"],
       },
       {
-        // Deep Index literal array search
+        // Deep array index search
         script: "Table7.data[4]",
         expectedResults: ["Table7.data[4]"],
       },
       {
-        // Deep Index literal array search
+        // Deep array index search
         script: "Table7.data[4].value",
         expectedResults: ["Table7.data[4].value"],
+      },
+      {
+        // string literal and array index search
+        script: "Table['data'][9]",
+        expectedResults: ["Table"],
+      },
+      {
+        // array index and string literal search
+        script: "Array[9]['data']",
+        expectedResults: ["Array[9]"],
       },
       {
         // Index identifier search
