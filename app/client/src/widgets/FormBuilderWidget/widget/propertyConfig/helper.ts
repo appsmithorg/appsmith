@@ -60,7 +60,7 @@ export const getSchemaItem = <TSchemaItem extends SchemaItem>(
     fieldTypes: Readonly<FieldType[]> | FieldType[],
   ) => !fieldTypes.includes(schemaItem.fieldType);
 
-  const then = (cb: (props: SchemaItem) => any) => cb(schemaItem);
+  const then = (cb: (props: TSchemaItem) => any) => cb(schemaItem);
 
   return {
     fieldTypeMatches,

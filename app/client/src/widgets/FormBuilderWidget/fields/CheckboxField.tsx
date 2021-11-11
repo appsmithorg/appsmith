@@ -13,6 +13,13 @@ type CheckboxComponentProps = FieldComponentBaseProps & {
 
 type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
 
+const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
+  alignWidget: "LEFT",
+  isDisabled: false,
+  isVisible: true,
+  label: "",
+};
+
 function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
   const { isRequired, label } = schemaItem;
   const labelStyles = pick(schemaItem, [
@@ -29,7 +36,7 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <CheckboxComponent
-          alignWidget="LEFT"
+          alignWidget={schemaItem.alignWidget}
           inputRef={ref}
           isChecked={value}
           isLoading={false}
@@ -46,6 +53,6 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
   );
 }
 
-CheckboxField.componentDefaultValues = {};
+CheckboxField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default CheckboxField;

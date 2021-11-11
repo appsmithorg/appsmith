@@ -75,7 +75,7 @@ export const normalizeArrayValue = (data: Obj[]) => {
 
 export const fieldTypeFor = (value: any) => {
   const dataType = dataTypeFor(value);
-  const fieldType = DATA_TYPE_POTENTIAL_FIELD[dataType].default;
+  const fieldType = DATA_TYPE_POTENTIAL_FIELD[dataType];
   const subDataType = subDataTypeFor(value);
 
   if (subDataType) {
@@ -187,17 +187,15 @@ class SchemaParser {
     }
 
     return {
+      ...FieldComponent.componentDefaultValues,
       children,
       dataType,
       fieldType,
       formData: currFormData,
       isCustomField,
-      isDisabled: false,
-      isVisible: true,
       label,
       name,
       position: -1,
-      ...FieldComponent.componentDefaultValues,
     };
   };
 

@@ -8,16 +8,21 @@ import fieldRenderer from "./fieldRenderer";
 import {
   ARRAY_ITEM_KEY,
   BaseFieldComponentProps,
+  FieldComponentBaseProps,
   FIELD_PADDING_X,
   FIELD_PADDING_Y,
   FIELD_TYPE_TO_POTENTIAL_DATA,
 } from "../constants";
 
-type ArrayComponentOwnProps = {
-  isDisabled?: boolean;
-};
+type ArrayComponentProps = FieldComponentBaseProps;
 
-type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentOwnProps>;
+type ArrayFieldProps = BaseFieldComponentProps<ArrayComponentProps>;
+
+const COMPONENT_DEFAULT_VALUES: ArrayComponentProps = {
+  isDisabled: false,
+  label: "",
+  isVisible: true,
+};
 
 const StyledWrapper = styled.div`
   padding: ${FIELD_PADDING_Y}px ${FIELD_PADDING_X}px;
@@ -90,6 +95,6 @@ function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   );
 }
 
-ArrayField.componentDefaultValues = {};
+ArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default ArrayField;

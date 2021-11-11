@@ -3,46 +3,53 @@ import styled from "styled-components";
 import { noop, pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
-import DropDownComponent, {
-  DropDownComponentProps,
-} from "widgets/DropdownWidget/component";
-import { CONFIG } from "widgets/DropdownWidget";
+import DropDownComponent from "widgets/DropdownWidget/component";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
-import { BaseFieldComponentProps } from "../constants";
+import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
 
-const COMPONENT_DEFAULT_VALUES = pick(CONFIG.defaults, [
-  "serverSideFiltering",
-  "isFilterable",
-]);
-
-type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
-
-type SelectComponentOwnProps = Pick<
-  DropDownComponentProps,
-  PICKED_DEFAULT_PROPS
-> & {
-  isDisabled: boolean;
+type SelectComponentProps = FieldComponentBaseProps & {
+  placeholderText?: string;
   options: DropdownOption[];
+  onOptionChange?: string;
+  serverSideFiltering: boolean;
+  onFilterUpdate?: string;
+  isFilterable: boolean;
 };
 
-type SelectFieldProps = BaseFieldComponentProps<SelectComponentOwnProps>;
+const COMPONENT_DEFAULT_VALUES: SelectComponentProps = {
+  isDisabled: false,
+  isVisible: true,
+  label: "",
+  serverSideFiltering: false,
+  isFilterable: false,
+  options: [
+    { label: "Blue", value: "BLUE" },
+    { label: "Green", value: "GREEN" },
+    { label: "Red", value: "RED" },
+  ],
+};
+
+export type SelectFieldProps = BaseFieldComponentProps<SelectComponentProps>;
 
 const StyledSelectWrapper = styled.div`
   width: 100%;
 `;
 
 function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
-  const { options = [] } = schemaItem;
+  const labelStyles = pick(schemaItem, [
+    "labelStyle",
+    "labelTextColor",
+    "labelTextSize",
+  ]);
 
   return (
-    // eslint-disable-next-line
-    // @ts-ignore
     <Field
       {...rest}
       label={schemaItem.label}
+      labelStyles={labelStyles}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => {
-        const selectedOptionIndex = (options || []).findIndex(
+        const selectedOptionIndex = schemaItem.options.findIndex(
           (option) => option.value === value,
         );
         const selectedIndex =

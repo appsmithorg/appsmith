@@ -1,29 +1,38 @@
 import React from "react";
 import styled from "styled-components";
-import { noop } from "lodash";
-import { SelectProps } from "rc-select";
+import { noop, pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
-import MultiSelect, {
-  MultiSelectProps,
-} from "widgets/MultiSelectWidget/component";
-import { CONFIG } from "widgets/MultiSelectWidget";
+import MultiSelect from "widgets/MultiSelectWidget/component";
 import { Layers } from "constants/Layers";
-import { BaseFieldComponentProps } from "../constants";
+import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
+import { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 
-const COMPONENT_DEFAULT_VALUES = {
-  placeholder: CONFIG.defaults.placeholderText,
-  serverSideFiltering: CONFIG.defaults.serverSideFiltering,
+type MultiSelectComponentProps = FieldComponentBaseProps & {
+  defaultValue?: string[];
+  onFilterChange?: string;
+  onFilterUpdate?: string;
+  onOptionChange?: string;
+  options: DropdownOption[];
+  placeholderText?: string;
+  serverSideFiltering: boolean;
 };
 
-type PICKED_DEFAULT_PROPS = keyof typeof COMPONENT_DEFAULT_VALUES;
+export type MultiSelectFieldProps = BaseFieldComponentProps<
+  MultiSelectComponentProps
+>;
 
-type DateComponentOwnProps = Pick<MultiSelectProps, PICKED_DEFAULT_PROPS> & {
-  isDisabled: boolean;
-  options: SelectProps["options"];
+const COMPONENT_DEFAULT_VALUES: MultiSelectComponentProps = {
+  isDisabled: false,
+  label: "",
+  isVisible: true,
+  serverSideFiltering: false,
+  options: [
+    { label: "Blue", value: "BLUE" },
+    { label: "Green", value: "GREEN" },
+    { label: "Red", value: "RED" },
+  ],
 };
-
-type MultiSelectFieldProps = BaseFieldComponentProps<DateComponentOwnProps>;
 
 const StyledMultiSelectWrapper = styled.div`
   width: 100%;
@@ -33,12 +42,17 @@ function MultiSelectField({
   schemaItem,
   ...rest
 }: MultiSelectFieldProps) {
+  const labelStyles = pick(schemaItem, [
+    "labelStyle",
+    "labelTextColor",
+    "labelTextSize",
+  ]);
+
   return (
-    // eslint-disable-next-line
-    // @ts-ignore
     <Field
       {...rest}
       label={schemaItem.label}
+      labelStyles={labelStyles}
       name={name}
       render={({ field: { onChange, value = [] } }) => (
         <StyledMultiSelectWrapper>
@@ -50,7 +64,7 @@ function MultiSelectField({
             loading={false}
             onChange={onChange}
             onFilterChange={noop}
-            options={schemaItem.options || []}
+            options={schemaItem.options}
             placeholder="Multi Select"
             serverSideFiltering={false}
             value={value}

@@ -5,17 +5,23 @@ import { ControllerRenderProps } from "react-hook-form";
 import Disabler from "../component/Disabler";
 import FieldLabel from "../component/FieldLabel";
 import fieldRenderer from "./fieldRenderer";
-import { SchemaItem } from "../constants";
+import { FieldComponentBaseProps, SchemaItem } from "../constants";
 import { sortBy } from "lodash";
+
+type ObjectComponentProps = FieldComponentBaseProps;
 
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
   name: string;
   propertyPath: string;
-  schemaItem: SchemaItem & {
-    isDisabled: boolean;
-  };
+  schemaItem: SchemaItem & ObjectComponentProps;
   hideLabel?: boolean;
+};
+
+const COMPONENT_DEFAULT_VALUES: ObjectComponentProps = {
+  isDisabled: false,
+  label: "",
+  isVisible: true,
 };
 
 const WRAPPER_PADDING_X = 15;
@@ -62,6 +68,6 @@ function ObjectField({
   );
 }
 
-ObjectField.componentDefaultValues = {};
+ObjectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default ObjectField;

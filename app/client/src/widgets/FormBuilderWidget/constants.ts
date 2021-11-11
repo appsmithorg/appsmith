@@ -76,7 +76,7 @@ export type SchemaItem = FieldComponentBaseProps & {
 // This defines a react component with componentDefaultValues property attached to it.
 type FieldComponent = {
   (props: BaseFieldComponentProps): JSX.Element | null;
-  componentDefaultValues: Record<string, any>;
+  componentDefaultValues: FieldComponentBaseProps;
 };
 
 export type Schema = Record<string, SchemaItem>;
@@ -101,12 +101,6 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
   [FieldType.TEXT]: InputField,
 };
 
-/**
- * This translates FieldType to Input component inputType
- * As InputField would handle all the below types (Text/Number), this map
- * would help use identify what inputType it is based on the FieldType.
- */
-
 export const INPUT_TYPES = [
   FieldType.CURRENCY,
   FieldType.EMAIL,
@@ -116,6 +110,11 @@ export const INPUT_TYPES = [
   FieldType.PASSWORD,
 ] as const;
 
+/**
+ * This translates FieldType to Input component inputType
+ * As InputField would handle all the below types (Text/Number), this map
+ * would help use identify what inputType it is based on the FieldType.
+ */
 export const INPUT_FIELD_TYPE: Record<typeof INPUT_TYPES[number], InputType> = {
   [FieldType.CURRENCY]: "CURRENCY",
   [FieldType.EMAIL]: "EMAIL",
@@ -133,53 +132,16 @@ export const FIELD_EXPECTING_OPTIONS = [
 ];
 
 export const DATA_TYPE_POTENTIAL_FIELD = {
-  [DataType.STRING]: {
-    default: FieldType.TEXT,
-    options: [
-      FieldType.DATE,
-      FieldType.EMAIL,
-      FieldType.PHONE_NUMBER,
-      FieldType.RADIO_GROUP,
-      FieldType.SELECT,
-      FieldType.TEXT,
-    ],
-  },
-  [DataType.BOOLEAN]: {
-    default: FieldType.SWITCH,
-    options: [FieldType.SWITCH, FieldType.CHECKBOX],
-  },
-  [DataType.NUMBER]: {
-    default: FieldType.NUMBER,
-    options: [FieldType.NUMBER, FieldType.PHONE_NUMBER],
-  },
-  [DataType.BIGINT]: {
-    default: FieldType.NUMBER,
-    options: [FieldType.NUMBER],
-  },
-  [DataType.SYMBOL]: {
-    default: FieldType.TEXT,
-    options: [FieldType.TEXT],
-  },
-  [DataType.UNDEFINED]: {
-    default: FieldType.TEXT,
-    options: [FieldType.TEXT],
-  },
-  [DataType.NULL]: {
-    default: FieldType.TEXT,
-    options: [FieldType.TEXT],
-  },
-  [DataType.OBJECT]: {
-    default: FieldType.OBJECT,
-    options: [FieldType.OBJECT],
-  },
-  [DataType.ARRAY]: {
-    default: FieldType.ARRAY,
-    options: [FieldType.ARRAY, FieldType.MULTI_SELECT],
-  },
-  [DataType.FUNCTION]: {
-    default: FieldType.TEXT,
-    options: [FieldType.TEXT],
-  },
+  [DataType.STRING]: FieldType.TEXT,
+  [DataType.BOOLEAN]: FieldType.SWITCH,
+  [DataType.NUMBER]: FieldType.NUMBER,
+  [DataType.BIGINT]: FieldType.NUMBER,
+  [DataType.SYMBOL]: FieldType.TEXT,
+  [DataType.UNDEFINED]: FieldType.TEXT,
+  [DataType.NULL]: FieldType.TEXT,
+  [DataType.OBJECT]: FieldType.OBJECT,
+  [DataType.ARRAY]: FieldType.ARRAY,
+  [DataType.FUNCTION]: FieldType.TEXT,
 };
 
 // The potential value here is just for representation i.e it won't be used to set default value anywhere.
