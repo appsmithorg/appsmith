@@ -151,9 +151,9 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
         console.log(code);
         // debugger;
       }
-      let depth = ancestors.length - 1;
+      let depth = ancestors.length - 2;
       while (depth > 0) {
-        const parent = ancestors[depth - 1];
+        const parent = ancestors[depth];
         if (
           isMemberExpressionNode(parent) &&
           // We will ignore member expressions that are "computed" (with index/string [ ]  search)
@@ -173,6 +173,8 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
             !isNaN(parent.property.raw)
           ) {
             candidateTopLevelNode = parent;
+            depth = depth - 1;
+            continue;
           }
           // Top level found
           break;
