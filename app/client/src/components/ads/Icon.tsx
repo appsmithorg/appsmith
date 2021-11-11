@@ -63,7 +63,6 @@ import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
 import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
-import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
@@ -123,6 +122,8 @@ import ShareLineIcon from "remixicon-react/ShareLineIcon";
 import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
 import WidgetIcon from "remixicon-react/FunctionLineIcon";
+import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
+import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -287,6 +288,7 @@ export const IconCollection = [
   "loader",
   "setting",
   "widget",
+  "refresh",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -493,7 +495,7 @@ const Icon = forwardRef(
         returnIcon = <GeneralIcon />;
         break;
       case "git-branch":
-        returnIcon = <GitBranch />;
+        returnIcon = <GitBranchLineIcon />;
         break;
       case "guide":
         returnIcon = <GuideIcon />;
@@ -674,6 +676,9 @@ const Icon = forwardRef(
         break;
       case "widget":
         returnIcon = <WidgetIcon />;
+        break;
+      case "refresh":
+        returnIcon = <RefreshLineIcon />;
         break;
       default:
         returnIcon = null;
