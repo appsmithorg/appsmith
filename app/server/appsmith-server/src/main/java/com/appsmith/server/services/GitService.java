@@ -7,7 +7,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
-import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitPullDTO;
@@ -40,7 +39,7 @@ public interface GitService {
 
     Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch);
 
-    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, GitCheckoutBranchDTO gitCheckoutBranchDTO);
+    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, Boolean isRemote);
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 

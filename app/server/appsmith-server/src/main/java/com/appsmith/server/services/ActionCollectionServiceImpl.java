@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -122,10 +123,11 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     public Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(MultiValueMap<String, String> params,
                                                                              Boolean viewMode,
                                                                              String branchName) {
+        MultiValueMap<String, String> updatedMap = new LinkedMultiValueMap<>(params);
         if (!StringUtils.isEmpty(branchName)) {
-            params.addIfAbsent(FieldName.BRANCH_NAME, branchName);
+            updatedMap.add(FieldName.BRANCH_NAME, branchName);
         }
-        return this.getPopulatedActionCollectionsByViewMode(params, viewMode)
+        return this.getPopulatedActionCollectionsByViewMode(updatedMap, viewMode)
                 .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
     }
 

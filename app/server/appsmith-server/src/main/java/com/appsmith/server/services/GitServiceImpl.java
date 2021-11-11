@@ -17,7 +17,6 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitBranchDTO;
-import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitPullDTO;
@@ -653,17 +652,16 @@ public class GitServiceImpl implements GitService {
                 .map(sanitiseResponse::updateApplicationWithDefaultResources);
     }
 
-    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, GitCheckoutBranchDTO gitCheckoutBranchDTO) {
+    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, Boolean isRemote) {
 
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
         }
 
         //If the user is trying to check out remote branch, create a new branch if the branch does not exist already
-        if(Boolean.TRUE.equals(gitCheckoutBranchDTO.getIsRemote())) {
+        if(Boolean.TRUE.equals(isRemote)) {
             return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
                     .onErrorResume(error -> checkoutRemoteBranch(defaultApplicationId, branchName));
-
         }
 
         return getApplicationById(defaultApplicationId)
