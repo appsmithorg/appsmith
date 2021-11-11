@@ -141,6 +141,9 @@ configure_supervisord() {
 	fi
 	if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then
 		cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+    # Enable saving Redis session data to disk, so session aren't cleared on restart.
+    awk 'found == 0 && /^# save ""/ {found=1} found == 1 && /^$/ {print "save 60 1"; found = 2} {print}' /etc/redis/redis.conf > /tmp/redis.conf
+    mv /tmp/redis.conf /etc/redis/redis.conf
 	fi
 }
 
