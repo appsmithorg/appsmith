@@ -146,6 +146,7 @@ const TextContainer = styled.div<{
     padding: ${(props) => props.theme.spaces[4]}px
       ${(props) => props.theme.spaces[5]}px;
     background-color: ${(props) => props.bgColor};
+    width: calc(100% - 40px);
   }
 
   .icon-wrapper {
