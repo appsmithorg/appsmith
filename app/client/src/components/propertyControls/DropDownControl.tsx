@@ -10,8 +10,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       value: undefined,
     };
 
-    const options =
-      this.props?.options || this.props.optionsFn?.(this.props) || [];
+    const options = this.props?.options || [];
 
     if (this.props.defaultValue) {
       defaultSelected = options.find(
@@ -64,7 +63,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
 export interface DropDownControlProps extends ControlProps {
   options?: any[];
-  optionsFn?: (props: DropDownControlProps) => any[];
   defaultValue?: string;
   placeholderText: string;
   dropdownHeight?: string;

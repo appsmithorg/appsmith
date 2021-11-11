@@ -172,9 +172,6 @@ class SchemaParser {
     const fieldType = options.fieldType || fieldTypeFor(currFormData);
     const FieldComponent = FIELD_MAP[fieldType];
     const { label, name } = SchemaParser.nameAndLabel(key);
-    const props = {
-      ...FieldComponent.componentDefaultValues,
-    };
 
     // Removing fieldType (which might have been passed by getSchemaItemByFieldType)
     // as it might bleed into subsequent schema item and force assign fieldType
@@ -190,6 +187,7 @@ class SchemaParser {
     }
 
     return {
+      ...FieldComponent.componentDefaultValues,
       children,
       dataType,
       fieldType,
@@ -199,7 +197,6 @@ class SchemaParser {
       label,
       name,
       position: -1,
-      props,
     };
   };
 

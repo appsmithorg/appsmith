@@ -33,26 +33,22 @@ function MultiSelectField({
   schemaItem,
   ...rest
 }: MultiSelectFieldProps) {
-  const { label, props } = schemaItem;
-  const { isDisabled, options = [], ...restSchemaItemProps } = props;
-
   return (
     <Field
       {...rest}
-      label={label}
+      label={schemaItem.label}
       name={name}
       render={({ field: { onChange, value = [] } }) => (
         <StyledMultiSelectWrapper>
           <MultiSelect
-            {...restSchemaItemProps}
-            disabled={isDisabled}
+            disabled={schemaItem.isDisabled}
             dropdownStyle={{
               zIndex: Layers.dropdownModalWidget,
             }}
             loading={false}
             onChange={onChange}
             onFilterChange={noop}
-            options={options}
+            options={schemaItem.options || []}
             placeholder="Multi Select"
             serverSideFiltering={false}
             value={value}

@@ -13,18 +13,20 @@ import {
 } from "./fields";
 
 export enum FieldType {
+  ARRAY = "Array",
   CHECKBOX = "Checkbox",
+  CURRENCY = "Currency",
   DATE = "Date",
   EMAIL = "Email",
   MULTI_SELECT = "Multi-Select",
   NUMBER = "Number",
+  OBJECT = "Object",
+  PASSWORD = "Password",
   PHONE_NUMBER = "Phone Number",
   RADIO_GROUP = "Radio-Group",
   SELECT = "Select",
   SWITCH = "Switch",
   TEXT = "Text",
-  ARRAY = "Array",
-  OBJECT = "Object",
 }
 
 export enum DataType {
@@ -40,7 +42,7 @@ export enum DataType {
   FUNCTION = "function",
 }
 
-export type SchemaItem<TProps = any> = {
+export type SchemaItem = {
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
@@ -50,7 +52,6 @@ export type SchemaItem<TProps = any> = {
   label: string;
   name: string;
   position: number;
-  props: TProps;
   tooltip?: string;
 };
 
@@ -66,18 +67,20 @@ export const ARRAY_ITEM_KEY = "__array_item__";
 export const ROOT_SCHEMA_KEY = "__root_schema__";
 
 export const FIELD_MAP: Record<FieldType, FieldComponent> = {
-  [FieldType.TEXT]: InputField,
-  [FieldType.NUMBER]: InputField,
-  [FieldType.EMAIL]: InputField,
-  [FieldType.PHONE_NUMBER]: InputField,
+  [FieldType.ARRAY]: ArrayField,
   [FieldType.CHECKBOX]: CheckboxField,
+  [FieldType.CURRENCY]: InputField,
   [FieldType.DATE]: DateField,
-  [FieldType.RADIO_GROUP]: RadioGroupField,
+  [FieldType.EMAIL]: InputField,
   [FieldType.MULTI_SELECT]: MultiSelectField,
+  [FieldType.NUMBER]: InputField,
+  [FieldType.OBJECT]: ObjectField,
+  [FieldType.PASSWORD]: InputField,
+  [FieldType.PHONE_NUMBER]: InputField,
+  [FieldType.RADIO_GROUP]: RadioGroupField,
   [FieldType.SELECT]: SelectField,
   [FieldType.SWITCH]: SwitchField,
-  [FieldType.ARRAY]: ArrayField,
-  [FieldType.OBJECT]: ObjectField,
+  [FieldType.TEXT]: InputField,
 };
 
 /**
@@ -85,12 +88,24 @@ export const FIELD_MAP: Record<FieldType, FieldComponent> = {
  * As InputField would handle all the below types (Text/Number), this map
  * would help use identify what inputType it is based on the FieldType.
  */
-export const INPUT_FIELD_TYPE = {
-  [FieldType.TEXT]: "TEXT",
-  [FieldType.NUMBER]: "NUMBER",
-  [FieldType.PHONE_NUMBER]: "PHONE_NUMBER",
+
+export const INPUT_TYPES = [
+  FieldType.CURRENCY,
+  FieldType.EMAIL,
+  FieldType.NUMBER,
+  FieldType.PHONE_NUMBER,
+  FieldType.TEXT,
+  FieldType.PASSWORD,
+] as const;
+
+export const INPUT_FIELD_TYPE: Record<typeof INPUT_TYPES[number], InputType> = {
+  [FieldType.CURRENCY]: "CURRENCY",
   [FieldType.EMAIL]: "EMAIL",
-} as Record<FieldType, InputType>;
+  [FieldType.NUMBER]: "NUMBER",
+  [FieldType.PASSWORD]: "PASSWORD",
+  [FieldType.PHONE_NUMBER]: "PHONE_NUMBER",
+  [FieldType.TEXT]: "TEXT",
+};
 
 export const FIELD_EXPECTING_OPTIONS = [
   FieldType.MULTI_SELECT,
@@ -156,6 +171,8 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.TEXT]: "",
   [FieldType.NUMBER]: 0,
   [FieldType.EMAIL]: "",
+  [FieldType.PASSWORD]: "",
+  [FieldType.CURRENCY]: "",
   [FieldType.PHONE_NUMBER]: "",
   [FieldType.CHECKBOX]: true,
   [FieldType.DATE]: "",

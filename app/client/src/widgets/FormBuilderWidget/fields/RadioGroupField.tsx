@@ -15,19 +15,17 @@ type RadioGroupFieldProps = BaseFieldComponentProps<
 >;
 
 function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
-  const { label, props } = schemaItem;
-
   return (
     <Field
       {...rest}
-      label={label}
+      label={schemaItem.label}
       name={name}
       render={({ field: { onChange, value } }) => (
         <RadioGroupComponent
-          {...props}
           isLoading={false}
           label=""
           onRadioSelectionChange={onChange}
+          options={schemaItem.options || []}
           selectedOptionValue={value}
           widgetId=""
         />

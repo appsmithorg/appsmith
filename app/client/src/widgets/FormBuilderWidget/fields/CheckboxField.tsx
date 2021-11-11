@@ -11,7 +11,7 @@ type CheckboxComponentProps = {
 type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
 
 function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
-  const { label, props } = schemaItem;
+  const { label } = schemaItem;
 
   return (
     <Field
@@ -20,7 +20,6 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <CheckboxComponent
-          {...props}
           alignWidget="LEFT"
           inputRef={ref}
           isChecked={value}

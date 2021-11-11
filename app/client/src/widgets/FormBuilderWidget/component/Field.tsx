@@ -1,8 +1,8 @@
-import React, { Fragment } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
-import FieldLabel from "./FieldLabel";
+import FieldLabel, { FieldLabelProps } from "./FieldLabel";
 
 type FieldProps = {
   hideLabel?: boolean;
@@ -10,6 +10,7 @@ type FieldProps = {
   name: ControllerProps["name"];
   render: ControllerProps["render"];
   tooltip?: string;
+  labelStyles?: FieldLabelProps["labelStyles"];
 };
 
 const WRAPPER_MARGIN_BOTTOM = 14;
@@ -26,13 +27,12 @@ const StyledControllerWrapper = styled.div`
 function Field({
   hideLabel = false,
   label,
+  labelStyles = {},
   name,
   render,
   tooltip,
 }: FieldProps) {
   const { control } = useFormContext();
-
-  const LabelWrapper = hideLabel ? Fragment : FieldLabel;
 
   const controller = (
     <StyledControllerWrapper>
@@ -45,9 +45,9 @@ function Field({
       {hideLabel ? (
         controller
       ) : (
-        <LabelWrapper label={label} tooltip={tooltip}>
+        <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip}>
           {controller}
-        </LabelWrapper>
+        </FieldLabel>
       )}
     </StyledWrapper>
   );

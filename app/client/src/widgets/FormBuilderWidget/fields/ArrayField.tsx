@@ -36,14 +36,14 @@ const StyledButton = styled.button`
 const StyledDeleteButton = styled(StyledButton)`
   align-self: center;
 `;
-function ArrayField({ name, schemaItem }: ArrayFieldProps) {
+function ArrayField({ name, propertyPath, schemaItem }: ArrayFieldProps) {
   const { append, fields, remove } = useFieldArray({
     name,
   });
 
-  const { children, isVisible = true, label, props, tooltip } = schemaItem;
-  const { isDisabled } = props;
+  const { children, isDisabled, isVisible = true, label, tooltip } = schemaItem;
   const arrayItemSchema = children[ARRAY_ITEM_KEY];
+  const basePropertyPath = `${propertyPath}.children.${ARRAY_ITEM_KEY}`;
 
   const onAddClick = () => {
     const data = FIELD_TYPE_TO_POTENTIAL_DATA[arrayItemSchema.fieldType];
@@ -65,10 +65,16 @@ function ArrayField({ name, schemaItem }: ArrayFieldProps) {
         <StyledWrapper>
           {fields.map((field, index) => {
             const fieldName = `${name}.${index}` as ControllerRenderProps["name"];
+            const fieldPropertyPath = `${basePropertyPath}.children.${arrayItemSchema.name}`;
 
             return (
               <StyledItemWrapper key={field.id}>
-                {fieldRenderer(fieldName, arrayItemSchema, options)}
+                {fieldRenderer(
+                  fieldName,
+                  arrayItemSchema,
+                  fieldPropertyPath,
+                  options,
+                )}
                 <StyledDeleteButton onClick={() => remove(index)} type="button">
                   Delete
                 </StyledDeleteButton>

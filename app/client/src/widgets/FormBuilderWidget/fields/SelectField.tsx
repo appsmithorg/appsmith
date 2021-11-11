@@ -32,16 +32,15 @@ const StyledSelectWrapper = styled.div`
 `;
 
 function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
-  const { label, props } = schemaItem;
-  const { options = [], isDisabled = false, ...restSchemaItemProps } = props;
+  const { options = [] } = schemaItem;
 
   return (
     <Field
       {...rest}
-      label={label}
+      label={schemaItem.label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => {
-        const selectedOptionIndex = options.findIndex(
+        const selectedOptionIndex = (options || []).findIndex(
           (option) => option.value === value,
         );
         const selectedIndex =
@@ -54,18 +53,19 @@ function SelectField({ name, schemaItem, ...rest }: SelectFieldProps) {
         return (
           <StyledSelectWrapper>
             <DropDownComponent
-              {...restSchemaItemProps}
-              disabled={isDisabled}
+              disabled={schemaItem.isDisabled}
               height={10}
               inputRef={ref}
+              isFilterable={schemaItem.isFilterable}
               isLoading={false}
               label=""
               onBlurHandler={onBlur}
               onFilterChange={noop}
               onOptionSelected={onOptionSelected}
-              options={options}
+              options={schemaItem.options}
               placeholder=""
               selectedIndex={selectedIndex}
+              serverSideFiltering={schemaItem.serverSideFiltering}
               widgetId=""
               width={10}
             />

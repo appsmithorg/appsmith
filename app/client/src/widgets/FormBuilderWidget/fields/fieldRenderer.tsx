@@ -6,6 +6,7 @@ import { FIELD_MAP, SchemaItem } from "../constants";
 const fieldRenderer = (
   fieldName: ControllerRenderProps["name"],
   schemaItem: SchemaItem,
+  propertyPath: string,
   options?: Record<string, any>,
 ) => {
   const { fieldType, isVisible = true, tooltip } = schemaItem;
@@ -23,6 +24,7 @@ const fieldRenderer = (
     name: fieldName,
     tooltip,
     schemaItem,
+    propertyPath,
   };
 
   return <FieldComponent {...fieldProps} {...options} />;

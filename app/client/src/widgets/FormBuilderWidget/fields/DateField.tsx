@@ -27,21 +27,22 @@ type DateComponentOwnProps = Pick<
 type DateFieldProps = BaseFieldComponentProps<DateComponentOwnProps>;
 
 function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
-  const { label, props } = schemaItem;
-
   return (
     <Field
       {...rest}
-      label={label}
+      label={schemaItem.label}
       name={name}
       render={({ field: { onChange, value } }) => (
         <DateComponent
-          {...props}
+          closeOnSelection={schemaItem.closeOnSelection}
+          dateFormat={schemaItem.dateFormat}
           datePickerType="DATE_PICKER"
+          isDisabled={schemaItem.isDisabled}
           isLoading={false}
           label=""
           onDateSelected={onChange}
           selectedDate={value}
+          shortcuts={schemaItem.shortcuts}
           widgetId=""
         />
       )}

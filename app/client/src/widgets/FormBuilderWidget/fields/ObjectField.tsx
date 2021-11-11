@@ -11,7 +11,10 @@ import { sortBy } from "lodash";
 // Note: Do not use ControllerRenderProps["name"] here for name, as it causes TS stack overflow
 type ObjectFieldProps = {
   name: string;
-  schemaItem: SchemaItem;
+  propertyPath: string;
+  schemaItem: SchemaItem & {
+    isDisabled: boolean;
+  };
   hideLabel?: boolean;
 };
 
@@ -24,9 +27,13 @@ const StyledWrapper = styled.div`
   width: 100%;
 `;
 
-function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
-  const { isVisible = true, label, props, tooltip } = schemaItem;
-  const { isDisabled } = props;
+function ObjectField({
+  hideLabel,
+  name,
+  propertyPath,
+  schemaItem,
+}: ObjectFieldProps) {
+  const { isDisabled, isVisible = true, label, tooltip } = schemaItem;
   const children = Object.values(schemaItem.children);
   const sortedChildren = sortBy(children, ({ position }) => position);
 
@@ -37,10 +44,12 @@ function ObjectField({ hideLabel, name, schemaItem }: ObjectFieldProps) {
   const renderFields = () => {
     return sortedChildren.map((schemaItem) => {
       const fieldName = name ? `${name}.${schemaItem.name}` : schemaItem.name;
+      const fieldPropertyPath = `${propertyPath}.children.${schemaItem.name}`;
 
       return fieldRenderer(
         fieldName as ControllerRenderProps["name"],
         schemaItem,
+        fieldPropertyPath,
       );
     });
   };

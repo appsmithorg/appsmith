@@ -4,9 +4,11 @@ import { DefaultValues } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
 import Form from "./Form";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { FIELD_MAP, ROOT_SCHEMA_KEY, Schema } from "../constants";
 import { isEmpty } from "lodash";
-import { TEXT_SIZES } from "constants/WidgetConstants";
+import { RenderMode, TEXT_SIZES } from "constants/WidgetConstants";
+import { FormContextProvider } from "../FormContext";
 
 type StyledContainerProps = {
   backgroundColor?: string;
@@ -14,15 +16,18 @@ type StyledContainerProps = {
 
 export type FormBuilderComponentProps<TValues> = {
   backgroundColor?: string;
+  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   fixedFooter: boolean;
   formData?: TValues;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  renderMode: RenderMode;
   schema: Schema;
   scrollContents: boolean;
   showReset: boolean;
   title: string;
   updateFormValues: (values: TValues) => void;
   useFormDataValues: boolean;
+  updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
 };
 
 const StyledContainer = styled.div<StyledContainerProps>`
@@ -49,8 +54,11 @@ const StyledZeroTitle = styled(Text)`
 
 function FormBuilderComponent<TValues>({
   backgroundColor,
+  executeAction,
   formData,
+  renderMode,
   schema,
+  updateWidgetProperty,
   ...rest
 }: FormBuilderComponentProps<TValues>) {
   const isSchemaEmpty = isEmpty(schema);
@@ -65,20 +73,33 @@ function FormBuilderComponent<TValues>({
   const renderRootField = () => {
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
     const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
+    const propertyPath = `schema.${ROOT_SCHEMA_KEY}`;
 
-    return <RootField name="" schemaItem={rootSchemaItem} />;
+    return (
+      <RootField
+        name=""
+        propertyPath={propertyPath}
+        schemaItem={rootSchemaItem}
+      />
+    );
   };
 
   return (
-    <StyledContainer backgroundColor={backgroundColor}>
-      <Form
-        {...rest}
-        formData={formData as DefaultValues<TValues>}
-        stretchBodyVertically={isSchemaEmpty}
-      >
-        {isEmpty(schema) ? zeroState : renderRootField()}
-      </Form>
-    </StyledContainer>
+    <FormContextProvider
+      executeAction={executeAction}
+      renderMode={renderMode}
+      updateWidgetProperty={updateWidgetProperty}
+    >
+      <StyledContainer backgroundColor={backgroundColor}>
+        <Form
+          {...rest}
+          formData={formData as DefaultValues<TValues>}
+          stretchBodyVertically={isSchemaEmpty}
+        >
+          {isEmpty(schema) ? zeroState : renderRootField()}
+        </Form>
+      </StyledContainer>
+    </FormContextProvider>
   );
 }
 

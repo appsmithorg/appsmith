@@ -18,16 +18,13 @@ type SwitchComponentOwnProps = Pick<SwitchComponentProps, PICKED_DEFAULT_PROPS>;
 type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
 
 function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
-  const { label, props } = schemaItem;
-
   return (
     <Field
       {...rest}
-      label={label}
+      label={schemaItem.label}
       name={name}
       render={({ field: { onBlur, onChange, ref, value } }) => (
         <SwitchComponent
-          {...props}
           alignWidget="LEFT"
           inputRef={ref}
           isLoading={false}

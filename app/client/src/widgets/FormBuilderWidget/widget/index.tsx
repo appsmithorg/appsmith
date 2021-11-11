@@ -1,5 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
+import { connect } from "react-redux";
 import { isEmpty } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -7,10 +8,15 @@ import FormBuilderComponent from "../component";
 import propertyConfig from "./propertyConfig";
 import SchemaParser from "../schemaParser";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
+  ExecuteTriggerPayload,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import { Schema } from "../constants";
+import { AppState } from "reducers";
 
-export type FormBuilderWidgetProps = WidgetProps & {
+export interface FormBuilderWidgetProps extends WidgetProps {
+  canvasWidgets: Record<string, WidgetProps>;
   fixedFooter: boolean;
   formData?: Record<string, any>;
   isVisible: boolean;
@@ -21,7 +27,7 @@ export type FormBuilderWidgetProps = WidgetProps & {
   showReset: boolean;
   title: string;
   useFormDataValues: boolean;
-};
+}
 
 class FormBuilderWidget extends BaseWidget<
   FormBuilderWidgetProps,
@@ -45,6 +51,8 @@ class FormBuilderWidget extends BaseWidget<
     };
   }
 
+  static defaultProps = {};
+
   componentDidMount() {
     this.constructAndSaveSchemaIfRequired();
   }
@@ -56,6 +64,7 @@ class FormBuilderWidget extends BaseWidget<
   constructAndSaveSchemaIfRequired = (prevProps?: FormBuilderWidgetProps) => {
     const prevFormData = prevProps?.formData;
     const currFormData = this.props?.formData;
+    const widget = this.props.canvasWidgets[this.props.widgetId];
 
     if (isEmpty(currFormData)) {
       return;
@@ -67,7 +76,7 @@ class FormBuilderWidget extends BaseWidget<
     }
 
     const start = performance.now();
-    const schema = SchemaParser.parse(currFormData, this.props.schema);
+    const schema = SchemaParser.parse(currFormData, widget.schema);
     const end = performance.now();
 
     // eslint-disable-next-line
@@ -101,12 +110,22 @@ class FormBuilderWidget extends BaseWidget<
     }
   };
 
+  onExecuteAction = (actionPayload: ExecuteTriggerPayload) => {
+    super.executeAction(actionPayload);
+  };
+
+  onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
+    this.updateWidgetProperty(propertyName, propertyValue);
+  };
+
   getPageView() {
     return (
       <FormBuilderComponent
         {...this.props}
+        executeAction={this.onExecuteAction}
         onSubmit={this.onSubmit}
         updateFormValues={this.updateFormValues}
+        updateWidgetProperty={this.onUpdateWidgetProperty}
       />
     );
   }
@@ -116,4 +135,10 @@ class FormBuilderWidget extends BaseWidget<
   }
 }
 
-export default FormBuilderWidget;
+const mapStateToProps = (state: AppState) => {
+  return {
+    canvasWidgets: state.entities.canvasWidgets,
+  };
+};
+
+export default connect(mapStateToProps, null)(FormBuilderWidget);

@@ -6,6 +6,19 @@ import Tooltip from "components/editorComponents/Tooltip";
 import { Colors } from "constants/Colors";
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { IconWrapper } from "constants/IconConstants";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
+
+type StyledLabelTextProps = {
+  color: string;
+  fontSize: string;
+  fontWeight: string;
+  fontStyle: string;
+  textDecoration: string;
+};
 
 const LABEL_TEXT_WRAPPER_MARGIN_BOTTOM = 4;
 const LABEL_TEXT_MARGIN_RIGHT = 10;
@@ -21,9 +34,14 @@ const StyledLabelTextWrapper = styled.div`
   }
 `;
 
-const StyledLabelText = styled.p`
+const StyledLabelText = styled.p<StyledLabelTextProps>`
   margin-bottom: 0;
   margin-right: ${LABEL_TEXT_MARGIN_RIGHT}px;
+  color: ${({ color }) => color};
+  font-size: ${({ fontSize }) => fontSize};
+  font-weight: ${({ fontWeight }) => fontWeight};
+  font-style: ${({ fontStyle }) => fontStyle};
+  text-decoration: ${({ textDecoration }) => textDecoration};
 `;
 
 const ToolTipIcon = styled(IconWrapper)`
@@ -37,16 +55,42 @@ const ToolTipIcon = styled(IconWrapper)`
   }
 `;
 
-type FieldLabelProps = PropsWithChildren<{
+type LabelStyles = {
+  labelStyle?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+};
+
+export type FieldLabelProps = PropsWithChildren<{
   label: string;
   tooltip?: string;
+  labelStyles?: LabelStyles;
 }>;
 
-function FieldLabel({ children, label, tooltip }: FieldLabelProps) {
+function FieldLabel({
+  children,
+  label,
+  labelStyles,
+  tooltip,
+}: FieldLabelProps) {
+  const labelStyleProps = (() => {
+    const { labelStyle, labelTextColor = "", labelTextSize = "PARAGRAPH" } =
+      labelStyles || {};
+
+    const st = labelStyle?.split(",");
+    return {
+      color: labelTextColor,
+      fontSize: TEXT_SIZES[labelTextSize],
+      fontWeight: st?.includes(FontStyleTypes.BOLD) ? "bold" : "normal",
+      fontStyle: st?.includes(FontStyleTypes.ITALIC) ? "italic" : "",
+      textDecoration: st?.includes(FontStyleTypes.UNDERLINE) ? "underline" : "",
+    };
+  })();
+
   return (
     <label>
       <StyledLabelTextWrapper>
-        <StyledLabelText>{label}</StyledLabelText>
+        <StyledLabelText {...labelStyleProps}>{label}</StyledLabelText>
         {tooltip && (
           <Tooltip
             className={TOOLTIP_CLASSNAME}
