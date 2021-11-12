@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { GitSyncModalTab, GitConfig } from "entities/GitSync";
+import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -258,6 +258,23 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingMergeStatus: false,
   }),
+  [ReduxActionTypes.GIT_PULL_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<MergeStatus>,
+  ) => ({
+    ...state,
+    pullMergeStatus: action.payload,
+    pullInProgress: false,
+  }),
+  [ReduxActionTypes.GIT_PULL_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    pullMergeStatus: null,
+    pullInProgress: true,
+  }),
+  [ReduxActionErrorTypes.GIT_PULL_ERROR]: (state: GitSyncReducerState) => ({
+    ...state,
+    pullInProgress: false,
+  }),
 });
 
 export type GitStatusData = {
@@ -294,6 +311,8 @@ export type GitSyncReducerState = {
   isFetchingMergeStatus: boolean;
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
+  pullMergeStatus?: MergeStatus;
+  pullInProgress?: boolean;
 };
 
 export default gitSyncReducer;

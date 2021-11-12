@@ -7,7 +7,10 @@ import {
 import { all, put, select, takeLatest, call } from "redux-saga/effects";
 
 import GitSyncAPI from "api/GitSyncAPI";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import {
   commitToRepoSuccess,
@@ -51,6 +54,8 @@ import {
   mergeBranchSuccess,
   mergeBranchFailure,
 } from "../actions/gitSyncActions";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { initEditor } from "actions/initActions";
 
 function* commitToGitRepoSaga(
   action: ReduxAction<{
@@ -390,8 +395,17 @@ function* gitPullSaga() {
     const applicationId: string = yield select(getCurrentApplicationId);
     const response = yield call(GitSyncAPI.pull, { applicationId });
     const isValidResponse: boolean = yield validateResponse(response, false);
+    const currentBranch = yield select(getCurrentGitBranch);
+    const currentPageId = yield select(getCurrentPageId);
     if (isValidResponse) {
-      yield put(gitPullSuccess());
+      const { mergeStatus } = response.data;
+      yield put(gitPullSuccess(mergeStatus));
+      // re-init after a successfull pull
+      if (mergeStatus.merge) {
+        yield put(initEditor(applicationId, currentPageId, currentBranch));
+      } else {
+        // todo handle error
+      }
     }
   } catch (e) {
     yield put({

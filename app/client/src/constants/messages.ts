@@ -603,6 +603,8 @@ export const SYNC_BRANCHES = () => "Sync branches";
 export const CONFLICTS_FOUND = () =>
   "Conflicts found, please resolve them and pull again";
 export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
+export const NO_COMMITS_TO_PULL = () =>
+  "No commits to pull. In sync with the remote repository";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
