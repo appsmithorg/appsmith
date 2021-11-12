@@ -101,6 +101,8 @@ import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
+import GitCommit from "remixicon-react/GitCommitLineIcon";
+import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
@@ -227,6 +229,8 @@ export const IconCollection = [
   "gear",
   "general",
   "git-branch",
+  "git-commit",
+  "git-pull-request",
   "guide",
   "help",
   "invite-user",
@@ -494,6 +498,12 @@ const Icon = forwardRef(
         break;
       case "git-branch":
         returnIcon = <GitBranch />;
+        break;
+      case "git-commit":
+        returnIcon = <GitCommit />;
+        break;
+      case "git-pull-request":
+        returnIcon = <GitPullRequst />;
         break;
       case "guide":
         returnIcon = <GuideIcon />;

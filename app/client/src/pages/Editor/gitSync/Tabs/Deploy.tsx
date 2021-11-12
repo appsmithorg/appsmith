@@ -37,6 +37,7 @@ import GitSyncError from "../components/GitError";
 import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
 import GitChanged, { Kind } from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
+import { log } from "loglevel";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -78,11 +79,11 @@ function Deploy() {
   // const [showCompleteError, setShowCompleteError] = useState(false);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const gitStatus = useSelector(getGitStatus);
+  const gitStatus: any = useSelector(getGitStatus);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   // const errorMsgRef = useRef<HTMLDivElement>(null);
-
+  log("git status", gitStatus);
   const hasChangesToCommit = !gitStatus?.isClean;
 
   const currentBranch = gitMetaData?.branchName;
@@ -133,6 +134,8 @@ function Deploy() {
         <Row>
           <GitChanged type={Kind.widget} />
           <GitChanged type={Kind.query} />
+          {gitStatus?.behindCount > 0 && <GitChanged type={Kind.pullRequest} />}
+          {gitStatus?.aheadCount > 0 && <GitChanged type={Kind.commit} />}
         </Row>
         <Space size={11} />
         <Row>
