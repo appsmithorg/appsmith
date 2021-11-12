@@ -39,7 +39,7 @@ import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import {
-  findFieldLabelFactory,
+  findFieldInfo,
   getReplayEntityType,
   ReplayEntityType,
 } from "entities/Replay/replayUtils";
@@ -54,8 +54,15 @@ import {
   workerComputeUndoRedo,
 } from "./EvaluationsSaga";
 import { createBrowserHistory } from "history";
-import { getEditorConfig, getSettingConfig } from "selectors/entitiesSelector";
+import {
+  getEditorConfig,
+  getPluginForm,
+  getSettingConfig,
+} from "selectors/entitiesSelector";
 import { isAPIAction, isQueryAction, isSaasAction } from "entities/Action";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
+import { EDITOR_TABS } from "constants/editorConstants";
+import { isEmpty } from "lodash";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -193,7 +200,13 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         break;
       }
       case ReplayEntityType.ACTION:
-        yield call(replayPreProcess, replayEntity, replay);
+        const { currentTab } = yield call(
+          replayPreProcess,
+          replayEntity,
+          replay,
+          ReplayEntityType.ACTION,
+        );
+        yield call(switchTab, currentTab);
         yield put(
           isQueryAction(replayEntity)
             ? changeQuery(replayEntity.id, false, replayEntity)
@@ -206,13 +219,24 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         );
         yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
         yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+        flashElementsById(btoa(replay.modifiedProperty), 0, 500, "#f0f0f0");
         // yield call(replayPostProcess, replayEntity, replay, replayEntityType);
         break;
-      case ReplayEntityType.DATASOURCE:
+      case ReplayEntityType.DATASOURCE: {
+        const { fieldInfo = {} } = yield call(
+          replayPreProcess,
+          replayEntity,
+          replay,
+          ReplayEntityType.DATASOURCE,
+        );
+        const { parentConfig = {} } = fieldInfo;
+        const { sectionName } = parentConfig;
+        yield call(expandAccordion, sectionName);
         yield put(
           changeDatasource({ datasource: replayEntity, isReplay: true }),
         );
         break;
+      }
       case ReplayEntityType.JSACTION:
         yield put(updateJSCollectionBody(replayEntity.body, replayEntity.id));
         break;
@@ -223,45 +247,85 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   }
 }
 
-export function* replayPreProcess(replayEntity: any, replay: any) {
-  let currentTab = "";
-  let fieldLabel = "";
+export function* switchTab(replayId: string) {
+  if (!replayId) return;
+  (document.querySelector(
+    `[data-replay-id="${replayId}"]`,
+  ) as HTMLElement)?.click();
+  yield delay(100);
+}
+
+export function* expandAccordion(replayId: string) {
+  if (!replayId) return;
+  (document
+    .querySelector(`[data-replay-id="section-${replayId}"]`)
+    ?.querySelector(".bp3-icon-chevron-down") as HTMLElement)?.click();
+  yield delay(100);
+}
+
+export function* replayPreProcess(
+  replayEntity: any,
+  replay: any,
+  replayEntityType: ReplayEntityType,
+) {
   const { modifiedProperty } = replay;
+  let res = {};
+  if (replayEntityType === ReplayEntityType.ACTION) {
+    res = yield call(getEditorFieldConfig, replayEntity, modifiedProperty);
+  } else if (replayEntityType === ReplayEntityType.DATASOURCE) {
+    res = yield call(getDatasourceFieldConfig, replayEntity, modifiedProperty);
+  }
+  return res;
+}
+
+function* getDatasourceFieldConfig(
+  replayEntity: any,
+  modifiedProperty: string,
+) {
+  const formConfig: [Record<any, any>] = yield select(
+    getPluginForm,
+    replayEntity.pluginId,
+  );
+  const fieldInfo = findFieldInfo(formConfig, modifiedProperty);
+  return { fieldInfo };
+}
+
+function* getEditorFieldConfig(replayEntity: any, modifiedProperty: string) {
+  let currentTab = "";
+  let fieldInfo = {};
   if (isAPIAction(replayEntity)) {
-    currentTab =
-      modifiedProperty.indexOf("headers") > -1 ? "headers" : currentTab;
-    currentTab =
-      modifiedProperty.indexOf("queryParameters") > -1 ? "params" : currentTab;
-    currentTab = modifiedProperty.indexOf("body") > -1 ? "body" : currentTab;
-    currentTab =
-      modifiedProperty.indexOf("pagination") > -1 ? "pagination" : currentTab;
+    if (modifiedProperty.indexOf("headers") > -1)
+      currentTab = API_EDITOR_TABS.HEADERS;
+    else if (modifiedProperty.indexOf("queryParameters") > -1)
+      currentTab = API_EDITOR_TABS.PARAMS;
+    else if (modifiedProperty.indexOf("body") > -1)
+      currentTab = API_EDITOR_TABS.BODY;
+    else if (modifiedProperty.indexOf("pagination") > -1)
+      currentTab = API_EDITOR_TABS.PAGINATION;
     if (!currentTab) {
-      const settingsConfig = yield select(
+      const settingsConfig: [Record<any, any>] = yield select(
         getSettingConfig,
         replayEntity.pluginId,
       );
-      fieldLabel = findFieldLabelFactory(settingsConfig, modifiedProperty);
-      if (fieldLabel) currentTab = "settings";
+      fieldInfo = findFieldInfo(settingsConfig, modifiedProperty);
+      if (!isEmpty(fieldInfo)) currentTab = API_EDITOR_TABS.SETTINGS;
     }
   } else {
-    const editorConfig = yield select(getEditorConfig, replayEntity.pluginId);
-    fieldLabel = findFieldLabelFactory(editorConfig, modifiedProperty);
-    if (fieldLabel) {
-      currentTab = "query";
+    const editorConfig: [Record<any, any>] = yield select(
+      getEditorConfig,
+      replayEntity.pluginId,
+    );
+    fieldInfo = findFieldInfo(editorConfig, modifiedProperty);
+    if (!isEmpty(fieldInfo)) {
+      currentTab = EDITOR_TABS.QUERY;
     } else {
-      const settingsConfig = yield select(
+      const settingsConfig: [Record<any, any>] = yield select(
         getSettingConfig,
         replayEntity.pluginId,
       );
-      fieldLabel = findFieldLabelFactory(settingsConfig, modifiedProperty);
-      if (fieldLabel) currentTab = "settings";
+      fieldInfo = findFieldInfo(settingsConfig, modifiedProperty);
+      if (!isEmpty(fieldInfo)) currentTab = EDITOR_TABS.SETTINGS;
     }
   }
-  if (currentTab) {
-    (document.querySelector(
-      `[data-replay-id="${currentTab}"]`,
-    ) as HTMLElement)?.click();
-  }
-  yield delay(100);
-  return { fieldLabel };
+  return { currentTab, fieldInfo };
 }

@@ -1,4 +1,4 @@
-import { get, isArray, set } from "lodash";
+import { get, isArray, isEmpty, set } from "lodash";
 export const UPDATES = "propertyUpdates";
 export const REPLAY_DELAY = 300;
 export const TOASTS = "toasts";
@@ -89,16 +89,16 @@ export function pathArrayToString(path?: string[]) {
   return stringPath;
 }
 
-export function findFieldLabelFactory(config: any, field: string) {
-  let result = "";
+export function findFieldInfo(config: any, field: string, parentConfig = {}) {
+  let result = {};
   if (!config || !isArray(config)) return result;
   for (const conf of config) {
     if (conf.configProperty === field) {
-      result = conf.label || conf.internalLabel;
+      result = { conf, parentConfig };
       break;
     } else if (conf.children) {
-      result = findFieldLabelFactory(conf.children, field);
-      if (result) break;
+      result = findFieldInfo(conf.children, field, conf);
+      if (!isEmpty(result)) break;
     }
   }
   return result;

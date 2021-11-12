@@ -260,7 +260,7 @@ function* changeApiSaga(
   }
 
   PerformanceTracker.stopTracking();
-  yield put(updateReplayEntity(id, action));
+  if (!actionPayload.payload.action) yield put(updateReplayEntity(id, action));
 }
 
 function* setHeaderFormat(apiId: string, headers?: Property[]) {

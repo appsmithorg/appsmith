@@ -6,3 +6,8 @@ export type OccupiedSpace = {
   id: string;
   parentId?: string;
 };
+
+export enum EDITOR_TABS {
+  QUERY = "QUERY",
+  SETTINGS = "SETTINGS",
+}

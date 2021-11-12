@@ -143,6 +143,21 @@ export const scrollElementIntoParentCanvasView = (
   }
 };
 
+function hasClass(ele: HTMLElement, cls: string) {
+  return !!ele.className.match(new RegExp("(\\s|^)" + cls + "(\\s|$)"));
+}
+
+function addClass(ele: HTMLElement, cls: string) {
+  if (!hasClass(ele, cls)) ele.className += " " + cls;
+}
+
+function removeClass(ele: HTMLElement, cls: string) {
+  if (hasClass(ele, cls)) {
+    const reg = new RegExp("(\\s|^)" + cls + "(\\s|$)");
+    ele.className = ele.className.replace(reg, " ");
+  }
+}
+
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
   return value
@@ -157,9 +172,10 @@ export const flashElement = (
   flashColor = "#FFCB33",
 ) => {
   el.style.backgroundColor = flashColor;
-
+  addClass(el, "flash");
   setTimeout(() => {
     el.style.backgroundColor = "transparent";
+    removeClass(el, "flash");
   }, flashTimeout);
 };
 

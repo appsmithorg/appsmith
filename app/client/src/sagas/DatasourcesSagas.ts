@@ -49,7 +49,11 @@ import {
   INTEGRATION_TABS,
 } from "constants/routes";
 import history from "utils/history";
-import { API_EDITOR_FORM_NAME, DATASOURCE_DB_FORM } from "constants/forms";
+import {
+  API_EDITOR_FORM_NAME,
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+} from "constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
@@ -85,7 +89,7 @@ import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
-
+import { isEmbeddedRestDatasource } from "../entities/Datasource";
 import { trimQueryString } from "utils/helpers";
 import { updateReplayEntity } from "actions/pageActions";
 
@@ -648,6 +652,10 @@ function* changeDatasourceSaga(
   actionPayload: ReduxAction<{ datasource: Datasource; isReplay?: boolean }>,
 ) {
   const { datasource, isReplay } = actionPayload.payload;
+  if (isEmbeddedRestDatasource(datasource) && isReplay) {
+    yield put(initialize(DATASOURCE_REST_API_FORM, datasource));
+    return;
+  }
   const { id } = datasource;
   const draft = yield select(getDatasourceDraft, id);
   const applicationId = yield select(getCurrentApplicationId);
@@ -675,6 +683,7 @@ function* changeDatasourceSaga(
         getQueryParams(),
       ),
     );
+  if (!isReplay) yield put(updateReplayEntity(data.id, data));
 }
 
 function* switchDatasourceSaga(action: ReduxAction<{ datasourceId: string }>) {
@@ -693,6 +702,10 @@ function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
   const { field, form } = actionPayload.meta;
+  if (form === DATASOURCE_REST_API_FORM) {
+    const { values } = yield select(getFormData, DATASOURCE_REST_API_FORM);
+    yield put(updateReplayEntity(values.datasourceId, values));
+  }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga)]);
