@@ -7,7 +7,10 @@ import {
 import { all, put, select, takeLatest, call } from "redux-saga/effects";
 
 import GitSyncAPI from "api/GitSyncAPI";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import {
   commitToRepoSuccess,
@@ -21,6 +24,7 @@ import {
   fetchLocalGitConfigInit,
   switchGitBranchInit,
   updateBranchLocally,
+  gitPullSuccess,
 } from "actions/gitSyncActions";
 import {
   CommitToGitReduxAction,
@@ -51,6 +55,8 @@ import {
   mergeBranchSuccess,
   mergeBranchFailure,
 } from "../actions/gitSyncActions";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { initEditor } from "actions/initActions";
 
 function* commitToGitRepoSaga(action: CommitToGitReduxAction) {
   try {
@@ -386,6 +392,31 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
   }
 }
 
+function* gitPullSaga() {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response = yield call(GitSyncAPI.pull, { applicationId });
+    const isValidResponse: boolean = yield validateResponse(response, false);
+    const currentBranch = yield select(getCurrentGitBranch);
+    const currentPageId = yield select(getCurrentPageId);
+    if (isValidResponse) {
+      const { mergeStatus } = response.data;
+      yield put(gitPullSuccess(mergeStatus));
+      // re-init after a successfull pull
+      if (mergeStatus.merge) {
+        yield put(initEditor(applicationId, currentPageId, currentBranch));
+      } else {
+        // todo handle error
+      }
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_PULL_ERROR,
+      payload: { error: e, logToSentry: true, show: false },
+    });
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -418,5 +449,6 @@ export default function* gitSyncSagas() {
     takeLatest(ReduxActionTypes.FETCH_GIT_STATUS_INIT, fetchGitStatusSaga),
     takeLatest(ReduxActionTypes.MERGE_BRANCH_INIT, mergeBranchSaga),
     takeLatest(ReduxActionTypes.FETCH_MERGE_STATUS_INIT, fetchMergeStatusSaga),
+    takeLatest(ReduxActionTypes.GIT_PULL_INIT, gitPullSaga),
   ]);
 }

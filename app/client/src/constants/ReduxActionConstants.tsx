@@ -11,6 +11,8 @@ export const ReduxSagaChannels = {
 };
 
 export const ReduxActionTypes = {
+  GIT_PULL_INIT: "GIT_PULL_INIT",
+  GIT_PULL_SUCCESS: "GIT_PULL_SUCCESS",
   SET_APP_VERSION_ON_WORKER: "SET_APP_VERSION_ON_WORKER",
   CLEAR_COMMIT_SUCCESSFUL_STATE: "CLEAR_COMMIT_SUCCESSFUL_STATE",
   FETCH_MERGE_STATUS_INIT: "FETCH_MERGE_STATUS_INIT",
@@ -634,6 +636,7 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  GIT_PULL_ERROR: "GIT_PULL_ERROR",
   FETCH_MERGE_STATUS_ERROR: "FETCH_MERGE_STATUS_ERROR",
   MERGE_BRANCH_ERROR: "MERGE_BRANCH_ERROR",
   FETCH_GIT_STATUS_ERROR: "FETCH_GIT_STATUS_ERROR",
