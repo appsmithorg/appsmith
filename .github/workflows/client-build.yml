@@ -115,10 +115,3 @@ jobs:
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
-
-      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload react build bundle
-        uses: actions/upload-artifact@v2
-        with:
-          name: build
-          path: app/client/build/
