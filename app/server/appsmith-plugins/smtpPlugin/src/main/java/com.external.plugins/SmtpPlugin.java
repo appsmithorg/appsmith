@@ -13,6 +13,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -28,18 +29,15 @@ import javax.mail.Part;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -69,7 +67,7 @@ public class SmtpPlugin extends BasePlugin {
                 String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
                 String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
                 Boolean isReplyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
-                String replyTo = (isReplyTo != null && isReplyTo) ?
+                String replyTo = (Boolean.TRUE.equals(isReplyTo)) ?
                         (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
 
                 if (!StringUtils.hasText(toAddress)) {
@@ -111,10 +109,10 @@ public class SmtpPlugin extends BasePlugin {
                 String attachmentsStr = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.attachments");
 
                 if (StringUtils.hasText(attachmentsStr)) {
-                    List<MultipartFormDataDTO> attachmentData = Arrays.asList(objectMapper.readValue(
+                    MultipartFormDataDTO[] attachmentData = objectMapper.readValue(
                             attachmentsStr,
                             MultipartFormDataDTO[].class
-                    ));
+                    );
 
                     // Iterate over each attachment and add it to the main multipart body of the email
                     for (MultipartFormDataDTO attachment : attachmentData) {
@@ -125,7 +123,8 @@ public class SmtpPlugin extends BasePlugin {
                         Base64.Decoder decoder = Base64.getDecoder();
                         String attachmentStr = String.valueOf(attachment.getData());
                         if (!attachmentStr.contains(BASE64_DELIMITER)) {
-                            continue;
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                                    "Attachment " + attachment.getName() + " contains invalid data. Unable to send email."));
                         }
                         byte[] bytes = decoder.decode(attachmentStr.split(BASE64_DELIMITER)[1]);
                         DataSource emailDatasource = new ByteArrayDataSource(bytes, attachment.getType());
@@ -148,9 +147,6 @@ public class SmtpPlugin extends BasePlugin {
                 result.setBody(objectMapper.valueToTree(responseBody));
 
                 System.out.println("Sent the email successfully");
-            } catch (AddressException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Unable to " + e.getMessage()));
             } catch (MessagingException e) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Unable to send email because of error: " + e.getMessage()));
@@ -172,7 +168,9 @@ public class SmtpPlugin extends BasePlugin {
             prop.put("mail.smtp.auth", true);
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.host", endpoint.getHost());
-            prop.put("mail.smtp.port", String.valueOf(endpoint.getPort()));
+            // Default to port 25 incase the port supplied by the user is null
+            Long port = (endpoint.getPort() == null) ? 25 : endpoint.getPort();
+            prop.put("mail.smtp.port", port);
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
 
             String username = authentication.getUsername();
@@ -188,15 +186,12 @@ public class SmtpPlugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(Session connection) {
+        public void datasourceDestroy(Session session) {
             System.out.println("Going to destroy email datasource");
             try {
-                Transport transport = connection.getTransport();
-                if (transport != null) {
-                    transport.close();
+                if (session != null && session.getTransport() != null) {
+                    session.getTransport().close();
                 }
-            } catch (NoSuchProviderException e) {
-                e.printStackTrace();
             } catch (MessagingException e) {
                 e.printStackTrace();
             }
@@ -206,10 +201,7 @@ public class SmtpPlugin extends BasePlugin {
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             System.out.println("Going to validate email datasource");
             Set<String> invalids = new HashSet<>();
-            if (datasourceConfiguration.getEndpoints() == null ||
-                    datasourceConfiguration.getEndpoints().isEmpty() ||
-                    datasourceConfiguration.getEndpoints().get(0) == null
-            ) {
+            if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                         "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
             } else {
@@ -217,10 +209,6 @@ public class SmtpPlugin extends BasePlugin {
                 if (!StringUtils.hasText(endpoint.getHost())) {
                     invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Could not find host address. Please edit the 'Hostname' field to provide the desired endpoint.").getMessage());
-                }
-                if (endpoint.getPort() == null) {
-                    invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            "Could not find port. Please edit the 'Port' field to provide the desired endpoint.").getMessage());
                 }
             }
 
@@ -255,7 +243,7 @@ public class SmtpPlugin extends BasePlugin {
                     invalids.add("Unable to connect to SMTP server. Please check your host/port settings.");
                 }
                 return invalids;
-            }).map(invalids -> new DatasourceTestResult(invalids));
+            }).map(DatasourceTestResult::new);
         }
 
     }

@@ -5,7 +5,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
@@ -13,6 +12,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.springframework.util.CollectionUtils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
@@ -101,9 +101,7 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint(host, null)));
 
-        Assert.assertEquals(Set.of("Could not find port. Please edit the 'Port' field to provide the " +
-                        "desired endpoint."),
-                pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
+        Assert.assertTrue(CollectionUtils.isEmpty(pluginExecutor.validateDatasource(invalidDatasourceConfiguration)));
     }
 
     @Test
