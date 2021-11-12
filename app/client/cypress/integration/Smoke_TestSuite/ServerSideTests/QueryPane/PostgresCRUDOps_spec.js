@@ -95,9 +95,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let selectQuery = "select * from public.users_crud";
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.xpath(queryLocators.querySelect).click();
-    cy.get(queryLocators.codeTextArea)
-      .click()
-      .type("{cmd+a}{del}");
+    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
     cy.get(queryLocators.codeTextArea).paste(selectQuery);
 
     cy.EvaluateCurrentValue(selectQuery);
@@ -109,11 +107,10 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "INSERT INTO public.users_crud (id, name, gender, email) VALUES (31, 'CRUD User11','Male','cruduser31@ihg.com');";
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.xpath(queryLocators.queryCreate).click();
-    cy.get(queryLocators.codeTextArea)
-      .click()
-      .type("{cmd+a}{del}");
-    cy.get(queryLocators.codeTextArea).paste(insertQuery);
+    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
+    //.type("{selectall}{del}");
 
+    cy.get(queryLocators.codeTextArea).paste(insertQuery);
     cy.EvaluateCurrentValue(insertQuery);
     cy.runAndDeleteQuery();
   });
@@ -123,9 +120,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       "UPDATE public.users_crud SET status = 'PENDING', role = 'Viewer' WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.xpath(queryLocators.queryUpdate).click();
-    cy.get(queryLocators.codeTextArea)
-      .click()
-      .type("{cmd+a}{del}");
+    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
     cy.get(queryLocators.codeTextArea).paste(updateQuery);
 
     cy.EvaluateCurrentValue(updateQuery);
@@ -136,9 +131,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let deleteQuery = "DELETE FROM public.users_crud WHERE id = 31;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.xpath(queryLocators.queryDelete).click();
-    cy.get(queryLocators.codeTextArea)
-      .click()
-      .type("{cmd+a}{del}");
+    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
     cy.get(queryLocators.codeTextArea).paste(deleteQuery);
 
     cy.EvaluateCurrentValue(deleteQuery);
@@ -247,9 +240,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     let deleteTblQuery = "DROP TABLE public.users_crud;";
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.xpath(queryLocators.queryDelete).click();
-    cy.get(queryLocators.codeTextArea)
-      .click()
-      .type("{cmd+a}{del}");
+    cy.get(queryLocators.codeTextArea).type("{cmd+a}{del}");
 
     cy.get(queryLocators.codeTextArea).paste(deleteTblQuery);
 

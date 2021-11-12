@@ -20,7 +20,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.fillPostgresDatasourceForm();
 
     cy.generateUUID().then((UUID) => {
-      datasourceName = `PostgresSQL CRUD Demo ${UUID}`;
+      datasourceName = `PostgresSQL NewPage ${UUID}`;
       cy.renameDatasource(datasourceName);
       cy.wrap(datasourceName).as("dSName");
     });
@@ -94,7 +94,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.fillPostgresDatasourceForm();
 
     cy.generateUUID().then((UUID) => {
-      datasourceName = `PostgresSQL CRUD Demo ${UUID}`;
+      datasourceName = `PostgresSQL NewPage ${UUID}`;
       cy.renameDatasource(datasourceName);
     });
 
@@ -162,7 +162,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //  skip optional search column selection.
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@generateCRUDPage").should(
+    cy.wait("@replaceLayoutWithCRUDPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
