@@ -358,6 +358,12 @@ public class GitServiceImpl implements GitService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
+        Mono<UserData> currentUserMono = userDataService.getForCurrentUser()
+                .filter(userData -> !CollectionUtils.isNullOrEmpty(userData.getGitProfiles()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
+                );
+
         return updateOrCreateGitProfileForCurrentUser(
                 gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), defaultApplicationId)
                 .then(getApplicationById(defaultApplicationId))
@@ -409,6 +415,7 @@ public class GitServiceImpl implements GitService {
                                         gitApplicationMetadata.setBranchName(defaultBranch);
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
+                                        // Set branchName for each application resource
                                         return importExportApplicationService.exportApplicationById(applicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                                                 .flatMap(applicationJson -> {
                                                     applicationJson.getExportedApplication().setGitApplicationMetadata(gitApplicationMetadata);
@@ -438,10 +445,43 @@ public class GitServiceImpl implements GitService {
                     String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
                     //Initialize the repo with readme file
                     try {
-                        return fileUtils.initializeGitRepo(
-                                Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
-                                originHeader + viewModeUrl,
-                                originHeader + editModeUrl)
+                        return Mono.zip(
+                                fileUtils.initializeGitRepo(
+                                        Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
+                                        originHeader + viewModeUrl,
+                                        originHeader + editModeUrl
+                                ),
+                                currentUserMono)
+                                .flatMap(tuple -> {
+                                    UserData userData = tuple.getT2();
+                                    // Commit and push application to check if the SSH key has the write access
+                                    // Commit with default setting as app specific profile is not available at this point in time
+                                    GitProfile profile = userData.getDefaultOrAppSpecificGitProfiles(null);
+                                    return gitExecutor.commitApplication(tuple.getT1(), DEFAULT_COMMIT_MESSAGE, profile.getAuthorName(), profile.getAuthorEmail());
+                                })
+                                .flatMap(ignore -> {
+                                    Path baseRepoSuffix =
+                                            Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
+
+                                    GitAuth gitAuth = application.getGitApplicationMetadata().getGitAuth();
+                                    return gitExecutor.pushApplication(
+                                                    baseRepoSuffix,
+                                                    application.getGitApplicationMetadata().getRemoteUrl(),
+                                                    gitAuth.getPublicKey(),
+                                                    gitAuth.getPrivateKey(),
+                                                    application.getGitApplicationMetadata().getBranchName()
+                                    )
+                                    .onErrorResume(error ->
+                                        // If the push fails remove all the cloned files from local repo
+                                        fileUtils.detachRemote(baseRepoSuffix)
+                                                .map(isDeleted -> {
+                                                    if(error instanceof TransportException) {
+                                                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                                                    }
+                                                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage());
+                                                })
+                                    );
+                                })
                                 .thenReturn(sanitiseResponse.updateApplicationWithDefaultResources(application));
                     } catch (IOException e) {
                         log.error("Error while cloning the remote repo, {}", e.getMessage());

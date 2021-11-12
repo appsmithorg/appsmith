@@ -87,8 +87,10 @@ public class GitExecutorImpl implements GitExecutor {
             }
             // Just need to open a repository here and make a commit
             Git git = Git.open(repoPath.toFile());
-            // Stage all the files
+            // Stage all the files added and modified
             git.add().addFilepattern(".").call();
+            // Stage modified and deleted files
+            git.add().setUpdate(true).addFilepattern(".").call();
 
             // Commit the changes
             git.commit()
