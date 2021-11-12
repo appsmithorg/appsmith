@@ -556,8 +556,7 @@ export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
-export const LATEST_DP_SUBTITLE = () =>
-  "See your application in action after successful push";
+export const LATEST_DP_SUBTITLE = () => "last deployed";
 export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
