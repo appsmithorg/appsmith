@@ -53,6 +53,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           body: template.body,
           pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
           formData: template.configuration,
+          ...template.actionConfiguration,
         },
       };
 

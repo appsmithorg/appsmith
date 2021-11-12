@@ -29,6 +29,7 @@ export interface DatasourceStructure {
 }
 
 export interface QueryTemplate {
+  actionConfiguration?: Record<string, unknown>;
   configuration: Record<string, unknown>;
   title: string;
   body: string;
