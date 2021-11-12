@@ -22,7 +22,7 @@
         "children": [
             {
                 "isVisible": true,
-                "text": "Submit",
+                "text": "",
                 "buttonColor": "#03B365",
                 "buttonVariant": "SOLID",
                 "widgetName": "Button1",
