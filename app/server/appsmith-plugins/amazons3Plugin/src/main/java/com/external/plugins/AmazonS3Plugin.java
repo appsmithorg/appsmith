@@ -826,7 +826,7 @@ public class AmazonS3Plugin extends BasePlugin {
             ActionConfiguration actionConfiguration = new ActionConfiguration();
             actionConfiguration.setFormData(configMap);
             return datasourceCreate(datasourceConfiguration)
-                    .flatMap(connection -> execute(connection, datasourceConfiguration, actionConfiguration));
+                    .flatMap(connection -> executeParameterized(connection, new ExecuteActionDTO(), datasourceConfiguration, actionConfiguration));
         }
 
         @Override
