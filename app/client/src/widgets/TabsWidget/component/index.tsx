@@ -6,6 +6,7 @@ import { generateClassName, getCanvasClassName } from "utils/generators";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
+import { Colors } from "constants/Colors";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -15,6 +16,7 @@ interface TabsComponentProps extends ComponentProps {
   borderRadius: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  selectedTabColor: string;
   onTabChange: (tabId: string) => void;
   tabs: Array<{
     id: string;
@@ -92,6 +94,7 @@ const TabsContainer = styled.div`
 type TabProps = {
   selected?: boolean;
   onClick: (e: React.MouseEvent<HTMLDivElement>) => void;
+  selectedTabColor: string;
 };
 
 const StyledTab = styled.div`
@@ -113,7 +116,11 @@ const StyledText = styled.div<TabProps>`
   border-bottom: ${(props) => (props.selected ? "0" : "1px")} solid;
   border-color: ${(props) => props.theme.colors.bodyBG};
   cursor: pointer;
-  box-shadow: ${(props) => (props.selected ? props.theme.shadows[0] : "")};
+  box-shadow: ${(props) =>
+    props.selected
+      ? `inset -1px 0px 0px #ebeff2, inset 1px 0px 0px #ebeff2, inset 0px 4px 0px ${props.selectedTabColor ||
+          Colors.GREEN}`
+      : ""};
   &:hover {
     background: ${(props) =>
       props.selected
@@ -121,7 +128,11 @@ const StyledText = styled.div<TabProps>`
         : props.theme.colors.hover};
   }
   &:first-child {
-    box-shadow: ${(props) => (props.selected ? props.theme.shadows[1] : "")};
+    box-shadow: ${(props) =>
+      props.selected
+        ? `inset -1px 0px 0px #ebeff2, inset 1px 0px 0px #ebeff2, inset 0px 4px 0px ${props.selectedTabColor ||
+            Colors.GREEN}`
+        : ""};
   }
 `;
 
@@ -157,6 +168,7 @@ function TabsComponent(props: TabsComponentProps) {
                 event.stopPropagation();
               }}
               selected={props.selectedTabWidgetId === tab.widgetId}
+              selectedTabColor={props.selectedTabColor}
             >
               {tab.label}
             </StyledText>

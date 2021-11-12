@@ -35,4 +35,5 @@ export interface TabsWidgetProps<T extends TabContainerWidgetProps>
   borderRadius: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  selectedTabColor: string;
 }
