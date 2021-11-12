@@ -8,31 +8,31 @@
     "options": [
       {
         "label": "Get Single Document",
-        "value": "getDocument.json"
+        "fileName": "getDocument.json"
       },
       {
         "label": "Get Documents in Collection",
-        "value": "getCollection.json"
+        "fileName": "getCollection.json"
       },
       {
         "label": "Set Document",
-        "value": "setDocument.json"
+        "fileName": "setDocument.json"
       },
       {
         "label": "Create Document",
-        "value": "createDocument.json"
+        "fileName": "createDocument.json"
       },
       {
         "label": "Add Document to Collection",
-        "value": "addToCollection.json"
+        "fileName": "addToCollection.json"
       },
       {
         "label": "Update Document",
-        "value": "updateDocument.json"
+        "fileName": "updateDocument.json"
       },
       {
         "label": "Delete Document",
-        "value": "deleteDocument.json"
+        "fileName": "deleteDocument.json"
       }
     ]
   }
