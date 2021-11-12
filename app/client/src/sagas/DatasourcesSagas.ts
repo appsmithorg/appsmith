@@ -89,7 +89,6 @@ import { getQueryParams } from "../utils/AppsmithUtils";
 import { getGenerateTemplateFormURL } from "../constants/routes";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
-import { isEmbeddedRestDatasource } from "../entities/Datasource";
 import { trimQueryString } from "utils/helpers";
 import { updateReplayEntity } from "actions/pageActions";
 
@@ -652,7 +651,7 @@ function* changeDatasourceSaga(
   actionPayload: ReduxAction<{ datasource: Datasource; isReplay?: boolean }>,
 ) {
   const { datasource, isReplay } = actionPayload.payload;
-  if (isEmbeddedRestDatasource(datasource) && isReplay) {
+  if (datasource.hasOwnProperty("datasourceId") && isReplay) {
     yield put(initialize(DATASOURCE_REST_API_FORM, datasource));
     return;
   }

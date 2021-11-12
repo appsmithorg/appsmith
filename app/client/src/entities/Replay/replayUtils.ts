@@ -73,7 +73,11 @@ export function getReplayEntityType(entity: any) {
   if (entity && entity.hasOwnProperty("actionConfiguration")) {
     return ReplayEntityType.ACTION;
   }
-  if (entity && entity.hasOwnProperty("datasourceConfiguration"))
+  if (
+    entity &&
+    (entity.hasOwnProperty("datasourceConfiguration") ||
+      entity.hasOwnProperty("datasourceId"))
+  )
     return ReplayEntityType.DATASOURCE;
   if (entity && entity.hasOwnProperty("body")) return ReplayEntityType.JSACTION;
   return ReplayEntityType.CANVAS;
