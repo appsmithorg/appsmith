@@ -17,8 +17,8 @@
           "info": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "Smart BSON Substitution",
-          "info": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
+          "label": "Smart JSON Substitution",
+          "info": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
           "configProperty": "actionConfiguration.formData.smartSubstitution",
           "controlType": "SWITCH",
           "initialValue": true

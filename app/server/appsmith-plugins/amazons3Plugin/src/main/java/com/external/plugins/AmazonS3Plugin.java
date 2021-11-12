@@ -304,21 +304,21 @@ public class AmazonS3Plugin extends BasePlugin {
             final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            Boolean smartBsonSubstitution = TRUE;
+            Boolean smartJsonSubstitution = TRUE;
 
             Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
 
             if (smartSubstitutionObject instanceof Boolean) {
-                smartBsonSubstitution = (Boolean) smartSubstitutionObject;
+                smartJsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
                 // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
                 // directly. This is to ensure we are backward compatible
-                smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
+                smartJsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
             }
 
             try {
                 // Smartly substitute in Json fields and replace all the bindings with values.
-                if (TRUE.equals(smartBsonSubstitution)) {
+                if (TRUE.equals(smartJsonSubstitution)) {
                     final String body = actionConfiguration.getBody() != null ? actionConfiguration.getBody() : "";
                     // First extract all the bindings in order
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(body);
