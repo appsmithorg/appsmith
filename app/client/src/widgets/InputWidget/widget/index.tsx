@@ -23,7 +23,6 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { PHONE_NUMBER_REGEX } from "../component/utilities";
 
 export function defaultValueValidation(
   value: any,
@@ -73,7 +72,8 @@ export function defaultValueValidation(
         };
       }
     }
-    if (!PHONE_NUMBER_REGEX.test(value)) {
+    const phonenumberRegex = /^(?:[0-9 ]+$)/;
+    if (!phonenumberRegex.test(value)) {
       return {
         isValid: false,
         parsed: undefined,
@@ -565,9 +565,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
             return (value === '' || !isNaN(value || ''));
           }
-          else if (
-            this.inputType === "PHONE_NUMBER"
-          ) {
+          else if (this.inputType === "PHONE_NUMBER") {
             const phoneNumberRegex = new RegExp(/^(?:[0-9 ]+$)/);
             return phoneNumberRegex.test(this.text);
           }

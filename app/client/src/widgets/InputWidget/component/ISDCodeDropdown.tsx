@@ -17,8 +17,8 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
   height: 36px;
   line-height: ${(props) => (props.disabled ? 36 : 18)}px;
   letter-spacing: -0.24px;
-  color: #090707;
   position: ${(props) => props.disabled && "absolute"};
+  color: ${(props) => (props.disabled ? Colors.GREY_7 : "#090707")};
 
   .dropdown {
     svg {
@@ -26,7 +26,8 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
       height: 14px;
 
       path {
-        fill: ${Colors.GREY_10} !important;
+        fill: ${(props) =>
+          props.disabled ? Colors.GREY_7 : Colors.GREY_10} !important;
       }
     }
   }

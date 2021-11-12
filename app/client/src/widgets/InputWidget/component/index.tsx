@@ -43,7 +43,6 @@ import ISDCodeDropdown, {
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { PHONE_NUMBER_REGEX } from "./utilities";
 import Icon from "components/ads/Icon";
 
 /**
@@ -80,6 +79,7 @@ const InputComponentWrapper = styled((props) => (
   &&&& {
     .currency-type-filter,
     .country-type-filter {
+      border: 1px solid transparent;
       width: fit-content;
       height: 36px;
       position: absolute;
@@ -107,15 +107,20 @@ const InputComponentWrapper = styled((props) => (
         !props.allowCurrencyChange &&
         `
       padding-left: 35px;`};
-      ${(props) =>
-        props.inputType === InputTypes.PHONE_NUMBER &&
-        `padding-left: 85px;
-        `};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
         hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       border-radius: 0;
+      ${(props) =>
+        props.inputType === InputTypes.PHONE_NUMBER &&
+        `margin-left: 93px;
+          width: calc(100% - 93px) !important;
+          padding-left: 10px;
+          border-left: ${
+            props.hasError ? `1px solid ${Colors.DANGER_SOLID}` : "none"
+          };
+        `};
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
       ${(props) =>
@@ -182,6 +187,14 @@ const InputComponentWrapper = styled((props) => (
       .bp3-tag {
         background-color: transparent;
         color: #5c7080;
+      }
+      .country-type-filter {
+        background-color: ${Colors.WHITE};
+        border: 1px solid ${Colors.GREY_3};
+        border-right: none;
+      }
+      &.${Classes.DISABLED} > div {
+        background-color: ${Colors.GREY_1}
       }
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
         pointer-events: none;
@@ -297,8 +310,7 @@ export const isNumberInputType = (inputType: InputType) => {
   return (
     inputType === "INTEGER" ||
     inputType === "NUMBER" ||
-    inputType === "CURRENCY" ||
-    inputType === "PHONE_NUMBER"
+    inputType === "CURRENCY"
   );
 };
 class InputComponent extends React.Component<
@@ -357,15 +369,6 @@ class InputComponent extends React.Component<
       } else {
         this.props.onValueChange(valueAsString);
       }
-    } else if (
-      this.props.inputType === InputTypes.PHONE_NUMBER &&
-      valueAsString !== ""
-    ) {
-      // phone number will valid for number and space, e.g "123 123"
-      if (!PHONE_NUMBER_REGEX.test(valueAsString)) {
-        return;
-      }
-      this.props.onValueChange(valueAsString);
     } else {
       this.props.onValueChange(valueAsString);
     }
@@ -452,13 +455,8 @@ class InputComponent extends React.Component<
         : 0;
     return (
       <StyledNumericInput
-        allowNumericCharactersOnly={
-          this.props.inputType !== InputTypes.PHONE_NUMBER
-        }
+        allowNumericCharactersOnly
         autoFocus={this.props.autoFocus}
-        buttonPosition={
-          this.props.inputType === InputTypes.PHONE_NUMBER ? "none" : "right"
-        }
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         intent={this.props.intent}
@@ -501,45 +499,49 @@ class InputComponent extends React.Component<
     />
   );
 
-  private textInputComponent = (isTextArea: boolean) =>
-    isTextArea ? (
-      this.textAreaInputComponent()
-    ) : (
-      <InputGroup
-        autoFocus={this.props.autoFocus}
-        className={this.props.isLoading ? "bp3-skeleton" : ""}
-        disabled={this.props.disabled}
-        intent={this.props.intent}
-        leftIcon={
-          this.props.iconName && this.props.iconAlign === "left"
-            ? this.props.iconName
-            : undefined
-        }
-        maxLength={this.props.maxChars}
-        onBlur={() => this.setFocusState(false)}
-        onChange={this.onTextChange}
-        onFocus={() => this.setFocusState(true)}
-        onKeyDown={this.onKeyDown}
-        placeholder={this.props.placeholder}
-        rightElement={
-          this.props.inputType === "PASSWORD" ? (
-            <Icon
-              className="password-input"
-              name={this.state.showPassword ? "eye-off" : "eye-on"}
-              onClick={() => {
-                this.setState({ showPassword: !this.state.showPassword });
-              }}
-            />
-          ) : this.props.iconName && this.props.iconAlign === "right" ? (
-            <Tag icon={this.props.iconName} />
-          ) : (
-            undefined
-          )
-        }
-        type={this.getType(this.props.inputType)}
-        value={this.props.value}
-      />
+  private textInputComponent = (isTextArea: boolean) => {
+    const leftIcon = this.getLeftIcon(
+      this.props.inputType,
+      !!this.props.disabled,
     );
+    if (isTextArea) {
+      return this.textAreaInputComponent();
+    } else {
+      return (
+        <InputGroup
+          autoFocus={this.props.autoFocus}
+          className={this.props.isLoading ? "bp3-skeleton" : ""}
+          disabled={this.props.disabled}
+          intent={this.props.intent}
+          leftIcon={leftIcon}
+          maxLength={this.props.maxChars}
+          onBlur={() => this.setFocusState(false)}
+          onChange={this.onTextChange}
+          onFocus={() => this.setFocusState(true)}
+          onKeyDown={this.onKeyDown}
+          placeholder={this.props.placeholder}
+          rightElement={
+            this.props.inputType === "PASSWORD" ? (
+              <Icon
+                className="password-input"
+                name={this.state.showPassword ? "eye-off" : "eye-on"}
+                onClick={() => {
+                  this.setState({ showPassword: !this.state.showPassword });
+                }}
+              />
+            ) : this.props.iconName && this.props.iconAlign === "right" ? (
+              <Tag icon={this.props.iconName} />
+            ) : (
+              undefined
+            )
+          }
+          type={this.getType(this.props.inputType)}
+          value={this.props.value}
+        />
+      );
+    }
+  };
+
   private renderInputComponent = (inputType: InputType, isTextArea: boolean) =>
     isNumberInputType(inputType)
       ? this.numericInputComponent()
