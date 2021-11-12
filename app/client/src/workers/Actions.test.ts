@@ -3,6 +3,7 @@ import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/evaluate";
 
 describe("Add functions", () => {
+  jest.resetAllMocks();
   const workerEventMock = jest.fn();
   self.postMessage = workerEventMock;
   self.ALLOW_ASYNC = true;
@@ -29,6 +30,7 @@ describe("Add functions", () => {
 
   beforeEach(() => {
     workerEventMock.mockReset();
+    self.postMessage = workerEventMock;
   });
 
   it("action.run works", () => {
@@ -326,7 +328,7 @@ describe("Add functions", () => {
         trigger: {
           type: "SET_INTERVAL",
           payload: {
-            callback: expect.stringContaining("function"),
+            callback: '() => "test"',
             interval,
             id,
           },
@@ -357,14 +359,17 @@ describe("Add functions", () => {
 });
 
 describe("promise execution", () => {
-  const workerEventMock = jest.fn();
-  self.postMessage = workerEventMock;
+  const postMessageMock = jest.fn();
   const requestId = "TEST_REQUEST";
-  self.REQUEST_ID = requestId;
   const dataTreeWithFunctions = createGlobalData({}, {});
 
   beforeEach(() => {
     self.ALLOW_ASYNC = true;
+    self.REQUEST_ID = requestId;
+    self.postMessage = postMessageMock;
+  });
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   it("throws when allow async is not enabled", () => {
@@ -372,10 +377,13 @@ describe("promise execution", () => {
     self.IS_ASYNC = false;
     expect(dataTreeWithFunctions.showAlert).toThrowError();
     expect(self.IS_ASYNC).toBe(true);
+    expect(postMessageMock).not.toHaveBeenCalled();
   });
   it("sends an event from the worker", () => {
     dataTreeWithFunctions.showAlert("test alert", "info");
-    expect(workerEventMock).toBeCalledWith({
+    const requestArgs = postMessageMock.mock.calls[0][0];
+    const subRequestId = requestArgs.responseData.subRequestId;
+    expect(postMessageMock).toBeCalledWith({
       requestId,
       type: "PROCESS_TRIGGER",
       responseData: expect.objectContaining({
@@ -389,116 +397,121 @@ describe("promise execution", () => {
         },
       }),
     });
-  });
-  it("returns a promise that resolves", () => {
-    workerEventMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
-    const requestArgs = workerEventMock.mock.calls[0][0];
-    const subRequestId = requestArgs.responseData.subRequestId;
-
-    jest
-      .spyOn(self, "addEventListener")
-      .mockImplementationOnce((event, handler) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const gen = handler({
-          data: {
-            method: "PROCESS_TRIGGER",
-            data: {
-              resolve: "123",
-            },
-            requestId,
-            success: true,
-            subRequestId,
-          },
-        });
-        gen.next();
+    self.addEventListener = jest
+      .fn()
+      .mockImplementationOnce((type, handler) => {
+        handler({ data: { data: { success: true, subRequestId } } });
       });
-
-    expect(returnedPromise).resolves.toBe("123");
   });
-
-  it("returns a promise that rejects", () => {
-    workerEventMock.mockReset();
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
-    const requestArgs = workerEventMock.mock.calls[0][0];
-    const subRequestId = requestArgs.responseData.subRequestId;
-
-    jest
-      .spyOn(self, "addEventListener")
-      .mockImplementationOnce((event, handler) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const gen = handler({
-          data: {
-            method: "PROCESS_TRIGGER",
-            data: {
-              reason: "testing",
-            },
-            requestId,
-            success: false,
-            subRequestId,
-          },
-        });
-        gen.next();
-      });
-
-    expect(returnedPromise).rejects.toBe("testing");
-  });
-  it("does not process till right event is triggered", () => {
-    jest.resetAllMocks();
-
-    const returnedPromise = dataTreeWithFunctions.showAlert(
-      "test alert",
-      "info",
-    );
-
-    const requestArgs = workerEventMock.mock.calls[0][0];
-    const subRequestId = requestArgs.responseData.subRequestId;
-    jest
-      .spyOn(self, "addEventListener")
-      .mockImplementationOnce((event, handler) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const gen = handler({
-          data: {
-            method: "PROCESS_TRIGGER",
-            data: {
-              resolve: "wrong value",
-            },
-            requestId,
-            success: false,
-            subRequestId: "wrongId",
-          },
-        });
-        gen.next();
-      });
-    // .mockImplementationOnce((event, handler) => {
-    //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //   // @ts-ignore
-    //   const gen2 = handler({
-    //     data: {
-    //       method: "PROCESS_TRIGGER",
-    //       data: {
-    //         resolve: "right value",
-    //       },
-    //       requestId,
-    //       success: true,
-    //       subRequestId,
-    //     },
-    //   });
-    //   gen2.next();
-    // });
-
-    // expect(laterFunction).not.toHaveBeenCalledWith("wrong value");
-    expect(returnedPromise).resolves.toBe("bullshit");
-    // expect(laterFunction).toHaveBeenCalledWith("right value");
-  });
-  // it("same subRequestId is not accepted again", () => {});
+  // it("returns a promise that resolves", () => {
+  //   postMessageMock.mockReset();
+  //   const returnedPromise = dataTreeWithFunctions.showAlert(
+  //     "test alert",
+  //     "info",
+  //   );
+  //   const requestArgs = postMessageMock.mock.calls[0][0];
+  //   const subRequestId = requestArgs.responseData.subRequestId;
+  //
+  //   jest
+  //     .spyOn(self, "addEventListener")
+  //     .mockImplementationOnce((event, handler) => {
+  //       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //       // @ts-ignore
+  //       const gen = handler({
+  //         data: {
+  //           method: "PROCESS_TRIGGER",
+  //           data: {
+  //             resolve: "123",
+  //           },
+  //           requestId,
+  //           success: true,
+  //           subRequestId,
+  //         },
+  //       });
+  //       gen.next();
+  //     });
+  //
+  //   expect(returnedPromise).resolves.toBe("123");
+  // });
+  //
+  // it("returns a promise that rejects", () => {
+  //   postMessageMock.mockReset();
+  //   const returnedPromise = dataTreeWithFunctions.showAlert(
+  //     "test alert",
+  //     "info",
+  //   );
+  //   const requestArgs = postMessageMock.mock.calls[0][0];
+  //   const subRequestId = requestArgs.responseData.subRequestId;
+  //
+  //   jest
+  //     .spyOn(self, "addEventListener")
+  //     .mockImplementationOnce((event, handler) => {
+  //       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //       // @ts-ignore
+  //       const gen = handler({
+  //         data: {
+  //           method: "PROCESS_TRIGGER",
+  //           data: {
+  //             reason: "testing",
+  //           },
+  //           requestId,
+  //           success: false,
+  //           subRequestId,
+  //         },
+  //       });
+  //       gen.next();
+  //     });
+  //
+  //   expect(returnedPromise).rejects.toBe("testing");
+  // });
+  // it("does not process till right event is triggered", () => {
+  //   jest.resetAllMocks();
+  //
+  //   const returnedPromise = dataTreeWithFunctions.showAlert(
+  //     "test alert",
+  //     "info",
+  //   );
+  //
+  //   const requestArgs = postMessageMock.mock.calls[0][0];
+  //   const subRequestId = requestArgs.responseData.subRequestId;
+  //   jest
+  //     .spyOn(self, "addEventListener")
+  //     .mockImplementationOnce((event, handler) => {
+  //       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //       // @ts-ignore
+  //       const gen = handler({
+  //         data: {
+  //           method: "PROCESS_TRIGGER",
+  //           data: {
+  //             resolve: "wrong value",
+  //           },
+  //           requestId,
+  //           success: false,
+  //           subRequestId: "wrongId",
+  //         },
+  //       });
+  //       gen.next();
+  //     });
+  //   // .mockImplementationOnce((event, handler) => {
+  //   //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //   //   // @ts-ignore
+  //   //   const gen2 = handler({
+  //   //     data: {
+  //   //       method: "PROCESS_TRIGGER",
+  //   //       data: {
+  //   //         resolve: "right value",
+  //   //       },
+  //   //       requestId,
+  //   //       success: true,
+  //   //       subRequestId,
+  //   //     },
+  //   //   });
+  //   //   gen2.next();
+  //   // });
+  //
+  //   // expect(laterFunction).not.toHaveBeenCalledWith("wrong value");
+  //   expect(returnedPromise).resolves.toBe("bullshit");
+  //   // expect(laterFunction).toHaveBeenCalledWith("right value");
+  // });
+  // // it("same subRequestId is not accepted again", () => {});
 });
