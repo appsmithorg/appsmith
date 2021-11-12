@@ -51,7 +51,6 @@ describe("validate document viewer url", () => {
 
     for (let index = 0; index < input.length; index++) {
       const result = getDocViewerConfigs(input[index]);
-      console.log("result", result);
       expect(result).toStrictEqual(expected[index]);
     }
   });
