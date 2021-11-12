@@ -245,6 +245,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               boxShadow: cellProperties.boxShadow || "NONE",
               boxShadowColor: cellProperties.boxShadowColor || "",
               isCellVisible: cellProperties.isCellVisible ?? true,
+              disabled: !!cellProperties.isDisabled,
             };
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
@@ -744,6 +745,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
+          isSortable={this.props.isSortable ?? true}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}

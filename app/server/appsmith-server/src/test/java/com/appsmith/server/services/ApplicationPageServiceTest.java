@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentMode;
@@ -7,6 +8,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.repositories.ApplicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +20,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +40,9 @@ public class ApplicationPageServiceTest {
 
     @Autowired
     CommentService commentService;
+
+    @Autowired
+    ApplicationRepository applicationRepository;
 
     private CommentThread createCommentThread(CommentMode commentMode, PageDTO pageDTO) {
         CommentThread commentThread = new CommentThread();
@@ -120,6 +127,25 @@ public class ApplicationPageServiceTest {
 
         StepVerifier.create(getThreadMono).assertNext(commentThreads -> {
             assertThat(commentThreads.size()).isEqualTo(0);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteUnpublishedPage_WhenPageDeleted_ApplicationEditDateSet() {
+        Mono<Application> applicationMono = createPageMono(UUID.randomUUID().toString())
+                .flatMap(pageDTO -> {
+                    Application application = new Application();
+                    application.setLastEditedAt(Instant.now().minus(10, ChronoUnit.DAYS));
+                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, AclPermission.MANAGE_APPLICATIONS)
+                            .then(applicationPageService.deleteUnpublishedPage(pageDTO.getId()))
+                            .then(applicationRepository.findById(pageDTO.getApplicationId()));
+                });
+
+        StepVerifier.create(applicationMono).assertNext(application -> {
+            assertThat(application.getLastEditedAt()).isNotNull();
+            Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
+            assertThat(application.getLastEditedAt()).isAfter(yesterday);
         }).verifyComplete();
     }
 }

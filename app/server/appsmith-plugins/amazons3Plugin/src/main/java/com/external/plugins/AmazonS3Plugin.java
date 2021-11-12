@@ -13,6 +13,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.util.IOUtils;
+import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -57,7 +58,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
@@ -71,6 +71,7 @@ import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
+import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 
 public class AmazonS3Plugin extends BasePlugin {
 
@@ -196,15 +197,33 @@ public class AmazonS3Plugin extends BasePlugin {
                 throws InterruptedException, AppsmithPluginException {
 
             byte[] payload;
+            MultipartFormDataDTO multipartFormDataDTO;
+            try {
+                multipartFormDataDTO = objectMapper.readValue(
+                        body,
+                        MultipartFormDataDTO.class);
+            } catch (IOException e) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Unable to parse content. Expected to receive an object with `data` and `type`"
+                );
+            }
+            if (multipartFormDataDTO == null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "Could not find any data. Expected to receive an object with `data` and `type`"
+                );
+            }
             if (Boolean.TRUE.equals(usingFilePicker)) {
-                String encodedPayload = body;
+
+                String encodedPayload = (String) multipartFormDataDTO.getData();
                 /*
                  * - For files uploaded using Filepicker.xyz.base64, body format is "<content-type>;base64,<actual-
                  *   base64-encoded-payload>".
                  * - Strip off the redundant part in the beginning to get actual payload.
                  */
-                if (body.contains(BASE64_DELIMITER)) {
-                    List<String> bodyArrayList = Arrays.asList(body.split(BASE64_DELIMITER));
+                if (encodedPayload.contains(BASE64_DELIMITER)) {
+                    List<String> bodyArrayList = Arrays.asList(encodedPayload.split(BASE64_DELIMITER));
                     encodedPayload = bodyArrayList.get(bodyArrayList.size() - 1);
                 }
 
@@ -218,12 +237,17 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
             } else {
-                payload = body.getBytes();
+                payload = ((String) multipartFormDataDTO.getData()).getBytes();
             }
 
             InputStream inputStream = new ByteArrayInputStream(payload);
             TransferManager transferManager = TransferManagerBuilder.standard().withS3Client(connection).build();
-            transferManager.upload(bucketName, path, inputStream, new ObjectMetadata()).waitForUploadResult();
+            final ObjectMetadata objectMetadata = new ObjectMetadata();
+            // Only add content type if the user has mentioned it in the body
+            if (multipartFormDataDTO.getType() != null) {
+                objectMetadata.setContentType(multipartFormDataDTO.getType());
+            }
+            transferManager.upload(bucketName, path, inputStream, objectMetadata).waitForUploadResult();
 
             ArrayList<String> listOfFiles = new ArrayList<>();
             listOfFiles.add(path);
