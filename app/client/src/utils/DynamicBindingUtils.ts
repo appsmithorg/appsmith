@@ -125,7 +125,6 @@ export enum EvalErrorTypes {
   EVAL_TRIGGER_ERROR = "EVAL_TRIGGER_ERROR",
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
-  EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
 }
 
 export type EvalError = {
@@ -147,6 +146,7 @@ export enum EVAL_WORKER_ACTIONS {
   UNDO = "undo",
   REDO = "redo",
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
+  SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
 }
 
@@ -190,6 +190,19 @@ export const extraLibraries: ExtraLibrary[] = [
     displayName: "forge",
   },
 ];
+
+/**
+ * creates dynamic list of constants based on
+ * current list of extra libraries i.e lodash("_"), moment etc
+ * to be used in widget and entity name validations
+ */
+export const extraLibrariesNames = extraLibraries.reduce(
+  (prev: any, curr: any) => {
+    prev[curr.accessor] = curr.accessor;
+    return prev;
+  },
+  {},
+);
 
 export interface DynamicPath {
   key: string;

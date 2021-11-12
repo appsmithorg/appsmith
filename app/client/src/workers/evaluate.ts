@@ -128,9 +128,9 @@ export default function evaluateSync(
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
-  const unescapedJS = unescapeJS(
-    userScript.replace(beginsWithLineBreakRegex, ""),
-  );
+  const trimmedJS = userScript.replace(beginsWithLineBreakRegex, "");
+  const unescapedJS =
+    self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
   const scriptType = getScriptType(evalArguments, false);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
@@ -190,9 +190,9 @@ export async function evaluateAsync(
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
-  const unescapedJS = unescapeJS(
-    userScript.replace(beginsWithLineBreakRegex, ""),
-  );
+  const trimmedJS = userScript.replace(beginsWithLineBreakRegex, "");
+  const unescapedJS =
+    self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
   const scriptType = getScriptType(evalArguments, true);
   const script = getScriptToEval(unescapedJS, scriptType);
   return (async function() {

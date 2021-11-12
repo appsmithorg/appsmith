@@ -244,6 +244,10 @@ ctx.addEventListener(
         return isTrigger
           ? evaluateAsync(expression, evalTree, "SNIPPET", {})
           : evaluate(expression, evalTree, {});
+      case EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION:
+        const { version } = requestData;
+        self.evaluationVersion = version || 1;
+        break;
       case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
         // This action will not be processed here. This is handled in the eval trigger sub steps
         break;
