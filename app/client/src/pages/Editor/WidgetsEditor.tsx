@@ -33,7 +33,10 @@ import {
   getIsOnboardingTasksView,
   getIsOnboardingWidgetSelection,
 } from "selectors/entitiesSelector";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  inGuidedTour,
+} from "selectors/onboardingSelectors";
 import Guide from "./GuidedTour/Guide";
 
 const EditorWrapper = styled.div`
@@ -81,6 +84,8 @@ function WidgetsEditor() {
   const isOnboardingWidgetSelection = useSelector(
     getIsOnboardingWidgetSelection,
   );
+
+  const guidedTourEnabled = useSelector(inGuidedTour);
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -162,7 +167,7 @@ function WidgetsEditor() {
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
         >
-          <Guide />
+          {guidedTourEnabled && <Guide />}
           <MainContainerLayoutControl />
           <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
             {node}

@@ -15,14 +15,12 @@ import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
-import { checkCurrentStep } from "sagas/OnboardingSagas";
 import {
   EditableText as NewEditableText,
   EditInteractionKind as NewEditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
-import { OnboardingStep } from "constants/OnboardingConstants";
 import log from "loglevel";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
@@ -69,11 +67,6 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
   if (!params.apiId && !params.queryId) {
     log.error("No API id or Query id found in the url.");
   }
-
-  // For onboarding
-  const hideEditIcon = useSelector((state: AppState) =>
-    checkCurrentStep(state, OnboardingStep.SUCCESSFUL_BINDING, "LESSER"),
-  );
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
@@ -170,7 +163,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
           editInteractionKind={NewEditInteractionKind.SINGLE}
           fill
           forceDefault={forceUpdate}
-          isEditingDefault={isNew && !hideEditIcon}
+          isEditingDefault={isNew}
           isInvalid={isInvalidActionName}
           onBlur={handleAPINameChange}
           placeholder="Name of the API in camelCase"

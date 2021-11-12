@@ -8,15 +8,7 @@ import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
 import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import {
-  getCurrentStep,
-  getCurrentSubStep,
-  inOnboarding,
-} from "sagas/OnboardingSagas";
 import { matchBuilderPath } from "constants/routes";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
 import { hideScrollbar } from "constants/DefaultTheme";
@@ -95,21 +87,13 @@ function WidgetSidebar(props: IPanelProps) {
     filterCards("");
   };
 
-  // For onboarding
-  const isInOnboarding = useSelector(inOnboarding);
-  const currentStep = useSelector(getCurrentStep);
-  const currentSubStep = useSelector(getCurrentSubStep);
   const onCanvas = matchBuilderPath(window.location.pathname);
 
   useEffect(() => {
-    if (
-      ((currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
-        !onCanvas) ||
-      isForceOpenWidgetPanel === false
-    ) {
+    if (!onCanvas || isForceOpenWidgetPanel === false) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas, isInOnboarding, location, isForceOpenWidgetPanel]);
+  }, [onCanvas, location, isForceOpenWidgetPanel]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
@@ -125,20 +109,15 @@ function WidgetSidebar(props: IPanelProps) {
     };
   }, [searchInputRef, search]);
 
-  const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
-  const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
-
   return (
     <>
-      <Boxed step={OnboardingStep.DEPLOY}>
-        <ExplorerSearch
-          autoFocus
-          clear={clearSearchInput}
-          hideClear
-          placeholder="Search widgets..."
-          ref={searchInputRef}
-        />
-      </Boxed>
+      <ExplorerSearch
+        autoFocus
+        clear={clearSearchInput}
+        hideClear
+        placeholder="Search widgets..."
+        ref={searchInputRef}
+      />
       <Header>
         <Info>
           <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
@@ -147,33 +126,7 @@ function WidgetSidebar(props: IPanelProps) {
       <MainWrapper ref={sidebarRef}>
         <CardsWrapper>
           {filteredCards.map((card) => (
-            <Boxed
-              key={card.key}
-              show={
-                (card.type === "TABLE_WIDGET" && showTableWidget) ||
-                (card.type === "INPUT_WIDGET" && showInputWidget)
-              }
-              step={OnboardingStep.DEPLOY}
-            >
-              <OnboardingIndicator
-                className="onboarding-widget-menu"
-                hasButton={false}
-                show={
-                  (card.type === "TABLE_WIDGET" &&
-                    currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
-                  (card.type === "INPUT_WIDGET" &&
-                    currentSubStep === 0 &&
-                    currentStep === OnboardingStep.ADD_INPUT_WIDGET)
-                }
-                step={
-                  OnboardingStep.RUN_QUERY_SUCCESS ||
-                  OnboardingStep.ADD_INPUT_WIDGET
-                }
-                width={100}
-              >
-                <WidgetCard details={card} />
-              </OnboardingIndicator>
-            </Boxed>
+            <WidgetCard details={card} key={card.key} />
           ))}
         </CardsWrapper>
         <ScrollIndicator containerRef={sidebarRef} top={"90px"} />

@@ -6,14 +6,7 @@ import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsOrgs } from "./applicationSelectors";
 
-export const getIsOnboardingHelperVisible = (state: AppState) => {
-  const urlSearchParams = new URL(window.location.href).searchParams;
-  const isCommentModeInUrl = urlSearchParams.get("isCommentMode");
-  return state.ui.onBoarding.showHelper && !isCommentModeInUrl;
-};
-
-export const showWelcomeScreen = (state: AppState) =>
-  state.ui.onBoarding.showOnboardingLoader;
+// Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
   return state.ui.onBoarding.enableFirstTimeUserOnboarding;
 };
@@ -38,11 +31,12 @@ export const getIsFirstTimeUserOnboardingEnabled = createSelector(
   },
 );
 
-export const getIsInOnboarding = (state: AppState) =>
-  state.ui.onBoarding.inOnboarding;
-
 export const getInOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
+
+// Guided Tour selectors
+
+export const inGuidedTour = (state: AppState) => state.ui.onBoarding.guidedTour;
 
 // To find an organisation where the user as permission to create an
 // application

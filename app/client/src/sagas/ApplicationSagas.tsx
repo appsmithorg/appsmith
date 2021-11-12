@@ -62,7 +62,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { showCompletionDialog } from "./OnboardingSagas";
 
 import { deleteRecentAppEntities } from "utils/storage";
 import {
@@ -110,19 +109,10 @@ export function* publishApplicationSaga(
       const applicationId = yield select(getCurrentApplicationId);
       const currentPageId = yield select(getCurrentPageId);
 
-      let appicationViewPageUrl = getApplicationViewerPageURL({
+      const appicationViewPageUrl = getApplicationViewerPageURL({
         applicationId,
         pageId: currentPageId,
       });
-
-      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
-      if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl = getApplicationViewerPageURL({
-          applicationId,
-          pageId: currentPageId,
-          params: { onboardingComplete: "true" },
-        });
-      }
 
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_INIT,

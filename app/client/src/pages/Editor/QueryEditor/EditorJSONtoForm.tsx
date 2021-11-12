@@ -20,8 +20,6 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
@@ -32,7 +30,6 @@ import AdsIcon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
@@ -767,20 +764,15 @@ export function EditorJSONtoForm(props: Props) {
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
             />
-            <OnboardingIndicator
-              step={OnboardingStep.EXAMPLE_DATABASE}
-              width={75}
-            >
-              <Button
-                className="t--run-query"
-                isLoading={isRunning}
-                onClick={onRunClick}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
-            </OnboardingIndicator>
+            <Button
+              className="t--run-query"
+              isLoading={isRunning}
+              onClick={onRunClick}
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
+            />
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
@@ -878,16 +870,14 @@ export function EditorJSONtoForm(props: Props) {
                 }
               />
               {output && !!output.length && (
-                <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-                  <ResultsCount>
-                    <Text type={TextType.P3}>
-                      Result:
-                      <Text type={TextType.H5}>{`${output.length} Record${
-                        output.length > 1 ? "s" : ""
-                      }`}</Text>
-                    </Text>
-                  </ResultsCount>
-                </Boxed>
+                <ResultsCount>
+                  <Text type={TextType.P3}>
+                    Result:
+                    <Text type={TextType.H5}>{`${output.length} Record${
+                      output.length > 1 ? "s" : ""
+                    }`}</Text>
+                  </Text>
+                </ResultsCount>
               )}
 
               <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />

@@ -1,6 +1,4 @@
-import { OnboardingStep } from "constants/OnboardingConstants";
 import React from "react";
-import { useSelector } from "store";
 import styled from "styled-components";
 
 const Wrapper = styled.div<{ width: number; hasButton?: boolean }>`
@@ -75,7 +73,6 @@ const Wrapper = styled.div<{ width: number; hasButton?: boolean }>`
 `;
 
 type IndicatorProps = {
-  step: OnboardingStep;
   // Any conditions
   show?: boolean;
   // Animate to x position.
@@ -87,11 +84,7 @@ type IndicatorProps = {
 };
 
 function Indicator(props: IndicatorProps): JSX.Element {
-  const showingIndicator = useSelector(
-    (state) => state.ui.onBoarding.showingIndicator,
-  );
-
-  if (showingIndicator === props.step && props.show) {
+  if (props.show) {
     return (
       <Wrapper
         className={`t--onboarding-indicator ${props.className}`}

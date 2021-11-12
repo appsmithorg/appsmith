@@ -74,9 +74,6 @@ import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
@@ -411,8 +408,6 @@ function LeftPane() {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  const initiateOnboarding = useIntiateOnboarding();
-
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
@@ -476,9 +471,9 @@ function LeftPane() {
               }
               icon="guide"
               onSelect={() => {
-                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-
-                initiateOnboarding();
+                dispatch({
+                  type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
+                });
               }}
               text={createMessage(WELCOME_TOUR)}
             />
@@ -933,7 +928,6 @@ function ApplicationsSection(props: any) {
   return (
     <ApplicationContainer className="t--applications-container">
       {organizationsListComponent}
-      <WelcomeHelper />
       {getFeatureFlags().GIT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );

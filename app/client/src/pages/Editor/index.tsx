@@ -22,7 +22,6 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
-import Welcome from "./Welcome";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -55,7 +54,6 @@ type EditorProps = {
   isEditorInitialized: boolean;
   isEditorInitializeError: boolean;
   errorPublishing: boolean;
-  creatingOnboardingDatabase: boolean;
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
@@ -128,8 +126,6 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
-      nextProps.creatingOnboardingDatabase !==
-        this.props.creatingOnboardingDatabase ||
       nextState.registered !== this.state.registered ||
       (nextProps.isPageLevelSocketConnected &&
         !this.props.isPageLevelSocketConnected)
@@ -178,10 +174,6 @@ class Editor extends Component<Props> {
   };
 
   public render() {
-    if (this.props.creatingOnboardingDatabase) {
-      return <Welcome />;
-    }
-
     if (!this.props.isEditorInitialized || !this.state.registered) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
@@ -229,7 +221,6 @@ const mapStateToProps = (state: AppState) => ({
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
-  creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),

@@ -35,7 +35,6 @@ import {
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 import { Colors } from "constants/Colors";
 
@@ -203,7 +202,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
-  const intiateOnboarding = useIntiateOnboarding();
   if (isGenerateAppPage) {
     return null;
   }
@@ -212,7 +210,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
     dispatch({
       type: ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
     });
-    intiateOnboarding();
   };
   if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
     dispatch({
