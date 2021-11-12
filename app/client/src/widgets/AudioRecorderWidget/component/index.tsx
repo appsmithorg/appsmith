@@ -538,19 +538,19 @@ export interface RecorderComponentProps {
   isDisabled: boolean;
   onRecordingStart: () => void;
   onRecordingComplete: (blobUrl?: string, blob?: Blob) => void;
-  value?: Blob;
+  blobUrl?: string;
   width: number;
 }
 
 function AudioRecorderComponent(props: RecorderComponentProps) {
   const {
     backgroundColor,
+    blobUrl,
     height,
     iconColor,
     isDisabled,
     onRecordingComplete,
     onRecordingStart,
-    value,
     width,
   } = props;
 
@@ -600,10 +600,14 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
   }, [error]);
 
   useEffect(() => {
-    if (recorderStatus !== RecorderStatusTypes.DEFAULT && value === undefined) {
+    if (
+      recorderStatus !== RecorderStatusTypes.PERMISSION_PROMPT &&
+      recorderStatus !== RecorderStatusTypes.DEFAULT &&
+      blobUrl === undefined
+    ) {
       resetRecorder();
     }
-  }, [value]);
+  }, [blobUrl]);
 
   const dimension = useMemo(() => {
     if (containerWidth > height) {
