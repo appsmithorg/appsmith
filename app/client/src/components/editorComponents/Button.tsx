@@ -15,6 +15,8 @@ import {
 } from "@blueprintjs/core";
 import { Direction, Directions } from "utils/helpers";
 import { omit } from "lodash";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 
 const outline = css`
   &&&&&& {
@@ -33,7 +35,9 @@ const buttonStyles = css<Partial<ButtonProps>>`
     border-radius: 0;
     background: ${(props) =>
       props.filled || props.outline ? "inherit" : "transparent"};
-
+    border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+    box-shadow: ${({ boxShadow, boxShadowColor }) =>
+      `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
     width: ${(props) => (props.fluid ? "100%" : "auto")};
   }
   &&&&&& {
@@ -90,6 +94,9 @@ export type ButtonProps = {
   fluid?: boolean;
   skin?: Skin;
   target?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -133,6 +140,9 @@ export const Button = (props: ButtonProps) => {
   } else
     return (
       <StyledButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
         icon={icon}
         rightIcon={rightIcon}
         {...baseProps}

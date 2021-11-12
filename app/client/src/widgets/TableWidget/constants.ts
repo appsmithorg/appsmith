@@ -7,7 +7,7 @@ import {
 } from "./component/Constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WithMeta } from "widgets/MetaHOC";
-import { ButtonBorderRadius } from "components/constants";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   nextPageKey?: string;
@@ -43,7 +43,10 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     order: SortOrderTypes | null;
   };
   totalRecordsCount?: number;
+  accentColor: string;
   borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export const getCurrentRowBinding = (

@@ -33,7 +33,7 @@ import { Colors } from "constants/Colors";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
-import { ButtonBorderRadius } from "components/constants";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 interface TableProps {
   width: number;
@@ -79,7 +79,10 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  accentColor: string;
   borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 const defaultColumn = {
@@ -215,8 +218,11 @@ export function Table(props: TableProps) {
 
   return (
     <TableWrapper
+      accentColor={props.accentColor}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
       borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}

@@ -3,23 +3,29 @@ import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
 import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
-import { ButtonBorderRadius } from "components/constants";
-import { getBorderRadiusValue } from "widgets/WidgetUtils";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
+import { getSelectedRowBgColor } from "./TableUtilities";
 
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
   tableSizes: TableSizes;
+  accentColor: string;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
   borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }>`
   width: 100%;
   height: 100%;
   background: white;
   border: 1px solid ${Colors.GEYSER_LIGHT};
   border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -65,7 +71,10 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${Colors.NARVIK_GREEN}!important;
+        background: ${({ accentColor }) =>
+          `${getSelectedRowBgColor(
+            accentColor || Colors.NARVIK_GREEN,
+          )}`} !important;
       }
       &:hover {
         background: ${Colors.NARVIK_GREEN};

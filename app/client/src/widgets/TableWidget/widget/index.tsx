@@ -169,6 +169,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
+              borderRadius: cellProperties.borderRadius,
+              boxShadow: cellProperties.boxShadow,
+              boxShadowColor: cellProperties.boxShadowColor,
               columnActions: [
                 {
                   id: columnProperties.id,
@@ -217,8 +220,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor ?? "rgb(3, 179, 101)",
-              borderRadius: cellProperties.borderRadius,
+              menuColor: cellProperties.menuColor || "rgb(3, 179, 101)",
+              borderRadius: cellProperties.borderRadius || "SHARP",
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
               iconName: cellProperties.iconName,
@@ -240,7 +243,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               ],
               iconName: cellProperties.iconName as IconName,
               buttonColor: cellProperties.buttonColor || Colors.GREEN,
-              buttonVariant: cellProperties.buttonVariant,
+              buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius: cellProperties.borderRadius || "SHARP",
               boxShadow: cellProperties.boxShadow || "NONE",
               boxShadowColor: cellProperties.boxShadowColor || "",
@@ -732,8 +735,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
+          accentColor={this.props.accentColor}
           applyFilter={this.applyFilters}
           borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          boxShadowColor={this.props.boxShadowColor}
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}

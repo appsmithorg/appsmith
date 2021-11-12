@@ -10,7 +10,7 @@ import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
-import { ButtonBorderRadius } from "components/constants";
+import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -77,13 +77,15 @@ interface ReactTableComponentProps {
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
+  accentColor: string;
   borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
   const {
     applyFilter,
-    borderRadius,
     columns,
     columnSizeMap,
     compactMode,
@@ -250,8 +252,11 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
   return (
     <Table
+      accentColor={props.accentColor}
       applyFilter={applyFilter}
-      borderRadius={borderRadius}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
       columnSizeMap={columnSizeMap}
       columns={columns}
       compactMode={compactMode}
@@ -332,6 +337,10 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.width === next.width &&
     isEqual(prev.columnSizeMap, next.columnSizeMap) &&
     isEqual(prev.tableData, next.tableData) &&
+    prev.borderRadius === next.borderRadius &&
+    prev.boxShadow === next.boxShadow &&
+    prev.boxShadowColor === next.boxShadowColor &&
+    prev.accentColor === next.accentColor &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns)

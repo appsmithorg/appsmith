@@ -50,6 +50,7 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import tinycolor from "tinycolor2";
 
 export const renderCell = (
   value: any,
@@ -269,6 +270,9 @@ interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
   buttonLabelColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
@@ -317,6 +321,9 @@ export const renderActions = (
           <TableAction
             action={action}
             backgroundColor={props.backgroundColor}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            boxShadowColor={props.boxShadowColor}
             buttonLabelColor={props.buttonLabelColor}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
@@ -401,9 +408,12 @@ function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
   buttonLabelColor: string;
   isDisabled: boolean;
   isCellVisible: boolean;
+  borderRadius: ButtonBorderRadius;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -423,6 +433,9 @@ function TableAction(props: {
     >
       {props.isCellVisible ? (
         <Button
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
+          boxShadowColor={props.boxShadowColor}
           disabled={props.isDisabled}
           filled
           intent="PRIMARY_BUTTON"
@@ -766,4 +779,42 @@ export const renderDropdown = (props: {
       </StyledSingleDropDown>
     </div>
   );
+};
+
+/**
+ * returns selected row bg color
+ *
+ * if the color is dark, use 80% lighter color for selected row
+ * if color is light, use 10% darker color for selected row
+ *
+ * @param accentColor
+ */
+export const getSelectedRowBgColor = (accentColor: string) => {
+  const tinyAccentColor = tinycolor(accentColor);
+  const brightness = tinycolor(accentColor)
+    .greyscale()
+    .getBrightness();
+
+  const percentageBrightness = (brightness / 255) * 100;
+  let nextBrightness = 0;
+
+  switch (true) {
+    case percentageBrightness > 70:
+      nextBrightness = 10;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 35;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 55;
+      break;
+    default:
+      nextBrightness = 60;
+  }
+
+  if (brightness > 180) {
+    return tinyAccentColor.darken(10).toString();
+  } else {
+    return tinyAccentColor.lighten(nextBrightness).toString();
+  }
 };
