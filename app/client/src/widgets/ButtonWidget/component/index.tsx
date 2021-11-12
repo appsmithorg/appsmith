@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
+import Interweave from "interweave";
 import {
   IButtonProps,
   MaybeElement,
@@ -7,9 +8,9 @@ import {
   Alignment,
   Position,
 } from "@blueprintjs/core";
+import { Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 
-import Tooltip from "components/ads/Tooltip";
 import { ComponentProps } from "widgets/BaseComponent";
 
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
@@ -48,10 +49,22 @@ const RecaptchaWrapper = styled.div`
 
 const ToolTipWrapper = styled.div`
   height: 100%;
-  && .bp3-popover-target {
+  && .bp3-popover2-target {
     height: 100%;
+    width: 100%;
     & > div {
       height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .btnTooltipContainer {
+    .bp3-popover2-content {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
     }
   }
 `;
@@ -95,7 +108,7 @@ const StyledButton = styled((props) => (
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.solid.bgColor
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
@@ -105,10 +118,10 @@ const StyledButton = styled((props) => (
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.outline.hoverColor
+          ? theme.colors.button.primary.secondary.hoverColor
           : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
       } !important;
     }
 
@@ -122,7 +135,7 @@ const StyledButton = styled((props) => (
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
-        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
 
@@ -437,14 +450,18 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
   if (props.tooltip) {
     return (
       <ToolTipWrapper>
-        <Tooltip
-          content={props.tooltip}
+        <TooltipStyles />
+        <Popover2
+          autoFocus={false}
+          content={<Interweave content={props.tooltip} />}
           disabled={props.isDisabled}
           hoverOpenDelay={200}
+          interactionKind="hover"
+          portalClassName="btnTooltipContainer"
           position={Position.TOP}
         >
           {btnWrapper}
-        </Tooltip>
+        </Popover2>
       </ToolTipWrapper>
     );
   } else {

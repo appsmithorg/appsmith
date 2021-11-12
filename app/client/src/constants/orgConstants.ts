@@ -28,4 +28,5 @@ export type OrgUser = {
 export type Organization = {
   applications: ApplicationPayload[];
   organization: Org;
+  userRoles: OrgUser[];
 };

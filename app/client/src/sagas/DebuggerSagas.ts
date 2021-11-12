@@ -48,6 +48,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
+import * as log from "loglevel";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -321,7 +322,7 @@ function* logDebuggerErrorAnalyticsSaga(
       });
     }
   } catch (e) {
-    console.error(e);
+    log.error(e);
   }
 }
 

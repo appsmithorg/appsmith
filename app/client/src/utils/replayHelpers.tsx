@@ -88,6 +88,7 @@ export const showUndoRedoToast = (
   Toaster.show({
     text,
     actionElement,
+    maxWidth: "500px",
   });
 };
 

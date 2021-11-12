@@ -567,6 +567,7 @@ const darkShades = [
   "#FFFFFF",
   "#157A96",
   "#090707",
+  "#FFDEDE",
 ] as const;
 
 const lightShades = [
@@ -588,6 +589,7 @@ const lightShades = [
   "#858282",
   "#000000",
   "#F86A2B",
+  "#FFDEDE",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -601,19 +603,19 @@ type buttonVariant = {
 };
 
 type ButtonVariantColor = {
-  solid: {
+  primary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
     textColor: Color;
   };
-  outline: {
+  secondary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
     textColor: Color;
   };
-  ghost: {
+  tertiary: {
     bgColor?: Color;
     borderColor?: Color;
     hoverColor: Color;
@@ -898,6 +900,7 @@ type ColorType = {
     bg: ShadeColor;
     headerText: ShadeColor;
     iconColor: string;
+    iconBg: ShadeColor;
     user: {
       textColor: ShadeColor;
     };
@@ -1538,77 +1541,77 @@ export const dark: ColorType = {
       textColor: Colors.WHITE,
     },
     primary: {
-      solid: {
+      primary: {
         bgColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
-      solid: {
+      primary: {
         bgColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_OUTLINE_HOVER,
         textColor: Colors.WARNING_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
-      solid: {
+      primary: {
         bgColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
         textColor: Colors.DANGER_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
-      solid: {
+      primary: {
         bgColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
         textColor: Colors.INFO_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
-      solid: {
+      primary: {
         bgColor: Colors.GRAY,
         hoverColor: Colors.CHARCOAL,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GRAY,
         hoverColor: Colors.Gallery,
         textColor: Colors.GRAY,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.MERCURY,
       },
     },
@@ -1864,6 +1867,7 @@ export const dark: ColorType = {
     bg: darkShades[1],
     headerText: darkShades[9],
     iconColor: "#6D6D6D",
+    iconBg: darkShades[12],
     user: {
       textColor: darkShades[7],
     },
@@ -2175,77 +2179,77 @@ export const light: ColorType = {
       textColor: Colors.WHITE,
     },
     primary: {
-      solid: {
+      primary: {
         bgColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GREEN,
         hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
-      solid: {
+      primary: {
         bgColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.WARNING_SOLID,
         hoverColor: Colors.WARNING_OUTLINE_HOVER,
         textColor: Colors.WARNING_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
-      solid: {
+      primary: {
         bgColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.DANGER_SOLID,
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
         textColor: Colors.DANGER_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
-      solid: {
+      primary: {
         bgColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.INFO_SOLID,
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
         textColor: Colors.INFO_SOLID,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
-      solid: {
+      primary: {
         bgColor: Colors.GRAY,
         hoverColor: Colors.CHARCOAL,
         textColor: Colors.WHITE,
       },
-      outline: {
+      secondary: {
         borderColor: Colors.GRAY,
         hoverColor: Colors.Gallery,
         textColor: Colors.GRAY,
       },
-      ghost: {
+      tertiary: {
         hoverColor: Colors.MERCURY,
       },
     },
@@ -2502,6 +2506,7 @@ export const light: ColorType = {
     bg: lightShades[11],
     headerText: lightShades[10],
     iconColor: lightShades[5],
+    iconBg: lightShades[18],
     user: {
       textColor: lightShades[9],
     },
