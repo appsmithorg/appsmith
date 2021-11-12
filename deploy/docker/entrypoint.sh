@@ -218,9 +218,11 @@ printf "$APPSMITH_BASIC_AUTH_USER:$(openssl passwd -apr1 $APPSMITH_BASIC_AUTH_PA
 
 # Main Section
 if [[ -z $DYNO ]]; then
+  # Don't run MongoDB if running in a Heroku dyno.
   init_mongodb
 fi
 configure_ssl
+# These functions are used to limit heap size for Backend process when deployed on Heroku
 get_maximum_heap
 setup_backend_cmd
 configure_supervisord

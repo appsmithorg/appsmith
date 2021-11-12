@@ -66,13 +66,10 @@ $NGINX_SSL_CMNT  server_name $CUSTOM_DOMAIN ;
     sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '\${APPSMITH_RECAPTCHA_SECRET_KEY}';
     sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '\${APPSMITH_RECAPTCHA_ENABLED}';
 
+    # This block is used to redirect requests Supervisor End-point to perform control action for processes
     if (\$http_referer ~ "^.*/supervisor"){
       return 301 /supervisor/\$request_uri;
     }	
-  }
-
-  location /f {
-    proxy_pass https://cdn.optimizely.com/;
   }
 
   location /api {
@@ -151,6 +148,11 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_DISABLE_TELEMETRY__ '\${APPSMITH_DI
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '\${APPSMITH_RECAPTCHA_SITE_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '\${APPSMITH_RECAPTCHA_SECRET_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '\${APPSMITH_RECAPTCHA_ENABLED}';
+$NGINX_SSL_CMNT    		 
+$NGINX_SSL_CMNT        # This block is used to redirect requests Supervisor End-point to perform control action for processes
+$NGINX_SSL_CMNT    	   if (\$http_referer ~ "^.*/supervisor"){
+$NGINX_SSL_CMNT            return 301 /supervisor/\$request_uri;
+$NGINX_SSL_CMNT        }	
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /api {
