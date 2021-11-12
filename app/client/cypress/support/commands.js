@@ -1448,31 +1448,14 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
  */
 Cypress.Commands.add("updateCodeInput", ($selector, value) => {
   cy.get($selector)
-    .find(".CodeMirror textarea")
+    .find(".CodeMirror")
     .first()
-    .as("codeEditor");
-
-  cy.get("@codeEditor")
-    .focus({ force: true })
-    .type("{uparrow}", { force: true })
-    .type("{ctrl}{shift}{downarrow}", { force: true });
-  cy.focused().then(($cm) => {
-    if ($cm.contents !== "") {
-      cy.log("The field is not empty");
-      cy.get("@codeEditor")
-        .click({ force: true })
-        .focused({ force: true })
-        .clear({
-          force: true,
-        });
-    }
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-    cy.get("@codeEditor").type(value, {
-      force: true,
-      parseSpecialCharSequences: false,
+    .then((ins) => {
+      const input = ins[0].CodeMirror;
+      input.focus();
+      cy.wait(100);
+      input.setValue(value);
     });
-  });
 });
 
 Cypress.Commands.add("selectColor", (GivenProperty) => {
