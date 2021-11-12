@@ -8,9 +8,10 @@ import {
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
-import { completePromise, enhanceDataTreeWithFunctions } from "./Actions";
+import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { getLintingErrors } from "workers/lint";
+import { completePromise } from "workers/PromisifyAction";
 
 export type EvalResult = {
   result: any;
