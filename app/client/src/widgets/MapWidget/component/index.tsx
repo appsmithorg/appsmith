@@ -157,6 +157,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
               fillOpacity: 1,
               strokeWeight: 0,
               scale: 1,
+              anchor: new google.maps.Point(12, 24),
             }}
             key={index}
             onClick={() => {
