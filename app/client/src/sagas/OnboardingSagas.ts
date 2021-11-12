@@ -21,6 +21,10 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { Organization } from "constants/orgConstants";
 import { enableGuidedTour } from "actions/onboardingActions";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 
 function* createApplication() {
   const colorPalette = yield select(getAppCardColorPalette);
@@ -30,7 +34,8 @@ function* createApplication() {
 
   const currentUser = yield select(getCurrentUser);
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
-
+  const applicationId = yield select(getCurrentApplicationId);
+  const pageId = yield select(getCurrentPageId);
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
 
@@ -65,6 +70,12 @@ function* createApplication() {
 
     yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
     yield put(enableGuidedTour(true));
+    history.push(
+      BUILDER_PAGE_URL({
+        applicationId,
+        pageId,
+      }),
+    );
   }
 }
 
