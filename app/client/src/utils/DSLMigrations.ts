@@ -23,6 +23,7 @@ import {
   migrateTableWidgetDelimiterProperties,
   migrateTableWidgetSelectedRowBindings,
   migrateTableSanitizeColumnKeys,
+  isSortableMigration,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -975,6 +976,10 @@ export const transformDSL = (
   if (currentDSL.version === 43) {
     currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
     currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
+    currentDSL.version = 44;
+  }
+  if (currentDSL.version === 44) {
+    currentDSL = isSortableMigration(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

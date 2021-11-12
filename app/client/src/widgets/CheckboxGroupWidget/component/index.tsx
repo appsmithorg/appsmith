@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Checkbox } from "@blueprintjs/core";
 
+import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
@@ -35,7 +36,13 @@ const CheckboxGroupContainer = styled.div<
     `
     border: 1px solid ${theme.colors.error};
   `}
-  padding: 2px 4px;
+  .${Classes.CONTROL} {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    min-height: 36px;
+    margin: 0px 12px;
+  }
 `;
 
 export interface StyledCheckboxProps {
