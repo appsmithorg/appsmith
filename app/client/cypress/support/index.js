@@ -13,6 +13,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 require("cypress-xpath");
+import "cypress-real-events/support";
 let pageid;
 let appId;
 
