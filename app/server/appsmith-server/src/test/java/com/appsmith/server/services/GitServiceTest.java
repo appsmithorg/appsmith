@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.MergeStatus;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -11,6 +12,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -19,11 +21,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import io.sentry.protocol.App;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,6 +64,9 @@ public class GitServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
+    @Autowired
+    ApplicationService applicationService;
+
     @MockBean
     UserService userService;
 
@@ -69,7 +76,7 @@ public class GitServiceTest {
     @MockBean
     GitFileUtils gitFileUtils;
 
-    @Autowired
+    @MockBean
     ImportExportApplicationService importExportApplicationService;
 
     String orgId;
@@ -769,15 +776,18 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_ChangesInRemote_SuccessMessage() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("NoChangesInRemote");
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.justOrEmpty(applicationJson));
+                .thenReturn(Mono.just(new ApplicationJson()));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("2 commits pulled"));
+        Mockito.when(importExportApplicationService.exportApplicationById(Mockito.anyString(), Mockito.any(SerialiseApplicationObjective.class)))
+                .thenReturn(Mono.just(new ApplicationJson()));
+        Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(application));
 
         Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -795,15 +805,16 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_FileSystemAccessError_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("FileSystemAccessError");
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenThrow(new IOException("Error accessing the file System"));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.justOrEmpty(applicationJson));
+                .thenReturn(Mono.just(new ApplicationJson()));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("2 commits pulled"));
+        Mockito.when(importExportApplicationService.exportApplicationById(Mockito.anyString(), Mockito.any(SerialiseApplicationObjective.class)))
+                .thenReturn(Mono.just(new ApplicationJson()));
 
         Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -818,12 +829,11 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_NoChangesInRemotePullException_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("pullChanges_NoChangesInRemotePullException_ShowError");
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.justOrEmpty(applicationJson));
+                .thenReturn(Mono.justOrEmpty(new ApplicationJson()));
 
         Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -838,12 +848,11 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_HydrateApplicationToFileSystem_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("NoChangesInRemotePullException");
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId()).block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.justOrEmpty(applicationJson));
+                .thenReturn(Mono.justOrEmpty(new ApplicationJson()));
 
         Mono<GitPullDTO> applicationMono = gitDataService.pullApplication(application.getId(), application.getGitApplicationMetadata().getBranchName());
 
@@ -853,16 +862,6 @@ public class GitServiceTest {
                     assertThat(gitPullDTO.getPullStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
                 });
     }
-
-
-    /*
-    * Dehydrate application - exception
-    * git pull exception - Nothing to fetch, normal error
-    *
-    * getGitApplicationMetadata
-    *
-    * merge
-    * */
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -900,5 +899,78 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(s -> assertThat(s.isMerge()));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkoutRemoteBranch_NotPresentInLocal_NewChildApplicationCreated() throws GitAPIException, IOException {
+        GitCheckoutBranchDTO gitCheckoutBranchDTO = new GitCheckoutBranchDTO();
+        gitCheckoutBranchDTO.setIsRemote(true);
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setRepoName("testRepo");
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("privateKey");
+        gitAuth.setPrivateKey("privateKey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("checkoutRemoteBranch_NotPresentInLocal_main");
+        testApplication.setOrganizationId(orgId);
+        Application application = applicationPageService.createApplication(testApplication).block();
+
+        application.getGitApplicationMetadata().setDefaultApplicationId(application.getId());
+        applicationService.save(application).block();
+
+        Mockito.when(gitExecutor.fetchRemote(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just("fetchResult"));
+        Mockito.when(gitExecutor.checkoutRemoteBranch(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just("newBranch"));
+        Mockito.when(gitFileUtils.reconstructApplicationFromGitRepo(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.just(new ApplicationJson()));
+        Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(new Application()));
+
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemote", gitCheckoutBranchDTO)
+                .flatMap(application1 -> applicationService.getApplicationByBranchNameAndDefaultApplication("testRemote", application.getId(), AclPermission.READ_APPLICATIONS));
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getGitApplicationMetadata().getBranchName()).isEqualTo("testRemote");
+                    assertThat(application1.getGitApplicationMetadata().getDefaultApplicationId()).isEqualTo(application.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void checkoutRemoteBranch_PresentInLocal_CheckedOutToExistingApplication() {
+        GitCheckoutBranchDTO gitCheckoutBranchDTO = new GitCheckoutBranchDTO();
+        gitCheckoutBranchDTO.setIsRemote(true);
+        Application testApplication = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setRepoName("testRepo");
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        testApplication.setName("checkoutRemoteBranch_main");
+        testApplication.setOrganizationId(orgId);
+        Application application = applicationPageService.createApplication(testApplication).block();
+
+        Application testApplication1 = new Application();
+        testApplication1.setName("checkoutRemoteBranch_testRemoteBranch");
+        testApplication1.setOrganizationId(orgId);
+        GitApplicationMetadata gitApplicationMetadata1 = new GitApplicationMetadata();
+        gitApplicationMetadata1.setDefaultApplicationId(application.getId());
+        gitApplicationMetadata1.setBranchName("testRemoteBranch");
+        testApplication1.setGitApplicationMetadata(gitApplicationMetadata1);
+        Application application2 = applicationPageService.createApplication(testApplication1).block();
+
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", gitCheckoutBranchDTO);
+
+        StepVerifier
+                .create(applicationMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getName()).isEqualTo(application2.getName());
+                })
+                .verifyComplete();
     }
 }
