@@ -30,6 +30,10 @@ export const commitToRepoSuccess = () => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_SUCCESS,
 });
 
+export const clearCommitSuccessfulState = () => ({
+  type: ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE,
+});
+
 export const pushToRepoInit = () => ({
   type: ReduxActionTypes.PUSH_TO_GIT_INIT,
 });
@@ -193,4 +197,18 @@ export const mergeBranchSuccess = () => ({
 
 export const mergeBranchFailure = () => ({
   type: ReduxActionErrorTypes.MERGE_BRANCH_ERROR,
+});
+
+export const fetchMergeStatusInit = (payload: MergeBranchPayload) => ({
+  type: ReduxActionTypes.FETCH_MERGE_STATUS_INIT,
+  payload,
+});
+
+export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
+  type: ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS,
+  payload,
+});
+
+export const fetchMergeStatusFailure = () => ({
+  type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
 });

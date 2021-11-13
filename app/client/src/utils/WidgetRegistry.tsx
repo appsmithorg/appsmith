@@ -97,6 +97,9 @@ import AudioWidget, {
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
+import ButtonGroupWidget, {
+  CONFIG as BUTTON_GROUP_CONFIG,
+} from "widgets/ButtonGroupWidget";
 
 import log from "loglevel";
 import SingleSelectTreeWidget, {
@@ -143,6 +146,7 @@ export const ALL_WDIGETS_AND_CONFIG = [
   [FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG],
   [StatboxWidget, STATBOX_WIDGET_CONFIG],
   [AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG],
+  [ButtonGroupWidget, BUTTON_GROUP_CONFIG],
   [MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG],
   [SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG],
   [AudioWidget, AUDIO_WIDGET_CONFIG],
