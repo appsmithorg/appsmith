@@ -70,6 +70,7 @@ export type TextInputProps = CommonComponentProps & {
   onBlur?: EventHandler<FocusEvent<any>>;
   onFocus?: EventHandler<FocusEvent<any>>;
   errorMsg?: string;
+  trimValue?: boolean;
 };
 
 type boxReturnType = {
@@ -292,6 +293,8 @@ const TextInput = forwardRef(
     const [isFocused, setIsFocused] = useState(false);
     const [inputValue, setInputValue] = useState(props.defaultValue);
 
+    const { trimValue = true } = props;
+
     const setRightSideRef = useCallback((ref: HTMLDivElement) => {
       if (ref) {
         const { width } = ref.getBoundingClientRect();
@@ -306,7 +309,9 @@ const TextInput = forwardRef(
 
     const memoizedChangeHandler = useCallback(
       (el) => {
-        const inputValue: string = el.target.value.trim();
+        const inputValue: string = trimValue
+          ? el.target.value.trim()
+          : el.target.value;
         setInputValue(inputValue);
         const inputValueValidation =
           props.validator && props.validator(inputValue);
@@ -321,7 +326,7 @@ const TextInput = forwardRef(
           return props.onChange && props.onChange(inputValue);
         }
       },
-      [props.onChange, setValidation],
+      [props.onChange, setValidation, trimValue],
     );
 
     const onBlurHandler = useCallback(

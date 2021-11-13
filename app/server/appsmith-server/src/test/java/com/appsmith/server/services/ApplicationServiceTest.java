@@ -30,6 +30,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -71,6 +72,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -173,6 +175,7 @@ public class ApplicationServiceTest {
                 .create(applicationMono)
                 .assertNext(application -> {
                     assertThat(application).isNotNull();
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
                     assertThat(application.getName().equals("ApplicationServiceTest TestApp"));
@@ -181,6 +184,7 @@ public class ApplicationServiceTest {
                     assertThat(application.getOrganizationId().equals(orgId));
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
                     assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
                 })
                 .verifyComplete();
     }
@@ -325,6 +329,7 @@ public class ApplicationServiceTest {
                     assertThat(t.getId()).isNotNull();
                     assertThat(t.getPolicies()).isNotEmpty();
                     assertThat(t.getName()).isEqualTo("NewValidUpdateApplication-Test");
+                    assertThat(t.getSlug()).isEqualTo(TextUtils.makeSlug(t.getName()));
                 })
                 .verifyComplete();
     }
@@ -1291,6 +1296,7 @@ public class ApplicationServiceTest {
         Application testApplication = new Application();
         testApplication.setName("SaveLastEditInformation TestApp");
         testApplication.setModifiedBy("test-user");
+        testApplication.setIsPublic(true);
 
         Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, orgId)
                 .flatMap(application ->
@@ -1300,6 +1306,7 @@ public class ApplicationServiceTest {
             assertThat(application.getLastUpdateTime()).isNotNull();
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
+            assertThat(application.getIsPublic()).isTrue();
         }).verifyComplete();
     }
 

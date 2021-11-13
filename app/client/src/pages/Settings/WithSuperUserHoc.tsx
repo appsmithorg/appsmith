@@ -10,7 +10,7 @@ export default function WithSuperUserHOC(
   return function Wrapped(props: RouteComponentProps) {
     const user = useSelector(getCurrentUser);
 
-    if (!user?.isSuperUser) {
+    if (!user?.isSuperUser || !user?.isConfigurable) {
       return <Redirect to={APPLICATIONS_URL} />;
     }
     return <Component {...props} />;
