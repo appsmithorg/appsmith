@@ -129,10 +129,14 @@ function Deploy() {
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
       <Section>
         <Row>
-          <GitChanged type={Kind.widget} />
-          <GitChanged type={Kind.query} />
-          {gitStatus?.behindCount > 0 && <GitChanged type={Kind.pullRequest} />}
-          {gitStatus?.aheadCount > 0 && <GitChanged type={Kind.commit} />}
+          <GitChanged loading={isFetchingGitStatus} type={Kind.widget} />
+          <GitChanged loading={isFetchingGitStatus} type={Kind.query} />
+          {gitStatus?.behindCount > 0 && (
+            <GitChanged loading={isFetchingGitStatus} type={Kind.pullRequest} />
+          )}
+          {gitStatus?.aheadCount > 0 && (
+            <GitChanged loading={isFetchingGitStatus} type={Kind.commit} />
+          )}
         </Row>
         <Space size={11} />
         <Row>

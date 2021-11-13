@@ -11,6 +11,17 @@ import {
   // getPullMergeStatus,
 } from "selectors/gitSyncSelectors";
 
+const Loader = styled.div`
+  width: 135px;
+  height: 26px;
+  background: linear-gradient(
+    90deg,
+    ${Colors.GREY_2} 0%,
+    rgba(240, 240, 240, 0) 100%
+  );
+  margin-right: ${(props) => props.theme.spaces[8] + 5}px;
+`;
+
 const Wrapper = styled.div`
   width: 178px;
   display: flex;
@@ -28,10 +39,11 @@ export enum Kind {
 
 type GitSyncProps = {
   type: Kind;
+  loading: boolean;
 };
 
 export default function GitChanged(props: GitSyncProps) {
-  const { type } = props;
+  const { loading, type } = props;
   const gitStatus: any = useSelector(getGitStatus);
   // const pullMergeStatus: any = useSelector(getPullMergeStatus);
   let message = "",
@@ -62,7 +74,9 @@ export default function GitChanged(props: GitSyncProps) {
       iconName = "git-pull-request";
       break;
   }
-  return (
+  return loading ? (
+    <Loader />
+  ) : (
     <Wrapper>
       <Icon fillColor={Colors.GREY_10} name={iconName} size={IconSize.XXL} />
       <Text type={TextType.P3}>{message}</Text>
