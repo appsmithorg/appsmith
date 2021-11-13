@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -944,7 +945,7 @@ public class GitServiceImpl implements GitService {
      * @param branchName for which the status is required
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
-    public Mono<Map<String, Object>> getStatus(String defaultApplicationId, String branchName) {
+    public Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName) {
 
         /*
             1. Copy resources from DB to local repo

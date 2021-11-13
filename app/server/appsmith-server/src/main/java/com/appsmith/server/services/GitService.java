@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
@@ -47,7 +48,7 @@ public interface GitService {
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
-    Mono<Map<String, Object>> getStatus(String defaultApplicationId, String branchName);
+    Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName);
 
     Mono<GitPullDTO> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
 

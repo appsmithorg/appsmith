@@ -3,6 +3,7 @@ package com.appsmith.external.git;
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.GitStatusDTO;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public interface GitExecutor {
@@ -117,7 +117,7 @@ public interface GitExecutor {
      * @param branchName branch name for which the status is required
      * @return Map of file names those are added, removed, modified
      */
-    Mono<Map<String, Object>> getStatus(Path repoPath, String branchName);
+    Mono<GitStatusDTO> getStatus(Path repoPath, String branchName);
 
     /**
      * @param repoPath combination of orgId and defaultId
