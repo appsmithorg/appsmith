@@ -354,7 +354,7 @@ public class GitExecutorImpl implements GitExecutor {
                                                      String remoteUrl,
                                                      String privateKey,
                                                      String publicKey,
-                                                     Boolean isDefaultBranchNeeded) {
+                                                     Boolean isRemoteDefaultBranchNeeded) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
@@ -379,7 +379,7 @@ public class GitExecutorImpl implements GitExecutor {
                 // Get default branch name from the remote
                 String defaultBranch = null;
                 GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
-                if (Boolean.TRUE.equals(isDefaultBranchNeeded)) {
+                if (Boolean.TRUE.equals(isRemoteDefaultBranchNeeded)) {
                     defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
                     gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
                     gitBranchListDTO.setDefault(true);

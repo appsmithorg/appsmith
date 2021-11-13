@@ -895,7 +895,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranchForApplication(String defaultApplicationId) {
+    public Mono<List<GitBranchListDTO>> listBranchForApplication(String defaultApplicationId, Boolean ignoreCache) {
         return getApplicationById(defaultApplicationId)
             .flatMap(application -> {
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -904,21 +904,36 @@ public class GitServiceImpl implements GitService {
                             AppsmithError.INVALID_GIT_CONFIGURATION,
                             "Unable to find default application. Please configure the application with git"));
                 }
+                final String dbDefaultBranch = gitApplicationMetadata.getBranchName();
                 Path repoPath = Paths.get(application.getOrganizationId(),
                         gitApplicationMetadata.getDefaultApplicationId(),
                         gitApplicationMetadata.getRepoName());
 
+                // Fetch default branch from DB if the ignoreCache is false else fetch from remote
                 return gitExecutor.listBranches(repoPath,
                         null,
                         gitApplicationMetadata.getRemoteUrl(),
                         gitApplicationMetadata.getGitAuth().getPrivateKey(),
                         gitApplicationMetadata.getGitAuth().getPublicKey(),
-                        false)
+                        ignoreCache)
                         .onErrorResume(error -> Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
                                 "branch --list",
                                 "Error while accessing the file system. Details :" + error.getMessage()))
-                        );
+                        )
+                        .map(gitBranches -> {
+                            // If
+                            if (!ignoreCache) {
+                                gitBranches
+                                        .stream()
+                                        .filter(branchDTO -> StringUtils.equalsIgnoreCase(branchDTO.getBranchName(), dbDefaultBranch))
+                                        .findAny()
+                                        .ifPresent(branchDTO -> branchDTO.setDefault(true));
+                            }
+                            // TODO if the default branch is modified in remote same should be modified in DB.
+                            //  Remove stale branches from DB after running git prune
+                            return gitBranches;
+                        });
             });
     }
 

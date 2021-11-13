@@ -15,6 +15,7 @@ import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -147,9 +148,10 @@ public class GitController {
     }
 
     @GetMapping("/branch/{defaultApplicationId}")
-    public Mono<ResponseDTO<List<GitBranchListDTO>>> branch(@PathVariable String defaultApplicationId) {
+    public Mono<ResponseDTO<List<GitBranchListDTO>>> branch(@PathVariable String defaultApplicationId,
+                                                            @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
-        return service.listBranchForApplication(defaultApplicationId)
+        return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(ignoreCache))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
