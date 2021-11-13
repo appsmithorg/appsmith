@@ -628,7 +628,7 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
         Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
 
-        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
 
         StepVerifier
                 .create(listMono)
@@ -676,7 +676,7 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
         Application applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl").block();
 
-        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
 
         StepVerifier
                 .create(listMono)
@@ -701,7 +701,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
 
         StepVerifier
                 .create(listMono)
@@ -730,7 +730,7 @@ public class GitServiceTest {
         testApplication.setOrganizationId(orgId);
         Application application1 = applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
+        Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId(), true);
 
         StepVerifier
                 .create(listMono)

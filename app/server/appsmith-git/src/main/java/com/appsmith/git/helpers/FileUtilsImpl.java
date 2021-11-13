@@ -191,12 +191,11 @@ public class FileUtilsImpl implements FileInterface {
      * This method will delete the file from local repo
      * @param filePath file that needs to be deleted
      * @param isDirectory if the file is directory
-     * @return if the deletion operation was successful
      */
-    private boolean deleteFile(Path filePath, boolean isDirectory) {
+    private void deleteFile(Path filePath, boolean isDirectory) {
         try
         {
-            return Files.deleteIfExists(filePath);
+            Files.deleteIfExists(filePath);
         }
         catch(DirectoryNotEmptyException e)
         {
@@ -206,7 +205,6 @@ public class FileUtilsImpl implements FileInterface {
         {
             log.debug("Unable to delete file, {}", e.getMessage());
         }
-        return false;
     }
 
     /**
@@ -258,7 +256,7 @@ public class FileUtilsImpl implements FileInterface {
     /**
      * This is used to initialize repo with Readme file when the application is connected to remote repo
      *
-     * @param baseRepoSuffix path suffix used to create a repo path
+     * @param baseRepoSuffix path suffix used to create a repo path this includes the readme.md as well
      * @param viewModeUrl    URL to deployed version of the application view only mode
      * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path to the base repo
@@ -278,7 +276,8 @@ public class FileUtilsImpl implements FileInterface {
         File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
         FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
-        return Mono.just(baseRepoSuffix);
+        // Remove readme.md from the path
+        return Mono.just(file.toPath().getParent());
     }
 
     @Override
@@ -291,7 +290,7 @@ public class FileUtilsImpl implements FileInterface {
     }
 
     @Override
-    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
+    public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) {
         return Mono.fromCallable(() -> {
             File[] files = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().listFiles();
             for(File file : files) {
