@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -158,8 +159,8 @@ public class GitController {
     }
 
     @GetMapping("/status/{defaultApplicationId}")
-    public Mono<ResponseDTO<Map<String, Object>>> getStatus(@PathVariable String defaultApplicationId,
-                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<GitStatusDTO>> getStatus(@PathVariable String defaultApplicationId,
+                                                     @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get status for default application {}, branch {}", defaultApplicationId, branchName);
         return service.getStatus(defaultApplicationId, branchName)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
@@ -182,7 +183,7 @@ public class GitController {
     }
 
     @PostMapping("/conflicted-branch/{defaultApplicationId}")
-    public Mono<ResponseDTO<String>> merge(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<String>> createConflictedBranch(@PathVariable String defaultApplicationId,
                                            @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
         log.debug("Going to create conflicted state branch {} for application {}", branchName, defaultApplicationId);
         return service.createConflictedBranch(defaultApplicationId, branchName)

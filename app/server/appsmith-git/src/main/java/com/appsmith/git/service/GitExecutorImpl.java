@@ -2,6 +2,7 @@ package com.appsmith.git.service;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -45,10 +46,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -422,12 +421,12 @@ public class GitExecutorImpl implements GitExecutor {
      * @return Map of file names those are modified, conflicted etc.
      */
     @Override
-    public Mono<Map<String, Object>> getStatus(Path repoPath, String branchName) {
+    public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName) {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch " + branchName);
             Git git = Git.open(repoPath.toFile());
             Status status = git.status().call();
-            Map<String, Object> response = new HashMap<>();
+            GitStatusDTO response = new GitStatusDTO();
             Set<String> modifiedAssets = new HashSet<>();
             modifiedAssets.addAll(status.getModified());
             modifiedAssets.addAll(status.getAdded());
@@ -443,22 +442,22 @@ public class GitExecutorImpl implements GitExecutor {
                     modifiedQueries++;
                 }
             }
-            response.put("modified", modifiedAssets);
-            response.put("conflicting", status.getConflicting());
-            response.put("isClean", status.isClean());
-            response.put("modifiedPages", modifiedPages);
-            response.put("modifiedQueries", modifiedQueries);
+            response.setModified(modifiedAssets);
+            response.setConflicting(status.getConflicting());
+            response.setIsClean(status.isClean());
+            response.setModifiedPages(modifiedPages);
+            response.setModifiedQueries(modifiedQueries);
 
             BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
             if (trackingStatus != null) {
-                response.put("aheadCount", trackingStatus.getAheadCount());
-                response.put("behindCount", trackingStatus.getBehindCount());
-                response.put("remoteBranch", trackingStatus.getRemoteTrackingBranch());
+                response.setAheadCount(trackingStatus.getAheadCount());
+                response.setBehindCount(trackingStatus.getBehindCount());
+                response.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
             } else {
                 log.debug("Remote tracking details not present for branch: {}, repo: {}", branchName, repoPath);
-                response.put("aheadCount", 0);
-                response.put("behindCount", 0);
-                response.put("remoteBranch", "untracked");
+                response.setAheadCount(0);
+                response.setBehindCount(0);
+                response.setRemoteBranch("untracked");
             }
 
             // Remove modified changes from current branch so that checkout to other branches will be possible
@@ -468,6 +467,9 @@ public class GitExecutorImpl implements GitExecutor {
                             git.close();
                             return response;
                         });
+            }
+            if (response.getIsClean() && !Integer.valueOf(0).equals(response.getAheadCount())) {
+                response.setIsClean(false);
             }
             git.close();
             return Mono.just(response);
