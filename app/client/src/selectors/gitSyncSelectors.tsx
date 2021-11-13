@@ -93,3 +93,6 @@ export const getCurrentGitBranch = (state: AppState) => {
   const { gitApplicationMetadata } = getCurrentApplication(state) || {};
   return gitApplicationMetadata?.branchName;
 };
+
+export const getPullMergeStatus = (state: AppState) =>
+  state.ui.gitSync.pullMergeStatus;
