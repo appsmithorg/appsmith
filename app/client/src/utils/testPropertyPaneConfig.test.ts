@@ -24,23 +24,27 @@ function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
 
 function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
   const _config = config as PropertyPaneControlConfig;
-  if (_config.validation !== undefined) {
-    if (!_config.isBindProperty) {
-      return "isBindProperty should be true for evaluating the validation structure";
-    }
-    const res = validateValidationStructure(_config.validation);
-    if (res !== true) return res;
+
+  if (_config.isJSConvertible && !_config.isTriggerProperty) {
+    if (!_config.isBindProperty)
+      return `${_config.propertyName}: isBindProperty should be true if isJSConvertible is true`;
+    if (!_config.validation)
+      return `${_config.propertyName}: validation is should be defined if isJSConvertible is true`;
   }
-  if (_config.isJSConvertible !== undefined) {
-    if (!_config.isBindProperty && _config.isJSConvertible) {
-      return "isBindProperty has to be true if isJSConvertible is true";
-    }
+
+  if (_config.validation !== undefined) {
+    const res = validateValidationStructure(_config.validation);
+    if (res !== true) return `${_config.propertyName}: ${res}`;
   }
   if (_config.children) {
     for (const child of _config.children) {
       const res = validatePropertyControl(child);
-      if (res !== true) return res;
+      if (res !== true) return `${_config.propertyName}.${res}`;
     }
+  }
+  if (_config.panelConfig) {
+    const res = validatePropertyPaneConfig(_config.panelConfig.children);
+    if (res !== true) return `${_config.propertyName}.${res}`;
   }
   return true;
 }
@@ -54,9 +58,7 @@ function validateValidationStructure(
     config.params.fn
   ) {
     if (!config.params.expected)
-      return `Error in configuration ${JSON.stringify(config)}: For a ${
-        ValidationTypes.FUNCTION
-      } type validation, expected type and example are mandatory`;
+      return `For a ${ValidationTypes.FUNCTION} type validation, expected type and example are mandatory`;
   }
   return true;
 }
