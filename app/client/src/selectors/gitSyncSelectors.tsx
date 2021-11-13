@@ -5,6 +5,7 @@ import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "./applicationSelectors";
+import { Branch } from "entities/GitSync";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -61,6 +62,9 @@ export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
 
+export const getIsFetchingMergeStatus = (state: AppState) =>
+  state.ui.gitSync.isFetchingMergeStatus;
+
 export const getIsDisconnectingGit = (state: AppState) =>
   state.ui.gitSync.isDisconnectingGit;
 
@@ -69,6 +73,16 @@ export const getIsGitConnected = createSelector(
   (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),
 );
 export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
+
+export const getGitBranchNames = createSelector(getGitBranches, (branches) =>
+  branches.map((branchObj) => branchObj.branchName),
+);
+
+export const getDefaultGitBranchName = createSelector(
+  getGitBranches,
+  (branches: Array<Branch>) =>
+    branches.find((branchObj) => branchObj.default)?.branchName,
+);
 
 export const getFetchingBranches = (state: AppState) =>
   state.ui.gitSync.fetchingBranches;

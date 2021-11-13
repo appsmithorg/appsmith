@@ -1,6 +1,7 @@
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
+import TooltipComponent from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 
 import React, {
@@ -9,8 +10,10 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Classes, Position } from "@blueprintjs/core";
 import { AppState } from "reducers";
 import {
   getExistingActionNames,
@@ -18,24 +21,50 @@ import {
   getExistingWidgetNames,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { removeSpecialChars } from "utils/helpers";
+import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
 
+const Container = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
+  overflow: hidden;
+`;
+
 const Wrapper = styled.div`
+  .${Classes.POPOVER_TARGET} {
+    display: initial;
+  }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0 4px;
   padding: 9px 0;
   line-height: 13px;
+  position: relative;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
   }
+  .beta-icon {
+    position: absolute;
+    top: 5px;
+    right: 0;
+  }
+`;
+
+const EditableWrapper = styled.div`
+  overflow: hidden;
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[3] + 1}px 0;
+  line-height: 13px;
 `;
 
 export const replace = (
@@ -76,6 +105,7 @@ export interface EntityNameProps {
   enterEditMode: () => void;
   exitEditMode: () => void;
   nameTransformFn?: (input: string, limit?: number) => string;
+  isBeta?: boolean;
 }
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
@@ -102,6 +132,7 @@ export const EntityName = forwardRef(
     const nameUpdateError = useSelector((state: AppState) => {
       return state.ui.explorer.updateEntityError === props.entityId;
     });
+    const targetRef = useRef<HTMLDivElement | null>(null);
 
     const [updatedName, setUpdatedName] = useState(name);
 
@@ -189,16 +220,28 @@ export const EntityName = forwardRef(
 
     if (!props.isEditing)
       return (
-        <Wrapper
-          className={props.className}
-          onDoubleClick={props.enterEditMode}
-          ref={ref}
-        >
-          {searchHighlightedName}
-        </Wrapper>
+        <Container ref={ref}>
+          <TooltipComponent
+            boundary={"viewport"}
+            content={updatedName}
+            disabled={!isEllipsisActive(targetRef.current)}
+            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+            modifiers={{ arrow: { enabled: false } }}
+            position={Position.TOP_LEFT}
+          >
+            <Wrapper
+              className={props.className}
+              onDoubleClick={props.enterEditMode}
+              ref={targetRef}
+            >
+              {searchHighlightedName}
+              {props.isBeta ? <BetaIcon className="beta-icon" /> : ""}
+            </Wrapper>
+          </TooltipComponent>
+        </Container>
       );
     return (
-      <Wrapper>
+      <EditableWrapper>
         <EditableText
           className={`${props.className} editing`}
           defaultValue={updatedName}
@@ -212,7 +255,7 @@ export const EntityName = forwardRef(
           type="text"
           valueTransform={props.nameTransformFn || removeSpecialChars}
         />
-      </Wrapper>
+      </EditableWrapper>
     );
   },
 );
