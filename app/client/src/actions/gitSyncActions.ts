@@ -18,33 +18,12 @@ export const setIsGitSyncModalOpen = (payload: {
   };
 };
 
-type CommitToGitRequestParams = {
-  payload: {
-    commitMessage: string;
-    doPush: boolean;
-  };
-  onSuccessCallback?: () => void;
-  onErrorCallback?: (error: string) => void;
-};
-
-export type CommitToGitReduxAction = ReduxActionWithCallbacks<
-  {
-    commitMessage: string;
-    doPush: boolean;
-  },
-  string,
-  string
->;
-
-export const commitToRepoInit = ({
-  onErrorCallback,
-  onSuccessCallback,
-  payload,
-}: CommitToGitRequestParams): CommitToGitReduxAction => ({
+export const commitToRepoInit = (payload: {
+  commitMessage: string;
+  doPush: boolean;
+}) => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT,
   payload,
-  onSuccessCallback,
-  onErrorCallback,
 });
 
 export const commitToRepoSuccess = () => ({

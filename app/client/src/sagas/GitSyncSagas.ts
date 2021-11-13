@@ -23,7 +23,6 @@ import {
   updateBranchLocally,
 } from "actions/gitSyncActions";
 import {
-  CommitToGitReduxAction,
   connectToGitSuccess,
   ConnectToGitReduxAction,
 } from "../actions/gitSyncActions";
@@ -52,7 +51,12 @@ import {
   mergeBranchFailure,
 } from "../actions/gitSyncActions";
 
-function* commitToGitRepoSaga(action: CommitToGitReduxAction) {
+function* commitToGitRepoSaga(
+  action: ReduxAction<{
+    commitMessage: string;
+    doPush: boolean;
+  }>,
+) {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const gitMetaData: GitApplicationMetadata = yield select(
@@ -63,13 +67,13 @@ function* commitToGitRepoSaga(action: CommitToGitReduxAction) {
       branch: gitMetaData?.branchName || "",
       applicationId,
     });
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse({
+      ...response,
+      gitRequest: true,
+    });
 
     if (isValidResponse) {
       yield put(commitToRepoSuccess());
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response.data);
-      }
       Toaster.show({
         text: action.payload.doPush
           ? "Committed and pushed Successfully"
@@ -79,9 +83,6 @@ function* commitToGitRepoSaga(action: CommitToGitReduxAction) {
       yield put(fetchGitStatusInit());
     }
   } catch (error) {
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error?.message);
-    }
     yield put({
       type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
       payload: { error, logToSentry: true },
@@ -96,7 +97,10 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       action.payload,
       applicationId,
     );
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse({
+      ...response,
+      gitRequest: true,
+    });
 
     if (isValidResponse) {
       yield put(connectToGitSuccess(response.data));
@@ -114,7 +118,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     }
     yield put({
       type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
-      payload: { error, logToSentry: true },
+      payload: { gitError: error, logToSentry: true },
     });
   }
 }
@@ -124,7 +128,10 @@ function* disconnectToGitSaga() {
     const applicationId: string = yield select(getCurrentApplicationId);
 
     const response: ApiResponse = yield GitSyncAPI.disconnect(applicationId);
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse({
+      ...response,
+      gitRequest: true,
+    });
 
     if (isValidResponse) {
       yield put(disconnectToGitSuccess(response.data));
@@ -143,7 +150,13 @@ function* disconnectToGitSaga() {
 function* fetchGlobalGitConfig() {
   try {
     const response: ApiResponse = yield GitSyncAPI.getGlobalConfig();
-    const isValidResponse: boolean = yield validateResponse(response, false);
+    const isValidResponse: boolean = yield validateResponse(
+      {
+        ...response,
+        gitRequest: true,
+      },
+      false,
+    );
 
     if (isValidResponse) {
       yield put(fetchGlobalGitConfigSuccess(response.data));
@@ -161,7 +174,10 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
     const response: ApiResponse = yield GitSyncAPI.setGlobalConfig(
       action.payload,
     );
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse({
+      ...response,
+      gitRequest: true,
+    });
 
     if (isValidResponse) {
       yield put(updateGlobalGitConfigSuccess(response.data));
@@ -186,7 +202,10 @@ function* switchBranch(action: ReduxAction<string>) {
     const response: ApiResponse = yield GitSyncAPI.checkoutBranch(
       applicationId,
     );
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse({
+      ...response,
+      gitRequest: true,
+    });
 
     if (isValidResponse) {
       const updatedPath = addBranchParam(branch);
@@ -327,7 +346,13 @@ function* fetchGitStatusSaga() {
       applicationId,
       branch: gitMetaData?.branchName || "",
     });
-    const isValidResponse: boolean = yield validateResponse(response, false);
+    const isValidResponse: boolean = yield validateResponse(
+      {
+        ...response,
+        gitRequest: true,
+      },
+      false,
+    );
     if (isValidResponse) {
       yield put(fetchGitStatusSuccess(response.data));
     }

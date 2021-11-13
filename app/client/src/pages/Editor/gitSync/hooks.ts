@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useCallback, useEffect } from "react";
 import { generateSSHKeyPair, getSSHKeyPair } from "actions/applicationActions";
-import { commitToRepoInit, connectToGitInit } from "actions/gitSyncActions";
+import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
@@ -81,26 +81,17 @@ export const useGitConnect = () => {
 
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
-  const [gitError, setGitError] = useState({ message: null });
-
   const onGitConnectSuccess = useCallback(() => {
-    setGitError({ message: null });
     setIsConnectingToGit(false);
   }, [setIsConnectingToGit]);
 
-  const onGitConnectFailure = useCallback(
-    (error: any) => {
-      setGitError({ message: error.message });
-      setIsConnectingToGit(false);
-    },
-    [setIsConnectingToGit],
-  );
+  const onGitConnectFailure = useCallback(() => {
+    setIsConnectingToGit(false);
+  }, [setIsConnectingToGit]);
 
   const connectToGit = useCallback(
     (payload: ConnectToGitPayload) => {
       setIsConnectingToGit(true);
-      setGitError({ message: null });
-
       // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
         connectToGitInit({
@@ -115,40 +106,6 @@ export const useGitConnect = () => {
 
   return {
     isConnectingToGit,
-    gitError,
     connectToGit,
-  };
-};
-
-export const useGitCommit = () => {
-  const dispatch = useDispatch();
-
-  const [gitError, setGitError] = useState({ message: null });
-
-  const onGitCommitSuccess = useCallback(() => {
-    setGitError({ message: null });
-  }, []);
-
-  const onGitCommitFailure = useCallback((error: any) => {
-    setGitError({ message: error });
-  }, []);
-  const commitToGit = useCallback(
-    (payload: { commitMessage: string; doPush: boolean }) => {
-      setGitError({ message: null });
-
-      dispatch(
-        commitToRepoInit({
-          payload,
-          onSuccessCallback: onGitCommitSuccess,
-          onErrorCallback: onGitCommitFailure,
-        }),
-      );
-    },
-    [onGitCommitSuccess, onGitCommitFailure],
-  );
-
-  return {
-    gitError,
-    commitToGit,
   };
 };

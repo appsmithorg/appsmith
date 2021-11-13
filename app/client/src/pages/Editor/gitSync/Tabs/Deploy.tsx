@@ -27,17 +27,14 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
-import { fetchGitStatusInit } from "actions/gitSyncActions";
+import { commitToRepoInit, fetchGitStatusInit } from "actions/gitSyncActions";
 import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
 import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
-import { useGitCommit } from "../hooks";
-import GitSyncError from "../components/GitError";
-import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
+import GitSyncError from "../components/GitSyncError";
 import GitChanged, { Kind } from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
-import { log } from "loglevel";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -83,19 +80,19 @@ function Deploy() {
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   // const errorMsgRef = useRef<HTMLDivElement>(null);
-  log("git status", gitStatus);
   const hasChangesToCommit = !gitStatus?.isClean;
 
   const currentBranch = gitMetaData?.branchName;
-  const { commitToGit, gitError } = useGitCommit();
   const dispatch = useDispatch();
 
   const handleCommit = () => {
     if (currentBranch) {
-      commitToGit({
-        commitMessage,
-        doPush: true,
-      });
+      dispatch(
+        commitToRepoInit({
+          commitMessage,
+          doPush: true,
+        }),
+      );
     }
   };
 
@@ -186,10 +183,7 @@ function Deploy() {
             />
           </StatusbarWrapper>
         )}
-        <GitSyncError
-          error={gitError.message}
-          type={ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR}
-        />
+        <GitSyncError />
       </Section>
 
       <DeployPreview showSuccess={isCommitAndPushSuccessful} />
