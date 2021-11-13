@@ -32,7 +32,7 @@ const initialState: GitSyncReducerState = {
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
-  isDisconnectingGit: false,
+
   isFetchingLocalGitConfig: false,
   isFetchingGitConfig: false,
 };
@@ -226,22 +226,7 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitStatus: false,
   }),
-  [ReduxActionTypes.DISCONNECT_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
-    ...state,
-    isDisconnectingGit: true,
-  }),
-  [ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS]: (
-    state: GitSyncReducerState,
-  ) => ({
-    ...state,
-    isDisconnectingGit: false,
-  }),
-  [ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR]: (
-    state: GitSyncReducerState,
-  ) => ({
-    ...state,
-    isDisconnectingGit: false,
-  }),
+
   [ReduxActionTypes.FETCH_MERGE_STATUS_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isFetchingMergeStatus: true,
@@ -283,7 +268,7 @@ export type GitSyncReducerState = {
   fetchingBranches: boolean;
   isFetchingGitConfig: boolean;
   isFetchingLocalGitConfig: boolean;
-  isDisconnectingGit: boolean;
+
   isFetchingGitStatus: boolean;
   isFetchingMergeStatus: boolean;
 

@@ -36,13 +36,9 @@ import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "constants/messages";
-import {
-  fetchGitStatusInit,
-  disconnectToGitSuccess,
-} from "../actions/gitSyncActions";
+import { fetchGitStatusInit } from "../actions/gitSyncActions";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
-import { fetchApplication } from "../actions/applicationActions";
-import { APP_MODE } from "entities/App";
+
 import history from "utils/history";
 import { addBranchParam } from "constants/routes";
 import { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
@@ -113,27 +109,6 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     }
     yield put({
       type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
-      payload: { error, logToSentry: true },
-    });
-  }
-}
-
-function* disconnectToGitSaga() {
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-
-    const response: ApiResponse = yield GitSyncAPI.disconnect(applicationId);
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (isValidResponse) {
-      yield put(disconnectToGitSuccess(response.data));
-      yield put(
-        fetchApplication({ payload: { applicationId, mode: APP_MODE.EDIT } }),
-      );
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR,
       payload: { error, logToSentry: true },
     });
   }
@@ -389,7 +364,6 @@ export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
     takeLatest(ReduxActionTypes.CONNECT_TO_GIT_INIT, connectToGitSaga),
-    takeLatest(ReduxActionTypes.DISCONNECT_TO_GIT_INIT, disconnectToGitSaga),
     takeLatest(ReduxActionTypes.PUSH_TO_GIT_INIT, pushToGitRepoSaga),
     takeLatest(
       ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT,

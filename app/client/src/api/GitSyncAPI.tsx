@@ -95,10 +95,6 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
 
-  static disconnect(applicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
-  }
-
   static getGlobalConfig() {
     return Api.get(`${GitSyncAPI.baseURL}/profile/default`);
   }
