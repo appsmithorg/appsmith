@@ -32,7 +32,9 @@ const Wrapper = styled.div`
 
 function MergeStatus() {
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
-  const mergeStatus = MERGE_STATUS_STATE.MERGE_CONFLICT;
+  const mergeStatus = isFetchingMergeStatus
+    ? MERGE_STATUS_STATE.FETCHING
+    : MERGE_STATUS_STATE.NONE;
 
   switch (mergeStatus) {
     case MERGE_STATUS_STATE.FETCHING:
