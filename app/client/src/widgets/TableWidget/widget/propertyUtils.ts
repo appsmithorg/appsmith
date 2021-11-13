@@ -22,9 +22,6 @@ export function defaultSelectedRowValidation(
 ) {
   if (props) {
     if (props.multiRowSelection) {
-      if (props && !props.multiRowSelection)
-        return { isValid: true, parsed: undefined };
-
       if (_.isString(value)) {
         const trimmed = (value as string).trim();
         try {
@@ -211,6 +208,7 @@ export function updateIconAlignment(
 // has changed and it is supposed to update the derivedColumns
 // For example, when we add a new column or update a derived column's name
 // The propertyPath will be of the type `primaryColumns.columnId`
+// Handling BindingProperty of derived columns
 export const updateDerivedColumnsHook = (
   props: TableWidgetProps,
   propertyPath: string,
@@ -245,7 +243,8 @@ export const updateDerivedColumnsHook = (
     if (regex.test(propertyPath)) {
       const matches = propertyPath.match(regex);
       if (matches && matches.length === 3) {
-        const columnId = parseInt(matches[1]);
+        // updated to use column keys
+        const columnId = matches[1];
         const columnProperty = matches[2];
         const primaryColumn = props.primaryColumns[columnId];
         const isDerived = primaryColumn ? primaryColumn.isDerived : false;

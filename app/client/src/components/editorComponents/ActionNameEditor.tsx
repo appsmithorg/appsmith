@@ -120,7 +120,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
         name !== currentActionConfig?.name &&
         hasActionNameConflict(name)
       ) {
-        return `${name} is already being used.`;
+        return `${name} is already being used or is a restricted keyword.`;
       }
       return false;
     },
@@ -170,7 +170,6 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
           editInteractionKind={NewEditInteractionKind.SINGLE}
           fill
           forceDefault={forceUpdate}
-          hideEditIcon
           isEditingDefault={isNew && !hideEditIcon}
           isInvalid={isInvalidActionName}
           onBlur={handleAPINameChange}

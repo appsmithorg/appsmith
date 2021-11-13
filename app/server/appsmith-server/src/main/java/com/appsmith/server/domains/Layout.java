@@ -9,9 +9,10 @@ import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static java.lang.Boolean.TRUE;
 
 @Getter
 @Setter
@@ -32,14 +33,14 @@ public class Layout extends BaseDomain {
     @Deprecated
     Set<DslActionDTO> layoutActions;
 
-    List<HashSet<DslActionDTO>> layoutOnLoadActions;
+    List<Set<DslActionDTO>> layoutOnLoadActions;
 
     @Deprecated
     @JsonIgnore
     Set<DslActionDTO> publishedLayoutActions;
 
     @JsonIgnore
-    List<HashSet<DslActionDTO>> publishedLayoutOnLoadActions;
+    List<Set<DslActionDTO>> publishedLayoutOnLoadActions;
 
     @JsonIgnore
     Set<String> widgetNames;
@@ -56,6 +57,9 @@ public class Layout extends BaseDomain {
     @JsonIgnore
     Set<String> mongoEscapedWidgetNames;
 
+    @JsonIgnore
+    Boolean validOnPageLoadActions = TRUE;
+
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
      * the dsl returned should be JSONObject dsl
@@ -69,7 +73,7 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedLayoutActions : layoutActions;
     }
 
-    public List<HashSet<DslActionDTO>> getLayoutOnLoadActions() {
+    public List<Set<DslActionDTO>> getLayoutOnLoadActions() {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 }

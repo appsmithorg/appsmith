@@ -164,6 +164,41 @@ public class DataUtilsTest {
     }
 
     @Test
+    public void testParseMultipartFileData_withValidMultipleFileList_returnsExpectedBody() {
+        List<Property> properties = new ArrayList<>();
+        final Property p1 = new Property("fileType", "[{\"name\": \"test1.json\", \"type\": \"application/json\", \"data\" : {}}, {\"name\": \"test2.json\", \"type\": \"application/json\", \"data\" : {}}]");
+        p1.setType("file");
+        properties.add(p1);
+
+        final BodyInserter<Object, MockClientHttpRequest> bodyInserter =
+                (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
+        MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.POST, URI.create("https://example.com"));
+
+        Mono<Void> result = bodyInserter.insert(request, this.context);
+        StepVerifier.create(result).expectComplete().verify();
+        StepVerifier.create(DataBufferUtils.join(request.getBody()))
+                .consumeNextWith(dataBuffer -> {
+                    byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(resultBytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String content = new String(resultBytes, StandardCharsets.UTF_8);
+                    Assert.assertTrue(content.contains(
+                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test1.json\"\r\n" +
+                                    "Content-Type: application/json\r\n" +
+                                    "\r\n" +
+                                    "{}"));
+
+                    Assert.assertTrue(content.contains(
+                            "Content-Disposition: form-data; name=\"fileType\"; filename=\"test2.json\"\r\n" +
+                                    "Content-Type: application/json\r\n" +
+                                    "\r\n" +
+                                    "{}"));
+                })
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
     public void testParseFormData_withEncodingParamsToggleTrue_returnsEncodedString() throws UnsupportedEncodingException {
         final String encoded_value = dataUtils.parseFormData(List.of(new Property("key", "valüe")),
                 true);
@@ -177,7 +212,7 @@ public class DataUtilsTest {
     }
 
     @Test
-    public void testParseFormData_withOutEncodingParamsToggleTrue_returnsEncodedString() throws UnsupportedEncodingException {
+    public void testParseFormData_withoutEncodingParamsToggleTrue_returnsEncodedString() throws UnsupportedEncodingException {
         final String encoded_value = dataUtils.parseFormData(List.of(new Property("key", "valüe")),
                 false);
         String expected_value = null;

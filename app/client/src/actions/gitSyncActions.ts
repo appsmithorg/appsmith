@@ -4,6 +4,7 @@ import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import { ReduxActionErrorTypes } from "../constants/ReduxActionConstants";
 
 // test comment
 
@@ -27,6 +28,10 @@ export const commitToRepoInit = (payload: {
 
 export const commitToRepoSuccess = () => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_SUCCESS,
+});
+
+export const clearCommitSuccessfulState = () => ({
+  type: ReduxActionTypes.CLEAR_COMMIT_SUCCESSFUL_STATE,
 });
 
 export const pushToRepoInit = () => ({
@@ -177,4 +182,33 @@ export const fetchGitStatusSuccess = (payload: GitStatusData) => ({
 export const updateBranchLocally = (payload: string) => ({
   type: ReduxActionTypes.UPDATE_BRANCH_LOCALLY,
   payload,
+});
+
+type MergeBranchPayload = { sourceBranch: string; destinationBranch: string };
+
+export const mergeBranchInit = (payload: MergeBranchPayload) => ({
+  type: ReduxActionTypes.MERGE_BRANCH_INIT,
+  payload,
+});
+
+export const mergeBranchSuccess = () => ({
+  type: ReduxActionTypes.MERGE_BRANCH_SUCCESS,
+});
+
+export const mergeBranchFailure = () => ({
+  type: ReduxActionErrorTypes.MERGE_BRANCH_ERROR,
+});
+
+export const fetchMergeStatusInit = (payload: MergeBranchPayload) => ({
+  type: ReduxActionTypes.FETCH_MERGE_STATUS_INIT,
+  payload,
+});
+
+export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
+  type: ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS,
+  payload,
+});
+
+export const fetchMergeStatusFailure = () => ({
+  type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
 });
