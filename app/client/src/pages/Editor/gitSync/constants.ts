@@ -37,10 +37,3 @@ export const Classes = {
 
 export const DEFAULT_REMOTE = "origin";
 export const MENU_HEIGHT = 47;
-
-export enum GitChangedKey {
-  APPLICATION = "applications/",
-  ACTION = "actions/",
-  PAGE = "pages/",
-  DATASOURCE = "datasources/",
-}
