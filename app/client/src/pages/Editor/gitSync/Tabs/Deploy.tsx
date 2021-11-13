@@ -33,7 +33,7 @@ import StatusLoader from "../components/StatusLoader";
 import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import GitSyncError from "../components/GitSyncError";
-import GitChanged, { Kind } from "../components/GitChanged";
+import GitChanged from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
 
 const Section = styled.div`
@@ -128,17 +128,7 @@ function Deploy() {
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
       <Section>
-        <Row>
-          <GitChanged loading={isFetchingGitStatus} type={Kind.widget} />
-          <GitChanged loading={isFetchingGitStatus} type={Kind.query} />
-          {gitStatus?.behindCount > 0 && (
-            <GitChanged loading={isFetchingGitStatus} type={Kind.pullRequest} />
-          )}
-          {gitStatus?.aheadCount > 0 && (
-            <GitChanged loading={isFetchingGitStatus} type={Kind.commit} />
-          )}
-        </Row>
-        <Space size={11} />
+        <GitChanged />
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
