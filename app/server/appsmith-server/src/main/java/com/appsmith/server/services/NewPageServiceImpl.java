@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -128,8 +130,8 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
     public Mono<PageDTO> createDefault(PageDTO object) {
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(object);
-
         newPage.setApplicationId(object.getApplicationId());
+        newPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(object.getName()));
         newPage.setPolicies(object.getPolicies());
         if (newPage.getGitSyncId() == null) {
             newPage.setGitSyncId(newPage.getApplicationId() + "_" + Instant.now().toString());
@@ -379,13 +381,13 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Mono<PageDTO> updatePage(String id, PageDTO page) {
-        NewPage newPage = new NewPage();
-        newPage.setUnpublishedPage(page);
-
         return repository.findById(id, AclPermission.MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(dbPage -> {
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
+                    if(!StringUtils.isEmpty(page.getName())) {
+                        dbPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(page.getName()));
+                    }
                     return this.update(id, dbPage);
                 })
                 .flatMap(savedPage -> applicationService.saveLastEditInformation(savedPage.getApplicationId())

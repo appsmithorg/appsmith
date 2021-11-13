@@ -3,7 +3,7 @@ package com.external.helpers;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Property;
-import com.external.dtos.MultipartFormDataDTO;
+import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +26,8 @@ import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -150,26 +152,15 @@ public class DataUtils {
                         if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
                             bodyBuilder.part(key, property.getValue());
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
-
-                            MultipartFormDataDTO multipartFormDataDTO = null;
                             try {
-                                multipartFormDataDTO = objectMapper.readValue(
-                                        String.valueOf(property.getValue()),
-                                        MultipartFormDataDTO.class);
+                                populateFileTypeBodyBuilder(bodyBuilder, property, outputMessage);
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        "Unable to parse content. Expected to receive an array or object of multipart data"
+                                );
                             }
-                            final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
-                            Flux<DataBuffer> data = DataBufferUtils.readInputStream(
-                                    () -> new ByteArrayInputStream(String
-                                            .valueOf(finalMultipartFormDataDTO.getData())
-                                            .getBytes(StandardCharsets.UTF_8)),
-                                    outputMessage.bufferFactory(),
-                                    4096);
-
-                            bodyBuilder.asyncPart(key, data, DataBuffer.class)
-                                    .filename(multipartFormDataDTO.getName())
-                                    .contentType(MediaType.valueOf(multipartFormDataDTO.getType()));
                         }
                     }
 
@@ -179,6 +170,38 @@ public class DataUtils {
                     return multipartInserter
                             .insert(outputMessage, context);
                 });
+    }
+
+    private void populateFileTypeBodyBuilder(MultipartBodyBuilder bodyBuilder, Property property, ClientHttpRequest outputMessage)
+            throws JsonProcessingException {
+        final Object fileValue = property.getValue();
+        final String key = property.getKey();
+        List<MultipartFormDataDTO> multipartFormDataDTOs = new ArrayList<>();
+        try {
+            multipartFormDataDTOs = Arrays.asList(
+                    objectMapper.readValue(
+                            String.valueOf(fileValue),
+                            MultipartFormDataDTO[].class));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(String.valueOf(fileValue),
+                    MultipartFormDataDTO.class);
+            multipartFormDataDTOs.add(multipartFormDataDTO);
+        }
+        multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
+            final MultipartFormDataDTO finalMultipartFormDataDTO = multipartFormDataDTO;
+            Flux<DataBuffer> data = DataBufferUtils.readInputStream(
+                    () -> new ByteArrayInputStream(String
+                            .valueOf(finalMultipartFormDataDTO.getData())
+                            .getBytes(StandardCharsets.UTF_8)),
+                    outputMessage.bufferFactory(),
+                    4096);
+
+            bodyBuilder.asyncPart(key, data, DataBuffer.class)
+                    .filename(multipartFormDataDTO.getName())
+                    .contentType(MediaType.valueOf(multipartFormDataDTO.getType()));
+        });
+
     }
 
     /**

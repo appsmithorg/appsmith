@@ -89,12 +89,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final OrganizationRepository organizationRepository;
     private final UserOrganizationService userOrganizationService;
     private final RoleGraph roleGraph;
-    private final ConfigService configService;
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
-    private final ApplicationPageService applicationPageService;
     private final UserDataService userDataService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
@@ -139,12 +137,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.organizationRepository = organizationRepository;
         this.userOrganizationService = userOrganizationService;
         this.roleGraph = roleGraph;
-        this.configService = configService;
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
-        this.applicationPageService = applicationPageService;
         this.userDataService = userDataService;
     }
 
@@ -465,7 +461,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
                 ))
-                .flatMap(tuple -> analyticsService.trackNewUser(tuple.getT1(), tuple.getT2()));
+                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
     /**
@@ -823,6 +819,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         List<Mono<Void>> monos = new ArrayList<>();
 
         Mono<User> updatedUserMono;
+        Mono<UserData> updatedUserDataMono;
 
         if (allUpdates.hasUserUpdates()) {
             final User updates = new User();
@@ -846,10 +843,19 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
             final UserData updates = new UserData();
             updates.setRole(allUpdates.getRole());
             updates.setUseCase(allUpdates.getUseCase());
-            monos.add(userDataService.updateForCurrentUser(updates).then());
+            updatedUserDataMono = userDataService.updateForCurrentUser(updates).cache();
+            monos.add(updatedUserDataMono.then());
+        } else {
+            updatedUserDataMono = userDataService.getForCurrentUser();
         }
 
-        return Mono.whenDelayError(monos).then(updatedUserMono);
+        return Mono.whenDelayError(monos)
+                .then(Mono.zip(updatedUserMono, updatedUserDataMono))
+                .flatMap(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    return analyticsService.identifyUser(user, userData).thenReturn(user);
+                });
     }
 
     public Map<String, String> getEmailParams(Organization organization, User inviter, String inviteUrl, boolean isNewUser) {
@@ -910,6 +916,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             AclPermission.MANAGE_INSTANCE_ENV.getValue(),
                             userFromDb.getUsername()
                     ));
+                    profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
 
                     return profile;
                 });
