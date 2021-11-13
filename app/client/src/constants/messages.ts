@@ -590,6 +590,7 @@ export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
+export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
 
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";

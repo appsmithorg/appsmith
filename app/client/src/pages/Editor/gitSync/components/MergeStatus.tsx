@@ -1,12 +1,16 @@
 import React from "react";
-import { createMessage, FETCH_MERGE_STATUS } from "constants/messages";
+import {
+  createMessage,
+  FETCH_MERGE_STATUS,
+  MERGE_CONFLICT_ERROR,
+} from "constants/messages";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
 import { Space } from "./StyledComponents";
 import { useSelector } from "react-redux";
 import { getIsFetchingMergeStatus } from "selectors/gitSyncSelectors";
 import Text, { TextType } from "components/ads/Text";
-import { ReactComponent as ErrorWarning } from "assets/svg/error-warning-line.svg";
+import ErrorWarning from "remixicon-react/ErrorWarningLineIcon";
 import { Colors } from "constants/Colors";
 
 const Flex = styled.div`
@@ -28,9 +32,7 @@ const Wrapper = styled.div`
 
 function MergeStatus() {
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
-  const mergeStatus = isFetchingMergeStatus
-    ? MERGE_STATUS_STATE.FETCHING
-    : MERGE_STATUS_STATE.NONE;
+  const mergeStatus = MERGE_STATUS_STATE.MERGE_CONFLICT;
 
   switch (mergeStatus) {
     case MERGE_STATUS_STATE.FETCHING:
@@ -56,13 +58,14 @@ function MergeStatus() {
         <Flex>
           <Space horizontal size={10} />
           <Wrapper>
-            <ErrorWarning />
+            <ErrorWarning color={Colors.CRIMSON} size={18} />
             <Text
               color={Colors.CRIMSON}
-              style={{ marginLeft: 8 }}
+              style={{ marginLeft: 8, alignSelf: "center" }}
               type={TextType.P3}
+              weight="600"
             >
-              {createMessage(FETCH_MERGE_STATUS)}
+              {createMessage(MERGE_CONFLICT_ERROR)}
             </Text>
           </Wrapper>
         </Flex>
