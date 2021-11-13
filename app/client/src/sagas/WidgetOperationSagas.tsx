@@ -93,6 +93,8 @@ import {
   getBoundaryWidgetsFromCopiedGroups,
   createWidgetCopy,
   getNextWidgetName,
+  getParentWidgetIdForGrouping,
+  isCopiedModalWidget,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -231,19 +233,6 @@ function applyDynamicPathUpdates(
   return currentList;
 }
 
-const isPropertyATriggerPath = (
-  widget: WidgetProps,
-  propertyPath: string,
-): boolean => {
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
-  const { triggerPaths } = getAllPathsFromPropertyConfig(
-    widget,
-    widgetConfig,
-    {},
-  );
-  return propertyPath in triggerPaths;
-};
-
 function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
@@ -332,6 +321,11 @@ function getPropertiesToUpdate(
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
+  const {
+    triggerPaths: triggerPathsFromPropertyConfig = {},
+  } = getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
+
   Object.keys(updatePaths).forEach((propertyPath) => {
     const propertyValue = _.get(updates, propertyPath);
     // only check if
@@ -339,11 +333,7 @@ function getPropertiesToUpdate(
       return;
     }
 
-    // Check if the path is a of a dynamic trigger property
-    let isTriggerProperty = isPropertyATriggerPath(
-      widgetWithUpdates,
-      propertyPath,
-    );
+    let isTriggerProperty = propertyPath in triggerPathsFromPropertyConfig;
 
     isTriggerProperty = doesTriggerPathsContainPropertyPath(
       isTriggerProperty,
@@ -725,7 +715,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
-  const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
+  let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
     selectedWidget,
   );
@@ -739,6 +729,11 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   // if this is true, selected widgets will be grouped in container
   if (shouldGroup) {
     copiedWidgetGroups = yield createSelectedWidgetsAsCopiedWidgets();
+    pastingIntoWidgetId = yield getParentWidgetIdForGrouping(
+      widgets,
+      copiedWidgetGroups,
+      pastingIntoWidgetId,
+    );
     widgets = yield filterOutSelectedWidgets(
       copiedWidgetGroups[0].parentId,
       copiedWidgetGroups,
@@ -753,10 +748,16 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
       copiedWidgetGroups,
       pastingIntoWidgetId,
     );
+  } else if (isCopiedModalWidget(copiedWidgetGroups, widgets)) {
+    pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
 
-  // to avoid invoking old copied widgets
-  if (!Array.isArray(copiedWidgetGroups)) return;
+  if (
+    // to avoid invoking old way of copied widgets implementaion
+    !Array.isArray(copiedWidgetGroups) ||
+    !copiedWidgetGroups.length
+  )
+    return;
 
   const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
     copiedWidgetGroups,

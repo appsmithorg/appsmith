@@ -17,6 +17,9 @@ export type User = {
   commentOnboardingState?: CommentsOnboardingState | null;
   photoId?: string;
   isSuperUser: boolean;
+  role?: string;
+  useCase?: string;
+  isConfigurable: boolean;
 };
 
 export interface UserApplication {
@@ -35,8 +38,14 @@ export const DefaultCurrentUserDetails: User = {
   username: ANONYMOUS_USERNAME,
   gender: "MALE",
   isSuperUser: false,
+  isConfigurable: false,
 };
 
 // TODO keeping it here instead of the USER_API since it leads to cyclic deps errors during tests
 export const USER_PHOTO_URL = "v1/users/photo";
 export const USER_PHOTO_ASSET_URL = "v1/assets";
+
+export type UserRoleUsecasePayload = {
+  role: string;
+  useCase: string;
+};

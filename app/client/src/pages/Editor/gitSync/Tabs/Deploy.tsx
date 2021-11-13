@@ -1,41 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Title } from "../components/StyledComponents";
 import {
   DEPLOY_YOUR_APPLICATION,
   COMMIT_TO,
-  COMMIT,
-  PUSH_CHANGES_IMMEDIATELY_TO,
-  PUSH_CHANGES,
-  PUSH_TO,
   createMessage,
   COMMIT_AND_PUSH,
-  COMMITTED_SUCCESSFULLY,
-  PUSHED_SUCCESSFULLY,
+  FETCH_GIT_STATUS,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
-import Checkbox, { LabelContainer } from "components/ads/Checkbox";
-
-import { DEFAULT_REMOTE } from "../constants";
+import Button, { Size } from "components/ads/Button";
+import { LabelContainer } from "components/ads/Checkbox";
 
 import {
-  getIsCommitSuccessful,
+  getGitStatus,
+  getIsFetchingGitStatus,
   getIsCommittingInProgress,
-  getIsPushingToGit,
-  getIsPushSuccessful,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { commitToRepoInit } from "actions/gitSyncActions";
 
 import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
-import { withTheme } from "styled-components";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { pushToRepoInit } from "actions/gitSyncActions";
 import DeployPreview from "../components/DeployPreview";
+import { fetchGitStatusInit } from "actions/gitSyncActions";
+import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
+import StatusLoader from "../components/StatusLoader";
+import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -61,46 +55,64 @@ const Container = styled.div`
   }
 `;
 
-const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
-  const [pushImmediately, setPushImmediately] = useState(true);
-  const [commitMessage, setCommitMessage] = useState("Initial Commit");
-  const isCommittingInProgress = useSelector(getIsCommittingInProgress);
-  const isPushingToGit = useSelector(getIsPushingToGit);
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+const INITIAL_COMMIT = "Initial Commit";
+const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
-  const isCommitSuccessful = useSelector(getIsCommitSuccessful);
-  const isPushSuccessful = useSelector(getIsPushSuccessful);
+function Deploy() {
+  const [commitMessage, setCommitMessage] = useState(INITIAL_COMMIT);
+  // const [showCompleteError, setShowCompleteError] = useState(false);
+  const isCommittingInProgress = useSelector(getIsCommittingInProgress);
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const gitStatus = useSelector(getGitStatus);
+  const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
+  const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
+  // const gitPushError = useSelector(getGitPushError);
+  // const errorMsgRef = useRef<HTMLDivElement>(null);
+
+  const hasChangesToCommit = !gitStatus?.isClean;
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
 
   const handleCommit = () => {
-    dispatch(commitToRepoInit({ commitMessage, doPush: pushImmediately }));
+    if (currentBranch) {
+      dispatch(
+        commitToRepoInit({
+          commitMessage,
+          doPush: true, // to push with commit
+        }),
+      );
+    }
   };
 
-  const handlePushToGit = () => {
-    dispatch(pushToRepoInit());
-  };
+  const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
-  let commitButtonText = "";
+  useEffect(() => {
+    dispatch(fetchGitStatusInit());
 
-  if (isCommitSuccessful) {
-    if (pushImmediately) {
-      commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
-    } else {
-      commitButtonText = createMessage(COMMITTED_SUCCESSFULLY);
-    }
-  } else {
-    if (pushImmediately) {
-      commitButtonText = createMessage(COMMIT_AND_PUSH);
-    } else {
-      commitButtonText = createMessage(COMMIT);
-    }
-  }
+    return () => {
+      dispatch(clearCommitSuccessfulState());
+    };
+  }, []);
 
-  const pushButtonText = isPushSuccessful
-    ? createMessage(PUSHED_SUCCESSFULLY)
-    : createMessage(PUSH_CHANGES);
+  const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
+  const commitButtonLoading = isCommittingInProgress;
+
+  // const errorMsgShowMoreEnabled = useMemo(() => {
+  //   let showMoreEnabled = false;
+  //   if (errorMsgRef && errorMsgRef.current) {
+  //     const element = errorMsgRef.current;
+  //     if (element && element?.offsetHeight && element?.scrollHeight) {
+  //       showMoreEnabled = element?.offsetHeight < element?.scrollHeight;
+  //     }
+  //   }
+  //   return showMoreEnabled;
+  // }, [errorMsgRef.current, gitPushError]);
+
+  const showCommitButton = hasChangesToCommit && !isFetchingGitStatus;
+  const commitMessageDisplay = hasChangesToCommit
+    ? commitMessage
+    : NO_CHANGES_TO_COMMIT;
 
   return (
     <Container>
@@ -115,65 +127,33 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
         <Space size={3} />
         <TextInput
           autoFocus
-          defaultValue={commitMessage}
-          disabled={isCommitSuccessful}
+          disabled={!hasChangesToCommit || isFetchingGitStatus}
           fill
           onChange={setCommitMessage}
+          trimValue={false}
+          value={commitMessageDisplay}
         />
-        <Space size={3} />
-        <Checkbox
-          disabled={isCommitSuccessful}
-          isDefaultChecked
-          label={`${createMessage(
-            PUSH_CHANGES_IMMEDIATELY_TO,
-          )} ${DEFAULT_REMOTE}/${currentBranch}`}
-          onCheckChange={(checked: boolean) => setPushImmediately(checked)}
-        />
+        {isFetchingGitStatus && (
+          <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
+        )}
         <Space size={11} />
-        <Button
-          className="t--commit-button"
-          disabled={isCommitSuccessful}
-          isLoading={isCommittingInProgress}
-          onClick={handleCommit}
-          size={Size.medium}
-          text={commitButtonText}
-          width="max-content"
-        />
-      </Section>
-      {/** TODO: handle error cases and create new branch for push */}
-      {!pushImmediately ? (
-        <Section>
-          <Space size={10} />
-          <Row>
-            {/** TODO: refactor dropdown component to avoid negative margins */}
-            <SectionTitle
-              style={{
-                marginRight: -1 * theme.spaces[2],
-                top: -1,
-                position: "relative",
-              }}
-            >
-              {createMessage(PUSH_TO)}
-              <span className="branch">&nbsp;{currentBranch}</span>
-            </SectionTitle>
-          </Row>
-          <Space size={3} />
+        {showCommitButton && (
           <Button
-            category={Category.tertiary}
-            disabled={isPushSuccessful}
-            isLoading={isPushingToGit}
-            onClick={handlePushToGit}
+            className="t--commit-button"
+            disabled={commitButtonDisabled}
+            isLoading={commitButtonLoading}
+            onClick={handleCommit}
             size={Size.medium}
-            text={pushButtonText}
+            tag="button"
+            text={commitButtonText}
             width="max-content"
           />
-        </Section>
-      ) : null}
-      {(isPushSuccessful || (pushImmediately && isCommitSuccessful)) && (
-        <DeployPreview />
-      )}
+        )}
+      </Section>
+
+      <DeployPreview showSuccess={isCommitAndPushSuccessful} />
     </Container>
   );
-});
+}
 
-export default Commit;
+export default Deploy;

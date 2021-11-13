@@ -81,7 +81,7 @@ public class PluginUtils {
     }
 
     public static Object getValueSafelyFromFormData(Map<String, Object> formData, String field) {
-        if (formData == null || formData.isEmpty()) {
+        if (CollectionUtils.isEmpty(formData)) {
             return null;
         }
 
@@ -110,6 +110,17 @@ public class PluginUtils {
             return formData.getOrDefault(field, null);
         }
 
+    }
+
+    public static Object getValueSafelyFromFormDataOrDefault(Map<String, Object> formData, String field, Object defaultValue) {
+
+        Object value = getValueSafelyFromFormData(formData, field);
+
+        if (value == null) {
+            return defaultValue;
+        }
+
+        return value;
     }
 
     public static void setValueSafelyInFormData(Map<String, Object> formData, String field, Object value) {

@@ -63,7 +63,6 @@ import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
 import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
-import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
@@ -103,11 +102,13 @@ import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
+import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
 import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
@@ -119,6 +120,8 @@ import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
 import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
+import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
+import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -129,6 +132,7 @@ export enum IconSize {
   XL = "extraLarge",
   XXL = "extraExtraLarge",
   XXXL = "extraExtraExtraLarge",
+  XXXXL = "extraExtraExtraExtraLarge",
 }
 
 export const sizeHandler = (size?: IconSize) => {
@@ -157,6 +161,9 @@ export const sizeHandler = (size?: IconSize) => {
       break;
     case IconSize.XXXL:
       iconSize = theme.iconSizes.XXXL;
+      break;
+    case IconSize.XXXXL:
+      iconSize = theme.iconSizes.XXXXL;
       break;
     default:
       iconSize = theme.iconSizes.SMALL;
@@ -222,6 +229,7 @@ export const IconCollection = [
   "guide",
   "help",
   "invite-user",
+  "left-arrow-2",
   "lightning",
   "line-dashed",
   "line-dotted",
@@ -242,6 +250,7 @@ export const IconCollection = [
   "reaction-2",
   "read-pin",
   "right-arrow",
+  "right-arrow-2",
   "rocket",
   "search",
   "send-button",
@@ -275,6 +284,7 @@ export const IconCollection = [
   "down-arrow",
   "loader",
   "setting",
+  "refresh",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -481,7 +491,7 @@ const Icon = forwardRef(
         returnIcon = <GeneralIcon />;
         break;
       case "git-branch":
-        returnIcon = <GitBranch />;
+        returnIcon = <GitBranchLineIcon />;
         break;
       case "guide":
         returnIcon = <GuideIcon />;
@@ -491,6 +501,9 @@ const Icon = forwardRef(
         break;
       case "invite-user":
         returnIcon = <InviteUserIcon />;
+        break;
+      case "left-arrow-2":
+        returnIcon = <LeftArrowIcon2 />;
         break;
       case "lightning":
         returnIcon = <LightningIcon />;
@@ -551,6 +564,9 @@ const Icon = forwardRef(
         break;
       case "right-arrow":
         returnIcon = <RightArrowIcon />;
+        break;
+      case "right-arrow-2":
+        returnIcon = <RightArrowIcon2 />;
         break;
       case "rocket":
         returnIcon = <RocketIcon />;
@@ -650,6 +666,9 @@ const Icon = forwardRef(
         break;
       case "loader":
         returnIcon = <LoaderLineIcon />;
+        break;
+      case "refresh":
+        returnIcon = <RefreshLineIcon />;
         break;
       default:
         returnIcon = null;

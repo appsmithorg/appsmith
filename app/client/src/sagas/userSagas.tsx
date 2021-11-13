@@ -293,6 +293,16 @@ export function* inviteUsers(
         orgId: data.orgId,
       },
     });
+    yield put({
+      type: ReduxActionTypes.INVITED_USERS_TO_ORGANIZATION,
+      payload: {
+        orgId: data.orgId,
+        users: data.usernames.map((name: string) => ({
+          username: name,
+          roleName: data.roleName,
+        })),
+      },
+    });
     yield call(resolve);
     yield put(reset(INVITE_USERS_TO_ORG_FORM));
   } catch (error) {
@@ -308,10 +318,12 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, name } = action.payload;
+    const { email, name, role, useCase } = action.payload;
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
+      role,
+      useCase,
     });
     const isValidResponse = yield validateResponse(response);
 
