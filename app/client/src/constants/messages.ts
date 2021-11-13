@@ -596,6 +596,10 @@ export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
+
+export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
+export const SYNC_BRANCHES = () => "Sync branches";
+
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and insert code snippets to perform complex actions quickly.`;

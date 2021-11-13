@@ -521,6 +521,7 @@ class InputComponent extends React.Component<
             undefined
           )
         }
+        spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputType)}
         value={this.props.value}
       />
@@ -621,6 +622,7 @@ export interface InputComponentProps extends ComponentProps {
   currencyCountryCode?: string;
   noOfDecimals?: number;
   phoneNumberCountryCode?: string;
+  spellCheck: boolean;
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;
