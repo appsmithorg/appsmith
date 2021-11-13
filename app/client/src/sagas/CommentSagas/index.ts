@@ -34,6 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   AddCommentToCommentThreadRequestPayload,
+  CommentThread,
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
   DraggedCommentThread,
@@ -162,7 +163,13 @@ function* fetchApplicationComments() {
     const isValidResponse = yield validateResponse(response);
 
     if (isValidResponse) {
-      yield put(fetchApplicationCommentsSuccess(response.data));
+      const commentThreads = response.data as CommentThread[];
+      yield put(
+        fetchApplicationCommentsSuccess({
+          commentThreads,
+          applicationId,
+        }),
+      );
     }
   } catch (error) {
     yield put({

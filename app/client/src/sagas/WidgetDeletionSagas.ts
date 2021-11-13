@@ -14,7 +14,7 @@ import {
 import { GridDefaults } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { flattenDeep, omit, remove } from "lodash";
+import { flattenDeep, omit } from "lodash";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -26,8 +26,10 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { WidgetProps } from "widgets/BaseWidget";
 import { clearEvalPropertyCacheOfWidget } from "./EvaluationsSaga";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
-import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
-import { getAllWidgetsInTree } from "./WidgetOperationUtils";
+import {
+  getAllWidgetsInTree,
+  updateListWidgetPropertiesOnChildDelete,
+} from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -40,42 +42,6 @@ type WidgetDeleteTabChild = {
   widgetId: string;
 };
 
-/**
- * this saga clears out the enhancementMap, template and dynamicBindingPathList when a child
- * is deleted in list widget
- *
- * @param widgets
- * @param widgetId
- * @param widgetName
- * @param parentId
- */
-function* updateListWidgetPropertiesOnChildDelete(
-  widgets: CanvasWidgetsReduxState,
-  widgetId: string,
-  widgetName: string,
-) {
-  const clone = JSON.parse(JSON.stringify(widgets));
-
-  const parentWithEnhancementFn = getParentWithEnhancementFn(widgetId, clone);
-
-  if (parentWithEnhancementFn?.type === "LIST_WIDGET") {
-    const listWidget = parentWithEnhancementFn;
-
-    // delete widget in template of list
-    if (listWidget && widgetName in listWidget.template) {
-      listWidget.template[widgetName] = undefined;
-    }
-
-    // delete dynamic binding path if any
-    remove(listWidget?.dynamicBindingPathList || [], (path: any) =>
-      path.key.startsWith(`template.${widgetName}`),
-    );
-
-    return clone;
-  }
-
-  return clone;
-}
 function* deleteTabChildSaga(
   deleteChildTabAction: ReduxAction<WidgetDeleteTabChild>,
 ) {
@@ -177,8 +143,7 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
 
     yield call(clearEvalPropertyCacheOfWidget, widgetName);
 
-    let finalWidgets: CanvasWidgetsReduxState = yield call(
-      updateListWidgetPropertiesOnChildDelete,
+    let finalWidgets: CanvasWidgetsReduxState = updateListWidgetPropertiesOnChildDelete(
       widgets,
       widgetId,
       widgetName,

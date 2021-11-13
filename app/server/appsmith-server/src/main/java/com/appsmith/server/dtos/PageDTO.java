@@ -25,6 +25,8 @@ public class PageDTO {
 
     String name;
 
+    String slug;
+
     @Transient
     String applicationId;
 

@@ -35,6 +35,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.Role;
@@ -46,6 +47,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.services.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -58,6 +60,10 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
 import com.mysema.commons.lang.Pair;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.ArrayUtils;
@@ -109,6 +115,7 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -120,6 +127,15 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @Slf4j
 @ChangeLog(order = "001")
 public class DatabaseChangelog {
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    class DslUpdateDto {
+        private JSONObject dsl;
+        private Boolean updated;
+    }
 
     /**
      * A private, pure utility function to create instances of Index objects to pass to `IndexOps.ensureIndex` method.
@@ -940,14 +956,14 @@ public class DatabaseChangelog {
 
         for (Page page : pagesToFix) {
             for (Layout layout : page.getLayouts()) {
-                final ArrayList<HashSet<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
+                final ArrayList<Set<DslActionDTO>> layoutOnLoadActions = new ArrayList<>();
                 if (layout.getLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getLayoutOnLoadActions());
                 }
                 if (layout.getPublishedLayoutOnLoadActions() != null) {
                     layoutOnLoadActions.addAll(layout.getPublishedLayoutOnLoadActions());
                 }
-                for (HashSet<DslActionDTO> actionSet : layoutOnLoadActions) {
+                for (Set<DslActionDTO> actionSet : layoutOnLoadActions) {
                     for (DslActionDTO actionDTO : actionSet) {
                         final String actionName = actionDTO.getName();
                         final Action action = mongoTemplate.findOne(
@@ -1762,7 +1778,8 @@ public class DatabaseChangelog {
     @ChangeSet(order = "056", id = "fix-dynamicBindingPathListForActions", author = "")
     public void fixDynamicBindingPathListForExistingActions(MongoTemplate mongoTemplate) {
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
+
         for (NewAction action : mongoTemplate.findAll(NewAction.class)) {
 
             // We have found an action with dynamic binding path list set by the client.
@@ -1780,62 +1797,7 @@ public class DatabaseChangelog {
                 List<String> finalDynamicBindingPathList = new ArrayList<>();
                 finalDynamicBindingPathList.addAll(dynamicBindingPathNames);
 
-                Set<String> pathsToRemove = new HashSet<>();
-
-                for (String path : dynamicBindingPathNames) {
-
-                    if (path != null) {
-
-                        String[] fields = path.split("[].\\[]");
-
-                        // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
-                        Map<String, Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
-                        Object parent = new JSONObject(actionConfigurationMap);
-                        Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
-                        Boolean isLeafNode = false;
-
-                        while (fieldsIterator.hasNext()) {
-                            String nextKey = fieldsIterator.next();
-                            if (parent instanceof JSONObject) {
-                                parent = ((JSONObject) parent).get(nextKey);
-                            } else if (parent instanceof Map) {
-                                parent = ((Map<String, ?>) parent).get(nextKey);
-                            } else if (parent instanceof List) {
-                                if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                                    try {
-                                        parent = ((List) parent).get(Integer.parseInt(nextKey));
-                                    } catch (IndexOutOfBoundsException e) {
-                                        // The index being referred does not exist. Hence the path would not exist.
-                                        pathsToRemove.add(path);
-                                    }
-                                } else {
-                                    // Parent is a list but does not match the pattern. Hence the path would not exist.
-                                    pathsToRemove.add(path);
-                                    break;
-                                }
-                            }
-
-                            // After updating the parent, check for the types
-                            if (parent == null) {
-                                pathsToRemove.add(path);
-                                break;
-                            } else if (parent instanceof String) {
-                                // If we get String value, then this is a leaf node
-                                isLeafNode = true;
-                            }
-                        }
-                        // Only extract mustache keys from leaf nodes
-                        if (parent != null && isLeafNode) {
-                            Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
-
-                            // We found the path. But if the path does not have any mustache bindings, remove it from the path list
-                            if (mustacheKeysFromFields.isEmpty()) {
-                                pathsToRemove.add(path);
-                            }
-                        }
-                    }
-
-                }
+                Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
 
                 Boolean actionEdited = pathsToRemove.size() > 0 ? TRUE : FALSE;
 
@@ -1863,6 +1825,65 @@ public class DatabaseChangelog {
             }
 
         }
+    }
+
+    private Set<String> getInvalidDynamicBindingPathsInAction(ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
+        Set<String> pathsToRemove = new HashSet<>();
+        for (String path : dynamicBindingPathNames) {
+
+            if (path != null) {
+
+                String[] fields = path.split("[].\\[]");
+
+                // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
+                Map<String, Object> actionConfigurationMap = mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
+                Object parent = new JSONObject(actionConfigurationMap);
+                Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                Boolean isLeafNode = false;
+
+                while (fieldsIterator.hasNext()) {
+                    String nextKey = fieldsIterator.next();
+                    if (parent instanceof JSONObject) {
+                        parent = ((JSONObject) parent).get(nextKey);
+                    } else if (parent instanceof Map) {
+                        parent = ((Map<String, ?>) parent).get(nextKey);
+                    } else if (parent instanceof List) {
+                        if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                            try {
+                                parent = ((List) parent).get(Integer.parseInt(nextKey));
+                            } catch (IndexOutOfBoundsException e) {
+                                // The index being referred does not exist. Hence the path would not exist.
+                                pathsToRemove.add(path);
+                            }
+                        } else {
+                            // Parent is a list but does not match the pattern. Hence the path would not exist.
+                            pathsToRemove.add(path);
+                            break;
+                        }
+                    }
+
+                    // After updating the parent, check for the types
+                    if (parent == null) {
+                        pathsToRemove.add(path);
+                        break;
+                    } else if (parent instanceof String) {
+                        // If we get String value, then this is a leaf node
+                        isLeafNode = true;
+                    }
+                }
+                // Only extract mustache keys from leaf nodes
+                if (parent != null && isLeafNode) {
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+
+                    // We found the path. But if the path does not have any mustache bindings, remove it from the path list
+                    if (mustacheKeysFromFields.isEmpty()) {
+                        pathsToRemove.add(path);
+                    }
+                }
+            }
+
+        }
+        return pathsToRemove;
     }
 
     @ChangeSet(order = "057", id = "update-database-action-configuration-timeout", author = "")
@@ -3421,5 +3442,416 @@ public class DatabaseChangelog {
                 makeIndex("organizationId", "name", "deletedAt", "gitApplicationMetadata.remoteUrl", "gitApplicationMetadata.branchName")
                         .unique().named("organization_application_deleted_gitApplicationMetadata_compound_index")
         );
+    }
+
+    public final static Map<Integer, List<String>> s3MigrationMap = Map.ofEntries(
+            Map.entry(0, List.of("command")),
+            Map.entry(1, List.of("bucket")),
+            Map.entry(2, List.of("list.signedUrl")),
+            Map.entry(3, List.of("list.expiry")),
+            Map.entry(4, List.of("list.prefix")),
+            Map.entry(5, List.of("read.usingBase64Encoding")),
+            Map.entry(6, List.of("create.dataType", "read.dataType")),
+            Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
+            Map.entry(8, List.of("list.unSignedUrl"))
+    );
+
+    private void updateFormDataMultipleOptions(int index, Object value, Map formData, Map<Integer, List<String>> migrationMap) {
+        if (migrationMap.containsKey(index)) {
+            List<String> paths = migrationMap.get(index);
+            for (String path : paths) {
+                setValueSafelyInFormData(formData, path, value);
+            }
+        }
+    }
+
+    public Map iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(List<Property> pluginSpecifiedTemplates, Map<Integer, List<String>> migrationMap) {
+
+        if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
+            Map<String, Object> formData = new HashMap<>();
+            for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
+                Property template = pluginSpecifiedTemplates.get(i);
+                if (template != null) {
+                    updateFormDataMultipleOptions(i, template.getValue(), formData, migrationMap);
+                }
+            }
+            return formData;
+        }
+
+        return new HashMap<>();
+    }
+
+    @ChangeSet(order = "094", id = "migrate-s3-to-uqi", author = "")
+    public void migrateS3PluginToUqi(MongockTemplate mongockTemplate) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        // First update the UI component for the s3 plugin to UQI
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+        s3Plugin.setUiComponent("UQIDbEditorForm");
+
+
+        // Now migrate all the existing actions to the new UQI structure.
+
+        List<NewAction> s3Actions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction s3Action : s3Actions) {
+            // First migrate the plugin specified templates to form data
+            ActionDTO unpublishedAction = s3Action.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            List<Property> pluginSpecifiedTemplates = unpublishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+
+            unpublishedAction.getActionConfiguration().setFormData(
+                    iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+            );
+            unpublishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+
+            ActionDTO publishedAction = s3Action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null &&
+                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
+                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                publishedAction.getActionConfiguration().setFormData(
+                        iteratePluginSpecifiedTemplatesAndCreateFormDataMultipleOptions(pluginSpecifiedTemplates, s3MigrationMap)
+                );
+                publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+            }
+
+            // Now migrate the dynamic binding pathlist
+            List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
+
+            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
+                List<Property> newDynamicBindingPathList = new ArrayList<>();
+                for (Property path : dynamicBindingPathList) {
+                    String pathKey = path.getKey();
+                    if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                        // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                        Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                        Matcher matcher = pattern.matcher(pathKey);
+
+                        while (matcher.find()) {
+                            int index = Integer.parseInt(matcher.group());
+                            List<String> partialPaths = s3MigrationMap.get(index);
+                            for (String partialPath : partialPaths) {
+                                Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                                newDynamicBindingPathList.add(dynamicBindingPath);
+                            }
+                        }
+                    } else {
+                        // this dynamic binding is for body. Add as is
+                        newDynamicBindingPathList.add(path);
+                    }
+
+                    // We may have an invalid dynamic binding. Trim the same
+                    List<String> dynamicBindingPathNames = newDynamicBindingPathList
+                            .stream()
+                            .map(property -> property.getKey())
+                            .collect(Collectors.toList());
+
+                    Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, s3Action, dynamicBindingPathNames);
+
+                    // We have found atleast 1 invalid dynamic binding path.
+                    if (!pathsToRemove.isEmpty()) {
+                        // First remove the invalid paths from the set of paths
+                        dynamicBindingPathNames.removeAll(pathsToRemove);
+
+                        // Transform the set of paths to Property as it is stored in the db.
+                        List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
+                                .stream()
+                                .map(dynamicBindingPath -> {
+                                    Property property = new Property();
+                                    property.setKey(dynamicBindingPath);
+                                    return property;
+                                })
+                                .collect(Collectors.toList());
+
+                        // Reset the path list to only contain valid binding paths.
+                        newDynamicBindingPathList = updatedDynamicBindingPathList;
+                    }
+                }
+
+                unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
+            }
+
+            actionsToSave.add(s3Action);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction s3Action : actionsToSave) {
+            mongockTemplate.save(s3Action);
+        }
+        // Now that the actions have completed the migrations, update the plugin to use the new UI form.
+        mongockTemplate.save(s3Plugin);
+    }
+
+    @ChangeSet(order = "094", id = "set-slug-to-application-and-page", author = "")
+    public void setSlugToApplicationAndPage(MongockTemplate mongockTemplate) {
+        // update applications
+        final Query applicationQuery = query(where("deletedAt").is(null));
+        applicationQuery.fields()
+                .include(fieldName(QApplication.application.name));
+
+        List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
+
+        for (Application application : applications) {
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QApplication.application.id)).is(application.getId())),
+                    new Update().set(fieldName(QApplication.application.slug), TextUtils.makeSlug(application.getName())),
+                    Application.class
+            );
+        }
+
+        // update pages
+        final Query pageQuery = query(where("deletedAt").is(null));
+        pageQuery.fields()
+                .include(String.format("%s.%s",
+                        fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.name)
+                ))
+                .include(String.format("%s.%s",
+                        fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.name)
+                ));
+
+        List<NewPage> pages = mongockTemplate.find(pageQuery, NewPage.class);
+
+        for (NewPage page : pages) {
+            Update update = new Update();
+            if (page.getUnpublishedPage() != null) {
+                String fieldName = String.format("%s.%s",
+                        fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug)
+                );
+                update = update.set(fieldName, TextUtils.makeSlug(page.getUnpublishedPage().getName()));
+            }
+            if (page.getPublishedPage() != null) {
+                String fieldName = String.format("%s.%s",
+                        fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug)
+                );
+                update = update.set(fieldName, TextUtils.makeSlug(page.getPublishedPage().getName()));
+            }
+            mongockTemplate.updateFirst(
+                    query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
+                    update,
+                    NewPage.class
+            );
+        }
+    }
+
+    private DslUpdateDto updateListWidgetTriggerPaths(DslUpdateDto dslUpdateDto) {
+        JSONObject dsl = dslUpdateDto.getDsl();
+        Boolean updated = dslUpdateDto.getUpdated();
+
+        if (dsl == null) {
+            // This isn't a valid widget configuration. No need to traverse this.
+            return dslUpdateDto;
+        }
+
+        String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
+        if ("LIST_WIDGET".equals(widgetType)) {
+            // Only List Widget would go through the following processing
+
+            // Start by picking all fields where we expect to find dynamic triggers for this particular widget
+            List<Object> dynamicTriggerPaths = (ArrayList<Object>) dsl.get(DYNAMIC_TRIGGER_PATH_LIST);
+
+            Set<String> newTriggerPaths = new HashSet<>();
+
+            if (dynamicTriggerPaths != null) {
+                // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+                for (Object x : dynamicTriggerPaths) {
+                    Boolean validPath = true;
+                    final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
+                    String[] fields = fieldPath.split("[].\\[]");
+                    // For nested fields, the parent dsl to search in would shift by one level every iteration
+                    Object parent = dsl;
+                    Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
+                    boolean isLeafNode = false;
+                    // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
+                    // Valid forms of the fieldPath for this search could be:
+                    // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
+                    while (fieldsIterator.hasNext()) {
+                        String nextKey = fieldsIterator.next();
+                        if (parent instanceof JSONObject) {
+                            parent = ((JSONObject) parent).get(nextKey);
+                        } else if (parent instanceof Map) {
+                            parent = ((Map<String, ?>) parent).get(nextKey);
+                        } else if (parent instanceof List) {
+                            if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
+                                try {
+                                    parent = ((List) parent).get(Integer.parseInt(nextKey));
+                                } catch (IndexOutOfBoundsException e) {
+                                    // The index being referred does not exist. Hence the path would not exist.
+                                    validPath = false;
+                                }
+                            } else {
+                                validPath = false;
+                            }
+                        }
+                        // After updating the parent, check for the types
+                        if (parent == null) {
+                            validPath = false;
+                        } else if (parent instanceof String) {
+                            // If we get String value, then this is a leaf node
+                            isLeafNode = true;
+                        }
+
+                        // Only extract mustache keys from leaf nodes
+                        if (isLeafNode && validPath) {
+
+                            // We found the path.
+                            if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
+                                // No bindings found.
+                                break;
+                            }
+
+                            newTriggerPaths.add(fieldPath);
+                        }
+                    }
+                }
+
+                // Check if the newly computed trigger paths are different from the existing ones and if true, set it in the dsl
+                if (dynamicTriggerPaths.size() != newTriggerPaths.size() || !newTriggerPaths.containsAll(dynamicTriggerPaths)) {
+                    updated = Boolean.TRUE;
+                    List<Object> finalTriggerPaths = new ArrayList<>();
+                    for (String triggerPath : newTriggerPaths) {
+                        Map<String, String> entry = new HashMap<>();
+                        entry.put("key", triggerPath);
+                        finalTriggerPaths.add(entry);
+                    }
+                    dsl.put(DYNAMIC_TRIGGER_PATH_LIST, finalTriggerPaths);
+                }
+            }
+        }
+
+        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
+        ArrayList<Object> newChildren = new ArrayList<>();
+        if (children != null) {
+            for (int i = 0; i < children.size(); i++) {
+                Map data = (Map) children.get(i);
+                JSONObject object = new JSONObject();
+                // If the children tag exists and there are entries within it
+                if (!CollectionUtils.isEmpty(data)) {
+                    object.putAll(data);
+                    DslUpdateDto childUpdated = updateListWidgetTriggerPaths(new DslUpdateDto(object, updated));
+                    updated = childUpdated.getUpdated();
+                    newChildren.add(childUpdated.getDsl());
+                }
+            }
+            dsl.put(FieldName.CHILDREN, newChildren);
+        }
+
+        return new DslUpdateDto(dsl, updated);
+    }
+
+    @ChangeSet(order = "095", id = "update-list-widget-trigger-paths", author = "")
+    public void removeUnusedTriggerPathsListWidget(MongockTemplate mongockTemplate) {
+
+
+        // Find all the pages which haven't been deleted
+
+        final Criteria possibleCandidatePagesCriteria = new Criteria().andOperator(
+                where("deletedAt").is(null),
+                where("unpublishedPage.layouts.0.dsl").exists(true)
+        );
+
+        Query pageQuery = query(possibleCandidatePagesCriteria);
+        pageQuery.fields()
+                .include(fieldName(QNewPage.newPage.id));
+
+        final List<NewPage> pages = mongockTemplate.find(
+                pageQuery,
+                NewPage.class
+        );
+
+        for (NewPage onlyIdPage : pages) {
+
+            // Fetch one page at a time to avoid OOM.
+            NewPage page = mongockTemplate.findOne(
+                    query(where(fieldName(QNewPage.newPage.id)).is(onlyIdPage.getId())),
+                    NewPage.class
+            );
+
+            List<Layout> layouts = page.getUnpublishedPage().getLayouts();
+
+            Layout layout = layouts.get(0);
+            // update the dsl
+            DslUpdateDto dslUpdateDto = updateListWidgetTriggerPaths(new DslUpdateDto(layout.getDsl(), FALSE));
+            layout.setDsl(dslUpdateDto.getDsl());
+
+            if (page.getPublishedPage() != null) {
+                layouts = page.getPublishedPage().getLayouts();
+                if (!CollectionUtils.isEmpty(layouts)) {
+                    layout = layouts.get(0);
+                    // update the dsl
+                    dslUpdateDto = updateListWidgetTriggerPaths(new DslUpdateDto(layout.getDsl(), dslUpdateDto.getUpdated()));
+                    layout.setDsl(dslUpdateDto.getDsl());
+                }
+            }
+
+            if (dslUpdateDto.getUpdated().equals(TRUE)) {
+                mongockTemplate.save(page);
+            }
+        }
+    }
+  
+    /**
+     * Updates all existing S3 actions to modify the body parameter.
+     * Earlier, the body used to be a base64 encoded or a blob of file data.
+     * With this migration, the structure is expected to follow the
+     * {@link com.appsmith.external.dtos.MultipartFormDataDTO} format
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "096", id = "update-s3-action-configuration-for-type", author = "")
+    public void updateS3ActionConfigurationBodyForContentTypeSupport(MongockTemplate mongockTemplate) {
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        // Find all S3 actions
+        List<NewAction> s3Actions = mongockTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(s3Plugin.getId()))),
+                NewAction.class
+        );
+
+        List<NewAction> actionsToSave = new ArrayList<>();
+
+        for (NewAction s3Action : s3Actions) {
+            ActionDTO unpublishedAction = s3Action.getUnpublishedAction();
+
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            final String oldUnpublishedBody = unpublishedAction.getActionConfiguration().getBody();
+            final String newUnpublishedBody = "{\n\t\"data\": \"" + oldUnpublishedBody + "\"\n}";
+            unpublishedAction.getActionConfiguration().setBody(newUnpublishedBody);
+
+            ActionDTO publishedAction = s3Action.getPublishedAction();
+            if (publishedAction != null && publishedAction.getActionConfiguration() != null) {
+                final String oldPublishedBody = publishedAction.getActionConfiguration().getBody();
+                final String newPublishedBody = "{\n\t\"data\": \"" + oldPublishedBody + "\"\n}";
+                publishedAction.getActionConfiguration().setBody(newPublishedBody);
+            }
+            actionsToSave.add(s3Action);
+        }
+
+        // Now save the actions which have been migrated.
+        for (NewAction s3Action : actionsToSave) {
+            mongockTemplate.save(s3Action);
+        }
     }
 }
