@@ -61,7 +61,7 @@
     "defaultOption": ".t--property-control-defaultoption .CodeMirror-code",
     "dropdownSingleSelect": ".bp3-popover-target > div > .bp3-button",
     "menuButton": ".bp3-popover2-target",
-    "defaultSingleSelectValue": ".bp3-popover2-target > div > .bp3-button > .bp3-button-text",
+    "defaultSingleSelectValue": ".bp3-popover-target > div > .bp3-button > .bp3-button-text",
     "widgetBtn": ".t--widget-buttonwidget button",
     "widgetBtnText": ".t--widget-buttonwidget button .bp3-button-text",
     "iconWidgetBtn": ".t--widget-iconwidget svg",
