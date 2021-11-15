@@ -169,13 +169,11 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 export const flashElement = (
   el: HTMLElement,
   flashTimeout = 1000,
-  flashColor = "#FFCB33",
+  flashClass = "flash",
 ) => {
-  el.style.backgroundColor = flashColor;
-  addClass(el, "flash");
+  addClass(el, flashClass);
   setTimeout(() => {
-    el.style.backgroundColor = "transparent";
-    removeClass(el, "flash");
+    removeClass(el, flashClass);
   }, flashTimeout);
 };
 
@@ -191,7 +189,7 @@ export const flashElementsById = (
   id: string | string[],
   timeout = 0,
   flashTimeout?: number,
-  flashColor?: string,
+  flashClass?: string,
 ) => {
   let ids: string[] = [];
 
@@ -211,7 +209,7 @@ export const flashElementsById = (
         inline: "center",
       });
 
-      if (el) flashElement(el, flashTimeout, flashColor);
+      if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
 };

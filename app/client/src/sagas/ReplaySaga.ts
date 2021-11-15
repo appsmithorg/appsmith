@@ -110,7 +110,6 @@ export function* openPropertyPaneSaga(replay: any) {
       ),
       0,
       1000,
-      "#E0DEDE",
     );
   } catch (e) {
     log.error(e);
@@ -219,11 +218,11 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         );
         yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
         yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
-        flashElementsById(btoa(replay.modifiedProperty), 0, 500, "#f0f0f0");
+        flashElementsById(btoa(replay.modifiedProperty), 0, 500, "flash");
         // yield call(replayPostProcess, replayEntity, replay, replayEntityType);
         break;
       case ReplayEntityType.DATASOURCE: {
-        const { fieldInfo = {} } = yield call(
+        const { fieldInfo } = yield call(
           replayPreProcess,
           replayEntity,
           replay,
