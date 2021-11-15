@@ -4,16 +4,20 @@ import {
   FETCH_MERGE_STATUS,
   FETCH_MERGE_STATUS_FAILURE,
   MERGE_CONFLICT_ERROR,
+  NO_MERGE_CONFLICT,
 } from "constants/messages";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
 import { Space } from "./StyledComponents";
 import { useSelector } from "react-redux";
-import { getIsFetchingMergeStatus } from "selectors/gitSyncSelectors";
+import {
+  getIsFetchingMergeStatus,
+  getMergeStatus,
+} from "selectors/gitSyncSelectors";
 import Text, { TextType } from "components/ads/Text";
 import ErrorWarning from "remixicon-react/ErrorWarningLineIcon";
+import CheckLine from "remixicon-react/CheckLineIcon";
 import { Colors } from "constants/Colors";
-import { getMergeStatus } from "../../../../selectors/gitSyncSelectors";
 
 const Flex = styled.div`
   display: flex;
@@ -58,8 +62,14 @@ function MergeStatus() {
         <Flex>
           <Space horizontal size={10} />
           <Wrapper>
-            <Text style={{ marginLeft: 8 }} type={TextType.P3}>
-              {createMessage(FETCH_MERGE_STATUS)}
+            <CheckLine color={Colors.GREEN} size={18} />
+            <Text
+              color={Colors.GREEN}
+              style={{ marginLeft: 8, alignSelf: "center" }}
+              type={TextType.P3}
+              weight="600"
+            >
+              {createMessage(NO_MERGE_CONFLICT)}
             </Text>
           </Wrapper>
         </Flex>
