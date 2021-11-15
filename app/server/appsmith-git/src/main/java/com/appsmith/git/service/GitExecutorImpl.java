@@ -332,19 +332,14 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, ListBranchCommand.ListMode listMode, String defaultBranch) {
+    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix, String defaultBranch) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             Git git = Git.open(baseRepoPath.toFile());
-            List<Ref> refList;
-            if (listMode == null) {
-                // Only show local branches
-                refList = git.branchList().call();
-            } else {
-                // Show remote/all the branches depending upon the listMode
-                refList = git.branchList().setListMode(listMode).call();
-            }
+
+            //Get all branches for a git repo
+            List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
             List<GitBranchListDTO> branchList = new ArrayList<>();
 
             if(refList.isEmpty()) {

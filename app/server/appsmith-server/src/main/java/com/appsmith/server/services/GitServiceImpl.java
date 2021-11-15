@@ -597,7 +597,7 @@ public class GitServiceImpl implements GitService {
                             gitExecutor.checkoutToBranch(repoSuffix, srcBranch)
                                     .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch))),
                             gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false))
-                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, ListBranchCommand.ListMode.REMOTE, srcBranchGitData.getBranchName())
+                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, srcBranchGitData.getBranchName())
                                     .flatMap(branchList -> {
                                         boolean isDuplicateName = branchList.stream()
                                                 // TODO We are only supporting origin as the remote name so this is safe
@@ -862,7 +862,6 @@ public class GitServiceImpl implements GitService {
                         gitApplicationMetadata.getRepoName());
 
                 return gitExecutor.listBranches(repoPath,
-                        null,
                         gitApplicationMetadata.getBranchName())
                         .onErrorResume(error -> Mono.error(new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
