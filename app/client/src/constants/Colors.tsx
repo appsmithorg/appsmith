@@ -93,7 +93,6 @@ export const Colors = {
   FAIR_PINK: "#FFE9E9",
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
   RATE_ACTIVE: "#FFCB45",
-  RATE_INACTIVE: "#D6D6D6",
   MALIBU: "#7DBCFF",
   ALABASTER_ALT: "#FAFAFA",
   THUNDER_ALT: "#1D1C1D",
@@ -137,7 +136,7 @@ export const Colors = {
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
-  GREY_4: "#716E6E",
+  GREY_4: "#716E6E", // seems like incorrect as it is same as GREY_8
   GREY_5: "#E0DEDE",
   GREY_6: "#A9A7A7",
   GREY_7: "#858282",
@@ -156,5 +155,6 @@ export const Colors = {
   MASALA: "#43403D",
   // error warning
   CRIMSON: "#D71010",
+  ALTO_3: "#D6D6D6",
 };
 export type Color = typeof Colors[keyof typeof Colors];

@@ -584,7 +584,7 @@ export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
-  "Please paste SSH URL of your repository";
+  "Please enter valid SSH URL of your repository";
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
