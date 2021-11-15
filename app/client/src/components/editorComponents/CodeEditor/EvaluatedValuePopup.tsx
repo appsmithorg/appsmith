@@ -85,7 +85,7 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   max-height: 300px;
-  min-height: 1rem;
+  min-height: 28px;
   overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
@@ -101,6 +101,7 @@ const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   top: 0;
   cursor: pointer;
   padding: 0;
+  border-radius: 0;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
