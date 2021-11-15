@@ -443,25 +443,30 @@ public class GitServiceImpl implements GitService {
                             .onErrorResume(throwable -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage())));
                 })
                 .flatMap(tuple -> {
+
                     //Commit and push the changes to remote repo
                     Application application = tuple.getT2();
-                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, application.getGitApplicationMetadata().getRepoName());
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Path repoPath = Paths.get(application.getOrganizationId(), defaultApplicationId, gitApplicationMetadata.getRepoName());
                     GitCommitDTO gitCommitDTO = new GitCommitDTO();
                     gitCommitDTO.setDoPush(true);
                     gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
-                    MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
-                    valueMap.add(FieldName.BRANCH_NAME, application.getGitApplicationMetadata().getBranchName());
 
-                    return userDataService.getForCurrentUser()
-                            .filter(userData -> !CollectionUtils.isNullOrEmpty(userData.getGitProfiles()))
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
-                                    "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
-                            )
-                            .flatMap(userData -> {
-                                GitProfile gitProfile = userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
-                                return gitExecutor.commitApplication(repoPath, DEFAULT_COMMIT_MESSAGE ,gitProfile.getAuthorName(), gitProfile.getAuthorEmail())
-                                        .flatMap(status -> pushApplication(defaultApplicationId, false));
-                            })
+                    return gitExecutor.commitApplication(repoPath, DEFAULT_COMMIT_MESSAGE, gitConnectDTO.getGitProfile().getAuthorName(), gitConnectDTO.getGitProfile().getAuthorEmail())
+                            .flatMap(status -> gitExecutor.checkoutToBranch(repoPath, application.getGitApplicationMetadata().getBranchName())
+                                    .then(gitExecutor.pushApplication(
+                                            repoPath,
+                                            gitApplicationMetadata.getRemoteUrl(),
+                                            gitApplicationMetadata.getGitAuth().getPublicKey(),
+                                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                            gitApplicationMetadata.getBranchName()))
+                                    .onErrorResume(error -> {
+                                        if(error instanceof TransportException) {
+                                            return Mono.error( new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", " Please give the write access to the Deploy Key"));
+                                        }
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", error.getMessage()));
+                                    }))
+                            //Last save the gitApplicationMetadata to db
                             .then(applicationService.save(application));
                 });
     }
