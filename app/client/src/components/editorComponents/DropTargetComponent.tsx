@@ -47,7 +47,7 @@ const StyledDropTarget = styled.div`
 
 function Onboarding() {
   return (
-    <h2 className="absolute top-0 bottom-0 left-0 right-0 flex items-center justify-center text-2xl font-bold text-gray-300">
+    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
       Drag and drop a widget here
     </h2>
   );
