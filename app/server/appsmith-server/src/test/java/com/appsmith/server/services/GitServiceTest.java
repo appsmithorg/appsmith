@@ -680,7 +680,7 @@ public class GitServiceTest {
 
         GitProfile gitProfile = getConfigRequest("test@appsmith.com", "Test 1");
 
-        Application application1 = createApplicationConnectedToGit("listBranchForApplication_EmptyRepo_DefaultBranch");
+        Application application1 = createApplicationConnectedToGit("listBranchForApplication_NonEmptyRepo_ListBranch");
 
         Mono<List<GitBranchListDTO>> listMono = gitDataService.listBranchForApplication(application1.getId());
 
