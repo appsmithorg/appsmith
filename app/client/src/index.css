@@ -46,6 +46,7 @@ div.bp3-popover-arrow {
 .Toastify__toast {
   padding: 0 !important;
   border-radius: 4px !important;
+  box-shadow: none !important;
 }
 .Toastify__toast-body {
   margin: 0 !important;

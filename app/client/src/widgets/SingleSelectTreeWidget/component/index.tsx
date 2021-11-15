@@ -160,7 +160,7 @@ function SingleSelectTreeComponent({
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
-        notFoundContent="No item Found"
+        notFoundContent="No Results Found"
         onChange={onChange}
         onClear={onClear}
         placeholder={placeholder}

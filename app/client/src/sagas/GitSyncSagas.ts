@@ -20,6 +20,7 @@ import {
   updateLocalGitConfigSuccess,
   fetchLocalGitConfigInit,
   switchGitBranchInit,
+  updateBranchLocally,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -178,10 +179,10 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
 function* switchBranch(action: ReduxAction<string>) {
   try {
     const branch = action.payload;
+    yield put(updateBranchLocally(branch));
     const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield GitSyncAPI.checkoutBranch(
       applicationId,
-      branch,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
