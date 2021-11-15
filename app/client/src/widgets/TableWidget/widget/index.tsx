@@ -574,6 +574,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         prevProps.filteredTableData,
         this.props.filteredTableData,
       );
+      this.props.updateWidgetMetaProperty("triggeredRowIndex", undefined);
     }
 
     // If the user has changed the tableData OR
