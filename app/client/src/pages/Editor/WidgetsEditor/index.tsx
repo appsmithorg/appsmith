@@ -72,15 +72,17 @@ function WidgetsEditor() {
     }
   }, [isFetchingPage, selectWidget]);
 
-  const handleWrapperClick = useCallback(() => {
-    focusWidget && focusWidget();
-    deselectAll && deselectAll();
-    dispatch(closePropertyPane());
-    dispatch(closeTableFilterPane());
-    dispatch(setCanvasSelectionFromEditor(false));
-  }, [focusWidget, deselectAll]);
-
   const allowDragToSelect = useAllowEditorDragToSelect();
+
+  const handleWrapperClick = useCallback(() => {
+    if (allowDragToSelect) {
+      focusWidget && focusWidget();
+      deselectAll && deselectAll();
+      dispatch(closePropertyPane());
+      dispatch(closeTableFilterPane());
+      dispatch(setCanvasSelectionFromEditor(false));
+    }
+  }, [allowDragToSelect, focusWidget, deselectAll]);
 
   /**
    *  drag event handler for selection drawing

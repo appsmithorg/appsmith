@@ -56,7 +56,7 @@ describe("Table Widget property pane feature validation", function() {
       .clear()
       .type(color);
     // Close Property pane
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    //cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color);
   });
   it("Table widget triggeredRow property should be accessible", function() {
@@ -71,7 +71,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
   it("Table widget add new icon button column", function() {
-    cy.openPropertyPane("tablewidget");
+    cy.get(".t--property-pane-back-btn").click({ force: true });
     // hide id column
     cy.makeColumnVisible("id");
     cy.wait(1000);
