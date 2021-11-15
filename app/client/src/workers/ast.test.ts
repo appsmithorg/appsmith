@@ -112,6 +112,25 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["JSObject1.run", "Api1.data", "Api2.data"],
       },
       {
+        // IIFE
+        script: `(function() {
+          const index = Input1.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      })()`,
+        expectedResults: ["Input1.text"],
+      },
+      {
+        // Direct object access
+        script: `{ a: 123 }[Input1.text]`,
+        expectedResults: ["Input1.text"],
+      },
+      {
         // Function declaration and default arguments
         script: `function run(data = Api1.data) {
           return data;
