@@ -13,10 +13,13 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.util.IOUtils;
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -28,6 +31,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.constants.AmazonS3Action;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
@@ -72,12 +76,14 @@ import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
+import static java.lang.Boolean.TRUE;
 
 public class AmazonS3Plugin extends BasePlugin {
 
     private static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
     public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
+    public static final String SMART_SUBSTITUTION = "smartSubstitution";
     public static final int CUSTOM_ENDPOINT_INDEX = 0;
     private static final String DEFAULT_URL_EXPIRY_IN_MINUTES = "5"; // max 7 days is possible
     private static final String YES = "YES";
@@ -92,7 +98,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class S3PluginExecutor implements PluginExecutor<AmazonS3> {
+    public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
         private final Scheduler scheduler = Schedulers.elastic();
 
         /*
@@ -283,9 +289,67 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(AmazonS3 connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(AmazonS3 connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(AmazonS3 connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+
+            final Map<String, Object> formData = actionConfiguration.getFormData();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+
+            Boolean smartJsonSubstitution = TRUE;
+
+            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+
+            if (smartSubstitutionObject instanceof Boolean) {
+                smartJsonSubstitution = (Boolean) smartSubstitutionObject;
+            } else if (smartSubstitutionObject instanceof String) {
+                // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
+                // directly. This is to ensure we are backward compatible
+                smartJsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
+            }
+
+            try {
+                // Smartly substitute in Json fields and replace all the bindings with values.
+                if (TRUE.equals(smartJsonSubstitution)) {
+                    final String body = actionConfiguration.getBody() != null ? actionConfiguration.getBody() : "";
+                    // First extract all the bindings in order
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(body);
+                    // Replace all the bindings with a placeholder
+                    String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(body, mustacheKeysInOrder);
+
+                    updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
+                            mustacheKeysInOrder,
+                            executeActionDTO.getParams(),
+                            parameters);
+
+                    actionConfiguration.setBody(updatedValue);
+
+                }
+            } catch (AppsmithPluginException e) {
+                // Initializing object for error condition
+                ActionExecutionResult errorResult = new ActionExecutionResult();
+                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                errorResult.setIsExecutionSuccess(false);
+                errorResult.setErrorInfo(e);
+                return Mono.just(errorResult);
+            }
+
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration);
+        }
+
+        private Mono<ActionExecutionResult> executeCommon(AmazonS3 connection,
+                                                          DatasourceConfiguration datasourceConfiguration,
+                                                          ActionConfiguration actionConfiguration) {
 
             final String[] query = new String[1];
             Map<String, Object> requestProperties = new HashMap<>();
@@ -293,48 +357,48 @@ public class AmazonS3Plugin extends BasePlugin {
 
             return Mono.fromCallable(() -> {
 
-                /*
-                 * - AmazonS3 API collection does not seem to provide any API to test connection validity or staleness.
-                 *   Hence, unable to do stale connection check explicitly.
-                 * - If connection object is null, then assume stale connection.
-                 */
-                if (connection == null) {
-                    return Mono.error(new StaleConnectionException());
-                }
+                        /*
+                         * - AmazonS3 API collection does not seem to provide any API to test connection validity or staleness.
+                         *   Hence, unable to do stale connection check explicitly.
+                         * - If connection object is null, then assume stale connection.
+                         */
+                        if (connection == null) {
+                            return Mono.error(new StaleConnectionException());
+                        }
 
-                if (actionConfiguration == null) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/" +
-                                            "'Bucket Name'/'File Path'/'Content'. Please fill all the mandatory fields and try " +
-                                            "again."
-                            )
-                    );
-                }
+                        if (actionConfiguration == null) {
+                            return Mono.error(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                            "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/" +
+                                                    "'Bucket Name'/'File Path'/'Content'. Please fill all the mandatory fields and try " +
+                                                    "again."
+                                    )
+                            );
+                        }
 
-                Map<String, Object> formData = actionConfiguration.getFormData();
+                        Map<String, Object> formData = actionConfiguration.getFormData();
 
-                String command = (String) getValueSafelyFromFormData(formData, COMMAND);
+                        String command = (String) getValueSafelyFromFormData(formData, COMMAND);
 
-                if (StringUtils.isNullOrEmpty(command)) {
-                    return Mono.error(
-                            new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Mandatory parameter 'Command' is missing. Did you forget to select one of the commands" +
-                                            " from the Command dropdown ?"
-                            )
-                    );
-                }
+                        if (StringUtils.isNullOrEmpty(command)) {
+                            return Mono.error(
+                                    new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                            "Mandatory parameter 'Command' is missing. Did you forget to select one of the commands" +
+                                                    " from the Command dropdown ?"
+                                    )
+                            );
+                        }
 
-                AmazonS3Action s3Action = AmazonS3Action.valueOf(command);
-                query[0] = s3Action.name();
+                        AmazonS3Action s3Action = AmazonS3Action.valueOf(command);
+                        query[0] = s3Action.name();
 
-                requestParams.add(new RequestParamDTO(COMMAND,
-                        command, null, null, null));
+                        requestParams.add(new RequestParamDTO(COMMAND,
+                                command, null, null, null));
 
-                final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
-                        null : (String) getValueSafelyFromFormData(formData, BUCKET);
+                        final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
+                                null : (String) getValueSafelyFromFormData(formData, BUCKET);
 
                 // If the action_type is LIST_BUCKET, remove the bucket name requirement
                 if (s3Action != AmazonS3Action.LIST_BUCKETS
@@ -762,7 +826,19 @@ public class AmazonS3Plugin extends BasePlugin {
             ActionConfiguration actionConfiguration = new ActionConfiguration();
             actionConfiguration.setFormData(configMap);
             return datasourceCreate(datasourceConfiguration)
-                .flatMap(connection -> execute(connection, datasourceConfiguration, actionConfiguration));
+                    .flatMap(connection -> executeParameterized(connection, new ExecuteActionDTO(), datasourceConfiguration, actionConfiguration));
         }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
+        }
+
     }
 }
