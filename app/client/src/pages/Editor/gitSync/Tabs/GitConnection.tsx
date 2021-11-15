@@ -119,6 +119,11 @@ const SSH_INIT_FORMAT_REGEX = new RegExp(/^(ssh|.+@).*/);
 const remoteUrlIsInvalid = (value: string) =>
   value.startsWith(HTTP_LITERAL) || !SSH_INIT_FORMAT_REGEX.test(value);
 
+type AuthorInfo = {
+  authorName: string;
+  authorEmail: string;
+};
+
 type Props = {
   isImport?: boolean;
 };
@@ -145,10 +150,7 @@ function GitConnection({ isImport }: Props) {
 
   const initialAuthorInfoRef = useRef(getInitGitConfig());
 
-  const [authorInfo, setAuthorInfo] = useState<{
-    authorName: string;
-    authorEmail: string;
-  }>({
+  const [authorInfo, setAuthorInfo] = useState<AuthorInfo>({
     authorName: initialAuthorInfoRef.current.authorName,
     authorEmail: initialAuthorInfoRef.current.authorEmail,
   });
@@ -282,9 +284,12 @@ function GitConnection({ isImport }: Props) {
     const isAuthInfoUpdated = isAuthorInfoUpdated();
     let buttonDisabled = false;
     if (isGitConnected) {
-      const isFetchingConfig: boolean =
+      const isFetchingConfig =
         isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
+
       buttonDisabled = buttonDisabled || !isAuthInfoUpdated || isFetchingConfig;
+    } else {
+      buttonDisabled = isInvalidRemoteUrl;
     }
     return buttonDisabled;
   }, [
@@ -294,6 +299,7 @@ function GitConnection({ isImport }: Props) {
     isGitConnected,
     isFetchingGlobalGitConfig,
     isFetchingLocalGitConfig,
+    isInvalidRemoteUrl,
   ]);
 
   const submitButtonIsLoading = isConnectingToGit;
