@@ -93,15 +93,16 @@ export function pathArrayToString(path?: string[]) {
   return stringPath;
 }
 
-export function findFieldInfo(config: any, field: string, parentConfig = {}) {
+export function findFieldInfo(config: any, field: string, parentSection = "") {
   let result = {};
   if (!config || !isArray(config)) return result;
   for (const conf of config) {
     if (conf.configProperty === field) {
-      result = { conf, parentConfig };
+      result = { conf, parentSection };
       break;
     } else if (conf.children) {
-      result = findFieldInfo(conf.children, field, conf);
+      parentSection = conf.sectionName || parentSection;
+      result = findFieldInfo(conf.children, field, parentSection);
       if (!isEmpty(result)) break;
     }
   }
