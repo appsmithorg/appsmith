@@ -9,13 +9,13 @@ const PROPERTIES = {
       helpText: "Sets a default selected option",
       label: "Default Selected Value",
       placeholderText: "Y",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
   ],
   actions: [
@@ -27,9 +27,10 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.RADIO_GROUP),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
   ],
 };

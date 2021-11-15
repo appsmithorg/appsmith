@@ -1,8 +1,8 @@
 import equal from "fast-deep-equal/es6";
-import React, { PropsWithChildren, useEffect, useRef } from "react";
+import React, { PropsWithChildren, useRef } from "react";
 import styled from "styled-components";
 import { cloneDeep } from "lodash";
-import { FormProvider, useForm, DefaultValues } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
 
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
@@ -13,14 +13,13 @@ import { TEXT_SIZES } from "constants/WidgetConstants";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   fixedFooter: boolean;
-  formData: DefaultValues<TValues>;
+  sourceData?: TValues;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   scrollContents: boolean;
   showReset: boolean;
   stretchBodyVertically: boolean;
   title: string;
   updateFormValues: (values: TValues) => void;
-  useFormDataValues: boolean;
 }>;
 
 type StyledFormProps = {
@@ -79,26 +78,17 @@ const StyledFormBody = styled.div<StyledFormBodyProps>`
 function Form<TValues = any>({
   children,
   fixedFooter,
-  formData,
   onSubmit,
   scrollContents,
   showReset,
+  sourceData,
   stretchBodyVertically,
   title,
   updateFormValues,
-  useFormDataValues,
 }: FormProps<TValues>) {
   const valuesRef = useRef({});
   const methods = useForm();
   const { reset, watch } = methods;
-
-  useEffect(() => {
-    // If the user chooses to use the formData's values as default value (useful when
-    // Table.selectedRow is set as the formData)
-    if (useFormDataValues) {
-      reset(formData);
-    }
-  }, [formData, useFormDataValues]);
 
   React.useEffect(() => {
     // TODO: find a better way if possible to set the form values
@@ -119,9 +109,7 @@ function Form<TValues = any>({
   const onReset = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault();
 
-    if (useFormDataValues) {
-      reset(formData);
-    }
+    reset(sourceData);
   };
 
   return (

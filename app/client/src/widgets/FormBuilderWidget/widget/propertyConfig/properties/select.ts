@@ -63,10 +63,11 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.SELECT),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "serverSideFiltering",
@@ -76,10 +77,11 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.SELECT),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
   ],
   actions: [
@@ -91,9 +93,10 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.SELECT),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "onFilterUpdate",
@@ -103,7 +106,8 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<SelectFieldProps["schemaItem"]>(...args).then(
           (schemaItem) => {

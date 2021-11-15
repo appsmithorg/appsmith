@@ -137,6 +137,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
 
   return (
     <Field
+      defaultValue={schemaItem.defaultValue}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
@@ -152,7 +153,9 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             maxChars,
             validation,
           } = schemaItem;
+
           let errorMessage = errorMsg;
+          // TODO: Fix this
           let isInvalid = typeof validation === "boolean" && !validation; // valid property in property pane
 
           if (isRequired && isTouched && !value) {
@@ -176,6 +179,9 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             isInvalid,
           };
         })();
+
+        // eslint-disable-next-line
+        console.log("conditionalPropsconditionalProps", conditionalProps);
 
         return (
           <InputComponent

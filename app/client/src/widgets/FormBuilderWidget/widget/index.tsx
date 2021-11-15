@@ -18,7 +18,7 @@ import { AppState } from "reducers";
 export interface FormBuilderWidgetProps extends WidgetProps {
   canvasWidgets: Record<string, WidgetProps>;
   fixedFooter: boolean;
-  formData?: Record<string, any>;
+  sourceData?: Record<string, any>;
   isVisible: boolean;
   onSubmit?: string;
   schema: Schema;
@@ -26,7 +26,6 @@ export interface FormBuilderWidgetProps extends WidgetProps {
   scrollContents: boolean;
   showReset: boolean;
   title: string;
-  useFormDataValues: boolean;
 }
 
 class FormBuilderWidget extends BaseWidget<
@@ -62,21 +61,25 @@ class FormBuilderWidget extends BaseWidget<
   }
 
   constructAndSaveSchemaIfRequired = (prevProps?: FormBuilderWidgetProps) => {
-    const prevFormData = prevProps?.formData;
-    const currFormData = this.props?.formData;
+    const prevSourceData = prevProps?.sourceData;
+    const currSourceData = this.props?.sourceData;
     const widget = this.props.canvasWidgets[this.props.widgetId];
 
-    if (isEmpty(currFormData)) {
+    if (isEmpty(currSourceData)) {
       return;
     }
 
     // Hot path - early exit
-    if (equal(prevFormData, currFormData)) {
+    if (equal(prevSourceData, currSourceData)) {
       return;
     }
 
     const start = performance.now();
-    const schema = SchemaParser.parse(currFormData, widget.schema);
+    const schema = SchemaParser.parse(
+      widget.widgetName,
+      currSourceData,
+      widget.schema,
+    );
     const end = performance.now();
 
     // eslint-disable-next-line

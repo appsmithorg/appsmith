@@ -31,6 +31,7 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
   return (
     <Field
       {...rest}
+      defaultValue={schemaItem.defaultValue}
       label={label}
       labelStyles={labelStyles}
       name={name}

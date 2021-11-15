@@ -18,7 +18,7 @@ export type FormBuilderComponentProps<TValues> = {
   backgroundColor?: string;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   fixedFooter: boolean;
-  formData?: TValues;
+  sourceData?: TValues;
   onSubmit: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   renderMode: RenderMode;
   schema: Schema;
@@ -26,7 +26,6 @@ export type FormBuilderComponentProps<TValues> = {
   showReset: boolean;
   title: string;
   updateFormValues: (values: TValues) => void;
-  useFormDataValues: boolean;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
 };
 
@@ -55,9 +54,9 @@ const StyledZeroTitle = styled(Text)`
 function FormBuilderComponent<TValues>({
   backgroundColor,
   executeAction,
-  formData,
   renderMode,
   schema,
+  sourceData,
   updateWidgetProperty,
   ...rest
 }: FormBuilderComponentProps<TValues>) {
@@ -93,7 +92,7 @@ function FormBuilderComponent<TValues>({
       <StyledContainer backgroundColor={backgroundColor}>
         <Form
           {...rest}
-          formData={formData as DefaultValues<TValues>}
+          sourceData={sourceData}
           stretchBodyVertically={isSchemaEmpty}
         >
           {isEmpty(schema) ? zeroState : renderRootField()}

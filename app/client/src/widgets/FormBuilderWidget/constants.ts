@@ -67,7 +67,7 @@ export type SchemaItem = FieldComponentBaseProps & {
   children: Schema;
   dataType: DataType;
   fieldType: FieldType;
-  formData: any;
+  sourceData: any;
   isCustomField: boolean;
   name: string;
   position: number;
@@ -166,3 +166,10 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
 
 export const FIELD_PADDING_X = 15;
 export const FIELD_PADDING_Y = 10;
+
+export const getBindingTemplate = (widgetName: string) => {
+  const startTemplate = `{{((sourceData) => (`;
+  const endTemplate = `))(${widgetName}.sourceData)}}`;
+
+  return { startTemplate, endTemplate };
+};

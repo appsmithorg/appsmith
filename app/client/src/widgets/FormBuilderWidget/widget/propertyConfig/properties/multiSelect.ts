@@ -38,7 +38,7 @@ const PROPERTIES = {
       propertyName: "defaultValue",
       helpText: "Selects the option with value by default",
       label: "Default Value",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "[GREEN]",
       isBindProperty: true,
       isTriggerProperty: false,
@@ -53,7 +53,7 @@ const PROPERTIES = {
           },
         },
       },
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
     },
@@ -61,12 +61,12 @@ const PROPERTIES = {
       propertyName: "placeholderText",
       helpText: "Sets a Placeholder text",
       label: "Placeholder",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "Search",
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
     },
@@ -78,8 +78,9 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
     },
@@ -93,7 +94,8 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      dependencies: ["schema"],
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.MULTI_SELECT),
     },
@@ -105,7 +107,8 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
-      dependencies: ["schema"],
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
+      dependencies: ["schema", "sourceData"],
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).then(
           (schemaItem) => {

@@ -13,7 +13,7 @@ const PROPERTIES = {
         "Sets the default text of the field. The text is updated if the default text changes",
       propertyName: "defaultValue",
       label: "Default Text",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "John Doe",
       isBindProperty: true,
       isTriggerProperty: false,
@@ -30,14 +30,13 @@ const PROPERTIES = {
       },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "allowCurrencyChange",
       label: "Allow currency change",
       helpText: "Search by currency or country",
       controlType: "SWITCH",
-      isJSConvertible: false,
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.BOOLEAN },
@@ -100,21 +99,21 @@ const PROPERTIES = {
       helpText: "Sets maximum allowed text length",
       propertyName: "maxChars",
       label: "Max Chars",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "255",
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.NUMBER },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       helpText:
         "Adds a validation to the input which displays an error on failure",
       propertyName: "regex",
       label: "Regex",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
       inputType: "TEXT",
       isBindProperty: true,
@@ -122,13 +121,13 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.REGEX },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       helpText: "Sets the input validity based on a JS expression",
       propertyName: "validation",
       label: "Valid",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "{{ Input1.text.length > 0 }}",
       inputType: "TEXT",
       isBindProperty: true,
@@ -136,14 +135,14 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       helpText:
         "The error message to display if the regex or valid property check fails",
       propertyName: "errorMessage",
       label: "Error Message",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "Not a valid email!",
       inputType: "TEXT",
       isBindProperty: true,
@@ -151,20 +150,20 @@ const PROPERTIES = {
       validation: { type: ValidationTypes.TEXT },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       helpText: "Sets a placeholder text for the input",
       propertyName: "placeholderText",
       label: "Placeholder",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "Placeholder",
       isBindProperty: true,
       isTriggerProperty: false,
       validation: { type: ValidationTypes.TEXT },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
   ],
   actions: [
@@ -176,8 +175,10 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "onEnterKeyPress",
@@ -187,8 +188,10 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
+      dependencies: ["schema", "sourceData"],
     },
   ],
 };

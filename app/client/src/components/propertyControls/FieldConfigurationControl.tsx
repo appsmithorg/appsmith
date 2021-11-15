@@ -229,12 +229,14 @@ class FieldConfigurationControl extends BaseControl<ControlProps> {
   addNewColumn = () => {
     if (this.isArrayItem()) return;
 
-    const { propertyValue = {}, propertyName } = this.props;
+    const { propertyValue = {}, propertyName, widgetProperties } = this.props;
+    const { widgetName } = widgetProperties;
     const schema: Schema = propertyValue;
     const existingKeys = Object.keys(schema);
     const nextFieldKey = getNextEntityName("customField", existingKeys);
     const schemaItem = SchemaParser.getSchemaItemFor(nextFieldKey, {
-      currFormData: "",
+      currSourceData: "",
+      widgetName,
     });
 
     schemaItem.isCustomField = true;

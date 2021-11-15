@@ -15,7 +15,6 @@ export const CONFIG = {
     scrollContents: true,
     showReset: true,
     title: "Form",
-    useFormDataValues: true,
     version: 1,
     widgetName: "FormBuilder",
   },

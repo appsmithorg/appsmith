@@ -17,10 +17,11 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       helpText: "Sets the format of the selected date",
@@ -28,6 +29,7 @@ const PROPERTIES = {
       label: "Date Format",
       controlType: "DROP_DOWN",
       isJSConvertible: true,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       optionWidth: "340px",
       options: [
         {
@@ -117,7 +119,7 @@ const PROPERTIES = {
       hideSubText: true,
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "closeOnSelection",
@@ -127,10 +129,11 @@ const PROPERTIES = {
       isJSConvertible: false,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "shortcuts",
@@ -140,10 +143,11 @@ const PROPERTIES = {
       isJSConvertible: false,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "minDate",
@@ -154,10 +158,11 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "maxDate",
@@ -168,10 +173,11 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.DATE_ISO_STRING },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
   ],
   actions: [
@@ -182,9 +188,10 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.DATE),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
   ],
 };

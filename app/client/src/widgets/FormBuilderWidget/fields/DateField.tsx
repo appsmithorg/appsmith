@@ -37,6 +37,7 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
   return (
     <Field
       {...rest}
+      defaultValue={schemaItem.defaultValue}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

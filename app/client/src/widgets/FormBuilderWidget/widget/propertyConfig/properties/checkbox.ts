@@ -1,8 +1,16 @@
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/FormBuilderWidget/constants";
 import { HiddenFnParams, getSchemaItem } from "../helper";
 
-const PROPERTIES = {
+type ExtendedControlConfig = PropertyPaneControlConfig & {
+  options?: {
+    label: string;
+    value: string;
+  }[];
+};
+
+const PROPERTIES: Record<string, ExtendedControlConfig[]> = {
   general: [
     {
       propertyName: "defaultValue",
@@ -12,10 +20,11 @@ const PROPERTIES = {
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
+      customJSControl: "JSON_FORM_COMPUTE_VALUE",
       validation: { type: ValidationTypes.BOOLEAN },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotMatches(FieldType.CHECKBOX),
-      dependencies: ["schema"],
+      dependencies: ["schema", "sourceData"],
     },
     {
       propertyName: "alignWidget",

@@ -49,6 +49,7 @@ import IconAlignControl from "./IconAlignControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
+import JSONFormComputeControl from "./JSONFormComputeControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -77,6 +78,7 @@ export const PropertyControls = {
   BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
   FieldConfigurationControl,
+  JSONFormComputeControl,
 };
 
 export type PropertyControlPropsType =

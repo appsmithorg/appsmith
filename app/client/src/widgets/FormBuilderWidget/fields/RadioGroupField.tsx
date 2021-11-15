@@ -35,6 +35,7 @@ function RadioGroupField({ name, schemaItem, ...rest }: RadioGroupFieldProps) {
   return (
     <Field
       {...rest}
+      defaultValue={schemaItem.defaultValue}
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}

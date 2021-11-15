@@ -12,13 +12,21 @@ export const fieldTypeUpdateHook = (
   propertyPath: string,
   fieldType: FieldType,
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const { schema, widgetName } = props;
   const schemaItemPath = getParentPropertyPath(propertyPath);
   const schemaItem: SchemaItem = get(props, schemaItemPath, {});
+
+  const options = {
+    schemaItem,
+    schemaItemPath,
+    schema,
+    widgetName,
+  };
 
   const newSchemaItem = SchemaParser.getSchemaItemByFieldType(
     schemaItem.name,
     fieldType,
-    schemaItem,
+    options,
   );
 
   return [{ propertyPath: schemaItemPath, propertyValue: newSchemaItem }];

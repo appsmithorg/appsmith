@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
@@ -11,6 +11,7 @@ type FieldProps = {
   render: ControllerProps["render"];
   tooltip?: string;
   labelStyles: FieldLabelProps["labelStyles"];
+  defaultValue: any;
 };
 
 const WRAPPER_MARGIN_BOTTOM = 14;
@@ -25,6 +26,7 @@ const StyledControllerWrapper = styled.div`
 `;
 
 function Field({
+  defaultValue,
   hideLabel = false,
   label,
   labelStyles = {},
@@ -32,7 +34,11 @@ function Field({
   render,
   tooltip,
 }: FieldProps) {
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
+
+  useEffect(() => {
+    setValue(name, defaultValue);
+  }, [defaultValue, setValue]);
 
   const controller = (
     <StyledControllerWrapper>

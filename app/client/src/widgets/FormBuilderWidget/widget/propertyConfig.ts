@@ -1,14 +1,15 @@
+import generatePanelPropertyConfig from "./propertyConfig/fieldPropertyConfig";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { FormBuilderWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import generatePanelPropertyConfig from "./propertyConfig/fieldPropertyConfig";
 
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
 
-const formDataValidationFn = (
+export const sourceDataValidationFn = (
   value: any,
   props: FormBuilderWidgetProps,
   _?: any,
@@ -48,18 +49,18 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
-        // TODO: Change formData to Source data
-        propertyName: "formData",
+        propertyName: "sourceData",
         helpText: "Input JSON sample for default form layout",
         label: "Form Data",
         controlType: "INPUT_TEXT",
         placeholderText: 'Enter { "name": "John", "age": 24 }',
+        inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
-            fn: formDataValidationFn,
+            fn: sourceDataValidationFn,
             expected: {
               type: "JSON",
               example: `{ "name": "John Doe", age: 29 }`,
@@ -67,6 +68,7 @@ export default [
             },
           },
         },
+        evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
         propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
