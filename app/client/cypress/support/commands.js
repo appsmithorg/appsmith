@@ -1001,7 +1001,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
   });
   cy.get(apiwidget.apiTxt).blur();
 });
@@ -1086,7 +1086,7 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
   });
 });
 
@@ -1797,7 +1797,14 @@ Cypress.Commands.add("DeleteAppByApi", () => {
 
     if (appId != null) {
       cy.log(appId + "appId");
-      cy.request("DELETE", "api/v1/applications/" + appId);
+      cy.request({
+        method: "DELETE",
+        url: "api/v1/applications/" + appId,
+        failOnStatusCode: false,
+      }).then((response) => {
+        cy.log(response.body);
+        cy.log(response.status);
+      });
     }
   });
 });

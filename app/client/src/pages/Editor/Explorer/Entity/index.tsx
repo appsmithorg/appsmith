@@ -161,6 +161,7 @@ export type EntityProps = {
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
   addButtonHelptext?: string;
+  isBeta?: boolean;
 };
 
 export const Entity = forwardRef(
@@ -262,6 +263,7 @@ export const Entity = forwardRef(
             enterEditMode={enterEditMode}
             entityId={props.entityId}
             exitEditMode={exitEditMode}
+            isBeta={props.isBeta}
             isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
             nameTransformFn={props.onNameEdit}
