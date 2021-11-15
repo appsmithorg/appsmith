@@ -22,10 +22,6 @@ import ReplayEntity from "entities/Replay";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
-import {
-  getReplayEntityType,
-  ReplayEntityType,
-} from "entities/Replay/replayUtils";
 import * as log from "loglevel";
 
 const CANVAS = "canvas";
