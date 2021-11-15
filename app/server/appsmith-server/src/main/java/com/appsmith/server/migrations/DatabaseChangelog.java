@@ -3854,4 +3854,24 @@ public class DatabaseChangelog {
             mongockTemplate.save(s3Action);
         }
     }
+
+    /**
+     * This migration fixes the data due to issue #8999 Due to this bug, public applications have isPublic=false
+     * when they are edited but in policies anonymousUser still have read application permission.
+     * This migration will set isPublic=true to those applications which have isPublic=false but anonymousUser has
+     * read:applications permission in policies
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "097", id = "fix-ispublic-is-false-for-public-apps", author = "")
+    public void fixIsPublicIsSetFalseWhenAppIsPublic(MongockTemplate mongockTemplate) {
+        Query query = query(
+                where("isPublic").is(false)
+                        .and("deleted").is(false)
+                        .and("policies").elemMatch(
+                                where("permission").is("read:applications").and("users").is("anonymousUser")
+                        )
+        );
+        Update update = new Update().set("isPublic", true);
+        mongockTemplate.updateMulti(query, update, Application.class);
+    }
 }
