@@ -228,9 +228,9 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
           replay,
           ReplayEntityType.DATASOURCE,
         );
-        const { parentConfig = {} } = fieldInfo;
-        const { sectionName } = parentConfig;
-        yield call(expandAccordion, sectionName);
+        const { parentSection = "" } = fieldInfo;
+        // const { sectionName } = parentConfig;
+        yield call(expandAccordion, parentSection);
         yield put(
           changeDatasource({ datasource: replayEntity, isReplay: true }),
         );
