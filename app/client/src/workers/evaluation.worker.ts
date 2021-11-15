@@ -21,12 +21,11 @@ import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import ReplayAction from "entities/Replay/ReplayEntity/ReplayAction";
+import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   getReplayEntityType,
   ReplayEntityType,
 } from "entities/Replay/replayUtils";
-import ReplayDatasource from "entities/Replay/ReplayEntity/ReplayDatasource";
 import * as log from "loglevel";
 
 const CANVAS = "canvas";
@@ -287,13 +286,7 @@ ctx.addEventListener(
         if (replayObject) {
           replayObject.update(entity);
         } else {
-          const replayEntityType = getReplayEntityType(entity);
-          if (replayEntityType === ReplayEntityType.ACTION)
-            replayMap[entityId] = new ReplayAction(entity);
-          if (replayEntityType === ReplayEntityType.JSACTION)
-            replayMap[entityId] = new ReplayAction(entity);
-          if (replayEntityType === ReplayEntityType.DATASOURCE)
-            replayMap[entityId] = new ReplayDatasource(entity);
+          replayMap[entityId] = new ReplayEditor(entity);
         }
         break;
       case EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION:

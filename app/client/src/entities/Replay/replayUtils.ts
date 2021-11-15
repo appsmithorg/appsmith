@@ -61,9 +61,6 @@ export function getPathsFromDiff(diffs: any) {
 
 export enum ReplayEntityType {
   CANVAS,
-  API,
-  QUERY,
-  SAAS,
   DATASOURCE,
   JSACTION,
   ACTION,
@@ -82,7 +79,12 @@ export function getReplayEntityType(entity: any) {
   if (entity && entity.hasOwnProperty("body")) return ReplayEntityType.JSACTION;
   return ReplayEntityType.CANVAS;
 }
-
+/**
+ * creates paths changed from diffs  array
+ *
+ * @param path
+ * @returns
+ */
 export function pathArrayToString(path?: string[]) {
   let stringPath = "";
   if (!path || path.length === 0) return stringPath;
@@ -93,7 +95,19 @@ export function pathArrayToString(path?: string[]) {
   return stringPath;
 }
 
-export function findFieldInfo(config: any, field: string, parentSection = "") {
+/**
+ * Retrieves field config and parent section using the config property
+ *
+ * @param config
+ * @param field
+ * @param parentSection
+ * @returns
+ */
+export function findFieldInfo(
+  config: Array<any>,
+  field: string,
+  parentSection = "",
+) {
   let result = {};
   if (!config || !isArray(config)) return result;
   for (const conf of config) {

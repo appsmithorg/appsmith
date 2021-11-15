@@ -45,6 +45,7 @@ import { redirectToNewIntegrations } from "../../../actions/apiPaneActions";
 import { ButtonVariantTypes } from "components/constants";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { updateReplayEntity } from "actions/pageActions";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -64,6 +65,7 @@ interface DispatchFunctions {
   getOAuthAccessToken: (id: string) => void;
   createAction: (data: Partial<Action>) => void;
   redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
+  initializeReplayEntity: (id: any, data: any) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -114,7 +116,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
     super.componentDidMount();
     const search = new URLSearchParams(this.props.location.search);
     const status = search.get("response_status");
-
+    this.props.initializeReplayEntity(
+      this.props.initialValues.id,
+      this.props.initialValues,
+    );
     if (status) {
       const display_message = search.get("display_message");
       // Set default error message
@@ -307,6 +312,8 @@ const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
     redirectToNewIntegrations: (applicationId: string, pageId: string) => {
       dispatch(redirectToNewIntegrations(applicationId, pageId));
     },
+    initializeReplayEntity: (id: any, data: any) =>
+      dispatch(updateReplayEntity(id, data)),
   };
 };
 
