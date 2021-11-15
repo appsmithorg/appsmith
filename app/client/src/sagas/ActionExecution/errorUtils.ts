@@ -20,10 +20,6 @@ export class TriggerFailureError extends Error {
   constructor(reason: string, triggerMeta: TriggerMeta, error?: Error) {
     super(reason);
     this.error = error;
-    const { source, triggerPropertyName } = triggerMeta;
-    const errorMessage = error?.message || reason;
-
-    logActionExecutionError(errorMessage, source, triggerPropertyName);
   }
 }
 
@@ -101,12 +97,6 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
     super(message);
-  }
-}
-
-export class UncaughtAppsmithPromiseError extends TriggerFailureError {
-  constructor(message: string, triggerMeta: TriggerMeta, error: Error) {
-    super(message, triggerMeta, error);
   }
 }
 
