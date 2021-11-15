@@ -451,7 +451,17 @@ public class GitServiceImpl implements GitService {
                     gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
                     MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
                     valueMap.add(FieldName.BRANCH_NAME, application.getGitApplicationMetadata().getBranchName());
-                    return commitApplication(gitCommitDTO, defaultApplicationId, valueMap)
+
+                    return userDataService.getForCurrentUser()
+                            .filter(userData -> !CollectionUtils.isNullOrEmpty(userData.getGitProfiles()))
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
+                                    "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
+                            )
+                            .flatMap(userData -> {
+                                GitProfile gitProfile = userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
+                                return gitExecutor.commitApplication(repoPath, DEFAULT_COMMIT_MESSAGE ,gitProfile.getAuthorName(), gitProfile.getAuthorEmail())
+                                        .flatMap(status -> pushApplication(defaultApplicationId, false));
+                            })
                             .then(applicationService.save(application));
                 });
     }
