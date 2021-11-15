@@ -2,6 +2,7 @@ import React from "react";
 import {
   createMessage,
   FETCH_MERGE_STATUS,
+  FETCH_MERGE_STATUS_FAILURE,
   MERGE_CONFLICT_ERROR,
 } from "constants/messages";
 import styled from "constants/DefaultTheme";
@@ -76,6 +77,22 @@ function MergeStatus() {
               weight="600"
             >
               {createMessage(MERGE_CONFLICT_ERROR)}
+            </Text>
+          </Wrapper>
+        </Flex>
+      );
+
+    case MERGE_STATUS_STATE.NONE:
+      return (
+        <Flex>
+          <Space horizontal size={10} />
+          <Wrapper>
+            <ErrorWarning size={18} />
+            <Text
+              style={{ marginLeft: 8, alignSelf: "center" }}
+              type={TextType.P3}
+            >
+              {createMessage(FETCH_MERGE_STATUS_FAILURE)}
             </Text>
           </Wrapper>
         </Flex>

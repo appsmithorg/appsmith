@@ -591,7 +591,7 @@ export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
-
+export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
