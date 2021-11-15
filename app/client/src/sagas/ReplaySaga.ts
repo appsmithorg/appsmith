@@ -234,6 +234,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         yield put(
           changeDatasource({ datasource: replayEntity, isReplay: true }),
         );
+        flashElementsById(btoa(replay.modifiedProperty), 0, 500, "flash");
         break;
       }
       case ReplayEntityType.JSACTION:
