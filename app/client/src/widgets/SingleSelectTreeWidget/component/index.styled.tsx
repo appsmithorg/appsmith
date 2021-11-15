@@ -38,17 +38,14 @@ export const StyledLabel = styled(Label)<{
   $labelTextColor?: string;
   $labelTextSize?: TextSize;
   $labelStyle?: string;
+  disabled?: boolean;
 }>`
   overflow-y: hidden;
   text-overflow: ellipsis;
   width: ${(props) => (props.$compactMode ? "auto" : "100%")};
   text-align: left;
   color: ${(props) =>
-    props.$labelTextColor
-      ? props.$labelTextColor
-      : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
+    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
   font-size: ${(props) =>
     props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
   font-weight: ${(props) =>
@@ -649,7 +646,7 @@ export const TreeSelectContainer = styled.div<{
       left: 0px !important;
     }
   }
-  .rc-tree-select-disabled {
+  && .rc-tree-select-disabled {
     cursor: not-allowed;
     input {
       cursor: not-allowed;
@@ -658,8 +655,13 @@ export const TreeSelectContainer = styled.div<{
     .rc-tree-select-selector {
       border: 1.2px solid ${Colors.GREY_3} !important;
       background-color: ${Colors.GREY_1} !important;
+
+      .rc-tree-select-selection-search input {
+        background-color: ${Colors.GREY_1}; // color fix for mozilla
+      }
       .rc-tree-select-selection-item {
-        color: ${Colors.GREY_7} !important;
+        color: ${Colors.GREY_7};
+        background-color: ${Colors.GREY_1};
       }
     }
   }
@@ -891,6 +893,17 @@ export const TreeSelectContainer = styled.div<{
           width: 20px;
           height: 20px;
         }
+      fill: ${Colors.SLATE_GRAY};
+    }
+    .rc-tree-select-arrow-icon {
+      &::after {
+        content: "";
+        border: 5px solid transparent;
+        width: 0;
+        height: 0;
+        display: inline-block;
+        border-top-color: #999;
+        transform: translateY(5px);
       }
     }
   }

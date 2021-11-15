@@ -256,7 +256,7 @@ export const MultiSelectContainer = styled.div<{
       }
     }
   }
-  .rc-select-disabled {
+  && .rc-select-disabled {
     cursor: not-allowed;
     input {
       cursor: not-allowed;

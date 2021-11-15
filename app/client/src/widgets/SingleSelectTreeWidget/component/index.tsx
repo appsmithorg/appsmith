@@ -139,6 +139,7 @@ function SingleSelectTreeComponent({
             className={`tree-select-label ${
               loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
             }`}
+            disabled={disabled}
           >
             {labelText}
           </StyledLabel>
