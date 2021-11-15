@@ -41,6 +41,7 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import Icon from "components/ads/Icon";
 import { ReactComponent as FunctionSettings } from "assets/icons/menu/settings.svg";
+import JSFunctionSettings from "pages/Editor/JSEditor/JSFunctionSettings";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -194,6 +195,11 @@ function JSResponseView(props: Props) {
     dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }, []);
 
+  const [openSettings, setOpenSettings] = useState(false);
+  const [selectedFunction, setSelectedFunction] = useState<
+    undefined | JSAction
+  >(undefined);
+
   const tabs = [
     {
       key: "body",
@@ -237,7 +243,12 @@ function JSResponseView(props: Props) {
                           <JSFunction />{" "}
                           <div className="function-name">{action.name}</div>
                           <div className="function-actions">
-                            <FunctionSettings />
+                            <FunctionSettings
+                              onClick={() => {
+                                setSelectedFunction(action);
+                                setOpenSettings(true);
+                              }}
+                            />
                             <RunFunction
                               className="run-button"
                               onClick={() => {
@@ -273,6 +284,15 @@ function JSResponseView(props: Props) {
                     />
                   )}
                 </ResponseViewer>
+                {openSettings && !!selectedFunction && (
+                  <JSFunctionSettings
+                    action={selectedFunction}
+                    openSettings={openSettings}
+                    toggleSettings={() => {
+                      setOpenSettings(!openSettings);
+                    }}
+                  />
+                )}
               </>
             )}
           </ResponseTabWrapper>

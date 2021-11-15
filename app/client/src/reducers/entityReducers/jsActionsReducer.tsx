@@ -5,10 +5,9 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { keyBy } from "lodash";
+import { set, keyBy } from "lodash";
 
 const initialState: JSCollectionDataState = [];
-
 export interface JSCollectionData {
   isLoading: boolean;
   config: JSCollection;
@@ -294,6 +293,45 @@ const jsActionsReducer = createReducer(initialState, {
           isExecuting: {
             ...a.isExecuting,
             [action.payload.actionId]: false,
+          },
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{ collection: JSCollection }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collection.id) {
+        return {
+          ...a,
+          data: action.payload,
+        };
+      }
+      return a;
+    }),
+  [ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      actionId: string;
+      collectionId: string;
+      executeOnLoad: boolean;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((a) => {
+      if (a.config.id === action.payload.collectionId) {
+        const updatedActions = a.config.actions.map((jsAction) => {
+          if (jsAction.id === action.payload.actionId) {
+            set(jsAction, `executeOnLoad`, action.payload.executeOnLoad);
+          }
+          return jsAction;
+        });
+        return {
+          ...a,
+          config: {
+            ...a.config,
+            actions: updatedActions,
           },
         };
       }
