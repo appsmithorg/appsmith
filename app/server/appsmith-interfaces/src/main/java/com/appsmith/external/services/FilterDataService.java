@@ -52,7 +52,8 @@ public class FilterDataService {
             DataType.FLOAT, "REAL",
             DataType.DOUBLE, "DOUBLE",
             DataType.BOOLEAN, "BOOLEAN",
-            DataType.STRING, "VARCHAR"
+            DataType.STRING, "VARCHAR",
+            DataType.DATE, "DATE"
     );
 
     private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
@@ -603,6 +604,12 @@ public class FilterDataService {
         // Override datatype to null for empty values
         if (StringUtils.isEmpty(value)) {
             dataType = DataType.NULL;
+        } else {
+            // value is not empty.
+            DataType inputDataType = stringToKnownDataTypeConverter(value);
+            if (DataType.NULL.equals(inputDataType)) {
+                dataType = DataType.NULL;
+            }
         }
 
         try {

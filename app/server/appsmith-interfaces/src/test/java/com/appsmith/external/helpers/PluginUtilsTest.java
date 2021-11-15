@@ -90,6 +90,30 @@ public class PluginUtilsTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Test
+    public void parseWhereClauseEmptyChildrenArrayTest() {
+        String whereJson = "{\n" +
+                "  \"where\": {\n" +
+                "    \"children\": [],\n" +
+                "    \"condition\": \"AND\"\n" +
+                "  }\n" +
+                "}";
+        try {
+            Map<String, Object> whereClause = objectMapper.readValue(whereJson, HashMap.class);
+            Map<String, Object> unparsedWhereClause = (Map<String, Object>) whereClause.get("where");
+            Condition condition = parseWhereClause(unparsedWhereClause);
+
+            assertThat(condition.getOperator().equals(ConditionalOperator.AND));
+            Object conditionValue = condition.getValue();
+            assertThat(conditionValue).isNotNull();
+            assertThat(conditionValue instanceof List);
+            List<Condition> conditionList = (List<Condition>) conditionValue;
+            assertThat(conditionList.size()).isEqualTo(0);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
