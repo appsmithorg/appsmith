@@ -237,13 +237,16 @@ export const MultiSelectContainer = styled.div`
       }
     }
   }
-  .rc-select-disabled {
+  && .rc-select-disabled {
     cursor: not-allowed;
     input {
       cursor: not-allowed;
     }
     .rc-select-selector {
-      opacity: 0.3;
+      background-color: ${Colors.GREY_1};
+      .rc-select-selection-item-content {
+        color: ${Colors.GREY_7};
+      }
     }
   }
   .rc-select-show-arrow.rc-select-loading {

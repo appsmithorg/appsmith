@@ -103,7 +103,7 @@ const StyledButton = styled((props) => (
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.solid.bgColor
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
@@ -113,23 +113,26 @@ const StyledButton = styled((props) => (
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.outline.hoverColor
+          ? theme.colors.button.primary.secondary.hoverColor
           : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
       } !important;
     }
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
+      border-color: ${theme.colors.button.disabled.bgColor} !important;
+      > span {
+        color: ${theme.colors.button.disabled.textColor} !important;
+      }
     }
 
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
-        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
 
