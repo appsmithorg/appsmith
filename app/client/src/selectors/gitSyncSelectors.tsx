@@ -65,6 +65,8 @@ export const getIsFetchingGitStatus = (state: AppState) =>
 export const getIsFetchingMergeStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingMergeStatus;
 
+export const getMergeStatus = (state: AppState) => state.ui.gitSync.mergeStatus;
+
 export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,
   (gitMetaData) => !!(gitMetaData && gitMetaData.remoteUrl),

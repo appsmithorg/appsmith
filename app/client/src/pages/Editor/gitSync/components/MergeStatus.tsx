@@ -12,6 +12,7 @@ import { getIsFetchingMergeStatus } from "selectors/gitSyncSelectors";
 import Text, { TextType } from "components/ads/Text";
 import ErrorWarning from "remixicon-react/ErrorWarningLineIcon";
 import { Colors } from "constants/Colors";
+import { getMergeStatus } from "../../../../selectors/gitSyncSelectors";
 
 const Flex = styled.div`
   display: flex;
@@ -32,11 +33,18 @@ const Wrapper = styled.div`
 
 function MergeStatus() {
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
-  const mergeStatus = isFetchingMergeStatus
-    ? MERGE_STATUS_STATE.FETCHING
-    : MERGE_STATUS_STATE.NONE;
+  const mergeStatus = useSelector(getMergeStatus);
 
-  switch (mergeStatus) {
+  let status = MERGE_STATUS_STATE.NONE;
+  if (isFetchingMergeStatus) {
+    status = MERGE_STATUS_STATE.FETCHING;
+  } else if (mergeStatus && mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.NO_CONFLICT;
+  } else if (mergeStatus && !mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.MERGE_CONFLICT;
+  }
+
+  switch (status) {
     case MERGE_STATUS_STATE.FETCHING:
       return (
         <Flex>
@@ -74,6 +82,7 @@ function MergeStatus() {
       );
     default:
       return null;
+    // status === MERGE_STATUS_STATE.NONE will execute default case.
   }
 }
 
