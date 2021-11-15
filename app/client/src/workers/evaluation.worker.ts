@@ -180,6 +180,12 @@ ctx.addEventListener(
 
         break;
       }
+      case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
+        /**
+         * This action will not be processed here. This is handled in the eval trigger sub steps
+         * @link promisifyAction
+         **/
+        break;
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
         return true;
@@ -247,9 +253,6 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION:
         const { version } = requestData;
         self.evaluationVersion = version || 1;
-        break;
-      case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
-        // This action will not be processed here. This is handled in the eval trigger sub steps
         break;
       default: {
         console.error("Action not registered on worker", method);

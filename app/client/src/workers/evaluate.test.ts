@@ -1,4 +1,8 @@
-import evaluate, { setupEvaluationEnvironment } from "workers/evaluate";
+import evaluate, {
+  setupEvaluationEnvironment,
+  evaluateAsync,
+  isFunctionAsync,
+} from "workers/evaluate";
 import {
   DataTree,
   DataTreeWidget,
@@ -6,7 +10,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 
-describe("evaluate", () => {
+describe("evaluateSync", () => {
   const widget: DataTreeWidget = {
     bottomRow: 0,
     isLoading: false,
@@ -149,5 +153,82 @@ describe("evaluate", () => {
     const callbackData = [{ value: "test" }, "1"];
     const response = evaluate(js, dataTree, {}, callbackData);
     expect(response.result).toBe("test1");
+  });
+});
+
+describe("evaluateAsync", () => {
+  it("runs and completes", async () => {
+    const js = "(() => new Promise((resolve) => { resolve(123) }))()";
+    self.postMessage = jest.fn();
+    await evaluateAsync(js, {}, "TEST_REQUEST", {});
+    expect(self.postMessage).toBeCalledWith({
+      requestId: "TEST_REQUEST",
+      responseData: { finished: true, result: { errors: [], result: 123 } },
+      type: "PROCESS_TRIGGER",
+    });
+    expect(self.ALLOW_ASYNC).toBe(true);
+    expect(self.REQUEST_ID).toBe("TEST_REQUEST");
+  });
+  it("runs and returns errors", async () => {
+    jest.restoreAllMocks();
+    const js = "(() => new Promise((resolve) => { randomKeyword }))()";
+    self.postMessage = jest.fn();
+    await evaluateAsync(js, {}, "TEST_REQUEST_1", {});
+    expect(self.postMessage).toBeCalledWith({
+      requestId: "TEST_REQUEST_1",
+      responseData: {
+        finished: true,
+        result: {
+          errors: [
+            {
+              errorMessage: "ReferenceError: randomKeyword is not defined",
+              errorType: "PARSE",
+              originalBinding: expect.stringContaining("Promise"),
+              raw: expect.stringContaining("Promise"),
+              severity: "error",
+            },
+          ],
+          result: undefined,
+        },
+      },
+      type: "PROCESS_TRIGGER",
+    });
+    expect(self.ALLOW_ASYNC).toBe(true);
+    expect(self.REQUEST_ID).toBe("TEST_REQUEST_1");
+  });
+});
+
+describe("isFunctionAsync", () => {
+  it("identifies async functions", () => {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const cases: Array<{ script: Function | string; expected: boolean }> = [
+      {
+        script: () => {
+          return 1;
+        },
+        expected: false,
+      },
+      {
+        script: () => {
+          return new Promise((resolve) => {
+            resolve(1);
+          });
+        },
+        expected: true,
+      },
+      {
+        script: "() => { showAlert('yo') }",
+        expected: true,
+      },
+    ];
+
+    for (const testCase of cases) {
+      let testFunc = testCase.script;
+      if (typeof testFunc === "string") {
+        testFunc = eval(testFunc);
+      }
+      const actual = isFunctionAsync(testFunc, {});
+      expect(actual).toBe(testCase.expected);
+    }
   });
 });

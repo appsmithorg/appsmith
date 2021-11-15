@@ -52,11 +52,11 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
 };
 
 const getScriptType = (
-  evalArguments?: Array<any>,
+  evalArgumentsExist = false,
   isTriggerBased = false,
 ): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
-  if (evalArguments) {
+  if (evalArgumentsExist) {
     scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
   } else if (isTriggerBased) {
     scriptType = EvaluationScriptType.TRIGGERS;
@@ -119,23 +119,37 @@ export const createGlobalData = (
   return GLOBAL_DATA;
 };
 
-export default function evaluateSync(
+export const getUserScriptToEvaluate = (
   userScript: string,
-  dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
+  GLOBAL_DATA: Record<string, unknown>,
   evalArguments?: Array<any>,
-): EvalResult {
+) => {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
   const trimmedJS = userScript.replace(beginsWithLineBreakRegex, "");
   const unescapedJS =
     self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
-  const scriptType = getScriptType(evalArguments, false);
+  const scriptType = getScriptType(!!evalArguments, false);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
   // This will make sure that the character count is not messed up when we do unescapejs
   const scriptToLint = getScriptToEval(userScript, scriptType);
+  const lintErrors = getLintingErrors(
+    scriptToLint,
+    GLOBAL_DATA,
+    userScript,
+    scriptType,
+  );
+  return { script, lintErrors };
+};
+
+export default function evaluateSync(
+  userScript: string,
+  dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
+  evalArguments?: Array<any>,
+): EvalResult {
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
@@ -148,6 +162,13 @@ export default function evaluateSync(
 
     GLOBAL_DATA.ALLOW_ASYNC = false;
 
+    const { lintErrors, script } = getUserScriptToEvaluate(
+      userScript,
+      GLOBAL_DATA,
+      evalArguments,
+    );
+    errors = lintErrors;
+
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
@@ -156,12 +177,6 @@ export default function evaluateSync(
       // @ts-ignore: No types available
       self[entity] = GLOBAL_DATA[entity];
     }
-    errors = getLintingErrors(
-      scriptToLint,
-      GLOBAL_DATA,
-      userScript,
-      scriptType,
-    );
 
     try {
       result = eval(script);
@@ -187,21 +202,18 @@ export async function evaluateAsync(
   resolvedFunctions: Record<string, any>,
   evalArguments?: Array<any>,
 ) {
-  // We remove any line breaks from the beginning of the script because that
-  // makes the final function invalid. We also unescape any escaped characters
-  // so that eval can happen
-  const trimmedJS = userScript.replace(beginsWithLineBreakRegex, "");
-  const unescapedJS =
-    self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
-  const scriptType = getScriptType(evalArguments, true);
-  const script = getScriptToEval(unescapedJS, scriptType);
   return (async function() {
-    let errors: EvaluationError[] = [];
+    const errors: EvaluationError[] = [];
     let result;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData(
       dataTree,
       resolvedFunctions,
+      evalArguments,
+    );
+    const { script } = getUserScriptToEvaluate(
+      userScript,
+      GLOBAL_DATA,
       evalArguments,
     );
     GLOBAL_DATA.REQUEST_ID = requestId;
@@ -214,7 +226,6 @@ export async function evaluateAsync(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS, scriptType);
 
     try {
       result = await eval(script);
@@ -227,8 +238,9 @@ export async function evaluateAsync(
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
+    } finally {
+      completePromise({ result, errors });
     }
-    completePromise({ result, errors });
   })();
 }
 
@@ -255,7 +267,10 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
     });
     try {
       if (typeof userFunction === "function") {
-        userFunction();
+        const returnValue = userFunction();
+        if ("then" in returnValue && typeof returnValue.then === "function") {
+          self.IS_ASYNC = true;
+        }
       }
     } catch (e) {
       // eslint-disable-next-line no-console

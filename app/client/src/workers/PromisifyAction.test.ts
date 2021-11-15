@@ -1,30 +1,14 @@
 import { createGlobalData } from "workers/evaluate";
-
-const requestId = "TEST_REQUEST";
-// jest.spyOn(self, "addEventListener").mockImplementation((event, handler) => {
-//   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//   // @ts-ignore
-//   const gen = handler({
-//     data: {
-//       method: "PROCESS_TRIGGER",
-//       data: {
-//         resolve: "Test resolve",
-//       },
-//       requestId,
-//       success: true,
-//       subRequestId,
-//     },
-//   });
-//   debugger;
-//   gen.next();
-// });
+import _ from "lodash";
 
 describe("promise execution", () => {
   const postMessageMock = jest.fn();
   const dataTreeWithFunctions = createGlobalData({}, {});
+  let requestId: string;
 
   beforeEach(() => {
     self.ALLOW_ASYNC = true;
+    requestId = _.uniqueId("TEST_REQUEST");
     self.REQUEST_ID = requestId;
     self.postMessage = postMessageMock;
   });
@@ -39,56 +23,140 @@ describe("promise execution", () => {
     expect(self.IS_ASYNC).toBe(true);
     expect(postMessageMock).not.toHaveBeenCalled();
   });
-  // it("sends an event from the worker", () => {
-  //   dataTreeWithFunctions.showAlert("test alert", "info");
-  //   expect(postMessageMock).toBeCalledWith({
-  //     requestId,
-  //     type: "PROCESS_TRIGGER",
-  //     responseData: expect.objectContaining({
-  //       subRequestId: expect.stringContaining(`${requestId}_`),
-  //       trigger: {
-  //         type: "SHOW_ALERT",
-  //         payload: {
-  //           message: "test alert",
-  //           style: "info",
-  //         },
-  //       },
-  //     }),
-  //   });
-  // });
-  // it("returns a promise that resolves", () => {
-  //   postMessageMock.mockReset();
-  //   const returnedPromise = dataTreeWithFunctions.showAlert(
-  //     "test alert",
-  //     "info",
-  //   );
-  //   const requestArgs = postMessageMock.mock.calls[0][0];
-  //   subRequestId = requestArgs.responseData.subRequestId;
-  //
-  //   expect(returnedPromise).resolves.toBe("123");
-  // });
-  //
-  // it("returns a promise that rejects", () => {
-  //   postMessageMock.mockReset();
-  //   const returnedPromise = dataTreeWithFunctions.showAlert(
-  //     "test alert",
-  //     "info",
-  //   );
-  //   const requestArgs = postMessageMock.mock.calls[0][0];
-  //   subRequestId = requestArgs.responseData.subRequestId;
-  //
-  //   expect(returnedPromise).rejects.toBe("testing");
-  // });
-  // it("does not process till right event is triggered", () => {
-  //   const returnedPromise = dataTreeWithFunctions.showAlert(
-  //     "test alert",
-  //     "info",
-  //   );
-  //
-  //   const requestArgs = postMessageMock.mock.calls[0][0];
-  //   subRequestId = requestArgs.responseData.subRequestId;
-  //
-  //   expect(returnedPromise).resolves.toBe("bullshit");
-  // });
-  // it("same subRequestId is not accepted again", () => {});
+  it("sends an event from the worker", () => {
+    dataTreeWithFunctions.showAlert("test alert", "info");
+    expect(postMessageMock).toBeCalledWith({
+      requestId,
+      type: "PROCESS_TRIGGER",
+      responseData: expect.objectContaining({
+        subRequestId: expect.stringContaining(`${requestId}_`),
+        trigger: {
+          type: "SHOW_ALERT",
+          payload: {
+            message: "test alert",
+            style: "info",
+          },
+        },
+      }),
+    });
+  });
+  it("returns a promise that resolves", async () => {
+    postMessageMock.mockReset();
+    const returnedPromise = dataTreeWithFunctions.showAlert(
+      "test alert",
+      "info",
+    );
+    const requestArgs = postMessageMock.mock.calls[0][0];
+    const subRequestId = requestArgs.responseData.subRequestId;
+
+    self.dispatchEvent(
+      new MessageEvent("message", {
+        data: {
+          data: { resolve: ["123"], subRequestId },
+          method: "PROCESS_TRIGGER",
+          requestId,
+          success: true,
+        },
+      }),
+    );
+
+    await expect(returnedPromise).resolves.toBe("123");
+  });
+
+  it("returns a promise that rejects", async () => {
+    postMessageMock.mockReset();
+    const returnedPromise = dataTreeWithFunctions.showAlert(
+      "test alert",
+      "info",
+    );
+    const requestArgs = postMessageMock.mock.calls[0][0];
+    const subRequestId = requestArgs.responseData.subRequestId;
+    self.dispatchEvent(
+      new MessageEvent("message", {
+        data: {
+          data: { reason: "testing", subRequestId },
+          method: "PROCESS_TRIGGER",
+          requestId,
+          success: false,
+        },
+      }),
+    );
+
+    await expect(returnedPromise).rejects.toBe("testing");
+  });
+  it("does not process till right event is triggered", async () => {
+    postMessageMock.mockReset();
+    const returnedPromise = dataTreeWithFunctions.showAlert(
+      "test alert",
+      "info",
+    );
+
+    const requestArgs = postMessageMock.mock.calls[0][0];
+    const correctSubRequestId = requestArgs.responseData.subRequestId;
+    const differentSubRequestId = "wrongRequestId";
+
+    self.dispatchEvent(
+      new MessageEvent("message", {
+        data: {
+          data: {
+            resolve: ["wrongRequest"],
+            subRequestId: differentSubRequestId,
+          },
+          method: "PROCESS_TRIGGER",
+          requestId,
+          success: true,
+        },
+      }),
+    );
+
+    self.dispatchEvent(
+      new MessageEvent("message", {
+        data: {
+          data: { resolve: ["testing"], subRequestId: correctSubRequestId },
+          method: "PROCESS_TRIGGER",
+          requestId,
+          success: true,
+        },
+      }),
+    );
+
+    await expect(returnedPromise).resolves.toBe("testing");
+  });
+  it("same subRequestId is not accepted again", async () => {
+    postMessageMock.mockReset();
+    const returnedPromise = dataTreeWithFunctions.showAlert(
+      "test alert",
+      "info",
+    );
+
+    const requestArgs = postMessageMock.mock.calls[0][0];
+    const subRequestId = requestArgs.responseData.subRequestId;
+
+    self.dispatchEvent(
+      new MessageEvent("message", {
+        data: {
+          data: {
+            resolve: ["testing"],
+            subRequestId,
+          },
+          method: "PROCESS_TRIGGER",
+          requestId,
+          success: true,
+        },
+      }),
+    );
+
+    self.dispatchEvent(
+      new MessageEvent("message", {
+        data: {
+          data: { resolve: ["wrongRequest"], subRequestId },
+          method: "PROCESS_TRIGGER",
+          requestId,
+          success: false,
+        },
+      }),
+    );
+
+    await expect(returnedPromise).resolves.toBe("testing");
+  });
 });
