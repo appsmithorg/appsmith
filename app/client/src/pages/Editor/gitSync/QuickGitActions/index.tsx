@@ -34,12 +34,16 @@ import {
   getGitStatus,
   getIsGitConnected,
   getPullMergeStatus,
+  getPullInProgress,
+  getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
+import SpinnerLoader from "pages/common/SpinnerLoader";
 
 type QuickActionButtonProps = {
   count?: number;
   disabled?: boolean;
   icon: React.ReactNode;
+  loading?: boolean;
   onClick: () => void;
   tooltipText: string;
 };
@@ -77,21 +81,37 @@ const capitalizeFirstLetter = (string = " ") => {
   return string.charAt(0).toUpperCase() + string.toLowerCase().slice(1);
 };
 
+const SpinnerContainer = styled.div`
+  margin-left: ${(props) => props.theme.spaces[2]}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 26px;
+`;
+
 function QuickActionButton({
   count = 0,
   disabled = false,
   icon,
+  loading,
   onClick,
   tooltipText,
 }: QuickActionButtonProps) {
   return (
     <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
-      <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
-        {icon}
-        {count > 0 && (
-          <span className="count">{count > 9 ? `${9}+` : count}</span>
-        )}
-      </QuickActionButtonContainer>
+      {loading ? (
+        <SpinnerContainer>
+          <SpinnerLoader height="16px" width="16px" />
+        </SpinnerContainer>
+      ) : (
+        <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
+          {icon}
+          {count > 0 && (
+            <span className="count">{count > 9 ? `${9}+` : count}</span>
+          )}
+        </QuickActionButtonContainer>
+      )}
     </Tooltip>
   );
 }
@@ -123,6 +143,7 @@ const getQuickActionButtons = ({
   pullDisabled,
   pullTooltipMessage,
   push,
+  showPullLoadingState,
 }: {
   commit: () => void;
   push: () => void;
@@ -131,6 +152,7 @@ const getQuickActionButtons = ({
   gitStatus: any;
   pullDisabled: boolean;
   pullTooltipMessage: string;
+  showPullLoadingState: boolean;
 }) => {
   return [
     {
@@ -149,6 +171,7 @@ const getQuickActionButtons = ({
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
       disabled: pullDisabled,
+      loading: showPullLoadingState,
     },
     {
       icon: <GitBranch />,
@@ -230,6 +253,10 @@ export default function QuickGitActions() {
     message: pullTooltipMessage,
   } = getPullBtnStatus(gitStatus, pullMergeStatus);
 
+  const isPullInProgress = useSelector(getPullInProgress);
+  const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
+  const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
+
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
       dispatch(
@@ -252,6 +279,7 @@ export default function QuickGitActions() {
     gitStatus,
     pullDisabled,
     pullTooltipMessage,
+    showPullLoadingState,
   });
   return getFeatureFlags().GIT && isGitConnected ? (
     <Container>
