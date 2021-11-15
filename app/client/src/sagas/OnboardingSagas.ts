@@ -1,4 +1,8 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { all, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
@@ -8,13 +12,18 @@ import {
 import { AppIconCollection } from "components/ads/AppIcon";
 
 import { getAppCardColorPalette } from "selectors/themeSelectors";
-import { getRandomPaletteColor, getNextEntityName } from "utils/AppsmithUtils";
+import {
+  getRandomPaletteColor,
+  getNextEntityName,
+  createNewQueryName,
+} from "utils/AppsmithUtils";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 
 import {
   getFirstTimeUserOnboardingApplicationId,
+  getGuidedTourDatasource,
   getOnboardingOrganisations,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
@@ -25,6 +34,25 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getNextWidgetName } from "./WidgetOperationUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import { generateReactKey } from "utils/generators";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
+import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
+import { forceOpenPropertyPane } from "actions/widgetActions";
+import log from "loglevel";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getWidgets } from "./selectors";
+import { createActionRequest } from "actions/pluginActionActions";
+import { Datasource } from "entities/Datasource";
+import { Action } from "entities/Action";
+import { getActions } from "selectors/entitiesSelector";
 
 function* createApplication() {
   const colorPalette = yield select(getAppCardColorPalette);
@@ -81,6 +109,111 @@ function* createApplication() {
   }
 }
 
+function* createGuidedTourQuery() {
+  const datasource: Datasource | undefined = yield select(
+    getGuidedTourDatasource,
+  );
+  const actions = yield select(getActions);
+  const pageId = yield select(getCurrentPageId);
+
+  if (datasource) {
+    const newQueryName = createNewQueryName(actions, pageId, {
+      prefix: "getCustomers",
+    });
+    const payload: Partial<Action> = {
+      name: newQueryName,
+      pageId,
+      eventData: {
+        actionType: "Query",
+        from: "Guided-Tour",
+        dataSource: datasource.name,
+      },
+      pluginId: datasource.pluginId,
+      actionConfiguration: {
+        body:
+          '/* ---> Edit the limit "100" with "10" and hit RUN */\n\nSELECT * FROM orders where userId={{CustomersTable2.selectedRow.id}} order by status \nLIMIT 100;',
+      },
+      datasource: {
+        id: datasource.id,
+      },
+    };
+
+    yield put(createActionRequest(payload));
+    yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+
+    yield put({
+      type: "TOGGLE_LOADER",
+      payload: false,
+    });
+  }
+}
+
+function* createTableWidget(action: ReduxAction<Partial<WidgetProps>>) {
+  const widgetConfig = action.payload;
+
+  if (!widgetConfig.type) return;
+
+  const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
+
+  const evalTree = yield select(getDataTree);
+  const widgets = yield select(getWidgets);
+
+  const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
+    prefix: "CustomersTable",
+  });
+
+  try {
+    let newWidget = {
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      parentId: "0",
+      renderMode: RenderModes.CANVAS,
+      isLoading: false,
+      ...defaultConfig,
+      widgetName,
+      ...widgetConfig,
+    };
+
+    const {
+      bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
+    } = yield calculateNewWidgetPosition(
+      newWidget as WidgetProps,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
+
+    newWidget = {
+      ...newWidget,
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    };
+
+    yield put({
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: newWidget,
+    });
+
+    // const pageId = yield select(getCurrentPageId);
+    // const applicationId = yield select(getCurrentApplicationId);
+
+    // navigateToCanvas({
+    //   pageId,
+    //   widgetId: newWidget.newWidgetId,
+    //   applicationId,
+    // });
+    // yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+  } catch (error) {
+    log.error(error);
+  }
+}
+
+// Signposting sagas
 function* setEnableFirstTimeUserOnboarding(action: ReduxAction<boolean>) {
   yield storeEnableFirstTimeUserOnboarding(action.payload);
 }
@@ -158,6 +291,8 @@ export default function* onboardingActionSagas() {
       ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
       createApplication,
     ),
+    takeLatest("CREATE_ONBOARDING_TABLE_WIDGET", createTableWidget),
+    takeLatest("CREATE_GUIDED_TOUR_QUERY", createGuidedTourQuery),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,

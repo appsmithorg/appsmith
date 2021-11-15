@@ -11,6 +11,11 @@ const initialState: OnboardingState = {
   showFirstTimeUserOnboardingModal: false,
   // Guided tour
   guidedTour: false,
+  loading: false,
+  exploring: true,
+  tableWidgetId: "",
+  queryId: "",
+  datasourceId: "",
 };
 
 export interface OnboardingState {
@@ -21,6 +26,11 @@ export interface OnboardingState {
   firstTimeUserOnboardingComplete: boolean;
   showFirstTimeUserOnboardingModal: boolean;
   guidedTour: boolean;
+  loading: boolean;
+  exploring: boolean;
+  tableWidgetId: string;
+  queryId: string;
+  datasourceId: string;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -92,6 +102,34 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       guidedTour: action.payload,
+    };
+  },
+  TOGGLE_LOADER: (state: OnboardingState, action: ReduxAction<boolean>) => {
+    return {
+      ...state,
+      loading: action.payload,
+      exploring: false,
+    };
+  },
+  SET_DATASOURCE_ID: (state: OnboardingState, action: ReduxAction<string>) => {
+    return {
+      ...state,
+      datasourceId: action.payload,
+    };
+  },
+  SET_QUERY_ID: (state: OnboardingState, action: ReduxAction<string>) => {
+    return {
+      ...state,
+      queryId: action.payload,
+    };
+  },
+  SET_TABLE_WIDGET_ID: (
+    state: OnboardingState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      tableWidgetId: action.payload,
     };
   },
 });

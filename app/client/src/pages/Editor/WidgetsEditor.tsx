@@ -167,7 +167,7 @@ function WidgetsEditor() {
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
         >
-          {guidedTourEnabled && <Guide />}
+          {true && <Guide />}
           <MainContainerLayoutControl />
           <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
             {node}

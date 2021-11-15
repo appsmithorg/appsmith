@@ -84,6 +84,7 @@ import CloseCircleIcon from "remixicon-react/CloseCircleFillIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
 import ContextMenuIcon from "remixicon-react/MoreFillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
+import Database2Line from "remixicon-react/Database2LineIcon";
 import DatasourceIcon from "remixicon-react/CloudFillIcon";
 import DeleteBin7 from "remixicon-react/DeleteBin7LineIcon";
 import DiscordIcon from "remixicon-react/DiscordLineIcon";
@@ -92,6 +93,7 @@ import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
 import EditLineIcon from "remixicon-react/EditLineIcon";
+import EditBoxLine from "remixicon-react/EditBoxLineIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
 import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
@@ -122,6 +124,7 @@ import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
+import EditBoxLineIcon from "remixicon-react/EditBoxLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -202,6 +205,7 @@ export const IconCollection = [
   "context-menu",
   "cross",
   "danger",
+  "database-2-line",
   "datasource",
   "delete",
   "delete-blank",
@@ -213,6 +217,7 @@ export const IconCollection = [
   "duplicate",
   "edit",
   "edit-line",
+  "edit-box-line",
   "emoji",
   "error",
   "expand-less",
@@ -421,6 +426,9 @@ const Icon = forwardRef(
       case "danger":
         returnIcon = <ErrorIcon />;
         break;
+      case "database-2-line":
+        returnIcon = <Database2Line />;
+        break;
       case "datasource":
         returnIcon = <DatasourceIcon />;
         break;
@@ -453,6 +461,9 @@ const Icon = forwardRef(
         break;
       case "edit-line":
         returnIcon = <EditLineIcon />;
+        break;
+      case "edit-box-line":
+        returnIcon = <EditBoxLineIcon />;
         break;
       case "emoji":
         returnIcon = <Emoji />;

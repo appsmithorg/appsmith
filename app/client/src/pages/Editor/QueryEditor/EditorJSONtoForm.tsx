@@ -71,6 +71,7 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import Guide from "pages/Editor/GuidedTour/Guide";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -736,6 +737,7 @@ export function EditorJSONtoForm(props: Props) {
   return (
     <>
       <CloseEditor />
+      <Guide className="query-page" />
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>

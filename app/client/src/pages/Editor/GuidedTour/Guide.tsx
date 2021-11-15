@@ -1,5 +1,18 @@
 import Button from "components/ads/Button";
-import React, { useState } from "react";
+import { Classes } from "components/ads/common";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { get, set } from "lodash";
+import React, { ReactNode, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  getGuidedTourDatasource,
+  getGuidedTourQuery,
+  getQueryAction,
+  getQueryName,
+  isExploring,
+  loading,
+} from "selectors/onboardingSelectors";
+import { useSelector } from "store";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -21,9 +34,14 @@ const ProgressBar = styled.div<{ done: boolean }>`
 `;
 
 const GuideWrapper = styled.div`
-  margin-left: 3%;
-  margin-right: 3%;
   margin-top: 17px;
+  margin-left: 36px;
+  margin-right: 36px;
+
+  &.query-page {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
 `;
 
 const CardWrapper = styled.div`
@@ -50,6 +68,8 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
   letter-spacing: -0.24px;
   padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0px")};
   margin-top: 13px;
+  flex: 1;
+  display: flex;
 `;
 
 const UpperContent = styled.div`
@@ -60,9 +80,37 @@ const UpperContent = styled.div`
 
 const ContentWrapper = styled.div`
   display: flex;
-  div:first-child {
-    flex-direction: column;
-    display: flex;
+  gap: 50px;
+  align-items: center;
+
+  button {
+    min-width: 120px;
+    padding: 11px 0px;
+  }
+`;
+
+const SubContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const IconWrapper = styled.div`
+  background-color: #ffffff;
+  padding: 8px;
+  border-radius: 4px;
+`;
+
+const Hint = styled.div`
+  background-color: #feede5;
+  padding: 17px 23px;
+  display: flex;
+  align-items: center;
+  margin-top: 18px;
+
+  .hint-text {
+    padding-left: 15px;
+    font-size: 16px;
+    line-height: 19px;
   }
 `;
 
@@ -80,45 +128,188 @@ function StatusBar(props: any) {
   );
 }
 
+type Step = {
+  title: string;
+  description?: string;
+  hint: {
+    icon: IconName;
+    text: ReactNode;
+  };
+};
+type StepsType = Record<number, Step>;
+
+const Steps: StepsType = {
+  1: {
+    title: `Create <query> query to get customers data`,
+    hint: {
+      icon: "edit-box-line",
+      text: (
+        <>
+          <b>Edit the query</b> according to the comment in the editor and{" "}
+          <b>Hit Run</b> to check the response
+        </>
+      ),
+    },
+  },
+};
+
 function InitialContent() {
+  const dispatch = useDispatch();
+  const isLoading = useSelector(loading);
+
+  const setupFirstStep = () => {
+    dispatch({
+      type: "TOGGLE_LOADER",
+      payload: true,
+    });
+    dispatch({
+      type: "CREATE_ONBOARDING_TABLE_WIDGET",
+      payload: {
+        type: "TABLE_WIDGET",
+      },
+    });
+    dispatch({
+      type: "CREATE_GUIDED_TOUR_QUERY",
+    });
+  };
+
   return (
-    <ContentWrapper>
-      <div>
-        <Title>Let’s Build a Customer Support App</Title>
-        <Description>
-          Below is the customer support app that we will end up building through
-          this welcome tour. Check it out and play with it before we start the
-          tour.
-        </Description>
-      </div>
-      <Button text="Start Building" />
-    </ContentWrapper>
+    <div>
+      <ContentWrapper>
+        <SubContentWrapper>
+          <Title>Let’s Build a Customer Support App</Title>
+          <Description>
+            Below is the customer support app that we will end up building
+            through this welcome tour. Check it out and play with it before we
+            start the tour.
+          </Description>
+        </SubContentWrapper>
+        <Button
+          isLoading={isLoading}
+          onClick={setupFirstStep}
+          tag="button"
+          text="Start Building"
+        />
+      </ContentWrapper>
+      <Hint>
+        <IconWrapper>
+          <Icon
+            fillColor="#F86A2B"
+            name="database-2-line"
+            size={IconSize.XXL}
+          />
+        </IconWrapper>
+        <span className="hint-text">
+          Don’t worry about the Database, We got you. The app is connected to
+          Mock DB by default.
+        </span>
+      </Hint>
+    </div>
   );
 }
 
-function StepsContent() {
+function replacePlaceholders(
+  step: number,
+  fields: string[],
+  substitutionMap: Record<string, string>,
+) {
+  const stepContent = { ...Steps[step] };
+  const re = new RegExp(Object.keys(substitutionMap).join("|"), "gi");
+
+  fields.map((field: string) => {
+    let str = get(stepContent, field);
+    if (str && typeof str === "string") {
+      str = str.replace(re, function(matched) {
+        return substitutionMap[matched];
+      });
+
+      set(stepContent, field, str);
+    }
+  });
+
+  return stepContent;
+}
+
+function useUpdateName(step: number): Step {
+  const queryName = useSelector(getQueryName);
+
+  const substitutionMap = {
+    "<query>": queryName,
+  };
+
+  return replacePlaceholders(step, ["title"], substitutionMap);
+}
+
+function useGetCurrentStep() {
+  const step = 1;
+  const dispatch = useDispatch();
+  const datasource = useSelector(getGuidedTourDatasource);
+  const query = useSelector(getQueryAction);
+
+  useEffect(() => {
+    if (datasource?.id) {
+      dispatch({
+        type: "SET_DATASOURCE_ID",
+        payload: datasource.id,
+      });
+    }
+
+    if (query) {
+      dispatch({
+        type: "SET_QUERY_ID",
+        payload: query.config.id,
+      });
+    }
+  }, [datasource, query]);
+
+  return step;
+}
+
+function GuideStepsContent(props: { currentStep: number }) {
+  const content = useUpdateName(props.currentStep);
+
   return (
-    <>
-      <Title>Let’s Build a Customer Support App</Title>
-      <Description addLeftSpacing>
-        Below is the customer support app that we will end up building through
-        this welcome tour. Check it out and play with it before we start the
-        tour.
-      </Description>
-    </>
+    <div>
+      <ContentWrapper>
+        <SubContentWrapper>
+          <Title>{content.title}</Title>
+          {content.description && (
+            <Description>{content.description}</Description>
+          )}
+        </SubContentWrapper>
+      </ContentWrapper>
+      <Hint>
+        <IconWrapper>
+          <Icon
+            fillColor="#F86A2B"
+            name={content.hint.icon}
+            size={IconSize.XXL}
+          />
+        </IconWrapper>
+        <span className="hint-text">{content.hint.text}</span>
+      </Hint>
+    </div>
   );
 }
 
+type GuideProps = {
+  className?: string;
+};
 // Guided tour steps
-function Guide() {
-  const [step, setStep] = useState(0);
+function Guide(props: GuideProps) {
+  const exploring = useSelector(isExploring);
+  const currentStep = useGetCurrentStep();
 
   return (
-    <GuideWrapper onClick={() => setStep((step) => step + 1)}>
+    <GuideWrapper className={props.className}>
       <CardWrapper>
-        <StatusBar currentStep={step} totalSteps={6} />
+        <StatusBar currentStep={currentStep} totalSteps={6} />
         <UpperContent>
-          <InitialContent />
+          {exploring ? (
+            <InitialContent />
+          ) : (
+            <GuideStepsContent currentStep={currentStep} />
+          )}
         </UpperContent>
       </CardWrapper>
     </GuideWrapper>
