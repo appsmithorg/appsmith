@@ -56,8 +56,10 @@ import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { ButtonVariantTypes } from "components/constants";
+import { updateReplayEntity } from "../../../actions/pageActions";
 
 interface DatasourceRestApiEditorProps {
+  initializeReplayEntity: (id: string, data: any) => void;
   updateDatasource: (
     formValues: Datasource,
     onSuccess?: ReduxAction<unknown>,
@@ -166,6 +168,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   componentDidMount = () => {
     const search = new URLSearchParams(this.props.location.search);
     const status = search.get("response_status");
+
+    // set replay data
+    this.props.initializeReplayEntity(
+      this.props.datasource.id,
+      this.props.initialValues,
+    );
 
     if (status) {
       const display_message = search.get("display_message");
@@ -802,6 +810,8 @@ const mapStateToProps = (state: AppState, props: any) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    initializeReplayEntity: (id: string, data: any) =>
+      dispatch(updateReplayEntity(id, data)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
     deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
