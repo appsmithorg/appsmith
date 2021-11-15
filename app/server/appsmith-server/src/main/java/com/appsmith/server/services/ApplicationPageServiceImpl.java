@@ -505,7 +505,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     // Create a new clone application object without the pages using the parameterized Application constructor
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
-
+                    newApplication.setLastEditedAt(Instant.now());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -618,7 +618,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 Application application = tuple.getT4();
                                 log.debug("Archived pageId: {} , {} actions and {} action collections for applicationId: {}", page1.getId(), actions.size(), actionCollections.size(), application.getId());
                                 return page1;
-                            });
+                            })
+                            .flatMap(pageDTO ->
+                                    // save the last edit information as page is deleted from application
+                                    applicationService.saveLastEditInformation(pageDTO.getApplicationId())
+                                            .thenReturn(pageDTO)
+                            );
                 });
     }
 

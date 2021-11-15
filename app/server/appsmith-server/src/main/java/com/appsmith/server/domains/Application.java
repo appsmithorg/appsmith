@@ -75,13 +75,26 @@ public class Application extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Integer evaluationVersion;
 
+    /*
+    Changing name, change in pages, widgets and datasources will set lastEditedAt.
+    Other activities e.g. changing policy will not change this property.
+    We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
+     */
+    @JsonIgnore
+    Instant lastEditedAt;
+
     /**
-     * This method has been added because the updatedAt property in base domain has @JsonIgnore annotation
+     * Earlier this was returning value of the updatedAt property in the base domain.
+     * As this property is modified by the framework when there is any change in domain,
+     * a new property lastEditedAt has been added to track the edit actions from users.
+     * This method exposes that property.
      * @return updated time as a string
      */
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
     public String getLastUpdateTime() {
-        if(updatedAt != null) {
+        if(lastEditedAt != null) {
+            return ISO_FORMATTER.format(lastEditedAt);
+        } else if (updatedAt != null) { // last edit is null, return updatedAt in this case
             return ISO_FORMATTER.format(updatedAt);
         }
         return null;
