@@ -1,4 +1,4 @@
-import { ActionResponse, PaginationField } from "api/ActionAPI";
+import { PaginationField } from "api/ActionAPI";
 import {
   EvaluationReduxAction,
   ReduxAction,
@@ -8,7 +8,10 @@ import {
 } from "constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
-import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  ExecuteErrorPayload,
+  ExecuteSuccessPayload,
+} from "constants/AppsmithActionConstants/ActionConstants";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -210,23 +213,32 @@ export const executePluginActionRequest = (payload: { id: string }) => ({
   payload: payload,
 });
 
-export const executePluginActionSuccess = (payload: {
-  id: string;
-  response: ActionResponse;
-  isPageLoad?: boolean;
-}) => ({
+export const executePluginActionSuccess = (
+  payload: ExecuteSuccessPayload,
+  postEvalActions?: Array<ReduxAction<unknown>>,
+): EvaluationReduxAction<ExecuteSuccessPayload> => ({
   type: ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
-  payload: payload,
+  payload,
+  postEvalActions,
 });
 
 export const executePluginActionError = (
   executeErrorPayload: ExecuteErrorPayload,
-): ReduxAction<ExecuteErrorPayload> => {
+  postEvalActions?: Array<ReduxAction<unknown>>,
+): EvaluationReduxAction<ExecuteErrorPayload> => {
   return {
     type: ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
     payload: executeErrorPayload,
+    postEvalActions,
   };
 };
+
+export const pluginActionEvaluationCompleted = (actionId: string) => ({
+  type: ReduxActionTypes.PLUGIN_EXECUTION_EVALUATION_COMPLETED,
+  payload: {
+    actionId,
+  },
+});
 
 export const saveActionName = (payload: { id: string; name: string }) => ({
   type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,

@@ -100,6 +100,12 @@ export interface PageAction {
   timeoutInMillisecond: number;
 }
 
+export interface ExecuteSuccessPayload {
+  id: string;
+  response: ActionResponse;
+  isPageLoad?: boolean;
+}
+
 export interface ExecuteErrorPayload extends ErrorActionPayload {
   actionId: string;
   isPageLoad?: boolean;

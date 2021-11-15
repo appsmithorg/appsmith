@@ -11,6 +11,7 @@ import {
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
+  pluginActionEvaluationCompleted,
   runAction,
   showRunActionConfirmModal,
   updateAction,
@@ -575,12 +576,15 @@ function* executePageLoadAction(pageAction: PageAction) {
     });
 
     yield put(
-      executePluginActionError({
-        actionId: pageAction.id,
-        isPageLoad: true,
-        error: { message: error },
-        data: payload,
-      }),
+      executePluginActionError(
+        {
+          actionId: pageAction.id,
+          isPageLoad: true,
+          error: { message: error },
+          data: payload,
+        },
+        [pluginActionEvaluationCompleted(pageAction.id)],
+      ),
     );
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
@@ -596,13 +600,24 @@ function* executePageLoadAction(pageAction: PageAction) {
       pageAction.id,
     );
     yield put(
-      executePluginActionSuccess({
-        id: pageAction.id,
-        response: payload,
-        isPageLoad: true,
-      }),
+      executePluginActionSuccess(
+        {
+          id: pageAction.id,
+          response: payload,
+          isPageLoad: true,
+        },
+        [pluginActionEvaluationCompleted(pageAction.id)],
+      ),
     );
-    yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+    let evaluationDone = true;
+    while (evaluationDone) {
+      const response = yield take(
+        ReduxActionTypes.PLUGIN_EXECUTION_EVALUATION_COMPLETED,
+      );
+      if (response.payload.actionId === pageAction.id) {
+        evaluationDone = false;
+      }
+    }
   }
 }
 
