@@ -167,6 +167,7 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
           className="t--action-name-edit-field"
           defaultValue={currentActionConfig ? currentActionConfig.name : ""}
           editInteractionKind={EditInteractionKind.SINGLE}
+          errorTooltipClass="t--action-name-edit-error"
           forceDefault={forceUpdate}
           isEditingDefault={
             props.page === "API_PANE" ? isNew && !hideEditIcon : isNew
