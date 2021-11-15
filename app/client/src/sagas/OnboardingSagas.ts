@@ -34,8 +34,6 @@ function* createApplication() {
 
   const currentUser = yield select(getCurrentUser);
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
-  const applicationId = yield select(getCurrentApplicationId);
-  const pageId = yield select(getCurrentPageId);
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
 
@@ -68,8 +66,12 @@ function* createApplication() {
       },
     });
 
-    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+    yield take([ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]);
     yield put(enableGuidedTour(true));
+
+    const pageId = yield select(getCurrentPageId);
+    const applicationId = yield select(getCurrentApplicationId);
+
     history.push(
       BUILDER_PAGE_URL({
         applicationId,
