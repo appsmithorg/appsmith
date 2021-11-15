@@ -1,5 +1,5 @@
 const homePage = require("../../../locators/HomePage.json");
-const dsl = require("../../../fixtures/PgAdminDsl.json");
+const dsl = require("../../../fixtures/PgAdmindsl.json");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../locators/Widgets.json");
