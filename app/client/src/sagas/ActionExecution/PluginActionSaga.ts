@@ -82,16 +82,20 @@ import {
   QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
-import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
+import {
+  ActionTriggerType,
+  RunPluginActionDescription,
+} from "entities/DataTree/actionTriggers";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import {
-  PluginTriggerFailureError,
-  PluginActionExecutionError,
-  UserCancelledActionExecutionError,
+  ActionValidationError,
   getErrorAsString,
+  PluginActionExecutionError,
+  PluginTriggerFailureError,
+  UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { trimQueryString } from "utils/helpers";
 
@@ -246,6 +250,15 @@ export default function* executePluginActionTriggerSaga(
   triggerMeta: TriggerMeta,
 ) {
   const { actionId, params } = pluginAction;
+  if (getType(params) !== Types.OBJECT) {
+    throw new ActionValidationError(
+      ActionTriggerType.RUN_PLUGIN_ACTION,
+      "params",
+      Types.OBJECT,
+      getType(params),
+      triggerMeta,
+    );
+  }
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.EXECUTE_ACTION,
     {

@@ -31,7 +31,7 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
   logActionExecutionError,
-  TriggerEvaluationError,
+  UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
 import {
   clearIntervalSaga,
@@ -75,10 +75,10 @@ export function* executeActionTriggers(
       yield call(showAlertSaga, trigger.payload, triggerMeta);
       break;
     case ActionTriggerType.SHOW_MODAL_BY_NAME:
-      yield call(openModalSaga, trigger);
+      yield call(openModalSaga, trigger, triggerMeta);
       break;
     case ActionTriggerType.CLOSE_MODAL:
-      yield call(closeModalSaga, trigger);
+      yield call(closeModalSaga, trigger, triggerMeta);
       break;
     case ActionTriggerType.STORE_VALUE:
       yield call(storeValueLocally, trigger.payload);
@@ -140,7 +140,7 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
-    if (e instanceof TriggerEvaluationError) {
+    if (e instanceof UncaughtPromiseError) {
       logActionExecutionError(e.message, source, triggerPropertyName);
     }
     // handle errors here

@@ -16,6 +16,21 @@ export enum ActionTriggerType {
   CLEAR_INTERVAL = "CLEAR_INTERVAL",
 }
 
+export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
+  CLEAR_INTERVAL: "clearInterval",
+  CLEAR_PLUGIN_ACTION: "action.clear",
+  CLOSE_MODAL: "closeModal",
+  COPY_TO_CLIPBOARD: "copyToClipboard",
+  DOWNLOAD: "download",
+  NAVIGATE_TO: "navigateTo",
+  RESET_WIDGET_META_RECURSIVE_BY_NAME: "resetWidget",
+  RUN_PLUGIN_ACTION: "action.run",
+  SET_INTERVAL: "setInterval",
+  SHOW_ALERT: "showAlert",
+  SHOW_MODAL_BY_NAME: "showModal",
+  STORE_VALUE: "storeValue",
+};
+
 export type RunPluginActionDescription = {
   type: ActionTriggerType.RUN_PLUGIN_ACTION;
   payload: {
@@ -87,7 +102,7 @@ export type CopyToClipboardDescription = {
 export type ResetWidgetDescription = {
   type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME;
   payload: {
-    widgetName: string | unknown;
+    widgetName: string;
     resetChildren: boolean;
   };
 };

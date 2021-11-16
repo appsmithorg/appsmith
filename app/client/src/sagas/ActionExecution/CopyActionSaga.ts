@@ -1,15 +1,25 @@
 import copy from "copy-to-clipboard";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { CopyToClipboardDescription } from "entities/DataTree/actionTriggers";
+import {
+  ActionTriggerType,
+  CopyToClipboardDescription,
+} from "entities/DataTree/actionTriggers";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
+import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
+import { getType, Types } from "utils/TypeHelpers";
 
 export default function copySaga(
   payload: CopyToClipboardDescription["payload"],
   triggerMeta: TriggerMeta,
 ) {
   if (typeof payload.data !== "string") {
-    throw new TriggerFailureError("Value to copy is not a string", triggerMeta);
+    throw new ActionValidationError(
+      ActionTriggerType.COPY_TO_CLIPBOARD,
+      "data",
+      Types.STRING,
+      getType(payload.data),
+      triggerMeta,
+    );
   }
   const result = copy(payload.data, payload.options);
   if (result) {

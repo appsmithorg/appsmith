@@ -229,8 +229,8 @@ export async function evaluateAsync(
 
     try {
       result = await eval(script);
-    } catch (e) {
-      const errorMessage = `${e.name}: ${e.message}`;
+    } catch (error) {
+      const errorMessage = `UncaughtPromiseRejection: ${error.message}`;
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,

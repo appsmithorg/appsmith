@@ -17,14 +17,11 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Variable } from "entities/JSCollection";
 import {
-  ActionDescription,
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
 
-export type ActionDispatcher = (
-  ...args: any[]
-) => ActionDescription | Promise<unknown>;
+export type ActionDispatcher = (...args: any[]) => Promise<unknown>;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

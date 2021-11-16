@@ -84,7 +84,10 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
+import {
+  logActionExecutionError,
+  UncaughtPromiseError,
+} from "sagas/ActionExecution/errorUtils";
 import { Channel } from "redux-saga";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 
@@ -202,7 +205,7 @@ export function* evaluateDynamicTrigger(
       keepAlive = false;
       // Handle errors during evaluation
       if (requestData.result.errors.length) {
-        throw new TriggerEvaluationError(
+        throw new UncaughtPromiseError(
           requestData.result.errors[0].errorMessage,
         );
       }
@@ -330,6 +333,9 @@ export function* executeFunction(collectionName: string, action: JSAction) {
         {},
       );
     } catch (e) {
+      if (e instanceof UncaughtPromiseError) {
+        logActionExecutionError(e.message);
+      }
       response = { errors: [e], result: undefined };
     }
   } else {
