@@ -38,30 +38,33 @@ before(function() {
     window.indexedDB.deleteDatabase("Appsmith");
   });
 
-  //Temporary commented out to fix loginFromApi command
-  // cy.visit("/setup/welcome");
-  // cy.wait("@getUser");
-  // cy.url().then((url) => {
-  //   if (url.indexOf("setup/welcome") > -1) {
-  //     cy.createSuperUser();
-  //     cy.LogOut();
-  //   }
-  // });
+  cy.visit("/setup/welcome");
+  cy.wait("@getUser");
+  cy.url().then((url) => {
+    if (url.indexOf("setup/welcome") > -1) {
+      cy.createSuperUser();
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME1"),
+        Cypress.env("TESTPASSWORD1"),
+      );
+      cy.LogOut();
+      cy.SignupFromAPI(
+        Cypress.env("TESTUSERNAME2"),
+        Cypress.env("TESTPASSWORD2"),
+      );
+      cy.LogOut();
+    }
+  });
+});
 
-  // cy.SignupFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-  // cy.SignupFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
-  // cy.LogOut();
-  // initLocalstorage();
-  // Cypress.Cookies.preserveOnce("SESSION");
+before(function() {
+  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@applications");
 
   cy.generateUUID().then((id) => {
     appId = id;
@@ -76,7 +79,7 @@ before(function() {
 
 beforeEach(function() {
   initLocalstorage();
-  Cypress.Cookies.preserveOnce("SESSION");
+  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
 });
 
