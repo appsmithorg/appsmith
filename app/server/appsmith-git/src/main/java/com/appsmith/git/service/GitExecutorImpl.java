@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -334,10 +335,12 @@ public class GitExecutorImpl implements GitExecutor {
                 mergeStatus.setMergeAble(true);
                 mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
             } else {
-                //If there aer conflicts add the conflicting file names to the response structure
+                //If there are conflicts add the conflicting file names to the response structure
                 mergeStatus.setMergeAble(false);
                 List<String> mergeConflictFiles = new ArrayList<>();
-                mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                if(!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
+                    mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                }
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
 
                 //On merge conflicts abort the merge => git merge --abort
