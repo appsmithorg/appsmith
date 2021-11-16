@@ -19,6 +19,7 @@ import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.TransportConfigCallback;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -525,7 +526,17 @@ public class GitExecutorImpl implements GitExecutor {
 
             Git git = Git.open(repoPath.toFile());
             //checkout the branch on which the merge command is run
-            git.checkout().setName(destinationBranch).setCreateBranch(false).call();
+            try{
+                git.checkout().setName(destinationBranch).setCreateBranch(false).call();
+            } catch (GitAPIException e) {
+                if(e instanceof CheckoutConflictException) {
+                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                    mergeStatus.setMergeAble(false);
+                    mergeStatus.setConflictingFiles(((CheckoutConflictException) e).getConflictingPaths());
+                    git.close();
+                    return mergeStatus;
+                }
+            }
 
             MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).setCommit(false).call();
 
