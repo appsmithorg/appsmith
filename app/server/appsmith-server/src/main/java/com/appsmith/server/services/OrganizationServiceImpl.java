@@ -13,6 +13,7 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -57,6 +58,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
     private final RoleGraph roleGraph;
     private final AssetRepository assetRepository;
     private final AssetService assetService;
+    private final ApplicationRepository applicationRepository;
 
     @Autowired
     public OrganizationServiceImpl(Scheduler scheduler,
@@ -71,7 +73,8 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                                    UserRepository userRepository,
                                    RoleGraph roleGraph,
                                    AssetRepository assetRepository,
-                                   AssetService assetService) {
+                                   AssetService assetService,
+                                   ApplicationRepository applicationRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
@@ -80,6 +83,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         this.roleGraph = roleGraph;
         this.assetRepository = assetRepository;
         this.assetService = assetService;
+        this.applicationRepository = applicationRepository;
     }
 
     @Override
@@ -344,4 +348,16 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return repository.findAllOrganizations();
     }
 
+
+    @Override
+    public Mono<Organization> delete(String organizationId) {
+        return applicationRepository.countByOrganizationId(organizationId).flatMap(appCount -> {
+            if(appCount == 0) { // no application found under this organization
+                // fetching the org first to make sure user has permission to archive
+                return repository.findById(organizationId, MANAGE_ORGANIZATIONS).flatMap(repository::archive);
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
+        });
+    }
 }

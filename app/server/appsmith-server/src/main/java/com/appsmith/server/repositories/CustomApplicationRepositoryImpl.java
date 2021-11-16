@@ -144,6 +144,12 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         return queryAll(List.of(applicationIdCriteria, deletionCriteria), AclPermission.MANAGE_APPLICATIONS);
     }
 
+    @Override
+    public Mono<Long> countByOrganizationId(String organizationId) {
+        Criteria orgIdCriteria = where(fieldName(QApplication.application.organizationId)).is(organizationId);
+        return this.count(List.of(orgIdCriteria));
+    }
+
     /**
      * Returns a list of application ids which are under the organization with provided organizationId
      * @param organizationId organization id

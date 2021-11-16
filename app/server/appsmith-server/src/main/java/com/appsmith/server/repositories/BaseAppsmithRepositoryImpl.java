@@ -201,6 +201,12 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 );
     }
 
+    protected Mono<Long> count(List<Criteria> criteriaList) {
+        return mongoOperations.count(
+                createQueryWithPermission(criteriaList, null, null), this.genericDomain
+        );
+    }
+
     public Flux<T> queryAll(List<Criteria> criterias, AclPermission aclPermission) {
         return queryAll(criterias, aclPermission, null);
     }

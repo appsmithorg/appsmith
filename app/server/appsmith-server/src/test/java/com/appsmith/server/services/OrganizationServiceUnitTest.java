@@ -50,8 +50,8 @@ public class OrganizationServiceUnitTest {
     public void setUp() {
         organizationService = new OrganizationServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 organizationRepository, analyticsService, pluginRepository, sessionUserService, userOrganizationService,
-                userRepository, roleGraph, assetRepository, assetService
-        );
+                userRepository, roleGraph, assetRepository, assetService,
+                applicationRepository);
     }
 
     @Test
