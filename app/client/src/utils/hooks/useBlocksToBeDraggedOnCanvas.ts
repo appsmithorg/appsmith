@@ -27,6 +27,7 @@ import { useShowPropertyPane } from "./dragResizeHooks";
 import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
+import { stopReflow } from "actions/reflowActions";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -165,12 +166,32 @@ export const useBlocksToBeDraggedOnCanvas = ({
   );
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
-  const onDrop = (drawingBlocks: WidgetDraggingBlock[]) => {
-    const cannotDrop = drawingBlocks.some((each) => {
+  const onDrop = (
+    drawingBlocks: WidgetDraggingBlock[],
+    reflowedPositionsUpdatesWidgets: OccupiedSpace[],
+  ) => {
+    const reflowedBlocks: WidgetDraggingBlock[] = reflowedPositionsUpdatesWidgets.map(
+      (each) => {
+        const widget = allWidgets[each.id];
+        return {
+          left: each.left * snapColumnSpace,
+          top: each.top * snapRowSpace,
+          width: (each.right - each.left) * snapColumnSpace,
+          height: (each.bottom - each.top) * snapRowSpace,
+          columnWidth: snapColumnSpace,
+          rowHeight: snapRowSpace,
+          widgetId: widget.widgetId,
+          isNotColliding: true,
+          detachFromLayout: widget.detachFromLayout,
+        };
+      },
+    );
+    const allUpdatedBlocks = [...drawingBlocks, ...reflowedBlocks];
+    const cannotDrop = allUpdatedBlocks.some((each) => {
       return !each.isNotColliding;
     });
     if (!cannotDrop) {
-      const draggedBlocksToUpdate = drawingBlocks
+      const draggedBlocksToUpdate = allUpdatedBlocks
         .sort(
           (each1, each2) =>
             each1.top + each1.height - (each2.top + each2.height),
@@ -184,6 +205,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
             snapColumnSpace,
             snapRowSpace,
             widget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
+            { width: each.width, height: each.height },
           );
 
           return {
@@ -192,6 +214,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
           };
         });
       dispatchDrop(draggedBlocksToUpdate);
+    }
+    if (reflowedPositionsUpdatesWidgets.length) {
+      dispatch(stopReflow());
     }
   };
 
