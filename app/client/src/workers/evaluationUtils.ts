@@ -552,10 +552,14 @@ export const updateJSCollectionInDataTree = (
       const action = parsedBody.actions[i];
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
+          const actionBody = action.body.replaceAll(
+            reg,
+            `${jsCollection.name}.`,
+          );
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
-            action.body.toString(),
+            actionBody,
           );
         }
       } else {

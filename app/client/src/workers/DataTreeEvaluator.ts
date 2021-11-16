@@ -948,8 +948,10 @@ export default class DataTreeEvaluator {
     const correctFormat = regex.test(entity.body);
     if (correctFormat) {
       const body = entity.body.replace(/export default/g, "");
+      const reg = /this\./g;
+      const referenceThis = body.replaceAll(reg, `${entityName}.`);
       try {
-        const { result } = evaluate(body, unEvalDataTree, {});
+        const { result } = evaluate(referenceThis, unEvalDataTree, {});
         delete this.resolvedFunctions[`${entityName}`];
         delete this.currentJSCollectionState[`${entityName}`];
         if (result) {
