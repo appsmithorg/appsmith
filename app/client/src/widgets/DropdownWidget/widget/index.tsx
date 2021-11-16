@@ -11,6 +11,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -93,6 +94,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             dependencies: ["selectionType"],
           },
           {
+            helpText: "Sets a Label Text",
+            propertyName: "labelText",
+            label: "Label Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter Label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
@@ -150,6 +162,79 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "PARAGRAPH",
+            options: [
+              {
+                label: "Heading 1",
+                value: "HEADING1",
+                subText: "24px",
+                icon: "HEADING_ONE",
+              },
+              {
+                label: "Heading 2",
+                value: "HEADING2",
+                subText: "18px",
+                icon: "HEADING_TWO",
+              },
+              {
+                label: "Heading 3",
+                value: "HEADING3",
+                subText: "16px",
+                icon: "HEADING_THREE",
+              },
+              {
+                label: "Paragraph",
+                value: "PARAGRAPH",
+                subText: "14px",
+                icon: "PARAGRAPH",
+              },
+              {
+                label: "Paragraph 2",
+                value: "PARAGRAPH2",
+                subText: "12px",
+                icon: "PARAGRAPH_TWO",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -214,11 +299,22 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         disabled={this.props.isDisabled}
         height={componentHeight}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
-        label={`${this.props.label}`}
+        isValid={this.props.isValid}
+        labelStyle={this.props.labelStyle}
+        labelText={this.props.labelText}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
