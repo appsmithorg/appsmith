@@ -209,7 +209,7 @@ export const useCanvasDragging = (
                 const reflowedWidget = reflowingWidgets[each.id];
                 if (
                   reflowedWidget.X !== undefined &&
-                  Math.abs(reflowedWidget.X)
+                  (Math.abs(reflowedWidget.X) || reflowedWidget.width)
                 ) {
                   const movement = reflowedWidget.X / snapColumnSpace;
                   const newWidth = reflowedWidget.width
@@ -223,7 +223,7 @@ export const useCanvasDragging = (
                 }
                 if (
                   reflowedWidget.Y !== undefined &&
-                  Math.abs(reflowedWidget.Y)
+                  (Math.abs(reflowedWidget.Y) || reflowedWidget.height)
                 ) {
                   const movement = reflowedWidget.Y / snapRowSpace;
                   const newHeight = reflowedWidget.height
