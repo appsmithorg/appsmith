@@ -1,9 +1,12 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.ConditionalOperator;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +28,7 @@ import static com.appsmith.external.constants.FieldName.CONDITION;
 import static com.appsmith.external.constants.FieldName.KEY;
 import static com.appsmith.external.constants.FieldName.VALUE;
 
+@Slf4j
 public class PluginUtils {
 
     /**
@@ -209,7 +213,18 @@ public class PluginUtils {
         Condition condition = new Condition();
 
         Object unparsedOperator = whereClause.getOrDefault(CONDITION, ConditionalOperator.EQ.toString());
-        ConditionalOperator operator = ConditionalOperator.valueOf(((String) unparsedOperator).trim().toUpperCase());
+
+        ConditionalOperator operator;
+        try {
+
+            operator = ConditionalOperator.valueOf(((String) unparsedOperator).trim().toUpperCase());
+
+        } catch (IllegalArgumentException e) {
+            // The operator could not be cast into a known type. Throw an exception
+            log.error(e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_UQI_WHERE_CONDITION_UNKNOWN, unparsedOperator);
+        }
+
 
         if (operator != null) {
 
