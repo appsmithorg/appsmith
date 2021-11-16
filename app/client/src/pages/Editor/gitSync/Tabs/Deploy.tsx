@@ -165,7 +165,7 @@ function Deploy() {
   const isConflicting =
     !isFetchingGitStatus &&
     pullMergeStatus &&
-    pullMergeStatus?.conflictingFiles.length > 0;
+    pullMergeStatus?.conflictingFiles?.length > 0;
   // const pullRequired =
   //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
   let pullRequired = false;
