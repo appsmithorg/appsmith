@@ -3135,7 +3135,3 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     cy.log(response.body);
   });
 });
-
-Cypress.Commands.add("SwitchTab", () => {
-  window.focus();
-});
