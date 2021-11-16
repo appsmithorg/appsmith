@@ -51,20 +51,8 @@
               "value": "EQ"
             },
             {
-              "label": "<",
-              "value": "LT"
-            },
-            {
-              "label": "<=",
-              "value": "LTE"
-            },
-            {
-              "label": ">=",
-              "value": "GTE"
-            },
-            {
-              "label": ">",
-              "value": "GT"
+              "label": "!=",
+              "value": "NOT_EQ"
             },
             {
               "label": "in",
