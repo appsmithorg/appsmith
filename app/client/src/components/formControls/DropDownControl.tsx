@@ -53,20 +53,21 @@ function renderDropdown(props: {
     ) || {};
   return (
     <Dropdown
+      boundary={"window"}
       dontUsePortal={false}
       dropdownMaxHeight="250px"
+      enableSearch
       errorMsg={props.props?.errorText}
-      fillOptions
       helperText={props.props?.info}
       onSelect={props.input?.onChange}
       {...props}
-      options={props.options}
+      optionWidth={"50vh"}
       {...props.input}
-      boundary={"window"}
+      options={props.options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
       showLabelOnly
-      width="100%"
+      width="50vh"
     />
   );
 }

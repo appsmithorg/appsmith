@@ -12,7 +12,6 @@ import { FormIcons } from "icons/FormIcons";
 import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import HelperTooltip from "components/editorComponents/HelperTooltip";
 import { Colors } from "constants/Colors";
 import TextInput, { TextInputProps } from "components/ads/TextInput";
 export interface KeyValueArrayControlProps extends ControlProps {
@@ -99,22 +98,6 @@ function KeyValueRow(
         if (valueName && Array.isArray(valueName) && valueName?.length)
           valueTextFieldName = `${field}.${valueName[1]}`;
 
-        const otherProps: Record<string, any> = {};
-        if (
-          props.actionConfig &&
-          props.actionConfig[index].description &&
-          props.rightIcon
-        ) {
-          //TODO: may not be in use
-          otherProps.rightIcon = (
-            <HelperTooltip
-              description={props.actionConfig[index].description}
-              rightIcon={
-                props.actionConfig[index].description && props.rightIcon
-              }
-            />
-          );
-        }
         return (
           <FormRowWithLabel
             key={index}
@@ -182,7 +165,6 @@ function KeyValueRow(
                     ? `Value (Type: ${props.actionConfig[index].type})`
                     : `Value (optional)`
                 }
-                {...otherProps}
               />
             )}
           </FormRowWithLabel>

@@ -59,7 +59,6 @@ export interface ControlData {
   schema?: any;
   errorText?: string;
   showError?: boolean;
-  showTooltip?: boolean;
   encrypted?: boolean;
   subtitle?: string;
   url?: string;

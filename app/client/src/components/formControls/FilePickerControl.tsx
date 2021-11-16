@@ -3,7 +3,6 @@ import { WrappedFieldProps } from "redux-form";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
-import { Field } from "redux-form";
 import styled from "styled-components";
 import Uppy from "@uppy/core";
 import Dashboard from "@uppy/dashboard";
@@ -12,6 +11,13 @@ import { ControlType } from "constants/PropertyControlConstants";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import FilePickerV2 from "components/ads/FilePickerV2";
+import { FileType } from "components/ads/FilePicker";
+import {
+  Field,
+  WrappedFieldInputProps,
+  WrappedFieldMetaProps,
+} from "redux-form";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -27,7 +33,7 @@ const SelectButton = styled(BaseButton)`
     max-width: 59px;
     margin: 0 0px;
     min-height: 32px;
-    border-radius: 0px 4px 4px 0px;
+    border-radius: 0px;
     font-weight: bold;
     background-color: #fff;
     border-color: ${Colors.PRIMARY_ORANGE} !important;
@@ -73,7 +79,7 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
         maxNumberOfFiles: 1,
       },
     }).use(Dashboard, {
-      hideUploadButton: true,
+      hideUploadButton: false,
     });
     this.uppy.on("file-added", (file: any) => {
       const dslFiles = [];
@@ -97,7 +103,6 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
   };
 
   openModal = () => {
-    // this.setState({ isOpen: true });
     this.uppy.getPlugin("Dashboard").openModal();
   };
 
@@ -122,6 +127,14 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
   }
 }
 
+type renderFilePickerProps = FilePickerControlProps & {
+  input?: WrappedFieldInputProps;
+  meta?: WrappedFieldMetaProps;
+};
+
+function renderFilePicker(props: renderFilePickerProps) {
+  return <FilePickerV2 fileType={FileType.ANY} />;
+}
 class FilePickerControl extends BaseControl<FilePickerControlProps> {
   constructor(props: FilePickerControlProps) {
     super(props);
@@ -132,8 +145,9 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
 
   render() {
     const { configProperty } = this.props;
-
     return <Field component={FieldFileInput} name={configProperty} />;
+
+    return <Field component={renderFilePicker} name={configProperty} />;
   }
 
   getControlType(): ControlType {

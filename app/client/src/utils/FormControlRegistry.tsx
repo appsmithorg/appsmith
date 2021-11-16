@@ -71,7 +71,7 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("FILE_PICKER", {
       buildPropertyControl(controlProps: FilePickerControlProps): JSX.Element {
-        //TODO: may not be in use
+        //used by redshift datasource
         return <FilePickerControl {...controlProps} />;
       },
     });

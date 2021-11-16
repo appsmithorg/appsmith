@@ -59,9 +59,15 @@ export function InputText(props: {
   let customStyle = { width: "50vh", minHeight: "55px" };
   if (!!props.customStyles && _.isEmpty(props.customStyles) === false) {
     customStyle = props.customStyles;
+    if (props.customStyles?.width) {
+      customStyle.width = "50vh";
+    }
+    if (props.customStyles?.minHeight) {
+      customStyle.minHeight = "34px";
+    }
   }
   return (
-    <div style={{ ...customStyle, width: "50vh", minHeight: "34px" }}>
+    <div style={customStyle}>
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
         name={name}

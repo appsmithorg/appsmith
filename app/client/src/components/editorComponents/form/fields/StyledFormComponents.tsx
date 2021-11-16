@@ -6,6 +6,7 @@ import { ControlProps } from "components/formControls/BaseControl";
 //Styled help text, intended to be used with Form Fields
 export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
   display: ${(props) =>
+    //SWITCH and CHECKBOX display label text and form input aligned side by side
     props?.config?.controlType !== "SWITCH" &&
     props?.config?.controlType !== "CHECKBOX"
       ? "block;"
@@ -69,12 +70,14 @@ const FormInputSwitchToJsonButton = styled.button`
 const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   display: inline-block;
   // TODO: replace condition with props.config?.dataType === "TOGGLE" 
+  // required for large texts in CHECKBOX and SWITCH
   min-width: ${(props) =>
     props.config?.controlType === "SWITCH" ||
     props.config?.controlType === "CHECKBOX"
       ? "auto;"
       : "50vh;"} 
   margin-left: ${(props) =>
+    // margin required for CHECKBOX
     props.config?.controlType === "CHECKBOX" ? "0px;" : "16px;"} 
   font-weight: 400;
   font-size: 14px;

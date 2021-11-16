@@ -1,8 +1,7 @@
 import React from "react";
-import Checkbox, { CheckboxProps } from "components/ads/Checkbox";
+import Checkbox from "components/ads/Checkbox";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import CheckboxField from "components/editorComponents/form/fields/CheckboxField";
 import {
   Field,
   WrappedFieldInputProps,
@@ -31,7 +30,6 @@ class CheckboxControl extends BaseControl<CheckboxControlProps> {
 type renderComponentProps = CheckboxControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
-  // props: CheckboxControlProps;
 };
 
 function renderComponent(props: renderComponentProps) {
