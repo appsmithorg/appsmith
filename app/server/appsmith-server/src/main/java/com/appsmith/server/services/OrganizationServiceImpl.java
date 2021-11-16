@@ -354,7 +354,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
         return applicationRepository.countByOrganizationId(organizationId).flatMap(appCount -> {
             if(appCount == 0) { // no application found under this organization
                 // fetching the org first to make sure user has permission to archive
-                return repository.findById(organizationId, MANAGE_ORGANIZATIONS).flatMap(repository::archive);
+                return repository.findById(organizationId, MANAGE_ORGANIZATIONS)
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId
+                        )))
+                        .flatMap(repository::archive);
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
