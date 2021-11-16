@@ -40,7 +40,7 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
-type RenderComponentProps = BaseItemProps & {
+type DroppableItem = BaseItemProps & {
   index: number;
   widgetId: string;
 };

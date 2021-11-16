@@ -165,6 +165,19 @@ const PROPERTIES = {
         getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
       dependencies: ["schema", "sourceData"],
     },
+    {
+      propertyName: "isSpellCheck",
+      label: "Spellcheck",
+      helpText:
+        "Defines whether the text input may be checked for spelling errors",
+      controlType: "SWITCH",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT),
+      dependencies: ["schema"],
+    },
   ],
   actions: [
     {

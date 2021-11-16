@@ -36,6 +36,7 @@ type InputComponentProps = FieldComponentBaseProps & {
   placeholderText?: string;
   regex?: string;
   validation: boolean;
+  isSpellCheck: boolean;
 };
 
 type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
@@ -45,6 +46,7 @@ const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   label: "",
   validation: false,
   isVisible: true,
+  isSpellCheck: false,
 };
 
 function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
@@ -212,6 +214,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             phoneNumberCountryCode={selectedPhoneNumberCountryCode}
             placeholder={schemaItem.placeholderText}
             showError={isFocused}
+            spellCheck={schemaItem.isSpellCheck}
             stepSize={1}
             value={value}
             widgetId=""

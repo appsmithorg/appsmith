@@ -9,7 +9,11 @@ import {
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "components/ads/DraggableListComponent";
+import {
+  BaseItemProps,
+  DroppableComponent,
+  RenderComponentProps,
+} from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import _, { debounce } from "lodash";
 import { Category, Size } from "components/ads/Button";
@@ -60,19 +64,9 @@ const AddNewButton = styled(StyledPropertyPaneButton)`
   flex-grow: 1;
 `;
 
-type RenderComponentProps = {
-  index: number;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
-};
+type DroppableItem = BaseItemProps;
 
-function GroupButtonComponent(props: RenderComponentProps) {
+function GroupButtonComponent(props: RenderComponentProps<DroppableItem>) {
   const { deleteOption, index, item, updateOption } = props;
 
   const [value, setValue] = useState(item.label);
