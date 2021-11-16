@@ -56,6 +56,7 @@ import {
 } from "../actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
+import { fetchPage } from "actions/pageActions";
 
 function* commitToGitRepoSaga(
   action: ReduxAction<{
@@ -99,6 +100,7 @@ function* commitToGitRepoSaga(
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+    const currentPageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield GitSyncAPI.connect(
       action.payload,
       applicationId,
@@ -110,6 +112,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
     if (isValidResponse) {
       yield put(connectToGitSuccess(response.data));
+      yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
         action.onSuccessCallback(response.data);
       }
