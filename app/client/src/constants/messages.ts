@@ -556,8 +556,7 @@ export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
-export const LATEST_DP_SUBTITLE = () =>
-  "See your application in action after successful push";
+export const LATEST_DP_SUBTITLE = () => "last deployed";
 export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
@@ -567,10 +566,13 @@ export const COMMIT = () => "COMMIT";
 export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PULL = () => "PULL";
-export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMIT_AND_PUSH = () => "Commit & push";
+export const PULL_CHANGS = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
+export const COMMITTING_AND_PUSHING_CHANGES = () =>
+  "COMMITTING AND PUSHING CHANGES...";
 
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
@@ -585,20 +587,38 @@ export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
-  "Please paste SSH URL of your repository";
+  "Please enter valid SSH URL of your repository";
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
+export const NO_MERGE_CONFLICT = () =>
+  "This branch has no conflict with the base branch.";
+export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
+export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
+export const GIT_UPSTREAM_CHANGES = () =>
+  "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
+export const GIT_CONFLICTING_INFO = () =>
+  "Please resolve the conflicts manually on your repository.";
 
+export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";
+export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
+export const LEARN_MORE = () => "Learn More";
+export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
 export const SYNC_BRANCHES = () => "Sync branches";
+
+export const CONFLICTS_FOUND = () =>
+  "Conflicts found, please resolve them and pull again";
+export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
+export const NO_COMMITS_TO_PULL = () =>
+  "No commits to pull. In sync with the remote repository";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
