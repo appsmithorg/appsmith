@@ -10,7 +10,6 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { WidgetDraggingUpdateParams } from "utils/hooks/useBlocksToBeDraggedOnCanvas";
-import { updateWidgetPosition } from "utils/WidgetPropsUtils";
 import { getWidget, getWidgets } from "./selectors";
 import log from "loglevel";
 import { cloneDeep } from "lodash";
@@ -25,6 +24,8 @@ export type WidgetMoveParams = {
   widgetId: string;
   leftColumn: number;
   topRow: number;
+  bottomRow: number;
+  rightColumn: number;
   parentId: string;
   /*
       If newParentId is different from what we have in redux store,
@@ -141,9 +142,11 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   Toaster.clear();
   const {
     allWidgets,
+    bottomRow,
     leftColumn,
     newParentId,
     parentId,
+    rightColumn,
     topRow,
     widgetId,
   } = widgetMoveParams;
@@ -158,7 +161,12 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
     children: [...(stateParent.children || [])],
   };
   // Update position of widget
-  const updatedPosition = updateWidgetPosition(widget, leftColumn, topRow);
+  const updatedPosition = {
+    topRow,
+    bottomRow,
+    leftColumn,
+    rightColumn,
+  };
   widget = { ...widget, ...updatedPosition };
 
   // Replace widget with update widget props

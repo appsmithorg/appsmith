@@ -84,7 +84,11 @@ export const useDragReflow = (
     dimensions: DimensionProps,
     widgetPosition: OccupiedSpace,
     newDimensions: WidgetDraggingBlock,
-  ): { verticalMove: boolean; horizontalMove: boolean } => {
+  ): {
+    verticalMove: boolean;
+    horizontalMove: boolean;
+    reflowingWidgets: reflowWidgets;
+  } => {
     const { direction, X = 0, Y = 0 } = dimensions;
     const resizedPositions = {
       left: newDimensions.left,
@@ -124,6 +128,7 @@ export const useDragReflow = (
       return {
         horizontalMove: true,
         verticalMove: true,
+        reflowingWidgets: reflowState.current?.reflow.reflowingWidgets || {},
       };
     }
 
@@ -137,6 +142,7 @@ export const useDragReflow = (
       return {
         horizontalMove: true,
         verticalMove: true,
+        reflowingWidgets: reflowState.current?.reflow.reflowingWidgets || {},
       };
     }
 
@@ -228,6 +234,7 @@ export const useDragReflow = (
       return {
         horizontalMove,
         verticalMove,
+        reflowingWidgets: reflowState.current?.reflow.reflowingWidgets || {},
       };
     }
     positions.current = { X, Y };
@@ -235,6 +242,7 @@ export const useDragReflow = (
     return {
       horizontalMove: true,
       verticalMove: true,
+      reflowingWidgets: reflowState.current?.reflow.reflowingWidgets || {},
     };
   };
 

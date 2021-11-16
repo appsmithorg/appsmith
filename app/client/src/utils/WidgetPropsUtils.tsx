@@ -161,6 +161,10 @@ export const widgetOperationParams = (
   parentColumnSpace: number,
   parentRowSpace: number,
   parentWidgetId: string, // parentWidget
+  widgetSizeUpdates: {
+    width: number;
+    height: number;
+  },
 ): WidgetOperationParams => {
   const [leftColumn, topRow] = getDropZoneOffsets(
     parentColumnSpace,
@@ -177,6 +181,8 @@ export const widgetOperationParams = (
       payload: {
         leftColumn,
         topRow,
+        bottomRow: topRow + widgetSizeUpdates.height / parentRowSpace,
+        rightColumn: leftColumn + widgetSizeUpdates.width / parentColumnSpace,
         parentId: widget.parentId,
         newParentId: parentWidgetId,
       },
@@ -201,23 +207,6 @@ export const widgetOperationParams = (
       parentColumnSpace,
       newWidgetId: widget.widgetId,
     },
-  };
-};
-
-export const updateWidgetPosition = (
-  widget: WidgetProps,
-  leftColumn: number,
-  topRow: number,
-) => {
-  const newPositions = {
-    leftColumn,
-    topRow,
-    rightColumn: leftColumn + (widget.rightColumn - widget.leftColumn),
-    bottomRow: topRow + (widget.bottomRow - widget.topRow),
-  };
-
-  return {
-    ...newPositions,
   };
 };
 
