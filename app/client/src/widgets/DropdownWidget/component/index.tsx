@@ -1,26 +1,19 @@
 import React from "react";
 import { ComponentProps } from "widgets/BaseComponent";
-import {
-  MenuItem,
-  Button,
-  ControlGroup,
-  Label,
-  Classes,
-} from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import { MenuItem, Button, ControlGroup, Classes } from "@blueprintjs/core";
 import { DropdownOption } from "../constants";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
 import styled, {
   createGlobalStyle,
-  labelStyle,
   BlueprintCSSTransform,
-  getBorderCSSShorthand,
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { TextSize } from "constants/WidgetConstants";
+import { StyledLabel, TextLabelWrapper } from "./index.styled";
 import Fuse from "fuse.js";
+import Icon from "components/ads/Icon";
 
 const FUSE_OPTIONS = {
   shouldSort: true,
@@ -32,38 +25,63 @@ const FUSE_OPTIONS = {
 };
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
+const StyledSingleDropDown = styled(SingleDropDown)<{
+  isSelected: boolean;
+  isValid: boolean;
+}>`
   div {
     flex: 1 1 auto;
   }
   span {
     width: 100%;
     position: relative;
+
+    & > div {
+      height: 100%;
+    }
   }
   &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
+    height: 100%;
     align-items: center;
     justify-content: space-between;
     box-shadow: none;
     background: white;
-    min-height: 32px;
-    border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-    &:focus {
-      border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-      border-color: #80bdff;
-      outline: 0;
-      box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
-    }
+    min-height: 36px;
+    padding-left: 12px;
+    border: 1.2px solid
+      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+    ${(props) =>
+      props.isValid
+        ? `
+        &:hover {
+          border: 1.2px solid ${Colors.GREY_5};
+        }
+        &:focus {
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          outline: 0;
+        }
+      `
+        : ""};
   }
 
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
-    border-color: #80bdff;
     outline: 0;
-    box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+    ${(props) =>
+      props.isValid
+        ? `
+        border: 1.2px solid ${Colors.GREEN_SOLID};
+        box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+      `
+        : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
   }
   &&&&& .${Classes.DISABLED} {
-    background-color: ${Colors.SELECT_DISABLED};
+    background-color: ${Colors.GREY_1};
+    border: 1.2px solid ${Colors.GREY_3};
+    .${Classes.BUTTON_TEXT} {
+      color: ${Colors.GREY_7};
+    }
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
@@ -72,8 +90,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) =>
-      props.isSelected ? Colors.SELECT_COLOR : Colors.SELECT_PLACEHOLDER};
+    color: ${(props) => (props.isSelected ? Colors.GREY_10 : Colors.GREY_6)};
   }
   && {
     .${Classes.ICON} {
@@ -83,116 +100,207 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
   }
 `;
 
-const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
+const StyledControlGroup = styled(ControlGroup)`
   &&& > {
-    label {
-      ${labelStyle}
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
-      align-self: flex-start;
-      flex: 0 1 30%;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
-      text-align: right;
-    }
     span {
-      max-width: ${(props) =>
-        props.haslabel === "true" ? `calc(70% - ${WIDGET_PADDING}px)` : "100%"};
+      height: 100%;
+      max-width: 100%;
+
+      & > span {
+        height: 100%;
+      }
+
+      .dropdown-icon {
+        width: 20px;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
     }
   }
 `;
 
-const DropdownStyles = createGlobalStyle`
+const DropdownStyles = createGlobalStyle<{ width: number }>`
   .select-popover-wrapper {
     width: 100%;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
-    border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0;
-    margin-top: ${(props) => props.theme.spaces[3]}px;
-    padding: ${(props) => props.theme.spaces[3]}px;
     background: white;
+
+    & .${Classes.INPUT_GROUP} {
+      padding: 12px 12px 8px 12px;
+
+      & > .${Classes.ICON} {
+        &:first-child {
+          left: 12px;
+          top: 14px;
+          margin: 9px;
+          color: ${Colors.GREY_7};
+
+          & > svg {
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+      & > .${Classes.INPUT_ACTION} {
+        &:last-child {
+          right: 13px;
+          top: 13px;
+
+          .${Classes.BUTTON} {
+            min-height: 34px;
+            min-width: 35px;
+            margin: 0px;
+            color: ${Colors.GREY_6} !important;
+
+            &:hover {
+              color: ${Colors.GREY_10} !important;
+              background: ${Colors.GREY_2};
+              border-radius: 0;
+            }
+          }
+        }
+      }
+      .${Classes.INPUT} {
+        height: 36px;
+        border: 1.2px solid ${Colors.GREY_3};
+        color: ${Colors.GREY_10};
+        &:focus {
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};
+        }
+      }
+    }
     && .${Classes.MENU} {
+      margin-top: -3px;
       max-width: 100%;
       max-height: auto;
     }
     &&&& .${Classes.MENU_ITEM} {
-      border-radius: ${(props) => props.theme.radii[1]}px;
+      min-height: 38px;
+      padding: 9px 12px;
+      color: ${Colors.GREY_8};
+      min-width: 180px;
       &:hover{
-        background: ${Colors.POLAR};
+        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
       &.is-focused{
-        background: ${Colors.POLAR};
+        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
       &.${Classes.ACTIVE} {
-        background: ${Colors.POLAR};
-        color: ${(props) => props.theme.colors.textDefault};
+        background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+        color: ${Colors.GREY_10};
         position:relative;
-        &.single-select{
-          &:before{
-            left: 0;
-            top: -2px;
-            position: absolute;
-            content: "";
-            background: ${(props) => props.theme.colors.primaryOld};
-            border-radius: 4px 0 0 4px;
-            width: 4px;
-            height:100%;
-          }
-        }
-      }
-      .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-        background: white;
-        box-shadow: none;
-        border-width: 2px;
-        border-style: solid;
-        border-color: ${Colors.GEYSER};
-        &::before {
-          width: auto;
-          height: 1em;
-        }
-      }
-      .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${(props) => props.theme.colors.primaryOld};
-        color: ${(props) => props.theme.colors.textOnDarkBG};
-        border-color: ${(props) => props.theme.colors.primaryOld};
       }
     }
   }
 `;
 
-const DropdownContainer = styled.div`
+const DropdownContainer = styled.div<{ compactMode: boolean }>`
   ${BlueprintCSSTransform}
+  display: flex;
+  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  align-items: ${(props) => (props.compactMode ? "center" : "left")};
+
+  label.select-label {
+    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
+    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  }
 `;
 const DEBOUNCE_TIMEOUT = 800;
 
-class DropDownComponent extends React.Component<DropDownComponentProps> {
-  render() {
+interface DropDownComponentState {
+  activeItemIndex: number | undefined;
+}
+class DropDownComponent extends React.Component<
+  DropDownComponentProps,
+  DropDownComponentState
+> {
+  state = {
+    // used to show focused item for keyboard up down key interection
+    activeItemIndex: -1,
+  };
+  componentDidMount = () => {
+    // set default selectedIndex as focused index
+    this.setState({ activeItemIndex: this.props.selectedIndex });
+  };
+
+  componentDidUpdate = (prevProps: DropDownComponentProps) => {
+    if (prevProps.selectedIndex !== this.props.selectedIndex) {
+      // update focus index if selectedIndex changed by property pane
+      this.setState({ activeItemIndex: this.props.selectedIndex });
+    }
+  };
+
+  handleActiveItemChange = (activeItem: DropdownOption | null) => {
+    // find new index from options
+    const activeItemIndex = _.findIndex(this.props.options, [
+      "label",
+      activeItem?.label,
+    ]);
+    this.setState({ activeItemIndex });
+  };
+
+  render = () => {
+    const {
+      compactMode,
+      disabled,
+      isLoading,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
+    } = this.props;
+    // active focused item
+    const activeItem = !_.isEmpty(this.props.options)
+      ? this.props.options[this.state.activeItemIndex]
+      : undefined;
+    // get selected option label from selectedIndex
+    const selectedOption =
+      !_.isEmpty(this.props.options) &&
+      this.props.selectedIndex !== undefined &&
+      this.props.selectedIndex > -1
+        ? this.props.options[this.props.selectedIndex].label
+        : undefined;
+    // for display selected option, there is no separate option to show placeholder
+    const value = selectedOption
+      ? selectedOption
+      : this.props.placeholder || "-- Select --";
     return (
-      <DropdownContainer>
-        <DropdownStyles />
-        <StyledControlGroup
-          fill
-          haslabel={!!this.props.label ? "true" : "false"}
-        >
-          {this.props.label && (
-            <Label
-              className={
-                this.props.isLoading
-                  ? Classes.SKELETON
-                  : Classes.TEXT_OVERFLOW_ELLIPSIS
-              }
+      <DropdownContainer compactMode={compactMode}>
+        <DropdownStyles width={this.props.width} />
+        {labelText && (
+          <TextLabelWrapper compactMode={compactMode}>
+            <StyledLabel
+              $compactMode={compactMode}
+              $disabled={!!disabled}
+              $labelStyle={labelStyle}
+              $labelText={labelText}
+              $labelTextColor={labelTextColor}
+              $labelTextSize={labelTextSize}
+              className={`select-label ${
+                isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+              }`}
             >
-              {this.props.label}
-            </Label>
-          )}
+              {labelText}
+            </StyledLabel>
+          </TextLabelWrapper>
+        )}
+        <StyledControlGroup fill>
           <StyledSingleDropDown
-            className={this.props.isLoading ? Classes.SKELETON : ""}
-            disabled={this.props.disabled}
+            activeItem={activeItem}
+            className={isLoading ? Classes.SKELETON : ""}
+            disabled={disabled}
             filterable={this.props.isFilterable}
             isSelected={
               !_.isEmpty(this.props.options) &&
               this.props.selectedIndex !== undefined &&
               this.props.selectedIndex > -1
             }
+            isValid={this.props.isValid}
             itemListPredicate={
               !this.props.serverSideFiltering
                 ? this.itemListPredicate
@@ -201,6 +309,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
             noResults={<MenuItem disabled text="No Results Found" />}
+            onActiveItemChange={this.handleActiveItemChange}
             onItemSelect={this.onItemSelect}
             onQueryChange={
               this.props.serverSideFiltering ? this.serverSideSearch : undefined
@@ -219,20 +328,22 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
           >
             <Button
               disabled={this.props.disabled}
-              rightIcon={IconNames.CHEVRON_DOWN}
-              text={
-                !_.isEmpty(this.props.options) &&
-                this.props.selectedIndex !== undefined &&
-                this.props.selectedIndex > -1
-                  ? this.props.options[this.props.selectedIndex].label
-                  : this.props.placeholder || "-- Select --"
+              rightIcon={
+                <Icon
+                  className="dropdown-icon"
+                  fillColor={
+                    this.props.disabled ? Colors.GREY_7 : Colors.GREY_10
+                  }
+                  name="dropdown"
+                />
               }
+              text={value}
             />
           </StyledSingleDropDown>
         </StyledControlGroup>
       </DropdownContainer>
     );
-  }
+  };
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     const fuse = new Fuse(items, FUSE_OPTIONS);
@@ -269,6 +380,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
         className={`single-select ${isFocused && "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
+        style={{ width: this.props.width - 7 }}
         tabIndex={0}
         text={option.label}
       />
@@ -280,11 +392,16 @@ export interface DropDownComponentProps extends ComponentProps {
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;
-  label?: string;
+  labelText?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];
   isLoading: boolean;
   isFilterable: boolean;
+  isValid: boolean;
   width: number;
   height: number;
   serverSideFiltering: boolean;

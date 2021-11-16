@@ -1,20 +1,16 @@
 package com.appsmith.server.git;
 
 import com.appsmith.external.dtos.GitLogDTO;
-import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.RefNotFoundException;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -29,7 +25,6 @@ import reactor.test.StepVerifier;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -133,7 +128,7 @@ public class GitExecutorTest {
         //Create branch f2 from f1
         gitExecutor.createAndCheckoutToBranch(path, "f2").block();
 
-        Mono<MergeStatus> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
+        Mono<MergeStatusDTO> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
 
         StepVerifier
                 .create(mergeableStatus)
@@ -158,7 +153,7 @@ public class GitExecutorTest {
         gitExecutor.createAndCheckoutToBranch(path, "f2").block();
         createFileInThePath("isMergeBranch_NonConflictingChanges_f2");
 
-        Mono<MergeStatus> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
+        Mono<MergeStatusDTO> mergeableStatus = gitExecutor.isMergeBranch(path, "f1", "f2");
 
         StepVerifier
                 .create(mergeableStatus)
