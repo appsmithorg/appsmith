@@ -415,6 +415,47 @@ public class PageLoadActionsUtil {
                 })
                 .collect(Collectors.toSet());
 
+        Set<String> actionDataPaths = actionNames
+                .stream()
+                .map(actionName ->  actionName + ".data")
+                .collect(Collectors.toSet());
+
+        Set<ActionDependencyEdge> actionDataFromConfigurationEdges = new HashSet<>();
+        // All actions data paths actually depend on the action configuration paths. Add this implicit relationship in the
+        // graph as well
+        for (ActionDependencyEdge edge : edges) {
+            Set<String> vertices = Set.of(edge.getSource(), edge.getTarget());
+
+            vertices
+                    .stream()
+                    .forEach(vertex -> {
+                                Optional<String> validActionParent = getPossibleParents(vertex)
+                                        .stream()
+                                        .filter(parent -> {
+                                            if (!actionNames.contains(parent)) {
+                                                return false;
+                                            }
+                                            return true;
+                                        }).findFirst();
+
+                                if (validActionParent.isPresent()) {
+                                    String actionName = validActionParent.get();
+                                    for (String actionDataPath : actionDataPaths) {
+                                        if (vertex.contains(actionDataPath)) {
+                                            // This vertex is actually a path on top of action.data.
+                                            // Add a relationship from action.actionConfiguration to action.data
+                                            String source = actionName + ".actionConfiguration";
+                                            String destination = vertex;
+                                            actionDataFromConfigurationEdges.add(new ActionDependencyEdge(source, destination));
+                                        }
+                                    }
+                                }
+                    });
+
+        }
+
+        edges.addAll(actionDataFromConfigurationEdges);
+
         // Now add the relationship aka when a child gets updated, the parent should get updated as well. Aka
         // parent depends on the child.
         for (ActionDependencyEdge edge : edges) {
@@ -834,13 +875,15 @@ public class PageLoadActionsUtil {
                 Boolean isCandidateForPageLoad = TRUE;
 
                 if (PluginType.JS.equals(action.getPluginType()) &&
-                        TRUE.equals(action.getActionConfiguration().getIsAsync())) {
+                        TRUE.equals(action.getActionConfiguration().getIsAsync())
+                        ||
+                        !PluginType.JS.equals(action.getPluginType())) {
 
-                    // This is an async JS action. Only add it for page load if it is not a function call. Aka the data
+                    // This is either an *async* JS action or not a JS action. Only add it for page load if it is not a function call. Aka the data
                     // of this async call is being referred to in the binding.
 
                     String validBinding = entity + "." + "data";
-                    if (!dynamicBinding.contains(validBinding)) {
+                    if (!dynamicBinding.equals(validBinding)) {
                         isCandidateForPageLoad = FALSE;
                     }
                 }
