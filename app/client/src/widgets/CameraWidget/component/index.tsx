@@ -104,6 +104,7 @@ export interface ControlPanelProps {
   videoInputs: MediaDeviceInfo[];
   status: MediaCaptureStatus;
   onCaptureImage: () => void;
+  onError: (errorMessage: string) => void;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
   onRecordingStart: () => void;
   onRecordingStop: () => void;
@@ -120,6 +121,7 @@ function ControlPanel(props: ControlPanelProps) {
     audioInputs,
     audioMuted,
     onCaptureImage,
+    onError,
     onMediaInputChange,
     onRecordingStart,
     onRecordingStop,
@@ -138,8 +140,17 @@ function ControlPanel(props: ControlPanelProps) {
     return () => {
       switch (action) {
         case MediaCaptureActionTypes.IMAGE_CAPTURE:
-          onCaptureImage();
-          onStatusChange(MediaCaptureStatusTypes.IMAGE_CAPTURED);
+          // First, check for media device permissions
+          navigator.mediaDevices
+            .getUserMedia({ video: true, audio: false })
+            .then(() => {
+              onCaptureImage();
+              onStatusChange(MediaCaptureStatusTypes.IMAGE_CAPTURED);
+            })
+            .catch((err) => {
+              onError(err.message);
+            });
+
           break;
         case MediaCaptureActionTypes.IMAGE_SAVE:
           onStatusChange(MediaCaptureStatusTypes.IMAGE_SAVED);
@@ -154,8 +165,17 @@ function ControlPanel(props: ControlPanelProps) {
           break;
 
         case MediaCaptureActionTypes.RECORDING_START:
-          onRecordingStart();
-          onStatusChange(MediaCaptureStatusTypes.VIDEO_RECORDING);
+          // First, check for media device permissions
+          navigator.mediaDevices
+            .getUserMedia({ video: true, audio: true })
+            .then(() => {
+              onRecordingStart();
+              onStatusChange(MediaCaptureStatusTypes.VIDEO_RECORDING);
+            })
+            .catch((err) => {
+              onError(err.message);
+            });
+
           break;
         case MediaCaptureActionTypes.RECORDING_STOP:
           onRecordingStop();
@@ -854,6 +874,15 @@ function CameraComponent(props: CameraComponentProps) {
         <>
           <CameraOfflineIcon />
           <span>{error}</span>
+          {error === "Permission denied" && (
+            <a
+              href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Know more
+            </a>
+          )}
         </>
       );
     }
@@ -879,6 +908,7 @@ function CameraComponent(props: CameraComponentProps) {
           audioMuted={isAudioMuted}
           mode={mode}
           onCaptureImage={captureImage}
+          onError={setError}
           onMediaInputChange={handleMediaDeviceChange}
           onRecordingStart={handleRecordingStart}
           onRecordingStop={handleRecordingStop}
