@@ -450,6 +450,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     public Mono<User> userCreate(User user) {
         // It is assumed here that the user's password has already been encoded.
 
+        // convert the user email to lowercase
+        user.setEmail(user.getEmail().toLowerCase());
+
         // Set the permissions for the user
         user.getPolicies().addAll(crudUserPolicy(user));
 
