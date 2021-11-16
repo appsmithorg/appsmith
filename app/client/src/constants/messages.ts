@@ -567,7 +567,7 @@ export const COMMIT = () => "COMMIT";
 export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PULL = () => "PULL";
-export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGS = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>

@@ -22,6 +22,7 @@ import {
   getIsFetchingGitStatus,
   getIsCommittingInProgress,
   getIsPullingProgress,
+  getGitError,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -110,15 +111,14 @@ const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
 function Deploy() {
   const [commitMessage, setCommitMessage] = useState(INITIAL_COMMIT);
-  // const [showCompleteError, setShowCompleteError] = useState(false);
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const isPulingProgress = useSelector(getIsPullingProgress);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
-  // const errorMsgRef = useRef<HTMLDivElement>(null);
   const hasChangesToCommit = !gitStatus?.isClean;
+  const gitError = useSelector(getGitError);
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
@@ -151,30 +151,21 @@ function Deploy() {
   const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
   const commitButtonLoading = isCommittingInProgress;
 
-  // const errorMsgShowMoreEnabled = useMemo(() => {
-  //   let showMoreEnabled = false;
-  //   if (errorMsgRef && errorMsgRef.current) {
-  //     const element = errorMsgRef.current;
-  //     if (element && element?.offsetHeight && element?.scrollHeight) {
-  //       showMoreEnabled = element?.offsetHeight < element?.scrollHeight;
-  //     }
-  //   }
-  //   return showMoreEnabled;
-  // }, [errorMsgRef.current, gitPushError]);
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
-  const pullRequired =
-    gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
+  // const pullRequired =
+  //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
+  let pullRequired = false;
+  if (!isFetchingGitStatus && gitError && gitError.code === 5006) {
+    pullRequired = gitError.message.indexOf("git  push failed") > -1;
+  }
   const showCommitButton =
-    hasChangesToCommit &&
-    !pullRequired &&
-    !isFetchingGitStatus &&
-    !isCommittingInProgress;
+    // hasChangesToCommit &&
+    !pullRequired && !isFetchingGitStatus && !isCommittingInProgress;
   const isProgressing =
     commitButtonLoading && (commitRequired || showCommitButton);
   const commitMessageDisplay = hasChangesToCommit
     ? commitMessage
     : NO_CHANGES_TO_COMMIT;
-
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>

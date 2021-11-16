@@ -37,8 +37,13 @@ export default function GitSyncError() {
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
     : "";
-  const errorVisible = error && error.code !== 5006;
-
+  let errorVisible = false;
+  if (error) {
+    errorVisible = true;
+    if (error.code === 5006) {
+      errorVisible = error.message.indexOf("git  push failed") < 0;
+    }
+  }
   return errorVisible ? (
     <ErrorWrapper>
       {titleMessage.length && (
