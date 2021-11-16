@@ -15,11 +15,13 @@ import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { getGitBranches, getMergeStatus } from "selectors/gitSyncSelectors";
+import { getPullMergeStatus } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   mergeBranchInit,
   fetchBranchesInit,
   resetMergeStatus,
+  fetchGitStatusInit,
 } from "actions/gitSyncActions";
 import {
   getIsFetchingMergeStatus,
@@ -27,6 +29,8 @@ import {
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus from "../components/MergeStatus";
+import GitChanged from "../components/GitChanged";
+import { log } from "loglevel";
 
 const Row = styled.div`
   display: flex;
@@ -43,6 +47,7 @@ export default function Merge() {
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
   const isMergeAble = mergeStatus?.isMergeAble;
+  const pullMergeStatus: any = useSelector(getPullMergeStatus);
   const currentBranch = gitMetaData?.branchName;
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
@@ -87,6 +92,7 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption.value, dispatch]);
 
   useEffect(() => {
+    dispatch(fetchGitStatusInit());
     dispatch(fetchBranchesInit());
     return () => {
       dispatch(resetMergeStatus());
@@ -114,10 +120,12 @@ export default function Merge() {
     isFetchingMergeStatus ||
     !isMergeAble;
 
+  log(pullMergeStatus);
+
   return (
     <>
       <Title>{createMessage(MERGE_CHANGES)}</Title>
-      <Space size={7} />
+      <GitChanged />
       <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
       <Space size={4} />
       <Row>

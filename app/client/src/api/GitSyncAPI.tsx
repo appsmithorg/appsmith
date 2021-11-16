@@ -89,6 +89,10 @@ class GitSyncAPI extends Api {
     );
   }
 
+  static pull({ applicationId }: { applicationId: string }) {
+    return Api.get(`${GitSyncAPI.baseURL}/pull/${applicationId}`);
+  }
+
   static connect(payload: ConnectToGitPayload, applicationId: string) {
     return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }

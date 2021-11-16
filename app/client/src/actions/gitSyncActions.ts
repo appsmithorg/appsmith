@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "constants/ReduxActionConstants";
-import { GitSyncModalTab, GitConfig } from "entities/GitSync";
+import { GitSyncModalTab, GitConfig, MergeStatus } from "entities/GitSync";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import { ReduxActionErrorTypes } from "../constants/ReduxActionConstants";
@@ -205,4 +205,13 @@ export const fetchMergeStatusFailure = () => ({
 
 export const resetMergeStatus = () => ({
   type: ReduxActionTypes.RESET_MERGE_STATUS,
+});
+
+export const gitPullInit = () => ({
+  type: ReduxActionTypes.GIT_PULL_INIT,
+});
+
+export const gitPullSuccess = (mergeStatus: MergeStatus) => ({
+  type: ReduxActionTypes.GIT_PULL_SUCCESS,
+  payload: mergeStatus,
 });

@@ -29,6 +29,7 @@ import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import Text, { TextType } from "components/ads/Text";
 
+import { getGitError } from "selectors/gitSyncSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -50,9 +51,9 @@ import {
 } from "selectors/gitSyncSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import GitSyncError from "../components/GitError";
-import { ReduxActionErrorTypes } from "constants/ReduxActionConstants";
 import DeployedKeyUI from "../components/DeployedKeyUI";
+import GitSyncError from "../components/GitSyncError";
+import log from "loglevel";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -138,6 +139,8 @@ function GitConnection({ isImport }: Props) {
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const [triedSubmit, setTriedSubmit] = useState(false);
 
+  const gitError = useSelector(getGitError);
+
   const dispatch = useDispatch();
 
   const {
@@ -172,7 +175,7 @@ function GitConnection({ isImport }: Props) {
     SSHKeyPair,
   } = useSSHKeyPair();
 
-  const { connectToGit, gitError, isConnectingToGit } = useGitConnect();
+  const { connectToGit, isConnectingToGit } = useGitConnect();
 
   const stopShowingCopiedAfterDelay = () => {
     timerRef.current = setTimeout(() => {
@@ -330,12 +333,13 @@ function GitConnection({ isImport }: Props) {
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
-    if (gitError.message && scrollWrapperRef.current) {
+    if (gitError?.message && scrollWrapperRef.current) {
       const top = scrollWrapperRef.current.scrollHeight;
       scrollWrapperRef.current?.scrollTo({ top: top, behavior: "smooth" });
     }
   }, [gitError]);
 
+  log.log(gitError);
   return (
     <Container ref={scrollWrapperRef}>
       <Section>
@@ -411,7 +415,7 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>
-            {!gitError.message && isConnectingToGit && (
+            {isConnectingToGit && (
               <StatusbarWrapper>
                 <Statusbar
                   completed={!submitButtonIsLoading}
@@ -438,10 +442,7 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            <GitSyncError
-              error={gitError.message}
-              type={ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR}
-            />
+            {!isConnectingToGit && <GitSyncError />}
           </ButtonContainer>
         </>
       ) : null}
