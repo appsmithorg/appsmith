@@ -31,8 +31,8 @@ import AnalyticsUtil from "../utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
-  VALUE_IS_INVALID,
   JS_OBJECT_BODY_INVALID,
+  VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
