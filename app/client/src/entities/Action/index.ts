@@ -83,6 +83,7 @@ export interface BaseAction {
   cacheResponse: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;
+  messages: string[];
 }
 
 interface BaseApiAction extends BaseAction {
