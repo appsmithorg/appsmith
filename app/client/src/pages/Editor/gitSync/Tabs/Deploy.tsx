@@ -94,10 +94,11 @@ const LintText = styled.a`
   cursor: pointer;
 `;
 
-const InfoWrapper = styled.div`
+const InfoWrapper = styled.div<{ isError?: boolean }>`
   width: 100%;
   padding: ${(props) => props.theme.spaces[3]}px;
-  background: ${Colors.WARNING_OUTLINE_HOVER};
+  background: ${(props) =>
+    props.isError ? Colors.FAIR_PINK : Colors.WARNING_OUTLINE_HOVER};
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   .${Classes.TEXT} {
     &.t--read-document {
@@ -239,7 +240,7 @@ function Deploy() {
           />
         )}
         {isConflicting && (
-          <InfoWrapper>
+          <InfoWrapper isError>
             <Text type={TextType.P3}>
               {createMessage(GIT_CONFLICTING_INFO)}
             </Text>
