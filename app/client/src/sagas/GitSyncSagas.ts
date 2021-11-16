@@ -403,7 +403,7 @@ function* gitPullSaga() {
       const { mergeStatus } = response.data;
       yield put(gitPullSuccess(mergeStatus));
       // re-init after a successfull pull
-      if (mergeStatus.mergeAble) {
+      if (mergeStatus.isMergeAble) {
         yield put(initEditor(applicationId, currentPageId, currentBranch));
       } else {
         // todo handle error

@@ -43,9 +43,9 @@ function MergeStatus() {
   let status = MERGE_STATUS_STATE.NONE;
   if (isFetchingMergeStatus) {
     status = MERGE_STATUS_STATE.FETCHING;
-  } else if (mergeStatus && mergeStatus?.mergeAble) {
+  } else if (mergeStatus && mergeStatus?.isMergeAble) {
     status = MERGE_STATUS_STATE.NO_CONFLICT;
-  } else if (mergeStatus && !mergeStatus?.mergeAble) {
+  } else if (mergeStatus && !mergeStatus?.isMergeAble) {
     status = MERGE_STATUS_STATE.MERGE_CONFLICT;
   }
 

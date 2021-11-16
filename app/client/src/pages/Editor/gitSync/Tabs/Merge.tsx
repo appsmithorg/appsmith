@@ -46,7 +46,7 @@ export default function Merge() {
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
-  const isMergeAble = mergeStatus?.mergeAble;
+  const isMergeAble = mergeStatus?.isMergeAble;
   const pullMergeStatus: any = useSelector(getPullMergeStatus);
   const currentBranch = gitMetaData?.branchName;
 
