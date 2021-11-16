@@ -14,6 +14,7 @@ import {
 } from "workers/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { getType, Types } from "./TypeHelpers";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -393,3 +394,52 @@ export const PropertyEvalErrorTypeDebugMessage: Record<
   [PropertyEvaluationErrorType.PARSE]: () => `Could not parse the binding`,
   [PropertyEvaluationErrorType.LINT]: () => `Errors found while evaluating`,
 };
+
+export function getDynamicBindingsChangesSaga(
+  action: Action,
+  value: unknown,
+  field: string,
+) {
+  const bindingField = field.replace("actionConfiguration.", "");
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
+
+  // When a key-value pair is added or deleted from a fieldArray
+  // Value is an Array representing the new fieldArray.
+
+  if (Array.isArray(value)) {
+    dynamicBindings = dynamicBindings.filter(
+      (binding) => !isChildPropertyPath(bindingField, binding.key),
+    );
+    value.forEach((keyValueRow, index) => {
+      if (!keyValueRow) return;
+
+      const { key, value } = keyValueRow;
+      key &&
+        isDynamicValue(key) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].key` });
+      value &&
+        isDynamicValue(value) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].value` });
+    });
+  } else if (getType(value) === Types.OBJECT) {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
+  }
+
+  return dynamicBindings;
+}
