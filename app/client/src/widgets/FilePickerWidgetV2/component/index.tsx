@@ -4,7 +4,6 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import { Colors } from "../../../constants/Colors";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 class FilePickerComponent extends React.Component<

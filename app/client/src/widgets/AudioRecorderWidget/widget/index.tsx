@@ -227,7 +227,6 @@ class AudioRecorderWidget extends BaseWidget<
 
   getPageView() {
     const {
-      backgroundColor,
       blobURL,
       bottomRow,
       iconColor,

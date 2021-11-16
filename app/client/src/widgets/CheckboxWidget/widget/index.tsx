@@ -9,7 +9,6 @@ import { AlignWidget } from "widgets/constants";
 import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
 } from "components/constants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {

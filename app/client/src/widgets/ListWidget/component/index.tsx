@@ -1,4 +1,3 @@
-import { Color } from "constants/Colors";
 import styled from "styled-components";
 import React, { RefObject, ReactNode, useMemo } from "react";
 

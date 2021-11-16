@@ -1,8 +1,4 @@
 import React, { ReactNode } from "react";
-import { pick } from "lodash";
-import WidgetStyleContainer, {
-  WidgetStyleContainerProps,
-} from "components/designSystems/appsmith/WidgetStyleContainer";
 
 import { TextSize } from "constants/WidgetConstants";
 

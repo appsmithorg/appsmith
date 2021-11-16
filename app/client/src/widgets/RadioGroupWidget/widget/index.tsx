@@ -7,11 +7,6 @@ import { RadioOption } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isArray } from "lodash";
-import {
-  ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadow,
-} from "components/constants";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
