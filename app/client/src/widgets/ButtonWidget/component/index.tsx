@@ -129,6 +129,10 @@ const StyledButton = styled((props) => (
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
       pointer-events: none;
+      border-color: ${theme.colors.button.disabled.bgColor} !important;
+      > span {
+        color: ${theme.colors.button.disabled.textColor} !important;
+      }
     }
 
     border: ${

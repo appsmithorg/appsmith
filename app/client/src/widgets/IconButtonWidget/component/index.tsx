@@ -95,6 +95,12 @@ export const StyledButton = styled((props) => (
       pointer-events: none;
     }
 
+    &&:disabled {
+      background-color: ${theme.colors.button.disabled.bgColor} !important;
+      border-color: ${theme.colors.button.disabled.bgColor} !important;
+      color: ${theme.colors.button.disabled.textColor} !important;
+    }
+
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
