@@ -13,11 +13,13 @@ type StyledCheckboxProps = {
 
 type StyledCheckboxContainerProps = {
   isValid: boolean;
+  noContainerPadding?: boolean;
 };
 
 const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
   && {
-    padding: 9px 12px;
+    padding: ${({ noContainerPadding }) =>
+      noContainerPadding ? 0 : "9px 12px"};
     align-items: center;
     display: flex;
     height: 100%;
@@ -92,6 +94,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
       <CheckboxContainer
         className={checkboxAlignClass}
         isValid={!(this.props.isRequired && !this.props.isChecked)}
+        noContainerPadding={this.props.noContainerPadding}
       >
         <StyledCheckbox
           alignIndicator={checkboxAlignClass}
@@ -102,7 +105,6 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           disabled={this.props.isDisabled}
           inputRef={this.props.inputRef}
           label={this.props.label}
-          onBlur={this.props.onBlurHandler}
           onChange={this.onCheckChange}
           rowSpace={this.props.rowSpace}
         />
@@ -117,16 +119,14 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 
 export interface CheckboxComponentProps extends ComponentProps {
   alignWidget?: AlignWidget;
+  noContainerPadding?: boolean;
   isChecked: boolean;
   isLoading: boolean;
   isRequired?: boolean;
   label: string;
   onCheckChange: (isChecked: boolean) => void;
   rowSpace: number;
-  // For FormBuilderWidget - starts
-  inputRef?: (ref: HTMLInputElement | null) => any;
-  onBlurHandler?: React.FocusEventHandler;
-  // For FormBuilderWidget - ends
+  inputRef?: (el: HTMLInputElement | null) => any;
 }
 
 export default CheckboxComponent;

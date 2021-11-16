@@ -1,4 +1,12 @@
-import { cloneDeep, difference, isEmpty, maxBy, omit, startCase } from "lodash";
+import {
+  cloneDeep,
+  difference,
+  isEmpty,
+  maxBy,
+  omit,
+  pick,
+  startCase,
+} from "lodash";
 import {
   ARRAY_ITEM_KEY,
   DATA_TYPE_POTENTIAL_FIELD,
@@ -212,16 +220,29 @@ class SchemaParser {
       ? FIELD_TYPE_TO_POTENTIAL_DATA[fieldType]
       : schemaItem.sourceData;
 
-    return SchemaParser.getSchemaItemFor(key, {
+    const sourceDataPath = convertSchemaItemPathToSourceDataPath(
+      schema,
+      schemaItemPath,
+    );
+    // debugger;
+    const newSchemaItem = SchemaParser.getSchemaItemFor(key, {
       isCustomField: schemaItem.isCustomField,
       currSourceData,
       fieldType,
       widgetName,
-      sourceDataPath: convertSchemaItemPathToSourceDataPath(
-        schema,
-        schemaItemPath,
-      ),
+      sourceDataPath,
     });
+
+    const oldSchemaItemProperties = pick(schemaItem, [
+      "defaultValue",
+      "position",
+      "label",
+    ]);
+
+    return {
+      ...newSchemaItem,
+      ...oldSchemaItemProperties,
+    };
   };
 
   static getSchemaItemFor = (

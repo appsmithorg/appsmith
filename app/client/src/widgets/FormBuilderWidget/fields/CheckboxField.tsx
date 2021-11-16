@@ -1,15 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import { pick } from "lodash";
 
 import CheckboxComponent from "widgets/CheckboxWidget/component";
 import Field from "widgets/FormBuilderWidget/component/Field";
+import FormContext from "../FormContext";
+import useEvents from "./useEvents";
 import { AlignWidget } from "widgets/constants";
-import { FieldComponentBaseProps, BaseFieldComponentProps } from "../constants";
+import {
+  FieldComponentBaseProps,
+  BaseFieldComponentProps,
+  FieldEvents,
+} from "../constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-type CheckboxComponentProps = FieldComponentBaseProps & {
-  alignWidget: AlignWidget;
-  onCheckChange?: string;
-};
+type CheckboxComponentProps = FieldComponentBaseProps &
+  FieldEvents & {
+    alignWidget: AlignWidget;
+    onCheckChange?: string;
+  };
 
 type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
 
@@ -21,7 +29,13 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
 };
 
 function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
-  const { isRequired, label } = schemaItem;
+  const { isRequired, label, onBlur, onFocus } = schemaItem;
+  const { executeAction } = useContext(FormContext);
+  const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
+    onFocusHandler: onFocus,
+    onBlurHandler: onBlur,
+  });
+
   const labelStyles = pick(schemaItem, [
     "labelStyle",
     "labelTextColor",
@@ -35,21 +49,40 @@ function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
       label={label}
       labelStyles={labelStyles}
       name={name}
-      render={({ field: { onBlur, onChange, ref, value } }) => (
-        <CheckboxComponent
-          alignWidget={schemaItem.alignWidget}
-          inputRef={ref}
-          isChecked={value}
-          isLoading={false}
-          isRequired={isRequired}
-          label=""
-          onBlurHandler={onBlur}
-          onCheckChange={onChange}
-          // TODO: Handle default value of rowSpace
-          rowSpace={20}
-          widgetId=""
-        />
-      )}
+      render={({ field: { onBlur, onChange, value } }) => {
+        const onCheckChange = (isChecked: boolean) => {
+          onChange(isChecked);
+
+          if (schemaItem.onCheckChange && executeAction) {
+            executeAction({
+              triggerPropertyName: "onCheckChange",
+              dynamicString: schemaItem.onCheckChange,
+              event: {
+                type: EventType.ON_CHECK_CHANGE,
+              },
+            });
+          }
+        };
+
+        registerFieldOnBlurHandler(onBlur);
+
+        return (
+          <CheckboxComponent
+            alignWidget={schemaItem.alignWidget}
+            inputRef={(e) => (inputRef.current = e)}
+            isChecked={value}
+            isDisabled={schemaItem.isDisabled}
+            isLoading={false}
+            isRequired={isRequired}
+            label=""
+            noContainerPadding
+            onCheckChange={onCheckChange}
+            // TODO: Handle default value of rowSpace
+            rowSpace={20}
+            widgetId=""
+          />
+        );
+      }}
     />
   );
 }

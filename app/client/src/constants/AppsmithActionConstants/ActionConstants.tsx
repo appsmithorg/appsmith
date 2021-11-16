@@ -91,6 +91,8 @@ export enum EventType {
   ON_RECORDING_START = "ON_RECORDING_START",
   ON_RECORDING_COMPLETE = "ON_RECORDING_COMPLETE",
   ON_ENTER_KEY_PRESS = "ON_ENTER_KEY_PRESS",
+  ON_BLUR = "ON_BLUR",
+  ON_FOCUS = "ON_FOCUS",
 }
 
 export interface PageAction {

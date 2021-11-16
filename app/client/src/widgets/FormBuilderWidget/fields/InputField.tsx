@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Alignment, IconName } from "@blueprintjs/core";
 import { pick } from "lodash";
 
@@ -18,6 +18,7 @@ import {
   INPUT_FIELD_TYPE,
   INPUT_TYPES,
 } from "../constants";
+import useEvents from "./useEvents";
 
 type InputComponentProps = FieldComponentBaseProps & {
   allowCurrencyChange?: boolean;
@@ -60,6 +61,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
     string | undefined
   >();
   const [isFocused, setIsFocused] = useState(false);
+  const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>();
 
   const inputType =
     INPUT_FIELD_TYPE[schemaItem.fieldType as typeof INPUT_TYPES[number]];
@@ -124,7 +126,7 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
     }
   };
   // eslint-disable-next-line
-  console.log("SCHEMA ITEM", schemaItem);
+  console.log("SCHEMA ITEM", { schemaItem, name });
 
   const selectedCurrencyCountryCode =
     metaCurrencyCountryCode || schemaItem.currencyCountryCode;
@@ -182,20 +184,17 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
           };
         })();
 
-        // eslint-disable-next-line
-        console.log("conditionalPropsconditionalProps", conditionalProps);
-
         return (
           <InputComponent
             {...conditionalProps}
             allowCurrencyChange={schemaItem.allowCurrencyChange}
             compactMode={false}
             currencyCountryCode={selectedCurrencyCountryCode}
-            // inputRef={ref}
             decimalsInCurrency={schemaItem.decimalsInCurrency}
             disabled={schemaItem.isDisabled}
             iconAlign={schemaItem.iconAlign}
             iconName={schemaItem.iconName}
+            inputRef={inputRef}
             inputType={inputType}
             isLoading={false}
             label=""

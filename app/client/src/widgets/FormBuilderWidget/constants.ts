@@ -56,6 +56,11 @@ export type FieldComponentBaseProps = {
   tooltip?: string;
 };
 
+export type FieldEvents = {
+  onFocus?: string;
+  onBlur?: string;
+};
+
 export type BaseFieldComponentProps<TProps = any> = {
   hideLabel?: boolean;
   name: ControllerRenderProps["name"];

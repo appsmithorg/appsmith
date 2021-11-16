@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MutableRefObject } from "react";
 import styled from "styled-components";
 import { labelStyle } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
@@ -489,7 +489,7 @@ class InputComponent extends React.Component<
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
       growVertically={false}
-      inputRef={this.props.inputRef}
+      inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
       intent={this.props.intent}
       maxLength={this.props.maxChars}
       onBlur={this.onBlur}
@@ -510,7 +510,7 @@ class InputComponent extends React.Component<
         autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
-        inputRef={this.props.inputRef}
+        inputRef={this.props.inputRef as IRef<HTMLInputElement>}
         intent={this.props.intent}
         leftIcon={
           this.props.iconName && this.props.iconAlign === "left"
@@ -670,7 +670,9 @@ export interface InputComponentProps extends ComponentProps {
   onFocusChange: (state: boolean) => void;
   disableNewLineOnPressEnterKey?: boolean;
   // For FormBuilderWidget - starts
-  inputRef?: IRef<any>;
+  inputRef?: MutableRefObject<
+    HTMLTextAreaElement | HTMLInputElement | null | undefined
+  >;
   onBlurHandler?: React.FocusEventHandler;
   // For FormBuilderWidget - ends
   name?: string;
