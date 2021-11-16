@@ -224,7 +224,7 @@ class SchemaParser {
       schema,
       schemaItemPath,
     );
-    // debugger;
+
     const newSchemaItem = SchemaParser.getSchemaItemFor(key, {
       isCustomField: schemaItem.isCustomField,
       currSourceData,

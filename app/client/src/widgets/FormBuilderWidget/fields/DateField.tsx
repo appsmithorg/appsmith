@@ -1,18 +1,27 @@
-import React from "react";
+import React, { useContext } from "react";
 import { pick } from "lodash";
 
-import Field from "widgets/FormBuilderWidget/component/Field";
 import DateComponent from "widgets/DatePickerWidget2/component";
-import { FieldComponentBaseProps, BaseFieldComponentProps } from "../constants";
+import Field from "widgets/FormBuilderWidget/component/Field";
+import FormContext from "../FormContext";
+import useEvents from "./useEvents";
+import {
+  FieldComponentBaseProps,
+  BaseFieldComponentProps,
+  FieldEventProps,
+} from "../constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-type DateComponentProps = FieldComponentBaseProps & {
-  dateFormat: string;
-  onDateSelected?: string;
-  maxDate: string;
-  minDate: string;
-  closeOnSelection: boolean;
-  shortcuts: boolean;
-};
+type DateComponentProps = FieldComponentBaseProps &
+  FieldEventProps & {
+    closeOnSelection: boolean;
+    dateFormat: string;
+    maxDate: string;
+    minDate: string;
+    onDateChange?: string;
+    onDateSelected?: string;
+    shortcuts: boolean;
+  };
 
 const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
   closeOnSelection: false,
@@ -28,6 +37,13 @@ const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
 type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
 
 function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
+  const { onBlur: onBlurHandler, onFocus: onFocusHandler } = schemaItem;
+  const { executeAction } = useContext(FormContext);
+  const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
+    onFocusHandler,
+    onBlurHandler,
+  });
+
   const labelStyles = pick(schemaItem, [
     "labelStyle",
     "labelTextColor",
@@ -41,20 +57,41 @@ function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
-      render={({ field: { onChange, value } }) => (
-        <DateComponent
-          closeOnSelection={schemaItem.closeOnSelection}
-          dateFormat={schemaItem.dateFormat}
-          datePickerType="DATE_PICKER"
-          isDisabled={schemaItem.isDisabled}
-          isLoading={false}
-          label=""
-          onDateSelected={onChange}
-          selectedDate={value}
-          shortcuts={schemaItem.shortcuts}
-          widgetId=""
-        />
-      )}
+      render={({ field: { onBlur, onChange, value } }) => {
+        const onDateSelected = (value: string) => {
+          onChange(value);
+
+          if (schemaItem.onDateSelected && executeAction) {
+            executeAction({
+              triggerPropertyName: "onDateSelected",
+              dynamicString: schemaItem.onDateSelected,
+              event: {
+                type: EventType.ON_DATE_SELECTED,
+              },
+            });
+          }
+        };
+
+        registerFieldOnBlurHandler(onBlur);
+
+        return (
+          <DateComponent
+            closeOnSelection={schemaItem.closeOnSelection}
+            dateFormat={schemaItem.dateFormat}
+            datePickerType="DATE_PICKER"
+            inputRef={inputRef}
+            isDisabled={schemaItem.isDisabled}
+            isLoading={false}
+            label=""
+            maxDate={schemaItem.maxDate}
+            minDate={schemaItem.minDate}
+            onDateSelected={onDateSelected}
+            selectedDate={value}
+            shortcuts={schemaItem.shortcuts}
+            widgetId=""
+          />
+        );
+      }}
     />
   );
 }

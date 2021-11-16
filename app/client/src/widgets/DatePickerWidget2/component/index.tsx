@@ -5,7 +5,7 @@ import {
   IntentColors,
   getBorderCSSShorthand,
 } from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
+import { ControlGroup, Classes, Label, IRef } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
@@ -118,7 +118,6 @@ class DatePickerComponent extends React.Component<
   };
 
   handlePopoverRef = (ref: any) => {
-    // get popover ref as callback
     this.pickerRef = ref as HTMLElement;
   };
 
@@ -176,6 +175,7 @@ class DatePickerComponent extends React.Component<
               inputProps={{
                 onFocus: this.showPicker,
                 onKeyDown: this.handleKeyDown,
+                inputRef: this.props.inputRef,
               }}
               maxDate={maxDate}
               minDate={minDate}
@@ -307,6 +307,7 @@ export interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  inputRef?: IRef<HTMLInputElement>;
 }
 
 interface DatePickerComponentState {

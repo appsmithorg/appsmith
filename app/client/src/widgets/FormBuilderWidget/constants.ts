@@ -56,7 +56,7 @@ export type FieldComponentBaseProps = {
   tooltip?: string;
 };
 
-export type FieldEvents = {
+export type FieldEventProps = {
   onFocus?: string;
   onBlur?: string;
 };

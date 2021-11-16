@@ -7,14 +7,14 @@ import FormContext from "../FormContext";
 import useEvents from "./useEvents";
 import { AlignWidget } from "widgets/constants";
 import {
-  FieldComponentBaseProps,
   BaseFieldComponentProps,
-  FieldEvents,
+  FieldComponentBaseProps,
+  FieldEventProps,
 } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
-  FieldEvents & {
+  FieldEventProps & {
     alignWidget: AlignWidget;
     onCheckChange?: string;
   };

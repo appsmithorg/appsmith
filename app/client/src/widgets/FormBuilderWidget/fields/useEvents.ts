@@ -19,7 +19,7 @@ function useEvents<TElement extends BaseEvents>({
   onFocusHandler,
 }: UseEventsProps = {}) {
   const FieldBlurHandlerRef = useRef<ControllerRenderProps["onBlur"]>();
-  const inputRef = useRef<TElement | null>();
+  const inputRef = useRef<TElement | null>(null);
   const { executeAction } = useContext(FormContext) || {};
 
   useEffect(() => {

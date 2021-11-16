@@ -70,7 +70,7 @@ export function InputText(props: {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
+            Access the current form using <CurlyBraces>{"{{"}</CurlyBraces>
             sourceData.fieldName
             <CurlyBraces>{"}}"}</CurlyBraces>
           </PromptMessage>
@@ -153,7 +153,6 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       this.onTextChange(value);
     }
 
-    debugger;
     return (
       <InputText
         additionalDynamicData={{
