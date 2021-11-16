@@ -194,7 +194,7 @@ export const fetchMergeStatusInit = (payload: MergeBranchPayload) => ({
   payload,
 });
 
-export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
+export const fetchMergeStatusSuccess = (payload: MergeStatus) => ({
   type: ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS,
   payload,
 });
@@ -214,4 +214,8 @@ export const gitPullInit = () => ({
 export const gitPullSuccess = (mergeStatus: MergeStatus) => ({
   type: ReduxActionTypes.GIT_PULL_SUCCESS,
   payload: mergeStatus,
+});
+
+export const resetPullMergeStatus = () => ({
+  type: ReduxActionTypes.RESET_PULL_MERGE_STATUS,
 });

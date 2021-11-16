@@ -15,6 +15,6 @@ export type Branch = {
 };
 
 export type MergeStatus = {
-  merge: boolean;
+  mergeAble: boolean;
   conflictingFiles: Array<string>;
 };

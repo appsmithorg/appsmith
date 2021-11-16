@@ -25,6 +25,7 @@ import {
   switchGitBranchInit,
   updateBranchLocally,
   gitPullSuccess,
+  fetchMergeStatusSuccess,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -383,7 +384,7 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
     });
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {
-      yield put(fetchGitStatusSuccess(response.data));
+      yield put(fetchMergeStatusSuccess(response.data));
     }
   } catch (error) {
     yield put({
@@ -404,7 +405,7 @@ function* gitPullSaga() {
       const { mergeStatus } = response.data;
       yield put(gitPullSuccess(mergeStatus));
       // re-init after a successfull pull
-      if (mergeStatus.merge) {
+      if (mergeStatus.mergeAble) {
         yield put(initEditor(applicationId, currentPageId, currentBranch));
       } else {
         // todo handle error

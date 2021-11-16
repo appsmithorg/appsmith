@@ -14,7 +14,6 @@ import {
   PULL,
   MERGE,
   CONNECT_GIT,
-  UNCOMMITTED_CHANGES,
   CONFLICTS_FOUND,
   NO_COMMITS_TO_PULL,
   createMessage,
@@ -117,15 +116,13 @@ function QuickActionButton({
 }
 
 const getPullBtnStatus = (gitStatus: any, pullMergeStatus?: MergeStatus) => {
-  const { behindCount, conflicting = [], isClean } = gitStatus || {};
+  const { behindCount } = gitStatus || {};
   const { conflictingFiles: pullConflicts = [] } = pullMergeStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
-  let disabled = true;
-  if (conflicting.length > 0 || pullConflicts.length > 0)
+  const disabled = behindCount === 0;
+  if (pullConflicts.length > 0) {
     message = createMessage(CONFLICTS_FOUND);
-  else if (!isClean) message = createMessage(UNCOMMITTED_CHANGES);
-  else if (behindCount > 0) {
-    disabled = false;
+  } else if (behindCount > 0) {
     message = createMessage(PULL);
   }
 

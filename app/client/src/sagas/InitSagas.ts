@@ -60,6 +60,7 @@ import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
 import {
   fetchGitStatusInit,
+  resetPullMergeStatus,
   updateBranchLocally,
 } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
@@ -241,6 +242,8 @@ function* initializeEditorSaga(
       history.replace(addBranchParam(branchInStore));
       yield put(fetchGitStatusInit());
     }
+
+    yield put(resetPullMergeStatus());
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);

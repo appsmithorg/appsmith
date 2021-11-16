@@ -288,6 +288,10 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     pullInProgress: false,
   }),
+  [ReduxActionTypes.RESET_PULL_MERGE_STATUS]: (state: GitSyncReducerState) => ({
+    ...state,
+    pullMergeStatus: null,
+  }),
 });
 
 export type GitStatusData = {
@@ -305,10 +309,6 @@ export type GitErrorType = {
   code: number;
   errorType?: string;
   message: string;
-};
-
-export type MergeStatusData = {
-  isMergeAble: boolean;
 };
 
 export type GitSyncReducerState = {
@@ -336,7 +336,7 @@ export type GitSyncReducerState = {
 
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
-  mergeStatus?: MergeStatusData | null;
+  mergeStatus?: MergeStatus;
   gitError?: GitErrorType;
   pullMergeStatus?: MergeStatus;
   pullInProgress?: boolean;
