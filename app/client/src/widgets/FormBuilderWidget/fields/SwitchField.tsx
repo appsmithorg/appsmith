@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import { pick } from "lodash";
 
 import Field from "widgets/FormBuilderWidget/component/Field";
 import { AlignWidget } from "widgets/constants";
-import { BaseFieldComponentProps, FieldComponentBaseProps } from "../constants";
+import {
+  BaseFieldComponentProps,
+  FieldComponentBaseProps,
+  FieldEventProps,
+} from "../constants";
 import { SwitchComponent } from "widgets/SwitchWidget/component";
+import FormContext from "../FormContext";
+import useEvents from "./useEvents";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-type SwitchComponentOwnProps = FieldComponentBaseProps & {
-  alignWidget: AlignWidget;
-};
+type SwitchComponentOwnProps = FieldComponentBaseProps &
+  FieldEventProps & {
+    alignWidget: AlignWidget;
+    onChange?: string;
+  };
 
 type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
 
@@ -20,6 +29,13 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
 };
 
 function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
+  const { onBlur, onFocus } = schemaItem;
+  const { executeAction } = useContext(FormContext);
+  const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
+    onFocusHandler: onFocus,
+    onBlurHandler: onBlur,
+  });
+
   const labelStyles = pick(schemaItem, [
     "labelStyle",
     "labelTextColor",
@@ -33,18 +49,36 @@ function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
       label={schemaItem.label}
       labelStyles={labelStyles}
       name={name}
-      render={({ field: { onBlur, onChange, ref, value } }) => (
-        <SwitchComponent
-          alignWidget={schemaItem.alignWidget}
-          inputRef={ref}
-          isLoading={false}
-          isSwitchedOn={value}
-          label=""
-          onBlurHandler={onBlur}
-          onChange={onChange}
-          widgetId=""
-        />
-      )}
+      render={({ field: { onBlur, onChange, value } }) => {
+        const onSwitchChange = (value: boolean) => {
+          onChange(value);
+
+          if (schemaItem.onChange && executeAction) {
+            executeAction({
+              triggerPropertyName: "onChange",
+              dynamicString: schemaItem.onChange,
+              event: {
+                type: EventType.ON_SWITCH_CHANGE,
+              },
+            });
+          }
+        };
+
+        registerFieldOnBlurHandler(onBlur);
+
+        return (
+          <SwitchComponent
+            alignWidget={schemaItem.alignWidget}
+            inputRef={(e) => (inputRef.current = e)}
+            isDisabled={schemaItem.isDisabled}
+            isLoading={false}
+            isSwitchedOn={value}
+            label=""
+            onChange={onSwitchChange}
+            widgetId=""
+          />
+        );
+      }}
     />
   );
 }

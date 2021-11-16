@@ -11,10 +11,7 @@ export interface SwitchComponentProps extends ComponentProps {
   onChange: (isSwitchedOn: boolean) => void;
   isLoading: boolean;
   alignWidget: AlignWidget;
-  // For FormBuilderWidget - starts
   inputRef?: (ref: HTMLInputElement | null) => any;
-  onBlurHandler?: React.FocusEventHandler;
-  // For FormBuilderWidget - ends
 }
 
 const SwitchComponentContainer = styled.div`
@@ -37,7 +34,6 @@ export function SwitchComponent({
   isLoading,
   isSwitchedOn,
   label,
-  onBlurHandler,
   onChange,
 }: SwitchComponentProps) {
   const switchAlignClass =
@@ -60,7 +56,6 @@ export function SwitchComponent({
         disabled={isDisabled}
         inputRef={inputRef}
         label={label}
-        onBlur={onBlurHandler}
         onChange={() => onChange(!isSwitchedOn)}
       />
     </SwitchComponentContainer>
