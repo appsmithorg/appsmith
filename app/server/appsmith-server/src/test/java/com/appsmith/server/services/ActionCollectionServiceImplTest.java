@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -41,6 +42,7 @@ import javax.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,6 +129,17 @@ public class ActionCollectionServiceImplTest {
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
     }
 
+    <T> DefaultResources setDefaultResources(T collection) {
+        DefaultResources defaultResources = new DefaultResources();
+        if (collection instanceof ActionCollection) {
+            defaultResources.setApplicationId("testApplicationId");
+            defaultResources.setCollectionId("testCollectionId");
+        } else if (collection instanceof ActionCollectionDTO) {
+            defaultResources.setPageId("testPageId");
+        }
+        return defaultResources;
+    }
+
     @Test
     public void testCreateCollection_withId_throwsError() {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -199,6 +212,7 @@ public class ActionCollectionServiceImplTest {
         actionCollectionDTO.setOrganizationId("testOrganizationId");
         actionCollectionDTO.setPluginId("testPluginId");
         actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
 
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
@@ -255,6 +269,7 @@ public class ActionCollectionServiceImplTest {
         action.setName("testAction");
         actionCollectionDTO.setActions(List.of(action));
         actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
 
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
@@ -319,7 +334,7 @@ public class ActionCollectionServiceImplTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setId("testId");
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.updateUnpublishedActionCollection(null, actionCollectionDTO);
+                layoutCollectionService.updateUnpublishedActionCollection(null, actionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -328,16 +343,27 @@ public class ActionCollectionServiceImplTest {
     }
 
     @Test
-    public void testUpdateUnpublishedActionCollection_withInvalidId_throwsError() {
+    public void testUpdateUnpublishedActionCollection_withInvalidId_throwsError() throws IOException {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setId("testId");
+        actionCollectionDTO.setDefaultResources(setDefaultResources(actionCollectionDTO));
+        actionCollectionDTO.setPageId("testPageId");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
+        final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
 
         Mockito
                 .when(actionCollectionRepository.findById(Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.empty());
 
+        Mockito
+                .when(newPageService
+                        .findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.updateUnpublishedActionCollection("testId", actionCollectionDTO);
+                layoutCollectionService.updateUnpublishedActionCollection("testId", actionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -353,8 +379,12 @@ public class ActionCollectionServiceImplTest {
         final ActionCollectionDTO modifiedActionCollectionDTO = objectMapper.convertValue(jsonNode.get("actionCollectionDTOWithModifiedActions"), ActionCollectionDTO.class);
         final ActionCollection modifiedActionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionAfterModifiedActions"), ActionCollection.class);
         final ActionCollectionDTO unpublishedCollection = modifiedActionCollection.getUnpublishedCollection();
-        unpublishedCollection.setActionIds(Set.of("testActionId1", "testActionId3"));
-        unpublishedCollection.setArchivedActionIds(Set.of("testActionId2"));
+        unpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId3", "testActionId3"));
+        unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(Map.of("defaultTestActionId2", "testActionId2"));
+        actionCollection.setDefaultResources(setDefaultResources(actionCollection));
+        modifiedActionCollection.setDefaultResources(actionCollection.getDefaultResources());
+        modifiedActionCollectionDTO.setDefaultResources(setDefaultResources(modifiedActionCollectionDTO));
+        unpublishedCollection.setDefaultResources(setDefaultResources(unpublishedCollection));
 
         final Instant archivedAfter = Instant.now();
 
@@ -393,8 +423,14 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(updatedActions.get(id));
                 });
 
+        final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
+
+        Mockito
+                .when(newPageService.findByBranchNameAndDefaultPageId(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.updateUnpublishedActionCollection("testCollectionId", modifiedActionCollectionDTO);
+                layoutCollectionService.updateUnpublishedActionCollection("testCollectionId", modifiedActionCollectionDTO, null);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
@@ -438,6 +474,8 @@ public class ActionCollectionServiceImplTest {
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
         unpublishedCollection.setActions(List.of());
+        actionCollection.setDefaultResources(setDefaultResources(actionCollection));
+        unpublishedCollection.setDefaultResources(setDefaultResources(unpublishedCollection));
 
         Instant deletedAt = Instant.now();
 
@@ -469,8 +507,10 @@ public class ActionCollectionServiceImplTest {
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
-        actionCollection.getUnpublishedCollection().setActionIds(Set.of("testActionId1", "testActionId2"));
-
+        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+        unpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId2", "testActionId2"));
+        actionCollection.setDefaultResources(setDefaultResources(actionCollection));
+        unpublishedCollection.setDefaultResources(setDefaultResources(unpublishedCollection));
         Instant deletedAt = Instant.now();
 
         Mockito
@@ -507,6 +547,8 @@ public class ActionCollectionServiceImplTest {
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
 
         actionCollection.setPublishedCollection(null);
+        actionCollection.setDefaultResources(setDefaultResources(actionCollection));
+        actionCollection.getUnpublishedCollection().setDefaultResources(setDefaultResources(actionCollection.getUnpublishedCollection()));
 
         Mockito
                 .when(actionCollectionRepository.findById(Mockito.any(), Mockito.any()))
@@ -533,8 +575,13 @@ public class ActionCollectionServiceImplTest {
         ObjectMapper objectMapper = new ObjectMapper();
         final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
         final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
-        actionCollection.getUnpublishedCollection().setActionIds(Set.of("testActionId1", "testActionId2"));
+        actionCollection.getUnpublishedCollection().setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId1", "testActionId1", "defaultTestActionId2", "testActionId2"));
         actionCollection.setPublishedCollection(null);
+        DefaultResources resources = new DefaultResources();
+        resources.setApplicationId("testApplicationId");
+        resources.setApplicationId("testCollectionId");
+        actionCollection.setDefaultResources(setDefaultResources(actionCollection));
+        actionCollection.getUnpublishedCollection().setDefaultResources(setDefaultResources(actionCollection.getUnpublishedCollection()));
 
         Mockito
                 .when(actionCollectionRepository.findById(Mockito.any(), Mockito.any()))
@@ -614,9 +661,12 @@ public class ActionCollectionServiceImplTest {
 
         final ActionCollection oldActionCollection = new ActionCollection();
         final ActionCollectionDTO oldUnpublishedCollection = new ActionCollectionDTO();
+        oldActionCollection.setId("testCollectionId");
         oldUnpublishedCollection.setPageId("testPageId");
         oldUnpublishedCollection.setName("oldName");
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
+        oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
+        oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
 
         Mockito
                 .when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
@@ -674,10 +724,13 @@ public class ActionCollectionServiceImplTest {
 
         final ActionCollection oldActionCollection = new ActionCollection();
         final ActionCollectionDTO oldUnpublishedCollection = new ActionCollectionDTO();
+        oldActionCollection.setId("testCollectionId");
         oldUnpublishedCollection.setPageId("testPageId");
         oldUnpublishedCollection.setName("oldName");
-        oldUnpublishedCollection.setActionIds(Set.of("testActionId"));
+        oldUnpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId", "testActionId"));
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
+        oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
+        oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
 
         Mockito
                 .when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
@@ -717,6 +770,8 @@ public class ActionCollectionServiceImplTest {
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("key", "value");
         layout.setDsl(jsonObject);
+        layout.setActionUpdates(new ArrayList<>());
+        layout.setLayoutOnLoadActions(new ArrayList<>());
         Mockito
                 .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
@@ -733,7 +788,7 @@ public class ActionCollectionServiceImplTest {
     }
 
     @Test
-    public void testMoveCollection_toValidPage_returnsCollection() {
+    public void testMoveCollection_toValidPage_returnsCollection() throws IOException {
         final ActionCollectionMoveDTO actionCollectionMoveDTO = new ActionCollectionMoveDTO();
         actionCollectionMoveDTO.setCollectionId("testCollectionId");
         actionCollectionMoveDTO.setDestinationPageId("newPageId");
@@ -742,8 +797,18 @@ public class ActionCollectionServiceImplTest {
         final ActionCollectionDTO unpublishedCollection = new ActionCollectionDTO();
         unpublishedCollection.setPageId("oldPageId");
         unpublishedCollection.setName("collectionName");
-        unpublishedCollection.setActionIds(Set.of("testActionId"));
+        unpublishedCollection.setDefaultResources(setDefaultResources(unpublishedCollection));
+        unpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId", "testActionId"));
         actionCollection.setUnpublishedCollection(unpublishedCollection);
+        actionCollection.setDefaultResources(setDefaultResources(actionCollection));
+        unpublishedCollection.setDefaultResources(setDefaultResources(unpublishedCollection));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("testAction");
+        DefaultResources actionResources = new DefaultResources();
+        actionResources.setActionId("testAction");
+        actionResources.setPageId("newPageId");
+        action.setDefaultResources(actionResources);
 
         Mockito
                 .when(actionCollectionRepository.findById(Mockito.any(), Mockito.any()))
@@ -751,7 +816,7 @@ public class ActionCollectionServiceImplTest {
 
         Mockito
                 .when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
-                .thenReturn(Mono.just(new ActionDTO()));
+                .thenReturn(Mono.just(action));
 
         Mockito
                 .when(newActionService.updateUnpublishedAction(Mockito.any(), Mockito.any()))
@@ -773,10 +838,21 @@ public class ActionCollectionServiceImplTest {
         newPageDTO.setId("newPageId");
         newPageDTO.setLayouts(List.of(new Layout()));
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
+        final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
+        DefaultResources pageDefaultResources = new DefaultResources();
+        pageDefaultResources.setPageId(newPage.getId());
+        newPage.setDefaultResources(pageDefaultResources);
+
         Mockito
                 .when(newPageService.findPageById(Mockito.any(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(oldPageDTO))
                 .thenReturn(Mono.just(newPageDTO));
+
+        Mockito
+                .when(newPageService.findById(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
 
         LayoutDTO layout = new LayoutDTO();
         final JSONObject jsonObject = new JSONObject();

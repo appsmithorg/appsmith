@@ -1,9 +1,9 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,7 +16,10 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 
 @Getter
 @Setter
@@ -49,16 +52,20 @@ public class ActionCollectionDTO {
 //    ActionDTO defaultAction;
 
     // This property is not shared with the client since the reference is only useful to server
-    // As these are not shared with client we can safely ignore handling default action id for each action. Appropriate
-    // default action ID will be sent to client using ActionDTOs in actions
+    // Map<defaultActionId, branchedActionId>
     @JsonIgnore
+    Map<String, String> defaultToBranchedActionIdsMap = Map.of();
+
+    @Deprecated
     Set<String> actionIds = Set.of();
 
     // This property is not shared with the client since the reference is only useful to server
     // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the user
-    // As these are not shared with client we can safely ignore handling default action id for each archived action.
-    // Appropriate default action ID will be sent to client using ActionDTOs in archivedActions
+    // Map<defaultActionId, branchedActionId>
     @JsonIgnore
+    Map<String, String> defaultToBranchedArchivedActionIdsMap = Map.of();
+
+    @Deprecated
     Set<String> archivedActionIds = Set.of();
 
     // Instead of storing the entire action object, we only populate this field while interacting with the client side
@@ -104,5 +111,6 @@ public class ActionCollectionDTO {
         this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
         this.setOrganizationId(actionCollection.getOrganizationId());
+        copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 }

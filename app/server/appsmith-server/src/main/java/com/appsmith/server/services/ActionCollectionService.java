@@ -36,6 +36,8 @@ public interface ActionCollectionService extends CrudService<ActionCollection, S
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
 
+    Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName);
+
     Mono<ActionCollectionDTO> generateActionCollectionByViewMode(ActionCollection actionCollection, Boolean viewMode);
 
     Mono<ActionCollection> findById(String id, AclPermission aclPermission);

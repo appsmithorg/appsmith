@@ -5,15 +5,18 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +28,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +39,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -108,7 +114,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
                         action.setPageId(collection.getPageId());
                         action.setPluginType(collection.getPluginType());
-                        action.setDefaultResources(defaultResources);
+                        action.setDefaultResources(collection.getDefaultResources());
                         // Action doesn't exist. Create now.
                         return layoutActionService
                                 .createSingleAction(action)
@@ -135,7 +141,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     actionCollection.setApplicationId(collection.getApplicationId());
                     actionCollection.setOrganizationId(collection.getOrganizationId());
                     actionCollection.setUnpublishedCollection(collection);
-                    actionCollection.setDefaultResources(defaultResources);
+                    actionCollection.setDefaultResources(collection.getDefaultResources());
                     actionCollectionService.generateAndSetPolicies(newPage, actionCollection);
 
                     // Store the default resource ids
@@ -145,26 +151,25 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
 
                     defaultDTOResource.setApplicationId(null);
                     defaultDTOResource.setCollectionId(null);
+                    defaultDTOResource.setBranchName(null);
                     if(StringUtils.isEmpty(defaultDTOResource.getPageId())) {
                         defaultDTOResource.setPageId(collection.getPageId());
                     }
                     collection.setDefaultResources(defaultDTOResource);
 
-                    // Only store defaultApplicationId and defaultActionCollectionId for ActionCollection level resource
+                    // Only store branchName, defaultApplicationId and defaultActionCollectionId for ActionCollection level resource
                     DefaultResources defaults = new DefaultResources();
                     BeanCopyUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
                     defaults.setPageId(null);
-                    defaults.setCollectionId(null);
                     if(StringUtils.isEmpty(defaults.getApplicationId())) {
                         defaults.setApplicationId(actionCollection.getApplicationId());
                     }
                     actionCollection.setDefaultResources(defaults);
 
-                    final Set<String> actionIds = actions
+                    final Map<String, String> actionIds = actions
                             .stream()
-                            .map(ActionDTO::getId)
-                            .collect(toSet());
-                    collection.setActionIds(actionIds);
+                            .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId));
+                    collection.setDefaultToBranchedActionIdsMap(actionIds);
 
                     if (actionCollection.getGitSyncId() == null) {
                         actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
@@ -186,6 +191,9 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                                 actions.forEach(actionDTO -> {
                                     // Update all the actions in the list to belong to actionCollectionService collection
                                     actionDTO.setCollectionId(actionCollection1.getId());
+                                    if (!StringUtils.isEmpty(actionDTO.getDefaultResources().getCollectionId())) {
+                                        actionDTO.getDefaultResources().setCollectionId(actionCollection1.getId());
+                                    }
                                 });
                                 return actions;
                             })
@@ -244,7 +252,14 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                 ? Mono.just(pageId)
                 : newPageService
                     .findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
-                    .map(NewPage::getId);
+                    .map(NewPage::getId)
+                    .cache();
+
+        Mono<String> branchedActionCollectionIdMono = StringUtils.isEmpty(branchName)
+                ? Mono.just(actionCollectionId)
+                : actionCollectionService
+                    .findByBranchNameAndDefaultCollectionId(branchName, actionCollectionId, MANAGE_ACTIONS)
+                    .map(ActionCollection::getId);
 
         return branchedPageIdMono
                 .flatMap(branchedPageId ->
@@ -253,8 +268,9 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         .flatMap(isNameAllowed -> {
                             // If the name is allowed, return list of actionDTOs for further processing
                             if (Boolean.TRUE.equals(isNameAllowed)) {
-                                return actionCollectionService
-                                        .findActionCollectionDTObyIdAndViewMode(actionCollectionId, false, MANAGE_ACTIONS);
+                                return branchedActionCollectionIdMono
+                                        .flatMap(collectionId -> actionCollectionService
+                                                .findActionCollectionDTObyIdAndViewMode(collectionId, false, MANAGE_ACTIONS));
                             }
                             // Throw an error since the new action collection's name matches an existing action, widget or collection name.
                             return Mono.error(new AppsmithException(
@@ -263,17 +279,17 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                                     FieldName.NAME));
                         })
                 )
-                .flatMap(actionCollection -> {
-                    final Set<String> actionIds = new HashSet<>();
-                    if (actionCollection.getActionIds() != null) {
-                        actionIds.addAll(actionCollection.getActionIds());
+                .flatMap(branchedActionCollection -> {
+                    final HashMap<String, String> actionIds = new HashMap<>();
+                    if (branchedActionCollection.getDefaultToBranchedActionIdsMap() != null) {
+                        actionIds.putAll(branchedActionCollection.getDefaultToBranchedActionIdsMap());
                     }
-                    if (actionCollection.getArchivedActionIds() != null) {
-                        actionIds.addAll(actionCollection.getArchivedActionIds());
+                    if (branchedActionCollection.getDefaultToBranchedArchivedActionIdsMap() != null) {
+                        actionIds.putAll(branchedActionCollection.getDefaultToBranchedArchivedActionIdsMap());
                     }
 
                     Flux<ActionDTO> actionUpdatesFlux = Flux
-                            .fromIterable(actionIds)
+                            .fromIterable(actionIds.values())
                             .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS))
                             .flatMap(actionDTO -> {
                                 actionDTO.setFullyQualifiedName(newName + "." + actionDTO.getName());
@@ -288,11 +304,12 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                                             return Mono.empty();
                                         });
                             });
-                    actionCollection.setName(newName);
+                    branchedActionCollection.setName(newName);
                     return actionUpdatesFlux
                             .collectList()
-                            .flatMap(actionDTOs -> actionCollectionService.update(actionCollectionId, actionCollection))
-                            .flatMap(actionCollectionDTO -> layoutActionService.refactorName(pageId, layoutId, oldName, newName));
+                            .flatMap(actionDTOs -> actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection))
+                            .flatMap(actionCollectionDTO -> branchedPageIdMono
+                                    .flatMap(branchedPageId -> layoutActionService.refactorName(branchedPageId, layoutId, oldName, newName)));
                 })
                 .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
     }
@@ -313,15 +330,15 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                 .flatMap(tuple -> {
                     NewPage destinationPage = tuple.getT1();
                     ActionCollectionDTO actionCollectionDTO = tuple.getT2();
-                    final Set<String> actionIds = new HashSet<>();
-                    if (actionCollectionDTO.getActionIds() != null) {
-                        actionIds.addAll(actionCollectionDTO.getActionIds());
+                    final Map<String, String> actionIds = new HashMap<>();
+                    if (actionCollectionDTO.getDefaultToBranchedActionIdsMap() != null) {
+                        actionIds.putAll(actionCollectionDTO.getDefaultToBranchedActionIdsMap());
                     }
-                    if (actionCollectionDTO.getArchivedActionIds() != null) {
-                        actionIds.addAll(actionCollectionDTO.getArchivedActionIds());
+                    if (actionCollectionDTO.getDefaultToBranchedArchivedActionIdsMap() != null) {
+                        actionIds.putAll(actionCollectionDTO.getDefaultToBranchedArchivedActionIdsMap());
                     }
 
-                    final Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds)
+                    final Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds.values())
                             .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS))
                             .flatMap(actionDTO -> {
                                 actionDTO.setPageId(destinationPageId);
@@ -406,7 +423,9 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
     }
 
     @Override
-    public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO) {
+    public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id,
+                                                                       ActionCollectionDTO actionCollectionDTO,
+                                                                       String branchName) {
         // new actions without ids are to be created
         // new actions with ids are to be updated and added to collection
         // old actions that are now missing are to be archived
@@ -415,63 +434,83 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<ActionCollection> actionCollectionMono = actionCollectionService.findById(id, MANAGE_ACTIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
+        Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
+                .findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS)
                 .cache();
 
-        final Set<String> validActionIds = actionCollectionDTO
+        Mono<NewPage> branchedPageMono = newPageService
+                .findByBranchNameAndDefaultPageId(branchName, actionCollectionDTO.getPageId(), MANAGE_PAGES)
+                .cache();
+
+        final Set<String> validDefaultActionIds = actionCollectionDTO
                 .getActions()
                 .stream()
                 .map(ActionDTO::getId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableSet());
-        final Set<String> archivedActionIds = actionCollectionDTO
+        final Set<String> archivedDefaultActionIds = actionCollectionDTO
                 .getArchivedActions()
                 .stream()
                 .map(ActionDTO::getId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableSet());
-        final Set<String> actionIds = new HashSet<>();
-        actionIds.addAll(validActionIds);
-        actionIds.addAll(archivedActionIds);
+        final Set<String> defaultActionIds = new HashSet<>();
+        defaultActionIds.addAll(validDefaultActionIds);
+        defaultActionIds.addAll(archivedDefaultActionIds);
 
-        final Mono<Set<String>> newValidActionIdsMono = Mono.just(actionCollectionDTO)
+        final Mono<Map<String, String>> newValidActionIdsMono = Mono.just(actionCollectionDTO)
                 .map(ActionCollectionDTO::getActions)
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(actionDTO -> {
+                .zipWith(Mono.zip(branchedPageMono, branchedActionCollectionMono))
+                .flatMap(tuple -> {
+                    ActionDTO actionDTO = tuple.getT1();
+                    NewPage branchedPage = tuple.getT2().getT1();
+                    ActionCollection branchedActionCollection = tuple.getT2().getT2();
                     actionDTO.setArchivedAt(null);
+                    actionDTO.setPageId(branchedPage.getId());
                     if (actionDTO.getId() == null) {
-                        actionDTO.setCollectionId(id);
+                        actionDTO.setCollectionId(branchedActionCollection.getId());
                         actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
                         actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
                         actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                         actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
-                        actionDTO.setPageId(actionCollectionDTO.getPageId());
                         actionDTO.setPluginType(actionCollectionDTO.getPluginType());
                         actionDTO.setPluginId(actionCollectionDTO.getPluginId());
-                        actionDTO.setDefaultResources(actionCollectionDTO.getDefaultResources());
+                        actionDTO.setDefaultResources(branchedActionCollection.getDefaultResources());
+                        actionDTO.getDefaultResources().setBranchName(branchName);
                         // actionCollectionService is a new action, we need to create one
                         return layoutActionService.createSingleAction(actionDTO);
                     } else {
                         actionDTO.setCollectionId(null);
-                        return layoutActionService.updateSingleAction(actionDTO.getId(), actionDTO);
+                        // Client only knows about the default action ID, fetch branched action id to update the action
+                        Mono<String> branchedActionIdMono = StringUtils.isEmpty(branchName)
+                                ? Mono.just(actionDTO.getId())
+                                : newActionService
+                                    .findByBranchNameAndDefaultActionId(branchName, actionDTO.getId(), MANAGE_ACTIONS)
+                                    .map(NewAction::getId);
+                        actionDTO.setId(null);
+                        return branchedActionIdMono
+                                .flatMap(actionId -> layoutActionService.updateSingleAction(actionId, actionDTO));
                     }
                 })
-                .map(ActionDTO::getId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId));
 
-        final Mono<Set<String>> newArchivedActionIdsMono = Mono.just(actionCollectionDTO)
+        final Mono<Map<String, String>> newArchivedActionIdsMono = Mono.just(actionCollectionDTO)
                 .map(ActionCollectionDTO::getArchivedActions)
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(actionDTO -> {
-                    actionDTO.setCollectionId(id);
+                .zipWith(Mono.zip(branchedPageMono, branchedActionCollectionMono))
+                .flatMap(tuple -> {
+                    ActionDTO actionDTO = tuple.getT1();
+                    NewPage branchedPage = tuple.getT2().getT1();
+                    ActionCollection branchedActionCollection = tuple.getT2().getT2();
+                    actionDTO.setCollectionId(branchedActionCollection.getId());
                     actionDTO.setArchivedAt(Instant.now());
                     if (actionDTO.getId() == null) {
                         actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
                         actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
                         actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                         actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
-                        actionDTO.setPageId(actionCollectionDTO.getPageId());
+                        actionDTO.setPageId(branchedPage.getId());
                         // actionCollectionService is a new action, we need to create one
                         return layoutActionService.createSingleAction(actionDTO)
                                 // return an empty action so that the filter can remove it from the list
@@ -481,71 +520,70 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                                     return Mono.empty();
                                 });
                     } else {
-                        return layoutActionService.updateSingleAction(actionDTO.getId(), actionDTO);
+                        // Client only knows about the default action ID, fetch branched action id to update the action
+                        Mono<String> branchedActionIdMono = StringUtils.isEmpty(branchName)
+                                ? Mono.just(actionDTO.getId())
+                                : newActionService
+                                .findByBranchNameAndDefaultActionId(branchName, actionDTO.getId(), MANAGE_ACTIONS)
+                                .map(NewAction::getId);
+                        actionDTO.setId(null);
+                        return branchedActionIdMono
+                                .flatMap(actionId -> layoutActionService.updateSingleAction(actionId, actionDTO));
                     }
                 })
-                .map(ActionDTO::getId)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId));
 
         // First collect all valid action ids from before, and diff against incoming action ids
-        return actionCollectionMono
-                .map(actionCollection -> {
+        return branchedActionCollectionMono
+                .map(branchedActionCollection -> {
                     // From the existing collection, if an action id is not referenced at all anymore,
                     // this means the action has been somehow deleted
-                    final Set<String> oldActionIds = new HashSet<>();
-                    if (actionCollection.getUnpublishedCollection().getActionIds() != null) {
-                        oldActionIds.addAll(actionCollection
+                    final Set<String> oldDefaultActionIds = new HashSet<>();
+                    if (branchedActionCollection.getUnpublishedCollection().getDefaultToBranchedActionIdsMap() != null) {
+                        oldDefaultActionIds.addAll(branchedActionCollection
                                 .getUnpublishedCollection()
-                                .getActionIds());
+                                .getDefaultToBranchedActionIdsMap()
+                                .keySet());
                     }
-                    if (actionCollection.getUnpublishedCollection().getArchivedActionIds() != null) {
-                        oldActionIds.addAll(actionCollection
+                    if (branchedActionCollection.getUnpublishedCollection().getDefaultToBranchedArchivedActionIdsMap() != null) {
+                        oldDefaultActionIds.addAll(branchedActionCollection
                                 .getUnpublishedCollection()
-                                .getArchivedActionIds());
+                                .getDefaultToBranchedArchivedActionIdsMap()
+                                .keySet());
                     }
 
-                    return oldActionIds
+                    return oldDefaultActionIds
                             .stream()
                             .filter(Objects::nonNull)
-                            .filter(x -> !actionIds.contains(x))
+                            .filter(x -> !defaultActionIds.contains(x))
                             .collect(Collectors.toUnmodifiableSet());
                 })
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(actionId -> newActionService.deleteUnpublishedAction(actionId)
+                .flatMap(defaultActionId -> newActionService.findBranchedIdByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+                        .flatMap(newActionService::deleteUnpublishedAction)
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
-                            log.debug("Failed to delete action with id {} for collection: {}", actionId, actionCollectionDTO.getName());
+                            log.debug("Failed to delete action with id {} for collection: {}", defaultActionId, actionCollectionDTO.getName());
                             log.error(throwable.getMessage());
                             return Mono.empty();
                         }))
                 .then(Mono.zip(newValidActionIdsMono, newArchivedActionIdsMono))
                 .flatMap(tuple -> {
-                    actionCollectionDTO.setActionIds(tuple.getT1());
-                    actionCollectionDTO.setArchivedActionIds(tuple.getT2());
-                    return actionCollectionMono
+                    actionCollectionDTO.setDefaultToBranchedActionIdsMap(tuple.getT1());
+                    actionCollectionDTO.setDefaultToBranchedArchivedActionIdsMap(tuple.getT2());
+                    return branchedActionCollectionMono
                             .map(dbActionCollection -> {
                                 copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
                                 return dbActionCollection;
                             });
                 })
-                .flatMap(actionCollection -> actionCollectionService.update(id, actionCollection))
+                .flatMap(actionCollection -> branchedActionCollectionMono
+                        .flatMap(branchedCollection -> actionCollectionService.update(branchedCollection.getId(), actionCollection)))
                 .flatMap(analyticsService::sendUpdateEvent)
                 .flatMap(actionCollection -> actionCollectionService.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
-                                false)));
-    }
-
-    @Override
-    public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO, String branchName) {
-        Mono<String> branchedCollectionIdMono = StringUtils.isEmpty(branchName)
-                ? Mono.just(id)
-                : actionCollectionService
-                    .findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS)
-                    .map(ActionCollection::getId);
-
-        return branchedCollectionIdMono
-                .flatMap(branchedCollectionId -> updateUnpublishedActionCollection(branchedCollectionId, actionCollectionDTO))
+                                false)))
                 .map(sanitiseResponse::updateCollectionDTOWithDefaultResources);
     }
 
@@ -565,12 +603,67 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                 .map(dbActionCollection -> {
                     // Make sure that the action related fields and name are not edited
                     actionCollectionDTO.setName(dbActionCollection.getUnpublishedCollection().getName());
-                    actionCollectionDTO.setActionIds(dbActionCollection.getUnpublishedCollection().getActionIds());
-                    actionCollectionDTO.setArchivedActionIds(dbActionCollection.getUnpublishedCollection().getArchivedActionIds());
+                    actionCollectionDTO.setDefaultToBranchedActionIdsMap(dbActionCollection.getUnpublishedCollection().getDefaultToBranchedActionIdsMap());
+                    actionCollectionDTO.setDefaultToBranchedArchivedActionIdsMap(dbActionCollection.getUnpublishedCollection().getDefaultToBranchedArchivedActionIdsMap());
                     copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollectionDTO.getId(), actionCollection))
                 .then(layoutDTOMono);
+    }
+
+    public Mono<LayoutDTO> refactorAction(RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO, String branchName) {
+
+        RefactorActionNameDTO refactorActionNameDTO = refactorActionNameInCollectionDTO.getRefactorAction();
+        ActionCollectionDTO defaultActionCollection = refactorActionNameInCollectionDTO.getActionCollection();
+        Map<String, String> defaultToBranchedActionIdMap = new HashMap<>();
+        // Fetch branched action as client only knows about the default action IDs
+        Mono<RefactorActionNameDTO> refactorBranchedActionMono = newActionService
+                .findByBranchNameAndDefaultActionId(branchName, refactorActionNameDTO.getActionId(), MANAGE_ACTIONS)
+                .map(branchedAction -> {
+                    refactorActionNameDTO.setActionId(branchedAction.getId());
+                    refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
+                    defaultActionCollection.setPageId(branchedAction.getUnpublishedAction().getPageId());
+                    defaultActionCollection.setApplicationId(branchedAction.getApplicationId());
+                    return refactorActionNameDTO;
+                });
+
+        Mono<String> branchedCollectionIdMono = StringUtils.isEmpty(branchName)
+                ?  Mono.just(defaultActionCollection.getId())
+                : actionCollectionService
+                    .findByBranchNameAndDefaultCollectionId(branchName, defaultActionCollection.getId(), MANAGE_ACTIONS)
+                    .map(actionCollection -> {
+                        defaultToBranchedActionIdMap.putAll(actionCollection.getUnpublishedCollection().getDefaultToBranchedActionIdsMap());
+                        defaultToBranchedActionIdMap.putAll(actionCollection.getUnpublishedCollection().getDefaultToBranchedArchivedActionIdsMap());
+                        return actionCollection.getId();
+                    });
+
+        return Mono.zip(refactorBranchedActionMono, branchedCollectionIdMono)
+                .flatMap(tuple -> {
+                    refactorActionNameInCollectionDTO.setRefactorAction(tuple.getT1());
+                    defaultActionCollection.setId(tuple.getT2());
+                    // As client is not aware of branch specific action IDs, replace default action IDs within
+                    // actionCollection with the branch specific action IDs
+                    defaultActionCollection
+                            .getActions()
+                            .forEach(actionDTO -> {
+                                actionDTO.setPageId(defaultActionCollection.getPageId());
+                                actionDTO.setApplicationId(defaultActionCollection.getApplicationId());
+                                actionDTO.setCollectionId(defaultActionCollection.getId());
+                                actionDTO.setId(defaultToBranchedActionIdMap.get(actionDTO.getId()));
+                            });
+                    if (!CollectionUtils.isNullOrEmpty(defaultActionCollection.getArchivedActions())) {
+                        defaultActionCollection
+                                .getArchivedActions()
+                                .forEach(actionDTO -> {
+                                    actionDTO.setPageId(defaultActionCollection.getPageId());
+                                    actionDTO.setApplicationId(defaultActionCollection.getApplicationId());
+                                    actionDTO.setCollectionId(defaultActionCollection.getId());
+                                    actionDTO.setId(defaultToBranchedActionIdMap.get(actionDTO.getId()));
+                                });
+                    }
+                    return refactorAction(refactorActionNameInCollectionDTO);
+                })
+                .map(sanitiseResponse::updateLayoutDTOWithDefaultResources);
     }
 }

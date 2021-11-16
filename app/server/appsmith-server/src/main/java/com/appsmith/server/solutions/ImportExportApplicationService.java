@@ -406,8 +406,8 @@ public class ImportExportApplicationService {
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
         Map<String, String> actionIdMap = new HashMap<>();
-        Map<String, Set<String>> unpublishedActionCollectionIdMap = new HashMap<>();
-        Map<String, Set<String>> publishedActionCollectionIdMap = new HashMap<>();
+        Map<String, Map<String, String>> unpublishedActionCollectionIdMap = new HashMap<>();
+        Map<String, Map<String, String>> publishedActionCollectionIdMap = new HashMap<>();
         Map<String, String> unpublishedActionIdToCollectionIdMap = new HashMap<>();
         Map<String, String> publishedActionIdToCollectionIdMap = new HashMap<>();
 
@@ -705,9 +705,9 @@ public class ImportExportApplicationService {
                                     );
 
                                     if (unpublishedAction.getCollectionId() != null) {
-                                        unpublishedActionCollectionIdMap.putIfAbsent(unpublishedAction.getCollectionId(), new HashSet<>());
-                                        final Set<String> actionIds = unpublishedActionCollectionIdMap.get(unpublishedAction.getCollectionId());
-                                        actionIds.add(newAction.getId());
+                                        unpublishedActionCollectionIdMap.putIfAbsent(unpublishedAction.getCollectionId(), new HashMap<>());
+                                        final Map<String, String> actionIds = unpublishedActionCollectionIdMap.get(unpublishedAction.getCollectionId());
+                                        actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
                                     }
                                 }
                                 if (newAction.getPublishedAction() != null) {
@@ -718,9 +718,9 @@ public class ImportExportApplicationService {
                                     );
 
                                     if (publishedAction.getCollectionId() != null) {
-                                        publishedActionCollectionIdMap.putIfAbsent(publishedAction.getCollectionId(), new HashSet<>());
-                                        final Set<String> actionIds = publishedActionCollectionIdMap.get(publishedAction.getCollectionId());
-                                        actionIds.add(newAction.getId());
+                                        publishedActionCollectionIdMap.putIfAbsent(publishedAction.getCollectionId(), new HashMap<>());
+                                        final Map<String, String> actionIds = publishedActionCollectionIdMap.get(publishedAction.getCollectionId());
+                                        actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
                                     }
                                 }
                                 return newAction;
@@ -745,7 +745,7 @@ public class ImportExportApplicationService {
                                 final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                                 if (unpublishedCollection != null && unpublishedCollection.getName() != null) {
                                     parentPage = pageNameMap.get(unpublishedCollection.getPageId());
-                                    unpublishedCollection.setActionIds(unpublishedActionCollectionIdMap.get(actionCollection.getId()));
+                                    unpublishedCollection.setDefaultToBranchedActionIdsMap(unpublishedActionCollectionIdMap.get(actionCollection.getId()));
                                     unpublishedCollection.setPageId(parentPage.getId());
                                     unpublishedCollection.setPluginId(pluginMap.get(unpublishedCollection.getPluginId()));
                                 }
@@ -753,7 +753,7 @@ public class ImportExportApplicationService {
                                 final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
                                 if (publishedCollection != null && publishedCollection.getName() != null) {
                                     parentPage = pageNameMap.get(publishedCollection.getPageId());
-                                    publishedCollection.setActionIds(publishedActionCollectionIdMap.get(actionCollection.getId()));
+                                    publishedCollection.setDefaultToBranchedActionIdsMap(publishedActionCollectionIdMap.get(actionCollection.getId()));
                                     publishedCollection.setPageId(parentPage.getId());
                                     publishedCollection.setPluginId(pluginMap.get(publishedCollection.getPluginId()));
                                 }
@@ -795,13 +795,13 @@ public class ImportExportApplicationService {
                                         })
                                         .flatMapMany(createdActionCollection -> {
                                             unpublishedActionCollectionIdMap
-                                                    .getOrDefault(actionCollectionId, Set.of())
-                                                    .forEach(actionId -> {
+                                                    .getOrDefault(actionCollectionId, Map.of())
+                                                    .forEach((defaultActionId, actionId) -> {
                                                         unpublishedActionIdToCollectionIdMap.put(actionId, actionCollectionId);
                                                     });
                                             publishedActionCollectionIdMap
-                                                    .getOrDefault(actionCollectionId, Set.of())
-                                                    .forEach(actionId -> {
+                                                    .getOrDefault(actionCollectionId, Map.of())
+                                                    .forEach((defaultActionId, actionId) -> {
                                                         publishedActionIdToCollectionIdMap.put(actionId, actionCollectionId);
                                                     });
                                             final HashSet<String> actionIds = new HashSet<>();
@@ -877,17 +877,19 @@ public class ImportExportApplicationService {
                 .findNewPagesByApplicationId(application.getId(), AclPermission.MANAGE_PAGES)
                 .collectList();
 
+        Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
             if (newPage.getDefaultResources() != null) {
                 newPage.getDefaultResources().setBranchName(branchName);
             }
-            String layoutId = new ObjectId().toString();
             newPage.setApplicationId(application.getId());
             if (newPage.getUnpublishedPage() != null) {
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
                 newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
                 if (unpublishedMongoEscapedWidget != null) {
                     newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                        String layoutId = new ObjectId().toString();
+                        oldToNewLayoutIds.put(layout.getId(), layoutId);
                         layout.setMongoEscapedWidgetNames(unpublishedMongoEscapedWidget.get(layout.getId()));
                         layout.setId(layoutId);
                     });
@@ -898,6 +900,8 @@ public class ImportExportApplicationService {
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getPublishedPage());
                 if (publishedMongoEscapedWidget != null) {
                     newPage.getPublishedPage().getLayouts().forEach(layout -> {
+                        String layoutId = oldToNewLayoutIds.containsKey(layout.getId())
+                                ? oldToNewLayoutIds.get(layout.getId()) : new ObjectId().toString();
                         layout.setMongoEscapedWidgetNames(publishedMongoEscapedWidget.get(layout.getId()));
                         layout.setId(layoutId);
                     });

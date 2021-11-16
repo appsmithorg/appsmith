@@ -1087,6 +1087,7 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
+    // TODO improve the flow and don't create a branch in the BE directly
     private Mono<String> handleMergeConflict(String defaultApplicationId, String branchName) {
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
         gitBranchDTO.setBranchName(branchName + MERGE_CONFLICT_BRANCH_NAME);
