@@ -217,7 +217,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       },
 
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

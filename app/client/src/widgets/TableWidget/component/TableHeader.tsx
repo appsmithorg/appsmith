@@ -25,7 +25,7 @@ const PageNumberInputWrapper = styled(NumericInput)<{
 }>`
   &&& input {
     box-shadow: none;
-    border: 1px solid ${Colors.DANUBE};
+    border: 1px solid ${Colors.ALTO2};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
     border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
@@ -36,6 +36,9 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
+  }
+  &&& input:focus {
+    border: 1px solid ${Colors.FERN_GREEN};
   }
   &&&.bp3-control-group > :only-child {
     border-radius: 0;

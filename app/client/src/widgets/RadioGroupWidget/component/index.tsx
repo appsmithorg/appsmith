@@ -30,27 +30,38 @@ const StyledRadioGroup = styled(RadioGroup)<{
   backgroundColor: string;
 }>`
   ${BlueprintControlTransform};
+  .${Classes.CONTROL} {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    min-height: 36px;
+    margin: 0px 12px;
+    color: ${Colors.GREY_10};
 
-  && {
-    .${Classes.CONTROL} {
-      & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.GREEN}`};
-        border: 2px solid
-          ${({ backgroundColor }) => `${backgroundColor || Colors.GREEN}`};
+    &:hover {
+      & input:not(:checked) ~ .bp3-control-indicator {
+        border: 1px solid ${Colors.GREY_5} !important;
       }
     }
-
-    .${Classes.SWITCH} {
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.WHITE}`};
-      }
+    & .bp3-control-indicator {
+      border: 1px solid ${Colors.GREY_3};
     }
   }
 
-  label {
-    margin: 7px ${WIDGET_PADDING * 2}px 0 0;
+  .${Classes.CONTROL} {
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.GREEN}`} !important;
+      border: 1px solid
+        ${({ backgroundColor }) => `${backgroundColor || Colors.GREEN}`} !important;
+    }
+  }
+
+  .${Classes.SWITCH} {
+    & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
+      background: ${({ backgroundColor }) =>
+        `${backgroundColor || Colors.WHITE}`};
+    }
   }
 `;
 

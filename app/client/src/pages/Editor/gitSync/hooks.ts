@@ -81,21 +81,25 @@ export const useGitConnect = () => {
 
   const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
-  const [failedConnectingToGit, setFailedConnectingToGit] = useState(false);
+  const [gitError, setGitError] = useState({ message: null });
 
   const onGitConnectSuccess = useCallback(() => {
+    setGitError({ message: null });
     setIsConnectingToGit(false);
   }, [setIsConnectingToGit]);
 
-  const onGitConnectFailure = useCallback(() => {
-    setIsConnectingToGit(false);
-    setFailedConnectingToGit(true);
-  }, [setIsConnectingToGit]);
+  const onGitConnectFailure = useCallback(
+    (error: any) => {
+      setGitError({ message: error.message });
+      setIsConnectingToGit(false);
+    },
+    [setIsConnectingToGit],
+  );
 
   const connectToGit = useCallback(
     (payload: ConnectToGitPayload) => {
       setIsConnectingToGit(true);
-      setFailedConnectingToGit(false);
+      setGitError({ message: null });
 
       // Here after the ssh key pair generation, we fetch the application data again and on success of it
       dispatch(
@@ -111,7 +115,7 @@ export const useGitConnect = () => {
 
   return {
     isConnectingToGit,
-    failedConnectingToGit,
+    gitError,
     connectToGit,
   };
 };

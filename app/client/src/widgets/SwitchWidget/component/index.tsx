@@ -34,7 +34,7 @@ const SwitchComponentContainer = styled.div<{
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
         background: ${({ backgroundColor }) =>
           `${backgroundColor || Colors.GREEN}`};
-        border: 2px solid
+        border: 1px solid
           ${({ backgroundColor }) => `${backgroundColor || Colors.GREEN}`};
       }
     }

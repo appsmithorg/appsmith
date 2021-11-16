@@ -183,7 +183,7 @@ class CheckboxGroupWidget extends BaseWidget<
       },
 
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

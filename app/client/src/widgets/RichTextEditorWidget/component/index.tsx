@@ -24,6 +24,14 @@ const StyledRTEditor = styled.div<{
         `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
     }
   }
+  .tox {
+    .tox-tbtn {
+      cursor: pointer;
+      .tox-tbtn__select-label {
+        cursor: inherit;
+      }
+    }
+  }
 `;
 
 export interface RichtextEditorComponentProps {
@@ -126,6 +134,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         "insertdatetime media table paste code help",
       ],
       toolbar: props.isToolbarHidden ? false : toolbarConfig,
+      toolbar_mode: "sliding",
     });
 
     return () => {

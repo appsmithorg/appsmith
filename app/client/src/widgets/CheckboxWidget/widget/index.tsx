@@ -104,7 +104,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
       },
 
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

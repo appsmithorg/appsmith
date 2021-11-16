@@ -255,6 +255,9 @@ export const PaginationItemWrapper = styled.div<{
   &:hover {
     border-color: ${Colors.GREEN};
   }
+  .bp3-icon svg {
+    fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
+  }
 `;
 
 export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
@@ -290,8 +293,8 @@ export const ActionWrapper = styled.div<{
       text-decoration: none;
     }
     &&& .bp3-disabled {
-      color: ${Colors.SLATE_GRAY};
-      background: ${Colors.MERCURY};
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_4};
     }
   }
 `;

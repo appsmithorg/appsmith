@@ -107,7 +107,7 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
         name !== currentJSObjectConfig?.name &&
         hasNameConflict(name)
       ) {
-        return `${name} is already being used.`;
+        return `${name} is already being used or is a restricted keyword.`;
       }
       return false;
     },
