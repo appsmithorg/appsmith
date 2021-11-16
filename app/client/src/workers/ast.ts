@@ -30,6 +30,7 @@ enum NodeTypes {
   Identifier = "Identifier",
   VariableDeclarator = "VariableDeclarator",
   FunctionDeclaration = "FunctionDeclaration",
+  FunctionExpression = "FunctionExpression",
   AssignmentPattern = "AssignmentPattern",
   Literal = "Literal",
 }
@@ -59,10 +60,19 @@ interface VariableDeclaratorNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#functions
-interface FunctionDeclarationNode extends Node {
-  type: NodeTypes.FunctionDeclaration;
-  id: IdentifierNode;
+interface Function extends Node {
+  id: IdentifierNode | null;
   params: Pattern[];
+}
+
+// doc: https://github.com/estree/estree/blob/master/es5.md#functiondeclaration
+interface FunctionDeclarationNode extends Node, Function {
+  type: NodeTypes.FunctionDeclaration;
+}
+
+// doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
+interface FunctionExpressionNode extends Node, Function {
+  type: NodeTypes.FunctionExpression;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es2015.md#assignmentpattern
@@ -94,6 +104,10 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
   return node.type === NodeTypes.FunctionDeclaration;
 };
 
+const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
+  return node.type === NodeTypes.FunctionExpression;
+};
+
 const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
   return node.type === NodeTypes.AssignmentPattern;
 };
@@ -109,6 +123,14 @@ const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
     isLiteralNode(node.property) &&
     _.isFinite(node.property.value)
   );
+};
+
+const wrapCode = (code: string) => {
+  return `
+    (function() {
+      return ${code}
+    })
+  `;
 };
 
 export const getAST = (code: string) =>
@@ -127,10 +149,19 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   // List of variables declared within the script. This will be removed from identifier list
   const variableDeclarations = new Set<string>();
   // List of functionalParams found. This will be removed from the identifier list
-  const functionalParams = new Set<string>();
+  let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
-    ast = getAST(code);
+    /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
+       Some syntaxes won't be valid unless they're at the RHS of a statement.
+       Since we're assigning all code/script to RHS during evaluation, we do the same here.
+       So that during ast parse, those errors are neglected.
+    */
+    /* e.g. IIFE without braces
+      function() { return 123; }() -> is invalid
+      let result = function() { return 123; }() -> is valid 
+    */
+    ast = getAST(wrapCode(code));
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return 0 identifiers
@@ -198,19 +229,22 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       }
     },
     FunctionDeclaration(node: Node) {
-      // params in functions are also counted as identifiers so we keep
-      // track of them as well and remove them from the final list of identifiers
-      if (isFunctionDeclaration(node)) {
-        node.params.forEach((paramNode) => {
-          if (isIdentifierNode(paramNode)) {
-            functionalParams.add(paramNode.name);
-          } else if (isAssignmentPatternNode(paramNode)) {
-            if (isIdentifierNode(paramNode.left)) {
-              functionalParams.add(paramNode.left.name);
-            }
-          }
-        });
-      }
+      // params in function declarations are also counted as identifiers so we keep
+      // track of them and remove them from the final list of identifiers
+      if (!isFunctionDeclaration(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamsFromNode(node),
+      ]);
+    },
+    FunctionExpression(node: Node) {
+      // params in function experssions are also counted as identifiers so we keep
+      // track of them and remove them from the final list of identifiers
+      if (!isFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamsFromNode(node),
+      ]);
     },
   });
 
@@ -219,6 +253,22 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   functionalParams.forEach((param) => identifiers.delete(param));
 
   return Array.from(identifiers);
+};
+
+const getFunctionalParamsFromNode = (
+  node: FunctionDeclarationNode | FunctionExpressionNode,
+): Set<string> => {
+  const functionalParams = new Set<string>();
+  node.params.forEach((paramNode) => {
+    if (isIdentifierNode(paramNode)) {
+      functionalParams.add(paramNode.name);
+    } else if (isAssignmentPatternNode(paramNode)) {
+      if (isIdentifierNode(paramNode.left)) {
+        functionalParams.add(paramNode.left.name);
+      }
+    }
+  });
+  return functionalParams;
 };
 
 const constructFinalMemberExpIdentifier = (

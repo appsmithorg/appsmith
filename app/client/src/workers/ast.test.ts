@@ -112,8 +112,8 @@ describe("getAllIdentifiers", () => {
         expectedResults: ["JSObject1.run", "Api1.data", "Api2.data"],
       },
       {
-        // IIFE
-        script: `(function() {
+        // IIFE - without braces
+        script: `function() {
           const index = Input1.text   
          
           const obj = {
@@ -122,18 +122,60 @@ describe("getAllIdentifiers", () => {
       
           return obj[index]
       
-      })()`,
+      }()`,
         expectedResults: ["Input1.text"],
+      },
+      {
+        // IIFE
+        script: `(function() {
+          const index = Input2.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      })()`,
+        expectedResults: ["Input2.text"],
+      },
+      {
+        // arrow IIFE - without braces - will fail
+        script: `() => {
+          const index = Input3.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      }()`,
+        expectedResults: [],
+      },
+      {
+        // arrow IIFE
+        script: `(() => {
+          const index = Input4.text   
+         
+          const obj = {
+              "a": 123
+          }
+      
+          return obj[index]
+      
+      })()`,
+        expectedResults: ["Input4.text"],
       },
       {
         // Direct object access
-        script: `{ a: 123 }[Input1.text]`,
-        expectedResults: ["Input1.text"],
+        script: `{ "a": 123 }[Input5.text]`,
+        expectedResults: ["Input5.text"],
       },
       {
         // Function declaration and default arguments
-        script: `function run(data = Api1.data) {
-          return data;
+        script: `function run(apiData = Api1.data) {
+          return apiData;
         }`,
         expectedResults: ["Api1.data"],
       },
