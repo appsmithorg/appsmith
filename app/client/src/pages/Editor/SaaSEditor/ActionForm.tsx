@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import history from "utils/history";
 import { SAAS_EDITOR_FORM } from "constants/forms";
@@ -32,6 +32,7 @@ import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { diff, Diff } from "deep-diff";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import * as Sentry from "@sentry/react";
+import { updateReplayEntity } from "actions/pageActions";
 
 type StateAndRouteProps = EditorJSONtoFormProps & {
   actionObjectDiff?: any;
@@ -55,6 +56,12 @@ function ActionForm(props: Props) {
   const onDeleteClick = () => {
     dispatch(deleteAction({ id: apiId, name: actionName }));
   };
+
+  useEffect(() => {
+    dispatch(
+      updateReplayEntity(props.initialValues.id as string, props.initialValues),
+    );
+  }, []);
 
   const applicationId = useSelector(getCurrentApplicationId);
 
