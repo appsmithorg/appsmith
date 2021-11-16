@@ -26,6 +26,8 @@ import {
   updateBranchLocally,
   gitPullSuccess,
   fetchMergeStatusSuccess,
+  fetchMergeStatusFailure,
+  fetchGitStatusInit,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -41,7 +43,6 @@ import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "constants/messages";
-import { fetchGitStatusInit } from "../actions/gitSyncActions";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
@@ -387,10 +388,7 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
       yield put(fetchMergeStatusSuccess(response.data));
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
-      payload: { error, logToSentry: true, show: false },
-    });
+    yield put(fetchMergeStatusFailure({ error, show: false }));
   }
 }
 

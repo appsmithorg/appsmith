@@ -199,8 +199,12 @@ export const fetchMergeStatusSuccess = (payload: MergeStatus) => ({
   payload,
 });
 
-export const fetchMergeStatusFailure = () => ({
+export const fetchMergeStatusFailure = (payload: {
+  error: string;
+  show: boolean;
+}) => ({
   type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
+  payload,
 });
 
 export const resetMergeStatus = () => ({
