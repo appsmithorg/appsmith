@@ -1,10 +1,12 @@
+import { OccupiedSpace } from "constants/editorConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { debounce, throttle } from "lodash";
+import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
+import { reflowWidgets } from "reducers/uiReducers/reflowReducer";
 import { DimensionProps, ResizeDirection } from "resizable/resizenreflow";
 import { useDragReflow } from "resizable/resizenreflow/useDragReflow";
 import { getNearestParentCanvas } from "utils/generators";
@@ -81,7 +83,6 @@ export const useCanvasDragging = (
     false,
     widgetParentSpaces,
   );
-  const debouncedReflow = debounce(reflow.current);
 
   const {
     setDraggingCanvas,
@@ -169,6 +170,15 @@ export const useCanvasDragging = (
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
       const scrollObj: any = {};
+      let currentReflowParams: {
+        verticalMove: boolean;
+        horizontalMove: boolean;
+        reflowingWidgets: reflowWidgets;
+      } = {
+        verticalMove: false,
+        horizontalMove: false,
+        reflowingWidgets: {},
+      };
       let last_position = {
         x: 0,
         y: 0,
@@ -192,7 +202,43 @@ export const useCanvasDragging = (
         const startPoints = defaultHandlePositions;
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
-            onDrop(currentRectanglesToDraw);
+            const { reflowingWidgets } = currentReflowParams;
+            const reflowedPositionsUpdatesWidgets: OccupiedSpace[] = occSpaces
+              .filter((each) => !!reflowingWidgets[each.id])
+              .map((each) => {
+                const reflowedWidget = reflowingWidgets[each.id];
+                if (
+                  reflowedWidget.X !== undefined &&
+                  Math.abs(reflowedWidget.X)
+                ) {
+                  const movement = reflowedWidget.X / snapColumnSpace;
+                  const newWidth = reflowedWidget.width
+                    ? reflowedWidget.width / snapColumnSpace
+                    : each.right - each.left;
+                  each = {
+                    ...each,
+                    left: each.left + movement,
+                    right: each.left + movement + newWidth,
+                  };
+                }
+                if (
+                  reflowedWidget.Y !== undefined &&
+                  Math.abs(reflowedWidget.Y)
+                ) {
+                  const movement = reflowedWidget.Y / snapRowSpace;
+                  const newHeight = reflowedWidget.height
+                    ? reflowedWidget.height / snapRowSpace
+                    : each.bottom - each.top;
+                  each = {
+                    ...each,
+                    top: each.top + movement,
+                    bottom: each.top + movement + newHeight,
+                  };
+                }
+                return each;
+              });
+
+            onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
           }
           startPoints.top = defaultHandlePositions.top;
           startPoints.left = defaultHandlePositions.left;
@@ -303,48 +349,74 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              renderBlocks();
-              const currentBlock = currentRectanglesToDraw[0];
-              const [leftColumn, topRow] = getDropZoneOffsets(
-                snapColumnSpace,
-                snapRowSpace,
-                {
-                  x: currentBlock.left,
-                  y: currentBlock.top,
-                },
-                {
-                  x: 0,
-                  y: 0,
-                },
-              );
-
-              const block: DimensionProps = {
-                width: currentBlock.width / snapColumnSpace,
-                height: currentBlock.height / snapRowSpace,
-                x: 0,
-                y: 0,
-                X:
-                  (leftColumn -
-                    (widgetOccupiedSpace ? widgetOccupiedSpace.left : 0)) *
+              const canReflow = currentRectanglesToDraw.length === 1;
+              if (canReflow) {
+                const currentBlock = currentRectanglesToDraw[0];
+                const [leftColumn, topRow] = getDropZoneOffsets(
                   snapColumnSpace,
-                Y:
-                  (topRow -
-                    (widgetOccupiedSpace ? widgetOccupiedSpace.top : 0)) *
                   snapRowSpace,
-                direction: currentDirection,
-              };
-              debouncedReflow(
-                block,
-                widgetOccupiedSpace,
-                {
-                  ...currentBlock,
+                  {
+                    x: currentBlock.left,
+                    y: currentBlock.top,
+                  },
+                  {
+                    x: 0,
+                    y: 0,
+                  },
+                );
+
+                const block: DimensionProps = {
                   width: currentBlock.width / snapColumnSpace,
                   height: currentBlock.height / snapRowSpace,
-                  left: leftColumn,
-                  top: topRow,
-                },
-                reflowStateRef.current,
-              );
+                  x: 0,
+                  y: 0,
+                  X:
+                    (leftColumn -
+                      (widgetOccupiedSpace ? widgetOccupiedSpace.left : 0)) *
+                    snapColumnSpace,
+                  Y:
+                    (topRow -
+                      (widgetOccupiedSpace ? widgetOccupiedSpace.top : 0)) *
+                    snapRowSpace,
+                  direction: currentDirection,
+                };
+                currentReflowParams = reflow.current(
+                  block,
+                  widgetOccupiedSpace,
+                  {
+                    ...currentBlock,
+                    width: currentBlock.width / snapColumnSpace,
+                    height: currentBlock.height / snapRowSpace,
+                    left: leftColumn,
+                    top: topRow,
+                  },
+                  reflowStateRef.current,
+                );
+                const isReflowing = !isEmpty(
+                  currentReflowParams.reflowingWidgets,
+                );
+                if (isReflowing) {
+                  const block = currentRectanglesToDraw[0];
+                  const isNotInParentBoundaries = noCollision(
+                    { x: block.left, y: block.top },
+                    snapColumnSpace,
+                    snapRowSpace,
+                    { x: 0, y: 0 },
+                    block.columnWidth,
+                    block.rowHeight,
+                    block.widgetId,
+                    [],
+                    rowRef.current,
+                    GridDefaults.DEFAULT_GRID_COLUMNS,
+                    block.detachFromLayout,
+                  );
+                  currentRectanglesToDraw[0].isNotColliding =
+                    isNotInParentBoundaries &&
+                    (currentReflowParams.horizontalMove ||
+                      currentReflowParams.verticalMove);
+                }
+              }
+              renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
