@@ -596,7 +596,10 @@ export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const GIT_UPSTREAM_CHANGES = () =>
   "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
+export const GIT_CONFLICTING_INFO = () =>
+  "Please resolve the conflicts manually on your repository.";
 
+export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";

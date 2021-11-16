@@ -11,6 +11,8 @@ import {
   GIT_UPSTREAM_CHANGES,
   LEARN_MORE,
   PULL_CHANGS,
+  GIT_CONFLICTING_INFO,
+  OPEN_REPO,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -23,6 +25,7 @@ import {
   getIsCommittingInProgress,
   getIsPullingProgress,
   getGitError,
+  getPullMergeStatus,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -48,6 +51,7 @@ import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
+import log from "loglevel";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -90,7 +94,7 @@ const LintText = styled.a`
   cursor: pointer;
 `;
 
-const PullRequiredWrapper = styled.div`
+const InfoWrapper = styled.div`
   width: 100%;
   padding: ${(props) => props.theme.spaces[3]}px;
   background: ${Colors.WARNING_OUTLINE_HOVER};
@@ -119,6 +123,7 @@ function Deploy() {
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
   const gitError = useSelector(getGitError);
+  const pullMergeStatus = useSelector(getPullMergeStatus);
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
@@ -152,20 +157,27 @@ function Deploy() {
   const commitButtonLoading = isCommittingInProgress;
 
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
+  const isConflicting =
+    pullMergeStatus && pullMergeStatus?.conflictingFiles.length > 0;
   // const pullRequired =
   //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
-  let pullRequired = false;
+  let pullRequired = !isConflicting;
   if (!isFetchingGitStatus && gitError && gitError.code === 5006) {
     pullRequired = gitError.message.indexOf("git  push failed") > -1;
   }
   const showCommitButton =
     // hasChangesToCommit &&
-    !pullRequired && !isFetchingGitStatus && !isCommittingInProgress;
+    !isConflicting &&
+    !pullRequired &&
+    !isFetchingGitStatus &&
+    !isCommittingInProgress;
   const isProgressing =
     commitButtonLoading && (commitRequired || showCommitButton);
   const commitMessageDisplay = hasChangesToCommit
     ? commitMessage
     : NO_CHANGES_TO_COMMIT;
+  log.log(gitStatus);
+  log.log(gitError);
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
@@ -191,7 +203,7 @@ function Deploy() {
         )}
         <Space size={11} />
         {pullRequired && (
-          <PullRequiredWrapper>
+          <InfoWrapper>
             <Text type={TextType.P3}>
               {createMessage(GIT_UPSTREAM_CHANGES)}
             </Text>
@@ -207,9 +219,50 @@ function Deploy() {
                 <Icon name="right-arrow" size={IconSize.SMALL} />
               </Text>
             </LintText>
-          </PullRequiredWrapper>
+          </InfoWrapper>
         )}
         {pullRequired && (
+          <Button
+            className="t--commit-button"
+            isLoading={isPulingProgress}
+            onClick={handlePull}
+            size={Size.medium}
+            tag="button"
+            text={createMessage(PULL_CHANGS)}
+            width="max-content"
+          />
+        )}
+        {isConflicting && (
+          <InfoWrapper>
+            <Text type={TextType.P3}>
+              {createMessage(GIT_CONFLICTING_INFO)}
+            </Text>
+            <LintText href={DOCS_BASE_URL} target="_blank">
+              <Text
+                case={Case.UPPERCASE}
+                className="t--read-document"
+                color={Colors.CHARCOAL}
+                type={TextType.P3}
+                weight={FontWeight.BOLD}
+              >
+                {createMessage(LEARN_MORE)}
+                <Icon name="right-arrow" size={IconSize.SMALL} />
+              </Text>
+            </LintText>
+          </InfoWrapper>
+        )}
+        {isConflicting && (
+          <Button
+            className="t--commit-button"
+            href={gitMetaData?.remoteUrl}
+            isLoading={isPulingProgress}
+            size={Size.medium}
+            tag="a"
+            text={createMessage(OPEN_REPO)}
+            width="max-content"
+          />
+        )}
+        {isConflicting && (
           <Button
             className="t--commit-button"
             isLoading={isPulingProgress}
@@ -251,7 +304,7 @@ function Deploy() {
         )}
         <GitSyncError />
       </Section>
-      {!pullRequired && (
+      {!pullRequired && !isConflicting && (
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
     </Container>
