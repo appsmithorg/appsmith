@@ -6,7 +6,6 @@ import {
   createMessage,
   MERGE_CHANGES,
   SELECT_BRANCH_TO_MERGE,
-  FETCH_MERGE_STATUS,
 } from "constants/messages";
 import { ReactComponent as MergeIcon } from "assets/icons/ads/git-merge.svg";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
@@ -15,11 +14,13 @@ import styled from "styled-components";
 import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { getGitBranches, getPullMergeStatus } from "selectors/gitSyncSelectors";
+import { getGitBranches, getMergeStatus } from "selectors/gitSyncSelectors";
+import { getPullMergeStatus } from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   mergeBranchInit,
   fetchBranchesInit,
+  resetMergeStatus,
   fetchGitStatusInit,
 } from "actions/gitSyncActions";
 import {
@@ -27,7 +28,7 @@ import {
   getFetchingBranches,
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
-import StatusLoader from "../components/StatusLoader";
+import MergeStatus from "../components/MergeStatus";
 import GitChanged from "../components/GitChanged";
 import { log } from "loglevel";
 
@@ -36,19 +37,17 @@ const Row = styled.div`
   align-items: center;
 `;
 
-const Flex = styled.div`
-  display: flex;
-`;
-
 const DEFAULT_OPTION = "--Select--";
 
 export default function Merge() {
+  const dispatch = useDispatch();
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitBranches = useSelector(getGitBranches);
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
+  const mergeStatus = useSelector(getMergeStatus);
+  const isMergeAble = mergeStatus?.isMergeAble;
   const pullMergeStatus: any = useSelector(getPullMergeStatus);
-  const dispatch = useDispatch();
   const currentBranch = gitMetaData?.branchName;
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
@@ -95,6 +94,9 @@ export default function Merge() {
   useEffect(() => {
     dispatch(fetchGitStatusInit());
     dispatch(fetchBranchesInit());
+    return () => {
+      dispatch(resetMergeStatus());
+    };
   }, []);
 
   useEffect(() => {
@@ -114,7 +116,9 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption.value, dispatch]);
 
   const mergeBtnDisabled =
-    DEFAULT_OPTION === selectedBranchOption.value || isFetchingMergeStatus;
+    DEFAULT_OPTION === selectedBranchOption.value ||
+    isFetchingMergeStatus ||
+    !isMergeAble;
 
   log(pullMergeStatus);
 
@@ -153,12 +157,7 @@ export default function Merge() {
           width={"220px"}
         />
       </Row>
-      {isFetchingMergeStatus && (
-        <Flex>
-          <Space horizontal size={10} />
-          <StatusLoader loaderMsg={createMessage(FETCH_MERGE_STATUS)} />
-        </Flex>
-      )}
+      <MergeStatus />
       <Space size={10} />
 
       <Button

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ReactComponent as GitMerge } from "assets/icons/ads/git-merge.svg";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
