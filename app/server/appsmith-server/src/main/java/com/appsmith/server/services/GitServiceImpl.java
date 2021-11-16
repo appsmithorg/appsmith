@@ -809,7 +809,7 @@ public class GitServiceImpl implements GitService {
                                     // On merge conflict send the response with the error message
                                     MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                     mergeStatus.setStatus(error.getMessage());
-                                    mergeStatus.setMerge(false);
+                                    mergeStatus.setMergeAble(false);
                                     return Mono.just(mergeStatus);
                                     //return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", error.getMessage()));
                                 } else {
