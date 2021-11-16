@@ -282,7 +282,7 @@ public class FileUtilsImpl implements FileInterface {
             File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
             FileUtils.writeStringToFile(file, data, "UTF-8", true);
 
-            return baseRepoSuffix;
+            return Paths.get(gitServiceConfig.getGitRootPath());
         }).subscribeOn(scheduler);
     }
 

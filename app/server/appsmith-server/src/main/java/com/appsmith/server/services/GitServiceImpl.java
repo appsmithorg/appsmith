@@ -452,7 +452,7 @@ public class GitServiceImpl implements GitService {
                     gitCommitDTO.setDoPush(true);
                     gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
 
-                    return gitExecutor.commitApplication(repoPath, DEFAULT_COMMIT_MESSAGE, gitConnectDTO.getGitProfile().getAuthorName(), gitConnectDTO.getGitProfile().getAuthorEmail())
+                    return gitExecutor.commitApplication(tuple.getT1().resolve(repoPath), DEFAULT_COMMIT_MESSAGE, gitConnectDTO.getGitProfile().getAuthorName(), gitConnectDTO.getGitProfile().getAuthorEmail())
                             .flatMap(status -> gitExecutor.checkoutToBranch(repoPath, application.getGitApplicationMetadata().getBranchName())
                                     .then(gitExecutor.pushApplication(
                                             repoPath,
