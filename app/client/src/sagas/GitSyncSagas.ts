@@ -28,13 +28,14 @@ import {
   fetchMergeStatusSuccess,
   fetchMergeStatusFailure,
   fetchGitStatusInit,
+  setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
   ConnectToGitReduxAction,
 } from "../actions/gitSyncActions";
 import { ApiResponse } from "api/ApiResponses";
-import { GitConfig } from "entities/GitSync";
+import { GitConfig, GitSyncModalTab } from "entities/GitSync";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
@@ -402,14 +403,17 @@ function* gitPullSaga() {
     if (isValidResponse) {
       const { mergeStatus } = response.data;
       yield put(gitPullSuccess(mergeStatus));
-      // re-init after a successfull pull
-      if (mergeStatus.isMergeAble) {
-        yield put(initEditor(applicationId, currentPageId, currentBranch));
-      } else {
-        // todo handle error
-      }
+      yield put(initEditor(applicationId, currentPageId, currentBranch));
     }
   } catch (e) {
+    // todo check based on error type
+    yield put(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.DEPLOY,
+      }),
+    );
+
     yield put({
       type: ReduxActionErrorTypes.GIT_PULL_ERROR,
       payload: { error: e, logToSentry: true, show: false },

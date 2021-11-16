@@ -27,14 +27,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
 import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab, MergeStatus } from "entities/GitSync";
+import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
 import {
   getGitStatus,
   getIsGitConnected,
-  getPullMergeStatus,
   getPullInProgress,
   getIsFetchingGitStatus,
+  getPullFailed,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 
@@ -115,12 +115,11 @@ function QuickActionButton({
   );
 }
 
-const getPullBtnStatus = (gitStatus: any, pullMergeStatus?: MergeStatus) => {
+const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
   const { behindCount } = gitStatus || {};
-  const { conflictingFiles: pullConflicts = [] } = pullMergeStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
   const disabled = behindCount === 0;
-  if (pullConflicts.length > 0) {
+  if (pullFailed) {
     message = createMessage(CONFLICTS_FOUND);
   } else if (behindCount > 0) {
     message = createMessage(PULL);
@@ -243,12 +242,12 @@ export default function QuickGitActions() {
   const isGitConnected = useSelector(getIsGitConnected);
   const dispatch = useDispatch();
   const gitStatus = useSelector(getGitStatus);
-  const pullMergeStatus = useSelector(getPullMergeStatus);
+  const pullFailed = useSelector(getPullFailed);
 
   const {
     disabled: pullDisabled,
     message: pullTooltipMessage,
-  } = getPullBtnStatus(gitStatus, pullMergeStatus);
+  } = getPullBtnStatus(gitStatus, !!pullFailed);
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);

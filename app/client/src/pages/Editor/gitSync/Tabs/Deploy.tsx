@@ -25,7 +25,7 @@ import {
   getIsCommittingInProgress,
   getIsPullingProgress,
   getGitError,
-  getPullMergeStatus,
+  getPullFailed,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -128,7 +128,7 @@ function Deploy() {
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
   const gitError = useSelector(getGitError);
-  const pullMergeStatus = useSelector(getPullMergeStatus);
+  const pullFailed = useSelector(getPullFailed);
 
   const currentBranch = gitMetaData?.branchName;
   const dispatch = useDispatch();
@@ -162,10 +162,7 @@ function Deploy() {
   const commitButtonLoading = isCommittingInProgress;
 
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
-  const isConflicting =
-    !isFetchingGitStatus &&
-    pullMergeStatus &&
-    pullMergeStatus?.conflictingFiles?.length > 0;
+  const isConflicting = !isFetchingGitStatus && pullFailed;
   // const pullRequired =
   //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
   let pullRequired = false;

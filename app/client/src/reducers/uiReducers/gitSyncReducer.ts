@@ -14,17 +14,6 @@ const initialState: GitSyncReducerState = {
   isPushSuccessful: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
-  gitPushError: `
-    README.md 
-    app/client/cypress/support/commands.js
-    app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
-    README.md 
-    app/client/cypress/support/commands.js
-    app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
-    README.md 
-    app/client/cypress/support/commands.js
-    app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
-  `,
   isImportAppViaGitModalOpen: false,
   isFetchingGitStatus: false,
   isFetchingMergeStatus: false,
@@ -90,13 +79,9 @@ const gitSyncReducer = createReducer(initialState, {
     isPushingToGit: false,
     isPushSuccessful: true,
   }),
-  [ReduxActionErrorTypes.PUSH_TO_GIT_ERROR]: (
-    state: GitSyncReducerState,
-    action: ReduxAction<string>,
-  ) => ({
+  [ReduxActionErrorTypes.PUSH_TO_GIT_ERROR]: (state: GitSyncReducerState) => ({
     ...state,
     isPushingToGit: false,
-    gitPushError: action.payload,
   }),
   [ReduxActionTypes.SHOW_ERROR_POPUP]: (
     state: GitSyncReducerState,
@@ -276,6 +261,7 @@ const gitSyncReducer = createReducer(initialState, {
     action: ReduxAction<MergeStatus>,
   ) => ({
     ...state,
+    pullFailed: false,
     pullMergeStatus: action.payload,
     pullInProgress: false,
   }),
@@ -287,10 +273,11 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.GIT_PULL_ERROR]: (state: GitSyncReducerState) => ({
     ...state,
     pullInProgress: false,
+    pullFailed: true,
   }),
   [ReduxActionTypes.RESET_PULL_MERGE_STATUS]: (state: GitSyncReducerState) => ({
     ...state,
-    pullMergeStatus: null,
+    pullFailed: false,
   }),
 });
 
@@ -329,7 +316,6 @@ export type GitSyncReducerState = {
   isImportAppViaGitModalOpen: boolean;
   organizationIdForImport?: string;
   isErrorPopupVisible?: boolean;
-  gitPushError?: string;
   globalGitConfig: GitConfig;
 
   branches: Array<{ branchName: string; default: boolean }>;
@@ -338,7 +324,7 @@ export type GitSyncReducerState = {
   gitStatus?: GitStatusData;
   mergeStatus?: MergeStatus;
   gitError?: GitErrorType;
-  pullMergeStatus?: MergeStatus;
+  pullFailed?: boolean;
   pullInProgress?: boolean;
 };
 
