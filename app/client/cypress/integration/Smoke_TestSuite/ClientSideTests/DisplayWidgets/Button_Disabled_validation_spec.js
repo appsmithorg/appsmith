@@ -1,7 +1,7 @@
 const dsl = require("../../../../fixtures/buttonDisabledDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
-describe("Disabled Button Widget Functionality", function() {
+describe("Disabled Widgets drag Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
