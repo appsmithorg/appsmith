@@ -975,7 +975,7 @@ public class GitServiceTest {
         testApplication1.setGitApplicationMetadata(gitApplicationMetadata1);
         Application application2 = applicationPageService.createApplication(testApplication1).block();
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", gitCheckoutBranchDTO);
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", true);
 
         StepVerifier
                 .create(applicationMono)
