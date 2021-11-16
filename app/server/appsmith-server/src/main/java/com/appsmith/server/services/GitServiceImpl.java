@@ -963,10 +963,7 @@ public class GitServiceImpl implements GitService {
                     // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab handleMergeConflict
                     .onErrorResume(error -> {
                         if(error.getMessage().contains("Merge conflict")) {
-                            MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
-                            valueMap.add(FieldName.BRANCH_NAME, destinationBranch);
-                            return handleMergeConflict(defaultApplicationId, valueMap)
-                                    .flatMap(status -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge",error.getMessage() )));
+                            return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "Merge", error.getMessage()));
                         }
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "Merge", error.getMessage()));
                     });
@@ -1026,26 +1023,10 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
                 .flatMap(applicationJson -> {
                     try {
-                        return gitExecutor.checkoutToBranch(repoPath, sourceBranch)
-                                .then(fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, sourceBranch));
+                        return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, sourceBranch);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, e.getMessage()));
                     }
-                });
-    }
-
-    private Mono<String> handleMergeConflict(String defaultApplicationId, MultiValueMap<String, String> branchName) {
-        GitBranchDTO gitBranchDTO = new GitBranchDTO();
-        gitBranchDTO.setBranchName(branchName + MERGE_CONFLICT_BRANCH_NAME);
-
-        return createBranch(defaultApplicationId, gitBranchDTO, branchName)
-                .flatMap(application -> {
-                    GitCommitDTO gitCommitDTO = new GitCommitDTO();
-                    gitCommitDTO.setDoPush(true);
-                    gitCommitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
-                    // TODO delete the branches created as part of conflicts handling
-                    return commitApplication(gitCommitDTO, defaultApplicationId, branchName)
-                            .flatMap(status -> pushApplication(defaultApplicationId, true));
                 });
     }
 
