@@ -32,7 +32,9 @@ const initialState: GitSyncReducerState = {
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
-  isDisconnectingGit: false,
+
+  isFetchingLocalGitConfig: false,
+  isFetchingGitConfig: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -233,17 +235,6 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitStatus: false,
   }),
-  [ReduxActionTypes.DISCONNECT_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
-    ...state,
-    isDisconnectingGit: true,
-    gitError: null,
-  }),
-  [ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS]: (
-    state: GitSyncReducerState,
-  ) => ({
-    ...state,
-    isDisconnectingGit: false,
-  }),
   [ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR]: (
     state: GitSyncReducerState,
   ) => ({
@@ -275,6 +266,10 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isFetchingMergeStatus: false,
+  }),
+  [ReduxActionTypes.RESET_MERGE_STATUS]: (state: GitSyncReducerState) => ({
+    ...state,
+    mergeStatus: null,
   }),
   [ReduxActionTypes.GIT_PULL_SUCCESS]: (
     state: GitSyncReducerState,
@@ -312,29 +307,36 @@ export type GitErrorType = {
   message: string;
 };
 
+export type MergeStatusData = {
+  isMergeAble: boolean;
+};
+
 export type GitSyncReducerState = {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
   isCommitSuccessful: boolean;
   isPushSuccessful: boolean;
   isPushingToGit?: boolean;
+
+  fetchingBranches: boolean;
+  isFetchingGitConfig: boolean;
+  isFetchingLocalGitConfig: boolean;
+
+  isFetchingGitStatus: boolean;
+  isFetchingMergeStatus: boolean;
+
   activeGitSyncModalTab: GitSyncModalTab;
   isImportAppViaGitModalOpen: boolean;
   organizationIdForImport?: string;
   isErrorPopupVisible?: boolean;
   gitPushError?: string;
   globalGitConfig: GitConfig;
-  isFetchingGitConfig?: boolean;
-
-  isDisconnectingGit: boolean;
 
   branches: Array<{ branchName: string; default: boolean }>;
-  fetchingBranches: boolean;
-  isFetchingLocalGitConfig?: boolean;
-  isFetchingGitStatus: boolean;
-  isFetchingMergeStatus: boolean;
+
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
+  mergeStatus?: MergeStatusData | null;
   gitError?: GitErrorType;
   pullMergeStatus?: MergeStatus;
   pullInProgress?: boolean;

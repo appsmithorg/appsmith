@@ -556,8 +556,7 @@ export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
-export const LATEST_DP_SUBTITLE = () =>
-  "See your application in action after successful push";
+export const LATEST_DP_SUBTITLE = () => "last deployed";
 export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
@@ -588,12 +587,16 @@ export const REMOTE_URL_INPUT_PLACEHOLDER = () => "Paste Your URL here";
 export const COPIED_SSH_KEY = () => "Copied SSH Key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
-  "Please paste SSH URL of your repository";
+  "Please enter valid SSH URL of your repository";
 export const GENERATE_KEY = () => "Generate Key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
+export const NO_MERGE_CONFLICT = () =>
+  "This branch has no conflict with the base branch.";
+export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
+export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
 export const GIT_UPSTREAM_CHANGES = () =>
   "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
 export const GIT_CONFLICTING_INFO = () =>

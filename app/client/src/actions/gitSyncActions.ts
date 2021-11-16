@@ -74,16 +74,6 @@ export const connectToGitSuccess = (payload: ConnectToGitResponse) => ({
   payload,
 });
 
-export const disconnectToGitInit = () => ({
-  type: ReduxActionTypes.DISCONNECT_TO_GIT_INIT,
-  payload: null,
-});
-
-export const disconnectToGitSuccess = (payload: unknown) => ({
-  type: ReduxActionTypes.DISCONNECT_TO_GIT_SUCCESS,
-  payload,
-});
-
 export const switchGitBranchInit = (branch: string) => ({
   type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
   payload: branch,
@@ -211,6 +201,10 @@ export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
 
 export const fetchMergeStatusFailure = () => ({
   type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
+});
+
+export const resetMergeStatus = () => ({
+  type: ReduxActionTypes.RESET_MERGE_STATUS,
 });
 
 export const gitPullInit = () => ({

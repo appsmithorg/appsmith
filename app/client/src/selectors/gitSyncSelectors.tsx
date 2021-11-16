@@ -51,6 +51,18 @@ export const getGlobalGitConfig = (state: AppState) =>
 export const getLocalGitConfig = (state: AppState) =>
   state.ui.gitSync.localGitConfig;
 
+export const getIsLocalConfigDefined = createSelector(
+  getLocalGitConfig,
+  (localGitConfig) =>
+    !!(localGitConfig.authorEmail || localGitConfig.authorName),
+);
+
+export const getIsGlobalConfigDefined = createSelector(
+  getGlobalGitConfig,
+  (globalGitConfig) =>
+    !!(globalGitConfig.authorEmail || globalGitConfig.authorName),
+);
+
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingGitConfig;
 
@@ -70,8 +82,7 @@ export const getIsPullingProgress = (state: AppState) =>
 export const getIsFetchingMergeStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingMergeStatus;
 
-export const getIsDisconnectingGit = (state: AppState) =>
-  state.ui.gitSync.isDisconnectingGit;
+export const getMergeStatus = (state: AppState) => state.ui.gitSync.mergeStatus;
 
 export const getIsGitConnected = createSelector(
   getCurrentAppGitMetaData,
