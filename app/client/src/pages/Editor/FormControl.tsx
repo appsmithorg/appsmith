@@ -22,7 +22,7 @@ function FormControl(props: FormControlProps) {
   return (
     <div
       className={`t--form-control-${props.config.controlType}`}
-      id={btoa(props.config.configProperty)}
+      data-replay-id={btoa(props.config.configProperty)}
     >
       {FormControlFactory.createControl(
         props.config,

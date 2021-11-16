@@ -32,14 +32,7 @@ class DynamicTextField extends React.Component<
       size: this.props.size || EditorSize.COMPACT,
     };
 
-    return (
-      <Field
-        component={CodeEditor}
-        data-replay-id={btoa(this.props.name)}
-        {...this.props}
-        {...editorProps}
-      />
-    );
+    return <Field component={CodeEditor} {...this.props} {...editorProps} />;
   }
 }
 

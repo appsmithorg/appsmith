@@ -31,6 +31,6 @@ export const PopoverStyles = createGlobalStyle`
   }
 
   .flash * {
-    color: #F86A2B !important;
+      border-color: #F86A2B !important;
   }
 `;

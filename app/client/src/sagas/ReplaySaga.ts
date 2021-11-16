@@ -3,7 +3,6 @@ import {
   put,
   select,
   call,
-  take,
   takeLatest,
   all,
   delay,
@@ -33,6 +32,9 @@ import { flashElementsById } from "utils/helpers";
 import {
   scrollWidgetIntoView,
   processUndoRedoToasts,
+  highlightReplayElement,
+  switchTab,
+  expandAccordion,
 } from "utils/replayHelpers";
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
@@ -199,42 +201,10 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         break;
       }
       case ReplayEntityType.ACTION:
-        const { currentTab } = yield call(
-          replayPreProcess,
-          replayEntity,
-          replay,
-          ReplayEntityType.ACTION,
-        );
-        yield call(switchTab, currentTab);
-        yield put(
-          isQueryAction(replayEntity)
-            ? changeQuery(replayEntity.id, false, replayEntity)
-            : changeApi(
-                replayEntity.id,
-                isSaasAction(replayEntity),
-                false,
-                replayEntity,
-              ),
-        );
-        yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
-        yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
-        flashElementsById(btoa(replay.modifiedProperty), 0, 500, "flash");
-        // yield call(replayPostProcess, replayEntity, replay, replayEntityType);
+        yield replayActionSaga(replayEntity, replay);
         break;
       case ReplayEntityType.DATASOURCE: {
-        const { fieldInfo } = yield call(
-          replayPreProcess,
-          replayEntity,
-          replay,
-          ReplayEntityType.DATASOURCE,
-        );
-        const { parentSection = "" } = fieldInfo;
-        // const { sectionName } = parentConfig;
-        yield call(expandAccordion, parentSection);
-        yield put(
-          changeDatasource({ datasource: replayEntity, isReplay: true }),
-        );
-        flashElementsById(btoa(replay.modifiedProperty), 0, 500, "flash");
+        yield replayDatasourceSaga(replayEntity, replay);
         break;
       }
       case ReplayEntityType.JSACTION:
@@ -247,35 +217,22 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   }
 }
 
-export function* switchTab(replayId: string) {
-  if (!replayId) return;
-  (document.querySelector(
-    `[data-replay-id="${replayId}"]`,
-  ) as HTMLElement)?.click();
-  yield delay(100);
-}
-
-export function* expandAccordion(replayId: string) {
-  if (!replayId) return;
-  (document
-    .querySelector(`[data-replay-id="section-${replayId}"]`)
-    ?.querySelector(".bp3-icon-chevron-down") as HTMLElement)?.click();
-  yield delay(100);
-}
-
 export function* replayPreProcess(
   replayEntity: any,
   replay: any,
   replayEntityType: ReplayEntityType,
 ) {
-  const { modifiedProperty } = replay;
   let res = {};
+  const { updates = [] } = replay;
+  if (updates.length > 1) return res;
+  const { modifiedProperty } = updates[0] || {};
+  if (!modifiedProperty) return res;
   if (replayEntityType === ReplayEntityType.ACTION) {
     res = yield call(getEditorFieldConfig, replayEntity, modifiedProperty);
   } else if (replayEntityType === ReplayEntityType.DATASOURCE) {
     res = yield call(getDatasourceFieldConfig, replayEntity, modifiedProperty);
   }
-  return res;
+  return { ...res, modifiedProperty };
 }
 
 function* getDatasourceFieldConfig(
@@ -328,4 +285,43 @@ function* getEditorFieldConfig(replayEntity: any, modifiedProperty: string) {
     }
   }
   return { currentTab, fieldInfo };
+}
+
+function* replayActionSaga(replayEntity: any, replay: any) {
+  const { currentTab, modifiedProperty } = yield call(
+    replayPreProcess,
+    replayEntity,
+    replay,
+    ReplayEntityType.ACTION,
+  );
+  yield call(switchTab, currentTab);
+  yield delay(100);
+  if (isQueryAction(replayEntity)) {
+    yield put(changeQuery(replayEntity.id, false, replayEntity));
+  } else {
+    yield put(
+      changeApi(
+        replayEntity.id,
+        isSaasAction(replayEntity),
+        false,
+        replayEntity,
+      ),
+    );
+  }
+  highlightReplayElement(modifiedProperty);
+  yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
+}
+
+function* replayDatasourceSaga(replayEntity: any, replay: any) {
+  const { fieldInfo, modifiedProperty } = yield call(
+    replayPreProcess,
+    replayEntity,
+    replay,
+    ReplayEntityType.DATASOURCE,
+  );
+  const { parentSection = "" } = fieldInfo;
+  yield call(expandAccordion, parentSection);
+  yield delay(100);
+  yield put(changeDatasource({ datasource: replayEntity, isReplay: true }));
+  highlightReplayElement(modifiedProperty);
 }
