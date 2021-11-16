@@ -137,6 +137,7 @@ export const Colors = {
   GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
+  GREY_4: "#716E6E",
   GREY_5: "#E0DEDE",
   GREY_6: "#A9A7A7",
   GREY_7: "#858282",
@@ -145,6 +146,8 @@ export const Colors = {
   GREY_10: "#090707",
 
   PRIMARY_ORANGE: "#F86A2B",
+
+  GREEN_SOLID: "#50AF6C",
   MIRAGE: "#182026",
 
   GREEN_1: "#50AF6C",

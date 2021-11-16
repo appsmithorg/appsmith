@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class MergeStatusDTO {
-    boolean isMerge;
+    boolean isMergeAble;
 
     String status;
 

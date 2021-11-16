@@ -856,25 +856,32 @@ public class GitServiceImpl implements GitService {
                                 if (error.getMessage().contains("Nothing to fetch.")) {
                                     MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                     mergeStatus.setStatus("Nothing to fetch from remote. All changes are upto date.");
-                                    mergeStatus.setMerge(false);
+                                    mergeStatus.setMergeAble(false);
                                     return Mono.just(mergeStatus);
                                 } else if(error.getMessage().contains("Merge conflict")) {
-                                    // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab
-                                    return handleMergeConflict(defaultApplicationId, branchName)
-                                            .flatMap(status -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull",error.getMessage() )));
+                                    // On merge conflict send the response with the error message
+                                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                    mergeStatus.setStatus(error.getMessage());
+                                    mergeStatus.setMergeAble(false);
+                                    return Mono.just(mergeStatus);
+                                    //return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", error.getMessage()));
                                 } else {
                                     throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage());
                                 }
                             });
-
+                    return Mono.zip(pullStatus, Mono.just(application));
+                })
+                .flatMap(objects -> {
                     //3. Hydrate from file system to db
+                    Application application = objects.getT2();
+                    MergeStatusDTO pullStatus = objects.getT1();
                     try {
                         Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
                                 application.getOrganizationId(),
                                 defaultApplicationId,
                                 application.getGitApplicationMetadata().getRepoName(),
                                 branchName);
-                        return Mono.zip(pullStatus, Mono.just(application), applicationJson);
+                        return Mono.zip(Mono.just(pullStatus), Mono.just(application), applicationJson);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", e.getMessage()));
                     }
@@ -1054,7 +1061,7 @@ public class GitServiceImpl implements GitService {
                     ApplicationJson applicationJson = tuple.getT3();
                     MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
                     mergeStatusDTO.setStatus(tuple.getT1());
-                    mergeStatusDTO.setMerge(Boolean.TRUE);
+                    mergeStatusDTO.setMergeAble(Boolean.TRUE);
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
@@ -1064,9 +1071,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
-        String sourceBranch = gitMergeDTO.getSourceBranch();
-        String destinationBranch = gitMergeDTO.getDestinationBranch();
+    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1090,7 +1095,8 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
                 .flatMap(applicationJson -> {
                     try {
-                        return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, sourceBranch);
+                        return gitExecutor.checkoutToBranch(repoPath, sourceBranch)
+                                .then(fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, sourceBranch));
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, e.getMessage()));
                     }

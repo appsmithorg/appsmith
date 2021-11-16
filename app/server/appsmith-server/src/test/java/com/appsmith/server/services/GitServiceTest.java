@@ -776,7 +776,7 @@ public class GitServiceTest {
         Application application = createApplicationConnectedToGit("NoChangesInRemote");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
         mergeStatusDTO.setStatus("2 commits pulled");
-        mergeStatusDTO.setMerge(true);
+        mergeStatusDTO.setMergeAble(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
@@ -808,7 +808,7 @@ public class GitServiceTest {
         Application application = createApplicationConnectedToGit("FileSystemAccessError");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
         mergeStatusDTO.setStatus("2 commits pulled");
-        mergeStatusDTO.setMerge(true);
+        mergeStatusDTO.setMergeAble(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenThrow(new IOException("Error accessing the file System"));
@@ -835,7 +835,7 @@ public class GitServiceTest {
         Application application = createApplicationConnectedToGit("pullChanges_NoChangesInRemotePullException_ShowError");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
         mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
-        mergeStatusDTO.setMerge(true);
+        mergeStatusDTO.setMergeAble(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
@@ -855,7 +855,6 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void pullChanges_HydrateApplicationToFileSystem_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("NoChangesInRemotePullException");
-        ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId(), "").block();
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
@@ -880,18 +879,18 @@ public class GitServiceTest {
         gitMergeDTO.setDestinationBranch("branch2");
 
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
-        mergeStatus.setMerge(true);
+        mergeStatus.setMergeAble(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1", "branch2");
 
         StepVerifier
                 .create(applicationMono)
-                .assertNext(s -> assertThat(s.isMerge()));
+                .assertNext(s -> assertThat(s.isMergeAble()));
 
     }
 
@@ -904,17 +903,17 @@ public class GitServiceTest {
         gitMergeDTO.setDestinationBranch("branch2");
 
         MergeStatusDTO mergeStatus = new MergeStatusDTO();
-        mergeStatus.setMerge(true);
+        mergeStatus.setMergeAble(true);
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1", "branch2");
 
         StepVerifier
                 .create(applicationMono)
-                .assertNext(s -> assertThat(s.isMerge()));
+                .assertNext(s -> assertThat(s.isMergeAble()));
     }
 
     @Test
@@ -976,7 +975,7 @@ public class GitServiceTest {
         testApplication1.setGitApplicationMetadata(gitApplicationMetadata1);
         Application application2 = applicationPageService.createApplication(testApplication1).block();
 
-        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", true);
+        Mono<Application> applicationMono = gitDataService.checkoutBranch(application.getId(), "testRemoteBranch", gitCheckoutBranchDTO);
 
         StepVerifier
                 .create(applicationMono)

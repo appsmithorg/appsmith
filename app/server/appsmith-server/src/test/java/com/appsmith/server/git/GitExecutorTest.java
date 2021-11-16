@@ -133,7 +133,7 @@ public class GitExecutorTest {
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s.isMerge());
+                    assertThat(s.isMergeAble());
                 })
                 .verifyComplete();
 
@@ -158,7 +158,7 @@ public class GitExecutorTest {
         StepVerifier
                 .create(mergeableStatus)
                 .assertNext( s -> {
-                    assertThat(s.isMerge());
+                    assertThat(s.isMergeAble());
                 })
                 .verifyComplete();
 
