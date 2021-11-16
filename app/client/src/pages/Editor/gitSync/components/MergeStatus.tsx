@@ -1,12 +1,22 @@
 import React from "react";
-import { createMessage, FETCH_MERGE_STATUS } from "constants/messages";
+import {
+  createMessage,
+  FETCH_MERGE_STATUS,
+  FETCH_MERGE_STATUS_FAILURE,
+  MERGE_CONFLICT_ERROR,
+  NO_MERGE_CONFLICT,
+} from "constants/messages";
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
 import { Space } from "./StyledComponents";
 import { useSelector } from "react-redux";
-import { getIsFetchingMergeStatus } from "selectors/gitSyncSelectors";
+import {
+  getIsFetchingMergeStatus,
+  getMergeStatus,
+} from "selectors/gitSyncSelectors";
 import Text, { TextType } from "components/ads/Text";
-import { ReactComponent as ErrorWarning } from "assets/svg/error-warning-line.svg";
+import ErrorWarning from "remixicon-react/ErrorWarningLineIcon";
+import CheckLine from "remixicon-react/CheckLineIcon";
 import { Colors } from "constants/Colors";
 
 const Flex = styled.div`
@@ -28,11 +38,18 @@ const Wrapper = styled.div`
 
 function MergeStatus() {
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
-  const mergeStatus = isFetchingMergeStatus
-    ? MERGE_STATUS_STATE.FETCHING
-    : MERGE_STATUS_STATE.NONE;
+  const mergeStatus = useSelector(getMergeStatus);
 
-  switch (mergeStatus) {
+  let status = MERGE_STATUS_STATE.NONE;
+  if (isFetchingMergeStatus) {
+    status = MERGE_STATUS_STATE.FETCHING;
+  } else if (mergeStatus && mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.NO_CONFLICT;
+  } else if (mergeStatus && !mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.MERGE_CONFLICT;
+  }
+
+  switch (status) {
     case MERGE_STATUS_STATE.FETCHING:
       return (
         <Flex>
@@ -45,8 +62,14 @@ function MergeStatus() {
         <Flex>
           <Space horizontal size={10} />
           <Wrapper>
-            <Text style={{ marginLeft: 8 }} type={TextType.P3}>
-              {createMessage(FETCH_MERGE_STATUS)}
+            <CheckLine color={Colors.GREEN} size={18} />
+            <Text
+              color={Colors.GREEN}
+              style={{ marginLeft: 8, alignSelf: "center" }}
+              type={TextType.P3}
+              weight="600"
+            >
+              {createMessage(NO_MERGE_CONFLICT)}
             </Text>
           </Wrapper>
         </Flex>
@@ -56,19 +79,37 @@ function MergeStatus() {
         <Flex>
           <Space horizontal size={10} />
           <Wrapper>
-            <ErrorWarning />
+            <ErrorWarning color={Colors.CRIMSON} size={18} />
             <Text
               color={Colors.CRIMSON}
-              style={{ marginLeft: 8 }}
+              style={{ marginLeft: 8, alignSelf: "center" }}
+              type={TextType.P3}
+              weight="600"
+            >
+              {createMessage(MERGE_CONFLICT_ERROR)}
+            </Text>
+          </Wrapper>
+        </Flex>
+      );
+
+    case MERGE_STATUS_STATE.NONE:
+      return (
+        <Flex>
+          <Space horizontal size={10} />
+          <Wrapper>
+            <ErrorWarning size={18} />
+            <Text
+              style={{ marginLeft: 8, alignSelf: "center" }}
               type={TextType.P3}
             >
-              {createMessage(FETCH_MERGE_STATUS)}
+              {createMessage(FETCH_MERGE_STATUS_FAILURE)}
             </Text>
           </Wrapper>
         </Flex>
       );
     default:
       return null;
+    // status === MERGE_STATUS_STATE.NONE will execute default case.
   }
 }
 

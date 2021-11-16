@@ -100,6 +100,8 @@ import EyeOff from "remixicon-react/EyeOffLineIcon";
 import FileTransfer from "remixicon-react/FileTransferLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
 import GitMerge from "remixicon-react/GitMergeLineIcon";
+import GitCommit from "remixicon-react/GitCommitLineIcon";
+import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
@@ -107,6 +109,7 @@ import Link2 from "remixicon-react/LinkIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
+import QueryIcon from "remixicon-react/CodeSSlashLineIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
 import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
@@ -120,6 +123,7 @@ import LogoutIcon from "remixicon-react/LogoutBoxRLineIcon";
 import ShareLineIcon from "remixicon-react/ShareLineIcon";
 import DownArrowIcon from "remixicon-react/ArrowDownSLineIcon";
 import LoaderLineIcon from "remixicon-react/LoaderLineIcon";
+import WidgetIcon from "remixicon-react/FunctionLineIcon";
 import RefreshLineIcon from "remixicon-react/RefreshLineIcon";
 import GitBranchLineIcon from "remixicon-react/GitBranchLineIcon";
 
@@ -226,6 +230,8 @@ export const IconCollection = [
   "gear",
   "general",
   "git-branch",
+  "git-commit",
+  "git-pull-request",
   "guide",
   "help",
   "invite-user",
@@ -246,6 +252,7 @@ export const IconCollection = [
   "pin-3",
   "play",
   "plus",
+  "query",
   "reaction",
   "reaction-2",
   "read-pin",
@@ -284,6 +291,7 @@ export const IconCollection = [
   "down-arrow",
   "loader",
   "setting",
+  "widget",
   "refresh",
 ] as const;
 
@@ -493,6 +501,12 @@ const Icon = forwardRef(
       case "git-branch":
         returnIcon = <GitBranchLineIcon />;
         break;
+      case "git-commit":
+        returnIcon = <GitCommit />;
+        break;
+      case "git-pull-request":
+        returnIcon = <GitPullRequst />;
+        break;
       case "guide":
         returnIcon = <GuideIcon />;
         break;
@@ -552,6 +566,9 @@ const Icon = forwardRef(
         break;
       case "plus":
         returnIcon = <CreateNewIcon />;
+        break;
+      case "query":
+        returnIcon = <QueryIcon />;
         break;
       case "reaction":
         returnIcon = <Reaction />;
@@ -666,6 +683,9 @@ const Icon = forwardRef(
         break;
       case "loader":
         returnIcon = <LoaderLineIcon />;
+        break;
+      case "widget":
+        returnIcon = <WidgetIcon />;
         break;
       case "refresh":
         returnIcon = <RefreshLineIcon />;
