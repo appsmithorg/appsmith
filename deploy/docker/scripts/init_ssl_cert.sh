@@ -3,7 +3,7 @@
 init_ssl_cert() {
   echo "Start Nginx to verify certificate"
   nginx
-  local domain="$1"
+  APPSMITH_CUSTOM_DOMAIN="$1"
   NGINX_SSL_CMNT=""
 
   local rsa_key_size=4096
@@ -24,32 +24,32 @@ init_ssl_cert() {
   echo "Generating nginx configuration"
   cat /etc/nginx/conf.d/nginx_app.conf.template | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' >/etc/nginx/sites-available/default
 
-  local live_path="/etc/letsencrypt/live/$domain"
+  local live_path="/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN"
   if [[ -e "$live_path" ]]; then
-    echo "Existing certificate for domain $domain"
+    echo "Existing certificate for domain $APPSMITH_CUSTOM_DOMAIN"
     echo "Stop Nginx"
     nginx -s stop
     return
   fi
 
-  echo "Creating certificate for '$domain'"
+  echo "Creating certificate for '$APPSMITH_CUSTOM_DOMAIN'"
 
-  echo "Requesting Let's Encrypt certificate for '$domain'..."
-  echo "Generating OpenSSL key for '$domain'..."
+  echo "Requesting Let's Encrypt certificate for '$APPSMITH_CUSTOM_DOMAIN'..."
+  echo "Generating OpenSSL key for '$APPSMITH_CUSTOM_DOMAIN'..."
 
   mkdir -p "$live_path" && openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
     -keyout "$live_path/privkey.pem" \
     -out "$live_path/fullchain.pem" \
     -subj "/CN=localhost"
 
-  echo "Removing key now that validation is done for $domain..."
-  rm -Rfv /etc/letsencrypt/live/$domain /etc/letsencrypt/archive/$domain /etc/letsencrypt/renewal/$domain.conf
+  echo "Removing key now that validation is done for $APPSMITH_CUSTOM_DOMAIN..."
+  rm -Rfv /etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN /etc/letsencrypt/archive/$APPSMITH_CUSTOM_DOMAIN /etc/letsencrypt/renewal/$APPSMITH_CUSTOM_DOMAIN.conf
 
-  echo "Generating certification for domain $domain"
+  echo "Generating certification for domain $APPSMITH_CUSTOM_DOMAIN"
   mkdir -p "$data_path/certbot"
   certbot certonly --webroot --webroot-path="$data_path/certbot" \
     --register-unsafely-without-email \
-    --domains $domain \
+    --domains $APPSMITH_CUSTOM_DOMAIN \
     --rsa-key-size $rsa_key_size \
     --agree-tos \
     --force-renewal
