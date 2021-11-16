@@ -995,7 +995,7 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .focus()
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
-  cy.get(".error-message").should(($x) => {
+  cy.get(".t--action-name-edit-error").should(($x) => {
     expect($x).contain(
       apiname.concat(" is already being used or is a restricted keyword."),
     );
