@@ -2,6 +2,7 @@ import { parse, Node } from "acorn";
 import { ancestor } from "acorn-walk";
 import _ from "lodash";
 import { ECMA_VERSION } from "workers/constants";
+import { unEscapeScript } from "./evaluate";
 
 /*
  * Valuable links:
@@ -152,6 +153,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
+    const unEscapedCode = unEscapeScript(code);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
        Some syntaxes won't be valid unless they're at the RHS of a statement.
        Since we're assigning all code/script to RHS during evaluation, we do the same here.
@@ -161,7 +163,8 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       function() { return 123; }() -> is invalid
       let result = function() { return 123; }() -> is valid 
     */
-    ast = getAST(wrapCode(code));
+    const wrappedCode = wrapCode(unEscapedCode);
+    ast = getAST(wrappedCode);
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return 0 identifiers
