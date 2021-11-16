@@ -312,11 +312,11 @@ public class GitExecutorImpl implements GitExecutor {
             MergeStatusDTO mergeStatus = new MergeStatusDTO();
             Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
             if (mergeResult.getMergeStatus().isSuccessful()) {
-                mergeStatus.setMerge(true);
+                mergeStatus.setMergeAble(true);
                 mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
             } else {
                 //If there aer conflicts add the conflicting file names to the response structure
-                mergeStatus.setMerge(false);
+                mergeStatus.setMergeAble(false);
                 List<String> mergeConflictFiles = new ArrayList<>();
                 mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
@@ -468,7 +468,7 @@ public class GitExecutorImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
 
-            Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+            Git git = Git.open(repoPath.toFile());
             //checkout the branch on which the merge command is run
             git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
@@ -476,7 +476,7 @@ public class GitExecutorImpl implements GitExecutor {
 
             MergeStatusDTO mergeStatus = new MergeStatusDTO();
             if(mergeResult.getMergeStatus().isSuccessful()) {
-                mergeStatus.setMerge(true);
+                mergeStatus.setMergeAble(true);
             } else {
                 //On merge conflicts abort the merge => git merge --abort
                 git.getRepository().writeMergeCommitMsg(null);
@@ -484,7 +484,7 @@ public class GitExecutorImpl implements GitExecutor {
                 Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
 
                 //If there aer conflicts add the conflicting file names to the response structure
-                mergeStatus.setMerge(false);
+                mergeStatus.setMergeAble(false);
                 List<String> mergeConflictFiles = new ArrayList<>();
                 mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
                 mergeStatus.setConflictingFiles(mergeConflictFiles);

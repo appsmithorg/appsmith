@@ -803,7 +803,7 @@ public class GitServiceImpl implements GitService {
                                 if (error.getMessage().contains("Nothing to fetch.")) {
                                     MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                     mergeStatus.setStatus("Nothing to fetch from remote. All changes are upto date.");
-                                    mergeStatus.setMerge(false);
+                                    mergeStatus.setMergeAble(false);
                                     return Mono.just(mergeStatus);
                                 } else if(error.getMessage().contains("Merge conflict")) {
                                     // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab
@@ -987,7 +987,7 @@ public class GitServiceImpl implements GitService {
                     ApplicationJson applicationJson = tuple.getT3();
                     MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
                     mergeStatusDTO.setStatus(tuple.getT1());
-                    mergeStatusDTO.setMerge(Boolean.TRUE);
+                    mergeStatusDTO.setMergeAble(Boolean.TRUE);
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
@@ -997,9 +997,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
-        String sourceBranch = gitMergeDTO.getSourceBranch();
-        String destinationBranch = gitMergeDTO.getDestinationBranch();
+    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
