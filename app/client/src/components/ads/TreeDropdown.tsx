@@ -44,6 +44,8 @@ type TreeDropdownProps = {
 };
 
 const StyledMenu = styled(Menu)`
+  max-height: calc(100vh - 64px);
+  overflow: auto;
   min-width: 220px;
   padding: 0px;
   border-radius: 0px;
