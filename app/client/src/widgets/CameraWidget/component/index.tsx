@@ -25,7 +25,9 @@ import {
 } from "../constants";
 import { ReactComponent as CameraOfflineIcon } from "assets/icons/widget/camera/camera-offline.svg";
 import { ReactComponent as CameraIcon } from "assets/icons/widget/camera/camera.svg";
+import { ReactComponent as CameraMutedIcon } from "assets/icons/widget/camera/camera-muted.svg";
 import { ReactComponent as MicrophoneIcon } from "assets/icons/widget/camera/microphone.svg";
+import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camera/microphone-muted.svg";
 
 export interface CameraContainerProps {
   scaleAxis: "x" | "y";
@@ -97,6 +99,8 @@ const StyledButton = styled(Button)<ThemeProp & StyledButtonProps>`
 export interface ControlPanelProps {
   mode: CameraMode;
   audioInputs: MediaDeviceInfo[];
+  audioMuted: boolean;
+  videoMuted: boolean;
   videoInputs: MediaDeviceInfo[];
   status: MediaCaptureStatus;
   onCaptureImage: () => void;
@@ -105,6 +109,8 @@ export interface ControlPanelProps {
   onRecordingStop: () => void;
   onResetMedia: () => void;
   onStatusChange: (status: MediaCaptureStatus) => void;
+  onToggleAudio: (isMute: boolean) => void;
+  onToggleVideo: (isMute: boolean) => void;
   onVideoPlay: () => void;
   onVideoPause: () => void;
 }
@@ -112,16 +118,20 @@ export interface ControlPanelProps {
 function ControlPanel(props: ControlPanelProps) {
   const {
     audioInputs,
+    audioMuted,
     onCaptureImage,
     onMediaInputChange,
     onRecordingStart,
     onRecordingStop,
     onResetMedia,
     onStatusChange,
+    onToggleAudio,
+    onToggleVideo,
     onVideoPause,
     onVideoPlay,
     status,
     videoInputs,
+    videoMuted,
   } = props;
 
   const handleControlClick = (action: MediaCaptureAction) => {
@@ -189,12 +199,16 @@ function ControlPanel(props: ControlPanelProps) {
       <>
         <DevicePopover
           deviceType={DeviceTypes.MICROPHONE}
+          disabled={audioMuted}
           items={audioInputs}
+          onDeviceMute={onToggleAudio}
           onItemClick={onMediaInputChange}
         />
         <DevicePopover
           deviceType={DeviceTypes.CAMERA}
+          disabled={videoMuted}
           items={videoInputs}
+          onDeviceMute={onToggleVideo}
           onItemClick={onMediaInputChange}
         />
       </>
@@ -522,28 +536,47 @@ function DeviceMenu(props: DeviceMenuProps) {
 
 export interface DevicePopoverProps {
   deviceType: DeviceType;
+  disabled?: boolean;
   items: MediaDeviceInfo[];
+  onDeviceMute?: (isMute: boolean) => void;
   onItemClick: (item: MediaDeviceInfo) => void;
 }
 
 function DevicePopover(props: DevicePopoverProps) {
-  const { deviceType, items, onItemClick } = props;
+  const { deviceType, disabled, items, onDeviceMute, onItemClick } = props;
+
+  const handleDeviceMute = useCallback(() => {
+    if (onDeviceMute) {
+      onDeviceMute(!disabled);
+    }
+  }, [disabled, onDeviceMute]);
 
   const renderLeftIcon = (deviceType: DeviceType) => {
     if (deviceType === DeviceTypes.CAMERA) {
+      if (disabled) {
+        return <CameraMutedIcon />;
+      }
       return <CameraIcon />;
+    }
+    if (disabled) {
+      return <MicrophoneMutedIcon />;
     }
     return <MicrophoneIcon />;
   };
 
   return (
-    <Popover2 content={<DeviceMenu items={items} onItemClick={onItemClick} />}>
+    <>
       <Button
         icon={renderLeftIcon(deviceType)}
         minimal
-        rightIcon={<Icon color="white" icon="caret-down" />}
+        onClick={handleDeviceMute}
       />
-    </Popover2>
+      <Popover2
+        content={<DeviceMenu items={items} onItemClick={onItemClick} />}
+      >
+        <Button minimal rightIcon={<Icon color="white" icon="caret-down" />} />
+      </Popover2>
+    </>
   );
 }
 
@@ -583,6 +616,8 @@ function CameraComponent(props: CameraComponentProps) {
   const [playerMinutes, setPlayerMinutes] = useState(0);
   const [playerSeconds, setPlayerSeconds] = useState(0);
   const [isReadyPlayerTimer, setIsReadyPlayerTimer] = useState<boolean>(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [error, setError] = useState<string>("");
   const { days, hours, minutes, pause, reset, seconds, start } = useStopwatch({
     autoStart: false,
@@ -825,15 +860,15 @@ function CameraComponent(props: CameraComponentProps) {
 
     return (
       <>
-        {!isVideoPlayerReady && (
+        {!isVideoPlayerReady && (!isAudioMuted || !isVideoMuted) && (
           <Webcam
-            audio
-            audioConstraints={audioConstraints}
+            audio={!isAudioMuted}
+            audioConstraints={!isAudioMuted && audioConstraints}
             mirrored={mirrored}
             onUserMedia={handleUserMedia}
             onUserMediaError={handleUserMediaErrors}
             ref={webcamRef}
-            videoConstraints={videoConstraints}
+            videoConstraints={!isVideoMuted && videoConstraints}
           />
         )}
 
@@ -841,6 +876,7 @@ function CameraComponent(props: CameraComponentProps) {
 
         <ControlPanel
           audioInputs={audioInputs}
+          audioMuted={isAudioMuted}
           mode={mode}
           onCaptureImage={captureImage}
           onMediaInputChange={handleMediaDeviceChange}
@@ -848,10 +884,13 @@ function CameraComponent(props: CameraComponentProps) {
           onRecordingStop={handleRecordingStop}
           onResetMedia={resetMedia}
           onStatusChange={handleStatusChange}
+          onToggleAudio={setIsAudioMuted}
+          onToggleVideo={setIsVideoMuted}
           onVideoPause={handleVideoPause}
           onVideoPlay={handleVideoPlay}
           status={mediaCaptureStatus}
           videoInputs={videoInputs}
+          videoMuted={isVideoMuted}
         />
 
         {renderTimer()}
