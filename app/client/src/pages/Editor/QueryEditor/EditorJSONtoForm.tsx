@@ -72,6 +72,7 @@ import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import Guide from "pages/Editor/GuidedTour/Guide";
+import Indicator from "../GuidedTour/Indicator";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -766,15 +767,17 @@ export function EditorJSONtoForm(props: Props) {
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
             />
-            <Button
-              className="t--run-query"
-              isLoading={isRunning}
-              onClick={onRunClick}
-              size={Size.medium}
-              tag="button"
-              text="Run"
-              type="button"
-            />
+            <Indicator location="RUN_QUERY" position="bottom" step={1}>
+              <Button
+                className="t--run-query"
+                isLoading={isRunning}
+                onClick={onRunClick}
+                size={Size.medium}
+                tag="button"
+                text="Run"
+                type="button"
+              />
+            </Indicator>
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>

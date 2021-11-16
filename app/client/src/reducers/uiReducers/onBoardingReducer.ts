@@ -16,6 +16,7 @@ const initialState: OnboardingState = {
   tableWidgetId: "",
   queryId: "",
   datasourceId: "",
+  currentStep: 1,
 };
 
 export interface OnboardingState {
@@ -31,6 +32,8 @@ export interface OnboardingState {
   tableWidgetId: string;
   queryId: string;
   datasourceId: string;
+  currentStep: number;
+  indicatorLocation?: string;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -130,6 +133,21 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       tableWidgetId: action.payload,
+    };
+  },
+  SET_CURRENT_STEP: (state: OnboardingState, action: ReduxAction<number>) => {
+    return {
+      ...state,
+      currentStep: action.payload,
+    };
+  },
+  SET_INDICATOR_LOCATION: (
+    state: OnboardingState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      indicatorLocation: action.payload,
     };
   },
 });

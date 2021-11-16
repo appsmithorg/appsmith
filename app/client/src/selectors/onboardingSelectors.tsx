@@ -7,7 +7,7 @@ import { createSelector } from "reselect";
 import { getUserApplicationsOrgs } from "./applicationSelectors";
 import { isEqual } from "lodash";
 import { getWidgetById, getWidgets } from "sagas/selectors";
-import { getActions } from "./entitiesSelector";
+import { getActionResponses, getActions } from "./entitiesSelector";
 import { PluginType } from "entities/Action";
 import { getActionById } from "./editorSelectors";
 
@@ -43,10 +43,14 @@ export const getInOnboardingWidgetSelection = (state: AppState) =>
 
 export const isExploring = (state: AppState) => state.ui.onBoarding.exploring;
 export const inGuidedTour = (state: AppState) => state.ui.onBoarding.guidedTour;
+export const getCurrentStep = (state: AppState) =>
+  state.ui.onBoarding.currentStep;
 export const getGuidedTourTableWidget = (state: AppState) =>
   state.ui.onBoarding.tableWidgetId;
 export const getGuidedTourQuery = (state: AppState) =>
   state.ui.onBoarding.queryId;
+export const getIndicatorLocation = (state: AppState) =>
+  state.ui.onBoarding.indicatorLocation;
 
 export const getQueryName = (state: AppState) => {
   const queryId = getGuidedTourQuery(state);
@@ -54,7 +58,7 @@ export const getQueryName = (state: AppState) => {
   const query = actions.find((action) => action.config.id === queryId);
 
   if (query?.config.name) return query?.config.name;
-  return "";
+  return "getCustomers";
 };
 
 export const getTableWidget = createSelector(
@@ -118,6 +122,35 @@ export const getQueryAction = createSelector(
       });
     } else {
       return query;
+    }
+  },
+);
+
+export const isQueryLimitUpdated = createSelector(getQueryAction, (query) => {
+  if (query) {
+    let body = query.config.actionConfiguration.body;
+    if (body) {
+      // eslint-disable-next-line no-console
+      // const regex = /SELECT \* from users where id=.* order by email limit=10;/gi;
+      const regex = /SELECT \* from users limit 10;/gi;
+      // Replacing new line characters
+      body = body.replace(/(?:\r\n|\r|\n)/g, "");
+      // Replace sql comments
+      body = body.replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)|(--[^.].*)/gm, "");
+      // eslint-disable-next-line no-console
+      console.log(body, "body");
+      return regex.test(body);
+    }
+  }
+  return false;
+});
+
+export const isQueryExecutionSuccessful = createSelector(
+  getActionResponses,
+  getGuidedTourQuery,
+  (responses, queryId) => {
+    if (queryId && responses[queryId]) {
+      return responses[queryId]?.isExecutionSuccess;
     }
   },
 );

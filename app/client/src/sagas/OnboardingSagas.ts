@@ -94,7 +94,8 @@ function* createApplication() {
       },
     });
 
-    yield take([ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]);
+    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+    yield take(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID);
     yield put(enableGuidedTour(true));
 
     const pageId = yield select(getCurrentPageId);
@@ -131,7 +132,7 @@ function* createGuidedTourQuery() {
       pluginId: datasource.pluginId,
       actionConfiguration: {
         body:
-          '/* ---> Edit the limit "100" with "10" and hit RUN */\n\nSELECT * FROM orders where userId={{CustomersTable2.selectedRow.id}} order by status \nLIMIT 100;',
+          '/* ---> Edit the limit "100" with "10" and hit RUN */\n\nSELECT * FROM users LIMIT 100;',
       },
       datasource: {
         id: datasource.id,

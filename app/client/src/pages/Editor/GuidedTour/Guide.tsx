@@ -5,11 +5,15 @@ import { get, set } from "lodash";
 import React, { ReactNode, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
+  getCurrentStep,
   getGuidedTourDatasource,
   getGuidedTourQuery,
   getQueryAction,
   getQueryName,
+  inGuidedTour,
   isExploring,
+  isQueryExecutionSuccessful,
+  isQueryLimitUpdated,
   loading,
 } from "selectors/onboardingSelectors";
 import { useSelector } from "store";
@@ -137,16 +141,26 @@ type Step = {
   };
 };
 type StepsType = Record<number, Step>;
-
 const Steps: StepsType = {
   1: {
-    title: `Create <query> query to get customers data`,
+    title: `1. First is Data, Edit & Run the <query> query below to fetch customers data`,
     hint: {
       icon: "edit-box-line",
       text: (
         <>
-          <b>Edit the query</b> according to the comment in the editor and{" "}
-          <b>Hit Run</b> to check the response
+          Edit the <b>limit</b> {"100"} with {"10"} and then Hit <b>Run</b>{" "}
+          button to see response
+        </>
+      ),
+    },
+  },
+  2: {
+    title: "2. Go to the table to connect data",
+    hint: {
+      icon: "edit-box-line",
+      text: (
+        <>
+          <b>Click on the table</b> on the left entity pane
         </>
       ),
     },
@@ -240,11 +254,26 @@ function useUpdateName(step: number): Step {
   return replacePlaceholders(step, ["title"], substitutionMap);
 }
 
-function useGetCurrentStep() {
-  const step = 1;
+function useComputeCurrentStep() {
+  let step = 1;
   const dispatch = useDispatch();
   const datasource = useSelector(getGuidedTourDatasource);
   const query = useSelector(getQueryAction);
+  const queryLimitUpdated = useSelector(isQueryLimitUpdated);
+  const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
+  step = 1;
+
+  if (step === 1) {
+    if (queryExecutedSuccessfully) {
+      step = 2;
+    }
+  }
+
+  if (step === 2) {
+  }
+
+  if (step === 3) {
+  }
 
   useEffect(() => {
     if (datasource?.id) {
@@ -253,16 +282,32 @@ function useGetCurrentStep() {
         payload: datasource.id,
       });
     }
+  }, [datasource]);
 
+  useEffect(() => {
     if (query) {
       dispatch({
         type: "SET_QUERY_ID",
         payload: query.config.id,
       });
     }
-  }, [datasource, query]);
+  }, [query]);
 
-  return step;
+  useEffect(() => {
+    dispatch({
+      type: "SET_CURRENT_STEP",
+      payload: step,
+    });
+  }, [step]);
+
+  useEffect(() => {
+    if (queryLimitUpdated) {
+      dispatch({
+        type: "SET_INDICATOR_LOCATION",
+        payload: "RUN_QUERY",
+      });
+    }
+  }, [queryLimitUpdated]);
 }
 
 function GuideStepsContent(props: { currentStep: number }) {
@@ -298,17 +343,18 @@ type GuideProps = {
 // Guided tour steps
 function Guide(props: GuideProps) {
   const exploring = useSelector(isExploring);
-  const currentStep = useGetCurrentStep();
+  useComputeCurrentStep();
+  const step = useSelector(getCurrentStep);
 
   return (
     <GuideWrapper className={props.className}>
       <CardWrapper>
-        <StatusBar currentStep={currentStep} totalSteps={6} />
+        <StatusBar currentStep={step} totalSteps={6} />
         <UpperContent>
           {exploring ? (
             <InitialContent />
           ) : (
-            <GuideStepsContent currentStep={currentStep} />
+            <GuideStepsContent currentStep={step} />
           )}
         </UpperContent>
       </CardWrapper>
