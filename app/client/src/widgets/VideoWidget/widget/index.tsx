@@ -103,7 +103,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

@@ -508,7 +508,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

@@ -136,7 +136,7 @@ const PropertyPaneConfig = [
     ],
   },
   {
-    sectionName: "Style",
+    sectionName: "Styles",
     children: [
       {
         propertyName: "backgroundColor",

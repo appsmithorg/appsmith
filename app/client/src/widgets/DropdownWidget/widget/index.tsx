@@ -184,7 +184,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

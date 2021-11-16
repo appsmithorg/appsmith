@@ -91,7 +91,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

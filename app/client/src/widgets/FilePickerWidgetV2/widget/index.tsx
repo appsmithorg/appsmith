@@ -208,7 +208,7 @@ class FilePickerWidget extends BaseWidget<
       },
 
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "backgroundColor",

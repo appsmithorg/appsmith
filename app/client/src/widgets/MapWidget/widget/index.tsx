@@ -219,7 +219,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       },
 
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "borderRadius",

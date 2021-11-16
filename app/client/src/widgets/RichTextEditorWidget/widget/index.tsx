@@ -119,7 +119,7 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Style",
+        sectionName: "Styles",
         children: [
           {
             propertyName: "borderRadius",
