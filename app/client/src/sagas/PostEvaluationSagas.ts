@@ -32,8 +32,8 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
-  VALUE_IS_INVALID,
   JS_OBJECT_BODY_INVALID,
+  VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";

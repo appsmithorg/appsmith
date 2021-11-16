@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ReactComponent as GitMerge } from "assets/icons/ads/git-merge.svg";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -11,6 +10,7 @@ import { Colors } from "constants/Colors";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -60,7 +60,7 @@ function BranchButton() {
     >
       <ButtonContainer className="t--branch-button">
         <div className="icon">
-          <GitMerge />
+          <Icon name="git-branch" size={IconSize.XXXXL} />
         </div>
         <div className="label">{currentBranch}</div>
       </ButtonContainer>
