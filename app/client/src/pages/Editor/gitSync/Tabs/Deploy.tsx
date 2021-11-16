@@ -163,10 +163,7 @@ function Deploy() {
   // }, [errorMsgRef.current, gitPushError]);
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
   const pullRequired =
-    gitStatus &&
-    gitStatus.behindCount > 0 &&
-    !isFetchingGitStatus &&
-    !commitRequired;
+    gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
   const showCommitButton =
     hasChangesToCommit &&
     !pullRequired &&
