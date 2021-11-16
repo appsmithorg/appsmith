@@ -181,7 +181,9 @@ describe("evaluateAsync", () => {
         result: {
           errors: [
             {
-              errorMessage: "ReferenceError: randomKeyword is not defined",
+              errorMessage: expect.stringContaining(
+                "randomKeyword is not defined",
+              ),
               errorType: "PARSE",
               originalBinding: expect.stringContaining("Promise"),
               raw: expect.stringContaining("Promise"),
