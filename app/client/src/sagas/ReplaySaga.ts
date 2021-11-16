@@ -3,7 +3,6 @@ import {
   put,
   select,
   call,
-  take,
   takeLatest,
   all,
   delay,
