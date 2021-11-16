@@ -16,7 +16,7 @@ import {
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
-import Button, { Size } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
 
 import {
@@ -110,6 +110,10 @@ const InfoWrapper = styled.div`
   }
 `;
 
+const OpenRepoButton = styled(Button)`
+  margin-right: ${(props) => props.theme.spaces[3]}px;
+`;
+
 const INITIAL_COMMIT = "Initial Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
@@ -158,10 +162,12 @@ function Deploy() {
 
   const commitRequired = gitStatus?.modifiedPages || gitStatus?.modifiedQueries;
   const isConflicting =
-    pullMergeStatus && pullMergeStatus?.conflictingFiles.length > 0;
+    !isFetchingGitStatus &&
+    pullMergeStatus &&
+    pullMergeStatus?.conflictingFiles.length > 0;
   // const pullRequired =
   //   gitStatus && gitStatus.behindCount > 0 && !isFetchingGitStatus;
-  let pullRequired = !isConflicting;
+  let pullRequired = false;
   if (!isFetchingGitStatus && gitError && gitError.code === 5006) {
     pullRequired = gitError.message.indexOf("git  push failed") > -1;
   }
@@ -202,7 +208,7 @@ function Deploy() {
           <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
         )}
         <Space size={11} />
-        {pullRequired && (
+        {pullRequired && !isConflicting && (
           <InfoWrapper>
             <Text type={TextType.P3}>
               {createMessage(GIT_UPSTREAM_CHANGES)}
@@ -221,7 +227,7 @@ function Deploy() {
             </LintText>
           </InfoWrapper>
         )}
-        {pullRequired && (
+        {pullRequired && !isConflicting && (
           <Button
             className="t--commit-button"
             isLoading={isPulingProgress}
@@ -252,26 +258,28 @@ function Deploy() {
           </InfoWrapper>
         )}
         {isConflicting && (
-          <Button
-            className="t--commit-button"
-            href={gitMetaData?.remoteUrl}
-            isLoading={isPulingProgress}
-            size={Size.medium}
-            tag="a"
-            text={createMessage(OPEN_REPO)}
-            width="max-content"
-          />
-        )}
-        {isConflicting && (
-          <Button
-            className="t--commit-button"
-            isLoading={isPulingProgress}
-            onClick={handlePull}
-            size={Size.medium}
-            tag="button"
-            text={createMessage(PULL_CHANGS)}
-            width="max-content"
-          />
+          <Row>
+            <OpenRepoButton
+              category={Category.tertiary}
+              className="t--commit-button"
+              href={gitMetaData?.remoteUrl}
+              isLoading={isPulingProgress}
+              size={Size.medium}
+              tag="a"
+              target="_blank"
+              text={createMessage(OPEN_REPO)}
+              width="max-content"
+            />
+            <Button
+              className="t--commit-button"
+              isLoading={isPulingProgress}
+              onClick={handlePull}
+              size={Size.medium}
+              tag="button"
+              text={createMessage(PULL_CHANGS)}
+              width="max-content"
+            />
+          </Row>
         )}
         {showCommitButton && (
           <Tooltip
