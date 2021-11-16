@@ -117,7 +117,7 @@ public class DatasourceController extends BaseController<DatasourceService, Data
             .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 
-    @GetMapping("/{id}/trigger")
+    @GetMapping("/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
                                                        @RequestBody TriggerRequestDTO request) {
         log.debug("Trigger received for datasource {}", datasourceId);

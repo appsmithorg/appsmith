@@ -244,7 +244,7 @@ public class DatasourceStructureSolution {
                     List<DatasourceStructure.Table> tables = structure.getTables();
                     if (tables != null && !tables.isEmpty()) {
 
-                        if (parameters.isEmpty()) {
+                        if (parameters == null || parameters.isEmpty()) {
                             // Top level entity requested.
                             for (DatasourceStructure.Table table : tables) {
                                 entityNames.add(table.getName());
