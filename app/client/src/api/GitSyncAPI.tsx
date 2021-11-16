@@ -74,10 +74,9 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeBranchPayload): AxiosPromise<ApiResponse> {
-    return Api.post(`${GitSyncAPI.baseURL}/merge/${applicationId}`, {
-      sourceBranch,
-      destinationBranch,
-    });
+    return Api.post(
+      `${GitSyncAPI.baseURL}/merge/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
+    );
   }
 
   static getMergeStatus({
@@ -85,10 +84,9 @@ class GitSyncAPI extends Api {
     destinationBranch,
     sourceBranch,
   }: MergeStatusPayload) {
-    return Api.get(`${GitSyncAPI.baseURL}/merge/status/${applicationId}`, {
-      sourceBranch,
-      destinationBranch,
-    });
+    return Api.get(
+      `${GitSyncAPI.baseURL}/merge/status/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
+    );
   }
 
   static connect(payload: ConnectToGitPayload, applicationId: string) {

@@ -8,7 +8,6 @@ import React from "react";
 import styled from "styled-components";
 import Text, { TextType } from "components/ads/Text";
 import TooltipComponent from "components/ads/Tooltip";
-import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
@@ -59,21 +58,10 @@ const DeployedKeyContainer = styled.div<{ $marginTop: number }>`
   box-sizing: border-box;
 `;
 
-const FlexColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 90%;
-  margin-left: ${(props) => `${props.theme.spaces[4]}px`};
-`;
-
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-`;
-
-const Flex = styled.div`
-  display: flex;
 `;
 
 const LabelText = styled.span`
