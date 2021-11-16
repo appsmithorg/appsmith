@@ -806,24 +806,29 @@ public class GitServiceImpl implements GitService {
                                     mergeStatus.setMerge(false);
                                     return Mono.just(mergeStatus);
                                 } else if(error.getMessage().contains("Merge conflict")) {
-                                    // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab
-                                    MultiValueMap<String, String> valueMap = new LinkedMultiValueMap<>();
-                                    valueMap.add(FieldName.BRANCH_NAME, branchName);
-                                    return handleMergeConflict(defaultApplicationId, valueMap)
-                                            .flatMap(status -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull",error.getMessage() )));
+                                    // On merge conflict send the response with the error message
+                                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                    mergeStatus.setStatus(error.getMessage());
+                                    mergeStatus.setMerge(false);
+                                    return Mono.just(mergeStatus);
+                                    //return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", error.getMessage()));
                                 } else {
                                     throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage());
                                 }
                             });
-
+                    return Mono.zip(pullStatus, Mono.just(application));
+                })
+                .flatMap(objects -> {
                     //3. Hydrate from file system to db
+                    Application application = objects.getT2();
+                    MergeStatusDTO pullStatus = objects.getT1();
                     try {
                         Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
                                 application.getOrganizationId(),
                                 defaultApplicationId,
                                 application.getGitApplicationMetadata().getRepoName(),
                                 branchName);
-                        return Mono.zip(pullStatus, Mono.just(application), applicationJson);
+                        return Mono.zip(Mono.just(pullStatus), Mono.just(application), applicationJson);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", e.getMessage()));
                     }
@@ -1023,7 +1028,8 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
                 .flatMap(applicationJson -> {
                     try {
-                        return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, sourceBranch);
+                        return gitExecutor.checkoutToBranch(repoPath, sourceBranch)
+                                .then(fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, sourceBranch));
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, e.getMessage()));
                     }
