@@ -1,4 +1,4 @@
-const dsl = require("../../../../fixtures/buttonDisabledDsl.json");
+const dsl = require("../../../../fixtures/disabledWidgetsDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 describe("Disabled Widgets drag Functionality", function() {
