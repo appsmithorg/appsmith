@@ -99,3 +99,6 @@ export const getCurrentGitBranch = (state: AppState) => {
 
 export const getPullMergeStatus = (state: AppState) =>
   state.ui.gitSync.pullMergeStatus;
+
+export const getPullInProgress = (state: AppState) =>
+  state.ui.gitSync.pullInProgress;
