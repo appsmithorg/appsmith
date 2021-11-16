@@ -2,7 +2,7 @@ import React from "react";
 
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { modText, flashElementsById, isMac } from "./helpers";
+import { modText, flashElementsById, isMac, flashElement } from "./helpers";
 import localStorage from "./localStorage";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -129,4 +129,30 @@ export function shouldDisallowToast(shouldUndo: boolean): boolean {
   }
 
   return true;
+}
+
+export function highlightReplayElement(configProperty: string) {
+  const replayId = btoa(configProperty);
+  const element = document.querySelector(
+    `[data-replay-id="${replayId}"]`,
+  ) as HTMLElement;
+
+  if (element) {
+    element.scrollIntoView({ behavior: "smooth" });
+    flashElement(element);
+  }
+}
+
+export function* switchTab(replayId: string) {
+  if (!replayId) return;
+  (document.querySelector(
+    `[data-replay-id="${replayId}"]`,
+  ) as HTMLElement)?.click();
+}
+
+export function expandAccordion(replayId: string) {
+  if (!replayId) return;
+  (document
+    .querySelector(`[data-replay-id="section-${replayId}"]`)
+    ?.querySelector(".bp3-icon-chevron-down") as HTMLElement)?.click();
 }
