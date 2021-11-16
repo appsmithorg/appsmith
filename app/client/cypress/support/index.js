@@ -20,6 +20,7 @@ let appId;
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
+import * as MESSAGES from "../../../client/src/constants/messages.ts";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from
@@ -30,6 +31,8 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 Cypress.on("fail", (error, runnable) => {
   throw error; // throw error to have test still fail
 });
+
+Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
   initLocalstorage();
