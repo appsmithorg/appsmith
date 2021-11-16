@@ -8,7 +8,6 @@ import { useSelector } from "react-redux";
 import {
   getGitStatus,
   getIsFetchingGitStatus,
-  // getPullMergeStatus,
 } from "selectors/gitSyncSelectors";
 
 const Loader = styled.div`
@@ -55,26 +54,26 @@ function GitStatus(props: GitSyncProps) {
     iconName: IconName;
   switch (type) {
     case Kind.widget:
-      message = `${status.modifiedPages || 0} widget${
-        status?.modifiedPages > 1 ? "s" : ""
+      message = `${status?.modifiedPages || 0} widget${
+        (status?.modifiedPages || 0) > 1 ? "s" : ""
       } updated`;
       iconName = "widget";
       break;
     case Kind.query:
-      message = `${status.modifiedQueries || 0} ${
-        (status.modifiedQueries || 0) > 1 ? "queries" : "query"
+      message = `${status?.modifiedQueries || 0} ${
+        (status?.modifiedQueries || 0) > 1 ? "queries" : "query"
       } modified`;
       iconName = "query";
       break;
     case Kind.commit:
-      message = `${status.aheadCount || 0} commit${
-        (status.aheadCount || 0) > 1 ? "s" : ""
+      message = `${status?.aheadCount || 0} commit${
+        (status?.aheadCount || 0) > 1 ? "s" : ""
       } to push`;
       iconName = "git-commit";
       break;
     case Kind.pullRequest:
-      message = `${status.behindCount || 0} pull request${
-        (status.behindCount || 0) > 1 ? "s" : ""
+      message = `${status?.behindCount || 0} pull request${
+        (status?.behindCount || 0) > 1 ? "s" : ""
       } pending`;
       iconName = "git-pull-request";
       break;
@@ -95,7 +94,6 @@ export default function GitChanged() {
     <GitChangedRow>
       <GitStatus type={Kind.widget} />
       <GitStatus type={Kind.query} />
-      {gitStatus?.behindCount > 0 && <GitStatus type={Kind.pullRequest} />}
       {gitStatus?.aheadCount > 0 && <GitStatus type={Kind.commit} />}
     </GitChangedRow>
   );

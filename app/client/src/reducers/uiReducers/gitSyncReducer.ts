@@ -296,14 +296,14 @@ const gitSyncReducer = createReducer(initialState, {
 });
 
 export type GitStatusData = {
-  // This is outdated, update according to updated API response.
+  aheadCount: number;
+  behindCount: number;
   conflicting: Array<string>;
-  uncommitted: Array<string>;
   isClean: boolean;
-  removed: Array<string>;
-  added: Array<string>;
   modified: Array<string>;
-  untracked: Array<string>;
+  modifiedPages: number;
+  modifiedQueries: number;
+  remoteBranch: string;
 };
 
 export type GitErrorType = {

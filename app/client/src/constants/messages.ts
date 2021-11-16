@@ -568,6 +568,7 @@ export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PULL = () => "PULL";
 export const COMMIT_AND_PUSH = () => "Commit and push";
+export const PULL_CHANGS = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
@@ -593,12 +594,15 @@ export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const FETCH_GIT_STATUS = () => "fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
+export const GIT_UPSTREAM_CHANGES = () =>
+  "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
 
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
 export const ERROR_CONNECTING = () => "Error while connecting";
 export const ERROR_COMMITTING = () => "Error while committing";
 export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
+export const LEARN_MORE = () => "Learn More";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";

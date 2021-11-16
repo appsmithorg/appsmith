@@ -64,6 +64,9 @@ export const getGitError = (state: AppState) => state.ui.gitSync.gitError;
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
 
+export const getIsPullingProgress = (state: AppState) =>
+  state.ui.gitSync.pullInProgress;
+
 export const getIsFetchingMergeStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingMergeStatus;
 

@@ -37,8 +37,9 @@ export default function GitSyncError() {
   const titleMessage = error?.errorType
     ? error.errorType.replaceAll("_", " ")
     : "";
+  const errorVisible = error && error.code !== 5006;
 
-  return error ? (
+  return errorVisible ? (
     <ErrorWrapper>
       {titleMessage.length && (
         <Text
@@ -51,7 +52,7 @@ export default function GitSyncError() {
         </Text>
       )}
       <Text color={Colors.ERROR_RED} type={TextType.P2}>
-        {error.message}
+        {error?.message}
       </Text>
       <LintText href={DOCS_BASE_URL} target="_blank">
         <Text

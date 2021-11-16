@@ -58,6 +58,7 @@ import {
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import GitSyncError from "../components/GitSyncError";
+import log from "loglevel";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -444,6 +445,7 @@ function GitConnection({ isImport }: Props) {
     }
   }, [gitError]);
 
+  log.log(gitError);
   return (
     <Container ref={scrollWrapperRef}>
       <Section>
@@ -558,7 +560,7 @@ function GitConnection({ isImport }: Props) {
             useGlobalConfig={useGlobalConfig}
           />
           <ButtonContainer topMargin={11}>
-            {!gitError && isConnectingToGit && (
+            {isConnectingToGit && (
               <StatusbarWrapper>
                 <Statusbar
                   completed={!submitButtonIsLoading}
@@ -585,7 +587,7 @@ function GitConnection({ isImport }: Props) {
                 }
               />
             )}
-            <GitSyncError />
+            {!isConnectingToGit && <GitSyncError />}
           </ButtonContainer>
         </>
       ) : null}
