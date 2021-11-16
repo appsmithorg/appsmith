@@ -141,6 +141,7 @@ function SingleSelectTreeComponent({
             className={`tree-select-label ${
               loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
             }`}
+            disabled={disabled}
           >
             {labelText}
           </StyledLabel>
@@ -160,7 +161,7 @@ function SingleSelectTreeComponent({
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
-        notFoundContent="No item Found"
+        notFoundContent="No Results Found"
         onChange={onChange}
         onClear={onClear}
         placeholder={placeholder}

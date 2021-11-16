@@ -63,7 +63,10 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
   }
   &&&&& .${Classes.DISABLED} {
-    background-color: ${Colors.SELECT_DISABLED};
+    background-color: ${Colors.GREY_1};
+    .${Classes.BUTTON_TEXT} {
+      color: ${Colors.GREY_7};
+    }
   }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
@@ -72,8 +75,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-    color: ${(props) =>
-      props.isSelected ? Colors.SELECT_COLOR : Colors.SELECT_PLACEHOLDER};
+    color: ${(props) => (props.isSelected ? Colors.GREY_10 : Colors.GREY_6)};
   }
   && {
     .${Classes.ICON} {

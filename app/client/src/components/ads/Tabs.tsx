@@ -90,11 +90,14 @@ export const TabTitle = styled.span`
 export const TabCount = styled.div`
   background-color: ${(props) => props.theme.colors.tabs.countBg};
   border-radius: 8px;
-  width: 17px;
+  min-width: 17px;
   height: 17px;
   font-size: 9px;
-  line-height: 14px;
-  margin-left: 2px;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
 `;
 
 const TabTitleWrapper = styled.div<{

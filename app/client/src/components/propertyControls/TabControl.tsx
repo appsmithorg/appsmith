@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
-  StyledInputGroup,
   StyledPropertyPaneButton,
   StyledDragIcon,
   StyledDeleteIcon,
   StyledEditIcon,
+  StyledOptionControlInputGroup,
 } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
@@ -40,27 +40,7 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
-  margin-bottom: 2px;
-  width: 100%;
-  padding-left: 10px;
-  background: inherit;
-  &&& {
-    input {
-      border: none;
-      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
-      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-      &:focus {
-        border: none;
-        color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
-      }
-    }
-  }
-`;
-
-type DroppableItem = BaseItemProps & {
+type RenderComponentProps = BaseItemProps & {
   index: number;
   widgetId: string;
 };

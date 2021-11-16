@@ -136,14 +136,6 @@ SettingsFactory.register("APPSMITH_MAIL_HOST", {
   controlSubType: SettingSubtype.TEXT,
   label: "SMTP Host",
   placeholder: "email-smtp.us-east-2.amazonaws.com",
-  validate: (value: string) => {
-    if (
-      value &&
-      !/^(smtps?):\/\/([\d.a-z-]+\.[a-z]{2,63}):(\d{1,5})/.test(value)
-    ) {
-      return "please enter a valid SMTP host";
-    }
-  },
 });
 
 SettingsFactory.register("APPSMITH_MAIL_PORT", {
@@ -201,6 +193,24 @@ SettingsFactory.register("APPSMITH_MAIL_PASSWORD", {
   },
 });
 
+SettingsFactory.register("APPSMITH_MAIL_TEST_EMAIL", {
+  action: (dispatch) => {
+    dispatch &&
+      dispatch({
+        type: ReduxActionTypes.SEND_TEST_EMAIL,
+        payload: true,
+      });
+  },
+  category: "email",
+  controlType: SettingTypes.BUTTON,
+  isVisible: (values: Record<string, any>) => {
+    return (
+      values && values["APPSMITH_MAIL_HOST"] && values["APPSMITH_MAIL_FROM"]
+    );
+  },
+  text: "Send Test Email",
+});
+
 //General
 SettingsFactory.register("APPSMITH_INSTANCE_NAME", {
   category: "general",
@@ -247,13 +257,13 @@ SettingsFactory.register("APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE", {
 SettingsFactory.register("APPSMITH_DISABLE_TELEMETRY", {
   category: "general",
   controlType: SettingTypes.TOGGLE,
-  label: "Share Anonymous Usage Data",
+  label: "Disable Sharing Anonymous Usage Data",
   subText: "Share anonymous usage data to help improve the product",
   toggleText: (value: boolean) => {
     if (value) {
-      return "Share data & make appsmith better!";
-    } else {
       return "Don't share any data";
+    } else {
+      return "Share data & make appsmith better!";
     }
   },
 });
@@ -281,9 +291,9 @@ SettingsFactory.register("APPSMITH_SIGNUP_DISABLED", {
   label: "Signup",
   toggleText: (value: boolean) => {
     if (value) {
-      return " Allow all users to signup";
-    } else {
       return "Allow invited users to signup";
+    } else {
+      return " Allow all users to signup";
     }
   },
 });
@@ -304,20 +314,21 @@ SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID", {
   label: "Client ID",
 });
 
-SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
-  category: "authentication",
-  subCategory: "google signup",
-  controlType: SettingTypes.TEXTINPUT,
-  controlSubType: SettingSubtype.TEXT,
-  label: "Allowed Domains",
-});
-
 SettingsFactory.register("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET", {
   category: "authentication",
   subCategory: "google signup",
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Client Secret",
+});
+
+SettingsFactory.register("APPSMITH_SIGNUP_ALLOWED_DOMAINS", {
+  category: "authentication",
+  subCategory: "google signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Allowed Domains",
+  placeholder: "domain1.com, domain2.com",
 });
 
 SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_READ_MORE", {
@@ -334,6 +345,14 @@ SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_ID", {
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Client ID",
+});
+
+SettingsFactory.register("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET", {
+  category: "authentication",
+  subCategory: "github signup",
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  label: "Client Secret",
 });
 
 //version
