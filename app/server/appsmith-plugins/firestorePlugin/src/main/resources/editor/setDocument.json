@@ -6,32 +6,21 @@
   },
   "children" : [
     {
-      "controlType": "SECTION",
-      "label": "Collection or document path to create or update",
-      "children": [
-        {
-          "label": "Collection/Document Path",
-          "configProperty": "actionConfiguration.path",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
-          "isRequired": true,
-          "initialValue": ""
-        }
-      ]
+      "label": "Collection/Document Path",
+      "configProperty": "actionConfiguration.path",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
     },
     {
-      "controlType": "SECTION",
-      "label": "Timestamp value path",
-      "children": [
-        {
-          "label": "Timestamp Value Path",
-          "configProperty": "actionConfiguration.formData.timestampValuePath",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
-          "isRequired": true,
-          "initialValue": ""
-        }
-      ]
+      "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+      "configProperty": "actionConfiguration.formData.timestampValuePath",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]",
+      "initialValue": ""
     },
     {
       "label": "Body",

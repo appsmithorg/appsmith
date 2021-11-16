@@ -6,48 +6,30 @@
   },
   "children" : [
     {
-      "controlType": "SECTION",
-      "label": "Collection or document path to create or update",
-      "children": [
-        {
-          "label": "Collection/Document Path",
-          "configProperty": "actionConfiguration.path",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
-          "isRequired": true,
-          "initialValue": ""
-        }
-      ]
+      "label": "Collection/Document Path",
+      "configProperty": "actionConfiguration.path",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": ""
     },
     {
-      "controlType": "SECTION",
-      "label": "Timestamp value path",
-      "children": [
-        {
-          "label": "Timestamp Value Path",
-          "configProperty": "actionConfiguration.formData.timestampValuePath",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
-          "isRequired": true,
-          "initialValue": "",
-          "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]"
-        }
-      ]
+      "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+      "configProperty": "actionConfiguration.formData.timestampValuePath",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": "",
+      "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]"
     },
     {
-      "controlType": "SECTION",
-      "label": "Delete Key Path",
-      "children": [
-        {
-          "label": "Delete Key Path",
-          "configProperty": "actionConfiguration.formData.deleteKeyPath",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
-          "isRequired": true,
-          "initialValue": "",
-          "placeholderText": "[\"userKey.nestedNamekey\", \"cityKey.nestedPincodeKey\"]"
-        }
-      ]
+      "label": "Delete Key Value Pair Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+      "configProperty": "actionConfiguration.formData.deleteKeyPath",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "initialValue": "",
+      "placeholderText": "[\"userKey.nestedNamekey\", \"cityKey.nestedPincodeKey\"]"
     },
     {
       "label": "Body",

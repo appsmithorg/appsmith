@@ -80,6 +80,16 @@ public class PluginUtils {
         return getValueSafelyFromFormData(formData, field) != null;
     }
 
+    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type,
+                                                   T defaultValue) {
+        Object formDataValue = getValueSafelyFromFormData(formData, field);
+        return formDataValue != null ? (T) formDataValue : defaultValue;
+    }
+
+    public static <T> T getValueSafelyFromFormData(Map<String, Object> formData, String field, Class<T> type) {
+        return (T) (getValueSafelyFromFormData(formData, field));
+    }
+
     public static Object getValueSafelyFromFormData(Map<String, Object> formData, String field) {
         if (CollectionUtils.isEmpty(formData)) {
             return null;

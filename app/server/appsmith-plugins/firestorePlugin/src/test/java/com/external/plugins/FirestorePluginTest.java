@@ -45,6 +45,14 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.external.constants.FieldName.COMMAND;
+import static com.external.constants.FieldName.DELETE_KEY_PATH;
+import static com.external.constants.FieldName.END_BEFORE;
+import static com.external.constants.FieldName.LIMIT_DOCUMENTS;
+import static com.external.constants.FieldName.ORDER_BY;
+import static com.external.constants.FieldName.START_AFTER;
+import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -136,7 +144,10 @@ public class FirestorePluginTest {
     public void testGetSingleDocument() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("initial/one");
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -157,8 +168,7 @@ public class FirestorePluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "GET_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "GET_DOCUMENT", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
                             null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
@@ -170,7 +180,9 @@ public class FirestorePluginTest {
     public void testGetSingleDocument2() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("initial/two");
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -198,7 +210,9 @@ public class FirestorePluginTest {
     public void testGetSingleDocument3() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("initial/inner-ref");
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_DOCUMENT")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -227,7 +241,9 @@ public class FirestorePluginTest {
     public void testGetDocumentsInCollection() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("initial");
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "GET_COLLECTION")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -289,7 +305,9 @@ public class FirestorePluginTest {
                 "    \"lastName\":\"lastTest\"\n" +
                 "}");
 
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "SET_DOCUMENT")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "SET_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -303,8 +321,7 @@ public class FirestorePluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "SET_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "SET_DOCUMENT", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
@@ -323,7 +340,9 @@ public class FirestorePluginTest {
                 "    \"lastName\":\"lastTest\"\n" +
                 "}");
 
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "CREATE_DOCUMENT")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "CREATE_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -337,8 +356,7 @@ public class FirestorePluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "CREATE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "CREATE_DOCUMENT", null, null, null));
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
@@ -356,7 +374,9 @@ public class FirestorePluginTest {
                 "    \"value\": 2\n" +
                 "}");
 
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "UPDATE_DOCUMENT")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -380,7 +400,9 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("changing/to-delete");
 
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "DELETE_DOCUMENT")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "DELETE_DOCUMENT");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -400,8 +422,7 @@ public class FirestorePluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "DELETE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "DELETE_DOCUMENT", null, null, null));
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
                             null, null, null)); // Path
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
@@ -414,7 +435,9 @@ public class FirestorePluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("changing");
 
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("method", "ADD_TO_COLLECTION")));
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "ADD_TO_COLLECTION");
+        actionConfiguration.setFormData(configMap);
 
         actionConfiguration.setBody("{\n" +
                 "  \"question\": \"What is the answer to life, universe and everything else?\",\n" +
@@ -434,8 +457,7 @@ public class FirestorePluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "ADD_TO_COLLECTION", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "ADD_TO_COLLECTION", null, null, null));
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
                             null, null, null)); // Path
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
@@ -449,23 +471,22 @@ public class FirestorePluginTest {
         final ObjectMapper objectMapper = new ObjectMapper();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("pagination");
-        List<Property> propertyList = new ArrayList<>();
-        propertyList.add(new Property("method", "GET_COLLECTION"));
-        propertyList.add(new Property("order", "[\"n\"]"));
-        propertyList.add(new Property("limit", "5"));
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setValueSafelyInFormData(configMap, ORDER_BY, "[\"n\"]");
+        setValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "5");
 
         if (first != null && last != null) {
             try {
-                propertyList.add(new Property());
-                propertyList.add(new Property());
-                propertyList.add(new Property());
-                propertyList.add(new Property("startAfter", objectMapper.writeValueAsString(last)));
-                propertyList.add(new Property("endBefore", objectMapper.writeValueAsString(first)));
+                setValueSafelyInFormData(configMap, START_AFTER, objectMapper.writeValueAsString(last));
+                setValueSafelyInFormData(configMap, END_BEFORE, objectMapper.writeValueAsString(first));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }
-        actionConfiguration.setPluginSpecifiedTemplates(propertyList);
+
+        actionConfiguration.setFormData(configMap);
         return actionConfiguration;
     }
 
@@ -577,11 +598,12 @@ public class FirestorePluginTest {
     public void testGetDocumentsInCollectionOrdering() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("pagination");
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(
-                new Property("method", "GET_COLLECTION"),
-                new Property("order", "[\"firm\", \"name\"]"),
-                new Property("limit", "15")
-        ));
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setValueSafelyInFormData(configMap, ORDER_BY, "[\"firm\", \"name\"]");
+        setValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "15");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -620,20 +642,14 @@ public class FirestorePluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "GET_COLLECTION", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "GET_COLLECTION", null, null, null));
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
                             null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1),
-                            "[\"firm\", \"name\"]", null, null, null)); // Order by
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(6), "{}", null,
-                            null, null)); // Start after
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(7), "{}", null,
-                            null, null)); // End before
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(2), "15", null,
-                            null, null)); // Limit
+                    expectedRequestParams.add(new RequestParamDTO(ORDER_BY, "[\"firm\", \"name\"]", null, null, null)); // Order by
+                    expectedRequestParams.add(new RequestParamDTO(START_AFTER, "{}", null, null, null)); // Start after
+                    expectedRequestParams.add(new RequestParamDTO(END_BEFORE, "{}", null, null, null)); // End before
+                    expectedRequestParams.add(new RequestParamDTO(LIMIT_DOCUMENTS, "15", null, null, null)); // Limit
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
-
                 })
                 .verifyComplete();
     }
@@ -642,11 +658,12 @@ public class FirestorePluginTest {
     public void testGetDocumentsInCollectionOrdering2() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("pagination");
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(
-                new Property("method", "GET_COLLECTION"),
-                new Property("order", "[\"firm\", \"-name\"]"),
-                new Property("limit", "15")
-        ));
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+        setValueSafelyInFormData(configMap, ORDER_BY, "[\"firm\", \"-name\"]");
+        setValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "15");
+        actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration);
@@ -684,6 +701,7 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
+    // TODO: fix it.
     @Test
     public void testWhereConditional() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -766,19 +784,13 @@ public class FirestorePluginTest {
 
     @Test
     public void testUpdateDocumentWithFieldValueTimestamp() {
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
-        properties.add(null); // index 1
-        properties.add(null); // index 2
-        properties.add(null); // index 3
-        properties.add(null); // index 4
-        properties.add(null); // index 5
-        properties.add(null); // index 6
-        properties.add(null); // index 7
-        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for timestampServer fieldValue.
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "[\"value\"]");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setFormData(configMap);
         actionConfiguration.setPath("changing/to-update");
         actionConfiguration.setBody("{\n" +
                 "    \"value\": 2\n" +
@@ -817,20 +829,12 @@ public class FirestorePluginTest {
      */
     @Test
     public void testUpdateDocumentWithFieldValueDelete() {
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
-        properties.add(null); // index 1
-        properties.add(null); // index 2
-        properties.add(null); // index 3
-        properties.add(null); // index 4
-        properties.add(null); // index 5
-        properties.add(null); // index 6
-        properties.add(null); // index 7
-        properties.add(null); // index 8
-        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setValueSafelyInFormData(configMap, DELETE_KEY_PATH, "[\"value\"]");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setFormData(configMap);
         actionConfiguration.setPath("changing/to-update");
         actionConfiguration.setBody("{\n" +
                 "    \"value\": 2\n" +
@@ -851,12 +855,10 @@ public class FirestorePluginTest {
                      * - The other two RequestParamDTO attributes - label and type are null at this point.
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0),
-                            "UPDATE_DOCUMENT", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(COMMAND, "UPDATE_DOCUMENT", null, null, null));
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, actionConfiguration.getPath(),
                             null, null, null)); // Path
-                    expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(9),
-                            "[\"value\"]", null, null, null)); // Method
+                    expectedRequestParams.add(new RequestParamDTO(DELETE_KEY_PATH, "[\"value\"]", null, null, null)); // Method
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                             actionConfiguration.getBody(), null, null, null)); // Body
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
@@ -884,20 +886,12 @@ public class FirestorePluginTest {
 
     @Test
     public void testFieldValueDeleteWithUnsupportedAction() {
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("method", "CREATE_DOCUMENT")); // index 0
-        properties.add(null); // index 1
-        properties.add(null); // index 2
-        properties.add(null); // index 3
-        properties.add(null); // index 4
-        properties.add(null); // index 5
-        properties.add(null); // index 6
-        properties.add(null); // index 7
-        properties.add(null); // index 8
-        properties.add(new Property("key path", "[\"value\"]")); // index 9 - path for delete fieldValue.
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "CREATE_DOCUMENT");
+        setValueSafelyInFormData(configMap, DELETE_KEY_PATH, "[\"value\"]");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setFormData(configMap);
         actionConfiguration.setPath("changing/to-update");
         actionConfiguration.setBody("{\n" +
                 "    \"value\": 2\n" +
@@ -920,19 +914,12 @@ public class FirestorePluginTest {
 
     @Test
     public void testFieldValueTimestampWithUnsupportedAction() {
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("method", "GET_DOCUMENT")); // index 0
-        properties.add(null); // index 1
-        properties.add(null); // index 2
-        properties.add(null); // index 3
-        properties.add(null); // index 4
-        properties.add(null); // index 5
-        properties.add(null); // index 6
-        properties.add(null); // index 7
-        properties.add(new Property("key path", "[\"value\"]")); // index 8 - path for serverTimestamp fieldValue.
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_DOCUMENT");
+        setValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "[\"value\"]");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setFormData(configMap);
         actionConfiguration.setPath("changing/to-update");
         actionConfiguration.setBody("{\n" +
                 "    \"value\": 2\n" +
@@ -954,20 +941,12 @@ public class FirestorePluginTest {
 
     @Test
     public void testFieldValueDeleteWithBadArgument() {
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
-        properties.add(null); // index 1
-        properties.add(null); // index 2
-        properties.add(null); // index 3
-        properties.add(null); // index 4
-        properties.add(null); // index 5
-        properties.add(null); // index 6
-        properties.add(null); // index 7
-        properties.add(null); // index 8
-        properties.add(new Property("key path", "value")); // index 9 - path for delete fieldValue.
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setValueSafelyInFormData(configMap, DELETE_KEY_PATH, "value");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setFormData(configMap);
         actionConfiguration.setPath("changing/to-update");
         actionConfiguration.setBody("{\n" +
                 "    \"value\": 2\n" +
@@ -989,19 +968,12 @@ public class FirestorePluginTest {
 
     @Test
     public void testFieldValueTimestampWithBadArgument() {
-        List<Property> properties = new ArrayList<>();
-        properties.add(new Property("method", "UPDATE_DOCUMENT")); // index 0
-        properties.add(null); // index 1
-        properties.add(null); // index 2
-        properties.add(null); // index 3
-        properties.add(null); // index 4
-        properties.add(null); // index 5
-        properties.add(null); // index 6
-        properties.add(null); // index 7
-        properties.add(new Property("key path", "value")); // index 8 - path for serverTimestamp fieldValue.
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "UPDATE_DOCUMENT");
+        setValueSafelyInFormData(configMap, TIMESTAMP_VALUE_PATH, "value");
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(properties);
+        actionConfiguration.setFormData(configMap);
         actionConfiguration.setPath("changing/to-update");
         actionConfiguration.setBody("{\n" +
                 "    \"value\": 2\n" +
@@ -1022,10 +994,12 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
+    // TODO: fix it.
     @Test
     public void testDynamicBindingSubstitutionInActionConfiguration() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setPath("{{Input1.text}}");
+
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("method", "GET_COLLECTION"));
         pluginSpecifiedTemplates.add(new Property("order", null));
