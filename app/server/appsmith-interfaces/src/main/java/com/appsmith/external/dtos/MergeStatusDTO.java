@@ -7,8 +7,10 @@ import java.util.List;
 
 @Getter
 @Setter
-public class MergeStatus {
+public class MergeStatusDTO {
     boolean isMerge;
+
+    String status;
 
     List<String> conflictingFiles;
 }

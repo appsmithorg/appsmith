@@ -2,7 +2,7 @@ package com.appsmith.git.service;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
-import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.Constraint;
@@ -291,40 +291,43 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<String> pullApplication(Path repoPath,
-                                        String remoteUrl,
-                                        String branchName,
-                                        String privateKey,
-                                        String publicKey) {
+    public Mono<MergeStatusDTO> pullApplication(Path repoPath,
+                                                String remoteUrl,
+                                                String branchName,
+                                                String privateKey,
+                                                String publicKey) {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
             Git git = Git.open(repoPath.toFile());
             //checkout the branch on which the merge command is run
             git.checkout().setName(branchName).setCreateBranch(false).call();
-            try {
-                long count = Arrays.stream(git
-                        .pull()
-                        .setRemoteBranchName(branchName)
-                        .setTransportConfigCallback(transportConfigCallback)
-                        .setFastForward(MergeCommand.FastForwardMode.FF)
-                        .call()
-                        .getMergeResult()
-                        .getMergedCommits())
-                        .count();
-                git.close();
-                if (count > 0) {
-                    return count + " commits merged from origin/" + branchName;
-                }
-                return "Your branch is up-to-date with latest commits";
-            } catch (GitAPIException e) {
+            MergeResult mergeResult = git
+                    .pull()
+                    .setRemoteBranchName(branchName)
+                    .setTransportConfigCallback(transportConfigCallback)
+                    .setFastForward(MergeCommand.FastForwardMode.FF)
+                    .call()
+                    .getMergeResult();
+            MergeStatusDTO mergeStatus = new MergeStatusDTO();
+            Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
+            if (mergeResult.getMergeStatus().isSuccessful()) {
+                mergeStatus.setMerge(true);
+                mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
+            } else {
+                //If there aer conflicts add the conflicting file names to the response structure
+                mergeStatus.setMerge(false);
+                List<String> mergeConflictFiles = new ArrayList<>();
+                mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                mergeStatus.setConflictingFiles(mergeConflictFiles);
+
                 //On merge conflicts abort the merge => git merge --abort
                 git.getRepository().writeMergeCommitMsg(null);
                 git.getRepository().writeMergeHeads(null);
                 Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
-                git.close();
-                return e.getMessage();
             }
+            git.close();
+            return mergeStatus;
         }).subscribeOn(scheduler);
     }
 
@@ -419,7 +422,7 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
-            Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+            Git git = Git.open(repoPath.toFile());
             try {
                 //checkout the branch on which the merge command is run
                 git.checkout().setName(destinationBranch).setCreateBranch(false).call();
@@ -461,7 +464,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<MergeStatus> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
+    public Mono<MergeStatusDTO> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
 
@@ -471,22 +474,22 @@ public class GitExecutorImpl implements GitExecutor {
 
             MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).setCommit(false).call();
 
-            //On merge conflicts abort the merge => git merge --abort
-            git.getRepository().writeMergeCommitMsg(null);
-            git.getRepository().writeMergeHeads(null);
-            Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
-            git.close();
-
-            MergeStatus mergeStatus = new MergeStatus();
+            MergeStatusDTO mergeStatus = new MergeStatusDTO();
             if(mergeResult.getMergeStatus().isSuccessful()) {
                 mergeStatus.setMerge(true);
             } else {
+                //On merge conflicts abort the merge => git merge --abort
+                git.getRepository().writeMergeCommitMsg(null);
+                git.getRepository().writeMergeHeads(null);
+                Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
+
                 //If there aer conflicts add the conflicting file names to the response structure
                 mergeStatus.setMerge(false);
                 List<String> mergeConflictFiles = new ArrayList<>();
                 mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
             }
+            git.close();
             return mergeStatus;
         }).subscribeOn(scheduler);
     }

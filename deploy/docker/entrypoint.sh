@@ -140,7 +140,7 @@ configure_ssl() {
 
 configure_supervisord() {
   SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
-  if [ -z "$(ls -A /etc/supervisor/conf.d)" ]; then
+  if [[ -z "$(ls -A /etc/supervisor/conf.d)" ]]; then
     rm "/etc/supervisor/conf.d/"*
   fi
 
@@ -152,6 +152,8 @@ configure_supervisord() {
   fi
   if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then
     cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+		# Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
+		sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf
   fi
   if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
     cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
