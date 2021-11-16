@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
@@ -6,6 +6,7 @@ import { AlignWidget } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { getBorderRadiusValue } from "widgets/WidgetUtils";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 type StyledCheckboxProps = {
   rowSpace: number;
@@ -55,7 +56,7 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
     ${({ backgroundColor, checked }) =>
       checked
         ? `
-        background: ${backgroundColor || Colors.GREEN_SOLID} !important;
+        background: ${backgroundColor} !important;
         background-image: none;
         box-shadow: none;
         border: none !important;
@@ -90,37 +91,40 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
   }
 `;
 
-class CheckboxComponent extends React.Component<CheckboxComponentProps> {
-  render() {
-    const checkboxAlignClass =
-      this.props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
+function CheckboxComponent(props: CheckboxComponentProps) {
+  const checkboxAlignClass =
+    props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
 
-    return (
-      <CheckboxContainer
-        className={checkboxAlignClass}
-        isValid={!(this.props.isRequired && !this.props.isChecked)}
-      >
-        <StyledCheckbox
-          alignIndicator={checkboxAlignClass}
-          backgroundColor={this.props.backgroundColor}
-          borderRadius={this.props.borderRadius}
-          checked={this.props.isChecked}
-          className={
-            this.props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT
-          }
-          disabled={this.props.isDisabled}
-          label={this.props.label}
-          onChange={this.onCheckChange}
-          rowSpace={this.props.rowSpace}
-        />
-      </CheckboxContainer>
-    );
-  }
+  /**
+   * on check change
+   */
+  const onCheckChange = useCallback(() => {
+    props.onCheckChange(!props.isChecked);
+  }, [props.isChecked, props.onCheckChange]);
 
-  onCheckChange = () => {
-    this.props.onCheckChange(!this.props.isChecked);
-  };
+  return (
+    <CheckboxContainer
+      className={checkboxAlignClass}
+      isValid={!(props.isRequired && !props.isChecked)}
+    >
+      <StyledCheckbox
+        alignIndicator={checkboxAlignClass}
+        backgroundColor={props.backgroundColor}
+        borderRadius={props.borderRadius}
+        checked={props.isChecked}
+        className={props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT}
+        disabled={props.isDisabled}
+        label={props.label}
+        onChange={onCheckChange}
+        rowSpace={props.rowSpace}
+      />
+    </CheckboxContainer>
+  );
 }
+
+CheckboxComponent.defaultProps = {
+  backgroundColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export interface CheckboxComponentProps extends ComponentProps {
   alignWidget?: AlignWidget;

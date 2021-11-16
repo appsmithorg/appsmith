@@ -18,7 +18,6 @@ export const CONFIG = {
     alignWidget: "LEFT",
     isDisabled: false,
     isRequired: false,
-    backgroundColor: Colors.GREEN,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

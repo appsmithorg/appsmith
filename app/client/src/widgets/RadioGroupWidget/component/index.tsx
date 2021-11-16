@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { RadioOption } from "../constants";
@@ -12,6 +12,7 @@ import {
 import { Colors } from "constants/Colors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { BlueprintControlTransform, labelStyle } from "constants/DefaultTheme";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 const StyledControlGroup = styled(ControlGroup)`
   &&& {
@@ -50,61 +51,64 @@ const StyledRadioGroup = styled(RadioGroup)<{
 
   .${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.GREEN}`} !important;
-      border: 1px solid
-        ${({ backgroundColor }) => `${backgroundColor || Colors.GREEN}`} !important;
+      background: ${({ backgroundColor }) => `${backgroundColor}`} !important;
+      border: 1px solid ${({ backgroundColor }) => `${backgroundColor}`} !important;
     }
   }
 
   .${Classes.SWITCH} {
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ backgroundColor }) =>
-        `${backgroundColor || Colors.WHITE}`};
+      background: ${({ backgroundColor }) => `${backgroundColor}`};
     }
   }
 `;
 
-class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
-  render() {
-    return (
-      <StyledControlGroup fill>
-        {this.props.label && (
-          <Label
-            className={
-              this.props.isLoading
-                ? Classes.SKELETON
-                : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }
-          >
-            {this.props.label}
-          </Label>
-        )}
-        <StyledRadioGroup
-          backgroundColor={this.props.backgroundColor}
-          disabled={this.props.isDisabled}
-          onChange={this.onRadioSelectionChange}
-          selectedValue={this.props.selectedOptionValue}
-        >
-          {this.props.options.map((option, optInd) => {
-            return (
-              <Radio
-                className={this.props.isLoading ? "bp3-skeleton" : ""}
-                key={optInd}
-                label={option.label}
-                value={option.value}
-              />
-            );
-          })}
-        </StyledRadioGroup>
-      </StyledControlGroup>
-    );
-  }
+function RadioGroupComponent(props: RadioGroupComponentProps) {
+  /**
+   * on radio selection change
+   */
+  const onRadioSelectionChange = useCallback(
+    (event: React.FormEvent<HTMLInputElement>) => {
+      props.onRadioSelectionChange(event.currentTarget.value);
+    },
+    [props.onRadioSelectionChange],
+  );
 
-  onRadioSelectionChange = (event: React.FormEvent<HTMLInputElement>) => {
-    this.props.onRadioSelectionChange(event.currentTarget.value);
-  };
+  return (
+    <StyledControlGroup fill>
+      {props.label && (
+        <Label
+          className={
+            props.isLoading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+          }
+        >
+          {props.label}
+        </Label>
+      )}
+      <StyledRadioGroup
+        backgroundColor={props.backgroundColor}
+        disabled={props.isDisabled}
+        onChange={onRadioSelectionChange}
+        selectedValue={props.selectedOptionValue}
+      >
+        {props.options.map((option, optInd) => {
+          return (
+            <Radio
+              className={props.isLoading ? "bp3-skeleton" : ""}
+              key={optInd}
+              label={option.label}
+              value={option.value}
+            />
+          );
+        })}
+      </StyledRadioGroup>
+    </StyledControlGroup>
+  );
 }
+
+RadioGroupComponent.defaultProps = {
+  backgroundColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export interface RadioGroupComponentProps extends ComponentProps {
   label: string;

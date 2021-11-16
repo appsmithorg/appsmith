@@ -7,7 +7,6 @@ import tinycolor from "tinycolor2";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import {
   ButtonBoxShadow,
-  ButtonBoxShadowTypes,
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
   ButtonStyleType,
@@ -18,11 +17,14 @@ import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 import {
+  getBorderRadiusValue,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  getBoxShadowValue,
 } from "widgets/WidgetUtils";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 interface WrapperStyleProps {
   isHorizontal: boolean;
@@ -41,31 +43,9 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   overflow: hidden;
   ${(props) =>
     props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
-
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.ROUNDED
-      ? "8px"
-      : borderRadius === ButtonBorderRadiusTypes.CIRCLE
-      ? "32px"
-      : "0px"};
-
-  box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
-    boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
-      : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
-      : "none"} !important;
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
+  box-shadow: ${({ boxShadow, boxShadowColor }) =>
+    `${getBoxShadowValue(boxShadowColor, boxShadow)}`} !important;
 `;
 
 const MenuButtonWrapper = styled.div`
@@ -429,6 +409,10 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
     );
   };
 }
+
+StyledButton.defaultProps = {
+  buttonColor: FALLBACK_COLORS.backgroundColor,
+};
 
 interface GroupButtonProps {
   widgetId: string;

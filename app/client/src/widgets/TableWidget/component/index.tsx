@@ -11,6 +11,7 @@ import { Row } from "react-table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -300,6 +301,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     />
   );
 }
+
+ReactTableComponent.defaultProps = {
+  accentColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (

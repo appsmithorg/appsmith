@@ -22,7 +22,6 @@ export const CONFIG = {
     isVisible: true,
     widgetName: "CheckboxGroup",
     version: 1,
-    backgroundColor: Colors.GREEN,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

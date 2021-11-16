@@ -72,12 +72,11 @@ export const TableWrapper = styled.div<{
       background: ${Colors.WHITE};
       &.selected-row {
         background: ${({ accentColor }) =>
-          `${getSelectedRowBgColor(
-            accentColor || Colors.NARVIK_GREEN,
-          )}`} !important;
+          `${getSelectedRowBgColor(accentColor)}`} !important;
       }
       &:hover {
-        background: ${Colors.NARVIK_GREEN};
+        background: ${({ accentColor }) =>
+          `${getSelectedRowBgColor(accentColor)}`} !important;
       }
     }
     .th,

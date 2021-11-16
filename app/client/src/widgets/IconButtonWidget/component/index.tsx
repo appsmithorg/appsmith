@@ -21,6 +21,7 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 const IconButtonContainer = styled.div`
   display: flex;
   align-items: center;
@@ -215,5 +216,9 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     </IconButtonContainer>
   );
 }
+
+IconButtonComponent.defaultProps = {
+  buttonColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export default IconButtonComponent;

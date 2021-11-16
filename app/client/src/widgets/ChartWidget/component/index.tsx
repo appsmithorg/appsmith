@@ -270,7 +270,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionAlignment: "left",
       captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
-      bgColor: this.props.backgroundColor || "#ffffff",
+      bgColor: this.props.backgroundColor || Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
 

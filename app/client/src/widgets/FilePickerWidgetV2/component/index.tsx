@@ -1,55 +1,48 @@
-import * as React from "react";
+import React, { useMemo, useCallback } from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import { Colors } from "constants/Colors";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
-class FilePickerComponent extends React.Component<
-  FilePickerComponentProps,
-  FilePickerComponentState
-> {
-  constructor(props: FilePickerComponentProps) {
-    super(props);
-    this.state = {
-      isOpen: false,
-    };
-  }
+function FilePickerComponent(props: FilePickerComponentProps) {
+  const label = useMemo(() => {
+    let computedLabel = props.label;
 
-  openModal = () => {
-    if (!this.props.isDisabled) {
-      this.props.uppy.getPlugin("Dashboard").openModal();
+    if (props.files && props.files.length) {
+      computedLabel = `${props.files.length} files selected`;
     }
-  };
 
-  render() {
-    let label = this.props.label;
-    if (this.props.files && this.props.files.length) {
-      label = `${this.props.files.length} files selected`;
-    }
-    return (
-      <BaseButton
-        borderRadius={this.props.borderRadius}
-        boxShadow={this.props.boxShadow}
-        boxShadowColor={this.props.boxShadowColor}
-        buttonColor={this.props.backgroundColor}
-        disabled={this.props.isDisabled}
-        loading={this.props.isLoading}
-        onClick={this.openModal}
-        text={label}
-      />
-    );
-  }
+    return computedLabel;
+  }, [props.label, props.files]);
 
-  public closeModal() {
-    this.props.uppy.getPlugin("Dashboard").closeModal();
-  }
+  /**
+   * opens modal
+   */
+  const openModal = useCallback(() => {
+    props.uppy.getPlugin("Dashboard").openModal();
+  }, [props.uppy, props.isDisabled]);
+
+  return (
+    <BaseButton
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      boxShadowColor={props.boxShadowColor}
+      buttonColor={props.backgroundColor}
+      disabled={props.isDisabled}
+      loading={props.isLoading}
+      onClick={openModal}
+      text={label}
+    />
+  );
 }
 
-export interface FilePickerComponentState {
-  isOpen: boolean;
-}
+FilePickerComponent.defaultProps = {
+  backgroundColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
@@ -61,5 +54,9 @@ export interface FilePickerComponentProps extends ComponentProps {
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
 }
+
+FilePickerComponent.defaultProps = {
+  backgroundColor: Colors.GREEN,
+};
 
 export default FilePickerComponent;

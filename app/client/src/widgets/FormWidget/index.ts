@@ -14,7 +14,7 @@ export const CONFIG = {
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Form",
-    backgroundColor: "white",
+    backgroundColor: Colors.WHITE,
     children: [],
     blueprint: {
       view: [

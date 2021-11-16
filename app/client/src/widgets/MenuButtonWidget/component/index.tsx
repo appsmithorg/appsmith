@@ -21,6 +21,8 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
+import { Colors } from "constants/Colors";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 export const MenuButtonContainer = styled.div`
   width: 100%;
@@ -400,5 +402,9 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     </MenuButtonContainer>
   );
 }
+
+MenuButtonComponent.defaultProps = {
+  menuColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export default MenuButtonComponent;

@@ -11,7 +11,6 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     text: "Submit",
-    buttonColor: Colors.GREEN,
     buttonVariant: ButtonVariantTypes.PRIMARY,
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,

@@ -25,7 +25,6 @@ export const CONFIG = {
     version: 1,
     isRequired: false,
     isDisabled: false,
-    backgroundColor: Colors.GREEN,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

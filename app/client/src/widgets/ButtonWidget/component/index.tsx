@@ -39,6 +39,7 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -465,5 +466,9 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
     return btnWrapper;
   }
 }
+
+ButtonComponent.defaultProps = {
+  buttonColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export default ButtonComponent;

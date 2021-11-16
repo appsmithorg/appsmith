@@ -8,8 +8,6 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    backgroundColor: "#F86A2B",
-    borderRadius: "CIRCLE",
     iconColor: "white",
     isDisabled: false,
     isVisible: true,

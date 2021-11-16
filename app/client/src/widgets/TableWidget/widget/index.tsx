@@ -49,6 +49,7 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -165,7 +166,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
+              backgroundColor:
+                cellProperties.buttonColor || FALLBACK_COLORS.backgroundColor,
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -220,7 +222,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               menuItems: cellProperties.menuItems,
               isCompact: cellProperties.isCompact || false,
               menuVariant: cellProperties.menuVariant ?? "PRIMARY",
-              menuColor: cellProperties.menuColor || "rgb(3, 179, 101)",
+              menuColor:
+                cellProperties.menuColor || FALLBACK_COLORS.backgroundColor,
               borderRadius: cellProperties.borderRadius || "SHARP",
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,

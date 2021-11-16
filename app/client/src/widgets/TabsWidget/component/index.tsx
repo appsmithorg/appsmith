@@ -7,6 +7,7 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 import { getBorderRadiusValue, getBoxShadowValue } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -118,8 +119,7 @@ const StyledText = styled.div<TabProps>`
   cursor: pointer;
   box-shadow: ${(props) =>
     props.selected
-      ? `inset -1px 0px 0px #ebeff2, inset 1px 0px 0px #ebeff2, inset 0px 4px 0px ${props.selectedTabColor ||
-          Colors.GREEN}`
+      ? `inset -1px 0px 0px #ebeff2, inset 1px 0px 0px #ebeff2, inset 0px 4px 0px ${props.selectedTabColor}`
       : ""};
   &:hover {
     background: ${(props) =>
@@ -192,5 +192,9 @@ function TabsComponent(props: TabsComponentProps) {
     </TabsContainerWrapper>
   );
 }
+
+TabsComponent.defaultProps = {
+  selectedTabColor: FALLBACK_COLORS.backgroundColor,
+};
 
 export default TabsComponent;

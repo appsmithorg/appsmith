@@ -4,7 +4,7 @@ import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidget } from "widgets/constants";
-import { Colors } from "constants/Colors";
+import { FALLBACK_COLORS } from "constants/ThemeConstants";
 
 interface SwitchComponentProps extends ComponentProps {
   label: string;
@@ -32,17 +32,14 @@ const SwitchComponentContainer = styled.div<{
   && {
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.GREEN}`};
-        border: 1px solid
-          ${({ backgroundColor }) => `${backgroundColor || Colors.GREEN}`};
+        background: ${({ backgroundColor }) => `${backgroundColor}`};
+        border: 1px solid ${({ backgroundColor }) => `${backgroundColor}`};
       }
     }
 
     .${Classes.SWITCH} {
       & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${({ backgroundColor }) =>
-          `${backgroundColor || Colors.WHITE}`};
+        background: ${({ backgroundColor }) => `${backgroundColor}`};
       }
     }
   }
@@ -84,3 +81,7 @@ export function SwitchComponent({
     </SwitchComponentContainer>
   );
 }
+
+SwitchComponent.defaultProps = {
+  backgroundColor: FALLBACK_COLORS.backgroundColor,
+};
