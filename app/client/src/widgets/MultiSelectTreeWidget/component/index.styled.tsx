@@ -8,6 +8,16 @@ import {
   TextSize,
   TEXT_SIZES,
 } from "constants/WidgetConstants";
+import Icon from "components/ads/Icon";
+
+export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
+  transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
 
 export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -23,16 +33,19 @@ export const TextLabelWrapper = styled.div<{
 
 export const StyledLabel = styled(Label)<{
   $compactMode: boolean;
+  $disabled: boolean;
   $labelText?: string;
   $labelTextColor?: string;
   $labelTextSize?: TextSize;
   $labelStyle?: string;
+  disabled?: boolean;
 }>`
   overflow-y: hidden;
   text-overflow: ellipsis;
   width: ${(props) => (props.$compactMode ? "auto" : "100%")};
   text-align: left;
-  color: ${(props) => props.$labelTextColor || "inherit"};
+  color: ${(props) =>
+    props.disabled ? Colors.GREY_8 : props.$labelTextColor || "inherit"};
   font-size: ${(props) =>
     props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
   font-weight: ${(props) =>
@@ -177,7 +190,7 @@ export const DropdownStyles = createGlobalStyle`
 
 
 
-.tree-select-dropdown.single-tree-select-dropdown {
+.tree-multiselect-dropdown.single-tree-select-dropdown {
   .rc-tree-select-tree
 	.rc-tree-select-tree-treenode.rc-tree-select-tree-treenode-disabled
 	span.rc-tree-select-tree-iconEle {
@@ -237,17 +250,16 @@ border: 1px solid #E8E8E8;
   }
 
 }
-.tree-select-dropdown {
-    min-height: 100px;
-    min-width: 250px !important;
-    position: absolute;
-    background: #fff;
-    width: 100%;
-    border-radius: 0px;
-    margin-top: 10px;
-    padding: 12px;
-    background: white;
-    box-shadow: 0 0 2px rgb(0 0 0 / 20%) !important;
+.tree-multiselect-dropdown {
+  min-height: 100px;
+  min-width: 250px !important;
+  position: absolute;
+  background: #fff;
+  width: 100%;
+  border-radius: 0px;
+  margin-top: 5px;
+  background: white;
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
     &&&& .${Classes.ALIGN_LEFT} {
         font-size: 16px;
         padding-bottom: 10px;
@@ -287,24 +299,17 @@ border: 1px solid #E8E8E8;
 	}
 }
 
-
-
-.rc-tree-select-tree {
-	margin: 0;
-	border: 1px solid transparent;
-}
 .rc-tree-select-tree-focused:not(.rc-tree-select-tree-active-focused) {
 	border-color: cyan;
 }
 .rc-tree-select-tree .rc-tree-select-tree-treenode {
 	margin: 0;
-	padding: 0;
-	line-height: 24px;
+  padding: 0 5px 0 12px;
+  line-height: 24px;
+  height: 38px;
 	white-space: nowrap;
 	list-style: none;
 	outline: 0;
-  padding: 0 5px;
-  height: 34px;
   align-items: center;
   display: flex !important;
 }
@@ -366,47 +371,20 @@ border: 1px solid #E8E8E8;
   flex: 1
 }
 
-.rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner:after {
-    position: absolute;
-    display: table;
-    border: 2px solid #fff;
-    border-top: 0;
-    border-left: 0;
-    transform: rotate(
-45deg
-) scale(1) translate(-50%,-50%);
-    opacity: 1;
-    transition: all .2s cubic-bezier(.12,.4,.29,1.46) .1s;
-    content: " ";
-}
-.rc-tree-select-tree-checkbox-inner:after {
-    position: absolute;
-    top: 50%;
-    left: 22%;
-    display: table;
-    width: 5.71428571px;
-    height: 9.14285714px;
-    border: 2px solid #fff;
-    border-top: 0;
-    border-left: 0;
-    transform: rotate(
-45deg
-) scale(0) translate(-50%,-50%);
-    opacity: 0;
-    transition: all .1s cubic-bezier(.71,-.46,.88,.6),opacity .1s;
-    content: " ";
-}
+.rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
+  border: none !important;
+  background-color: ${Colors.GREEN_SOLID};
 
-.rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner:after {
-    top: 50%;
-    left: 50%;
+  &:after {
+    content: "";
+    height: 1px;
     width: 8px;
-    height: 8px;
-    background-color: rgb(3, 179, 101) !important;
-    border: 0;
-    transform: translate(-50%,-50%) scale(1);
-    opacity: 1;
-    content: " ";
+    top: 7px;
+    left: 3px;
+    right: 3px;
+    background-color: ${Colors.WHITE};
+    position: absolute;
+  }
 }
 
 .rc-tree-select-tree-checkbox:hover:after, .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox:after {
@@ -414,35 +392,20 @@ border: 1px solid #E8E8E8;
 }
 
 .rc-tree-select-tree-checkbox {
-    top: initial;
-    margin: 4px 8px 0 0;
-}
-.rc-tree-select-tree-checkbox {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    color: #000000d9;
-    font-size: 14px;
-    font-variant: tabular-nums;
-    line-height: 1.5715;
-    list-style: none;
-    font-feature-settings: "tnum";
-    position: relative;
-    top: 0;
-    line-height: 1;
-    white-space: nowrap;
-    outline: none;
-    cursor: pointer;
-    margin-left: 3px;
+  box-sizing: border-box;
+  margin: 0 2px 0 9px;
+  white-space: nowrap;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 
-.rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
- border-color: rgb(3, 179, 101) !important;
-}
 .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
-  border-color: rgb(3, 179, 101) !important;
-  background: rgb(3, 179, 101) !important;
+  border: none !important;
+  background: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' fill='%2350AF6C'/%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A");
 }
 
 .rc-tree-select-tree-checkbox-inner {
@@ -450,14 +413,13 @@ border: 1px solid #E8E8E8;
     top: 0;
     left: 0;
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     direction: ltr;
-    background-color: #fff;
-    border: 1px solid #d9d9d9;
+    border: 1px solid ${Colors.GREY_3};
     border-radius: 0px;
     border-collapse: separate;
-    transition: all .3s;
+    transition: all .1s;
 }
   .rc-tree-select-tree
 	.rc-tree-select-tree-treenode
@@ -523,6 +485,11 @@ border: 1px solid #E8E8E8;
 	.rc-tree-select-tree-treenode
 	span.rc-tree-select-tree-switcher.rc-tree-select-tree-switcher_close {
 	background-position: -75px -56px;
+  height: 38px;
+}
+.rc-tree-select-tree
+	.rc-tree-select-tree-treenode > span {
+  height: 38px;
 }
 .rc-tree-select-tree:not(.rc-tree-select-tree-show-line)
 	.rc-tree-select-tree-treenode
@@ -558,15 +525,22 @@ border: 1px solid #E8E8E8;
 	cursor: not-allowed;
 }
 .rc-tree-select-tree-treenode-active {
-	    background: rgb(233, 250, 243);
+	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
 }
 .rc-tree-select-tree-treenode:hover {
-	    background: rgb(233, 250, 243);
+	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  .rc-tree-select-tree-title {
+    color: ${Colors.GREY_9};
+  }
+  .rc-tree-select-tree-checkbox-inner {
+    background-color: transparent;
+  }
 }
-.rc-tree-select-tree-node-selected {
-	background-color: none;
-	box-shadow: 0 0 0 0 #ffb951;
-	opacity: 1;
+.rc-tree-select-tree-treenode-checkbox-checked {
+	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  .rc-tree-select-tree-title {
+    color: ${Colors.GREY_10};
+  }
 }
 .rc-tree-select-tree-icon__open {
 	margin-right: 2px;
@@ -590,7 +564,8 @@ border: 1px solid #E8E8E8;
 .rc-tree-select-tree-title {
 	display: inline-block;
   margin-left: 10px;
-  font-size: 16px !important;
+  font-size: 14px !important;
+  color: ${Colors.GREY_8};
 }
 .rc-tree-select-tree-indent {
 	display: inline-block;
@@ -608,6 +583,7 @@ border: 1px solid #E8E8E8;
 export const TreeSelectContainer = styled.div<{
   compactMode: boolean;
   allowClear: boolean;
+  isValid: boolean;
 }>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
@@ -629,13 +605,13 @@ export const TreeSelectContainer = styled.div<{
       pointer-events: none;
       position: absolute;
       top: 50%;
-      right: 11px;
-      left: 11px;
+      right: 12px;
+      left: 19px;
       transform: translateY(-50%);
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: #bfbfbf;
+      color: ${Colors.GREY_6};
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -653,13 +629,18 @@ export const TreeSelectContainer = styled.div<{
       left: 0px !important;
     }
   }
-  .rc-tree-select-disabled {
+  && .rc-tree-select-disabled {
     cursor: not-allowed;
     input {
       cursor: not-allowed;
+      background-color: ${Colors.GREY_1} !important;
     }
     .rc-tree-select-selector {
-      opacity: 0.3;
+      border: 1.2px solid ${Colors.GREY_3} !important;
+      background-color: ${Colors.GREY_1} !important;
+      .rc-tree-select-selection-item-content {
+        color: ${Colors.GREY_7};
+      }
     }
   }
   .rc-tree-select-show-arrow.rc-tree-select-loading {
@@ -678,13 +659,20 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
+  .rc-tree-select-single {
+    &:hover {
+      .rc-tree-select-selector {
+        border: 1.2px solid ${Colors.GREY_5};
+      }
+    }
+  }
   .rc-tree-select-single .rc-tree-select-selector {
     display: flex;
     flex-wrap: wrap;
-    padding: 1px;
-    padding-right: 20px;
+    padding-right: 42px;
     box-shadow: none;
-    border: 1px solid rgb(231, 231, 231);
+    border: 1.2px solid ${Colors.GREY_3};
+    box-sizing: border-box;
     border-radius: 0px;
     width: 100%;
     transition: border-color 0.15s ease-in-out 0s,
@@ -728,9 +716,7 @@ export const TreeSelectContainer = styled.div<{
     .rc-tree-select-selector {
       display: flex;
       flex-wrap: wrap;
-      padding: 1px;
       box-shadow: none;
-      border: 1px solid rgb(231, 231, 231);
       border-radius: 0px;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
@@ -738,23 +724,23 @@ export const TreeSelectContainer = styled.div<{
       background-color: white;
       .rc-tree-select-selection-item {
         background: none;
-        border: 1px solid rgb(208, 215, 221);
-        border-radius: 2px;
-        margin: 3px 2px;
+        border: 1px solid ${Colors.GREY_3};
+        border-radius: 360px;
         max-width: 273.926px;
-        height: 24px;
-        color: #182026;
+        height: 20px;
+        color: ${Colors.GREY_10};
         overflow-wrap: break-word;
         display: inline-flex;
         flex-direction: row;
         align-items: center;
         box-shadow: none;
         font-size: 12px;
-        line-height: 16px;
+        line-height: 19px;
         min-height: 20px;
         min-width: 20px;
-        padding: 2px 6px;
         position: relative;
+        overflow: hidden;
+        margin-right: 4px;
       }
       .rc-tree-select-selection-item-disabled {
         cursor: not-allowed;
@@ -764,7 +750,7 @@ export const TreeSelectContainer = styled.div<{
         display: flex;
         flex-wrap: wrap;
         width: 100%;
-        align-content: center;
+        align-items: center;
       }
       .rc-tree-select-selection-overflow-item {
         flex: none;
@@ -789,6 +775,7 @@ export const TreeSelectContainer = styled.div<{
         border: none;
         outline: none;
         width: 100%;
+        color: ${Colors.GREY_10};
       }
       .rc-tree-select-selection-search-mirror {
         padding: 1px;
@@ -811,20 +798,29 @@ export const TreeSelectContainer = styled.div<{
   .rc-tree-select-selection-item-content {
     flex-grow: 1;
     flex-shrink: 1;
-    margin-right: 4px;
+    margin: 0 4px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     word-wrap: normal;
     font-size: 12px;
-    line-height: 16px;
+    line-height: 18px;
+  }
+  .rc-tree-select-selection-item-remove {
+    width: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      background-color: ${Colors.GREY_2};
+    }
   }
   .rc-tree-select-allow-clear {
     .rc-tree-select-clear {
       position: absolute;
-      right: 20px;
-      right: 25px;
-      top: -1px;
+      right: 28px;
+      top: 0px;
       height: 100%;
       display: flex;
       align-items: center;
@@ -843,25 +839,50 @@ export const TreeSelectContainer = styled.div<{
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
       padding-right: ${({ allowClear }) => (allowClear ? "40px" : "20px")};
-
+      padding-left: 12px;
       box-shadow: none;
-      border: 1px solid rgb(231, 231, 231);
       border-radius: 0px;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
+      border: 1.2px solid
+        ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+      &:hover {
+        border: 1.2px solid
+          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
+      }
     }
   }
   .rc-tree-select-show-arrow {
+    .rc-tree-select-clear {
+      top: 0;
+
+      & .clear-icon {
+        width: 16px;
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
     .rc-tree-select-arrow {
       pointer-events: none;
       position: absolute;
-      right: 5px;
+      right: 0;
       top: 0;
       height: 100%;
+      width: 38px;
       display: flex;
       align-items: center;
+      justify-content: center;
+      & .dropdown-icon {
+        width: 20px;
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      fill: ${Colors.SLATE_GRAY};
     }
     .rc-tree-select-arrow-icon {
       &::after {
@@ -877,9 +898,13 @@ export const TreeSelectContainer = styled.div<{
   }
   .rc-tree-select-show-arrow.rc-tree-select-focused {
     .rc-tree-select-selector {
-      border: 1px solid rgb(128, 189, 255);
       outline: 0px;
-      box-shadow: rgba(0, 123, 255, 0.25) 0px 0px 0px 0.1rem;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1.2px solid ${Colors.GREEN_SOLID} !important;
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
