@@ -51,6 +51,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -64,6 +65,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 
 @Slf4j
 @Component
@@ -425,7 +427,7 @@ public class ImportExportApplicationService {
                 .cache();
 
         String errorField = "";
-        if (importedNewPageList == null || importedNewPageList.isEmpty()) {
+        if (CollectionUtils.isEmpty(importedNewPageList)) {
             errorField = FieldName.PAGES;
         } else if (importedApplication == null) {
             errorField = FieldName.APPLICATION;
@@ -479,7 +481,7 @@ public class ImportExportApplicationService {
                                     // for this instance
                                     datasource.setDatasourceConfiguration(null);
                                     datasource.setPluginId(null);
-                                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(datasource, existingDatasource);
+                                    BeanCopyUtils.copyNestedNonNullProperties(datasource, existingDatasource);
                                     existingDatasource.setStructure(null);
                                     return datasourceService.update(existingDatasource.getId(), existingDatasource);
                                 }
@@ -527,7 +529,7 @@ public class ImportExportApplicationService {
                                                 )
                                                 .flatMap(existingApplication -> {
                                                     importedApplication.setId(existingApplication.getId());
-                                                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(importedApplication, existingApplication);
+                                                    BeanCopyUtils.copyNestedNonNullProperties(importedApplication, existingApplication);
                                                     // Here we are expecting the changes present in DB are committed to git directory
                                                     // so that these won't be lost when we are pulling changes from remote and
                                                     // rehydrate the application. We are now rehydrating the application with/without
@@ -664,7 +666,7 @@ public class ImportExportApplicationService {
                                     //Since the resource is already present in DB, just update resource
                                     NewAction existingAction = savedActionsGitIdToActionsMap.get(newAction.getGitSyncId());
                                     newAction.setId(savedActionsGitIdToActionsMap.get(newAction.getGitSyncId()).getId());
-                                    BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction, existingAction);
+                                    BeanCopyUtils.copyNestedNonNullProperties(newAction, existingAction);
                                     return newActionService.update(newAction.getId(), existingAction);
                                 }
                                 return newActionService.save(newAction)
@@ -828,15 +830,14 @@ public class ImportExportApplicationService {
                 })
                 .flatMap(ignored -> {
                     // Map layoutOnLoadActions ids with relevant actions
-                    assert importedNewPageList != null;
-                    importedNewPageList.forEach(page -> {
-                        if (page.getDefaultResources() != null) {
-                            page.getDefaultResources().setBranchName(branchName);
-                        }
-                        mapActionIdWithPageLayout(page, actionIdMap);
-                    });
-                    return Flux.fromIterable(importedNewPageList)
-                            .flatMap(newPageService::save)
+                    return newPageService.findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                            .flatMap(newPage -> {
+                                if (newPage.getDefaultResources() != null) {
+                                    newPage.getDefaultResources().setBranchName(branchName);
+                                }
+                                mapActionIdWithPageLayout(newPage, actionIdMap);
+                                return newPageService.save(newPage);
+                            })
                             .then(applicationService.update(importedApplication.getId(), importedApplication));
                 });
     }
@@ -921,7 +922,7 @@ public class ImportExportApplicationService {
                             //Since the resource is already present in DB, just update resource
                             NewPage existingPage = savedPagesGitIdToPageMap.get(newPage.getGitSyncId());
                             newPage.setId(savedPagesGitIdToPageMap.get(newPage.getGitSyncId()).getId());
-                            BeanCopyUtils.copyNewFieldValuesIntoOldObject(newPage, existingPage);
+                            BeanCopyUtils.copyNestedNonNullProperties(newPage, existingPage);
                             return newPageService.update(newPage.getId(), existingPage);
                         }
                         return newPageService.save(newPage)

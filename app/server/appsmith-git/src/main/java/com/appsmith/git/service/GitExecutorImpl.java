@@ -35,6 +35,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -160,14 +161,14 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to push changes to remote repo
-     * @param branchSuffix Path used to generate the repo url specific to the application which needs to be pushed to remote
+     * @param repoSuffix Path used to generate the repo url specific to the application which needs to be pushed to remote
      * @param remoteUrl remote repo url
      * @param publicKey
      * @param privateKey
      * @return Success message
      */
     @Override
-    public Mono<String> pushApplication(Path branchSuffix,
+    public Mono<String> pushApplication(Path repoSuffix,
                                         String remoteUrl,
                                         String publicKey,
                                         String privateKey,
@@ -177,7 +178,7 @@ public class GitExecutorImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
             // open the repo
-            Path baseRepoPath = createRepoPath(branchSuffix);
+            Path baseRepoPath = createRepoPath(repoSuffix);
             Git git = Git.open(baseRepoPath.toFile());
 
             TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
@@ -315,42 +316,46 @@ public class GitExecutorImpl implements GitExecutor {
                                                 String remoteUrl,
                                                 String branchName,
                                                 String privateKey,
-                                                String publicKey) {
+                                                String publicKey) throws IOException {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
+        Git git = Git.open(repoPath.toFile());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
-            Git git = Git.open(repoPath.toFile());
-            //checkout the branch on which the merge command is run
-            git.checkout().setName(branchName).setCreateBranch(false).call();
-            MergeResult mergeResult = git
-                    .pull()
-                    .setRemoteBranchName(branchName)
-                    .setTransportConfigCallback(transportConfigCallback)
-                    .setFastForward(MergeCommand.FastForwardMode.FF)
-                    .call()
-                    .getMergeResult();
-            MergeStatusDTO mergeStatus = new MergeStatusDTO();
-            Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
-            if (mergeResult.getMergeStatus().isSuccessful()) {
-                mergeStatus.setMergeAble(true);
-                mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
-            } else {
-                //If there are conflicts add the conflicting file names to the response structure
-                mergeStatus.setMergeAble(false);
-                List<String> mergeConflictFiles = new ArrayList<>();
-                if(!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
-                    mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                //checkout the branch on which the merge command is run
+                git.checkout().setName(branchName).setCreateBranch(false).call();
+                MergeResult mergeResult = git
+                        .pull()
+                        .setRemoteBranchName(branchName)
+                        .setTransportConfigCallback(transportConfigCallback)
+                        .setFastForward(MergeCommand.FastForwardMode.FF)
+                        .call()
+                        .getMergeResult();
+                MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                Long count = Arrays.stream(mergeResult.getMergedCommits()).count();
+                if (mergeResult.getMergeStatus().isSuccessful()) {
+                    mergeStatus.setMergeAble(true);
+                    mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
+                } else {
+                    //If there are conflicts add the conflicting file names to the response structure
+                    mergeStatus.setMergeAble(false);
+                    List<String> mergeConflictFiles = new ArrayList<>();
+                    if(!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
+                        mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                    }
+                    mergeStatus.setConflictingFiles(mergeConflictFiles);
                 }
-                mergeStatus.setConflictingFiles(mergeConflictFiles);
-
-                //On merge conflicts abort the merge => git merge --abort
-                git.getRepository().writeMergeCommitMsg(null);
-                git.getRepository().writeMergeHeads(null);
-                Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
-            }
-            git.close();
-            return mergeStatus;
-        }).timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+                return mergeStatus;
+        })
+                .onErrorResume(error -> {
+                    try {
+                        return resetToLastCommit(git)
+                                .flatMap(ignore -> Mono.error(error));
+                    } catch (GitAPIException e) {
+                        log.error("Error for hard resetting to latest commit {0}", e);
+                        return Mono.error(e);
+                    }
+                })
+                .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
                 .subscribeOn(scheduler);
     }
 
