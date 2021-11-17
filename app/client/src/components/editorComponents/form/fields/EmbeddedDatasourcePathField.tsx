@@ -420,6 +420,7 @@ function EmbeddedDatasourcePathField(
     pluginId: string;
     placeholder?: string;
     theme: EditorTheme;
+    dataTreePath: string;
   },
 ) {
   return (

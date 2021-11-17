@@ -12,6 +12,8 @@ export const generateDataTreeAction = (
   dependencyConfig: DependencyMap = {},
 ): DataTreeAction => {
   let dynamicBindingPathList: DynamicPath[] = [];
+  let url = "";
+
   // update paths
   if (
     action.config.dynamicBindingPathList &&
@@ -19,9 +21,14 @@ export const generateDataTreeAction = (
   ) {
     dynamicBindingPathList = action.config.dynamicBindingPathList.map((d) => ({
       ...d,
-      key: `config.${d.key}`,
+      key: d.key === "datasourceUrl" ? d.key : `config.${d.key}`,
     }));
   }
+
+  if ("datasourceConfiguration" in action.config.datasource) {
+    url = action.config.datasource.datasourceConfiguration.url;
+  }
+
   const dependencyMap: DependencyMap = {};
   Object.entries(dependencyConfig).forEach(([dependent, dependencies]) => {
     dependencyMap[getDataTreeActionConfigPath(dependent)] = dependencies.map(
@@ -47,5 +54,6 @@ export const generateDataTreeAction = (
     bindingPaths: getBindingPathsOfAction(action.config, editorConfig),
     dependencyMap,
     logBlackList: {},
+    datasourceUrl: url,
   };
 };
