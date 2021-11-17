@@ -172,6 +172,7 @@ export const flashElement = (
   flashTimeout = 1000,
   flashClass = "flash",
 ) => {
+  if (!el) return;
   addClass(el, flashClass);
   setTimeout(() => {
     removeClass(el, flashClass);

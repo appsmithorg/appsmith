@@ -62,11 +62,18 @@ import {
   getPluginForm,
   getSettingConfig,
 } from "selectors/entitiesSelector";
-import { isAPIAction, isQueryAction, isSaasAction } from "entities/Action";
+import {
+  Action,
+  isAPIAction,
+  isQueryAction,
+  isSaasAction,
+} from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
 import { EDITOR_TABS } from "constants/editorConstants";
 import _, { isEmpty } from "lodash";
 import { updateFormFields } from "./ApiPaneSagas";
+import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
+import { Datasource } from "entities/Datasource";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -249,7 +256,7 @@ function* getDatasourceFieldConfig(
   return { fieldInfo };
 }
 
-function* getEditorFieldConfig(replayEntity: any, modifiedProperty: string) {
+function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
   let currentTab = "";
   let fieldInfo = {};
   if (isAPIAction(replayEntity)) {
@@ -296,6 +303,7 @@ function* replayActionSaga(replayEntity: any, replay: any) {
     replay,
     ReplayEntityType.ACTION,
   );
+  const { updates = [] } = replay;
   yield call(switchTab, currentTab);
   yield delay(100);
   if (isQueryAction(replayEntity)) {
@@ -315,7 +323,9 @@ function* replayActionSaga(replayEntity: any, replay: any) {
       payload: _.get(replayEntity, modifiedProperty),
     });
   }
-  highlightReplayElement(modifiedProperty);
+  highlightReplayElement(
+    updates.map((u: ReplayEditorUpdate<Action>) => u.modifiedProperty),
+  );
   yield put(
     setActionProperty({
       actionId: replayEntity.id,
@@ -328,15 +338,18 @@ function* replayActionSaga(replayEntity: any, replay: any) {
 }
 
 function* replayDatasourceSaga(replayEntity: any, replay: any) {
-  const { fieldInfo, modifiedProperty } = yield call(
+  const { fieldInfo } = yield call(
     replayPreProcess,
     replayEntity,
     replay,
     ReplayEntityType.DATASOURCE,
   );
+  const { updates = [] } = replay;
   const { parentSection = "" } = fieldInfo;
   yield call(expandAccordion, parentSection);
   yield delay(100);
   yield put(changeDatasource({ datasource: replayEntity, isReplay: true }));
-  highlightReplayElement(modifiedProperty);
+  highlightReplayElement(
+    updates.map((u: ReplayEditorUpdate<Datasource>) => u.modifiedProperty),
+  );
 }
