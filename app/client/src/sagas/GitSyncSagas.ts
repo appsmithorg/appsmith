@@ -397,7 +397,7 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
 function* gitPullSaga(
   action: ReduxAction<{ triggeredFromBottomBar: boolean }>,
 ) {
-  const triggeredFromBottomBar = action.payload || {};
+  const { triggeredFromBottomBar } = action.payload || {};
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const response = yield call(GitSyncAPI.pull, { applicationId });
