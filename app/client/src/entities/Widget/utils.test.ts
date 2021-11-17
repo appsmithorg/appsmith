@@ -339,7 +339,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config, {});
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      "chartData.random-id.data": true,
+    });
 
     expect(result).toStrictEqual(expected);
   });

@@ -165,11 +165,11 @@ export const getAllPathsFromPropertyConfig = (
             widget,
             basePath,
           );
-          bindingPaths = { ...resultingPaths.bindingPaths, ...bindingPaths };
-          triggerPaths = { ...resultingPaths.triggerPaths, ...triggerPaths };
+          bindingPaths = { ...bindingPaths, ...resultingPaths.bindingPaths };
+          triggerPaths = { ...triggerPaths, ...resultingPaths.triggerPaths };
           validationPaths = {
-            ...resultingPaths.validationPaths,
             ...validationPaths,
+            ...resultingPaths.validationPaths,
           };
         }
         if (controlConfig.children) {
@@ -192,11 +192,11 @@ export const getAllPathsFromPropertyConfig = (
                   childPropertyConfig,
                   childArrayPropertyPath,
                 );
-                bindingPaths = { ...configBindingPaths, ...bindingPaths };
-                triggerPaths = { ...configTriggerPaths, ...triggerPaths };
+                bindingPaths = { ...bindingPaths, ...configBindingPaths };
+                triggerPaths = { ...triggerPaths, ...configTriggerPaths };
                 validationPaths = {
-                  ...configValidationPaths,
                   ...validationPaths,
+                  ...configValidationPaths,
                 };
               });
             });
