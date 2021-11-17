@@ -131,6 +131,10 @@ const DropdownStyles = createGlobalStyle<{
 ${({ dropDownWidth, id, parentWidth }) => `
   .select-popover-width-${id} {
     min-width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+
+    & .${Classes.INPUT_GROUP} {
+       width: ${parentWidth > dropDownWidth ? parentWidth : dropDownWidth}px;
+    }
   }
 `}
   .select-popover-wrapper {
@@ -194,7 +198,6 @@ ${({ dropDownWidth, id, parentWidth }) => `
       min-height: 38px;
       padding: 9px 12px;
       color: ${Colors.GREY_8};
-      min-width: 180px;
       &:hover{
         background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
       }
@@ -395,7 +398,6 @@ class DropDownComponent extends React.Component<
         className={`single-select ${isFocused && "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
-        style={{ width: this.props.width - 7 }}
         tabIndex={0}
         text={option.label}
       />

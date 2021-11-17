@@ -1,37 +1,81 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/widgetPopupDsl.json");
-const data = require("../../../../fixtures/example.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
-const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 
 describe("Dropdown Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Verify dropdown width of Select and menu button", function() {
+  it("Verify dropdown width of Select widgets and menu button", function() {
+    // Select
     cy.get(formWidgetsPage.dropdownWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .invoke("outerWidth")
       .should("eq", 208.9375);
     cy.get(formWidgetsPage.dropdownWidget)
       .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
+      .click({
+        force: true,
+      });
     cy.get(".select-popover-wrapper")
       .invoke("outerWidth")
       .should("eq", 208.9375);
 
+    // Menu Button
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
       .invoke("outerWidth")
       .should("eq", 208.9375);
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
-      .click({ force: true });
-    cy.get(".menu-button-popover").invoke("outerWidth");
+      .click({
+        force: true,
+      });
+    cy.get(".menu-button-popover")
+      .invoke("outerWidth")
+      .should("eq", 208.9375);
+
+    // MultiSelect
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-multiple")
+      .invoke("width")
+      .should("eq", 208.9375);
+    cy.get(formWidgetsPage.multiselectWidget)
+      .find(".rc-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    cy.get(".multi-select-dropdown")
+      .invoke("width")
+      .should("eq", 209);
+
+    //Multi tree Select
+    cy.get(formWidgetsPage.multiselecttreeWidget)
+      .find(".rc-tree-select-multiple")
+      .invoke("width")
+      .should("eq", 208.9375);
+    cy.get(formWidgetsPage.multiselecttreeWidget)
+      .find(".rc-tree-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    cy.get(".tree-multiselect-dropdown")
+      .invoke("outerWidth")
+      .should("eq", 209);
+
+    // Tree Select
+    cy.get(formWidgetsPage.singleselecttreeWidget)
+      .find(".rc-tree-select-single")
+      .invoke("outerWidth")
+      .should("eq", 208.9375);
+    cy.get(formWidgetsPage.singleselecttreeWidget)
+      .find(".rc-tree-select-selection-search-input")
+      .first()
+      .focus({ force: true })
+      .type("{uparrow}", { force: true });
+    cy.get(".single-tree-select-dropdown")
+      .invoke("outerWidth")
+      .should("eq", 209);
   });
 });
