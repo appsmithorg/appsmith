@@ -115,6 +115,7 @@
     "react-dnd-html5-backend": "^9.3.4",
     "react-dnd-touch-backend": "^9.4.0",
     "react-dom": "^16.7.0",
+    "react-full-screen": "^1.1.0",
     "react-google-maps": "^9.4.5",
     "react-google-recaptcha": "^2.1.0",
     "react-helmet": "^5.2.1",

@@ -36,6 +36,7 @@ export enum MediaCaptureActionTypes {
   VIDEO_PLAY_AFTER_SAVE = "VIDEO_PLAY_AFTER_SAVE",
   VIDEO_PAUSE_AFTER_SAVE = "VIDEO_PAUSE_AFTER_SAVE",
   VIDEO_REFRESH = "VIDEO_REFRESH",
+  ENTER_FULLSCREEN = "ENTER_FULLSCREEN",
 }
 
 export type MediaCaptureAction = keyof typeof MediaCaptureActionTypes;
