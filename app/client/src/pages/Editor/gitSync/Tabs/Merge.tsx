@@ -122,7 +122,7 @@ export default function Merge() {
   return (
     <>
       <Title>{createMessage(MERGE_CHANGES)}</Title>
-      <GitChanged />
+      {/* <GitChanged /> */}
       <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
       <Space size={4} />
       <Row>
