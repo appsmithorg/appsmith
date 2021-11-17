@@ -216,6 +216,7 @@ export async function evaluateAsync(
       GLOBAL_DATA,
       evalArguments,
     );
+    debugger;
     GLOBAL_DATA.REQUEST_ID = requestId;
     GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it

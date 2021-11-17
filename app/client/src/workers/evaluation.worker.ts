@@ -163,7 +163,7 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { dataTree, dynamicTrigger } = requestData;
+        const { callbackData, dataTree, dynamicTrigger } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -176,6 +176,7 @@ ctx.addEventListener(
           evalTree,
           requestId,
           resolvedFunctions,
+          callbackData,
         );
 
         break;

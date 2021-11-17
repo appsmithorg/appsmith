@@ -809,6 +809,7 @@ export default class DataTreeEvaluator {
     dataTree: DataTree,
     requestId: string,
     resolvedFunctions: Record<string, any>,
+    callbackData: Array<unknown>,
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
     return evaluateAsync(
@@ -816,6 +817,7 @@ export default class DataTreeEvaluator {
       dataTree,
       requestId,
       resolvedFunctions,
+      callbackData,
     );
   }
 
