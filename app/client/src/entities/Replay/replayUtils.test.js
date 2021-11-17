@@ -1,5 +1,11 @@
 import ReplayCanvas from "./ReplayEntity/ReplayCanvas";
-import { TOASTS, FOCUSES, UPDATES, WIDGETS } from "./replayUtils";
+import {
+  TOASTS,
+  FOCUSES,
+  UPDATES,
+  WIDGETS,
+  findFieldInfo,
+} from "./replayUtils";
 
 describe("check canvas diff from replayUtils for type of update", () => {
   const canvasReplay = new ReplayCanvas({
