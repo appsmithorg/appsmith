@@ -1413,7 +1413,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents != "") {
-      cy.log("The field is empty");
+      cy.log("The field is not empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
         .click({ force: true })
@@ -1440,6 +1440,25 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
+});
+
+/**
+ * Usage:
+ * Find the element which has a code editor input and then pass it in the function
+ *
+ * cy.get(...).then(el => cy.updateCodeInput(el, "test"));
+ *
+ */
+Cypress.Commands.add("updateCodeInput", ($selector, value) => {
+  cy.get($selector)
+    .find(".CodeMirror")
+    .first()
+    .then((ins) => {
+      const input = ins[0].CodeMirror;
+      input.focus();
+      cy.wait(100);
+      input.setValue(value);
+    });
 });
 
 Cypress.Commands.add("selectColor", (GivenProperty) => {
@@ -1855,6 +1874,15 @@ Cypress.Commands.add("treeSelectDropdown", (text) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(".tree-select-dropdown")
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
+Cypress.Commands.add("treeMultiSelectDropdown", (text) => {
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(".tree-multiselect-dropdown")
     .contains(text)
     .click({ force: true })
     .should("have.text", text);

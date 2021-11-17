@@ -141,6 +141,16 @@ describe("Create new org and share with a user", function() {
     cy.LogOut();
   });
 
+  it("visit the app as anonymous user and validate redirection to login page", function() {
+    cy.visit(currentUrl);
+    cy.wait("@viewApp").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      404,
+    );
+    cy.contains("Sign in to your account").should("be.visible");
+  });
+
   it("login as owner and delete App ", function() {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/applications");
