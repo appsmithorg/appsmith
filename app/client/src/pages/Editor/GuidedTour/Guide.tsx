@@ -60,7 +60,7 @@ const CardWrapper = styled.div`
 
 const Title = styled.span`
   font-weight: 600;
-  font-size: 20px;
+  font-size: 18px;
   letter-spacing: -0.24px;
   line-height: 20px;
   color: #000000;
@@ -106,7 +106,7 @@ const IconWrapper = styled.div`
 
 const Hint = styled.div`
   background-color: #feede5;
-  padding: 17px 23px;
+  padding: 17px 15px;
   display: flex;
   align-items: center;
   margin-top: 18px;
@@ -305,6 +305,11 @@ function useComputeCurrentStep() {
       dispatch({
         type: "SET_INDICATOR_LOCATION",
         payload: "RUN_QUERY",
+      });
+    } else {
+      dispatch({
+        type: "SET_INDICATOR_LOCATION",
+        payload: undefined,
       });
     }
   }, [queryLimitUpdated]);
