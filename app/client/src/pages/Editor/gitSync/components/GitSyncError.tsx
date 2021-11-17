@@ -4,16 +4,10 @@ import { Classes } from "components/ads/common";
 import Text, { Case, FontWeight, TextType } from "components/ads/Text";
 import { Colors } from "constants/Colors";
 import Icon, { IconSize } from "components/ads/Icon";
-import {
-  ReduxActionErrorType,
-  ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import {
-  createMessage,
-  ERROR_CONNECTING,
-  READ_DOCUMENTATION,
-} from "constants/messages";
+import { createMessage, READ_DOCUMENTATION } from "constants/messages";
+import { useSelector } from "store";
+import { getGitError } from "selectors/gitSyncSelectors";
 
 const ErrorWrapper = styled.div`
   padding: 24px 0px;
@@ -38,31 +32,32 @@ const LintText = styled.a`
   cursor: pointer;
 `;
 
-type ErrorProps = {
-  error: string | null;
-  type: ReduxActionErrorType;
-};
-
-export default function GitSyncError(props: ErrorProps) {
-  let titleMessage = "";
-  switch (props.type) {
-    case ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR:
-      titleMessage = createMessage(ERROR_CONNECTING);
-      break;
+export default function GitSyncError() {
+  const error = useSelector(getGitError);
+  const titleMessage = error?.errorType
+    ? error.errorType.replaceAll("_", " ")
+    : "";
+  let errorVisible = false;
+  if (error) {
+    errorVisible = true;
+    if (error.code === 5006) {
+      errorVisible = error.message.indexOf("git  push failed") < 0;
+    }
   }
-
-  return props.error?.length ? (
+  return errorVisible ? (
     <ErrorWrapper>
-      <Text
-        case={Case.UPPERCASE}
-        color={Colors.ERROR_RED}
-        type={TextType.P1}
-        weight={FontWeight.BOLD}
-      >
-        {titleMessage}
-      </Text>
+      {titleMessage.length && (
+        <Text
+          case={Case.UPPERCASE}
+          color={Colors.ERROR_RED}
+          type={TextType.P1}
+          weight={FontWeight.BOLD}
+        >
+          {titleMessage}
+        </Text>
+      )}
       <Text color={Colors.ERROR_RED} type={TextType.P2}>
-        {props.error}
+        {error?.message}
       </Text>
       <LintText href={DOCS_BASE_URL} target="_blank">
         <Text

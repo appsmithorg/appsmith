@@ -8,9 +8,9 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    rows: 1.725 * GRID_DENSITY_MIGRATION_V1,
     columns: 5 * GRID_DENSITY_MIGRATION_V1,
-    label: "",
+    labelText: "Label",
     options: [
       { label: "Blue", value: "BLUE" },
       { label: "Green", value: "GREEN" },
@@ -22,7 +22,7 @@ export const CONFIG = {
     version: 1,
     isRequired: false,
     isDisabled: false,
-    placeholderText: "Select Option(s)",
+    placeholderText: "Select option(s)",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

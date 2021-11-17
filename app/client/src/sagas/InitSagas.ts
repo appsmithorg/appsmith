@@ -58,7 +58,10 @@ import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import { addBranchParam, BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
-import { updateBranchLocally } from "actions/gitSyncActions";
+import {
+  fetchGitStatusInit,
+  updateBranchLocally,
+} from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* failFastApiCalls(
@@ -233,9 +236,10 @@ function* initializeEditorSaga(
       history.replace(pathname);
     }
 
-    // add branch query to path
+    // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
+      yield put(fetchGitStatusInit());
     }
   } catch (e) {
     log.error(e);
