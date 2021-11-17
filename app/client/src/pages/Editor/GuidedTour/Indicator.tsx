@@ -7,7 +7,7 @@ import {
   inGuidedTour,
 } from "selectors/onboardingSelectors";
 import styled from "styled-components";
-import lottie from "lottie-web";
+import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-indicator.json";
 import { PopoverPosition } from "@blueprintjs/core";
 
@@ -17,7 +17,7 @@ const IndicatorWrapper = styled.div<{ direction: Direction }>`
   background-color: transparent;
   ${(props) => {
     if (props.direction === "left") {
-      return `transform: rotate(-90deg);`;
+      return `transform: rotate(-90deg) scaleX(-1);`;
     } else if (props.direction === "right") {
       return `transform: rotate(90deg);`;
     } else if (props.direction === "down") {
@@ -38,6 +38,7 @@ type IndicatorProps = {
   direction: Direction;
   location?: Location;
   targetTagName?: keyof JSX.IntrinsicElements;
+  async?: boolean;
 };
 
 function Indicator(props: IndicatorProps): JSX.Element {
@@ -52,19 +53,35 @@ function Indicator(props: IndicatorProps): JSX.Element {
     props.location === indicatorLocation;
 
   useEffect(() => {
-    if (showIndicator) {
-      const anim = lottie.loadAnimation({
-        animationData: indicator,
-        autoplay: true,
-        container: dotRef?.current as HTMLDivElement,
-        renderer: "svg",
-        loop: true,
-      });
-      return () => {
-        anim?.destroy();
-      };
+    let anim: AnimationItem | undefined;
+
+    if (props.async) {
+      if (showIndicator) {
+        setTimeout(() => {
+          anim = lottie.loadAnimation({
+            animationData: indicator,
+            autoplay: true,
+            container: dotRef?.current as HTMLDivElement,
+            renderer: "svg",
+            loop: true,
+          });
+        }, 0);
+      }
+    } else {
+      if (showIndicator) {
+        anim = lottie.loadAnimation({
+          animationData: indicator,
+          autoplay: true,
+          container: dotRef?.current as HTMLDivElement,
+          renderer: "svg",
+          loop: true,
+        });
+      }
     }
-  }, [dotRef?.current, showIndicator]);
+    return () => {
+      anim?.destroy();
+    };
+  }, [dotRef?.current, showIndicator, props.async]);
 
   if (showIndicator)
     return (

@@ -8,6 +8,7 @@ import {
   getGuidedTourDatasource,
   getQueryAction,
   getQueryName,
+  getTableWidget,
   isExploring,
   isQueryExecutionSuccessful,
   isQueryLimitUpdated,
@@ -256,6 +257,7 @@ function useComputeCurrentStep() {
   const dispatch = useDispatch();
   const datasource = useSelector(getGuidedTourDatasource);
   const query = useSelector(getQueryAction);
+  const tableWidget = useSelector(getTableWidget);
   const queryLimitUpdated = useSelector(isQueryLimitUpdated);
   const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
   step = 1;
@@ -291,6 +293,15 @@ function useComputeCurrentStep() {
   }, [query]);
 
   useEffect(() => {
+    if (tableWidget) {
+      dispatch({
+        type: "SET_TABLE_WIDGET_ID",
+        payload: tableWidget?.widgetId,
+      });
+    }
+  }, [tableWidget]);
+
+  useEffect(() => {
     dispatch({
       type: "SET_CURRENT_STEP",
       payload: step,
@@ -298,7 +309,7 @@ function useComputeCurrentStep() {
   }, [step]);
 
   useEffect(() => {
-    if (queryLimitUpdated) {
+    if (queryLimitUpdated && step === 1) {
       dispatch({
         type: "SET_INDICATOR_LOCATION",
         payload: "RUN_QUERY",
@@ -309,7 +320,7 @@ function useComputeCurrentStep() {
         payload: undefined,
       });
     }
-  }, [queryLimitUpdated]);
+  }, [queryLimitUpdated, step]);
 }
 
 function GuideStepsContent(props: { currentStep: number }) {

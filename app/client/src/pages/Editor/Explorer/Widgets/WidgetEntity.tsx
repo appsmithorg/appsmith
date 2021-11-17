@@ -15,6 +15,8 @@ import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import Indicator from "pages/Editor/GuidedTour/Indicator";
+import { getGuidedTourTableWidget } from "selectors/onboardingSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -85,6 +87,7 @@ export type WidgetEntityProps = {
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const currentPageId = useSelector(getCurrentPageId);
 
+  const guidedTourTableWidget = useSelector(getGuidedTourTableWidget);
   const widgetsToExpand = useSelector(
     (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
@@ -132,62 +135,71 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     : [];
 
   return (
-    <Entity
-      action={navigateToWidget}
-      active={isWidgetSelected}
-      className="widget"
-      contextMenu={showContextMenu && contextMenu}
-      entityId={props.widgetId}
-      highlight={isCurrentPage && lastSelectedWidget === props.widgetId}
-      icon={getWidgetIcon(props.widgetType)}
-      isDefaultExpanded={
-        shouldExpand ||
-        (!!props.searchKeyword && !!props.childWidgets) ||
-        !!props.isDefaultExpanded
-      }
+    <Indicator
+      async
+      direction="left"
       key={props.widgetId}
-      name={props.widgetName}
-      searchKeyword={props.searchKeyword}
-      step={props.step}
-      updateEntityName={isCurrentPage ? updateWidgetName : undefined}
+      position="right-top"
+      show={guidedTourTableWidget === props.widgetId}
+      step={2}
+      targetTagName="div"
     >
-      {props.childWidgets &&
-        props.childWidgets.length > 0 &&
-        props.childWidgets.map((child) => (
-          <WidgetEntity
-            childWidgets={child.children}
-            key={child.widgetId}
-            pageId={props.pageId}
-            parentModalId={parentModalIdForChildren}
-            searchKeyword={props.searchKeyword}
-            step={props.step + 1}
-            widgetId={child.widgetId}
-            widgetName={child.widgetName}
-            widgetType={child.type}
-            widgetsInStep={widgetsInStep}
-          />
-        ))}
-      {!(props.childWidgets && props.childWidgets.length > 0) &&
-        isCurrentPage && (
-          <CurrentPageEntityProperties
-            entityName={props.widgetName}
-            entityType={ENTITY_TYPE.WIDGET}
-            key={props.widgetId}
-            step={props.step + 1}
-          />
-        )}
-      {!(props.childWidgets && props.childWidgets.length > 0) &&
-        !isCurrentPage && (
-          <EntityProperties
-            entityId={props.widgetId}
-            entityName={props.widgetName}
-            entityType={ENTITY_TYPE.WIDGET}
-            key={props.widgetId}
-            pageId={props.pageId}
-            step={props.step + 1}
-          />
-        )}
-    </Entity>
+      <Entity
+        action={navigateToWidget}
+        active={isWidgetSelected}
+        className="widget"
+        contextMenu={showContextMenu && contextMenu}
+        entityId={props.widgetId}
+        highlight={isCurrentPage && lastSelectedWidget === props.widgetId}
+        icon={getWidgetIcon(props.widgetType)}
+        isDefaultExpanded={
+          shouldExpand ||
+          (!!props.searchKeyword && !!props.childWidgets) ||
+          !!props.isDefaultExpanded
+        }
+        name={props.widgetName}
+        searchKeyword={props.searchKeyword}
+        step={props.step}
+        updateEntityName={isCurrentPage ? updateWidgetName : undefined}
+      >
+        {props.childWidgets &&
+          props.childWidgets.length > 0 &&
+          props.childWidgets.map((child) => (
+            <WidgetEntity
+              childWidgets={child.children}
+              key={child.widgetId}
+              pageId={props.pageId}
+              parentModalId={parentModalIdForChildren}
+              searchKeyword={props.searchKeyword}
+              step={props.step + 1}
+              widgetId={child.widgetId}
+              widgetName={child.widgetName}
+              widgetType={child.type}
+              widgetsInStep={widgetsInStep}
+            />
+          ))}
+        {!(props.childWidgets && props.childWidgets.length > 0) &&
+          isCurrentPage && (
+            <CurrentPageEntityProperties
+              entityName={props.widgetName}
+              entityType={ENTITY_TYPE.WIDGET}
+              key={props.widgetId}
+              step={props.step + 1}
+            />
+          )}
+        {!(props.childWidgets && props.childWidgets.length > 0) &&
+          !isCurrentPage && (
+            <EntityProperties
+              entityId={props.widgetId}
+              entityName={props.widgetName}
+              entityType={ENTITY_TYPE.WIDGET}
+              key={props.widgetId}
+              pageId={props.pageId}
+              step={props.step + 1}
+            />
+          )}
+      </Entity>
+    </Indicator>
   );
 });
 
