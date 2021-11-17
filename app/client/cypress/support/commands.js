@@ -452,8 +452,6 @@ Cypress.Commands.add("Signup", (uname, pword) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.get(".t--applications-container .createnew").should("be.visible");
-  cy.get(".t--applications-container .createnew").should("be.enabled");
   initLocalstorage();
 });
 
