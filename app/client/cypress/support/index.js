@@ -12,6 +12,7 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
+/// <reference types="Cypress" />
 require("cypress-xpath");
 let pageid;
 let appId;
@@ -64,8 +65,13 @@ before(function() {
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
-  cy.wait("@applications");
-
+  cy.wait("@getUser").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(".t--applications-container .createnew").should("be.visible");
+  cy.get(".t--applications-container .createnew").should("be.enabled");
   cy.generateUUID().then((id) => {
     appId = id;
     cy.CreateAppInFirstListedOrg(id);
