@@ -131,6 +131,7 @@ export default function Merge() {
         <Space horizontal size={3} />
 
         <Dropdown
+          enableSearch
           fillOptions
           isLoading={isFetchingBranches}
           onSelect={(value?: string) => {
