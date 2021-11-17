@@ -324,7 +324,7 @@ export const isBlobUrl = (url: string) => {
  * @param type string file type
  * @returns string containing blob id and type
  */
-export const createBlobUrl = (data: string, type: string) => {
+export const createBlobUrl = (data: Blob | string, type: string) => {
   let url = URL.createObjectURL(data);
   url = url.replace(
     `${window.location.protocol}//${window.location.hostname}/`,

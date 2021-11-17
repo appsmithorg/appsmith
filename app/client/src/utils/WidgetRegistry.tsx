@@ -93,10 +93,12 @@ import FilePickerWidgetV2, {
 import AudioWidget, {
   CONFIG as AUDIO_WIDGET_CONFIG,
 } from "widgets/AudioWidget";
-
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
+import ButtonGroupWidget, {
+  CONFIG as BUTTON_GROUP_CONFIG,
+} from "widgets/ButtonGroupWidget";
 import SingleSelectTreeWidget, {
   CONFIG as SINGLE_SELECT_TREE_WIDGET_CONFIG,
 } from "widgets/SingleSelectTreeWidget";
@@ -147,6 +149,7 @@ export const registerWidgets = () => {
   registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
   registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
+  registerWidget(ButtonGroupWidget, BUTTON_GROUP_CONFIG);
   registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG);
