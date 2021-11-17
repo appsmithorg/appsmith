@@ -91,8 +91,8 @@ describe("Switch Group Widget Functionality", function() {
     // create an alert modal and verify its name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
-    cy.get(publish.switchGroupWidget)
-      .children("label.bp3-switch")
+    cy.get(`${publish.switchGroupWidget} label.bp3-switch`)
+      .children()
       .first()
       .click();
     cy.get(modalWidgetPage.modelTextField).should(
