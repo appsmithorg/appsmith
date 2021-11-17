@@ -230,7 +230,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       409,
     );
 
-    cy.xpath(generatePage.newPageEntityMenu)
+    cy.xpath(generatePage.postgressnewPageEntityMenu)
       .first()
       .click({ force: true });
     cy.xpath(generatePage.deleteMenuItem).click();

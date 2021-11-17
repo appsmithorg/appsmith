@@ -2335,12 +2335,20 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 });
 
 Cypress.Commands.add("runQuery", () => {
-  cy.get(queryEditor.runQuery).click({ force: true });
+  cy.xpath(queryEditor.runQuery)
+    .last()
+    .click();
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("onlyQueryRun", () => {
+  cy.xpath(queryEditor.runQuery)
+    .last()
+    .click();
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -2384,16 +2392,7 @@ Cypress.Commands.add("deleteDataSource", () => {
   );
 });
 
-Cypress.Commands.add("runAndDeleteQuery", () => {
-  cy.xpath(queryEditor.runQuery)
-    .last()
-    .click();
-  cy.wait("@postExecute").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-
+Cypress.Commands.add("deleteQueryUsingContext", () => {
   cy.get(queryEditor.queryMoreAction).click();
   cy.get(queryEditor.deleteUsingContext).click();
   cy.wait("@deleteAction").should(
@@ -2401,6 +2400,11 @@ Cypress.Commands.add("runAndDeleteQuery", () => {
     "response.body.responseMeta.status",
     200,
   );
+});
+
+Cypress.Commands.add("runAndDeleteQuery", () => {
+  cy.runQuery();
+  cy.deleteQueryUsingContext();
 });
 
 Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
