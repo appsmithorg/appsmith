@@ -2,13 +2,15 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
-import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.server.dtos.GitCheckoutBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
@@ -40,7 +42,7 @@ public interface GitService {
 
     Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, MultiValueMap<String, String> params);
 
-    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
+    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, GitCheckoutBranchDTO gitCheckoutBranchDTO);
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
@@ -50,7 +52,7 @@ public interface GitService {
 
     Mono<Map<String, Object>> getStatus(String defaultApplicationId, MultiValueMap<String, String> params);
 
-    Mono<GitPullDTO> mergeBranch(String applicationId, String sourceBranch, String destinationBranch);
+    Mono<GitPullDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
-    Mono<MergeStatus> isBranchMergeable(String applicationId, String sourceBranch, String destinationBranch);
+    Mono<MergeStatusDTO> isBranchMergeable(String applicationId, GitMergeDTO gitMergeDTO);
 }

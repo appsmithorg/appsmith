@@ -240,6 +240,9 @@ export const PaginationItemWrapper = styled.div<{
   &:hover {
     border-color: ${Colors.GREEN};
   }
+  .bp3-icon svg {
+    fill: ${(props) => (props.disabled ? Colors.GREY_4 : "")};
+  }
 `;
 
 export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
@@ -270,8 +273,8 @@ export const ActionWrapper = styled.div<{
       text-decoration: none;
     }
     &&& .bp3-disabled {
-      color: ${Colors.SLATE_GRAY};
-      background: ${Colors.MERCURY};
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_4};
     }
   }
 `;
@@ -390,7 +393,7 @@ export const CellWrapper = styled.div<{
     `
     cursor: pointer;
     &:hover {
-      color: ${Colors.ROYAL_BLUE};      
+      color: ${Colors.ROYAL_BLUE};
       text-decoration: underline;
     }`};
   &.video-cell {
@@ -532,12 +535,6 @@ export const TableIconWrapper = styled.div<{
   &:hover {
     background: ${Colors.ATHENS_GRAY};
   }
-`;
-
-export const SortIconWrapper = styled.div`
-  display: inline-block;
-  height: 32px;
-  line-height: 32px;
 `;
 
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
