@@ -9,13 +9,13 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import _ from "lodash";
 import {
   ButtonBorderRadius,
-  ButtonBorderRadiusTypes,
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
 import {
+  getBorderRadiusValue,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
@@ -129,13 +129,7 @@ export const StyledButton = styled((props) => (
     }
   `}
 
-
-  border-radius: ${({ borderRadius }) =>
-    borderRadius === ButtonBorderRadiusTypes.CIRCLE
-      ? "50%"
-      : borderRadius === ButtonBorderRadiusTypes.ROUNDED
-      ? "10px"
-      : 0};
+  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
 
   box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
     boxShadow === ButtonBoxShadowTypes.VARIANT1

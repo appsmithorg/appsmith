@@ -17,7 +17,6 @@ export const CONFIG = {
     containerStyle: "card",
     borderColor: "transparent",
     borderWidth: "0",
-    borderRadius: "0",
     boxShadow: ButtonBoxShadowTypes.NONE,
     children: [],
     blueprint: {

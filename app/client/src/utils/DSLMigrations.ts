@@ -8,7 +8,7 @@ import {
 } from "constants/WidgetConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import { get, has, isEmpty, isString, omit, set } from "lodash";
+import { get, has, isEmpty, isString, omit, set, toNumber } from "lodash";
 import * as Sentry from "@sentry/react";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
@@ -36,7 +36,11 @@ import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
-import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonStyleTypes,
+  ButtonVariantTypes,
+} from "../components/constants";
 import { Colors } from "../constants/Colors";
 import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
@@ -978,6 +982,11 @@ export const transformDSL = (
   }
   if (currentDSL.version === 44) {
     currentDSL = isSortableMigration(currentDSL);
+    currentDSL.version = 45;
+  }
+
+  if (currentDSL.version === 45) {
+    currentDSL = migrateBorderRadiusOfContainers(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -1449,4 +1458,44 @@ export const migrateFilterValueForDropDownWidget = (
   });
 
   return newDSL;
+};
+
+export const migrateBorderRadiusOfContainers = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  // eslint-disable-next-line
+  console.log("came here");
+  // eslint-disable-next-line
+  console.log({ currentDSL });
+  currentDSL.children = currentDSL.children?.map((child) => {
+    // console.log({ type: child.type });
+
+    if (
+      child.type === "CONTAINER_WIDGET" ||
+      child.type === "STATBOX_WIDGET" ||
+      child.type === "FORM_WIDGET"
+    ) {
+      const borderRadius = toNumber(child.borderRadius);
+
+      switch (true) {
+        case borderRadius === 0:
+          child.borderRadius = ButtonBorderRadiusTypes.SHARP;
+          break;
+        case borderRadius > 0 && borderRadius <= 10:
+          child.borderRadius = ButtonBorderRadiusTypes.ROUNDED;
+          break;
+        case borderRadius > 10:
+          child.borderRadius = ButtonBorderRadiusTypes.CIRCLE;
+          break;
+        default:
+          child.borderRadius = ButtonBorderRadiusTypes.SHARP;
+      }
+    }
+    if (child.children && child.children.length > 0) {
+      child = migrateBorderRadiusOfContainers(child);
+    }
+    return child;
+  });
+
+  return currentDSL;
 };

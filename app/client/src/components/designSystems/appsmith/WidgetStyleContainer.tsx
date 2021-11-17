@@ -62,7 +62,6 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   height: 100%;
   width: 100%;
   overflow: hidden;
-  border-radius: ${({ borderRadius }) => getBorderRadiusValue(borderRadius)};
   box-shadow: ${(props) => getBoxShadow(props)} !important;
   & > div {
     ${(props) =>

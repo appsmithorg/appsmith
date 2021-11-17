@@ -19,6 +19,7 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { ButtonBorderRadiusTypes } from "components/constants";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -87,14 +88,24 @@ class ContainerWidget extends BaseWidget<
             validation: { type: ValidationTypes.NUMBER },
           },
           {
-            helpText: "Enter value for border radius",
             propertyName: "borderRadius",
             label: "Border Radius",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
+            isBindProperty: false,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
           },
           {
             propertyName: "boxShadow",

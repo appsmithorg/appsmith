@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget from "widgets/ContainerWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { ButtonBorderRadiusTypes } from "components/constants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -64,14 +65,24 @@ class StatboxWidget extends ContainerWidget {
             validation: { type: ValidationTypes.NUMBER },
           },
           {
-            helpText: "Enter value for border radius",
             propertyName: "borderRadius",
             label: "Border Radius",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
+            isBindProperty: false,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
           },
           {
             propertyName: "boxShadow",
