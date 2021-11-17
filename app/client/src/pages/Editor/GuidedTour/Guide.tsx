@@ -1,16 +1,13 @@
 import Button from "components/ads/Button";
-import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { get, set } from "lodash";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   getCurrentStep,
   getGuidedTourDatasource,
-  getGuidedTourQuery,
   getQueryAction,
   getQueryName,
-  inGuidedTour,
   isExploring,
   isQueryExecutionSuccessful,
   isQueryLimitUpdated,

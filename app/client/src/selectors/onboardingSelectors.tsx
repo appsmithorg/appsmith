@@ -6,10 +6,9 @@ import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsOrgs } from "./applicationSelectors";
 import { isEqual } from "lodash";
-import { getWidgetById, getWidgets } from "sagas/selectors";
+import { getWidgets } from "sagas/selectors";
 import { getActionResponses, getActions } from "./entitiesSelector";
 import { PluginType } from "entities/Action";
-import { getActionById } from "./editorSelectors";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {

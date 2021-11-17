@@ -44,8 +44,6 @@ import {
   RenderModes,
 } from "constants/WidgetConstants";
 import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
-import { forceOpenPropertyPane } from "actions/widgetActions";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";

@@ -94,7 +94,6 @@ import Download from "remixicon-react/DownloadCloud2LineIcon";
 import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
 import EditLineIcon from "remixicon-react/EditLineIcon";
-import EditBoxLine from "remixicon-react/EditBoxLineIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import ExpandMore from "remixicon-react/ArrowDownSLineIcon";
 import ExpandLess from "remixicon-react/ArrowUpSLineIcon";
