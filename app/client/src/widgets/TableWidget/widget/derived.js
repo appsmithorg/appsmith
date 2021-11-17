@@ -274,11 +274,14 @@ export default {
       const columnType =
         column && column.columnType ? column.columnType : "text";
       const inputFormat = column.inputFormat;
+      const isEmptyOrNil = (value) => {
+        return _.isNil(value) || value === "";
+      };
       sortedTableData = derivedTableData.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
-          if (_.isNil(a[sortedColumn]) || _.isNil(b[sortedColumn])) {
-            /* push null and undefined values to the bottom. */
-            return _.isNil(a[sortedColumn]) ? 1 : -1;
+          if (isEmptyOrNil(a[sortedColumn]) || isEmptyOrNil(b[sortedColumn])) {
+            /* push null, undefined and "" values to the bottom. */
+            return isEmptyOrNil(a[sortedColumn]) ? 1 : -1;
           } else {
             switch (columnType) {
               case "number":
