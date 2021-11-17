@@ -237,6 +237,7 @@ export type SetActionPropertyPayload = {
   actionId: string;
   propertyName: string;
   value: any;
+  skipSave?: boolean;
 };
 
 export const setActionProperty = (payload: SetActionPropertyPayload) => ({

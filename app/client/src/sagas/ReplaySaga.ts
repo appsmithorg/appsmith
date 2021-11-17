@@ -26,6 +26,7 @@ import {
 import {
   ReduxAction,
   ReduxActionTypes,
+  ReduxFormActionTypes,
   ReplayReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
@@ -45,7 +46,7 @@ import {
   getReplayEntityType,
   ReplayEntityType,
 } from "entities/Replay/replayUtils";
-import { updateAction } from "actions/pluginActionActions";
+import { setActionProperty, updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 import { changeQuery } from "actions/queryPaneActions";
 import { changeApi } from "actions/apiPaneActions";
@@ -64,7 +65,8 @@ import {
 import { isAPIAction, isQueryAction, isSaasAction } from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
 import { EDITOR_TABS } from "constants/editorConstants";
-import { isEmpty } from "lodash";
+import _, { isEmpty } from "lodash";
+import { updateFormFields } from "./ApiPaneSagas";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -225,14 +227,14 @@ export function* replayPreProcess(
   let res = {};
   const { updates = [] } = replay;
   if (updates.length > 1) return res;
-  const { modifiedProperty } = updates[0] || {};
+  const { kind = "", modifiedProperty } = updates[0] || {};
   if (!modifiedProperty) return res;
   if (replayEntityType === ReplayEntityType.ACTION) {
     res = yield call(getEditorFieldConfig, replayEntity, modifiedProperty);
   } else if (replayEntityType === ReplayEntityType.DATASOURCE) {
     res = yield call(getDatasourceFieldConfig, replayEntity, modifiedProperty);
   }
-  return { ...res, modifiedProperty };
+  return { ...res, kind, modifiedProperty };
 }
 
 function* getDatasourceFieldConfig(
@@ -307,8 +309,21 @@ function* replayActionSaga(replayEntity: any, replay: any) {
         replayEntity,
       ),
     );
+    yield call(updateFormFields, {
+      meta: { field: modifiedProperty },
+      type: ReduxFormActionTypes.VALUE_CHANGE,
+      payload: _.get(replayEntity, modifiedProperty),
+    });
   }
   highlightReplayElement(modifiedProperty);
+  yield put(
+    setActionProperty({
+      actionId: replayEntity.id,
+      propertyName: modifiedProperty,
+      value: _.get(replayEntity, modifiedProperty),
+      skipSave: true,
+    }),
+  );
   yield put(updateAction({ id: replayEntity.id, action: replayEntity }));
 }
 

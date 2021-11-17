@@ -299,7 +299,7 @@ function* setHeaderFormat(apiId: string, headers?: Property[]) {
   });
 }
 
-function* updateFormFields(
+export function* updateFormFields(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
 ) {
   const field = actionPayload.meta.field;
