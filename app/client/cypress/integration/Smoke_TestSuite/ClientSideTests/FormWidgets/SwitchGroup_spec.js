@@ -24,7 +24,7 @@ describe("Switch Group Widget Functionality", function() {
      * @param{RadioWidget}Mouseover
      * @param{RadioPre Css} Assertion
      */
-    cy.openPropertyPane("switchgroupwidget");
+
     cy.widgetText(
       "switchgrouptest",
       formWidgetsPage.switchGroupWidget,
@@ -78,7 +78,6 @@ describe("Switch Group Widget Functionality", function() {
   });
 
   it("Property: isVisible === TRUE", function() {
-    cy.openPropertyPane("switchgroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.checkboxGroupWidget + " " + "input")
@@ -87,7 +86,6 @@ describe("Switch Group Widget Functionality", function() {
   });
 
   it("Property: onSelectionChange", function() {
-    cy.openPropertyPane("switchgroupwidget");
     // create an alert modal and verify its name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
