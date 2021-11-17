@@ -32,12 +32,10 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.FilterDataService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.FilterDataService;
 import com.external.plugins.constants.AmazonS3Action;
-
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -107,7 +105,6 @@ public class AmazonS3Plugin extends BasePlugin {
     @Extension
     public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
         private final Scheduler scheduler = Schedulers.elastic();
-        private ObjectMapper objectMapper = new ObjectMapper();
         private final FilterDataService filterDataService;
 
         public S3PluginExecutor() {
