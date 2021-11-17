@@ -2,7 +2,7 @@ import React from "react";
 import {
   createMessage,
   FETCH_MERGE_STATUS,
-  FETCH_MERGE_STATUS_FAILURE,
+  // FETCH_MERGE_STATUS_FAILURE,
   MERGE_CONFLICT_ERROR,
   NO_MERGE_CONFLICT,
 } from "constants/messages";
