@@ -97,6 +97,9 @@ import AudioWidget, {
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
+import ButtonGroupWidget, {
+  CONFIG as BUTTON_GROUP_CONFIG,
+} from "widgets/ButtonGroupWidget";
 
 import MapChartWidget, {
   CONFIG as MAP_CHART_WIDGET_CONFIG,
@@ -148,6 +151,7 @@ export const registerWidgets = () => {
   registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
   registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
+  registerWidget(ButtonGroupWidget, BUTTON_GROUP_CONFIG);
   registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(MapChartWidget, MAP_CHART_WIDGET_CONFIG);

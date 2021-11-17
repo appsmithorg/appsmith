@@ -11,6 +11,7 @@ import {
 import {
   EvaluationReduxAction,
   ReduxAction,
+  ReduxActionType,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
@@ -77,7 +78,9 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
@@ -473,6 +476,16 @@ export function* evaluateArgumentSaga(action: any) {
     log.error(e);
     Sentry.captureException(e);
   }
+}
+
+export function* setAppVersionOnWorkerSaga(action: {
+  type: ReduxActionType;
+  payload: EvaluationVersion;
+}) {
+  const version: EvaluationVersion = action.payload;
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
+    version,
+  });
 }
 
 export default function* evaluationSagaListeners() {

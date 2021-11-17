@@ -420,11 +420,9 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.get(loginPage.password).type(pword);
   cy.get(loginPage.submitBtn).click();
   cy.wait("@getUser");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait(3000);
+  cy.get(".t--applications-container .createnew").should("be.visible");
+  cy.get(".t--applications-container .createnew").should("be.enabled");
   initLocalstorage();
 });
 
@@ -447,11 +445,7 @@ Cypress.Commands.add("Signup", (uname, pword) => {
   cy.get(signupPage.roleUsecaseSubmit).click();
 
   cy.wait("@getUser");
-  cy.wait("@applications").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait(3000);
   initLocalstorage();
 });
 
@@ -995,8 +989,10 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .focus()
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
-  cy.get(".error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+  cy.get(".t--action-name-edit-error").should(($x) => {
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
   cy.get(apiwidget.apiTxt).blur();
 });
@@ -1080,8 +1076,10 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .clear()
     .type(apiname, { force: true })
     .should("have.value", apiname);
-  cy.get(".t--nameOfApi .error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used."));
+  cy.get(".t--action-name-edit-error").should(($x) => {
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
 });
 
@@ -1167,6 +1165,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
+  cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
   cy.widgetText(
     ModalName,
@@ -1406,7 +1405,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
     .type("{ctrl}{shift}{downarrow}", { force: true });
   cy.focused().then(($cm) => {
     if ($cm.contents != "") {
-      cy.log("The field is empty");
+      cy.log("The field is not empty");
       cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
         .first()
         .click({ force: true })
@@ -1433,6 +1432,25 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
+});
+
+/**
+ * Usage:
+ * Find the element which has a code editor input and then pass it in the function
+ *
+ * cy.get(...).then(el => cy.updateCodeInput(el, "test"));
+ *
+ */
+Cypress.Commands.add("updateCodeInput", ($selector, value) => {
+  cy.get($selector)
+    .find(".CodeMirror")
+    .first()
+    .then((ins) => {
+      const input = ins[0].CodeMirror;
+      input.focus();
+      cy.wait(100);
+      input.setValue(value);
+    });
 });
 
 Cypress.Commands.add("selectColor", (GivenProperty) => {
@@ -1794,7 +1812,14 @@ Cypress.Commands.add("DeleteAppByApi", () => {
 
     if (appId != null) {
       cy.log(appId + "appId");
-      cy.request("DELETE", "api/v1/applications/" + appId);
+      cy.request({
+        method: "DELETE",
+        url: "api/v1/applications/" + appId,
+        failOnStatusCode: false,
+      }).then((response) => {
+        cy.log(response.body);
+        cy.log(response.status);
+      });
     }
   });
 });
@@ -1841,6 +1866,15 @@ Cypress.Commands.add("treeSelectDropdown", (text) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(".tree-select-dropdown")
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+
+Cypress.Commands.add("treeMultiSelectDropdown", (text) => {
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(".tree-multiselect-dropdown")
     .contains(text)
     .click({ force: true })
     .should("have.text", text);

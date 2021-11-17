@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { ThemeProp, Classes, CommonComponentProps } from "./common";
 import { Theme } from "constants/DefaultTheme";
-import { TypographyKeys } from "../../constants/typography";
+import { TypographyKeys } from "constants/typography";
 
 export enum TextType {
   P1 = "p1",
