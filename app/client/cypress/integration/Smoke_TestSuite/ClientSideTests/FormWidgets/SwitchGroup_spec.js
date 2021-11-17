@@ -14,7 +14,6 @@ describe("Switch Group Widget Functionality", function() {
   });
 
   afterEach(() => {
-    cy.closePropertyPane();
     cy.goToEditFromPublish();
   });
 
@@ -30,6 +29,7 @@ describe("Switch Group Widget Functionality", function() {
       formWidgetsPage.switchGroupWidget,
       formWidgetsPage.switchGroupInput,
     );
+    cy.closePropertyPane();
   });
 
   it("Property: options", function() {
@@ -50,6 +50,7 @@ describe("Switch Group Widget Functionality", function() {
       .should("have.length", 4)
       .eq(3)
       .contains("Yellow");
+    cy.closePropertyPane();
   });
 
   it("Property: defaultSelectedValues", function() {
@@ -69,6 +70,7 @@ describe("Switch Group Widget Functionality", function() {
       .eq(1)
       .parent()
       .contains("Green");
+    cy.closePropertyPane();
   });
 
   it("Property: isVisible === FALSE", function() {
@@ -80,7 +82,7 @@ describe("Switch Group Widget Functionality", function() {
   it("Property: isVisible === TRUE", function() {
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.checkboxGroupWidget + " " + "input")
+    cy.get(publish.switchGroupWidget + " " + "input")
       .eq(0)
       .should("exist");
   });
