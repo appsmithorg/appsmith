@@ -1131,4 +1131,23 @@ public class OrganizationServiceTest {
                 .expectError(AppsmithException.class)
                 .verify();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void delete_WhenOrgHasNoApp_OrgIsDeleted() {
+        Organization organization = new Organization();
+        organization.setName("Test org to test delete org");
+
+        Mono<Organization> deleteOrgMono = organizationService.create(organization)
+                .flatMap(savedOrg ->
+                    organizationService.delete(savedOrg.getId())
+                            .then(organizationRepository.findById(savedOrg.getId()))
+                );
+
+        // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
+        // as it doesn't expect an onNext signal at this point.
+        StepVerifier
+                .create(deleteOrgMono)
+                .verifyComplete();
+    }
 }
