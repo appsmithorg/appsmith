@@ -78,10 +78,10 @@ function ActionForm(props: Props) {
       //This property is present in initialValues but not in action object
       if (
         props.actionObjectDiff &&
-        props.actionObjectDiff.hasOwnProperty("kind") &&
-        props.actionObjectDiff.path &&
-        Array.isArray(props.actionObjectDiff.path) &&
-        props.actionObjectDiff.path.length &&
+        props.actionObjectDiff[i].hasOwnProperty("kind") &&
+        props.actionObjectDiff[i].path &&
+        Array.isArray(props.actionObjectDiff[i].path) &&
+        props.actionObjectDiff[i].path.length &&
         props.actionObjectDiff[i]?.kind === "N"
       ) {
         // Calculate path from path[] in diff
