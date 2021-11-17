@@ -43,6 +43,17 @@ const CameraContainer = styled.div<CameraContainerProps>`
   overflow: auto;
   background: black;
 
+  .fullscreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    span.error-text {
+      color: white;
+    }
+  }
+
   video {
     ${({ scaleAxis }) => (scaleAxis === "x" ? `width: 100%` : `height: 100%`)};
   }
@@ -53,7 +64,7 @@ const VideoPlayer = styled.video``;
 const ControlPanelContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -61,17 +72,20 @@ const ControlPanelContainer = styled.div`
 `;
 
 const MediaInputsContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  padding: 0 1%;
+  display: flex;
+  flex: 1;
+  justify-content: flex-start;
+`;
+
+const MainControlContainer = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
 `;
 
 const FullscreenContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  padding: 0 1%;
   display: flex;
-  align-items: center;
+  flex: 1;
   justify-content: flex-end;
 `;
 
@@ -531,7 +545,7 @@ function ControlPanel(props: ControlPanelProps) {
       <MediaInputsContainer>
         {renderMediaDeviceSelectors()}
       </MediaInputsContainer>
-      {renderControls()}
+      <MainControlContainer>{renderControls()}</MainControlContainer>
       <FullscreenContainer>{renderFullscreenControl()}</FullscreenContainer>
     </ControlPanelContainer>
   );
@@ -903,7 +917,7 @@ function CameraComponent(props: CameraComponentProps) {
       return (
         <>
           <CameraOfflineIcon />
-          <span>{error}</span>
+          <span className="error-text">{error}</span>
           {error === "Permission denied" && (
             <a
               href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
@@ -960,11 +974,9 @@ function CameraComponent(props: CameraComponentProps) {
   };
 
   return (
-    <FullScreen handle={handle}>
-      <CameraContainer scaleAxis={scaleAxis}>
-        {renderComponent()}
-      </CameraContainer>
-    </FullScreen>
+    <CameraContainer scaleAxis={scaleAxis}>
+      <FullScreen handle={handle}>{renderComponent()}</FullScreen>
+    </CameraContainer>
   );
 }
 
