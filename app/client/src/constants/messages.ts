@@ -619,6 +619,8 @@ export const CONFLICTS_FOUND = () =>
 export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
 export const NO_COMMITS_TO_PULL = () =>
   "No commits to pull. In sync with the remote repository";
+export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
+  "Conflicts found while pulling changes";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>

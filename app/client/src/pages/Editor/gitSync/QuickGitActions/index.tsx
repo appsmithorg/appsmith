@@ -263,7 +263,7 @@ export default function QuickGitActions() {
       );
     },
     push: noop,
-    pull: () => dispatch(gitPullInit()),
+    pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
     merge: () => {
       dispatch(
         setIsGitSyncModalOpen({

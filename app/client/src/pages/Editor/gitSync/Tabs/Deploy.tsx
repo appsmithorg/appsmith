@@ -14,7 +14,7 @@ import {
   GIT_CONFLICTING_INFO,
   OPEN_REPO,
 } from "constants/messages";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
@@ -31,7 +31,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
@@ -47,11 +47,11 @@ import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import GitSyncError from "../components/GitSyncError";
 import GitChanged from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
-import Text, { Case, FontWeight, TextType } from "components/ads/Text";
+import Text, { TextType } from "components/ads/Text";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes } from "components/ads/common";
 import log from "loglevel";
+import InfoWrapper from "../components/InfoWrapper";
+import Link from "../components/Link";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -83,32 +83,6 @@ const Container = styled.div`
 const StatusbarWrapper = styled.div`
   width: 252px;
   height: 38px;
-`;
-
-const LintText = styled.a`
-  :hover {
-    text-decoration: none;
-    color: ${Colors.CRUSTA};
-  }
-  color: ${Colors.CRUSTA};
-  cursor: pointer;
-`;
-
-const InfoWrapper = styled.div<{ isError?: boolean }>`
-  width: 100%;
-  padding: ${(props) => props.theme.spaces[3]}px;
-  background: ${(props) =>
-    props.isError ? Colors.FAIR_PINK : Colors.WARNING_OUTLINE_HOVER};
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
-  .${Classes.TEXT} {
-    &.t--read-document {
-      margin-left: ${(props) => props.theme.spaces[2]}px;
-      display: inline-flex;
-      .${Classes.ICON} {
-        margin-left: ${(props) => props.theme.spaces[3]}px;
-      }
-    }
-  }
 `;
 
 const OpenRepoButton = styled(Button)`
@@ -180,6 +154,9 @@ function Deploy() {
   const commitMessageDisplay = hasChangesToCommit
     ? commitMessage
     : NO_CHANGES_TO_COMMIT;
+
+  const theme = useTheme() as Theme;
+
   log.log(gitStatus);
   log.log(gitError);
   return (
@@ -208,21 +185,10 @@ function Deploy() {
         <Space size={11} />
         {pullRequired && !isConflicting && (
           <InfoWrapper>
-            <Text type={TextType.P3}>
+            <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
               {createMessage(GIT_UPSTREAM_CHANGES)}
             </Text>
-            <LintText href={DOCS_BASE_URL} target="_blank">
-              <Text
-                case={Case.UPPERCASE}
-                className="t--read-document"
-                color={Colors.CHARCOAL}
-                type={TextType.P3}
-                weight={FontWeight.BOLD}
-              >
-                {createMessage(LEARN_MORE)}
-                <Icon name="right-arrow" size={IconSize.SMALL} />
-              </Text>
-            </LintText>
+            <Link link={DOCS_BASE_URL} text={createMessage(LEARN_MORE)} />
           </InfoWrapper>
         )}
         {pullRequired && !isConflicting && (
@@ -238,21 +204,10 @@ function Deploy() {
         )}
         {isConflicting && (
           <InfoWrapper isError>
-            <Text type={TextType.P3}>
+            <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
               {createMessage(GIT_CONFLICTING_INFO)}
             </Text>
-            <LintText href={DOCS_BASE_URL} target="_blank">
-              <Text
-                case={Case.UPPERCASE}
-                className="t--read-document"
-                color={Colors.CHARCOAL}
-                type={TextType.P3}
-                weight={FontWeight.BOLD}
-              >
-                {createMessage(LEARN_MORE)}
-                <Icon name="right-arrow" size={IconSize.SMALL} />
-              </Text>
-            </LintText>
+            <Link link={DOCS_BASE_URL} text={createMessage(LEARN_MORE)} />
           </InfoWrapper>
         )}
         {isConflicting && (

@@ -29,6 +29,7 @@ import {
   fetchMergeStatusFailure,
   fetchGitStatusInit,
   setIsGitSyncModalOpen,
+  setIsGitErrorPopupVisible,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -393,7 +394,10 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
   }
 }
 
-function* gitPullSaga() {
+function* gitPullSaga(
+  action: ReduxAction<{ triggeredFromBottomBar: boolean }>,
+) {
+  const triggeredFromBottomBar = action.payload || {};
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const response = yield call(GitSyncAPI.pull, { applicationId });
@@ -407,12 +411,16 @@ function* gitPullSaga() {
     }
   } catch (e) {
     // todo check based on error type
-    yield put(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.DEPLOY,
-      }),
-    );
+    if (triggeredFromBottomBar) {
+      yield put(setIsGitErrorPopupVisible({ isVisible: true }));
+    } else {
+      yield put(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.DEPLOY,
+        }),
+      );
+    }
 
     yield put({
       type: ReduxActionErrorTypes.GIT_PULL_ERROR,

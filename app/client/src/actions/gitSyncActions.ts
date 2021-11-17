@@ -211,8 +211,11 @@ export const resetMergeStatus = () => ({
   type: ReduxActionTypes.RESET_MERGE_STATUS,
 });
 
-export const gitPullInit = () => ({
+export const gitPullInit = (payload?: {
+  triggeredFromBottomBar?: boolean;
+}) => ({
   type: ReduxActionTypes.GIT_PULL_INIT,
+  payload,
 });
 
 export const gitPullSuccess = (mergeStatus: MergeStatus) => ({
