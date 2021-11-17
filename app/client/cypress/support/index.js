@@ -68,11 +68,8 @@ before(function() {
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
-  cy.wait("@getUser").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@getUser");
+  cy.wait(3000);
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
   cy.generateUUID().then((id) => {
