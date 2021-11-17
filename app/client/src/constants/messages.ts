@@ -621,6 +621,11 @@ export const NO_COMMITS_TO_PULL = () =>
   "No commits to pull. In sync with the remote repository";
 export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
   "Conflicts found while pulling changes";
+export const NOT_LIVE_FOR_YOU_YET = () => "It's not live for you yet";
+export const COMING_SOON = () => "Coming Soon!";
+export const CONNECTING_TO_REPO_DISBLED = () =>
+  "Connecting to a git repo is disabled";
+export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>

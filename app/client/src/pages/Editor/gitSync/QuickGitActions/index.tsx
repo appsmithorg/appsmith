@@ -16,6 +16,10 @@ import {
   CONNECT_GIT,
   CONFLICTS_FOUND,
   NO_COMMITS_TO_PULL,
+  NOT_LIVE_FOR_YOU_YET,
+  COMING_SOON,
+  CONNECTING_TO_REPO_DISBLED,
+  DURING_ONBOARDING_TOUR,
   createMessage,
 } from "constants/messages";
 import { noop } from "lodash";
@@ -37,6 +41,7 @@ import {
   getPullFailed,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
+import { inOnboarding } from "sagas/OnboardingSagas";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -203,24 +208,34 @@ const PlaceholderButton = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
+  const isInOnboarding = useSelector(inOnboarding);
+
+  const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
+  const tooltipContent = !isInOnboarding ? (
+    <>
+      <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
+      <div>{createMessage(COMING_SOON)}</div>
+    </>
+  ) : (
+    <>
+      <div>{createMessage(CONNECTING_TO_REPO_DISBLED)}</div>
+      <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
+    </>
+  );
+  const isGitConnectionEnabled = getFeatureFlags().GIT && !isInOnboarding;
 
   return (
     <Container>
       <Tooltip
-        content={
-          <>
-            <div>It&apos;s not live for you yet</div>
-            <div>Coming soon!</div>
-          </>
-        }
-        disabled={getFeatureFlags().GIT}
+        content={tooltipContent}
+        disabled={!isTooltipEnabled}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
       >
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
           <StyledIcon />
-          {getFeatureFlags().GIT ? (
+          {isGitConnectionEnabled ? (
             <Button
               category={Category.tertiary}
               onClick={() => {
