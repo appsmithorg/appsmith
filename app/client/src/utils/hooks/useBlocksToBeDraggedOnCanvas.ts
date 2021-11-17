@@ -186,6 +186,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         };
       },
     );
+    const reflowedIds = reflowedPositionsUpdatesWidgets.map((each) => each.id);
     const allUpdatedBlocks = [...drawingBlocks, ...reflowedBlocks];
     const cannotDrop = allUpdatedBlocks.some((each) => {
       return !each.isNotColliding;
@@ -197,7 +198,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
             each1.top + each1.height - (each2.top + each2.height),
         )
         .map((each) => {
-          const widget = newWidget ? newWidget : allWidgets[each.widgetId];
+          const widget =
+            newWidget && !reflowedIds.includes(each.widgetId)
+              ? newWidget
+              : allWidgets[each.widgetId];
           const updateWidgetParams = widgetOperationParams(
             widget,
             { x: each.left, y: each.top },
@@ -224,6 +228,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   ) => {
     if (isNewWidget) {
+      if (draggedBlocksToUpdate.length > 1) {
+        bulkMoveWidgets(draggedBlocksToUpdate.slice(1));
+      }
       addNewWidget(draggedBlocksToUpdate[0]);
     } else {
       bulkMoveWidgets(draggedBlocksToUpdate);
