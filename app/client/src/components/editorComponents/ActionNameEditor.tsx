@@ -15,11 +15,6 @@ import { getExistingPageNames } from "sagas/selectors";
 
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
-import {
-  EditableText as NewEditableText,
-  EditInteractionKind as NewEditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
 import log from "loglevel";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -156,45 +151,27 @@ export function ActionNameEditor(props: ActionNameEditorProps) {
 
   return (
     <ApiNameWrapper page={props.page}>
-      {props.page === "API_PANE" ? (
-        <NewEditableText
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <EditableText
           className="t--action-name-edit-field"
           defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-          editInteractionKind={NewEditInteractionKind.SINGLE}
-          fill
+          editInteractionKind={EditInteractionKind.SINGLE}
+          errorTooltipClass="t--action-name-edit-error"
           forceDefault={forceUpdate}
-          isEditingDefault={isNew}
+          isEditingDefault={props.page === "API_PANE" ? isNew : isNew}
           isInvalid={isInvalidActionName}
-          onBlur={handleAPINameChange}
+          onTextChanged={handleAPINameChange}
           placeholder="Name of the API in camelCase"
-          savingState={
-            saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
-          }
-          underline
+          type="text"
+          updating={saveStatus.isSaving}
           valueTransform={removeSpecialChars}
         />
-      ) : (
-        <div
-          style={{
-            display: "flex",
-          }}
-        >
-          <EditableText
-            className="t--action-name-edit-field"
-            defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-            editInteractionKind={EditInteractionKind.SINGLE}
-            forceDefault={forceUpdate}
-            isEditingDefault={isNew}
-            isInvalid={isInvalidActionName}
-            onTextChanged={handleAPINameChange}
-            placeholder="Name of the API in camelCase"
-            type="text"
-            updating={saveStatus.isSaving}
-            valueTransform={removeSpecialChars}
-          />
-          {saveStatus.isSaving && <Spinner size={16} />}
-        </div>
-      )}
+        {saveStatus.isSaving && <Spinner size={16} />}
+      </div>
     </ApiNameWrapper>
   );
 }
