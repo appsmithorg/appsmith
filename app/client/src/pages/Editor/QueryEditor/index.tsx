@@ -81,6 +81,7 @@ type ReduxStateProps = {
   isEditorInitialized: boolean;
   uiComponent: UIComponentTypes;
   applicationId: string;
+  pluginId: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -130,9 +131,14 @@ class QueryEditor extends React.Component<Props> {
         PerformanceTransactionName.RUN_QUERY_CLICK,
       );
     }
+
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
-    if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
+    // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
+    if (
+      prevProps.match.params.queryId !== this.props.match.params.queryId ||
+      prevProps.pluginId !== this.props.pluginId
+    ) {
       this.props.changeQueryPage(this.props.match.params.queryId);
     }
     // If statement to debounce and track changes in the formData to update evaluations
@@ -264,6 +270,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isEditorInitialized: getIsEditorInitialized(state),
     uiComponent,
     applicationId: getCurrentApplicationId(state),
+    pluginId: queryAction.pluginId,
   };
 };
 
