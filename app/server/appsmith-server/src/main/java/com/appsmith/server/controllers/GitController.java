@@ -181,5 +181,12 @@ public class GitController {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
+    @PostMapping("/conflicted-branch/{defaultApplicationId}")
+    public Mono<ResponseDTO<String>> merge(@PathVariable String defaultApplicationId,
+                                           @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        log.debug("Going to create conflicted state branch {} for application {}", branchName, defaultApplicationId);
+        return service.createConflictedBranch(defaultApplicationId, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
 
 }
