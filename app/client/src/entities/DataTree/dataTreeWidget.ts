@@ -61,22 +61,27 @@ export const generateDataTreeWidget = (
     ...unInitializedDefaultProps,
     ..._.keyBy(dynamicBindingPathList, "key"),
   });
-  return {
-    ...widget,
-    ...defaultMetaProps,
-    ...widgetMetaProps,
-    ...derivedProps,
-    ...unInitializedDefaultProps,
-    defaultProps,
-    defaultMetaProps: Object.keys(defaultMetaProps),
-    dynamicBindingPathList,
-    logBlackList: {
-      ...widget.logBlackList,
-      ...blockedDerivedProps,
+
+  // Use _.merge here to merge all the deeply nested object properties.
+  return _.merge(
+    {},
+    defaultMetaProps,
+    widgetMetaProps,
+    derivedProps,
+    unInitializedDefaultProps,
+    {
+      defaultProps,
+      defaultMetaProps: Object.keys(defaultMetaProps),
+      dynamicBindingPathList,
+      logBlackList: {
+        ...widget.logBlackList,
+        ...blockedDerivedProps,
+      },
+      bindingPaths,
+      triggerPaths,
+      validationPaths,
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     },
-    bindingPaths,
-    triggerPaths,
-    validationPaths,
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-  };
+    widget,
+  );
 };

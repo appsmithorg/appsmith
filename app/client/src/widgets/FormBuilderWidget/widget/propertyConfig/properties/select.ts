@@ -24,7 +24,7 @@ const PROPERTIES = {
       propertyName: "defaultValue",
       helpText: "Selects the option with value by default",
       label: "Default Value",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "GREEN",
       isBindProperty: true,
       isTriggerProperty: false,
@@ -46,7 +46,7 @@ const PROPERTIES = {
     {
       propertyName: "placeholderText",
       label: "Placeholder",
-      controlType: "INPUT_TEXT",
+      controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "Enter placeholder text",
       isBindProperty: true,
       isTriggerProperty: false,
@@ -111,10 +111,8 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<SelectFieldProps["schemaItem"]>(...args).then(
           (schemaItem) => {
-            return (
-              schemaItem.fieldType !== FieldType.SELECT &&
-              !schemaItem.serverSideFiltering
-            );
+            if (schemaItem.fieldType !== FieldType.SELECT) return true;
+            return !schemaItem.serverSideFiltering;
           },
         ),
     },

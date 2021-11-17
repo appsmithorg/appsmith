@@ -3,6 +3,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
   FieldType,
   FIELD_EXPECTING_OPTIONS,
+  FIELD_SUPPORTING_FOCUS_EVENTS,
 } from "widgets/FormBuilderWidget/constants";
 import {
   fieldTypeUpdateHook,
@@ -228,6 +229,10 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: true,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       dependencies: ["schema", "sourceData"],
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotIncludes(
+          FIELD_SUPPORTING_FOCUS_EVENTS,
+        ),
     },
     {
       propertyName: "onBlur",
@@ -239,6 +244,10 @@ const COMMON_PROPERTIES = {
       isTriggerProperty: true,
       customJSControl: "JSON_FORM_COMPUTE_VALUE",
       dependencies: ["schema", "sourceData"],
+      hidden: (...args: HiddenFnParams) =>
+        getSchemaItem(...args).fieldTypeNotIncludes(
+          FIELD_SUPPORTING_FOCUS_EVENTS,
+        ),
     },
   ],
 };

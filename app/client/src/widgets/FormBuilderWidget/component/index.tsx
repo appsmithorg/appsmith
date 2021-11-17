@@ -26,6 +26,7 @@ export type FormBuilderComponentProps<TValues> = {
   title: string;
   updateFormValues: (values: TValues) => void;
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
+  updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
 };
 
 const StyledContainer = styled.div<StyledContainerProps>`
@@ -56,6 +57,7 @@ function FormBuilderComponent<TValues>({
   renderMode,
   schema,
   sourceData,
+  updateWidgetMetaProperty,
   updateWidgetProperty,
   ...rest
 }: FormBuilderComponentProps<TValues>) {
@@ -72,7 +74,7 @@ function FormBuilderComponent<TValues>({
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
     const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
     const propertyPath = `schema.${ROOT_SCHEMA_KEY}`;
-
+    console.log("ROOTSCHEMAITEM", rootSchemaItem);
     return (
       <RootField
         name=""
@@ -86,6 +88,7 @@ function FormBuilderComponent<TValues>({
     <FormContextProvider
       executeAction={executeAction}
       renderMode={renderMode}
+      updateWidgetMetaProperty={updateWidgetMetaProperty}
       updateWidgetProperty={updateWidgetProperty}
     >
       <StyledContainer backgroundColor={backgroundColor}>

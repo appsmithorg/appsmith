@@ -169,11 +169,21 @@ describe("generateDataTreeWidget", () => {
       widgetId: "123",
       widgetName: "Input1",
       defaultText: "Testing",
+      deepObj: {
+        level1: {
+          value: 10,
+        },
+      },
     };
 
     const widgetMetaProps: Record<string, unknown> = {
       text: "Tester",
       isDirty: true,
+      deepObj: {
+        level1: {
+          metaValue: 10,
+        },
+      },
     };
 
     const getMetaProps = jest.spyOn(
@@ -250,6 +260,12 @@ describe("generateDataTreeWidget", () => {
       defaultMetaProps: ["text", "isDirty", "isFocused"],
       defaultProps: {
         text: "defaultText",
+      },
+      deepObj: {
+        level1: {
+          value: 10,
+          metaValue: 10,
+        },
       },
     };
 

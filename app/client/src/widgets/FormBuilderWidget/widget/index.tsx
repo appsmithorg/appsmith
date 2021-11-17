@@ -121,6 +121,10 @@ class FormBuilderWidget extends BaseWidget<
     this.updateWidgetProperty(propertyName, propertyValue);
   };
 
+  onUpdateWidgetMetaProperty = (propertyName: string, propertyValue: any) => {
+    this.props.updateWidgetMetaProperty(propertyName, propertyValue);
+  };
+
   getPageView() {
     return (
       <FormBuilderComponent
@@ -128,6 +132,7 @@ class FormBuilderWidget extends BaseWidget<
         executeAction={this.onExecuteAction}
         onSubmit={this.onSubmit}
         updateFormValues={this.updateFormValues}
+        updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
         updateWidgetProperty={this.onUpdateWidgetProperty}
       />
     );

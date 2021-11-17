@@ -130,11 +130,12 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       defaultValue,
       expected,
       label,
+      placeholderText,
       propertyValue,
       theme,
       widgetProperties,
     } = this.props;
-
+    debugger;
     const { parsed: sourceData } = sourceDataValidationFn(
       widgetProperties.sourceData,
       widgetProperties,
@@ -162,6 +163,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
         expected={expected}
         label={label}
         onChange={this.onTextChange}
+        placeholder={placeholderText}
         theme={theme}
         value={value}
       />
@@ -176,6 +178,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
 export interface JSONFormComputeControlProps extends ControlProps {
   defaultValue?: string;
   widgetProperties: FormBuilderWidgetProps;
+  placeholderText?: string;
 }
 
 export default JSONFormComputeControl;

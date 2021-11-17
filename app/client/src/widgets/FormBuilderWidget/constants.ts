@@ -172,6 +172,17 @@ export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
 export const FIELD_PADDING_X = 15;
 export const FIELD_PADDING_Y = 10;
 
+export const FIELD_SUPPORTING_FOCUS_EVENTS = [
+  FieldType.TEXT,
+  FieldType.NUMBER,
+  FieldType.EMAIL,
+  FieldType.PASSWORD,
+  FieldType.CURRENCY,
+  FieldType.PHONE_NUMBER,
+  FieldType.CHECKBOX,
+  FieldType.DATE,
+];
+
 export const getBindingTemplate = (widgetName: string) => {
   const startTemplate = `{{((sourceData) => (`;
   const endTemplate = `))(${widgetName}.sourceData)}}`;
