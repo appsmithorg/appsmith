@@ -51,6 +51,7 @@ export const useCanvasDragging = (
     parentDiff,
     relativeStartPoints,
     rowRef,
+    stopReflowing,
     updateRows,
     widgetOccupiedSpace,
   } = useBlocksToBeDraggedOnCanvas({
@@ -187,6 +188,7 @@ export const useCanvasDragging = (
 
       const resetCanvasState = () => {
         if (canvasDrawRef.current && canvasRef.current) {
+          stopReflowing();
           const canvasCtx: any = canvasDrawRef.current.getContext("2d");
           canvasCtx.clearRect(
             0,
