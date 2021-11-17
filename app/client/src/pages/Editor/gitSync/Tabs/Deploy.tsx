@@ -10,7 +10,7 @@ import {
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
   LEARN_MORE,
-  PULL_CHANGS,
+  PULL_CHANGES,
   GIT_CONFLICTING_INFO,
   OPEN_REPO,
 } from "constants/messages";
@@ -198,7 +198,7 @@ function Deploy() {
             onClick={handlePull}
             size={Size.medium}
             tag="button"
-            text={createMessage(PULL_CHANGS)}
+            text={createMessage(PULL_CHANGES)}
             width="max-content"
           />
         )}
@@ -229,7 +229,7 @@ function Deploy() {
               onClick={handlePull}
               size={Size.medium}
               tag="button"
-              text={createMessage(PULL_CHANGS)}
+              text={createMessage(PULL_CHANGES)}
               width="max-content"
             />
           </Row>

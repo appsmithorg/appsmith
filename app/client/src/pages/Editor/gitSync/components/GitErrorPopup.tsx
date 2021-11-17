@@ -13,7 +13,7 @@ import {
   createMessage,
   CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
   OPEN_REPO,
-  PULL_CHANGS,
+  PULL_CHANGES,
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
 } from "constants/messages";
@@ -118,7 +118,7 @@ function GitErrorPopup() {
               </Text>
               <Link link={DOCS_BASE_URL} text={createMessage(LEARN_MORE)} />
             </InfoWrapper>
-            <Row style={{ display: "flex" }}>
+            <Row>
               <div style={{ marginRight: theme.spaces[3] }}>
                 <Button
                   category={Category.tertiary}
@@ -138,7 +138,7 @@ function GitErrorPopup() {
                 onClick={handlePull}
                 size={Size.medium}
                 tag="button"
-                text={createMessage(PULL_CHANGS)}
+                text={createMessage(PULL_CHANGES)}
                 width="max-content"
               />
             </Row>
