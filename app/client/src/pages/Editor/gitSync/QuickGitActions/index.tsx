@@ -14,9 +14,12 @@ import {
   PULL,
   MERGE,
   CONNECT_GIT,
-  UNCOMMITTED_CHANGES,
   CONFLICTS_FOUND,
   NO_COMMITS_TO_PULL,
+  NOT_LIVE_FOR_YOU_YET,
+  COMING_SOON,
+  CONNECTING_TO_REPO_DISBLED,
+  DURING_ONBOARDING_TOUR,
   createMessage,
 } from "constants/messages";
 import { noop } from "lodash";
@@ -28,16 +31,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
 import { gitPullInit, setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab, MergeStatus } from "entities/GitSync";
+import { GitSyncModalTab } from "entities/GitSync";
 import getFeatureFlags from "utils/featureFlags";
 import {
   getGitStatus,
   getIsGitConnected,
-  getPullMergeStatus,
   getPullInProgress,
   getIsFetchingGitStatus,
+  getPullFailed,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
+import { inOnboarding } from "sagas/OnboardingSagas";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -116,16 +120,13 @@ function QuickActionButton({
   );
 }
 
-const getPullBtnStatus = (gitStatus: any, pullMergeStatus?: MergeStatus) => {
-  const { behindCount, conflicting = [], isClean } = gitStatus || {};
-  const { conflictingFiles: pullConflicts = [] } = pullMergeStatus || {};
+const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
+  const { behindCount } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
-  let disabled = true;
-  if (conflicting.length > 0 || pullConflicts.length > 0)
+  const disabled = behindCount === 0;
+  if (pullFailed) {
     message = createMessage(CONFLICTS_FOUND);
-  else if (!isClean) message = createMessage(UNCOMMITTED_CHANGES);
-  else if (behindCount > 0) {
-    disabled = false;
+  } else if (behindCount > 0) {
     message = createMessage(PULL);
   }
 
@@ -207,24 +208,34 @@ const PlaceholderButton = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
+  const isInOnboarding = useSelector(inOnboarding);
+
+  const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
+  const tooltipContent = !isInOnboarding ? (
+    <>
+      <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
+      <div>{createMessage(COMING_SOON)}</div>
+    </>
+  ) : (
+    <>
+      <div>{createMessage(CONNECTING_TO_REPO_DISBLED)}</div>
+      <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
+    </>
+  );
+  const isGitConnectionEnabled = getFeatureFlags().GIT && !isInOnboarding;
 
   return (
     <Container>
       <Tooltip
-        content={
-          <>
-            <div>It&apos;s not live for you yet</div>
-            <div>Coming soon!</div>
-          </>
-        }
-        disabled={getFeatureFlags().GIT}
+        content={tooltipContent}
+        disabled={!isTooltipEnabled}
         modifiers={{
           preventOverflow: { enabled: true },
         }}
       >
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
           <StyledIcon />
-          {getFeatureFlags().GIT ? (
+          {isGitConnectionEnabled ? (
             <Button
               category={Category.tertiary}
               onClick={() => {
@@ -246,12 +257,12 @@ export default function QuickGitActions() {
   const isGitConnected = useSelector(getIsGitConnected);
   const dispatch = useDispatch();
   const gitStatus = useSelector(getGitStatus);
-  const pullMergeStatus = useSelector(getPullMergeStatus);
+  const pullFailed = useSelector(getPullFailed);
 
   const {
     disabled: pullDisabled,
     message: pullTooltipMessage,
-  } = getPullBtnStatus(gitStatus, pullMergeStatus);
+  } = getPullBtnStatus(gitStatus, !!pullFailed);
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
@@ -267,7 +278,7 @@ export default function QuickGitActions() {
       );
     },
     push: noop,
-    pull: () => dispatch(gitPullInit()),
+    pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
     merge: () => {
       dispatch(
         setIsGitSyncModalOpen({

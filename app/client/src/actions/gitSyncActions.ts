@@ -194,24 +194,35 @@ export const fetchMergeStatusInit = (payload: MergeBranchPayload) => ({
   payload,
 });
 
-export const fetchMergeStatusSuccess = (payload: GitStatusData) => ({
+export const fetchMergeStatusSuccess = (payload: MergeStatus) => ({
   type: ReduxActionTypes.FETCH_MERGE_STATUS_SUCCESS,
   payload,
 });
 
-export const fetchMergeStatusFailure = () => ({
+export const fetchMergeStatusFailure = (payload: {
+  error: string;
+  show: boolean;
+}) => ({
   type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
+  payload,
 });
 
 export const resetMergeStatus = () => ({
   type: ReduxActionTypes.RESET_MERGE_STATUS,
 });
 
-export const gitPullInit = () => ({
+export const gitPullInit = (payload?: {
+  triggeredFromBottomBar?: boolean;
+}) => ({
   type: ReduxActionTypes.GIT_PULL_INIT,
+  payload,
 });
 
 export const gitPullSuccess = (mergeStatus: MergeStatus) => ({
   type: ReduxActionTypes.GIT_PULL_SUCCESS,
   payload: mergeStatus,
+});
+
+export const resetPullMergeStatus = () => ({
+  type: ReduxActionTypes.RESET_PULL_MERGE_STATUS,
 });
