@@ -41,6 +41,8 @@ const gitSyncReducer = createReducer(initialState, {
       isGitSyncModalOpen: action.payload.isOpen,
       activeGitSyncModalTab,
       gitError: null,
+      // reset conflicts when the modal is opened
+      pullFailed: false,
     };
   },
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: (state: GitSyncReducerState) => ({
