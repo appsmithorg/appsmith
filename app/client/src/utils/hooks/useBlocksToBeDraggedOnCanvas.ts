@@ -228,10 +228,18 @@ export const useBlocksToBeDraggedOnCanvas = ({
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   ) => {
     if (isNewWidget) {
-      if (draggedBlocksToUpdate.length > 1) {
-        bulkMoveWidgets(draggedBlocksToUpdate.slice(1));
+      const newWidget = draggedBlocksToUpdate.find(
+        (each) => each.updateWidgetParams.operation === "ADD_CHILD",
+      );
+      const movedWidgets = draggedBlocksToUpdate.filter(
+        (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
+      );
+      if (newWidget) {
+        if (draggedBlocksToUpdate.length > 1) {
+          bulkMoveWidgets(movedWidgets);
+        }
+        addNewWidget(newWidget);
       }
-      addNewWidget(draggedBlocksToUpdate[0]);
     } else {
       bulkMoveWidgets(draggedBlocksToUpdate);
     }
