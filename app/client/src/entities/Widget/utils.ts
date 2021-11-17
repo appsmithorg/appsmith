@@ -153,9 +153,10 @@ export const getAllPathsFromPropertyConfig = (
             configTriggerPaths,
             configValidationPaths,
           } = checkPathsInConfig(controlConfig, path);
-          bindingPaths = { ...configBindingPaths, ...bindingPaths };
-          triggerPaths = { ...configTriggerPaths, ...triggerPaths };
-          validationPaths = { ...configValidationPaths, ...validationPaths };
+          // Update default path configs with the ones in the property config
+          bindingPaths = { ...bindingPaths, ...configBindingPaths };
+          triggerPaths = { ...triggerPaths, ...configTriggerPaths };
+          validationPaths = { ...validationPaths, ...configValidationPaths };
         }
         // Has child Panel Config
         if (controlConfig.panelConfig) {
