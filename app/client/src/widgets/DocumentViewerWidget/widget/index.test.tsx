@@ -1,8 +1,7 @@
 import { documentUrlValidation } from ".";
 
-documentUrlValidation;
 describe("validate propertypane input : docUrl", () => {
-  it("validation for empty value", () => {
+  it("validation for empty or space value", () => {
     const input1 = "";
     const expected1 = {
       isValid: true,
@@ -12,6 +11,36 @@ describe("validate propertypane input : docUrl", () => {
 
     const result = documentUrlValidation(input1);
     expect(result).toStrictEqual(expected1);
+
+    const input2 = "https:  //www.example.com";
+    const expected2 = {
+      isValid: false,
+      parsed: "",
+      messages: ["Provided URL / Base64 is invalid."],
+    };
+
+    const result1 = documentUrlValidation(input2);
+    expect(result1).toStrictEqual(expected2);
+
+    const input3 = "https://www.exam  ple.com";
+    const expected3 = {
+      isValid: false,
+      parsed: "",
+      messages: ["Provided URL / Base64 is invalid."],
+    };
+
+    const result2 = documentUrlValidation(input3);
+    expect(result2).toStrictEqual(expected3);
+
+    const input4 = "https://examplecom";
+    const expected4 = {
+      isValid: false,
+      parsed: "",
+      messages: ["Provided URL / Base64 is invalid."],
+    };
+
+    const result3 = documentUrlValidation(input4);
+    expect(result3).toStrictEqual(expected4);
   });
 
   it("validation for invalid url or base64 value", () => {
