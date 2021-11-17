@@ -63,7 +63,6 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   }
   position: relative;
   overflow: visible;
-  z-index: 0; /* fix z-index on hover */
   .count {
     position: absolute;
     width: 18px;
