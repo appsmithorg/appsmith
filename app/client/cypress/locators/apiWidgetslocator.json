@@ -51,6 +51,7 @@
   "propertyList": ".t--entity-property",
   "actionlist": ".action div div",
   "settings": "li:contains('Settings')",
+  "headers": "li:contains('Headers')",
   "onPageLoad": "[data-cy=executeOnLoad]",
   "renameEntity": ".single-select >div:contains('Edit Name')",
   "paramsTab": "//li//span[text()='Params']",
