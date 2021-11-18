@@ -231,7 +231,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   return (
     <Wrapper
       active={isChecklistPage}
-      className="sticky top-0"
+      className="sticky top-0 t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
         history.push(getOnboardingCheckListUrl(applicationId, pageId));

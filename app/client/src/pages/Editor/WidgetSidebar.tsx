@@ -90,7 +90,7 @@ function WidgetSidebar(props: IPanelProps) {
         />
       </Boxed>
       <div className="flex-grow px-3 overflow-y-scroll">
-        <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400">
+        <p className="px-3 py-3 text-sm leading-relaxed text-trueGray-400 t--widget-sidebar">
           {createMessage(WIDGET_SIDEBAR_CAPTION)}
         </p>
         <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">

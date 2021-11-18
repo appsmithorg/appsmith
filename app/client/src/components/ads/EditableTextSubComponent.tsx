@@ -134,6 +134,7 @@ const TextContainer = styled.div<{
   &&& .${BlueprintClasses.EDITABLE_TEXT} {
     overflow: hidden;
     background-color: ${(props) => props.bgColor};
+    width: calc(100% - 40px);
   }
 
   .icon-wrapper {
