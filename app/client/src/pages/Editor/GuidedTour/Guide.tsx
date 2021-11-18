@@ -8,10 +8,12 @@ import {
   getGuidedTourDatasource,
   getQueryAction,
   getQueryName,
+  getTableName,
   getTableWidget,
   isExploring,
   isQueryExecutionSuccessful,
   isQueryLimitUpdated,
+  isTableWidgetSelected,
   loading,
 } from "selectors/onboardingSelectors";
 import { useSelector } from "store";
@@ -141,7 +143,7 @@ type Step = {
 type StepsType = Record<number, Step>;
 const Steps: StepsType = {
   1: {
-    title: `1. First is Data, Edit & Run the <query> query below to fetch customers data`,
+    title: `1. Edit & Run the <query> query to fetch customers data`,
     hint: {
       icon: "edit-box-line",
       text: (
@@ -153,13 +155,29 @@ const Steps: StepsType = {
     },
   },
   2: {
-    title: "2. Go to the table to connect data",
+    title: "2. Go to the <table> table to connect it to the customers data",
     hint: {
       icon: "edit-box-line",
       text: (
         <>
-          <b>Click on the table</b> on the left entity pane
+          <b>Click on the table</b> on the left in the explorer
         </>
+      ),
+    },
+  },
+  3: {
+    title: "3. Connect the Table with Customers data",
+    hint: {
+      icon: "edit-box-line",
+      text: (
+        <span>
+          Replace the whole <b>Table Data</b> property with{" "}
+          <b>
+            &#123;&#123;
+            {"getCustomers.data"}&#125;&#125;
+          </b>{" "}
+          on the right pane
+        </span>
       ),
     },
   },
@@ -244,9 +262,14 @@ function replacePlaceholders(
 
 function useUpdateName(step: number): Step {
   const queryName = useSelector(getQueryName);
-
+  const tableName = useSelector(getTableName);
+  // const stepFieldsMap: Record<number, string[]> = {
+  //   1: ["title"],
+  //   2: ["title"],
+  // };
   const substitutionMap = {
     "<query>": queryName,
+    "<table>": tableName,
   };
 
   return replacePlaceholders(step, ["title"], substitutionMap);
@@ -260,6 +283,7 @@ function useComputeCurrentStep() {
   const tableWidget = useSelector(getTableWidget);
   const queryLimitUpdated = useSelector(isQueryLimitUpdated);
   const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
+  const tableWidgetSelected = useSelector(isTableWidgetSelected);
   step = 1;
 
   if (step === 1) {
@@ -269,6 +293,9 @@ function useComputeCurrentStep() {
   }
 
   if (step === 2) {
+    if (tableWidgetSelected) {
+      step = 3;
+    }
   }
 
   if (step === 3) {

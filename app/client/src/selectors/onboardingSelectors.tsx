@@ -9,6 +9,7 @@ import { isEqual } from "lodash";
 import { getWidgets } from "sagas/selectors";
 import { getActionResponses, getActions } from "./entitiesSelector";
 import { PluginType } from "entities/Action";
+import { getSelectedWidget } from "./ui";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -59,6 +60,19 @@ export const getQueryName = (state: AppState) => {
   if (query?.config.name) return query?.config.name;
   return "getCustomers";
 };
+export const getTableName = createSelector(
+  getGuidedTourTableWidget,
+  getWidgets,
+  (tableWidgetId, widgets) => {
+    const tableWidget = widgets[tableWidgetId];
+
+    if (tableWidget) {
+      return tableWidget.widgetName;
+    } else {
+      return "CustomersTable";
+    }
+  },
+);
 
 export const getTableWidget = createSelector(
   getWidgets,
@@ -136,8 +150,6 @@ export const isQueryLimitUpdated = createSelector(getQueryAction, (query) => {
       body = body.replace(/(?:\r\n|\r|\n)/g, "");
       // Replace sql comments
       body = body.replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)|(--[^.].*)/gm, "");
-      // eslint-disable-next-line no-console
-      console.log(body, "body");
       return regex.test(body);
     }
   }
@@ -154,9 +166,17 @@ export const isQueryExecutionSuccessful = createSelector(
   },
 );
 
+export const isTableWidgetSelected = createSelector(
+  getGuidedTourTableWidget,
+  getSelectedWidget,
+  (tableWidgetId, selectedWidgetId) => {
+    return tableWidgetId === selectedWidgetId;
+  },
+);
+
 export const loading = (state: AppState) => state.ui.onBoarding.loading;
 
-// To find an organisation where the user as permission to create an
+// To find an organisation where the user has permission to create an
 // application
 export const getOnboardingOrganisations = createSelector(
   getUserApplicationsOrgs,
