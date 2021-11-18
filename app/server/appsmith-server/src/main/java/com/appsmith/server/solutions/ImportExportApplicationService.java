@@ -878,6 +878,7 @@ public class ImportExportApplicationService {
                                              Map<String, Set<String>> unpublishedMongoEscapedWidget,
                                              String branchName) {
 
+        // For git-sync this will not be empty
         Mono<List<NewPage>> existingPages = newPageService
                 .findNewPagesByApplicationId(application.getId(), AclPermission.MANAGE_PAGES)
                 .collectList();

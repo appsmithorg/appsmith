@@ -937,7 +937,7 @@ public class GitServiceImpl implements GitService {
                                                 gitAuth,
                                                 gitApplicationMetadata,
                                                 DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL)
-                                                .thenReturn(pullStatus1)
+                                                .map(status -> pullStatus1)
                                 );
                     } catch (IOException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
@@ -1240,6 +1240,15 @@ public class GitServiceImpl implements GitService {
                                 auth.getPublicKey(),
                                 auth.getPrivateKey(),
                                 gitApplicationMetadata.getBranchName())
+                        .map(pushResult -> {
+                            if(pushResult.contains("REJECTED")) {
+                                final String error = "Failed to push some refs to remote\n" +
+                                        "> To prevent you from losing history, non-fast-forward updates were rejected\n" +
+                                        "> Merge the remote changes (e.g. 'git pull') before pushing again.";
+                                throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", error);
+                            }
+                            return pushResult;
+                        })
                 );
     }
 }
