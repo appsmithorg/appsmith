@@ -1,3 +1,4 @@
+import { get, compact } from "lodash";
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
@@ -15,6 +16,7 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
+import { getWidgets } from "sagas/selectors";
 
 type Props = {
   width: number;
@@ -35,9 +37,17 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     props.onDragEnd,
     true,
   );
+  const canvasWidgets = useSelector(getWidgets);
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
-  const selectedWidgets = useSelector(getSelectedWidgets);
+  const selectedWidgetIds = useSelector(getSelectedWidgets);
+  const selectedWidgets = useMemo(
+    () =>
+      compact(
+        selectedWidgetIds.map((widgetId) => get(canvasWidgets, widgetId)),
+      ),
+    [canvasWidgets, selectedWidgetIds],
+  );
   const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
