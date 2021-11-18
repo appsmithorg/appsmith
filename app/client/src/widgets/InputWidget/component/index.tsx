@@ -175,6 +175,10 @@ const InputComponentWrapper = styled((props) => (
         }
       }
     }
+    .${Classes.INPUT}:disabled {
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_7};
+    }
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
@@ -183,7 +187,6 @@ const InputComponentWrapper = styled((props) => (
         color: #5c7080;
       }
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
-        pointer-events: none;
         button {
           background: ${Colors.GREY_1};
         }
@@ -199,7 +202,8 @@ const InputComponentWrapper = styled((props) => (
       margin-right: 5px;
       text-align: right;
       align-self: flex-start;
-      color: ${(props) => props.labelTextColor || "inherit"};
+      color: ${(props) =>
+        props.disabled ? Colors.GREY_8 : props.labelTextColor || "inherit"};
       font-size: ${(props) => props.labelTextSize};
       font-weight: ${(props) =>
         props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
@@ -222,6 +226,7 @@ const StyledNumericInput = styled(NumericInput)`
         background: ${(props) =>
           props.disabled ? Colors.GREY_1 : Colors.WHITE};
         border: 1.2px solid ${Colors.GREY_3};
+        color: ${(props) => (props.disabled ? Colors.GREY_7 : Colors.GREY_10)};
         border-right: 0;
       }
       input:not(:first-child) {
@@ -230,7 +235,7 @@ const StyledNumericInput = styled(NumericInput)`
         z-index: 16;
         line-height: 16px;
 
-        &:hover:not(:focus) {
+        &:hover:not(:focus):not(:disabled) {
           border-left: 1px solid ${Colors.GREY_5};
         }
       }
@@ -521,6 +526,7 @@ class InputComponent extends React.Component<
             undefined
           )
         }
+        spellCheck={this.props.spellCheck}
         type={this.getType(this.props.inputType)}
         value={this.props.value}
       />
@@ -621,6 +627,7 @@ export interface InputComponentProps extends ComponentProps {
   currencyCountryCode?: string;
   noOfDecimals?: number;
   phoneNumberCountryCode?: string;
+  spellCheck: boolean;
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;

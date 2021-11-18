@@ -25,6 +25,8 @@ import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const searchHighlightSpanClassName = "token";
@@ -47,8 +49,14 @@ const Wrapper = styled.div`
   margin: 0 4px;
   padding: 9px 0;
   line-height: 13px;
+  position: relative;
   & span.token {
     color: ${Colors.OCEAN_GREEN};
+  }
+  .beta-icon {
+    position: absolute;
+    top: 5px;
+    right: 0;
   }
 `;
 
@@ -97,6 +105,7 @@ export interface EntityNameProps {
   enterEditMode: () => void;
   exitEditMode: () => void;
   nameTransformFn?: (input: string, limit?: number) => string;
+  isBeta?: boolean;
 }
 export const EntityName = forwardRef(
   (props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
@@ -226,6 +235,7 @@ export const EntityName = forwardRef(
               ref={targetRef}
             >
               {searchHighlightedName}
+              {props.isBeta ? <BetaIcon className="beta-icon" /> : ""}
             </Wrapper>
           </TooltipComponent>
         </Container>
