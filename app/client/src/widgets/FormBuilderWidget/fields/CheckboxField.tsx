@@ -29,11 +29,16 @@ const COMPONENT_DEFAULT_VALUES: CheckboxComponentProps = {
 };
 
 function CheckboxField({ name, schemaItem, ...rest }: CheckboxFieldProps) {
-  const { isRequired, label, onBlur, onFocus } = schemaItem;
+  const {
+    isRequired,
+    label,
+    onBlur: onBlurDynamicString,
+    onFocus: onFocusDynamicString,
+  } = schemaItem;
   const { executeAction } = useContext(FormContext);
   const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
-    onFocusHandler: onFocus,
-    onBlurHandler: onBlur,
+    onFocusDynamicString,
+    onBlurDynamicString,
   });
 
   const labelStyles = pick(schemaItem, [

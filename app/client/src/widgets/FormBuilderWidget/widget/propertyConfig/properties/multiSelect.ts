@@ -112,10 +112,8 @@ const PROPERTIES = {
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).then(
           (schemaItem) => {
-            return (
-              schemaItem.fieldType !== FieldType.SELECT &&
-              !schemaItem.serverSideFiltering
-            );
+            if (schemaItem.fieldType !== FieldType.MULTI_SELECT) return true;
+            return !schemaItem.serverSideFiltering;
           },
         ),
     },

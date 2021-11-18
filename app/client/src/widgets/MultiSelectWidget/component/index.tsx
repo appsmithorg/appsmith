@@ -30,6 +30,8 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  onFocus?: (e: React.FocusEvent) => void;
+  onBlur?: (e: React.FocusEvent) => void;
 }
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -38,8 +40,10 @@ function MultiSelectComponent({
   disabled,
   dropdownStyle,
   loading,
+  onBlur,
   onChange,
   onFilterChange,
+  onFocus,
   options,
   placeholder,
   serverSideFiltering,
@@ -146,8 +150,10 @@ function MultiSelectComponent({
         menuItemSelectedIcon={menuItemSelectedIcon}
         mode="multiple"
         notFoundContent="No Results Found"
+        onBlur={onBlur}
         onChange={onChange}
         onDropdownVisibleChange={onClose}
+        onFocus={onFocus}
         onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}

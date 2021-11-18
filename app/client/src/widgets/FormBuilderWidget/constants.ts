@@ -181,6 +181,7 @@ export const FIELD_SUPPORTING_FOCUS_EVENTS = [
   FieldType.PHONE_NUMBER,
   FieldType.CHECKBOX,
   FieldType.DATE,
+  FieldType.MULTI_SELECT,
 ];
 
 export const getBindingTemplate = (widgetName: string) => {

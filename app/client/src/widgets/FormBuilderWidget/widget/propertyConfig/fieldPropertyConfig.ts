@@ -8,6 +8,7 @@ import {
   COMMON_PROPERTIES,
   DATE_PROPERTIES,
   INPUT_PROPERTIES,
+  MULTI_SELECT_PROPERTIES,
   RADIO_GROUP_PROPERTIES,
   SELECT_PROPERTIES,
   SWITCH_PROPERTIES,
@@ -34,6 +35,7 @@ function generatePanelPropertyConfig(
           ...RADIO_GROUP_PROPERTIES.general,
           ...SELECT_PROPERTIES.general,
           ...SWITCH_PROPERTIES.general,
+          ...MULTI_SELECT_PROPERTIES.general,
           ...COMMON_PROPERTIES.accessibility,
           {
             propertyName: "children",
@@ -67,6 +69,7 @@ function generatePanelPropertyConfig(
           ...RADIO_GROUP_PROPERTIES.actions,
           ...SELECT_PROPERTIES.actions,
           ...SWITCH_PROPERTIES.actions,
+          ...MULTI_SELECT_PROPERTIES.actions,
           ...COMMON_PROPERTIES.actions,
         ],
       },

@@ -29,11 +29,14 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
 };
 
 function SwitchField({ name, schemaItem, ...rest }: SwitchFieldProps) {
-  const { onBlur, onFocus } = schemaItem;
+  const {
+    onBlur: onBlurDynamicString,
+    onFocus: onFocusDynamicString,
+  } = schemaItem;
   const { executeAction } = useContext(FormContext);
   const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
-    onFocusHandler: onFocus,
-    onBlurHandler: onBlur,
+    onFocusDynamicString,
+    onBlurDynamicString,
   });
 
   const labelStyles = pick(schemaItem, [

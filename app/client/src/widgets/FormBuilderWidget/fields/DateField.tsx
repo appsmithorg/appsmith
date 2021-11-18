@@ -37,11 +37,14 @@ const COMPONENT_DEFAULT_VALUES: DateComponentProps = {
 type DateFieldProps = BaseFieldComponentProps<DateComponentProps>;
 
 function DateField({ name, schemaItem, ...rest }: DateFieldProps) {
-  const { onBlur: onBlurHandler, onFocus: onFocusHandler } = schemaItem;
+  const {
+    onBlur: onBlurDynamicString,
+    onFocus: onFocusDynamicString,
+  } = schemaItem;
   const { executeAction } = useContext(FormContext);
   const { inputRef, registerFieldOnBlurHandler } = useEvents<HTMLInputElement>({
-    onFocusHandler,
-    onBlurHandler,
+    onFocusDynamicString,
+    onBlurDynamicString,
   });
 
   const labelStyles = pick(schemaItem, [

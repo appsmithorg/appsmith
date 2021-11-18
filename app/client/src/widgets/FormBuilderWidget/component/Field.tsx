@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Controller, ControllerProps, useFormContext } from "react-hook-form";
 
 import FieldLabel, { FieldLabelProps } from "./FieldLabel";
+import useDeepEffect from "utils/hooks/useDeepEffect";
 
 type FieldProps = {
   hideLabel?: boolean;
@@ -36,7 +37,7 @@ function Field({
 }: FieldProps) {
   const { control, setValue } = useFormContext();
 
-  useEffect(() => {
+  useDeepEffect(() => {
     setValue(name, defaultValue);
   }, [defaultValue, setValue]);
 

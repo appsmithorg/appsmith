@@ -1,6 +1,6 @@
 import { ControllerRenderProps } from "react-hook-form";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { useContext, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 
 import FormContext from "../FormContext";
 
@@ -10,58 +10,59 @@ type BaseEvents = Pick<
 >;
 
 type UseEventsProps = {
-  onFocusHandler?: string;
-  onBlurHandler?: string;
+  onFocusDynamicString?: string;
+  onBlurDynamicString?: string;
 };
 
 function useEvents<TElement extends BaseEvents>({
-  onBlurHandler,
-  onFocusHandler,
+  onBlurDynamicString,
+  onFocusDynamicString,
 }: UseEventsProps = {}) {
   const FieldBlurHandlerRef = useRef<ControllerRenderProps["onBlur"]>();
   const inputRef = useRef<TElement | null>(null);
   const { executeAction } = useContext(FormContext) || {};
 
+  const onBlurHandler = useCallback(() => {
+    if (FieldBlurHandlerRef.current) {
+      FieldBlurHandlerRef.current?.();
+    }
+
+    if (onBlurDynamicString) {
+      executeAction?.({
+        triggerPropertyName: "onBlur",
+        dynamicString: onBlurDynamicString,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+    }
+  }, [executeAction, onBlurDynamicString]);
+
+  const onFocusHandler = useCallback(() => {
+    if (onFocusDynamicString) {
+      executeAction?.({
+        triggerPropertyName: "onFocus",
+        dynamicString: onFocusDynamicString,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+    }
+  }, [executeAction, onFocusDynamicString]);
+
   useEffect(() => {
-    const onBlur = () => {
-      if (FieldBlurHandlerRef.current) {
-        FieldBlurHandlerRef.current?.();
-      }
-      if (onBlurHandler) {
-        executeAction?.({
-          triggerPropertyName: "onBlur",
-          dynamicString: onBlurHandler,
-          event: {
-            type: EventType.ON_BLUR,
-          },
-        });
-      }
-    };
-
-    const onFocus = () => {
-      if (onFocusHandler) {
-        executeAction?.({
-          triggerPropertyName: "onFocus",
-          dynamicString: onFocusHandler,
-          event: {
-            type: EventType.ON_FOCUS,
-          },
-        });
-      }
-    };
-
     if (inputRef.current) {
-      inputRef.current.addEventListener("blur", onBlur);
-      inputRef.current.addEventListener("focus", onFocus);
+      inputRef.current.addEventListener("blur", onBlurHandler);
+      inputRef.current.addEventListener("focus", onFocusHandler);
     }
 
     return () => {
       if (inputRef.current) {
-        inputRef.current.removeEventListener("blur", onBlur);
-        inputRef.current.removeEventListener("focus", onFocus);
+        inputRef.current.removeEventListener("blur", onBlurHandler);
+        inputRef.current.removeEventListener("focus", onFocusHandler);
       }
     };
-  }, [inputRef.current, executeAction, onBlurHandler, onFocusHandler]);
+  }, [inputRef.current, onBlurHandler, onFocusHandler]);
 
   const registerFieldOnBlurHandler = (
     blurHandler: ControllerRenderProps["onBlur"],
@@ -71,6 +72,8 @@ function useEvents<TElement extends BaseEvents>({
 
   return {
     inputRef,
+    onBlurHandler,
+    onFocusHandler,
     registerFieldOnBlurHandler,
   };
 }
