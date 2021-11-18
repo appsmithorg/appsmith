@@ -449,7 +449,6 @@ export function CanvasSelectionArena({
       data-testid={`canvas-${widgetId}`}
       id={`canvas-${widgetId}`}
       ref={canvasRef}
-      tabIndex={1}
     />
   ) : null;
 }

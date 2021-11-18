@@ -188,7 +188,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const onHoverResizer = useCallback(() => {
     tooltipTimeout = setTimeout(() => {
       setTooltipIsOpen(true);
-    }, 1000);
+    }, 250);
   }, [setTooltipIsOpen]);
 
   /**
