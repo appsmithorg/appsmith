@@ -74,7 +74,7 @@ function FormBuilderComponent<TValues>({
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
     const RootField = FIELD_MAP[rootSchemaItem.fieldType] || Fragment;
     const propertyPath = `schema.${ROOT_SCHEMA_KEY}`;
-    console.log("ROOTSCHEMAITEM", rootSchemaItem);
+
     return (
       <RootField
         name=""
