@@ -29,7 +29,6 @@ import {
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus from "../components/MergeStatus";
-import GitChanged from "../components/GitChanged";
 
 const Row = styled.div`
   display: flex;
@@ -122,7 +121,6 @@ export default function Merge() {
   return (
     <>
       <Title>{createMessage(MERGE_CHANGES)}</Title>
-      <GitChanged />
       <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
       <Space size={4} />
       <Row>
@@ -131,6 +129,7 @@ export default function Merge() {
         <Space horizontal size={3} />
 
         <Dropdown
+          enableSearch
           fillOptions
           isLoading={isFetchingBranches}
           onSelect={(value?: string) => {
