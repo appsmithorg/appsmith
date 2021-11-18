@@ -679,6 +679,7 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultIconName: "add",
                   isJSConvertible: true,
                   isBindProperty: false,
                   isTriggerProperty: false,
