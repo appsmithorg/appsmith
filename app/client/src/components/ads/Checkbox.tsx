@@ -143,6 +143,7 @@ function Checkbox(props: CheckboxProps) {
       />
       <Checkmark
         backgroundColor={props.backgroundColor}
+        className="ur--has-border"
         disabled={props.disabled}
         info={props.info}
         isChecked={checked}

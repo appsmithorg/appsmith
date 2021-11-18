@@ -593,9 +593,11 @@ function ApiEditorForm(props: Props) {
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">
-            <BoundaryContainer>
+            <BoundaryContainer
+              data-replay-id={btoa("actionConfiguration.httpMethod")}
+            >
               <RequestDropdownField
-                className="t--apiFormHttpMethod"
+                className="t--apiFormHttpMethod ur--has-border"
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
