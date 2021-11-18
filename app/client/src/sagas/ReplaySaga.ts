@@ -233,8 +233,7 @@ export function* replayPreProcess(
 ) {
   let res = {};
   const { updates = [] } = replay;
-  if (updates.length > 1) return res;
-  const { kind = "", modifiedProperty } = updates[0] || {};
+  const { kind = "", modifiedProperty } = updates[updates.length - 1] || {};
   if (!modifiedProperty) return res;
   if (replayEntityType === ReplayEntityType.ACTION) {
     res = yield call(getEditorFieldConfig, replayEntity, modifiedProperty);
@@ -266,7 +265,11 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
       currentTab = API_EDITOR_TABS.PARAMS;
     else if (modifiedProperty.indexOf("body") > -1)
       currentTab = API_EDITOR_TABS.BODY;
-    else if (modifiedProperty.indexOf("pagination") > -1)
+    else if (
+      modifiedProperty.indexOf("pagination") ||
+      modifiedProperty.indexOf("next") ||
+      modifiedProperty.indexOf("previous") > -1
+    )
       currentTab = API_EDITOR_TABS.PAGINATION;
     if (!currentTab) {
       const settingsConfig: [Record<any, any>] = yield select(

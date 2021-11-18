@@ -132,12 +132,14 @@ export function shouldDisallowToast(shouldUndo: boolean): boolean {
 }
 
 export function highlightReplayElement(configProperties: Array<string> = []) {
-  const elements = configProperties.map((configProperty: string) => {
-    const replayId = btoa(configProperty);
-    return document.querySelector(
-      `[data-replay-id="${replayId}"]`,
-    ) as HTMLElement;
-  });
+  const elements = configProperties
+    .map((configProperty: string) => {
+      const replayId = btoa(configProperty);
+      return document.querySelector(
+        `[data-replay-id="${replayId}"]`,
+      ) as HTMLElement;
+    })
+    .filter((el) => Boolean(el));
   if (elements.length === 1) {
     elements[0].scrollIntoView({ behavior: "smooth" });
   }
