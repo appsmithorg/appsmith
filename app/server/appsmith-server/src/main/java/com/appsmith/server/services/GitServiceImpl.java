@@ -919,14 +919,15 @@ public class GitServiceImpl implements GitService {
                                         MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                         mergeStatus.setStatus("Nothing to fetch from remote. All changes are upto date.");
                                         mergeStatus.setMergeAble(false);
-                                        return Mono.just(mergeStatus);
+                                        //return Mono.just(mergeStatus);
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", error.getMessage()));
                                     } else if(error.getMessage().contains("Merge conflict")) {
                                         // On merge conflict send the response with the error message
                                         MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                         mergeStatus.setStatus(error.getMessage());
                                         mergeStatus.setMergeAble(false);
-                                        return Mono.just(mergeStatus);
-                                        //return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", error.getMessage()));
+                                        //return Mono.just(mergeStatus);
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", error.getMessage()));
                                     } else {
                                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
                                     }
