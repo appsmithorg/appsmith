@@ -118,6 +118,7 @@ export const WINDOW_OBJECT_PROPERTIES = {
   self: "self",
   status: "status",
   top: "top",
+  evaluationVersion: "evaluationVersion",
 };
 
 export const WINDOW_OBJECT_METHODS = {

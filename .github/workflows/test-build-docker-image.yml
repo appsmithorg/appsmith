@@ -4,15 +4,6 @@ on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
-  pull_request_review:
-    types: [submitted]
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "app/server/**"
-      - "app/rts/**"
-      - "!app/client/cypress/manual_TestSuite/**"
-
   # trigger for pushes to release and master
   push:
     branches: [release, release-frozen, master]
@@ -122,7 +113,6 @@ jobs:
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             REACT_APP_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }} \
             REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
-            REACT_APP_IS_APPSMITH_CLOUD=${{ secrets.IS_APPSMITH_CLOUD }} \
             yarn build
           ls -l build
 
@@ -264,6 +254,7 @@ jobs:
 
       - name: Build
         run: |
+          echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           ./build.sh
           ls -l dist
 
@@ -523,15 +514,20 @@ jobs:
     runs-on: ubuntu-latest
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: github.ref == 'refs/heads/master' ||
-      ((github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository)) &&
-      github.ref == 'refs/heads/release')
-   #if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
-   
+    if: (success() && github.ref == 'refs/heads/master') ||
+      ( always() && 
+          (
+            github.event_name == 'workflow_dispatch' ||
+            github.event_name == 'push' ||
+            (
+                github.event_name == 'pull_request_review' &&
+                github.event.review.state == 'approved' &&
+                github.event.pull_request.head.repo.full_name == github.repository
+            )
+        ) &&
+        github.ref == 'refs/heads/release'
+      )
+
     steps:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch

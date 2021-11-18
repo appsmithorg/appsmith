@@ -25,6 +25,7 @@ import {
 } from "constants/messages";
 
 import * as Sentry from "@sentry/react";
+import { axiosConnectionAbortedCode } from "../api/ApiUtils";
 
 /**
  * making with error message with action name
@@ -70,6 +71,12 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
   if (!response) {
     throw Error("");
   }
+
+  // letting `apiFailureResponseInterceptor` handle it this case
+  if (response?.code === axiosConnectionAbortedCode) {
+    return false;
+  }
+
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
@@ -84,6 +91,13 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
     SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
   ) {
     throw new IncorrectBindingError(response.responseMeta.error.message);
+  }
+
+  if (response?.gitRequest) {
+    yield put({
+      type: ReduxActionErrorTypes.GIT_SYNC_ERROR,
+      payload: response.responseMeta.error,
+    });
   }
 
   yield put({

@@ -137,6 +137,7 @@ export const CONFIG = {
       step: 62,
       status: 75,
     },
+    columnOrder: ["step", "task", "status", "action"],
     blueprint: {
       operations: [
         {
@@ -167,6 +168,7 @@ export const CONFIG = {
     isVisibleFilters: true,
     isVisibleDownload: true,
     isVisiblePagination: true,
+    isSortable: true,
     delimiter: ",",
     version: 3,
   },
