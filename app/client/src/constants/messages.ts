@@ -598,9 +598,11 @@ export const NO_MERGE_CONFLICT = () =>
 export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
 export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
 export const GIT_UPSTREAM_CHANGES = () =>
-  "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
+  "Looks like there are pending upstream changes. We will pull the changes and push them to your repo.";
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the conflicts manually on your repository.";
+export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
+  "You have uncommitted changes. Please commit before pulling the remote changes";
 
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
@@ -623,7 +625,7 @@ export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
   "Conflicts found while pulling changes";
 export const NOT_LIVE_FOR_YOU_YET = () => "It's not live for you yet";
 export const COMING_SOON = () => "Coming Soon!";
-export const CONNECTING_TO_REPO_DISBLED = () =>
+export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 

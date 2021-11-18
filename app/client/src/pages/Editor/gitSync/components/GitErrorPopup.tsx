@@ -96,7 +96,7 @@ function GitErrorPopup() {
   const isPulingProgress = useSelector(getIsPullingProgress);
 
   const handlePull = () => {
-    dispatch(gitPullInit());
+    dispatch(gitPullInit({ triggeredFromBottomBar: true }));
   };
 
   return (
@@ -124,7 +124,6 @@ function GitErrorPopup() {
                   category={Category.tertiary}
                   className="t--commit-button"
                   href={gitMetaData?.remoteUrl}
-                  isLoading={isPulingProgress}
                   size={Size.medium}
                   tag="a"
                   target="_blank"

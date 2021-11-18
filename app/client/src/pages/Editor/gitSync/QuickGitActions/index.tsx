@@ -13,12 +13,13 @@ import {
   PUSH,
   PULL,
   MERGE,
+  CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
   CONNECT_GIT,
   CONFLICTS_FOUND,
   NO_COMMITS_TO_PULL,
   NOT_LIVE_FOR_YOU_YET,
   COMING_SOON,
-  CONNECTING_TO_REPO_DISBLED,
+  CONNECTING_TO_REPO_DISABLED,
   DURING_ONBOARDING_TOUR,
   createMessage,
 } from "constants/messages";
@@ -63,7 +64,6 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   }
   position: relative;
   overflow: visible;
-  z-index: 0; /* fix z-index on hover */
   .count {
     position: absolute;
     width: 18px;
@@ -121,10 +121,13 @@ function QuickActionButton({
 }
 
 const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
-  const { behindCount } = gitStatus || {};
+  const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
-  const disabled = behindCount === 0;
-  if (pullFailed) {
+  let disabled = behindCount === 0;
+  if (!isClean) {
+    disabled = true;
+    message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
+  } else if (pullFailed) {
     message = createMessage(CONFLICTS_FOUND);
   } else if (behindCount > 0) {
     message = createMessage(PULL);
@@ -218,7 +221,7 @@ function ConnectGitPlaceholder() {
     </>
   ) : (
     <>
-      <div>{createMessage(CONNECTING_TO_REPO_DISBLED)}</div>
+      <div>{createMessage(CONNECTING_TO_REPO_DISABLED)}</div>
       <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
     </>
   );

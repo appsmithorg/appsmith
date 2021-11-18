@@ -216,7 +216,6 @@ function Deploy() {
               category={Category.tertiary}
               className="t--commit-button"
               href={gitMetaData?.remoteUrl}
-              isLoading={isPulingProgress}
               size={Size.medium}
               tag="a"
               target="_blank"
