@@ -73,7 +73,6 @@ class StatboxWidget extends ContainerWidget {
             options: [
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
             ],
             isBindProperty: false,
             isTriggerProperty: false,

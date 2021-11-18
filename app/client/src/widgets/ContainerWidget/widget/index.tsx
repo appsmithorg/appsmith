@@ -96,7 +96,6 @@ class ContainerWidget extends BaseWidget<
             options: [
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
