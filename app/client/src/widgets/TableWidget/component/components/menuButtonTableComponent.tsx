@@ -1,6 +1,13 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Alignment, Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
+import {
+  Alignment,
+  Button,
+  Classes as CoreClasses,
+  Icon,
+  Menu,
+  MenuItem,
+} from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import {
@@ -21,6 +28,7 @@ import {
 } from "components/constants";
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
+import { Colors } from "constants/Colors";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
@@ -137,6 +145,9 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+  &.${CoreClasses.MENU_ITEM}.${CoreClasses.DISABLED} {
+    background-color: ${Colors.GREY_1} !important;
+  }
   ${({ backgroundColor, theme }) =>
     backgroundColor
       ? `
