@@ -8,7 +8,7 @@
     "submitButton":"//span[text()='Submit']",
     "closeButton":"//span[text()='Close']",
     "viewButton":"//span[text()='View']",
-    "dropdownChevronDown":".bp3-icon-chevron-down",
+    "dropdownChevronDown":".t--draggable-dropdownwidget",
     "selectInformationSchema":"//div[text()='information_schema']",
     "deleteButton":"//span[text()='Delete']",
     "confirmButton":"//span[text()='Confirm']",
