@@ -70,14 +70,11 @@
         {
           "label": "Spreadsheet URL",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "IN",
-            "value": [
-              "CREATE",
-              "LIST"
-            ]
+            "value": ["CREATE", "LIST"]
           },
           "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
           "initialValue": ""
@@ -96,9 +93,7 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",
-            "value": [
-              "CREATE"
-            ]
+            "value": ["CREATE"]
           },
           "initialValue": ""
         },
@@ -215,9 +210,7 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",
-            "value": [
-              "GET"
-            ]
+            "value": ["GET"]
           },
           "initialValue": "ROWS",
           "options": [
@@ -287,9 +280,7 @@
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
-                "value": [
-                  "GET"
-                ]
+                "value": ["GET"]
               },
               {
                 "conditionType": "AND",
@@ -325,9 +316,7 @@
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_IN",
-            "value": [
-              "DELETE_ROW"
-            ]
+            "value": ["DELETE_ROW"]
           },
           "initialValue": "0",
           "placeholderText": "0"
@@ -457,10 +446,7 @@
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
-                "value": [
-                  "APPEND",
-                  "UPDATE"
-                ]
+                "value": ["APPEND", "UPDATE"]
               },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
@@ -482,10 +468,7 @@
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
-                "value": [
-                  "APPEND",
-                  "UPDATE"
-                ]
+                "value": ["APPEND", "UPDATE"]
               },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
@@ -514,11 +497,7 @@
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
-                "value": [
-                  "CREATE",
-                  "BULK_APPEND",
-                  "BULK_UPDATE"
-                ]
+                "value": ["CREATE", "BULK_APPEND", "BULK_UPDATE"]
               },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
@@ -540,11 +519,7 @@
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "comparison": "NOT_IN",
-                "value": [
-                  "CREATE",
-                  "BULK_APPEND",
-                  "BULK_UPDATE"
-                ]
+                "value": ["CREATE", "BULK_APPEND", "BULK_UPDATE"]
               },
               {
                 "path": "actionConfiguration.pluginSpecifiedTemplates[13].value",
