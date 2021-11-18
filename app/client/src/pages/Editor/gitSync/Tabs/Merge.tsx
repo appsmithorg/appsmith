@@ -30,7 +30,6 @@ import {
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
 import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
 import ConflictInfo from "../components/ConflictInfo";
-import { log } from "loglevel";
 
 const Row = styled.div`
   display: flex;
@@ -130,7 +129,6 @@ export default function Merge() {
   }
 
   const isConflicting = status === MERGE_STATUS_STATE.MERGE_CONFLICT;
-  log(isConflicting);
 
   return (
     <>
