@@ -18,7 +18,7 @@ import {
   NO_COMMITS_TO_PULL,
   NOT_LIVE_FOR_YOU_YET,
   COMING_SOON,
-  CONNECTING_TO_REPO_DISBLED,
+  CONNECTING_TO_REPO_DISABLED,
   DURING_ONBOARDING_TOUR,
   createMessage,
 } from "constants/messages";
@@ -217,7 +217,7 @@ function ConnectGitPlaceholder() {
     </>
   ) : (
     <>
-      <div>{createMessage(CONNECTING_TO_REPO_DISBLED)}</div>
+      <div>{createMessage(CONNECTING_TO_REPO_DISABLED)}</div>
       <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
     </>
   );

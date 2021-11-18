@@ -623,7 +623,7 @@ export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
   "Conflicts found while pulling changes";
 export const NOT_LIVE_FOR_YOU_YET = () => "It's not live for you yet";
 export const COMING_SOON = () => "Coming Soon!";
-export const CONNECTING_TO_REPO_DISBLED = () =>
+export const CONNECTING_TO_REPO_DISABLED = () =>
   "Connecting to a git repo is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 
