@@ -829,6 +829,8 @@ public class ImportExportApplicationService {
                             .thenReturn(true);
                 })
                 .flatMap(ignored -> {
+                    // Don't update gitAuth as we are using @Encrypted for private key
+                    importedApplication.setGitApplicationMetadata(null);
                     // Map layoutOnLoadActions ids with relevant actions
                     return newPageService.findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
                             .flatMap(newPage -> {
