@@ -178,15 +178,21 @@ public class DataUtils {
         final String key = property.getKey();
         List<MultipartFormDataDTO> multipartFormDataDTOs = new ArrayList<>();
 
+
         if (String.valueOf(fileValue).startsWith("{")) {
+            // Check whether the JSON string is an object
             final MultipartFormDataDTO multipartFormDataDTO = objectMapper.readValue(String.valueOf(fileValue),
                     MultipartFormDataDTO.class);
             multipartFormDataDTOs.add(multipartFormDataDTO);
         } else if (String.valueOf(fileValue).startsWith("[")) {
+            // Check whether the JSON string is an array
             multipartFormDataDTOs = Arrays.asList(
                     objectMapper.readValue(
                             String.valueOf(fileValue),
                             MultipartFormDataDTO[].class));
+        } else {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    "Unable to parse content. Expected to receive an array or object of multipart data");
         }
 
         multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
