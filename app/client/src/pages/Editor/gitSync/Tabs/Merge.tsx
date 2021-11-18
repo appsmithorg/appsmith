@@ -28,7 +28,9 @@ import {
   // getPullFailed,
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
-import MergeStatus from "../components/MergeStatus";
+import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
+import ConflictInfo from "../components/ConflictInfo";
+import { log } from "loglevel";
 
 const Row = styled.div`
   display: flex;
@@ -118,6 +120,18 @@ export default function Merge() {
     isFetchingMergeStatus ||
     !isMergeAble;
 
+  let status = MERGE_STATUS_STATE.NONE;
+  if (isFetchingMergeStatus) {
+    status = MERGE_STATUS_STATE.FETCHING;
+  } else if (mergeStatus && mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.NO_CONFLICT;
+  } else if (mergeStatus && !mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.MERGE_CONFLICT;
+  }
+
+  const isConflicting = status === MERGE_STATUS_STATE.MERGE_CONFLICT;
+  log(isConflicting);
+
   return (
     <>
       <Title>{createMessage(MERGE_CHANGES)}</Title>
@@ -153,17 +167,19 @@ export default function Merge() {
           width={"220px"}
         />
       </Row>
-      <MergeStatus />
+      <MergeStatus status={status} />
       <Space size={10} />
-
-      <Button
-        disabled={mergeBtnDisabled}
-        onClick={mergeHandler}
-        size={Size.medium}
-        tag="button"
-        text={createMessage(MERGE_CHANGES)}
-        width="max-content"
-      />
+      <ConflictInfo isConflicting={isConflicting} />
+      {!isConflicting && (
+        <Button
+          disabled={mergeBtnDisabled}
+          onClick={mergeHandler}
+          size={Size.medium}
+          tag="button"
+          text={createMessage(MERGE_CHANGES)}
+          width="max-content"
+        />
+      )}
     </>
   );
 }

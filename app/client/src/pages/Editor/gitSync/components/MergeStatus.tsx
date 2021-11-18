@@ -9,11 +9,6 @@ import {
 import styled from "constants/DefaultTheme";
 import StatusLoader from "./StatusLoader";
 import { Space } from "./StyledComponents";
-import { useSelector } from "react-redux";
-import {
-  getIsFetchingMergeStatus,
-  getMergeStatus,
-} from "selectors/gitSyncSelectors";
 import Text, { TextType } from "components/ads/Text";
 import ErrorWarning from "remixicon-react/ErrorWarningLineIcon";
 import CheckLine from "remixicon-react/CheckLineIcon";
@@ -23,7 +18,7 @@ const Flex = styled.div`
   display: flex;
 `;
 
-const MERGE_STATUS_STATE = {
+export const MERGE_STATUS_STATE = {
   FETCHING: "FETCHING",
   NO_CONFLICT: "NO_CONFLICT",
   MERGE_CONFLICT: "MERGE_CONFLICT",
@@ -36,19 +31,7 @@ const Wrapper = styled.div`
   margin-top: ${(props) => `${props.theme.spaces[3]}px`};
 `;
 
-function MergeStatus() {
-  const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
-  const mergeStatus = useSelector(getMergeStatus);
-
-  let status = MERGE_STATUS_STATE.NONE;
-  if (isFetchingMergeStatus) {
-    status = MERGE_STATUS_STATE.FETCHING;
-  } else if (mergeStatus && mergeStatus?.isMergeAble) {
-    status = MERGE_STATUS_STATE.NO_CONFLICT;
-  } else if (mergeStatus && !mergeStatus?.isMergeAble) {
-    status = MERGE_STATUS_STATE.MERGE_CONFLICT;
-  }
-
+function MergeStatus({ status }: { status: string }) {
   switch (status) {
     case MERGE_STATUS_STATE.FETCHING:
       return (

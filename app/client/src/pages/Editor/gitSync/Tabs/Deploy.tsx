@@ -11,12 +11,10 @@ import {
   GIT_UPSTREAM_CHANGES,
   LEARN_MORE,
   PULL_CHANGES,
-  GIT_CONFLICTING_INFO,
-  OPEN_REPO,
 } from "constants/messages";
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
+import Button, { Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
 
 import {
@@ -52,6 +50,7 @@ import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import log from "loglevel";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
+import ConflictInfo from "../components/ConflictInfo";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -85,10 +84,6 @@ const StatusbarWrapper = styled.div`
   height: 38px;
 `;
 
-const OpenRepoButton = styled(Button)`
-  margin-right: ${(props) => props.theme.spaces[3]}px;
-`;
-
 const INITIAL_COMMIT = "Initial Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
@@ -98,7 +93,7 @@ function Deploy() {
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const gitStatus = useSelector(getGitStatus);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
-  const isPulingProgress = useSelector(getIsPullingProgress);
+  const isPullingProgress = useSelector(getIsPullingProgress);
   const isCommitAndPushSuccessful = useSelector(getIsCommitSuccessful);
   const hasChangesToCommit = !gitStatus?.isClean;
   const gitError = useSelector(getGitError);
@@ -194,7 +189,7 @@ function Deploy() {
         {pullRequired && !isConflicting && (
           <Button
             className="t--commit-button"
-            isLoading={isPulingProgress}
+            isLoading={isPullingProgress}
             onClick={handlePull}
             size={Size.medium}
             tag="button"
@@ -202,37 +197,7 @@ function Deploy() {
             width="max-content"
           />
         )}
-        {isConflicting && (
-          <InfoWrapper isError>
-            <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
-              {createMessage(GIT_CONFLICTING_INFO)}
-            </Text>
-            <Link link={DOCS_BASE_URL} text={createMessage(LEARN_MORE)} />
-          </InfoWrapper>
-        )}
-        {isConflicting && (
-          <Row>
-            <OpenRepoButton
-              category={Category.tertiary}
-              className="t--commit-button"
-              href={gitMetaData?.remoteUrl}
-              size={Size.medium}
-              tag="a"
-              target="_blank"
-              text={createMessage(OPEN_REPO)}
-              width="max-content"
-            />
-            <Button
-              className="t--commit-button"
-              isLoading={isPulingProgress}
-              onClick={handlePull}
-              size={Size.medium}
-              tag="button"
-              text={createMessage(PULL_CHANGES)}
-              width="max-content"
-            />
-          </Row>
-        )}
+        <ConflictInfo isConflicting={isConflicting} />
         {showCommitButton && (
           <Tooltip
             autoFocus={false}
