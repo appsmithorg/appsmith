@@ -28,7 +28,7 @@ const IndicatorWrapper = styled.div<{ direction: Direction }>`
 
 type Direction = "down" | "right" | "left";
 
-type Location = "RUN_QUERY";
+export type IndicatorLocation = "RUN_QUERY" | "NONE";
 
 type IndicatorProps = {
   children: JSX.Element;
@@ -36,13 +36,13 @@ type IndicatorProps = {
   step: number;
   position?: PopoverPosition;
   direction: Direction;
-  location?: Location;
+  location?: IndicatorLocation;
   targetTagName?: keyof JSX.IntrinsicElements;
   async?: boolean;
 };
 
 function Indicator(props: IndicatorProps): JSX.Element {
-  const dotRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const currentStep = useSelector(getCurrentStep);
   const indicatorLocation = useSelector(getIndicatorLocation);
@@ -50,44 +50,43 @@ function Indicator(props: IndicatorProps): JSX.Element {
     props.show &&
     guidedTourEnabled &&
     currentStep === props.step &&
-    props.location === indicatorLocation;
+    props.location === indicatorLocation &&
+    props.location !== "NONE";
+
+  let anim: AnimationItem | undefined;
+
+  const loadAnimation = () => {
+    anim = lottie.loadAnimation({
+      animationData: indicator,
+      autoplay: true,
+      container: indicatorRef?.current as HTMLDivElement,
+      renderer: "svg",
+      loop: true,
+    });
+  };
 
   useEffect(() => {
-    let anim: AnimationItem | undefined;
-
-    if (props.async) {
-      if (showIndicator) {
+    if (showIndicator) {
+      if (props.async) {
         setTimeout(() => {
-          anim = lottie.loadAnimation({
-            animationData: indicator,
-            autoplay: true,
-            container: dotRef?.current as HTMLDivElement,
-            renderer: "svg",
-            loop: true,
-          });
+          loadAnimation();
         }, 0);
-      }
-    } else {
-      if (showIndicator) {
-        anim = lottie.loadAnimation({
-          animationData: indicator,
-          autoplay: true,
-          container: dotRef?.current as HTMLDivElement,
-          renderer: "svg",
-          loop: true,
-        });
+      } else {
+        loadAnimation();
       }
     }
     return () => {
       anim?.destroy();
     };
-  }, [dotRef?.current, showIndicator, props.async]);
+  }, [indicatorRef?.current, showIndicator, props.async]);
 
   if (showIndicator)
     return (
       <Popover2
         autoFocus={false}
-        content={<IndicatorWrapper direction={props.direction} ref={dotRef} />}
+        content={
+          <IndicatorWrapper direction={props.direction} ref={indicatorRef} />
+        }
         enforceFocus={false}
         isOpen={props.show}
         minimal

@@ -1,8 +1,15 @@
+import {
+  markStepComplete,
+  setIndicatorLocation,
+  tableWidgetWasSelected,
+} from "actions/onboardingActions";
 import Button from "components/ads/Button";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { get, set } from "lodash";
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
+import lottie from "lottie-web";
+import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
   getCurrentStep,
   getGuidedTourDatasource,
@@ -15,6 +22,8 @@ import {
   isQueryLimitUpdated,
   isTableWidgetSelected,
   loading,
+  showSuccessMessage,
+  tableWidgetHasBinding,
 } from "selectors/onboardingSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
@@ -32,7 +41,7 @@ const ProgressBar = styled.div<{ done: boolean }>`
   background-color: #e8e8e8;
   background: linear-gradient(to left, #e8e8e8 50%, #f86a2b 50%) right;
   background-size: 200% 100%;
-  transition: 0.2s ease-out;
+  transition: 0.3s ease-out;
 
   ${(props) => props.done && `background-position: left`}
 `;
@@ -118,6 +127,15 @@ const Hint = styled.div`
   }
 `;
 
+const SuccessMessageWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  .lottie-wrapper {
+    height: 77px;
+    weight: 77px;
+  }
+`;
+
 function StatusBar(props: any) {
   return (
     <Wrapper>
@@ -136,6 +154,11 @@ type Step = {
   title: string;
   description?: string;
   hint: {
+    icon: IconName;
+    text: ReactNode;
+  };
+  successMessage?: string;
+  info?: {
     icon: IconName;
     text: ReactNode;
   };
@@ -179,6 +202,14 @@ const Steps: StepsType = {
           on the right pane
         </span>
       ),
+    },
+    successMessage:
+      "Great! The table widget is now connected with the customers data",
+    info: {
+      icon: "edit-box-line",
+      text: `You can witness the pane on right called Property Pane, 
+      which not only contains Table Data but many other properties 
+      for respective widgets.`,
     },
   },
 };
@@ -263,10 +294,7 @@ function replacePlaceholders(
 function useUpdateName(step: number): Step {
   const queryName = useSelector(getQueryName);
   const tableName = useSelector(getTableName);
-  // const stepFieldsMap: Record<number, string[]> = {
-  //   1: ["title"],
-  //   2: ["title"],
-  // };
+
   const substitutionMap = {
     "<query>": queryName,
     "<table>": tableName,
@@ -284,7 +312,7 @@ function useComputeCurrentStep() {
   const queryLimitUpdated = useSelector(isQueryLimitUpdated);
   const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
   const tableWidgetSelected = useSelector(isTableWidgetSelected);
-  step = 1;
+  const isTableWidgetBound = useSelector(tableWidgetHasBinding);
 
   if (step === 1) {
     if (queryExecutedSuccessfully) {
@@ -299,6 +327,8 @@ function useComputeCurrentStep() {
   }
 
   if (step === 3) {
+    if (isTableWidgetBound) {
+    }
   }
 
   useEffect(() => {
@@ -348,6 +378,19 @@ function useComputeCurrentStep() {
       });
     }
   }, [queryLimitUpdated, step]);
+
+  useEffect(() => {
+    if (tableWidgetSelected) {
+      dispatch(tableWidgetWasSelected(true));
+    }
+  }, [tableWidgetSelected]);
+
+  useEffect(() => {
+    if (isTableWidgetBound && step === 3) {
+      dispatch(setIndicatorLocation("NONE"));
+      dispatch(markStepComplete());
+    }
+  }, [isTableWidgetBound, step]);
 }
 
 function GuideStepsContent(props: { currentStep: number }) {
@@ -377,12 +420,56 @@ function GuideStepsContent(props: { currentStep: number }) {
   );
 }
 
+type CompletionContentProps = {
+  step: number;
+};
+
+function CompletionContent(props: CompletionContentProps) {
+  const tickMarkRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const anim = lottie.loadAnimation({
+      animationData: indicator,
+      autoplay: true,
+      container: tickMarkRef?.current as HTMLDivElement,
+      renderer: "svg",
+      loop: false,
+    });
+
+    return () => {
+      anim?.destroy();
+    };
+  }, [tickMarkRef?.current]);
+
+  return (
+    <SuccessMessageWrapper>
+      <div className="lottie-wrapper" ref={tickMarkRef} />
+      <Title>{Steps[props.step].successMessage}</Title>
+    </SuccessMessageWrapper>
+  );
+}
+
+type GuideBody = {
+  step: number;
+};
+
+function GuideBody(props: GuideBody) {
+  const exploring = useSelector(isExploring);
+  const successMessage = useSelector(showSuccessMessage);
+
+  if (exploring) {
+    return <InitialContent />;
+  } else if (successMessage) {
+    return <CompletionContent step={props.step} />;
+  } else {
+    return <GuideStepsContent currentStep={props.step} />;
+  }
+}
+
 type GuideProps = {
   className?: string;
 };
 // Guided tour steps
 function Guide(props: GuideProps) {
-  const exploring = useSelector(isExploring);
   useComputeCurrentStep();
   const step = useSelector(getCurrentStep);
 
@@ -391,11 +478,7 @@ function Guide(props: GuideProps) {
       <CardWrapper>
         <StatusBar currentStep={step} totalSteps={6} />
         <UpperContent>
-          {exploring ? (
-            <InitialContent />
-          ) : (
-            <GuideStepsContent currentStep={step} />
-          )}
+          <GuideBody step={step} />
         </UpperContent>
       </CardWrapper>
     </GuideWrapper>

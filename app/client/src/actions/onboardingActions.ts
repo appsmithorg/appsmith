@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { IndicatorLocation } from "pages/Editor/GuidedTour/Indicator";
 
 export const enableGuidedTour = (payload: boolean) => {
   return {
@@ -24,5 +25,25 @@ export const firstTimeUserOnboardingInit = (
       applicationId: applicationId,
       pageId: pageId,
     },
+  };
+};
+
+export const markStepComplete = () => {
+  return {
+    type: ReduxActionTypes.GUIDED_TOUR_MARK_STEP_COMPLETED,
+  };
+};
+
+export const setIndicatorLocation = (location: IndicatorLocation) => {
+  return {
+    type: ReduxActionTypes.SET_INDICATOR_LOCATION,
+    payload: location,
+  };
+};
+
+export const tableWidgetWasSelected = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.TABLE_WIDGET_WAS_SELECTED,
+    payload,
   };
 };

@@ -51,6 +51,8 @@ export const getGuidedTourQuery = (state: AppState) =>
   state.ui.onBoarding.queryId;
 export const getIndicatorLocation = (state: AppState) =>
   state.ui.onBoarding.indicatorLocation;
+export const wasTableWidgetSelected = (state: AppState) =>
+  state.ui.onBoarding.tableWidgetWasSelected;
 
 export const getQueryName = (state: AppState) => {
   const queryId = getGuidedTourQuery(state);
@@ -169,10 +171,30 @@ export const isQueryExecutionSuccessful = createSelector(
 export const isTableWidgetSelected = createSelector(
   getGuidedTourTableWidget,
   getSelectedWidget,
-  (tableWidgetId, selectedWidgetId) => {
-    return tableWidgetId === selectedWidgetId;
+  wasTableWidgetSelected,
+  (tableWidgetId, selectedWidgetId, tableWidgetWasSelected) => {
+    if (!tableWidgetWasSelected) {
+      return tableWidgetId === selectedWidgetId;
+    }
+
+    return true;
   },
 );
+
+export const tableWidgetHasBinding = createSelector(
+  getTableWidget,
+  getQueryName,
+  (tableWidget, queryName) => {
+    if (tableWidget && queryName) {
+      return tableWidget.tableData === `{{${queryName}.data}}`;
+    }
+
+    return false;
+  },
+);
+
+export const showSuccessMessage = (state: AppState) =>
+  state.ui.onBoarding.showSuccessMessage;
 
 export const loading = (state: AppState) => state.ui.onBoarding.loading;
 
