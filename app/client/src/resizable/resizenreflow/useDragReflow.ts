@@ -408,13 +408,33 @@ function getWidgetCollisionGraph(
     affectedWidgets,
   );
   const collidingWidgets = Object.values(collidingWidgetsMap);
+  collidingWidgets.sort(function(a, b) {
+    const accessorA = getAccessor(a.direction);
+    const accessorB = getAccessor(b.direction);
 
+    const distanceA = Math.abs(
+      widgetCollisionGraph[accessorA.direction] -
+        a[accessorA.oppositeDirection],
+    );
+    const distanceB = Math.abs(
+      widgetCollisionGraph[accessorB.direction] -
+        b[accessorB.oppositeDirection],
+    );
+    return distanceB - distanceA;
+  });
+  let childProcessedNodes: { [key: string]: boolean } = {
+    [widgetCollisionGraph.id]: true,
+  };
   while (collidingWidgets.length > 0) {
     const currentWidgetCollisionGraph = {
       ...collidingWidgets.shift(),
     } as WidgetCollisionGraph;
-
-    if (!currentWidgetCollisionGraph) break;
+    const currentProcessedNodes = {};
+    if (
+      !currentWidgetCollisionGraph ||
+      childProcessedNodes[currentWidgetCollisionGraph.id]
+    )
+      break;
     getWidgetCollisionGraph(
       possiblyAffectedWidgets,
       currentWidgetCollisionGraph,
@@ -423,12 +443,16 @@ function getWidgetCollisionGraph(
       dimensions,
       dimensionBeforeCollision,
       widgetParentSpaces,
-      processedNodes,
+      currentProcessedNodes,
       whiteSpaces +
         currentWidgetCollisionGraph[accessors.oppositeDirection] -
         widgetCollisionGraph[accessors.direction],
     );
-    processedNodes[currentWidgetCollisionGraph.id] = true;
+    childProcessedNodes = {
+      [currentWidgetCollisionGraph.id]: true,
+      ...childProcessedNodes,
+      ...currentProcessedNodes,
+    };
 
     if (widgetCollisionGraph.children)
       widgetCollisionGraph.children[currentWidgetCollisionGraph.id] = {
@@ -439,6 +463,8 @@ function getWidgetCollisionGraph(
         [currentWidgetCollisionGraph.id]: { ...currentWidgetCollisionGraph },
       };
   }
+  const childProcessedNodeKeys = Object.keys(childProcessedNodes);
+  for (const key of childProcessedNodeKeys) processedNodes[key] = true;
 }
 
 function getWidgetMovementMap(

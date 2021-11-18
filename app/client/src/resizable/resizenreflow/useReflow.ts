@@ -801,63 +801,7 @@ function getMovementMapInDirection(
   dimensions = { X: 0, Y: 0 },
   reflowedWidgets: reflowWidgets = {},
 ) {
-  let accessors;
-  switch (direction) {
-    case ResizeDirection.LEFT:
-      accessors = {
-        direction: widgetDimensions.left,
-        oppositeDirection: widgetDimensions.right,
-        perpendicularMax: widgetDimensions.bottom,
-        perpendicularMin: widgetDimensions.top,
-        parallelMax: widgetDimensions.right,
-        parallelMin: widgetDimensions.left,
-        mathComparator: MathComparators.max,
-        directionIndicator: -1,
-        isHorizontal: true,
-      };
-      break;
-    case ResizeDirection.RIGHT:
-      accessors = {
-        direction: widgetDimensions.right,
-        oppositeDirection: widgetDimensions.left,
-        perpendicularMax: widgetDimensions.bottom,
-        perpendicularMin: widgetDimensions.top,
-        parallelMax: widgetDimensions.right,
-        parallelMin: widgetDimensions.left,
-        mathComparator: MathComparators.min,
-        directionIndicator: 1,
-        isHorizontal: true,
-      };
-      break;
-    case ResizeDirection.TOP:
-      accessors = {
-        direction: widgetDimensions.top,
-        oppositeDirection: widgetDimensions.bottom,
-        perpendicularMax: widgetDimensions.right,
-        perpendicularMin: widgetDimensions.left,
-        parallelMax: widgetDimensions.bottom,
-        parallelMin: widgetDimensions.top,
-        mathComparator: MathComparators.max,
-        directionIndicator: -1,
-        isHorizontal: false,
-      };
-      break;
-    case ResizeDirection.BOTTOM:
-      accessors = {
-        direction: widgetDimensions.bottom,
-        oppositeDirection: widgetDimensions.top,
-        perpendicularMax: widgetDimensions.right,
-        perpendicularMin: widgetDimensions.left,
-        parallelMax: widgetDimensions.bottom,
-        parallelMin: widgetDimensions.top,
-        mathComparator: MathComparators.min,
-        directionIndicator: 1,
-        isHorizontal: false,
-      };
-      break;
-    default:
-      return;
-  }
+  const accessors = getAccessor(direction);
   const widgetCollisionGraph = getWidgetCollisionGraphInDirection(
     occupiedSpacesBySiblingWidgets,
     widgetPosition,
