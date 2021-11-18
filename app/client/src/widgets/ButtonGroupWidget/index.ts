@@ -3,6 +3,7 @@ import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { ButtonVariantTypes } from "components/constants";
+import { SnipablePropertyValueType } from "../BaseWidget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -97,6 +98,13 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+  },
+  sniping: {
+    widgetType: Widget.getWidgetType(),
+    isSnipable: false,
+    snipableProperty: "",
+    shouldSetPropertyInputToJsMode: false,
+    snipablePropertyValueType: SnipablePropertyValueType.NONE,
   },
 };
 
