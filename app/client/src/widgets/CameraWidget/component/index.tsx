@@ -129,10 +129,10 @@ const StyledButton = styled(Button)<ThemeProp & StyledButtonProps>`
     border-radius: 50%;
   `}
   border: ${({ variant }) =>
-    variant === ButtonVariantTypes.OUTLINE ? `1px solid white` : `none`};
+    variant === ButtonVariantTypes.SECONDARY ? `1px solid white` : `none`};
   background: ${({ theme, variant }) =>
-    variant === ButtonVariantTypes.SOLID
-      ? theme.colors.button.primary.solid.bgColor
+    variant === ButtonVariantTypes.PRIMARY
+      ? theme.colors.button.primary.primary.bgColor
       : `none`} !important;
 `;
 
@@ -291,7 +291,7 @@ function ControlPanel(props: ControlPanelProps) {
             icon={<Icon color="white" icon="full-circle" iconSize={20} />}
             onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_CAPTURE)}
             title="Take photo"
-            variant={ButtonVariantTypes.OUTLINE}
+            variant={ButtonVariantTypes.SECONDARY}
           />
         );
         break;
@@ -304,7 +304,7 @@ function ControlPanel(props: ControlPanelProps) {
               icon={<Icon color="white" icon="tick" iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_SAVE)}
               title="Save"
-              variant={ButtonVariantTypes.SOLID}
+              variant={ButtonVariantTypes.PRIMARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -313,7 +313,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.IMAGE_DISCARD,
               )}
               title="Discard"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -326,7 +326,7 @@ function ControlPanel(props: ControlPanelProps) {
             icon={<Icon color="white" icon="refresh" iconSize={20} />}
             onClick={handleControlClick(MediaCaptureActionTypes.IMAGE_REFRESH)}
             title="Refresh"
-            variant={ButtonVariantTypes.GHOST}
+            variant={ButtonVariantTypes.TERTIARY}
           />
         );
         break;
@@ -340,7 +340,7 @@ function ControlPanel(props: ControlPanelProps) {
               MediaCaptureActionTypes.RECORDING_START,
             )}
             title="Start recording"
-            variant={ButtonVariantTypes.OUTLINE}
+            variant={ButtonVariantTypes.SECONDARY}
           />
         );
         break;
@@ -354,7 +354,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_STOP,
               )}
               title="Stop recording"
-              variant={ButtonVariantTypes.OUTLINE}
+              variant={ButtonVariantTypes.SECONDARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -363,7 +363,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
               title="Discard"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -379,14 +379,14 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_SAVE,
               )}
               title="Save"
-              variant={ButtonVariantTypes.SOLID}
+              variant={ButtonVariantTypes.PRIMARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
               icon={<Icon color="white" icon="play" iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
               title="Play"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -395,7 +395,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
               title="Discard"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -411,14 +411,14 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_SAVE,
               )}
               title="Save"
-              variant={ButtonVariantTypes.SOLID}
+              variant={ButtonVariantTypes.PRIMARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
               icon={<Icon color="white" icon="pause" iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PAUSE)}
               title="Pause"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -427,7 +427,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
               title="Discard"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -443,14 +443,14 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_SAVE,
               )}
               title="Save"
-              variant={ButtonVariantTypes.SOLID}
+              variant={ButtonVariantTypes.PRIMARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
               icon={<Icon color="white" icon="play" iconSize={20} />}
               onClick={handleControlClick(MediaCaptureActionTypes.VIDEO_PLAY)}
               title="Play"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -459,7 +459,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.RECORDING_DISCARD,
               )}
               title="Discard"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -475,7 +475,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
               )}
               title="Play"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -484,7 +484,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.VIDEO_REFRESH,
               )}
               title="Refresh"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -500,7 +500,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.VIDEO_PAUSE_AFTER_SAVE,
               )}
               title="Pause"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -509,7 +509,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.VIDEO_REFRESH,
               )}
               title="Refresh"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -525,7 +525,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.VIDEO_PLAY_AFTER_SAVE,
               )}
               title="Play"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
             <StyledButton
               borderRadius={ButtonBorderRadiusTypes.CIRCLE}
@@ -534,7 +534,7 @@ function ControlPanel(props: ControlPanelProps) {
                 MediaCaptureActionTypes.VIDEO_REFRESH,
               )}
               title="Refresh"
-              variant={ButtonVariantTypes.GHOST}
+              variant={ButtonVariantTypes.TERTIARY}
             />
           </>
         );
@@ -552,7 +552,7 @@ function ControlPanel(props: ControlPanelProps) {
         icon={<Icon color="white" icon={<FullscreenIcon />} iconSize={20} />}
         onClick={handleControlClick(MediaCaptureActionTypes.ENTER_FULLSCREEN)}
         title="Enter fullscreen"
-        variant={ButtonVariantTypes.GHOST}
+        variant={ButtonVariantTypes.TERTIARY}
       />
     );
   };
