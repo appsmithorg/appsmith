@@ -374,6 +374,7 @@ jobs:
           ls -l
           ls -l scripts/
           ls -l dist/
+          # Run the server in the background and redirect logs to a log file
           ./scripts/start-dev-server.sh &> server-logs.log &
 
       - name: Wait for 30s and check if server is running
@@ -482,7 +483,7 @@ jobs:
           path: app/client/cypress/screenshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
-      - name: Upload server build bundle
+      - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v2
         if: failure()
         with:
