@@ -17,12 +17,9 @@
 * Widget Reference
 
 
-
 ## I Overview of Appsmith Documentation
 
 This guide shows writers how to contribute to Appsmith’s documentation. This style guide acts as a road map that is aimed to produce well-written and accessible documentation.
-
-
 
 
 ## II Overall Tone of Documentation
@@ -57,6 +54,7 @@ In the spirit of keeping the documentation accessible. We’ll avoid using words
   
 These phrases also act as a short-cut and writers use them to avoid writing a clearer description of the task at hand.
 
+
 ## V Make Documentation Scannable
 
 Appsmith’s documentation is scannable. Avoid word blocks whenever possible. The user should be able to obtain the information they need as quickly as possible.
@@ -68,6 +66,7 @@ Write short headings, short sentences, and short paragraphs that are easy to rea
 1. Use short, simple words.
 2. Get to the point.
 3. Then stop
+
 
 ## VI Different Types of Documentation
 
@@ -103,8 +102,6 @@ Shows users how to build a solution to their specific problem with Appsmith. If 
 | **Goal**  | Engage/Transform | In-depth explanation of internals and API |
 | **Level** | Intermediate     |       |
 | **Tone**  | To the point     |       |
-
-
 
 
 ### Getting Started Guide
