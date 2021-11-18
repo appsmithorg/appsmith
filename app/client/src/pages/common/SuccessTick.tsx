@@ -1,9 +1,15 @@
+import { ReactComponent as CheckmarkSvg } from "assets/svg/checkmark.svg";
 import styled from "styled-components";
+import React from "react";
 
-export const CheckmarkWrapper = styled.div`
-  height: 80px;
-  width: 80px;
+const CheckmarkWrapper = styled.div<{ $height: string; $width: string }>`
+  height: ${(props) => props.$height};
+  width: ${(props) => props.$width};
   margin-bottom: ${(props) => props.theme.spaces[15]}px;
+  .checkmark .checkmark__circle .checkmark__check {
+    animation-delay: 2s;
+  }
+
   .checkmark .checkmark__circle {
     stroke-dasharray: 166;
     stroke-dashoffset: 166;
@@ -15,8 +21,8 @@ export const CheckmarkWrapper = styled.div`
   }
 
   .checkmark {
-    width: 80px;
-    height: 80px;
+    width: ${(props) => props.$height};
+    height: ${(props) => props.$width};
     border-radius: 50%;
     display: block;
     stroke-width: 2;
@@ -55,3 +61,13 @@ export const CheckmarkWrapper = styled.div`
     }
   }
 `;
+
+function SuccessTick(props: { height: string; width: string }) {
+  return (
+    <CheckmarkWrapper $height={props.height} $width={props.width}>
+      <CheckmarkSvg />
+    </CheckmarkWrapper>
+  );
+}
+
+export default SuccessTick;

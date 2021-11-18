@@ -707,7 +707,6 @@ export function calculateNewWidgetPosition(
  */
 function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
-  if (!copiedWidgetGroups.length) return;
   const shouldGroup: boolean = action.payload.groupWidgets;
 
   const newlyCreatedWidgetIds: string[] = [];
@@ -753,8 +752,12 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
     pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
 
-  // to avoid invoking old copied widgets
-  if (!Array.isArray(copiedWidgetGroups)) return;
+  if (
+    // to avoid invoking old way of copied widgets implementaion
+    !Array.isArray(copiedWidgetGroups) ||
+    !copiedWidgetGroups.length
+  )
+    return;
 
   const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
     copiedWidgetGroups,

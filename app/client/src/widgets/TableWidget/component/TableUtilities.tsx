@@ -23,7 +23,7 @@ import {
   TableStyles,
   MenuItems,
 } from "./Constants";
-import { isString, isEmpty, findIndex } from "lodash";
+import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
@@ -168,7 +168,7 @@ export const renderCell = (
         >
           {value && columnType === ColumnTypes.URL && cellProperties.displayText
             ? cellProperties.displayText
-            : !!value
+            : !isNil(value) && !isNaN(value)
             ? value.toString()
             : ""}
         </AutoToolTipComponent>
@@ -187,6 +187,7 @@ interface RenderIconButtonProps {
   boxShadowColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
+  disabled: boolean;
 }
 export const renderIconButton = (
   props: RenderIconButtonProps,
@@ -211,6 +212,7 @@ export const renderIconButton = (
             boxShadowColor={props.boxShadowColor}
             buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
+            disabled={props.disabled}
             iconName={props.iconName}
             isSelected={props.isSelected}
             key={index}
@@ -231,6 +233,7 @@ function IconButton(props: {
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
+  disabled: boolean;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -257,6 +260,7 @@ function IconButton(props: {
         boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
+        disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
         onClick={handleClick}
@@ -573,8 +577,10 @@ export function TableHeaderCell(props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
+  editMode?: boolean;
+  isSortable?: boolean;
 }) {
-  const { column } = props;
+  const { column, editMode, isSortable } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -585,12 +591,13 @@ export function TableHeaderCell(props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
+  const disableSort = editMode === false && isSortable === false;
 
   return (
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
-      onClick={handleSortColumn}
+      onClick={!disableSort && props ? handleSortColumn : undefined}
     >
       <DraggableHeaderWrapper
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
