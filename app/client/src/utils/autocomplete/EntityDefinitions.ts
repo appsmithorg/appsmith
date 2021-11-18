@@ -398,6 +398,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/camera",
     image: "string",
     video: "blob",
+    videoURL: "string",
   },
 };
 

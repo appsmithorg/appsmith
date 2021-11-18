@@ -89,7 +89,9 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
+    return {
+      videoURL: `{{ URL.createObjectURL(this.video) }}`,
+    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
@@ -99,6 +101,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       image: undefined,
+      video: undefined,
     };
   }
 
