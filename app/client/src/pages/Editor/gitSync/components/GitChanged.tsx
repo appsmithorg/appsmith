@@ -55,25 +55,25 @@ function GitStatus(props: GitSyncProps) {
   switch (type) {
     case Kind.widget:
       message = `${status?.modifiedPages || 0} page${
-        (status?.modifiedPages || 0) > 1 ? "s" : ""
+        (status?.modifiedPages || 0) === 1 ? "" : "s"
       } updated`;
       iconName = "widget";
       break;
     case Kind.query:
       message = `${status?.modifiedQueries || 0} ${
-        (status?.modifiedQueries || 0) > 1 ? "queries" : "query"
+        (status?.modifiedQueries || 0) === 1 ? "query" : "queries"
       } modified`;
       iconName = "query";
       break;
     case Kind.commit:
       message = `${status?.aheadCount || 0} commit${
-        (status?.aheadCount || 0) > 1 ? "s" : ""
+        (status?.aheadCount || 0) === 1 ? "" : "s"
       } to push`;
       iconName = "git-commit";
       break;
     case Kind.pullRequest:
       message = `${status?.behindCount || 0} pull request${
-        (status?.behindCount || 0) > 1 ? "s" : ""
+        (status?.behindCount || 0) === 1 ? "" : "s"
       } pending`;
       iconName = "git-pull-request";
       break;

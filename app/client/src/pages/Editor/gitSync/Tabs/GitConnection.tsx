@@ -53,7 +53,6 @@ import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import DeployedKeyUI from "../components/DeployedKeyUI";
 import GitSyncError from "../components/GitSyncError";
-import log from "loglevel";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -334,12 +333,14 @@ function GitConnection({ isImport }: Props) {
 
   useEffect(() => {
     if (gitError?.message && scrollWrapperRef.current) {
-      const top = scrollWrapperRef.current.scrollHeight;
-      scrollWrapperRef.current?.scrollTo({ top: top, behavior: "smooth" });
+      const top = scrollWrapperRef.current?.scrollHeight || 0;
+      scrollWrapperRef.current?.scrollTo({
+        top: top + 200,
+        behavior: "smooth",
+      });
     }
   }, [gitError]);
 
-  log.log(gitError);
   return (
     <Container ref={scrollWrapperRef}>
       <Section>
@@ -377,20 +378,17 @@ function GitConnection({ isImport }: Props) {
         ) : null}
 
         {!SSHKeyPair ? (
-          remoteUrl && (
-            <ButtonContainer topMargin={10}>
-              <Button
-                category={Category.primary}
-                className="t--submit-repo-url-button"
-                disabled={!remoteUrl || isInvalidRemoteUrl}
-                isLoading={generatingSSHKey || fetchingSSHKeyPair}
-                onClick={() => generateSSHKey()}
-                size={Size.large}
-                tag="button"
-                text={createMessage(GENERATE_KEY)}
-              />
-            </ButtonContainer>
-          )
+          <ButtonContainer topMargin={10}>
+            <Button
+              category={Category.primary}
+              className="t--submit-repo-url-button"
+              isLoading={generatingSSHKey || fetchingSSHKeyPair}
+              onClick={() => generateSSHKey()}
+              size={Size.large}
+              tag="button"
+              text={createMessage(GENERATE_KEY)}
+            />
+          </ButtonContainer>
         ) : (
           <DeployedKeyUI
             SSHKeyPair={SSHKeyPair}
