@@ -340,7 +340,7 @@ public class GitExecutorImpl implements GitExecutor {
                     mergeStatus.setMergeAble(false);
                     List<String> mergeConflictFiles = new ArrayList<>();
                     if(!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
-                        mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                        mergeConflictFiles.addAll(mergeResult.getConflicts().keySet());
                     }
                     mergeStatus.setConflictingFiles(mergeConflictFiles);
                 }

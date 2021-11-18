@@ -220,7 +220,7 @@ public class GitServiceImpl implements GitService {
         StringBuilder result = new StringBuilder();
 
         if (commitMessage == null || commitMessage.isEmpty()) {
-            commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW);
+            commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW.getReason());
         }
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
@@ -713,7 +713,7 @@ public class GitServiceImpl implements GitService {
                         // new branch from uncommitted branch
                         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                         GitCommitDTO commitDTO = new GitCommitDTO();
-                        commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.BRANCH_CREATED + gitData.getBranchName());
+                        commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.BRANCH_CREATED.getReason() + gitData.getBranchName());
                         commitDTO.setDoPush(true);
                         return commitApplication(commitDTO, gitData.getDefaultApplicationId(), gitData.getBranchName())
                                 .thenReturn(application);
@@ -854,7 +854,7 @@ public class GitServiceImpl implements GitService {
                                 Mono.just(defaultApplication.getGitApplicationMetadata())
                         );
                     } else {
-                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplication.getId(), MANAGE_APPLICATIONS)
                                 .flatMap(application1 -> Mono.zip(
                                         Mono.just(application1),
                                         importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
@@ -869,7 +869,7 @@ public class GitServiceImpl implements GitService {
                     GitApplicationMetadata gitApplicationMetadata = tuple.getT3();
 
                     Path repoSuffix = Paths.get(branchedApplication.getOrganizationId(),
-                            applicationId,
+                            gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
 
                     // 1. Dehydrate application from db and save to repo after the branch checkout
@@ -913,7 +913,7 @@ public class GitServiceImpl implements GitService {
                                         return Mono.just(mergeStatus);
                                         //return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " pull", error.getMessage()));
                                     } else {
-                                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage());
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
                                     }
                                 })
                                 .flatMap(pullStatus1 ->
@@ -1076,8 +1076,8 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
 
                     //1. Hydrate from db to file system for both branch Applications
-                    Mono<Path> pathToFile = getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, sourceBranch, repoPath)
-                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, destinationBranch, repoPath));
+                    Mono<Path> pathToFile = getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, repoPath)
+                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, destinationBranch, repoPath));
 
                     return Mono.zip(
                             Mono.just(application),
@@ -1141,8 +1141,8 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
 
                     //1. Hydrate from db to file system for both branch Applications
-                    return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, sourceBranch, repoPath)
-                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, destinationBranch, repoPath))
+                    return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, repoPath)
+                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, destinationBranch, repoPath))
                             .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge status", error.getMessage())));
                 })
                 .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch));
@@ -1191,12 +1191,12 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
-    private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String sourceBranch, String destinationBranch, Path repoPath) {
-        return applicationService.findByBranchNameAndDefaultApplicationId(destinationBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+    private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String branchName, Path repoPath) {
+        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
                 .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
                 .flatMap(applicationJson -> {
                     try {
-                        return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, sourceBranch);
+                        return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName);
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, e.getMessage()));
                     }
