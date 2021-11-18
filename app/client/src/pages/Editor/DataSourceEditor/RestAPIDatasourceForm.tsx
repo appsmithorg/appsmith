@@ -373,7 +373,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           messages.map((msg, i) => (
             <Callout fill key={i} text={msg} variant={Variant.warning} />
           ))}
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("url")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="url"
@@ -382,14 +382,14 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="https://example.com"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("headers")}>
           <KeyValueInputControl
             {...COMMON_INPUT_PROPS}
             configProperty="headers"
             label="Headers"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("isSendSessionEnabled")}>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
             configProperty="isSendSessionEnabled"
@@ -411,7 +411,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           />
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
-          <FormInputContainer>
+          <FormInputContainer data-replay-id={btoa("sessionSignatureKey")}>
             <InputTextControl
               {...COMMON_INPUT_PROPS}
               configProperty="sessionSignatureKey"
@@ -420,7 +420,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             />
           </FormInputContainer>
         )}
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authType")}>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
             configProperty="authType"
@@ -482,7 +482,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { authentication } = this.props.formData;
     return (
       <>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.label")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.label"
@@ -490,7 +490,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="api_key"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.value")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.value"
@@ -499,7 +499,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="value"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.addTo")}>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.addTo"
@@ -519,7 +519,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           />
         </FormInputContainer>
         {_.get(authentication, "addTo") == "header" && (
-          <FormInputContainer>
+          <FormInputContainer
+            data-replay-id={btoa("authentication.headerPrefix")}
+          >
             <InputTextControl
               {...COMMON_INPUT_PROPS}
               configProperty="authentication.headerPrefix"
@@ -534,7 +536,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderBearerToken = () => {
     return (
-      <FormInputContainer>
+      <FormInputContainer data-replay-id={btoa("authentication.bearerToken")}>
         <InputTextControl
           {...COMMON_INPUT_PROPS}
           configProperty="authentication.bearerToken"
@@ -549,7 +551,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderBasic = () => {
     return (
       <>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.username")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.username"
@@ -557,7 +559,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="Username"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.password")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.password"
@@ -586,7 +588,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     return (
       <>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.grantType")}>
           <DropDownControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.grantType"
@@ -614,7 +616,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { formData } = this.props;
     return (
       <>
-        <FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isTokenHeader")}
+        >
           <DropDownControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.isTokenHeader"
@@ -632,7 +636,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           />
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
-          <FormInputContainer>
+          <FormInputContainer
+            data-replay-id={btoa("authentication.headerPrefix")}
+          >
             <InputTextControl
               {...COMMON_INPUT_PROPS}
               configProperty="authentication.headerPrefix"
@@ -641,7 +647,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             />
           </FormInputContainer>
         )}
-        <FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.accessTokenUrl")}
+        >
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.accessTokenUrl"
@@ -649,7 +657,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="https://example.com/login/oauth/access_token"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.clientId")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.clientId"
@@ -657,7 +665,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="Client ID"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.clientSecret")}
+        >
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.clientSecret"
@@ -667,7 +677,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="Client Secret"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.scopeString")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.scopeString"
@@ -682,7 +692,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   renderOauth2CommonAdvanced = () => {
     return (
       <>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.audience")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.audience"
@@ -690,7 +700,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             placeholderText="https://example.com/oauth/audience"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer data-replay-id={btoa("authentication.resource")}>
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.resource"
@@ -723,7 +733,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <>
         {this.renderOauth2Common()}
-        <FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.authorizationUrl")}
+        >
           <InputTextControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.authorizationUrl"
@@ -743,14 +755,18 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             <CopyToClipBoard copyText={redirectURL} />
           </div>
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.customAuthenticationParameters")}
+        >
           <KeyValueInputControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.customAuthenticationParameters"
             label="Custom Authentication Parameters"
           />
         </FormInputContainer>
-        <FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isAuthorizationHeader")}
+        >
           <DropDownControl
             {...COMMON_INPUT_PROPS}
             configProperty="authentication.isAuthorizationHeader"

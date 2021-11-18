@@ -366,6 +366,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper
         $isLoading={props.isLoading}
+        className="ur--has-border"
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}

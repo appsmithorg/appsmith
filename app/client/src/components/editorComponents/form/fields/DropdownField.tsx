@@ -23,7 +23,7 @@ interface DropdownFieldProps {
 function DropdownField(props: DropdownFieldProps & Partial<DropdownProps>) {
   return (
     <Field
-      className={props.className}
+      className={props.className + " ur--has-border"}
       component={BaseDropdown}
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
