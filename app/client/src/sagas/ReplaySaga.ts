@@ -180,7 +180,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     const pathname = history.location.pathname;
     const { id, type } = getEntityInCurrentPath(pathname);
     const entityId = type === "page" ? "canvas" : id;
-    const workerResponse: any = yield call(
+    const workerResponse = yield call(
       workerComputeUndoRedo,
       action.payload.operation,
       entityId,
@@ -243,6 +243,9 @@ export function* replayPreProcess(
   return { ...res, kind, modifiedProperty };
 }
 
+/*
+  Figure out the field config of the last modified field in datasource forms
+*/
 function* getDatasourceFieldConfig(
   replayEntity: any,
   modifiedProperty: string,
@@ -255,20 +258,24 @@ function* getDatasourceFieldConfig(
   return { fieldInfo };
 }
 
+/*
+  Figure out the tab in which the last modified field is present and the 
+  field config of the last modified field.
+*/
 function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
   let currentTab = "";
   let fieldInfo = {};
   if (isAPIAction(replayEntity)) {
-    if (modifiedProperty.indexOf("headers") > -1)
+    if (modifiedProperty.includes("headers"))
       currentTab = API_EDITOR_TABS.HEADERS;
-    else if (modifiedProperty.indexOf("queryParameters") > -1)
+    else if (modifiedProperty.includes("queryParameters"))
       currentTab = API_EDITOR_TABS.PARAMS;
-    else if (modifiedProperty.indexOf("body") > -1)
+    else if (modifiedProperty.includes("body"))
       currentTab = API_EDITOR_TABS.BODY;
     else if (
-      modifiedProperty.indexOf("pagination") ||
-      modifiedProperty.indexOf("next") ||
-      modifiedProperty.indexOf("previous") > -1
+      modifiedProperty.includes("pagination") ||
+      modifiedProperty.includes("next") ||
+      modifiedProperty.includes("previous")
     )
       currentTab = API_EDITOR_TABS.PAGINATION;
     if (!currentTab) {
