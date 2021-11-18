@@ -123,7 +123,7 @@ function WidgetSidebar(props: IPanelProps) {
           <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
         </Info>
       </Header>
-      <MainWrapper ref={sidebarRef}>
+      <MainWrapper className="t--widget-sidebar" ref={sidebarRef}>
         <CardsWrapper>
           {filteredCards.map((card) => (
             <WidgetCard details={card} key={card.key} />
