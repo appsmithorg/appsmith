@@ -185,9 +185,6 @@ export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
 
 export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
   try {
-    yield put({
-      type: ReduxActionTypes.SAVING_ORG_INFO,
-    });
     const request: SaveOrgRequest = action.payload;
     const response: ApiResponse = yield call(OrgApi.saveOrg, request);
     const isValidResponse = yield validateResponse(response);
@@ -200,6 +197,30 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_ORG_ERROR,
+      payload: {
+        error: error.message,
+      },
+    });
+  }
+}
+
+export function* deleteOrgSaga(action: ReduxAction<string>) {
+  try {
+    yield put({
+      type: ReduxActionTypes.SAVING_ORG_INFO,
+    });
+    const orgId: string = action.payload;
+    const response: ApiResponse = yield call(OrgApi.deleteOrg, orgId);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_ORG_SUCCESS,
+        payload: orgId,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_ORG_ERROR,
       payload: {
         error: error.message,
       },
@@ -309,6 +330,7 @@ export default function* orgSagas() {
       ReduxActionTypes.CHANGE_ORG_USER_ROLE_INIT,
       changeOrgUserRoleSaga,
     ),
+    takeLatest(ReduxActionTypes.DELETE_ORG_INIT, deleteOrgSaga),
     takeLatest(ReduxActionTypes.UPLOAD_ORG_LOGO, uploadOrgLogoSaga),
     takeLatest(ReduxActionTypes.REMOVE_ORG_LOGO, deleteOrgLogoSaga),
   ]);
