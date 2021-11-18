@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { clamp } from "lodash-es";
 import swap from "lodash-move";
-import { useDrag, useGesture } from "react-use-gesture";
-import { useSprings, animated, interpolate, useSpring } from "react-spring";
+import { useDrag } from "react-use-gesture";
+import { useSprings, animated, interpolate } from "react-spring";
 import styled from "styled-components";
-import { debounce, get, throttle } from "lodash";
+import { debounce, get } from "lodash";
 
 interface SpringStyleProps {
   down: boolean;
@@ -36,8 +36,9 @@ const dragIdleSpringStyles = (
 ) => (index: number) => {
   // picked/dragged item style
   if (down && index === originalIndex) {
+    const displacement = curIndex * itemHeight + y;
     return {
-      y: curIndex * itemHeight + y,
+      y: displacement,
       scale: 1,
       zIndex: "1",
       shadow: 15,
@@ -94,38 +95,66 @@ function DraggableList(props: any) {
   const bind: any = useDrag<any>((props: any) => {
     const originalIndex = props.args[0];
     const curIndex = order.current.indexOf(originalIndex);
+    let displacement = props.movement[1];
+    if (listRef && listRef.current) {
+      const listcoordinates = listRef?.current.getBoundingClientRect();
+      const container = listRef.current;
+      if (listcoordinates) {
+        if (props.dragging) {
+          if (props.xy[1] < listcoordinates.y + itemHeight / 2) {
+            //stop container scrolling when container reaches top
+            if (container.scrollTop > 0) {
+              container.scrollTop -= itemHeight / 10;
+            }
+            displacement = container.scrollTop - curIndex * itemHeight;
+          } else if (
+            props.xy[1] >=
+            listcoordinates.y + container.clientHeight - itemHeight / 2
+          ) {
+            //stop container scrolling when container reaches bottom
+            if (
+              container.scrollTop <
+              container.scrollHeight - container.clientHeight
+            ) {
+              container.scrollTop += itemHeight / 10;
+            }
+            displacement =
+              container.clientHeight +
+              container.scrollTop +
+              curIndex * itemHeight;
+          }
+        } else {
+          /*calculated actual displacemenet of dragged element based on positive/negative 
+          movement and container scroll position with respect to inital position of 
+          dragged elemet */
+          if (props.movement[1] > 0) {
+            displacement = container.scrollTop + curIndex * itemHeight;
+          } else {
+            displacement = container.scrollTop - curIndex * itemHeight;
+          }
+        }
+      }
+      // eslint-disable-next-line no-console
+      console.log({
+        y: props.movement[1],
+        displacement: displacement,
+        clientHeight: container.clientHeight,
+        scrollHeight: container.scrollHeight,
+        scrollTop: container.scrollTop,
+      });
+    }
     const curRow = clamp(
-      Math.round((curIndex * itemHeight + props.movement[1]) / itemHeight),
+      Math.round((curIndex * itemHeight + displacement) / itemHeight),
       0,
       items.length - 1,
     );
     const newOrder = swap(order.current, curIndex, curRow);
-    if (listRef && listRef.current) {
-      const listcoordinates = listRef?.current.getBoundingClientRect();
-      if (
-        listcoordinates &&
-        props.xy[1] < listcoordinates.y + 20 &&
-        listRef.current.scrollTop > 0 &&
-        props.dragging
-      ) {
-        listRef.current.scrollTop -= 2;
-      } else if (
-        listcoordinates &&
-        props.xy[1] >= listcoordinates.y + listRef.current.clientHeight - 20 &&
-        listRef.current.scrollTop <
-          listRef.current.scrollHeight - listRef.current.clientHeight &&
-        props.dragging
-      ) {
-        listRef.current.scrollTop += 2;
-      }
-    }
-
     setSprings(
       dragIdleSpringStyles(newOrder, {
         down: props.down,
         originalIndex,
         curIndex,
-        y: props.movement[1],
+        y: displacement,
         itemHeight,
       }),
     );
@@ -162,7 +191,6 @@ function DraggableList(props: any) {
           <animated.div
             {...bind(i)}
             data-rbd-draggable-id={items[i].id}
-            id={"dragElement" + i}
             key={i}
             style={{
               zIndex,
