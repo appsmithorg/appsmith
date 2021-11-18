@@ -30,6 +30,9 @@ import { ReactComponent as CameraMutedIcon } from "assets/icons/widget/camera/ca
 import { ReactComponent as MicrophoneIcon } from "assets/icons/widget/camera/microphone.svg";
 import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camera/microphone-muted.svg";
 import { ReactComponent as FullscreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
+import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import { getCurrentApplicationLayout } from "selectors/editorSelectors";
+import { useSelector } from "store";
 
 export interface CameraContainerProps {
   scaleAxis: "x" | "y";
@@ -62,13 +65,25 @@ const CameraContainer = styled.div<CameraContainerProps>`
 const VideoPlayer = styled.video``;
 
 const ControlPanelContainer = styled.div`
+  width: 100%;
+`;
+
+export interface ControlPanelOverlayerProps {
+  appLayoutType?: SupportedLayouts;
+}
+
+const ControlPanelOverlayer = styled.div<ControlPanelOverlayerProps>`
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  padding: 1%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 1%;
+
+  flex-direction: ${({ appLayoutType }) =>
+    appLayoutType === "MOBILE" ? `column` : `row`};
 `;
 
 const MediaInputsContainer = styled.div`
@@ -128,6 +143,7 @@ export interface ControlPanelProps {
   videoMuted: boolean;
   videoInputs: MediaDeviceInfo[];
   status: MediaCaptureStatus;
+  appLayoutType?: SupportedLayouts;
   onCaptureImage: () => void;
   onError: (errorMessage: string) => void;
   onFullscreenEnter: () => Promise<void>;
@@ -144,6 +160,7 @@ export interface ControlPanelProps {
 
 function ControlPanel(props: ControlPanelProps) {
   const {
+    appLayoutType,
     audioInputs,
     audioMuted,
     onCaptureImage,
@@ -542,11 +559,13 @@ function ControlPanel(props: ControlPanelProps) {
 
   return (
     <ControlPanelContainer>
-      <MediaInputsContainer>
-        {renderMediaDeviceSelectors()}
-      </MediaInputsContainer>
-      <MainControlContainer>{renderControls()}</MainControlContainer>
-      <FullscreenContainer>{renderFullscreenControl()}</FullscreenContainer>
+      <ControlPanelOverlayer appLayoutType={appLayoutType}>
+        <MediaInputsContainer>
+          {renderMediaDeviceSelectors()}
+        </MediaInputsContainer>
+        <MainControlContainer>{renderControls()}</MainControlContainer>
+        <FullscreenContainer>{renderFullscreenControl()}</FullscreenContainer>
+      </ControlPanelOverlayer>
     </ControlPanelContainer>
   );
 }
@@ -766,6 +785,8 @@ function CameraComponent(props: CameraComponentProps) {
     setIsVideoPlayerReady(possibleStates.includes(mediaCaptureStatus));
   }, [mediaCaptureStatus]);
 
+  const appLayout = useSelector(getCurrentApplicationLayout);
+
   const handleDeviceInputs = useCallback(
     (mediaInputs: MediaDeviceInfo[]) => {
       setAudioInputs(mediaInputs.filter(({ kind }) => kind === "audioinput"));
@@ -948,6 +969,7 @@ function CameraComponent(props: CameraComponentProps) {
         {isVideoPlayerReady && <VideoPlayer ref={videoElementRef} />}
 
         <ControlPanel
+          appLayoutType={appLayout?.type}
           audioInputs={audioInputs}
           audioMuted={isAudioMuted}
           mode={mode}
