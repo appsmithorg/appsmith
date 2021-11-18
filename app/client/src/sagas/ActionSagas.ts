@@ -650,7 +650,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
-  const { actionId, propertyName, value } = action.payload;
+  const { actionId, propertyName, skipSave, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
 
@@ -697,7 +697,7 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
     });
     return;
   }
-  yield put(updateAction({ id: actionId }));
+  if (!skipSave) yield put(updateAction({ id: actionId }));
 }
 
 function* toggleActionExecuteOnLoadSaga(

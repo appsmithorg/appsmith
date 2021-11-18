@@ -1,5 +1,12 @@
 import ReplayCanvas from "./ReplayEntity/ReplayCanvas";
-import { TOASTS, FOCUSES, UPDATES, WIDGETS } from "./replayUtils";
+import ReplayEditor from "./ReplayEntity/ReplayEditor";
+import {
+  TOASTS,
+  FOCUSES,
+  UPDATES,
+  WIDGETS,
+  findFieldInfo,
+} from "./replayUtils";
 
 describe("check canvas diff from replayUtils for type of update", () => {
   const canvasReplay = new ReplayCanvas({
@@ -202,6 +209,32 @@ describe("check canvas diff from replayUtils for type of update", () => {
         conf: fieldConfig,
         parentSection,
       });
+    });
+  });
+  describe("Checks process diff method for editor replays", () => {
+    it("should contain modified property, kind and the update attrubutes", () => {
+      const action = {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+        encodeParamsToggle: true,
+      };
+      const diff = {
+        kind: "E",
+        path: ["encodeParamsToggle"],
+        lhs: true,
+        rhs: false,
+      };
+      const replayEditor = new ReplayEditor(action);
+      const replay = {};
+      replayEditor.processDiff(diff, replay, false);
+
+      expect(replay.updates).toStrictEqual([
+        {
+          kind: "E",
+          modifiedProperty: "encodeParamsToggle",
+          update: false,
+        },
+      ]);
     });
   });
 });

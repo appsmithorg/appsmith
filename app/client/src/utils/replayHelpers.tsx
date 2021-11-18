@@ -131,16 +131,19 @@ export function shouldDisallowToast(shouldUndo: boolean): boolean {
   return true;
 }
 
-export function highlightReplayElement(configProperty: string) {
-  const replayId = btoa(configProperty);
-  const element = document.querySelector(
-    `[data-replay-id="${replayId}"]`,
-  ) as HTMLElement;
-
-  if (element) {
-    element.scrollIntoView({ behavior: "smooth" });
-    flashElement(element);
+export function highlightReplayElement(configProperties: Array<string> = []) {
+  const elements = configProperties
+    .map((configProperty: string) => {
+      const replayId = btoa(configProperty);
+      return document.querySelector(
+        `[data-replay-id="${replayId}"]`,
+      ) as HTMLElement;
+    })
+    .filter((el) => Boolean(el));
+  if (elements.length === 1) {
+    elements[0].scrollIntoView({ behavior: "smooth" });
   }
+  elements.forEach((element) => flashElement(element));
 }
 
 export function* switchTab(replayId: string) {

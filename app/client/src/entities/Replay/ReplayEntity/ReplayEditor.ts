@@ -4,7 +4,15 @@ import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
 import { JSAction } from "entities/JSCollection";
 import { Datasource } from "entities/Datasource";
-export default class ReplayAction<
+
+export type ReplayEditorUpdate<T> = {
+  modifiedProperty: string;
+  index?: number;
+  update: T | Diff<T, T>;
+  kind: "N" | "D" | "E" | "A";
+  isUndo?: boolean;
+};
+export default class ReplayEditor<
   T extends Action | JSAction | Datasource
 > extends ReplayEntity<T> {
   constructor(entity: T) {
@@ -13,12 +21,12 @@ export default class ReplayAction<
 
   public processDiff(diff: Diff<T, T>, replay: any, isUndo: boolean): void {
     if (!diff || !diff.path || !diff.path.length) return;
-    replay.updates = (replay.update || []).concat(
+    replay.updates = (replay.updates || []).concat(
       this.getChanges(diff, isUndo),
     );
   }
 
-  public getChanges(diff: Diff<T, T>, isUndo: boolean) {
+  public getChanges(diff: Diff<T, T>, isUndo: boolean): ReplayEditorUpdate<T> {
     const { kind, path } = diff;
     if (diff.kind === "N") {
       return {

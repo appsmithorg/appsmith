@@ -79,7 +79,10 @@ function* changeQuerySaga(
 
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane
-  yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
+  if (!actionPayload.payload.action)
+    yield put(
+      initFormEvaluations(currentEditorConfig, currentSettingConfig, id),
+    );
 
   // If config exists
   if (currentEditorConfig) {
