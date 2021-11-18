@@ -12,7 +12,7 @@ export type ReplayEditorUpdate<T> = {
   kind: "N" | "D" | "E" | "A";
   isUndo?: boolean;
 };
-export default class ReplayAction<
+export default class ReplayEditor<
   T extends Action | JSAction | Datasource
 > extends ReplayEntity<T> {
   constructor(entity: T) {
