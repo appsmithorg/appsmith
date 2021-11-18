@@ -419,7 +419,7 @@ const TextInput = forwardRef(
           props.helperText.length > 0 &&
           HelperMessage}
         {ErrorMessage}
-        <RightSideContainer ref={setRightSideRef}>
+        <RightSideContainer className="right-icon" ref={setRightSideRef}>
           {props.rightSideComponent}
         </RightSideContainer>
       </InputWrapper>
