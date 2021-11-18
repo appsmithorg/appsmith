@@ -90,6 +90,7 @@ describe("Switch Group Widget Functionality", function() {
   it("Property: onSelectionChange", function() {
     // create an alert modal and verify its name
     cy.createModal(this.data.ModalName);
+    cy.closePropertyPane();
     cy.PublishtheApp();
     cy.get(`${publish.switchGroupWidget} label.bp3-switch`)
       .children()
