@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
+import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -872,16 +873,30 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
 
+                    Mono<Path> saveAppToRepoWhenClean = this.getStatus(gitApplicationMetadata.getDefaultApplicationId(), branchName)
+                            .flatMap(status -> {
+                                if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
+                                    return Mono.error(
+                                            new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                    "pull",
+                                                    "There are uncommitted changes present in your local. Please commit them first and then try git pull"));
+                                }
+                                try {
+                                    return fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName);
+                                } catch (IOException e) {
+                                    log.error("Error while saving git files to repo {}. Details: {}", repoSuffix, e);
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                                } catch (GitAPIException e) {
+                                    log.error("Error while git checkout to repo {}. Details: {}", repoSuffix, e);
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", e.getMessage()));
+                                }
+                            });
                     // 1. Dehydrate application from db and save to repo after the branch checkout
-                    try {
-                        return Mono.zip(
-                                fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName),
-                                Mono.just(branchedApplication),
-                                Mono.just(gitApplicationMetadata.getGitAuth()),
-                                Mono.just(repoSuffix));
-                    } catch (IOException | GitAPIException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "file", e.getMessage()));
-                    }
+                    return Mono.zip(
+                            saveAppToRepoWhenClean,
+                            Mono.just(branchedApplication),
+                            Mono.just(gitApplicationMetadata.getGitAuth()),
+                            Mono.just(repoSuffix));
                 })
                 .flatMap(tuple -> {
                     Path repoPath = tuple.getT1();
@@ -1014,7 +1029,7 @@ public class GitServiceImpl implements GitService {
      * @param branchName for which the status is required
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
-    public Mono<Map<String, Object>> getStatus(String defaultApplicationId, String branchName) {
+    public Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName) {
 
         /*
             1. Copy resources from DB to local repo
