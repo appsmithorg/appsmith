@@ -54,7 +54,7 @@ function GitStatus(props: GitSyncProps) {
     iconName: IconName;
   switch (type) {
     case Kind.widget:
-      message = `${status?.modifiedPages || 0} widget${
+      message = `${status?.modifiedPages || 0} page${
         (status?.modifiedPages || 0) > 1 ? "s" : ""
       } updated`;
       iconName = "widget";
