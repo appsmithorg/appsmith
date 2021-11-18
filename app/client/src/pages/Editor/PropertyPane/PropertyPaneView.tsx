@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { IPanelProps } from "@blueprintjs/core";
+import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
 import PropertyControlsGenerator from "./Generator";
@@ -64,11 +64,13 @@ function PropertyPaneView(
    */
   const actions = useMemo((): Array<{
     tooltipContent: any;
+    tooltipPosition: Position;
     icon: ReactElement;
   }> => {
     return [
       {
         tooltipContent: "Copy Widget",
+        tooltipPosition: "bottom-right",
         icon: (
           <button
             className="p-1 hover:bg-warmGray-100 group t--copy-widget"
@@ -80,6 +82,7 @@ function PropertyPaneView(
       },
       {
         tooltipContent: "Delete Widget",
+        tooltipPosition: "bottom-right",
         icon: (
           <button
             className="p-1 hover:bg-warmGray-100 group t--delete-widget"

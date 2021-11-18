@@ -100,7 +100,7 @@ export function MainContainerLayoutControl() {
               content={layoutOption.name}
               key={layoutOption.name}
               position={
-                index === AppsmithLayouts.length - 1 ? "left" : "bottom"
+                index === AppsmithLayouts.length - 1 ? "bottom-right" : "bottom"
               }
             >
               <button

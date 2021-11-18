@@ -12,6 +12,7 @@ import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
+import { Position } from "@blueprintjs/core";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { AppState } from "reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
@@ -33,6 +34,7 @@ type PropertyPaneTitleProps = {
   actions: Array<{
     tooltipContent: any;
     icon: ReactElement;
+    tooltipPosition?: Position;
   }>;
 };
 
@@ -105,7 +107,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         </button>
       )}
       {/* EDITABLE TEXT */}
-      <div className="flex-grow">
+      <div className="flex-grow" style={{ maxWidth: `calc(100% - 52px)` }}>
         <EditableText
           className="flex-grow text-lg font-semibold t--propery-page-title"
           defaultValue={name}
@@ -129,6 +131,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
             content={value.tooltipContent}
             hoverOpenDelay={200}
             key={index}
+            position={value.tooltipPosition}
           >
             {value.icon}
           </TooltipComponent>
