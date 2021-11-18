@@ -94,7 +94,7 @@ describe("Switch Group Widget Functionality", function() {
     cy.get(publish.switchGroupWidget + " " + "label.bp3-switch")
       .children()
       .first()
-      .click();
+      .click({ force: true });
     cy.get(modalWidgetPage.modelTextField).should(
       "have.text",
       this.data.ModalName,
