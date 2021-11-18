@@ -10,6 +10,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import Indicator from "../GuidedTour/Indicator";
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -40,12 +41,23 @@ export const generatePropertyControl = (
       );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
-        <PropertyControl
-          key={config.id + props.id}
-          {...(config as PropertyPaneControlConfig)}
-          panel={props.panel}
-          theme={props.theme}
-        />
+        <Indicator
+          async
+          direction="down"
+          position={"top"}
+          show={
+            (config as PropertyPaneControlConfig).propertyName === "tableData"
+          }
+          step={3}
+          targetTagName="div"
+        >
+          <PropertyControl
+            key={config.id + props.id}
+            {...(config as PropertyPaneControlConfig)}
+            panel={props.panel}
+            theme={props.theme}
+          />
+        </Indicator>
       );
     }
     throw Error("Unknown configuration provided: " + props.type);
