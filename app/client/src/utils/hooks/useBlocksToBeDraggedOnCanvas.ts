@@ -165,7 +165,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
     (each) => !selectedWidgets.includes(each.id),
   );
   const { updateDropTargetRows } = useContext(DropTargetContext);
-
+  const stopReflowing = () => {
+    dispatch(stopReflow());
+  };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
     reflowedPositionsUpdatesWidgets: OccupiedSpace[],
@@ -220,7 +222,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
       dispatchDrop(draggedBlocksToUpdate);
     }
     if (reflowedPositionsUpdatesWidgets.length) {
-      dispatch(stopReflow());
+      stopReflowing();
     }
   };
 
@@ -362,6 +364,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     parentDiff,
     relativeStartPoints,
     rowRef,
+    stopReflowing,
     updateRows,
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,
