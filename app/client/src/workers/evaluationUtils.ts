@@ -338,6 +338,7 @@ export function validateWidgetProperty(
   config: ValidationConfig,
   value: unknown,
   props: Record<string, unknown>,
+  propertyPath: string,
 ) {
   if (!config) {
     return {
@@ -345,7 +346,7 @@ export function validateWidgetProperty(
       parsed: value,
     };
   }
-  return validate(config, value, props);
+  return validate(config, value, props, propertyPath);
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -362,6 +363,7 @@ export function getValidatedTree(tree: DataTree) {
         validation,
         value,
         entity,
+        property,
       );
       _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
@@ -451,7 +453,12 @@ export function getSafeToRenderDataTree(
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed } = validateWidgetProperty(validation, value, entity);
+      const { parsed } = validateWidgetProperty(
+        validation,
+        value,
+        entity,
+        property,
+      );
       _.set(safeToRenderEntity, property, parsed);
     });
     // Set derived values to undefined or else they would go as bindings

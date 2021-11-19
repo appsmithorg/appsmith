@@ -15,53 +15,168 @@ import {
 import {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
+  FieldEventProps,
+  FieldType,
   INPUT_FIELD_TYPE,
   INPUT_TYPES,
 } from "../constants";
 import useEvents from "./useEvents";
 
-type InputComponentProps = FieldComponentBaseProps & {
-  allowCurrencyChange?: boolean;
-  currencyCountryCode?: string;
-  decimalsInCurrency?: number;
-  errorMessage?: string;
-  iconAlign?: Omit<Alignment, "center">;
-  iconName?: IconName;
-  maxChars?: number;
-  maxNum?: number;
-  minNum?: number;
-  noOfDecimals?: number;
-  onEnterKeyPress?: string;
-  onTextChanged?: string;
-  phoneNumberCountryCode?: string;
-  placeholderText?: string;
-  regex?: string;
-  validation: boolean;
-  isSpellCheck: boolean;
-};
+type InputComponentProps = FieldComponentBaseProps &
+  FieldEventProps & {
+    allowCurrencyChange?: boolean;
+    currencyCountryCode?: string;
+    decimalsInCurrency?: number;
+    errorMessage?: string;
+    iconAlign?: Omit<Alignment, "center">;
+    iconName?: IconName;
+    maxChars?: number;
+    maxNum?: number;
+    minNum?: number;
+    noOfDecimals?: number;
+    onEnterKeyPress?: string;
+    onTextChanged?: string;
+    phoneNumberCountryCode?: string;
+    placeholderText?: string;
+    regex?: string;
+    validation?: boolean;
+    isSpellCheck: boolean;
+  };
 
 type InputFieldProps = BaseFieldComponentProps<InputComponentProps>;
 
 const COMPONENT_DEFAULT_VALUES: InputComponentProps = {
   isDisabled: false,
   label: "",
-  validation: false,
   isVisible: true,
   isSpellCheck: false,
 };
 
+const EMAIL_REGEX = new RegExp(
+  /^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/,
+);
+
+const parseRegex = (regex?: string) => {
+  if (regex) {
+    /*
+     * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
+     *
+     *  Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
+     */
+    const regexParts = regex.match(/(\/?)(.+)\\1([a-z]*)/i);
+
+    if (!regexParts) {
+      return new RegExp(regex);
+    }
+
+    /*
+      * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
+      /*
+      if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
+        parsedRegex = RegExp(this.regex);
+      }
+      /*
+      * if we have a regex flags, use it to form regexp
+      */
+    return new RegExp(regexParts[2], regexParts[3]);
+  }
+
+  return null;
+};
+
+function isValid(value: string, schemaItem: InputFieldProps["schemaItem"]) {
+  const { fieldType, isRequired, regex, validation } = schemaItem;
+  // If the validation expression fails return invalid
+  if (typeof validation === "boolean" && !validation) {
+    return false;
+  }
+
+  const parsedRegex = parseRegex(regex);
+
+  if (
+    fieldType === FieldType.EMAIL ||
+    fieldType === FieldType.CURRENCY ||
+    fieldType === FieldType.PHONE_NUMBER
+  ) {
+    if (isRequired && !value) return false;
+    if (!isRequired && !value) return true;
+
+    if (fieldType === FieldType.EMAIL) {
+      return EMAIL_REGEX.test(value);
+    }
+
+    if (
+      fieldType === FieldType.CURRENCY ||
+      fieldType === FieldType.PHONE_NUMBER
+    ) {
+      const cleanValue = value.split(",").join("");
+      if (parsedRegex) {
+        return parsedRegex.test(cleanValue);
+      }
+    }
+  }
+
+  if (fieldType === FieldType.NUMBER) {
+    const isValidNumber = Number.isFinite(parseFloat(value));
+    if (isRequired && !isValidNumber) return false;
+    if (!isRequired && (value === "" || value === undefined)) return true;
+
+    if (parsedRegex) {
+      return parsedRegex.test(value);
+    }
+
+    return isValidNumber;
+  }
+
+  if (parsedRegex) {
+    return parsedRegex.test(value);
+  }
+
+  return true;
+}
+
+function parseValue(
+  schemaItem: InputFieldProps["schemaItem"],
+  value?: string | number,
+) {
+  if (
+    value !== undefined &&
+    typeof value === "string" &&
+    schemaItem.fieldType === FieldType.NUMBER &&
+    isValid(value, schemaItem)
+  ) {
+    if (value === "") return undefined;
+    return parseFloat(value);
+  }
+
+  return value;
+}
+
 function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
+  const {
+    onBlur: onBlurDynamicString,
+    onFocus: onFocusDynamicString,
+  } = schemaItem;
+
   const { executeAction, renderMode, updateWidgetProperty } = useContext(
     FormContext,
   );
+
   const [metaCurrencyCountryCode, setMetaCurrencyCountryCode] = useState<
     string | undefined
   >();
+
   const [metaPhoneNumberCountryCode, setMetaPhoneNumberCountryCode] = useState<
     string | undefined
   >();
+
   const [isFocused, setIsFocused] = useState(false);
-  const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>();
+  const { inputRef, registerFieldOnBlurHandler } = useEvents<
+    HTMLInputElement | HTMLTextAreaElement
+  >({
+    onBlurDynamicString,
+    onFocusDynamicString,
+  });
 
   const inputType =
     INPUT_FIELD_TYPE[schemaItem.fieldType as typeof INPUT_TYPES[number]];
@@ -107,13 +222,14 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
   };
 
   const onTextChangeHandler = (
-    value: any,
+    value: number | string,
     onChangeHandler: (...event: any[]) => void,
     triggerPropertyName = "onTextChange",
   ) => {
     const { onTextChanged } = schemaItem;
+    const parsedValue = parseValue(schemaItem, value);
 
-    onChangeHandler(value);
+    onChangeHandler(parsedValue);
 
     if (onTextChanged && executeAction) {
       executeAction({
@@ -125,8 +241,6 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
       });
     }
   };
-  // eslint-disable-next-line
-  console.log("SCHEMA ITEM", { schemaItem, name });
 
   const selectedCurrencyCountryCode =
     metaCurrencyCountryCode || schemaItem.currencyCountryCode;
@@ -152,19 +266,21 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
         const conditionalProps = (() => {
           const {
             defaultValue,
-            errorMessage: errorMsg,
+            errorMessage,
             isRequired,
             maxChars,
-            validation,
           } = schemaItem;
 
-          let errorMessage = errorMsg;
-          // TODO: Fix this
-          let isInvalid = typeof validation === "boolean" && !validation; // valid property in property pane
+          const isInvalid = !isValid(value, schemaItem); // valid property in property pane
+          const props = {
+            errorMessage,
+            isInvalid,
+            maxChars: undefined as number | undefined,
+          };
 
-          if (isRequired && isTouched && !value) {
-            isInvalid = true;
-            errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+          if (isRequired && isTouched && isInvalid) {
+            props.isInvalid = true;
+            props.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
           }
 
           if (
@@ -173,16 +289,17 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             defaultValue &&
             defaultValue?.toString()?.length > maxChars
           ) {
-            isInvalid = true;
-            errorMessage = createMessage(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR);
+            props.isInvalid = true;
+            props.errorMessage = createMessage(
+              INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+            );
+            props.maxChars = maxChars;
           }
 
-          return {
-            errorMessage,
-            maxChars,
-            isInvalid,
-          };
+          return props;
         })();
+
+        registerFieldOnBlurHandler(onBlur);
 
         return (
           <InputComponent
@@ -204,7 +321,6 @@ function InputField({ name, propertyPath, schemaItem }: InputFieldProps) {
             maxNum={schemaItem.maxNum}
             minNum={schemaItem.minNum}
             multiline={false}
-            onBlurHandler={onBlur}
             onCurrencyTypeChange={onCurrencyTypeChange}
             onFocusChange={setIsFocused}
             onISDCodeChange={onISDCodeChange}

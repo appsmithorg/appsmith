@@ -877,6 +877,7 @@ export default class DataTreeEvaluator {
       validation,
       valueToValidate,
       widget,
+      propertyPath,
     );
 
     const evaluatedValue = isValid

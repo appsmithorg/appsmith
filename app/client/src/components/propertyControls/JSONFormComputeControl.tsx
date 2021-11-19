@@ -135,7 +135,7 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       theme,
       widgetProperties,
     } = this.props;
-    debugger;
+
     const { parsed: sourceData } = sourceDataValidationFn(
       widgetProperties.sourceData,
       widgetProperties,

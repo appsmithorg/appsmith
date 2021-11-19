@@ -52,9 +52,14 @@ function Field({
       {hideLabel ? (
         controller
       ) : (
-        <FieldLabel label={label} labelStyles={labelStyles} tooltip={tooltip}>
+        <>
+          <FieldLabel
+            label={label}
+            labelStyles={labelStyles}
+            tooltip={tooltip}
+          />
           {controller}
-        </FieldLabel>
+        </>
       )}
     </StyledWrapper>
   );

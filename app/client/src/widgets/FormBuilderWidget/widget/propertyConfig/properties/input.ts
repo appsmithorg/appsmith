@@ -1,10 +1,89 @@
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { CurrencyDropdownOptions } from "widgets/InputWidget/component/CurrencyCodeDropdown";
-import { defaultValueValidation } from "widgets/InputWidget/widget";
-import { getSchemaItem, HiddenFnParams } from "../helper";
 import { FieldType, INPUT_TYPES } from "widgets/FormBuilderWidget/constants";
+import { FormBuilderWidgetProps } from "../..";
+import { getSchemaItem, HiddenFnParams } from "../helper";
 import { ISDCodeDropdownOptions } from "widgets/InputWidget/component/ISDCodeDropdown";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
+
+function defaultValueValidation(
+  value: any,
+  props: FormBuilderWidgetProps,
+  lodash: any,
+  _: any,
+  propertyPath: string,
+): ValidationResponse {
+  const propertyPathChunks = propertyPath.split(".");
+  const parentPath = propertyPathChunks.slice(0, -1).join(".");
+  const schemaItem = lodash.get(props, parentPath);
+  const { fieldType } = schemaItem;
+
+  // Cannot use FieldType typing check as this whole method is passed as string and executed on worker, so it results
+  // any methods/variable (closure) usage as reference error.
+  // CAUTION! - make sure the correct fieldType is used here as string.
+  if (
+    fieldType === "Number" ||
+    fieldType === "Currency" ||
+    fieldType === "Phone Number"
+  ) {
+    const parsed = Number(value);
+
+    if (typeof value === "string") {
+      if (value.trim() === "") {
+        return {
+          isValid: true,
+          parsed: undefined,
+          messages: [""],
+        };
+      }
+
+      if (!Number.isFinite(parsed)) {
+        return {
+          isValid: false,
+          parsed: undefined,
+          messages: ["This value must be a number"],
+        };
+      }
+    }
+
+    return {
+      isValid: true,
+      parsed,
+      messages: [""],
+    };
+  }
+
+  if (lodash.isObject(value)) {
+    return {
+      isValid: false,
+      parsed: JSON.stringify(value, null, 2),
+      messages: ["This value must be string"],
+    };
+  }
+
+  let parsed = value;
+  const isValid = lodash.isString(parsed);
+  if (!isValid) {
+    try {
+      parsed = lodash.toString(parsed);
+    } catch (e) {
+      return {
+        isValid: false,
+        parsed: "",
+        messages: ["This value must be string"],
+      };
+    }
+  }
+
+  return {
+    isValid,
+    parsed: parsed,
+    messages: [""],
+  };
+}
 
 const PROPERTIES = {
   general: [

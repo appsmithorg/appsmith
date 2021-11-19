@@ -437,15 +437,6 @@ class InputComponent extends React.Component<
     }
   };
 
-  onBlur = (
-    event:
-      | React.FocusEvent<HTMLInputElement>
-      | React.FocusEvent<HTMLTextAreaElement>,
-  ) => {
-    this.setFocusState(false);
-    this.props?.onBlurHandler?.(event);
-  };
-
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon(
       this.props.inputType,
@@ -473,7 +464,7 @@ class InputComponent extends React.Component<
         minorStepSize={
           minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
         }
-        onBlur={this.onBlur}
+        onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
         onValueChange={this.onNumberChange}
@@ -492,7 +483,7 @@ class InputComponent extends React.Component<
       inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
       intent={this.props.intent}
       maxLength={this.props.maxChars}
-      onBlur={this.onBlur}
+      onBlur={() => this.setFocusState(false)}
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
@@ -518,7 +509,7 @@ class InputComponent extends React.Component<
             : undefined
         }
         maxLength={this.props.maxChars}
-        onBlur={this.onBlur}
+        onBlur={() => this.setFocusState(false)}
         onChange={this.onTextChange}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
@@ -669,12 +660,9 @@ export interface InputComponentProps extends ComponentProps {
   showError: boolean;
   onFocusChange: (state: boolean) => void;
   disableNewLineOnPressEnterKey?: boolean;
-  // For FormBuilderWidget - starts
   inputRef?: MutableRefObject<
     HTMLTextAreaElement | HTMLInputElement | null | undefined
   >;
-  onBlurHandler?: React.FocusEventHandler;
-  // For FormBuilderWidget - ends
   name?: string;
   onKeyDown?: (
     e:
