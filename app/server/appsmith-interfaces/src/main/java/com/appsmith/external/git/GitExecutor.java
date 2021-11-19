@@ -105,7 +105,6 @@ public interface GitExecutor {
      * @return List of branches for the application
      */
     Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix,
-                                              ListBranchCommand.ListMode listMode,
                                               String remoteUrl,
                                               String privateKey,
                                               String publicKey,

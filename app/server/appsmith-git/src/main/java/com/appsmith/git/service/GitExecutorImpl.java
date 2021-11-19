@@ -365,7 +365,6 @@ public class GitExecutorImpl implements GitExecutor {
 
     @Override
     public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix,
-                                                     ListBranchCommand.ListMode listMode,
                                                      String remoteUrl,
                                                      String privateKey,
                                                      String publicKey,
@@ -375,27 +374,23 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
-            List<Ref> refList;
-            if (listMode == null) {
-                // Only show local branches
-                refList = git.branchList().call();
-            } else {
-                // Show remote/all the branches depending upon the listMode
-                refList = git.branchList().setListMode(listMode).call();
-            }
-            List<GitBranchListDTO> branchList = new ArrayList<>();
+            List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+            String defaultBranch = null;
 
+            // Show remote/all the branches depending upon the listMode
+            if (Boolean.TRUE.equals(isRemoteDefaultBranchNeeded)) {
+                // Get default branch name from the remote
+                defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
+            }
+
+            List<GitBranchListDTO> branchList = new ArrayList<>();
+            GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
             if(refList.isEmpty()) {
-                GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
                 gitBranchListDTO.setBranchName(git.getRepository().getBranch());
                 gitBranchListDTO.setDefault(true);
                 branchList.add(gitBranchListDTO);
             } else {
-                // Get default branch name from the remote
-                String defaultBranch = null;
-                GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
                 if (Boolean.TRUE.equals(isRemoteDefaultBranchNeeded)) {
-                    defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
                     gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
                     gitBranchListDTO.setDefault(true);
                     branchList.add(gitBranchListDTO);
