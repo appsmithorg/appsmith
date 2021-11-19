@@ -11,6 +11,7 @@ import {
 import {
   EvaluationReduxAction,
   ReduxAction,
+  ReduxActionType,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
@@ -46,7 +47,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import { JSCollection, JSAction } from "entities/JSCollection";
+import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
@@ -77,6 +78,8 @@ import { diff } from "deep-diff";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { EvaluationVersion } from "api/ApplicationApi";
+import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -107,6 +110,7 @@ function* evaluateTreeSaga(
     dependencies,
     errors,
     evaluationOrder,
+    jsUpdates,
     logs,
     unEvalUpdates,
   } = workerResponse;
@@ -126,12 +130,13 @@ function* evaluateTreeSaga(
   );
 
   const updatedDataTree = yield select(getDataTree);
-
+  log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
   const appMode = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
+    yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
       unevalTree,
@@ -247,24 +252,6 @@ export function* clearEvalPropertyCache(propertyPath: string) {
   });
 }
 
-export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const path = jsAction.name + ".body";
-  const workerResponse = yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
-    {
-      body,
-      jsAction,
-    },
-  );
-  const { evalTree, result } = workerResponse;
-  const dataTree = yield select(getDataTree);
-  const updates = diff(dataTree, evalTree) || [];
-  yield put(setEvaluatedTree(evalTree, updates));
-  yield call(evalErrorHandler, [], evalTree, [path]);
-  return result;
-}
-
 export function* executeFunction(collectionName: string, action: JSAction) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
   const dynamicTrigger = collectionName + "." + action.name + "()";
@@ -355,6 +342,7 @@ function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(worker.shutdown);
   yield call(worker.start);
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions);
@@ -407,7 +395,7 @@ export function* evaluateSnippetSaga(action: any) {
       //Result is when trigger is present. Following code will hide the evaluated snippet section
       yield put(setEvaluatedSnippet(result));
     } else {
-      /* 
+      /*
         JSON.stringify(undefined) is undefined.
         We need to set it manually to "undefined" for codeEditor to display it.
       */
@@ -488,6 +476,16 @@ export function* evaluateArgumentSaga(action: any) {
     log.error(e);
     Sentry.captureException(e);
   }
+}
+
+export function* setAppVersionOnWorkerSaga(action: {
+  type: ReduxActionType;
+  payload: EvaluationVersion;
+}) {
+  const version: EvaluationVersion = action.payload;
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
+    version,
+  });
 }
 
 export default function* evaluationSagaListeners() {

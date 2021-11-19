@@ -131,6 +131,7 @@ export type EventName =
   | "DEBUGGER_RESOLVED_ERROR"
   | "DEBUGGER_NEW_ERROR_MESSAGE"
   | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
+  | "DEBUGGER_CONTEXT_MENU_CLICK"
   | "ADD_MOCK_DATASOURCE_CLICK"
   | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
@@ -205,9 +206,7 @@ class AnalyticsUtil {
       const analytics = (window.analytics = window.analytics || []);
       if (!analytics.initialize) {
         if (analytics.invoked) {
-          window.console &&
-            console.error &&
-            console.error("Segment snippet included twice.");
+          log.error("Segment snippet included twice.");
         } else {
           analytics.invoked = !0;
           analytics.methods = [

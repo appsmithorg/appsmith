@@ -21,12 +21,18 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
-const IconButtonContainer = styled.div`
+
+type IconButtonContainerProps = {
+  disabled?: boolean;
+};
+
+const IconButtonContainer = styled.div<IconButtonContainerProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 `;
 
 export interface ButtonStyleProps {
@@ -61,35 +67,45 @@ export const StyledButton = styled((props) => (
       background: ${
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
-          : buttonVariant === ButtonVariantTypes.SOLID
-          ? theme.colors.button.primary.solid.bgColor
+          : buttonVariant === ButtonVariantTypes.PRIMARY
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
 
-    ${hasOnClickAction &&
-      `&:hover:enabled, &:active:enabled {
+    ${
+      hasOnClickAction
+        ? `&:hover:enabled, &:active:enabled {
         background: ${
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)
-            : buttonVariant === ButtonVariantTypes.OUTLINE
-            ? theme.colors.button.primary.outline.hoverColor
-            : buttonVariant === ButtonVariantTypes.GHOST
-            ? theme.colors.button.primary.ghost.hoverColor
-            : theme.colors.button.primary.solid.hoverColor
+            : buttonVariant === ButtonVariantTypes.SECONDARY
+            ? theme.colors.button.primary.secondary.hoverColor
+            : buttonVariant === ButtonVariantTypes.TERTIARY
+            ? theme.colors.button.primary.tertiary.hoverColor
+            : theme.colors.button.primary.primary.hoverColor
         } !important;
-      }`}
+      }`
+        : ""
+    }
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
+      color: ${theme.colors.button.disabled.textColor} !important;
+      pointer-events: none;
+    }
+
+    &&:disabled {
+      background-color: ${theme.colors.button.disabled.bgColor} !important;
+      border-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
     }
 
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
-        : buttonVariant === ButtonVariantTypes.OUTLINE
-        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        : buttonVariant === ButtonVariantTypes.SECONDARY
+        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
 
@@ -101,12 +117,14 @@ export const StyledButton = styled((props) => (
       align-items: center;
 
       color: ${
-        buttonVariant === ButtonVariantTypes.SOLID
+        buttonVariant === ButtonVariantTypes.PRIMARY
           ? getCustomTextColor(theme, buttonColor)
-          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor) !==
-            "none"
-          ? getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
-          : `${theme.colors.button.primary.outline.textColor}`
+          : getCustomBackgroundColor(
+              ButtonVariantTypes.PRIMARY,
+              buttonColor,
+            ) !== "none"
+          ? getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+          : `${theme.colors.button.primary.secondary.textColor}`
       } !important;
     }
 
@@ -188,7 +206,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
   }, [width, height]);
 
   return (
-    <IconButtonContainer>
+    <IconButtonContainer disabled={isDisabled}>
       <StyledButton
         borderRadius={borderRadius}
         boxShadow={boxShadow}

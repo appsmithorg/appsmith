@@ -14,6 +14,7 @@ import {
 } from "workers/evaluationUtils";
 import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { getType, Types } from "./TypeHelpers";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -134,6 +135,7 @@ export type EvalError = {
 };
 
 export enum EVAL_WORKER_ACTIONS {
+  SETUP = "SETUP",
   EVAL_TREE = "EVAL_TREE",
   EVAL_ACTION_BINDINGS = "EVAL_ACTION_BINDINGS",
   EVAL_TRIGGER = "EVAL_TRIGGER",
@@ -146,6 +148,7 @@ export enum EVAL_WORKER_ACTIONS {
   PARSE_JS_FUNCTION_BODY = "PARSE_JS_FUNCTION_BODY",
   EVAL_JS_FUNCTION = "EVAL_JS_FUNCTION",
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
+  SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
 }
 
 export type ExtraLibrary = {
@@ -188,6 +191,19 @@ export const extraLibraries: ExtraLibrary[] = [
     displayName: "forge",
   },
 ];
+
+/**
+ * creates dynamic list of constants based on
+ * current list of extra libraries i.e lodash("_"), moment etc
+ * to be used in widget and entity name validations
+ */
+export const extraLibrariesNames = extraLibraries.reduce(
+  (prev: any, curr: any) => {
+    prev[curr.accessor] = curr.accessor;
+    return prev;
+  },
+  {},
+);
 
 export interface DynamicPath {
   key: string;
@@ -289,6 +305,7 @@ export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",
   "setInterval",
+  "clearInterval",
   "setImmediate",
   "XMLHttpRequest",
   "importScripts",
@@ -377,3 +394,52 @@ export const PropertyEvalErrorTypeDebugMessage: Record<
   [PropertyEvaluationErrorType.PARSE]: () => `Could not parse the binding`,
   [PropertyEvaluationErrorType.LINT]: () => `Errors found while evaluating`,
 };
+
+export function getDynamicBindingsChangesSaga(
+  action: Action,
+  value: unknown,
+  field: string,
+) {
+  const bindingField = field.replace("actionConfiguration.", "");
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
+
+  // When a key-value pair is added or deleted from a fieldArray
+  // Value is an Array representing the new fieldArray.
+
+  if (Array.isArray(value)) {
+    dynamicBindings = dynamicBindings.filter(
+      (binding) => !isChildPropertyPath(bindingField, binding.key),
+    );
+    value.forEach((keyValueRow, index) => {
+      if (!keyValueRow) return;
+
+      const { key, value } = keyValueRow;
+      key &&
+        isDynamicValue(key) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].key` });
+      value &&
+        isDynamicValue(value) &&
+        dynamicBindings.push({ key: `${bindingField}[${index}].value` });
+    });
+  } else if (getType(value) === Types.OBJECT) {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
+  }
+
+  return dynamicBindings;
+}

@@ -73,6 +73,22 @@ export const getScriptToEval = (
   return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
+export function setupEvaluationEnvironment() {
+  ///// Adding extra libraries separately
+  extraLibraries.forEach((library) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[library.accessor] = library.lib;
+  });
+
+  ///// Remove all unsafe functions
+  unsafeFunctionForEval.forEach((func) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[func] = undefined;
+  });
+}
+
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export const createGlobalData = (
@@ -102,7 +118,10 @@ export const createGlobalData = (
     Object.keys(resolvedFunctions).forEach((datum: any) => {
       const resolvedObject = resolvedFunctions[datum];
       Object.keys(resolvedObject).forEach((key: any) => {
-        GLOBAL_DATA[datum][key] = resolvedObject[key];
+        const dataTreeKey = GLOBAL_DATA[datum];
+        if (dataTreeKey) {
+          dataTreeKey[key] = resolvedObject[key];
+        }
       });
     });
   }
@@ -119,7 +138,9 @@ export default function evaluate(
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
-  const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
+  const trimmedJS = js.replace(beginsWithLineBreakRegex, "");
+  const unescapedJS =
+    self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
   const scriptType = getScriptType(evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
@@ -147,23 +168,10 @@ export default function evaluate(
     }
     errors = getLintingErrors(scriptToLint, GLOBAL_DATA, js, scriptType);
 
-    ///// Adding extra libraries separately
-    extraLibraries.forEach((library) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[library.accessor] = library.lib;
-    });
-
-    ///// Remove all unsafe functions
-    unsafeFunctionForEval.forEach((func) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[func] = undefined;
-    });
     try {
       result = eval(script);
       if (isTriggerBased) {
-        triggers = [...self.triggers];
+        triggers = self.triggers.slice();
         self.triggers = [];
       }
     } catch (e) {
