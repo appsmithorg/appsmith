@@ -144,6 +144,7 @@ export class BaseTextInput extends Component<TextInputProps, TextInputState> {
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}
           {...rest}
+          className="ur--has-border"
         />
         {hasError && <TextInputError>{meta ? meta.error : ""}</TextInputError>}
       </InputContainer>

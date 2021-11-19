@@ -30,7 +30,13 @@ export const PopoverStyles = createGlobalStyle`
     padding: 0;
   }
 
-  .flash * {
-    color: #F86A2B !important;
+  .flash .ur--has-border {
+    border-color: #FEB811 !important;
+    box-shadow: 0px 0px 4px 0.5px rgba(254, 184, 17, 0.7) !important;
+
+    & > input, .CodeMirror, .appsmith-select__control {
+      border-color: #FEB811 !important;
+      box-shadow: 0px 0px 4px 0.5px rgba(254, 184, 17, 0.7) !important;
+    }
   }
 `;

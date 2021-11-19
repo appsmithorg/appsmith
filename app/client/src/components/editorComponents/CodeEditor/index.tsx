@@ -642,7 +642,7 @@ class CodeEditor extends Component<Props, State> {
           <EditorWrapper
             border={border}
             borderLess={borderLess}
-            className={className}
+            className={`${className} ur--has-border`}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}

@@ -232,6 +232,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   return (
     <Wrapper
       active={isChecklistPage}
+      className="t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
         history.push(getOnboardingCheckListUrl(applicationId, pageId));

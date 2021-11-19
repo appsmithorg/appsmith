@@ -366,6 +366,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper
         $isLoading={props.isLoading}
+        className="ur--has-border"
         disabled={props.disabled}
         fill={props.fill ? 1 : 0}
         height={props.height || undefined}
@@ -419,7 +420,7 @@ const TextInput = forwardRef(
           props.helperText.length > 0 &&
           HelperMessage}
         {ErrorMessage}
-        <RightSideContainer ref={setRightSideRef}>
+        <RightSideContainer className="right-icon" ref={setRightSideRef}>
           {props.rightSideComponent}
         </RightSideContainer>
       </InputWrapper>

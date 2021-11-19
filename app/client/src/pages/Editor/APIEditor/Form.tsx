@@ -256,7 +256,6 @@ interface APIFormProps {
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 export const NameWrapper = styled.div`
-  width: 49%;
   display: flex;
   align-items: center;
   input {
@@ -594,9 +593,11 @@ function ApiEditorForm(props: Props) {
             </ActionButtons>
           </FormRow>
           <FormRow className="api-info-row">
-            <BoundaryContainer>
+            <BoundaryContainer
+              data-replay-id={btoa("actionConfiguration.httpMethod")}
+            >
               <RequestDropdownField
-                className="t--apiFormHttpMethod"
+                className="t--apiFormHttpMethod ur--has-border"
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}

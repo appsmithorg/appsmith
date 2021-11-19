@@ -1,5 +1,12 @@
 import ReplayCanvas from "./ReplayEntity/ReplayCanvas";
-import { TOASTS, FOCUSES, UPDATES, WIDGETS } from "./replayUtils";
+import ReplayEditor from "./ReplayEntity/ReplayEditor";
+import {
+  TOASTS,
+  FOCUSES,
+  UPDATES,
+  WIDGETS,
+  findFieldInfo,
+} from "./replayUtils";
 
 describe("check canvas diff from replayUtils for type of update", () => {
   const canvasReplay = new ReplayCanvas({
@@ -149,6 +156,85 @@ describe("check canvas diff from replayUtils for type of update", () => {
       expect(replay[UPDATES]).toBe(true);
       expect(Object.keys(replay[WIDGETS])).toHaveLength(1);
       expect(replay[WIDGETS].abcde[UPDATES]).toEqual(path);
+    });
+  });
+  describe("Form field config from modified property path", () => {
+    it("should retrieve the right config and parent section name", () => {
+      const formConfig = [
+        {
+          sectionName: "Authentication",
+          children: [
+            {
+              label: "Database Name",
+              configProperty:
+                "datasourceConfiguration.authentication.databaseName",
+              controlType: "INPUT_TEXT",
+              placeholderText: "Database name",
+              initialValue: "admin",
+            },
+            {
+              sectionName: null,
+              children: [
+                {
+                  label: "Username",
+                  configProperty:
+                    "datasourceConfiguration.authentication.username",
+                  controlType: "INPUT_TEXT",
+                  placeholderText: "Username",
+                },
+                {
+                  label: "Password",
+                  configProperty:
+                    "datasourceConfiguration.authentication.password",
+                  dataType: "PASSWORD",
+                  controlType: "INPUT_TEXT",
+                  placeholderText: "Password",
+                  encrypted: true,
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      const property = "datasourceConfiguration.authentication.username";
+      const fieldConfig = {
+        label: "Username",
+        configProperty: "datasourceConfiguration.authentication.username",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Username",
+      };
+      const parentSection = "Authentication";
+
+      expect(findFieldInfo(formConfig, property)).toStrictEqual({
+        conf: fieldConfig,
+        parentSection,
+      });
+    });
+  });
+  describe("Checks process diff method for editor replays", () => {
+    it("should contain modified property, kind and the update attrubutes", () => {
+      const action = {
+        timeoutInMillisecond: 10000,
+        paginationType: "NONE",
+        encodeParamsToggle: true,
+      };
+      const diff = {
+        kind: "E",
+        path: ["encodeParamsToggle"],
+        lhs: true,
+        rhs: false,
+      };
+      const replayEditor = new ReplayEditor(action);
+      const replay = {};
+      replayEditor.processDiff(diff, replay, false);
+
+      expect(replay.updates).toStrictEqual([
+        {
+          kind: "E",
+          modifiedProperty: "encodeParamsToggle",
+          update: false,
+        },
+      ]);
     });
   });
 });

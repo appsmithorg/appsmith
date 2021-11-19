@@ -172,6 +172,7 @@ export const flashElement = (
   flashTimeout = 1000,
   flashClass = "flash",
 ) => {
+  if (!el) return;
   addClass(el, flashClass);
   setTimeout(() => {
     removeClass(el, flashClass);
@@ -562,6 +563,17 @@ export const truncateString = (
  * @returns
  */
 export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
+
+export const undoShortCut = () => <span>{modText()}+Z</span>;
+
+export const redoShortCut = () =>
+  isMac() ? (
+    <span>
+      {modText()}+<span>&#8682;</span>+Z
+    </span>
+  ) : (
+    <span>{modText()}+Y</span>
+  );
 
 /**
  * @returns the original string after trimming the string past `?`
