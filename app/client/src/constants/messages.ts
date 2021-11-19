@@ -789,7 +789,7 @@ export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
   "Don't share any data";
 export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
 export const WELCOME_FORM_NEWLETTER_LABEL = () =>
-  "Get updates about what we are cooking. We do not spam you.";
+  "Get updates about what we are cooking. We will not spam you.";
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
 
 //help tooltips
