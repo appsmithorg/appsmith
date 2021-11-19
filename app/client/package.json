@@ -147,7 +147,8 @@
     "url-search-params-polyfill": "^8.0.0",
     "worker-loader": "^3.0.2",
     "yjs": "^13.5.12",
-    "zipcelx": "^1.6.2"
+    "zipcelx": "^1.6.2",
+    "ts-jest": "26.5.5"
   },
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
