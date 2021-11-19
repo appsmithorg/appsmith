@@ -62,67 +62,45 @@ export const getTypographyByKey = (
 
 export const BlueprintControlTransform = css`
   && {
+    .${Classes.CONTROL}.${Classes.DISABLED} {
+      color: ${Colors.GREY_8};
+    }
     .${Classes.CONTROL} {
       & input:checked ~ .${Classes.CONTROL_INDICATOR} {
         background: ${(props) => props.theme.colors.primaryOld};
         box-shadow: none;
-        border: 2px solid ${(props) => props.theme.colors.primaryOld};
+        border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      & input:not(:disabled):active ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        box-shadow: none;
-        background: none;
-        border: 2px solid ${Colors.SLATE_GRAY};
-      }
-      &.${Classes.SWITCH}
-        input:checked:disabled
-        ~ .${Classes.CONTROL_INDICATOR} {
+      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
         opacity: 0.5;
       }
-    }
-
-    .${Classes.CHECKBOX} .${Classes.CONTROL_INDICATOR} {
-      border-radius: 0;
+      & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid ${Colors.GREY_5};
+      }
     }
 
     .${Classes.SWITCH} {
+      & .${Classes.CONTROL_INDICATOR} {
+        &::before {
+          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+        }
+      }
       input:checked ~ .${Classes.CONTROL_INDICATOR} {
         &::before {
           left: calc(105% - 1em);
         }
       }
-
-      & .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
-        &::before {
-          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
-        }
-      }
-      & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${(props) => props.theme.colors.primaryOld};
-      }
-      &:hover .${Classes.CONTROL_INDICATOR} {
-        background: #d0d7dd;
-        border: 2px solid #d0d7dd;
+      input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        background: ${Colors.GREY_3};
+        border: 1px solid ${Colors.GREY_5};
       }
     }
 
     .${Classes.CONTROL_INDICATOR} {
-      box-shadow: none;
-      background: none;
-      border: 2px solid ${Colors.SLATE_GRAY};
       &::before {
         position: absolute;
-        left: -2px;
-        top: -2px;
+        left: -1px;
+        top: -1px;
       }
     }
   }
@@ -1537,8 +1515,8 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
       primary: {
@@ -2175,8 +2153,8 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.BUTTON_DISABLED,
-      textColor: Colors.WHITE,
+      bgColor: Colors.GREY_1,
+      textColor: Colors.GREY_4,
     },
     primary: {
       primary: {

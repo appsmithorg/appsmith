@@ -2,6 +2,7 @@ import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import {
   BUILDER_PAGE_URL,
   getApplicationViewerPageURL,
+  GIT_BRANCH_QUERY_KEY,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -117,12 +118,14 @@ export const getOffsetPos = (
 
 export const getCommentThreadURL = ({
   applicationId,
+  branch,
   commentThreadId,
   isResolved,
   pageId,
   mode = APP_MODE.PUBLISHED,
 }: {
   applicationId: string;
+  branch?: string;
   commentThreadId: string;
   isResolved?: boolean;
   pageId: string;
@@ -135,6 +138,10 @@ export const getCommentThreadURL = ({
 
   if (isResolved) {
     queryParams.isResolved = true;
+  }
+
+  if (branch) {
+    queryParams[GIT_BRANCH_QUERY_KEY] = branch;
   }
 
   const urlBuilder =
