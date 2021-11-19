@@ -184,7 +184,6 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input Functionality To check phone number input type", function() {
-    cy.openPropertyPane("inputwidget");
     cy.get(widgetsPage.innertext)
       .click()
       .clear();
