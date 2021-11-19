@@ -387,19 +387,18 @@ public class GitExecutorImpl implements GitExecutor {
                 branchList.add(gitBranchListDTO);
             } else {
                 if (Boolean.TRUE.equals(isRemoteDefaultBranchNeeded)) {
-                    gitBranchListDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
+                    gitBranchListDTO.setBranchName(defaultBranch.replace("refs/","")
+                            .replace("remotes/",""));
                     gitBranchListDTO.setDefault(true);
                     branchList.add(gitBranchListDTO);
                 }
 
                 for(Ref ref : refList) {
-                    if(!ref.getName().equals(defaultBranch)) {
-                        gitBranchListDTO = new GitBranchListDTO();
-                        gitBranchListDTO.setBranchName(ref.getName()
-                                .replace("refs/heads/",""));
-                        gitBranchListDTO.setDefault(false);
-                        branchList.add(gitBranchListDTO);
-                    }
+                    gitBranchListDTO = new GitBranchListDTO();
+                    gitBranchListDTO.setBranchName(ref.getName().replace("refs/","")
+                            .replace("heads/", "").replace("remotes/",""));
+                    gitBranchListDTO.setDefault(false);
+                    branchList.add(gitBranchListDTO);
                 }
             }
             git.close();

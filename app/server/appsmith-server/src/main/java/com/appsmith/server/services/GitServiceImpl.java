@@ -1011,22 +1011,28 @@ public class GitServiceImpl implements GitService {
                                 "Error while accessing the file system. Details :" + error.getMessage()))
                         )
                         .flatMap(gitBranchListDTOS -> {
+                            if(Boolean.TRUE.equals(ignoreCache)) {
+                                // delete local branches which are not present in remote repo
+                                List<GitBranchListDTO> remoteBranches = gitBranchListDTOS.stream()
+                                        .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("origin"))
+                                        .collect(Collectors.toList());
+                                List<GitBranchListDTO> localBranch = gitBranchListDTOS.stream()
+                                        .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("origin"))
+                                        .collect(Collectors.toList());
 
-                            // delete local branches which are not present in remote repo
+                                for (GitBranchListDTO branch: remoteBranches) {
+                                    branch.getBranchName().replace("origin/","");
+                                }
 
-                            List<GitBranchListDTO> remoteBranches = gitBranchListDTOS.stream()
-                                    .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("remote"))
-                                    .collect(Collectors.toList());
-                            List<GitBranchListDTO> localBranch = gitBranchListDTOS.stream()
-                                    .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("remote"))
-                                    .collect(Collectors.toList());
+                                localBranch.removeAll(remoteBranches);
 
-                            localBranch.removeAll(remoteBranches);
-
-                            return Flux.fromIterable(localBranch)
-                                    .flatMap(gitBranchListDTO -> applicationService.findBranchedApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
-                                            .flatMap(branchApplication -> applicationPageService.deleteApplication(branchApplication)))
-                                    .then(Mono.just(gitBranchListDTOS));
+                                return Flux.fromIterable(localBranch)
+                                        .flatMap(gitBranchListDTO -> applicationService.findBranchedApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
+                                                .flatMap(applicationPageService::deleteApplication))
+                                        .then(Mono.just(gitBranchListDTOS));
+                            } else {
+                                return Mono.just(gitBranchListDTOS);
+                            }
                         });
             });
     }
