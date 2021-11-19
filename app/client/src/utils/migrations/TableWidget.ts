@@ -466,8 +466,12 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
 export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "TABLE_WIDGET") {
-      child.primaryColumns.forEach((accessor: string) => {
-        const primaryColumn = child.primaryColumns[accessor];
+      const primaryColumns = child.primaryColumns as Record<
+        string,
+        ColumnProperties
+      >;
+      Object.keys(primaryColumns).forEach((accessor: string) => {
+        const primaryColumn = primaryColumns[accessor];
 
         if (primaryColumn.columnType === "iconButton") {
           if (!("buttonVariant" in primaryColumn)) {
