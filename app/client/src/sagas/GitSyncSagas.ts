@@ -58,6 +58,7 @@ import {
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
+import { APP_MODE } from "entities/App";
 
 function* commitToGitRepoSaga(
   action: ReduxAction<{
@@ -86,6 +87,13 @@ function* commitToGitRepoSaga(
 
     if (isValidResponse) {
       yield put(commitToRepoSuccess());
+      yield put({
+        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+        payload: {
+          applicationId: applicationId,
+          mode: APP_MODE.EDIT,
+        },
+      });
       Toaster.show({
         text: action.payload.doPush
           ? "Committed and pushed Successfully"

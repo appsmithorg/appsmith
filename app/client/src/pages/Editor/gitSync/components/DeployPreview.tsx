@@ -21,7 +21,6 @@ import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
-import { log } from "loglevel";
 
 const Container = styled.div`
   display: flex;
@@ -77,7 +76,6 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         lastDeployedAt,
       )} ago`
     : "";
-  log(lastDeployedAt);
   return (
     <Container>
       <CloudIconWrapper>
