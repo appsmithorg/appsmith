@@ -1,5 +1,6 @@
 import {
   markStepComplete,
+  setCurrentStep,
   setIndicatorLocation,
   tableWidgetWasSelected,
 } from "actions/onboardingActions";
@@ -182,6 +183,7 @@ type Step = {
   info?: {
     icon: IconName;
     text: ReactNode;
+    onClick: (dispatch: Dispatch<any>) => void;
   };
 };
 type StepsType = Record<number, Step>;
@@ -237,6 +239,22 @@ const Steps: StepsType = {
           You can witness the pane on right called <b>Property Pane</b>, which
           not only contains Table Data but many other properties for respective
           widgets.
+        </>
+      ),
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(4));
+      },
+    },
+  },
+  4: {
+    title: "4. Connect Name Input with selected row",
+    hint: {
+      icon: "edit-box-line",
+      text: (
+        <>
+          In the Property pane of NameInput, Replace the whole{" "}
+          <b>Default Text</b> property with{" "}
+          <b>&#123;&#123;CustomersTable.SelectedRow.name&#125;&#125;</b>
         </>
       ),
     },
@@ -481,7 +499,9 @@ function CompletionContent(props: CompletionContentProps) {
     success?.onClick(dispatch);
   };
 
-  const onInfoButtonClick = () => null;
+  const onInfoButtonClick = () => {
+    info?.onClick(dispatch);
+  };
 
   if (showSuccess) {
     return (

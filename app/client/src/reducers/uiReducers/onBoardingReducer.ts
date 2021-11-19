@@ -140,7 +140,10 @@ const onboardingReducer = createReducer(initialState, {
       tableWidgetId: action.payload,
     };
   },
-  SET_CURRENT_STEP: (state: OnboardingState, action: ReduxAction<number>) => {
+  [ReduxActionTypes.SET_CURRENT_STEP]: (
+    state: OnboardingState,
+    action: ReduxAction<number>,
+  ) => {
     return {
       ...state,
       currentStep: action.payload,

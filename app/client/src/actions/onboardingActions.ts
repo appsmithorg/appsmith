@@ -47,3 +47,10 @@ export const tableWidgetWasSelected = (payload: boolean) => {
     payload,
   };
 };
+
+export const setCurrentStep = (payload: number) => {
+  return {
+    type: ReduxActionTypes.SET_CURRENT_STEP,
+    payload,
+  };
+};
