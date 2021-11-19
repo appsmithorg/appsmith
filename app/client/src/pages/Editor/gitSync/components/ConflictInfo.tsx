@@ -44,6 +44,16 @@ export default function ConflictInfo(props: CIPropType) {
       dispatch(gitPullInit());
     }
   };
+  let remoteUrl = "";
+  if (gitMetaData?.remoteUrl) {
+    remoteUrl =
+      gitMetaData?.remoteUrl?.indexOf("git@") > -1
+        ? gitMetaData?.remoteUrl.replace(
+            "git@github.com:",
+            "https://github.com/",
+          )
+        : "";
+  }
   return isConflicting ? (
     <>
       <InfoWrapper isError>
@@ -56,7 +66,7 @@ export default function ConflictInfo(props: CIPropType) {
         <OpenRepoButton
           category={Category.tertiary}
           className="t--commit-button"
-          href={gitMetaData?.remoteUrl}
+          href={remoteUrl}
           size={Size.medium}
           tag="a"
           target="_blank"
