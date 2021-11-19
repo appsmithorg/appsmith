@@ -1,8 +1,13 @@
 import React from "react";
-import { Checkbox, Classes } from "@blueprintjs/core";
+import { Checkbox, Classes, Label } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
+import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
@@ -40,13 +45,8 @@ export const DropdownStyles = createGlobalStyle`
 .rc-select-item-option {
 	position: relative;
 	display: flex;
-  border-radius: 4px;
 	flex-direction: row-reverse;
-  :not(:first-child) {
-    margin-top: -4px;
-    padding-top: 7px !important;
-    padding-bottom: 7px !important;
-  }
+
 	.rc-select-item-option-state {
 		pointer-events: all;
 		margin-right: 10px;
@@ -59,13 +59,21 @@ export const DropdownStyles = createGlobalStyle`
 	flex: 1 1 0;
   overflow-wrap: break-word;
   overflow: hidden;
-  color: ${Colors.CHARCOAL}
+  color: ${Colors.GREY_8};
+  font-weight: 400;
 }
 .rc-select-item-option-active {
-	background: rgb(233, 250, 243);
+	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+  & .rc-select-item-option-content {
+    color: ${Colors.GREY_9};
+  }
 }
 .rc-select-item-option-selected {
-	background: rgb(233, 250, 243);
+	background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+
+  & .rc-select-item-option-content {
+    color: ${Colors.GREY_10};
+  }
 }
 .rc-select-item-option-disabled {
 	color: #999;
@@ -148,64 +156,75 @@ export const DropdownStyles = createGlobalStyle`
 	animation-play-state: running;
 }
 
-  .multi-select-dropdown {
-    min-height: 100px;
-    min-width: 170px !important;
-
-	position: absolute;
-	background: #fff;
-	width: auto;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	border-radius: 0px;
-	margin-top: 8px;
-	padding: 8px;
-	background: white;
-	box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px !important;
-    &&&& .${Classes.ALIGN_LEFT} {
-        font-size: 14px;
-        padding-bottom: 10px;
-        color: ${Colors.CODE_GRAY};
-        margin-left: 16px ;
-      .${Classes.CONTROL_INDICATOR} {
-        margin-right: 20px;
-      }
+.multi-select-dropdown {
+  min-height: 100px;
+  min-width: 170px !important;
+  position: absolute;
+  background: #fff;
+  width: auto;
+  border-radius: 0px;
+  margin-top: 5px;
+  background: white;
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
+  &&&& .${Classes.ALIGN_LEFT} {
+    font-size: 14px;
+    padding-left: 42px;
+    margin-bottom: 0;
+    .${Classes.CONTROL_INDICATOR} {
+      margin-right: 20px;
     }
-      &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-      background: white;
-      box-shadow: none;
-      border-width: 2px;
-      border-style: solid;
-      border-color: ${Colors.GEYSER};
-      border-radius: 0px;
-      &::before {
-        width: auto;
-        height: 1em;
-      }
+    &.all-options.selected {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_10} !important;
     }
-    .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: rgb(3, 179, 101) !important;
-						color: rgb(255, 255, 255);
-						border-color: rgb(3, 179, 101) !important;
-						box-shadow: none;
-						outline: none !important;
-    }
-    .rc-select-item {
-	font-size: 14px;
-	line-height: 1.5;
-	padding: 5px 16px;
-	align-items: center;
-	cursor: pointer;
-  width: 100%;
-}
-.rc-select-item-option-state {
-	.bp3-control.bp3-checkbox {
-		margin-bottom: 0;
-	}
-}
   }
+  &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    background: transparent;
+    box-shadow: none;
+    border-width: 1px;
+    border-style: solid;
+    border-color: ${Colors.GREY_3};
+    border-radius: 0px;
+    &::before {
+      width: auto;
+      height: 1em;
+    }
+  }
+  .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
+    background: ${Colors.GREEN_SOLID} !important;
+    color: rgb(255, 255, 255);
+    border-color: ${Colors.GREEN_SOLID} !important;
+    box-shadow: none;
+    outline: none !important;
+  }
+  .rc-select-item {
+    font-size: 14px;
+    padding: 5px 16px;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+    height: 38px;
+  }
+  .rc-select-item-option-state {
+    .bp3-control.bp3-checkbox {
+      margin-bottom: 0;
+    }
+  }
+}
 `;
 
-export const MultiSelectContainer = styled.div`
+export const MultiSelectContainer = styled.div<{
+  compactMode: boolean;
+  isValid: boolean;
+}>`
+  display: flex;
+  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
+  align-items: ${(props) => (props.compactMode ? "center" : "left")};
+
+  label.tree-multiselect-label {
+    margin-bottom: ${(props) => (props.compactMode ? "0px" : "5px")};
+    margin-right: ${(props) => (props.compactMode ? "10px" : "0px")};
+  }
   .rc-select {
     display: inline-block;
     font-size: 12px;
@@ -217,13 +236,13 @@ export const MultiSelectContainer = styled.div`
       pointer-events: none;
       position: absolute;
       top: 50%;
-      right: 11px;
-      left: 11px;
+      right: 12px;
+      left: 19px;
       transform: translateY(-50%);
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: #bfbfbf;
+      color: ${Colors.GREY_6};
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -237,13 +256,19 @@ export const MultiSelectContainer = styled.div`
       }
     }
   }
-  .rc-select-disabled {
+  && .rc-select-disabled {
     cursor: not-allowed;
     input {
       cursor: not-allowed;
     }
-    .rc-select-selector {
-      opacity: 0.3;
+    & .rc-select-selector {
+      background-color: ${Colors.GREY_1} !important;
+      border: 1.2px solid ${Colors.GREY_3};
+      .rc-select-selection-item-content {
+        color: ${Colors.GREY_7};
+      }
+    }
+    & .rc-select-arrow {
     }
   }
   .rc-select-show-arrow.rc-select-loading {
@@ -269,7 +294,6 @@ export const MultiSelectContainer = styled.div`
       flex-wrap: wrap;
       padding: 1px;
       box-shadow: none;
-      border: 1px solid rgb(231, 231, 231);
       border-radius: 0px;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
@@ -277,23 +301,23 @@ export const MultiSelectContainer = styled.div`
       background-color: white;
       .rc-select-selection-item {
         background: none;
-        border: 1px solid rgb(208, 215, 221);
-        border-radius: 2px;
-        margin: 3px 2px;
+        border: 1px solid ${Colors.GREY_3};
+        border-radius: 360px;
         max-width: 273.926px;
-        height: 24px;
-        color: #182026;
+        height: 20px;
+        color: ${Colors.GREY_10};
         overflow-wrap: break-word;
         display: inline-flex;
         flex-direction: row;
         align-items: center;
         box-shadow: none;
         font-size: 12px;
-        line-height: 16px;
+        line-height: 19px;
         min-height: 20px;
         min-width: 20px;
-        padding: 2px 6px;
         position: relative;
+        overflow: hidden;
+        margin-right: 4px;
       }
       .rc-select-selection-item-disabled {
         cursor: not-allowed;
@@ -303,7 +327,7 @@ export const MultiSelectContainer = styled.div`
         display: flex;
         flex-wrap: wrap;
         width: 100%;
-        align-content: center;
+        align-items: center;
       }
       .rc-select-selection-overflow-item {
         flex: none;
@@ -352,13 +376,23 @@ export const MultiSelectContainer = styled.div`
   .rc-select-selection-item-content {
     flex-grow: 1;
     flex-shrink: 1;
-    margin-right: 4px;
+    margin: 0 4px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     word-wrap: normal;
     font-size: 12px;
-    line-height: 16px;
+    line-height: 18px;
+  }
+  .rc-select-selection-item-remove {
+    width: 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      background-color: ${Colors.GREY_2};
+    }
   }
   .rc-select-allow-clear {
     .rc-select-clear {
@@ -369,50 +403,64 @@ export const MultiSelectContainer = styled.div`
   }
   .rc-select-show-arrow.rc-select-multiple {
     .rc-select-selector {
-      padding-right: 20px;
+      padding-right: 36px;
+      padding-left: 12px;
       box-shadow: none;
-      border: 1px solid rgb(231, 231, 231);
       border-radius: 0px;
       height: inherit;
       width: 100%;
       transition: border-color 0.15s ease-in-out 0s,
         box-shadow 0.15s ease-in-out 0s;
+      border: 1.2px solid
+        ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+      &:hover {
+        border: 1.2px solid
+          ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+      }
     }
   }
   .rc-select-show-arrow {
     .rc-select-arrow {
       pointer-events: none;
       position: absolute;
-      right: 5px;
+      right: 0;
       top: 0;
       height: 100%;
+      width: 36px;
       display: flex;
       align-items: center;
+      justify-content: center;
       fill: ${Colors.SLATE_GRAY};
-    }
-    .rc-select-arrow-icon {
-      &::after {
-        content: "";
-        border: 5px solid transparent;
-        width: 0;
-        height: 0;
-        display: inline-block;
-        border-top-color: #999;
-        transform: translateY(5px);
+
+      & svg {
+        width: 20px;
+        height: 20px;
       }
     }
   }
   .rc-select-show-arrow.rc-select-multiple.rc-select-focused {
     .rc-select-selector {
-      border: 1px solid rgb(128, 189, 255);
-      outline: 0px;
-      box-shadow: rgba(0, 123, 255, 0.25) 0px 0px 0px 0.1rem;
+      outline: 0;
+      ${(props) =>
+        props.isValid
+          ? `
+          border: 1.2px solid ${Colors.GREEN_SOLID};
+          box-shadow: 0px 0px 0px 2px ${Colors.GREEN_SOLID_HOVER};`
+          : `border: 1.2px solid ${Colors.DANGER_SOLID};`}
     }
   }
 `;
 export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
-    margin: 0;
+    height: 38px;
+    padding-bottom: 0 !important;
+    color: ${Colors.GREY_8} !important;
+    display: flex;
+    align-items: center;
+    &:hover {
+      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
+      color: ${Colors.GREY_9} !important;
+    }
   }
 `;
 
@@ -425,3 +473,37 @@ export const inputIcon = (): JSX.Element => (
     />
   </svg>
 );
+
+export const TextLabelWrapper = styled.div<{
+  compactMode: boolean;
+}>`
+  ${(props) =>
+    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  display: flex;
+`;
+
+export const StyledLabel = styled(Label)<{
+  $compactMode: boolean;
+  $disabled: boolean;
+  $labelText?: string;
+  $labelTextColor?: string;
+  $labelTextSize?: TextSize;
+  $labelStyle?: string;
+}>`
+  overflow-y: hidden;
+  text-overflow: ellipsis;
+  width: ${(props) => (props.$compactMode ? "auto" : "100%")};
+  text-align: left;
+  color: ${(props) =>
+    props.$labelTextColor
+      ? props.$labelTextColor
+      : props.$disabled
+      ? Colors.GREY_8
+      : "inherit"};
+  font-size: ${(props) =>
+    props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
+  font-weight: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+  font-style: ${(props) =>
+    props?.$labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+`;

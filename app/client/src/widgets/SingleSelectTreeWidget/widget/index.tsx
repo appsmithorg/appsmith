@@ -128,7 +128,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             },
           },
           {
-            helpText: "Label Text",
+            helpText: "Sets a Label Text",
             propertyName: "labelText",
             label: "Label Text",
             controlType: "INPUT_TEXT",
@@ -138,7 +138,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Input Place Holder",
+            helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
@@ -146,6 +146,16 @@ class SingleSelectTreeWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -161,16 +171,6 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "isDisabled",
             label: "Disabled",
             helpText: "Disables input to this widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -215,6 +215,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             propertyName: "labelTextSize",
             label: "Label Text Size",
             controlType: "DROP_DOWN",
+            defaultValue: "PARAGRAPH",
             options: [
               {
                 label: "Heading 1",
@@ -339,6 +340,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
+        isValid={this.props.isValid}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}

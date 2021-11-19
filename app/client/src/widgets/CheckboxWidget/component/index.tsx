@@ -77,6 +77,10 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
           : ""};
     }
   }
+
+  &.${Classes.CONTROL}.${Classes.DISABLED} {
+    color: ${Colors.GREY_8};
+  }
 `;
 
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {

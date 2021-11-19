@@ -12,12 +12,14 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
   });
 
   beforeEach(function() {
-    cy.startInterceptRoutesForMySQL();
+    if (Cypress.env("MySQL") == 0) {
+      cy.log("MySQL DB is not found. Using intercept");
+      cy.startInterceptRoutesForMySQL();
+    } else cy.log("MySQL DB is found, hence using actual DB");
   });
 
   it("Add new Page and generate CRUD template using existing supported datasource", function() {
     cy.NavigateToDatasourceEditor();
-
     cy.get(datasource.MySQL).click();
     cy.fillMySQLDatasourceForm();
 
@@ -72,7 +74,7 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
         .click();
     });
 
-    cy.wait("@selectTableDropdownStub").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -84,17 +86,17 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUDStub").should(
+    cy.wait("@replaceLayoutWithCRUDPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@getActionsStub").should(
+    cy.wait("@getActions").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@postExecuteStub").should(
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -149,8 +151,8 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
     //   200,
     // );
 
-    //Generate Stud for tables dropdown values also
-    cy.wait("@selectTableDropdownStub").should(
+    //Generate Stub for tables dropdown values also
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -162,17 +164,17 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUDStub").should(
+    cy.wait("@replaceLayoutWithCRUDPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@getActionsStub").should(
+    cy.wait("@getActions").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@postExecuteStub").should(
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -183,9 +185,7 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
 
   it("Generate CRUD page from datasource ACTIVE section", function() {
     cy.NavigateToQueryEditor();
-    cy.get(pages.integrationActiveTab)
-      .should("be.visible")
-      .click({ force: true });
+    cy.NavigateToActiveTab();
     cy.wait(1000);
 
     cy.get(datasource.datasourceCard)
@@ -198,7 +198,7 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
       });
 
     //Generate Stub for tables dropdown values also
-    cy.wait("@selectTableDropdownStub").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -210,17 +210,17 @@ describe("Generate New CRUD Page Inside from My SQL as Data Source", function() 
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@post_replaceLayoutCRUDStub").should(
+    cy.wait("@replaceLayoutWithCRUDPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@getActionsStub").should(
+    cy.wait("@getActions").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@postExecuteStub").should(
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
