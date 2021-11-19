@@ -475,7 +475,7 @@ export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
 
         if (primaryColumn.columnType === "iconButton") {
           if (!("buttonVariant" in primaryColumn)) {
-            primaryColumn.buttonVariant = "PRIMARY";
+            primaryColumn.buttonVariant = "TERTIARY";
           }
         }
       });
