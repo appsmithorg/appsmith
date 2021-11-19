@@ -12,13 +12,18 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
   });
 
   beforeEach(function() {
-    cy.startInterceptRoutesForMongo();
+    if (Cypress.env("Mongo") == 0) {
+      cy.log("Mongo DB is not found. Using intercept");
+      cy.startInterceptRoutesForMongo();
+    } else cy.log("Mongo DB is found, hence using actual DB");
   });
 
   it("Add new Page and generate CRUD template using existing supported datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click({ force: true });
-    cy.fillMongoDatasourceFormWithURI();
+
+    if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
+    else cy.fillMongoDatasourceForm();
 
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo MOCKDS ${uid}`;
@@ -59,7 +64,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
         .click();
     });
 
-    cy.wait("@get_selectTableDropdownStub").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -71,17 +76,17 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUDStub").should(
+    cy.wait("@replaceLayoutWithCRUDPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@get_ActionsStub").should(
+    cy.wait("@getActions").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@post_ExecuteStub").should(
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -109,7 +114,9 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     cy.contains("Connect New Datasource").click();
 
     cy.get(datasource.MongoDB).click();
-    cy.fillMongoDatasourceFormWithURI();
+
+    if (Cypress.env("Mongo") == 0) cy.fillMongoDatasourceFormWithURI();
+    else cy.fillMongoDatasourceForm();
 
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo MOCKDS ${uid}`;
@@ -125,7 +132,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
     cy.get(".t--save-datasource").click();
 
     //Generate Stud for tables dropdown values also
-    cy.wait("@get_selectTableDropdownStub").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -137,17 +144,17 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@put_replaceLayoutCRUDStub").should(
+    cy.wait("@replaceLayoutWithCRUDPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@get_ActionsStub").should(
+    cy.wait("@getActions").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@post_ExecuteStub").should(
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -158,9 +165,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
 
   it("Generate CRUD page from datasource ACTIVE section", function() {
     cy.NavigateToQueryEditor();
-    cy.get(pages.integrationActiveTab)
-      .should("be.visible")
-      .click({ force: true });
+    cy.NavigateToActiveTab();
     cy.wait(1000);
 
     cy.get(datasource.datasourceCard)
@@ -173,7 +178,7 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       });
 
     //Generate Stub for tables dropdown values also
-    cy.wait("@get_selectTableDropdownStub").should(
+    cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
@@ -185,17 +190,17 @@ describe("Generate New CRUD Page Inside from Mongo as Data Source", function() {
       .click();
     cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-    cy.wait("@post_replaceLayoutCRUDStub").should(
+    cy.wait("@replaceLayoutWithCRUDPage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait("@get_ActionsStub").should(
+    cy.wait("@getActions").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait("@post_ExecuteStub").should(
+    cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
