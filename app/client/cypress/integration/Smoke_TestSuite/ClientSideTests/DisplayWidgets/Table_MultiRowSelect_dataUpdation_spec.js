@@ -1,6 +1,7 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/multiSelectedRowUpdationDsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
+
+// Testing if selected row stays selected after data updation if the primary column value isn't updated.
 
 describe("Table Widget row multi select validation", function() {
   before(() => {
