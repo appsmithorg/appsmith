@@ -95,20 +95,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
               },
             },
           },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
-          },
         ],
       },
     ];

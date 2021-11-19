@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
+import classNames from "classnames";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   CurrentApplicationData,
@@ -10,7 +11,6 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
-import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
@@ -20,6 +20,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPublishingApplication,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getAllUsers, getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -59,6 +60,7 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
+``;
 import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { fetchUsersForOrg } from "actions/orgActions";
@@ -71,17 +73,26 @@ import { Position } from "@blueprintjs/core/lib/esnext/common";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
+  LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
 } from "constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
 
-const HeaderWrapper = styled(StyledHeader)`
+const HeaderWrapper = styled.div`
   width: 100%;
+  display: flex;
+  align-items: center;
   background-color: ${(props) => props.theme.colors.header.background};
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
   box-shadow: none;
@@ -124,10 +135,8 @@ const AppsmithLink = styled((props) => {
   // eslint-disable @typescript-eslint/no-unused-vars
   return <Link {...props} />;
 })`
-  margin-right: ${(props) => props.theme.spaces[4]}px;
   height: 20px;
   width: 20px;
-  transform: translate(0px, 2px);
   display: inline-block;
   img {
     width: 20px;
@@ -139,10 +148,7 @@ const DeploySection = styled.div`
   display: flex;
 `;
 
-const ProfileDropdownContainer = styled.div`
-  margin: 0 10px;
-  margin-right: 0px;
-`;
+const ProfileDropdownContainer = styled.div``;
 
 const StyledInviteButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[9]}px;
@@ -181,24 +187,17 @@ const BindingBanner = styled.div`
 
 const StyledDeployIcon = styled(Icon)`
   height: 20px;
+  width: 20px;
   align-self: center;
   background: ${(props) => props.theme.colors.header.shareBtnHighlight};
-  transform: translate(-6px, 0px);
-  padding-right: 4px;
 
   &:hover {
     background: rgb(191, 65, 9);
   }
-
-  & svg {
-    transform: translate(3px, 0px);
-  }
 `;
 
 const ShareButton = styled.div`
-  display: inline-block;
   cursor: pointer;
-  margin: 4px 12px 0px 0px;
 `;
 
 const StyledShareText = styled.span`
@@ -209,7 +208,6 @@ const StyledShareText = styled.span`
 
 const StyledSharedIcon = styled(Icon)`
   display: inline-block;
-  vertical-align: middle;
 `;
 
 type EditorHeaderProps = {
@@ -235,7 +233,7 @@ const GlobalSearch = lazy(() => {
 
 export function ShareButtonComponent() {
   return (
-    <ShareButton className="t--application-share-btn header__application-share-btn">
+    <ShareButton className="flex items-center t--application-share-btn header__application-share-btn">
       <StyledSharedIcon name="share-line" />
       <StyledShareText>SHARE</StyledShareText>
     </ShareButton>
@@ -255,11 +253,14 @@ export function EditorHeader(props: EditorHeaderProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
+  const pinned = useSelector(getExplorerPinned);
   const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
   const shouldHideComments = useHideComments();
+  const isPreviewMode = useSelector(previewModeSelector);
+
   useEffect(() => {
     if (window.location.href) {
       const searchParams = new URL(window.location.href).searchParams;
@@ -308,6 +309,20 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
 
+  /**
+   * on hovering the menu, make the explorer active
+   */
+  const onMenuHover = useCallback(() => {
+    dispatch(setExplorerActiveAction(true));
+  }, [setExplorerActiveAction]);
+
+  /**
+   * toggles the pinned state of sidebar
+   */
+  const onPin = useCallback(() => {
+    dispatch(setExplorerPinnedAction(!pinned));
+  }, [pinned, dispatch, setExplorerPinnedAction]);
+
   //Fetch all users for the application to show the share button tooltip
   useEffect(() => {
     if (orgId) {
@@ -320,8 +335,36 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper>
-        <HeaderSection>
+      <HeaderWrapper className="pr-3">
+        <HeaderSection className="space-x-3">
+          <div
+            className={classNames({
+              "text-gray-800 transform transition-all duration-400 pl-3 relative": true,
+              "ml-0": !pinned,
+              "-ml-7": pinned,
+            })}
+          >
+            <TooltipComponent
+              content={
+                <div className="flex items-center justify-between">
+                  <span>{createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)}</span>
+                  <span className="ml-4 text-xs text-gray-300">Ctrl + /</span>
+                </div>
+              }
+              position="bottom-left"
+            >
+              <div
+                className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
+                onMouseEnter={onMenuHover}
+              >
+                <MenuIcon className="absolute w-4 h-4 transition-opacity opacity-100 fill-current group-hover:opacity-0" />
+                <UnpinIcon
+                  className="absolute w-4 h-4 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                  onClick={onPin}
+                />
+              </div>
+            </TooltipComponent>
+          </div>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
@@ -346,7 +389,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             >
               <EditorAppName
                 applicationId={applicationId}
-                className="t--application-name editable-application-name"
+                className="t--application-name editable-application-name max-w-48"
                 currentDeployLink={getApplicationViewerPageURL({
                   applicationId: props.applicationId,
                   pageId,
@@ -378,11 +421,17 @@ export function EditorHeader(props: EditorHeaderProps) {
             )}
           </Boxed>
         </HeaderSection>
-        <HeaderSection>
+        <HeaderSection
+          className={classNames({
+            "-translate-y-full opacity-0": isPreviewMode,
+            "translate-y-0 opacity-100": !isPreviewMode,
+            "transition-all transform duration-400": true,
+          })}
+        >
           <HelpBar />
           <HelpButton />
         </HeaderSection>
-        <HeaderSection>
+        <HeaderSection className="space-x-3">
           <EditorSaveIndicator />
           <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>

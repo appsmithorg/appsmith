@@ -111,6 +111,7 @@ function ColumnControlComponent(props: RenderComponentProps) {
         onFocus={onFocus}
         placeholder="Column Title"
         value={value}
+        width="100%"
       />
       <StyledEditIcon
         className="t--edit-column-btn"

@@ -73,7 +73,6 @@ const Container = styled.div<{
         height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         min-height: ${(props) => `${props.minSize}px`};
         min-width: ${(props) => `${props.minSize}px`};
-        border-radius: ${(props) => props.theme.radii[0]}px;
         top: ${(props) => props.top}px;
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
@@ -82,11 +81,6 @@ const Container = styled.div<{
           `${backgroundColor || Colors.WHITE}`};
         border-radius: ${({ borderRadius }) =>
           getBorderRadiusValue(borderRadius)};
-        ${(props) => {
-          if (props.isEditMode)
-            return `transform: translate(${parseInt(props.theme.sidebarWidth) /
-              2}px) !important`;
-        }}
       }
     }
   }

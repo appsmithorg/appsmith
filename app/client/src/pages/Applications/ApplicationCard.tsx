@@ -576,7 +576,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       >
         {hasEditPermission && (
           <EditableText
-            className="t--application-name"
+            className="t--application-name px-3 pt-3 pb-2"
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
             fill
