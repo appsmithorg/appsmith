@@ -90,7 +90,6 @@ Cypress.Commands.add("navigateToOrgSettings", (orgName) => {
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -197,7 +196,6 @@ Cypress.Commands.add("deleteUserFromOrg", (orgName, email) => {
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.xpath(homePage.MemberSettings).click({ force: true });
-  cy.wait("@getOrganisation");
   cy.wait("@getRoles").should(
     "have.nested.property",
     "response.body.responseMeta.status",
