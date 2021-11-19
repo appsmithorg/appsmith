@@ -13,6 +13,6 @@ import java.util.List;
 @Setter
 public class TriggerRequestDTO {
     TriggerRequestType requestType;
-    List<Object> parameters;
+    List<String> parameters;
     ClientDataDisplayType displayType;
 }

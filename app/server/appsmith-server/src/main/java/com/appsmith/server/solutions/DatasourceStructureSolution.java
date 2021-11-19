@@ -25,12 +25,15 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +43,9 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.constants.FieldName.DISPLAY_TYPE;
+import static com.appsmith.server.constants.FieldName.PARAMETERS;
+import static com.appsmith.server.constants.FieldName.REQUEST_TYPE;
 
 @Component
 @RequiredArgsConstructor
@@ -188,7 +194,7 @@ public class DatasourceStructureSolution {
         });
     }
 
-    public Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO request) {
+    public Mono<TriggerResultDTO> trigger(String datasourceId, MultiValueMap<String, Object> params) {
 
         Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, READ_DATASOURCES)
                 .cache();
@@ -199,6 +205,45 @@ public class DatasourceStructureSolution {
                 .flatMap(plugin -> pluginExecutorHelper.getPluginExecutor(Mono.just(plugin)))
                 .cache();
 
+        Object requestTypeObject = params.getFirst(REQUEST_TYPE);
+        Object parametersObject = params.getFirst(PARAMETERS);
+        Object displayTypeObject = params.getFirst(DISPLAY_TYPE);
+
+        if (requestTypeObject == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REQUEST_TYPE));
+        }
+        TriggerRequestType requestType;
+        try {
+            requestType = TriggerRequestType.valueOf((String) requestTypeObject);
+        } catch (IllegalArgumentException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REQUEST_TYPE));
+        }
+
+        List<String> parameters;
+        if (parametersObject == null || StringUtils.isBlank((CharSequence) parametersObject)) {
+            parameters = null;
+        } else  {
+            parameters = new ArrayList<>(Arrays.asList(((String) parametersObject).split(",")));
+        }
+
+        ClientDataDisplayType displayType;
+        if (displayTypeObject == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
+        }
+        try {
+            displayType = ClientDataDisplayType.valueOf((String) displayTypeObject);
+        } catch (IllegalArgumentException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, DISPLAY_TYPE));
+        }
+
+
+        TriggerRequestDTO request = new TriggerRequestDTO(
+                requestType,
+                parameters,
+                displayType
+        );
+
+
         // If the plugin has overridden and implemented the same, use the plugin result
         Mono<TriggerResultDTO> resultFromPluginMono = pluginExecutorMono
                 .flatMap(pluginExecutor -> pluginExecutor.trigger(request));
@@ -207,7 +252,6 @@ public class DatasourceStructureSolution {
         Mono<TriggerResultDTO> defaultResultMono = datasourceMono
                 .flatMap(datasource -> entitySelectorTriggerSolution(datasource, request))
                 .map(entityNames -> {
-                    ClientDataDisplayType displayType = request.getDisplayType();
                     List<Object> result = new ArrayList<>();
 
                     if (ClientDataDisplayType.DROPDOWN.equals(displayType)) {
@@ -234,7 +278,7 @@ public class DatasourceStructureSolution {
             return Mono.just(new HashSet<String>());
         }
 
-        List<Object> parameters = request.getParameters();
+        List<String> parameters = request.getParameters();
         Mono<DatasourceStructure> structureMono = getStructure(datasource, false);
 
 
