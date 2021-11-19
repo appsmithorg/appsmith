@@ -81,10 +81,11 @@ import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
+import { executeCommandAction, updateActionInit } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
+import { ReduxAction } from "constants/ReduxActionConstants";
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -94,6 +95,7 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
+  updateActionInit: (payload: ReduxAction<{ id: string }>) => void;
 }
 
 export type CodeEditorExpected = {
@@ -239,7 +241,7 @@ class CodeEditor extends Component<Props, State> {
         //
 
         editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", _.debounce(this.handleChange, 600));
+        editor.on("change", this.startHandleChange);
         editor.on("keyup", this.handleAutocompleteKeyup);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
@@ -304,7 +306,7 @@ class CodeEditor extends Component<Props, State> {
     if (!this.editor) return;
 
     this.editor.off("beforeChange", this.handleBeforeChange);
-    this.editor.off("change", _.debounce(this.handleChange, 600));
+    this.editor.off("change", this.startHandleChange);
     this.editor.off("keyup", this.handleAutocompleteKeyup);
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
@@ -395,6 +397,23 @@ class CodeEditor extends Component<Props, State> {
       this.props.input.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
+  };
+
+  handleDebouncedChange = _.debounce(this.handleChange, 600);
+
+  startHandleChange = (instance?: any, changeObj?: any) => {
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
+    if (
+      entityInformation.entityType === ENTITY_TYPE.ACTION &&
+      entityInformation.entityId
+    ) {
+      const id: string = entityInformation.entityId as string;
+      const payload: any = {
+        id,
+      };
+      this.props.updateActionInit(payload);
+    }
+    this.handleDebouncedChange(instance, changeObj);
   };
 
   getEntityInformation = (): FieldEntityInformation => {
@@ -716,6 +735,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
+  updateActionInit: (payload: ReduxAction<{ id: string }>) =>
+    dispatch(updateActionInit(payload)),
 });
 
 export default Sentry.withProfiler(
