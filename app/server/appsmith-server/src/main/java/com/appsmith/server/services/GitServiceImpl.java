@@ -932,14 +932,17 @@ public class GitServiceImpl implements GitService {
                                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
                                     }
                                 })
-                                .flatMap(pullStatus1 ->
-                                        commitAndPushWithDefaultCommit(repoSuffix,
-                                                repoPath,
-                                                gitAuth,
-                                                gitApplicationMetadata,
-                                                DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL)
-                                                .thenReturn(pullStatus1)
-                                );
+                                .flatMap(pullStatus1 -> {
+                                    if(!pullStatus1.isMergeAble()) {
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull"));
+                                    }
+                                    return commitAndPushWithDefaultCommit(repoSuffix,
+                                            repoPath,
+                                            gitAuth,
+                                            gitApplicationMetadata,
+                                            DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL)
+                                            .thenReturn(pullStatus1);
+                                });
                     } catch (IOException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage()));
                     }
