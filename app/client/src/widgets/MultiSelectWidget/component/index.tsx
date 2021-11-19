@@ -3,16 +3,20 @@ import Select, { SelectProps } from "rc-select";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import {
   DropdownStyles,
-  inputIcon,
   MultiSelectContainer,
   StyledCheckbox,
+  TextLabelWrapper,
+  StyledLabel,
 } from "./index.styled";
 import {
   CANVAS_CLASSNAME,
   MODAL_PORTAL_CLASSNAME,
+  TextSize,
 } from "constants/WidgetConstants";
 import debounce from "lodash/debounce";
+import Icon from "components/ads/Icon";
 import { Classes } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
@@ -31,6 +35,12 @@ export interface MultiSelectProps
   onChange: (value: DefaultValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
+  labelText?: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  compactMode: boolean;
+  isValid: boolean;
   backgroundColor: string;
   borderRadius: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
@@ -41,8 +51,14 @@ const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
   const {
+    compactMode,
     disabled,
     dropdownStyle,
+    isValid,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
     loading,
     onChange,
     onFilterChange,
@@ -95,6 +111,7 @@ function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
           <StyledCheckbox
             alignIndicator="left"
             checked={isSelectAll}
+            className={`all-options ${isSelectAll ? "selected" : ""}`}
             label="Select all"
             onChange={handleSelectAll}
           />
@@ -134,9 +151,28 @@ function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
       boxShadow={props.boxShadow}
       boxShadowColor={props.boxShadowColor}
       className={loading ? Classes.SKELETON : ""}
+      compactMode={compactMode}
+      isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles />
+      {labelText && (
+        <TextLabelWrapper compactMode={compactMode}>
+          <StyledLabel
+            $compactMode={compactMode}
+            $disabled={disabled}
+            $labelStyle={labelStyle}
+            $labelText={labelText}
+            $labelTextColor={labelTextColor}
+            $labelTextSize={labelTextSize}
+            className={`tree-multiselect-label ${
+              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+            }`}
+          >
+            {labelText}
+          </StyledLabel>
+        </TextLabelWrapper>
+      )}
       <Select
         animation="slide-up"
         // TODO: Make Autofocus a variable in the property pane
@@ -149,7 +185,13 @@ function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
         dropdownStyle={dropdownStyle}
         filterOption={serverSideFiltering ? false : filterOption}
         getPopupContainer={getDropdownPosition}
-        inputIcon={inputIcon}
+        inputIcon={
+          <Icon
+            className="dropdown-icon"
+            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+            name="dropdown"
+          />
+        }
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
@@ -161,6 +203,13 @@ function MultiSelectComponent(props: MultiSelectProps): JSX.Element {
         onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}
+        removeIcon={
+          <Icon
+            className="remove-icon"
+            fillColor={Colors.GREY_10}
+            name="close-x"
+          />
+        }
         showArrow
         value={value}
       />

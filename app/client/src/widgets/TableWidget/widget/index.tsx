@@ -50,6 +50,7 @@ import { IconName } from "@blueprintjs/icons";
 import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { FALLBACK_COLORS } from "constants/ThemeConstants";
+import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -244,7 +245,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   dynamicTrigger: columnProperties.onClick || "",
                 },
               ],
-              iconName: cellProperties.iconName as IconName,
+              iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
               buttonColor: cellProperties.buttonColor || Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius: cellProperties.borderRadius || "SHARP",

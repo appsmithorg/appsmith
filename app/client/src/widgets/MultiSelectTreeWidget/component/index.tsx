@@ -9,7 +9,7 @@ import TreeSelect, { TreeSelectProps as SelectProps } from "rc-tree-select";
 import {
   TreeSelectContainer,
   DropdownStyles,
-  inputIcon,
+  StyledIcon,
   StyledLabel,
   TextLabelWrapper,
 } from "./index.styled";
@@ -23,7 +23,10 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
+import Icon from "components/ads/Icon";
+import { Colors } from "constants/Colors";
 import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+
 export interface TreeSelectProps
   extends Required<
     Pick<
@@ -45,36 +48,29 @@ export interface TreeSelectProps
   labelTextSize?: TextSize;
   labelStyle?: string;
   compactMode: boolean;
+  isValid: boolean;
   backgroundColor: string;
   borderRadius: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
 }
 
-const getSvg = (style = {}) => (
+const getSvg = (expanded: boolean) => (
   <i
     style={{
       cursor: "pointer",
       backgroundColor: "transparent",
       display: "inline-flex",
-      width: "10px",
+      width: "14px",
+      height: "100%",
     }}
   >
-    <svg
-      fill="none"
-      height="10"
-      style={{ verticalAlign: "-.125em", ...style }}
-      viewBox="0 0 10 10"
-      width="10"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        clipRule="evenodd"
-        d="M2.5 9L7.5 5L2.5 1L2.5 9Z"
-        fill="#090707"
-        ill-rule="evenodd"
-      />
-    </svg>
+    <StyledIcon
+      className="switcher-icon"
+      expanded={expanded}
+      fillColor={Colors.GREY_10}
+      name="dropdown"
+    />
   </i>
 );
 
@@ -86,12 +82,12 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
           cursor: "pointer",
           backgroundColor: "white",
           display: "inline-flex",
-          width: "10px",
+          width: "14px",
         }}
       />
     );
   }
-  return getSvg({ transform: `rotate(${treeNode.expanded ? 90 : 0}deg)` });
+  return getSvg(treeNode.expanded);
 };
 
 function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
@@ -101,6 +97,7 @@ function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
     disabled,
     dropdownStyle,
     expandAll,
+    isValid,
     labelStyle,
     labelText,
     labelTextColor,
@@ -141,6 +138,7 @@ function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
       boxShadow={props.boxShadow}
       boxShadowColor={props.boxShadowColor}
       compactMode={compactMode}
+      isValid={isValid}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
       <DropdownStyles />
@@ -148,6 +146,7 @@ function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
         <TextLabelWrapper compactMode={compactMode}>
           <StyledLabel
             $compactMode={compactMode}
+            $disabled={disabled}
             $labelStyle={labelStyle}
             $labelText={labelText}
             $labelTextColor={labelTextColor}
@@ -166,11 +165,24 @@ function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
         animation="slide-up"
         choiceTransitionName="rc-tree-select-selection__choice-zoom"
         className="rc-tree-select"
+        clearIcon={
+          <Icon
+            className="clear-icon"
+            fillColor={Colors.GREY_10}
+            name="close-x"
+          />
+        }
         disabled={disabled}
-        dropdownClassName="tree-select-dropdown"
+        dropdownClassName="tree-multiselect-dropdown"
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
-        inputIcon={inputIcon}
+        inputIcon={
+          <Icon
+            className="dropdown-icon"
+            fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+            name="dropdown"
+          />
+        }
         key={key}
         loading={loading}
         maxTagCount={"responsive"}
@@ -180,6 +192,13 @@ function MultiTreeSelectComponent(props: TreeSelectProps): JSX.Element {
         onChange={onChange}
         onClear={onClear}
         placeholder={placeholder}
+        removeIcon={
+          <Icon
+            className="remove-icon"
+            fillColor={Colors.GREY_10}
+            name="close-x"
+          />
+        }
         showArrow
         showCheckedStrategy={mode}
         showSearch
