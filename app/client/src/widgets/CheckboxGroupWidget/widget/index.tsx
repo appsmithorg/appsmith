@@ -219,7 +219,7 @@ class CheckboxGroupWidget extends BaseWidget<
       let selectedValues = this.props.selectedValues.filter(
         (selectedValue: string) => !diffOptions.includes(selectedValue),
       );
-      // if selectedValues empty, and oprions have changed, set defaultSelectedValues
+      // if selectedValues empty, and options have changed, set defaultSelectedValues
       if (!selectedValues.length && this.props.defaultSelectedValues.length) {
         selectedValues = this.props.defaultSelectedValues;
       }
