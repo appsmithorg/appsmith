@@ -381,12 +381,16 @@ class SchemaParser {
       const prevDataType = schema[modifiedKey].dataType;
 
       if (currDataType !== prevDataType) {
+        const prevSchemaItem = cloneDeep(schema[modifiedKey]);
+
         schema[modifiedKey] = SchemaParser.getSchemaItemFor(modifiedKey, {
           currSourceData: currObj[modifiedKey],
           prevSchema: schema[modifiedKey].children,
           sourceDataPath: getSourcePath(modifiedKey, sourceDataPath),
           widgetName,
         });
+
+        schema[modifiedKey].position = prevSchemaItem.position;
       } else {
         schema[modifiedKey] = SchemaParser.getModifiedSchemaItemFor(
           currObj[modifiedKey],
