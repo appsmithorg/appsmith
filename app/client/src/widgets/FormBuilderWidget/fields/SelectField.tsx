@@ -101,11 +101,13 @@ function SelectField({
         return (
           <StyledSelectWrapper>
             <DropDownComponent
+              compactMode={false}
               disabled={schemaItem.isDisabled}
               height={10}
               isFilterable={schemaItem.isFilterable}
               isLoading={false}
-              label=""
+              // TODO: Fix isValid with 'state' derived props
+              isValid
               onFilterChange={onFilterChange}
               onOptionSelected={onOptionSelected}
               options={schemaItem.options}

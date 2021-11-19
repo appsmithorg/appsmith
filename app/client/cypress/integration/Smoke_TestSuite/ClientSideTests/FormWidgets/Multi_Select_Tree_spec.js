@@ -22,7 +22,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .first()
       .type("light");
-    cy.treeSelectDropdown("Light Blue");
+    cy.treeMultiSelectDropdown("Light Blue");
   });
   it("To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);

@@ -113,10 +113,13 @@ function MultiSelectField({
         return (
           <StyledMultiSelectWrapper>
             <MultiSelect
+              compactMode={false}
               disabled={schemaItem.isDisabled}
               dropdownStyle={{
                 zIndex: Layers.dropdownModalWidget,
               }}
+              // TODO: Fix this with the derived state
+              isValid
               loading={false}
               onBlur={onBlurHandler}
               onChange={onOptionChange}
