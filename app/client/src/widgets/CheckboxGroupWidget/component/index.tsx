@@ -65,7 +65,7 @@ const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
     border: none;
     background-image: none;
     background-color: ${({ theme }) =>
-      theme.colors.button.primary.solid.bgColor};
+      theme.colors.button.primary.primary.bgColor};
   }
 
   &.bp3-control input:not(:disabled):active ~ .bp3-control-indicator {
