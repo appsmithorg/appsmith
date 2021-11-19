@@ -33,4 +33,8 @@ export const PopoverStyles = createGlobalStyle`
   .guided-tour-indicator {
     box-shadow: none;
   }
+
+  .guided-tour-indicator .${PopoverClasses.POPOVER2_CONTENT} {
+    background: transparent;
+  }
 `;

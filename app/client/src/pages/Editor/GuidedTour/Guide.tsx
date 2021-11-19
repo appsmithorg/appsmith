@@ -6,7 +6,7 @@ import {
 import Button from "components/ads/Button";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { get, set } from "lodash";
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import lottie from "lottie-web";
 import indicator from "assets/lottie/guided-tour-tick-mark.json";
@@ -28,6 +28,7 @@ import {
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { Dispatch } from "redux";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -111,8 +112,9 @@ const SubContentWrapper = styled.div`
   flex-direction: column;
 `;
 
-const IconWrapper = styled.div`
-  background-color: #ffffff;
+const IconWrapper = styled.div<{ backgroundColor?: string }>`
+  background-color: ${(props) =>
+    props.backgroundColor ? props.backgroundColor : "#ffffff"};
   padding: 8px;
   border-radius: 4px;
 `;
@@ -144,6 +146,12 @@ const SuccessMessageWrapper = styled.div`
     align-items: center;
     justify-content: space-between;
   }
+  .info {
+    padding-left: 15px;
+    display: block;
+    padding-right: 65px;
+    margin-top: 0px;
+  }
 `;
 
 function StatusBar(props: any) {
@@ -167,7 +175,10 @@ type Step = {
     icon: IconName;
     text: ReactNode;
   };
-  successMessage?: string;
+  success?: {
+    text: string;
+    onClick: (dispatch: Dispatch<any>) => void;
+  };
   info?: {
     icon: IconName;
     text: ReactNode;
@@ -203,23 +214,31 @@ const Steps: StepsType = {
     hint: {
       icon: "edit-box-line",
       text: (
-        <span>
+        <>
           Replace the whole <b>Table Data</b> property with{" "}
           <b>
             &#123;&#123;
             {"getCustomers.data"}&#125;&#125;
           </b>{" "}
           on the right pane
-        </span>
+        </>
       ),
     },
-    successMessage:
-      "Great! The table widget is now connected with the customers data",
+    success: {
+      text: "Great! The table widget is now connected with the customers data",
+      onClick: (dispatch) => {
+        dispatch(setIndicatorLocation("PROPERTY_PANE"));
+      },
+    },
     info: {
-      icon: "edit-box-line",
-      text: `You can witness the pane on right called Property Pane, 
-      which not only contains Table Data but many other properties 
-      for respective widgets.`,
+      icon: "lightbulb-flash-line",
+      text: (
+        <>
+          You can witness the pane on right called <b>Property Pane</b>, which
+          not only contains Table Data but many other properties for respective
+          widgets.
+        </>
+      ),
     },
   },
 };
@@ -435,30 +454,64 @@ type CompletionContentProps = {
 };
 
 function CompletionContent(props: CompletionContentProps) {
+  const [showSuccess, setShowSuccess] = useState(true);
+  const info = Steps[props.step].info;
+  const success = Steps[props.step].success;
+  const dispatch = useDispatch();
+
   const tickMarkRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const anim = lottie.loadAnimation({
-      animationData: indicator,
-      autoplay: true,
-      container: tickMarkRef?.current as HTMLDivElement,
-      renderer: "svg",
-      loop: false,
-    });
+    if (showSuccess) {
+      const anim = lottie.loadAnimation({
+        animationData: indicator,
+        autoplay: true,
+        container: tickMarkRef?.current as HTMLDivElement,
+        renderer: "svg",
+        loop: false,
+      });
 
-    return () => {
-      anim?.destroy();
-    };
-  }, [tickMarkRef?.current]);
+      return () => {
+        anim?.destroy();
+      };
+    }
+  }, [tickMarkRef?.current, showSuccess]);
 
-  return (
-    <SuccessMessageWrapper>
-      <div className="lottie-wrapper" ref={tickMarkRef} />
-      <div className="title-wrapper">
-        <Title>{Steps[props.step].successMessage}</Title>
-        <GuideButton onClick={() => null} tag="button" text="CONTINUE" />
-      </div>
-    </SuccessMessageWrapper>
-  );
+  const onSuccessButtonClick = () => {
+    setShowSuccess(false);
+    success?.onClick(dispatch);
+  };
+
+  const onInfoButtonClick = () => null;
+
+  if (showSuccess) {
+    return (
+      <SuccessMessageWrapper>
+        <div className="lottie-wrapper" ref={tickMarkRef} />
+        <div className="title-wrapper">
+          <Title>{Steps[props.step].success?.text}</Title>
+          <GuideButton
+            onClick={onSuccessButtonClick}
+            tag="button"
+            text={info ? "CONTINUE" : "PROCEED TO NEXT STEP"}
+          />
+        </div>
+      </SuccessMessageWrapper>
+    );
+  } else {
+    return (
+      <SuccessMessageWrapper>
+        <IconWrapper backgroundColor="#FEEDE5">
+          <Icon fillColor="#F86A2B" name={info?.icon} size={IconSize.XXL} />
+        </IconWrapper>
+        <Description className="info">{info?.text}</Description>
+        <GuideButton
+          onClick={onInfoButtonClick}
+          tag="button"
+          text="PROCEED TO NEXT STEP"
+        />
+      </SuccessMessageWrapper>
+    );
+  }
 }
 
 type GuideBody = {

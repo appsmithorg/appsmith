@@ -106,6 +106,7 @@ import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import LightbulbFlashLine from "remixicon-react/LightbulbFlashLineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
@@ -244,6 +245,7 @@ export const IconCollection = [
   "lightning",
   "line-dashed",
   "line-dotted",
+  "lightbulb-flash-line",
   "link",
   "link-2",
   "logout",
@@ -533,6 +535,9 @@ const Icon = forwardRef(
         break;
       case "lightning":
         returnIcon = <LightningIcon />;
+        break;
+      case "lightbulb-flash-line":
+        returnIcon = <LightbulbFlashLine />;
         break;
       case "line-dashed":
         returnIcon = <LineDashedIcon />;

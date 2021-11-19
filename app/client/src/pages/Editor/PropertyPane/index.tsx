@@ -33,6 +33,7 @@ import { Layers } from "constants/Layers";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import { WidgetType } from "constants/WidgetConstants";
+import Indicator from "../GuidedTour/Indicator";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -191,23 +192,31 @@ function PropertyPaneView(
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
       />
-      <PropertyPaneBodyWrapper>
-        {!doActionsExist && !hideConnectDataCTA && (
-          <ConnectDataCTA
-            widgetId={widgetProperties.widgetId}
-            widgetTitle={widgetProperties.widgetName}
-            widgetType={widgetProperties?.type}
-          />
-        )}
-        <PropertyControlsWrapper>
-          <PropertyControlsGenerator
-            id={widgetProperties.widgetId}
-            panel={panel}
-            theme={theme}
-            type={widgetProperties.type}
-          />
-        </PropertyControlsWrapper>
-      </PropertyPaneBodyWrapper>
+      <Indicator
+        async
+        direction="right"
+        location="PROPERTY_PANE"
+        position="left"
+        step={3}
+      >
+        <PropertyPaneBodyWrapper>
+          {!doActionsExist && !hideConnectDataCTA && (
+            <ConnectDataCTA
+              widgetId={widgetProperties.widgetId}
+              widgetTitle={widgetProperties.widgetName}
+              widgetType={widgetProperties?.type}
+            />
+          )}
+          <PropertyControlsWrapper>
+            <PropertyControlsGenerator
+              id={widgetProperties.widgetId}
+              panel={panel}
+              theme={theme}
+              type={widgetProperties.type}
+            />
+          </PropertyControlsWrapper>
+        </PropertyPaneBodyWrapper>
+      </Indicator>
     </>
   );
 }

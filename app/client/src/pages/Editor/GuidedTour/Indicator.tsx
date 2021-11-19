@@ -14,6 +14,12 @@ import { PopoverPosition } from "@blueprintjs/core";
 const IndicatorWrapper = styled.div<{ direction: Direction }>`
   height: 55px;
   width: 55px;
+  svg {
+    path {
+      fill: white;
+      fill-opacity: 1;
+    }
+  }
   background-color: transparent;
   ${(props) => {
     if (props.direction === "left") {
@@ -28,7 +34,7 @@ const IndicatorWrapper = styled.div<{ direction: Direction }>`
 
 type Direction = "down" | "right" | "left";
 
-export type IndicatorLocation = "RUN_QUERY" | "NONE";
+export type IndicatorLocation = "RUN_QUERY" | "PROPERTY_PANE" | "NONE";
 
 type IndicatorProps = {
   children: JSX.Element;
