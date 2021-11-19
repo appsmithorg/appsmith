@@ -47,7 +47,6 @@ import GitChanged from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import log from "loglevel";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
@@ -152,8 +151,6 @@ function Deploy() {
 
   const theme = useTheme() as Theme;
 
-  log.log(gitStatus);
-  log.log(gitError);
   return (
     <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
