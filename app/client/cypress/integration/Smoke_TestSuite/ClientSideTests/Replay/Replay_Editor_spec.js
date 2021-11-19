@@ -32,6 +32,10 @@ describe("Undo/Redo functionality", function() {
     cy.get(
       `${datasourceEditor.sectionAuthentication} .bp3-icon-chevron-up`,
     ).should("exist");
+    cy.get(".t--application-name").click({ force: true });
+    cy.get("li:contains(Edit)").trigger("mouseover");
+    cy.get("li:contains(Undo)").click({ multiple: true });
+    cy.get(datasourceEditor.username).should("be.empty");
   });
 
   it("checks undo/redo for Api pane", function() {
