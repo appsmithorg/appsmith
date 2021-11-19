@@ -2,7 +2,7 @@ import React from "react";
 import {
   createMessage,
   FETCH_MERGE_STATUS,
-  FETCH_MERGE_STATUS_FAILURE,
+  // FETCH_MERGE_STATUS_FAILURE,
   MERGE_CONFLICT_ERROR,
   NO_MERGE_CONFLICT,
 } from "constants/messages";
@@ -92,21 +92,21 @@ function MergeStatus() {
         </Flex>
       );
 
-    case MERGE_STATUS_STATE.NONE:
-      return (
-        <Flex>
-          <Space horizontal size={10} />
-          <Wrapper>
-            <ErrorWarning size={18} />
-            <Text
-              style={{ marginLeft: 8, alignSelf: "center" }}
-              type={TextType.P3}
-            >
-              {createMessage(FETCH_MERGE_STATUS_FAILURE)}
-            </Text>
-          </Wrapper>
-        </Flex>
-      );
+    // case MERGE_STATUS_STATE.NONE:
+    //   return (
+    //     <Flex>
+    //       <Space horizontal size={10} />
+    //       <Wrapper>
+    //         <ErrorWarning size={18} />
+    //         <Text
+    //           style={{ marginLeft: 8, alignSelf: "center" }}
+    //           type={TextType.P3}
+    //         >
+    //           {createMessage(FETCH_MERGE_STATUS_FAILURE)}
+    //         </Text>
+    //       </Wrapper>
+    //     </Flex>
+    //   );
     default:
       return null;
     // status === MERGE_STATUS_STATE.NONE will execute default case.
