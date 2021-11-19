@@ -567,7 +567,7 @@ export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PULL = () => "PULL";
 export const COMMIT_AND_PUSH = () => "Commit & push";
-export const PULL_CHANGS = () => "PULL CHANGES";
+export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
@@ -619,6 +619,13 @@ export const CONFLICTS_FOUND = () =>
 export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
 export const NO_COMMITS_TO_PULL = () =>
   "No commits to pull. In sync with the remote repository";
+export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
+  "Conflicts found while pulling changes";
+export const NOT_LIVE_FOR_YOU_YET = () => "It's not live for you yet";
+export const COMING_SOON = () => "Coming Soon!";
+export const CONNECTING_TO_REPO_DISABLED = () =>
+  "Connecting to a git repo is disabled";
+export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 
 // JS Snippets
 export const SNIPPET_DESCRIPTION = () =>
