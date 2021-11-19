@@ -41,7 +41,7 @@ import {
   getPullFailed,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
-import { inOnboarding } from "sagas/OnboardingSagas";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -207,7 +207,7 @@ const PlaceholderButton = styled.div`
 
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
-  const isInOnboarding = useSelector(inOnboarding);
+  const isInOnboarding = useSelector(inGuidedTour);
 
   const isTooltipEnabled = !getFeatureFlags().GIT || isInOnboarding;
   const tooltipContent = !isInOnboarding ? (

@@ -25,8 +25,9 @@ import {
   showSuccessMessage,
   tableWidgetHasBinding,
 } from "selectors/onboardingSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -95,15 +96,18 @@ const ContentWrapper = styled.div`
   display: flex;
   gap: 50px;
   align-items: center;
+`;
 
-  button {
-    min-width: 120px;
-    padding: 11px 0px;
-  }
+const GuideButton = styled(Button)`
+  padding: ${(props) => props.theme.spaces[0]}px
+    ${(props) => props.theme.spaces[6]}px;
+  height: 30px;
+  ${(props) => getTypographyByKey(props, "btnMedium")};
 `;
 
 const SubContentWrapper = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
 `;
 
@@ -133,6 +137,12 @@ const SuccessMessageWrapper = styled.div`
   .lottie-wrapper {
     height: 77px;
     weight: 77px;
+  }
+  .title-wrapper {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
   }
 `;
 
@@ -245,7 +255,7 @@ function InitialContent() {
             start the tour.
           </Description>
         </SubContentWrapper>
-        <Button
+        <GuideButton
           isLoading={isLoading}
           onClick={setupFirstStep}
           tag="button"
@@ -443,7 +453,10 @@ function CompletionContent(props: CompletionContentProps) {
   return (
     <SuccessMessageWrapper>
       <div className="lottie-wrapper" ref={tickMarkRef} />
-      <Title>{Steps[props.step].successMessage}</Title>
+      <div className="title-wrapper">
+        <Title>{Steps[props.step].successMessage}</Title>
+        <GuideButton onClick={() => null} tag="button" text="CONTINUE" />
+      </div>
     </SuccessMessageWrapper>
   );
 }
