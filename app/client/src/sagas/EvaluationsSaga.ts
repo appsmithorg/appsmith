@@ -213,6 +213,7 @@ export function* evaluateDynamicTrigger(
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
+      log.debug({ trigger: requestData.trigger });
       yield spawn(
         executeTriggerRequestSaga,
         requestData,
