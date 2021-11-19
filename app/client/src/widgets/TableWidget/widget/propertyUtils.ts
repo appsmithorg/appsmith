@@ -174,7 +174,7 @@ export const updateColumnStyles = (
   }
   return;
 };
-// Select default Icon Alignment and button variant when an icon is chosen
+// Select default Icon Alignment when an icon is chosen
 export function updateIconAlignment(
   props: TableWidgetProps,
   propertyPath: string,

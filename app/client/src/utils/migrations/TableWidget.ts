@@ -462,3 +462,23 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
 
   return currentDSL;
 };
+
+export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      child.primaryColumns.forEach((accessor: string, index: number) => {
+        const primaryColumn = child.primaryColumns[accessor];
+
+        if (primaryColumn.columnType === "iconButton") {
+          if (!("buttonVariant" in primaryColumn)) {
+            primaryColumn.buttonVariant = "PRIMARY";
+          }
+        }
+      });
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetIconButtonVariant(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
