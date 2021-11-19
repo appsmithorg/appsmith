@@ -30,6 +30,7 @@ describe("PgAdmin Clone App", function() {
     cy.get(homePage.appEditIcon)
       .first()
       .click({ force: true });
+    // authenticating datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
 
@@ -46,16 +47,18 @@ describe("PgAdmin Clone App", function() {
 
   it("Create queries", function() {
     cy.NavigateToQueryEditor();
-    // get_schema query
+    // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.queryNameField).type("get_schema");
+    // switching off Use Prepared Statement toggle
     cy.get(queryLocators.switch)
       .last()
       .click({ force: true });
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.query).click({ force: true });
+    // writing query to get the schema
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -65,13 +68,15 @@ describe("PgAdmin Clone App", function() {
       });
     cy.WaitAutoSave();
     cy.runQuery();
-    // get_tables query
+    // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
+    // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.queryNameField).type("get_tables");
     cy.get(queryLocators.templateMenu).click();
+    // writing query to get all the tables
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -84,13 +89,15 @@ describe("PgAdmin Clone App", function() {
       );
     cy.WaitAutoSave();
     cy.runQuery();
-    // get_columns query
+    // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
+    // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.queryNameField).type("get_columns");
     cy.get(queryLocators.templateMenu).click();
+    // creating query to get the columns of the table
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -103,16 +110,19 @@ describe("PgAdmin Clone App", function() {
       );
     cy.WaitAutoSave();
     cy.runQuery();
-    //  create_table query
+    // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
+    // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.queryNameField).type("create_table");
+    // switching off Use Prepared Statement toggle
     cy.get(queryLocators.switch)
       .last()
       .click({ force: true });
     cy.get(queryLocators.templateMenu).click();
+    // writing query to create new table
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -126,16 +136,19 @@ describe("PgAdmin Clone App", function() {
     cy.wait(3000);
     cy.WaitAutoSave();
     cy.runQuery();
-    // drop_table
+    // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
+    // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
     cy.get(queryLocators.queryNameField).type("drop_table");
     cy.get(queryLocators.templateMenu).click();
+    // switching off Use Prepared Statement toggle
     cy.get(queryLocators.switch)
       .last()
       .click({ force: true });
+    // creating query to delete the table
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -148,6 +161,7 @@ describe("PgAdmin Clone App", function() {
       );
     cy.WaitAutoSave();
     cy.runQuery();
+    // clicking on chevron icon to go back to the datasources page
     cy.get(appPage.dropdownChevronLeft).click();
   });
 
@@ -155,14 +169,15 @@ describe("PgAdmin Clone App", function() {
     const uuid = () => Cypress._.random(0, 1e6);
     const id = uuid();
     const Table = `table${id}`;
+    // clicking on chevron to go back to the application page
     cy.get(appPage.dropdownChevronLeft).click();
-    // cy.xpath("//span[text()='public']").click();
-    //  cy.xpath("//div[text()='information_schema']").click();
+    // adding new table
     cy.xpath(appPage.addNewtable).click();
     cy.xpath(appPage.addTablename)
       .clear()
       .type(Table);
     cy.wait(2000);
+    // adding column to the table
     cy.xpath(appPage.addColumn).click();
     cy.wait(2000);
     cy.xpath(appPage.columnNamefield).should("be.visible");
@@ -170,9 +185,11 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.addTablename).type("id");
     cy.xpath(appPage.textField).click();
     cy.xpath(appPage.selectDatatype).click();
+    // switching on the Primary Key toggle
     cy.get(widgetsPage.switchWidgetInactive)
       .first()
       .click();
+    // switching on the Not Null toggle
     cy.get(widgetsPage.switchWidgetInactive)
       .last()
       .click();
@@ -185,15 +202,12 @@ describe("PgAdmin Clone App", function() {
 
   it("View and Delete table", function() {
     cy.xpath(appPage.addNewtable).should("be.visible");
-    //   cy.get("appPage.dropdownChevronDown").click();
-    //   cy.xpath("//div[text()='pg_catalog']").click();
+    // viewing the table's columns by clicking on view button
     cy.xpath(appPage.viewButton)
       .first()
       .click({ force: true });
     cy.wait(2000);
-    cy.get(appPage.dropdownChevronDown).click();
-    cy.xpath(appPage.selectInformationSchema).click();
-    cy.wait(2000);
+    // deleting the table through modal
     cy.xpath(appPage.deleteButton)
       .last()
       .click({ force: true });
