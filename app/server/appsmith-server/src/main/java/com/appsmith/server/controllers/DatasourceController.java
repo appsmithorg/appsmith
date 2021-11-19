@@ -15,7 +15,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,21 +43,20 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
     private final MockDataService mockDataService;
-
+    private final DatasourceTriggerSolution datasourceTriggerSolution;
 
     @Autowired
     public DatasourceController(DatasourceService service,
                                 DatasourceStructureSolution datasourceStructureSolution,
                                 AuthenticationService authenticationService,
-                                ExamplesOrganizationCloner examplesOrganizationCloner,
-                                MockDataService datasourceService) {
+                                MockDataService datasourceService,
+                                DatasourceTriggerSolution datasourceTriggerSolution) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
-        this.examplesOrganizationCloner = examplesOrganizationCloner;
         this.mockDataService = datasourceService;
+        this.datasourceTriggerSolution = datasourceTriggerSolution;
     }
 
     @PostMapping("/test")
@@ -121,7 +120,7 @@ public class DatasourceController extends BaseController<DatasourceService, Data
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
                                                        @RequestParam MultiValueMap<String, Object> params) {
         log.debug("Trigger received for datasource {}", datasourceId);
-        return datasourceStructureSolution.trigger(datasourceId, params)
+        return datasourceTriggerSolution.trigger(datasourceId, params)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 

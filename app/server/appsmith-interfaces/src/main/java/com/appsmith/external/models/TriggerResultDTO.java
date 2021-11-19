@@ -10,5 +10,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TriggerResultDTO {
-    Object data;
+    Object trigger;
 }
