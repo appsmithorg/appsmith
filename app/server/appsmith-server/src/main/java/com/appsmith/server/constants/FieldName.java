@@ -95,5 +95,6 @@ public class FieldName {
     public static final String SOURCE_BRANCH = "sourceBranch";
     public static final String DESTINATION_BRANCH = "destinationBranch";
     public static final String DEFAULT = "default";
+    public static final String GIT_SYNC_ID = "gitSyncId";
     public static final String DYNAMIC_TRIGGER_PATH_LIST = "dynamicTriggerPathList";
 }

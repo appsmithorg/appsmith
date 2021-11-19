@@ -9,6 +9,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -920,6 +921,7 @@ public class ImportExportApplicationService {
 
             return Flux.fromIterable(pages)
                     .flatMap(newPage -> {
+
                         // Check if the page has gitSyncId and if it's already in DB
                         if (newPage.getGitSyncId() != null && savedPagesGitIdToPageMap.containsKey(newPage.getGitSyncId())) {
                             //Since the resource is already present in DB, just update resource
@@ -927,18 +929,36 @@ public class ImportExportApplicationService {
                             newPage.setId(savedPagesGitIdToPageMap.get(newPage.getGitSyncId()).getId());
                             BeanCopyUtils.copyNestedNonNullProperties(newPage, existingPage);
                             return newPageService.update(newPage.getId(), existingPage);
+                        } else if(!CollectionUtils.isEmpty(existingSavedPages)) {
+                            final String defaultApplicationId = existingSavedPages.get(0).getDefaultResources().getApplicationId();
+                            return newPageService.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newPage.getGitSyncId(), MANAGE_PAGES)
+                                    .switchIfEmpty(Mono.defer(() -> {
+                                        // This is the first page we are saving with given gitSyncId in this instance
+                                        return saveNewPageAndUpdateDefaultResources(newPage, branchName);
+                                    }))
+                                    .flatMap(branchedPage -> {
+                                        DefaultResources defaultResources = branchedPage.getDefaultResources();
+                                        // Create new page but keep defaultApplicationId and defaultPageId same for both the pages
+                                        defaultResources.setBranchName(branchName);
+                                        newPage.setDefaultResources(defaultResources);
+                                        return newPageService.save(newPage);
+                                    });
                         }
-                        return newPageService.save(newPage)
-                                .flatMap(page -> {
-                                    if (page.getDefaultResources() == null) {
-                                        NewPage update = new NewPage();
-                                        update.setDefaultResources(DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
-                                        return newPageService.update(page.getId(), update);
-                                    }
-                                    return Mono.just(page);
-                                });
+                        return saveNewPageAndUpdateDefaultResources(newPage, branchName);
                     });
         });
+    }
+
+    private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
+        return newPageService.save(newPage)
+                .flatMap(page -> {
+                    if (page.getDefaultResources() == null) {
+                        NewPage update = new NewPage();
+                        update.setDefaultResources(DefaultResourcesUtils.createPristineDefaultIdsAndUpdateWithGivenResourceIds(page, branchName).getDefaultResources());
+                        return newPageService.update(page.getId(), update);
+                    }
+                    return Mono.just(page);
+                });
     }
 
     /**

@@ -265,4 +265,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return obj;
     }
 
+    public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryOne(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
 }
