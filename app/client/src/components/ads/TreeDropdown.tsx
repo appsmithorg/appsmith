@@ -68,15 +68,20 @@ const StyledMenu = styled(Menu)`
       fill: #9f9f9f;
     }
 
-    &.t--apiFormDeleteBtn,
-    &.t--apiFormDeleteBtn:hover {
+    &.t--apiFormDeleteBtn {
       color: ${Colors.DANGER_SOLID};
       .${Classes.ICON} svg {
         fill: ${Colors.DANGER_SOLID};
       }
     }
+    &.t--apiFormDeleteBtn:hover {
+      color: ${Colors.GREY_10};
+      .${Classes.ICON} svg {
+        fill: ${Colors.GREY_10};
+      }
+    }
 
-    &:hover {
+    &:hover:not(.t--apiFormDeleteBtn) {
       background-color: ${Colors.GREY_3};
       color: ${Colors.GREY_10};
       .${Classes.ICON} > svg:not([fill]) {
@@ -84,7 +89,7 @@ const StyledMenu = styled(Menu)`
       }
     }
 
-    &.${Classes.ACTIVE} {
+    &.${Classes.ACTIVE}:not(.t--apiFormDeleteBtn) {
       background-color: ${Colors.GREY_3};
       color: ${(props) => props.theme.colors.treeDropdown.menuText.selected};
       .${Classes.ICON} > svg:not([fill]) {
