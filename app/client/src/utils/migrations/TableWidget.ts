@@ -383,9 +383,25 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
 
       const newPrimaryColumns: Record<string, ColumnProperties> = {};
       if (primaryColumnEntries.length) {
-        for (const [key, value] of primaryColumnEntries) {
+        for (const [, primaryColumnEntry] of primaryColumnEntries.entries()) {
+          // Value is reassigned when its invalid(Faulty DSL  https://github.com/appsmithorg/appsmith/issues/8979)
+          const [key] = primaryColumnEntry;
+          let [, value] = primaryColumnEntry;
           const sanitizedKey = removeSpecialChars(key, 200);
-          const id = removeSpecialChars(value.id, 200);
+          let id = "";
+          if (value.id) {
+            id = removeSpecialChars(value.id, 200);
+          }
+          // When id is undefined it's likely value isn't correct and needs fixing
+          else if (Object.keys(value)) {
+            const onlyKey = Object.keys(value)[0] as keyof ColumnProperties;
+            const obj: ColumnProperties = value[onlyKey] as any;
+            if (!obj.id && !obj.columnType) {
+              continue;
+            }
+            value = obj;
+            id = removeSpecialChars(value.id, 200);
+          }
 
           // Sanitizes "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.$$$random_header))}}"
           // to "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._random_header))}}"
