@@ -1,0 +1,51 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1206.35,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 710,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 46,
+    "minHeight": 690,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "ImageAnnotator1",
+        "isCanvas": false,
+        "displayName": "Image Annotator",
+        "iconSVG": "/static/media/icon.258c3cc5.svg",
+        "topRow": 6,
+        "bottomRow": 42,
+        "parentRowSpace": 10,
+        "type": "IMAGE_ANNOTATOR_WIDGET",
+        "hideCard": false,
+        "parentColumnSpace": 18.66171875,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 2,
+        "dynamicBindingPathList": [],
+        "imageUrl": "https://placekitten.com/408/287",
+        "selector": "RECTANGLE",
+        "isDisabled": false,
+        "key": "q9ywaq9pdg",
+        "defaultAnnotations": "[]",
+        "rightColumn": 30,
+        "widgetId": "2bd2mqd1bf",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false
+      }
+    ]
+  }
+}

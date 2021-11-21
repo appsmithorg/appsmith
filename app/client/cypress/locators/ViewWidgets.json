@@ -30,5 +30,10 @@
     "defaultImage": ".t--property-control-defaultimage .CodeMirror textarea",
     "Chartlabel": ".t--draggable-chartwidget g:nth-child(5) text",
     "PieChartLabel": ".t--draggable-chartwidget g g:nth-child(1) g text",
-    "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']"
+    "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']",
+    "imageAnnotatorWidget": ".t--draggable-imageannotatorwidget",
+    "imageAnnotatorImageUrl": ".t--property-control-imageurl .CodeMirror textarea",
+    "imageAnnotatorImageAltText": ".t--property-control-imagealttext .CodeMirror textarea",
+    "imageAnnotatorDefaultAnnotations": ".t--property-control-defaultannotations .CodeMirror textarea",
+    "imageAnnotatorSelector": ".t--property-control-selector .bp3-popover-target"
 }

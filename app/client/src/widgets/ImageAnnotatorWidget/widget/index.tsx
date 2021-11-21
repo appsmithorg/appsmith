@@ -198,9 +198,9 @@ class ImageAnnotatorWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "isAnnotationDisabled",
-            helpText: "Set to true to disable creating of annotations",
-            label: "Disable",
+            propertyName: "isDisabled",
+            helpText: "Sets to true to disable creating of annotations",
+            label: "Disabled",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -314,7 +314,7 @@ class ImageAnnotatorWidget extends BaseWidget<
       annotations,
       imageAltText,
       imageUrl,
-      isAnnotationDisabled,
+      isDisabled,
       selector,
     } = this.props;
 
@@ -323,9 +323,9 @@ class ImageAnnotatorWidget extends BaseWidget<
         <ImageAnnotatorComponent
           annotation={annotation}
           annotations={annotations}
+          disabled={isDisabled}
           imageAltText={imageAltText}
           imageUrl={imageUrl}
-          isAnnotationDisabled={isAnnotationDisabled}
           onChange={this.handleAnnotationChange}
           onReset={this.handleResetAnnotations}
           onSubmit={this.handleAnnotationSubmit}
@@ -345,7 +345,7 @@ export interface ImageAnnotatorWidgetProps extends WidgetProps {
   annotations: IAnnotation[];
   imageAltText?: string;
   imageUrl: string;
-  isAnnotationDisabled?: boolean;
+  isDisabled?: boolean;
   isVisible: boolean;
   onAnnotationSubmit?: string;
   selector: AnnotationSelector;

@@ -996,7 +996,9 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
   cy.get(apiwidget.apiTxt).blur();
 });
@@ -1081,7 +1083,9 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    expect($x).contain(apiname.concat(" is already being used or is a restricted keyword."));
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
 });
 
@@ -3101,4 +3105,12 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     expect(response.status).equal(302);
     cy.log(response.body);
   });
+});
+
+Cypress.Commands.add("annotateImage", (targetImageSelector, { x, y }) => {
+  cy.get(targetImageSelector)
+    .trigger("mousedown", { which: 1 })
+    .trigger("mousemove", x, y)
+    .trigger("mouseup", { force: true });
+  cy.wait(500);
 });
