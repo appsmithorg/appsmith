@@ -5,17 +5,17 @@ import { AppState } from "reducers/index";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
-import { SelectWrapper, Label, Bold } from "./styles";
+import { SelectWrapper, Label, Bold } from "../styles";
 import TextInput from "components/ads/TextInput";
-import { GeneratePagePayload } from "./types";
-import { getSheetUrl } from "./hooks";
+import { GeneratePagePayload } from "../types";
+import { getSheetUrl } from "../hooks";
 import Tooltip from "components/ads/Tooltip";
 import styled from "styled-components";
 import {
   UseSheetListReturn,
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
-} from "./hooks";
+} from "../hooks";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";

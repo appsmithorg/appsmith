@@ -15,13 +15,13 @@ import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { getGitBranches, getMergeStatus } from "selectors/gitSyncSelectors";
-import { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   mergeBranchInit,
   fetchBranchesInit,
   resetMergeStatus,
   fetchGitStatusInit,
 } from "actions/gitSyncActions";
+import { DropdownOptions } from "../../GeneratePage/components/GeneratePageForm/constants";
 import {
   getIsFetchingMergeStatus,
   getFetchingBranches,

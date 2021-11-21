@@ -280,7 +280,7 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
   (plugins) => {
     const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
     plugins.map((plugin) => {
-      if (plugin.generateCRUDPageComponent) {
+      if (plugin.generateCRUDPageUiConfig) {
         pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
       }
     });

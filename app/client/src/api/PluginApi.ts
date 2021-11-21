@@ -32,7 +32,12 @@ export interface Plugin {
   templates: Record<string, string>;
   responseType?: "TABLE" | "JSON";
   documentationLink?: string;
-  generateCRUDPageComponent?: string;
+  generateCRUDPageUiConfig?: {
+    formType: string;
+    columnType: string;
+    tableType: string;
+    templatePageName: string;
+  };
 }
 
 export interface PluginFormPayload {
