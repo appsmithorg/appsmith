@@ -1369,6 +1369,26 @@ Cypress.Commands.add("updateComputedValue", (value) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("clearPropertyValue", (value) => {
+  cy.get(".CodeMirror textarea")
+    .eq(value)
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents != "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .eq(value)
+        .clear({
+          force: true,
+        });
+    }
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("testCodeMirrorLast", (value) => {
   cy.get(".CodeMirror textarea")
     .last()
