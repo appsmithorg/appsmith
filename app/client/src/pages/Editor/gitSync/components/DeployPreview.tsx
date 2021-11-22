@@ -76,7 +76,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         lastDeployedAt,
       )} ago`
     : "";
-  return (
+  return lastDeployedAt ? (
     <Container>
       <CloudIconWrapper>
         {props.showSuccess ? (
@@ -104,5 +104,5 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         </Text>
       </ContentWrapper>
     </Container>
-  );
+  ) : null;
 }

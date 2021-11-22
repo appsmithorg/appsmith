@@ -46,15 +46,22 @@ export default function ConflictInfo(props: CIPropType) {
       dispatch(gitPullInit());
     }
   };
-  let remoteUrl = "";
-  if (gitMetaData?.remoteUrl) {
-    remoteUrl =
-      gitMetaData?.remoteUrl?.indexOf("git@") > -1
-        ? gitMetaData?.remoteUrl.replace(
-            "git@github.com:",
-            "https://github.com/",
-          )
-        : "";
+  const originUrl = gitMetaData?.remoteUrl;
+  let remoteUrl = originUrl;
+
+  if (originUrl && new RegExp("git@*").test(originUrl)) {
+    remoteUrl = remoteUrl?.replace(":", "/");
+    remoteUrl = remoteUrl?.replace(/git@/, "https://");
+    // bitbucket repo
+    if (new RegExp("bitbucket.org").test(originUrl)) {
+      const match = remoteUrl?.match(/\/\w+/g);
+      if (match && match.length > 2) {
+        remoteUrl = remoteUrl?.replace(
+          /bitbucket.org/,
+          match[1].substr(1) + "@bitbucket.org",
+        );
+      }
+    }
   }
   return isConflicting ? (
     <>
