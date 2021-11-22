@@ -24,10 +24,15 @@ import {
 } from "widgets/WidgetUtils";
 import _ from "lodash";
 
-export const MenuButtonContainer = styled.div`
+type MenuButtonContainerProps = {
+  disabled?: boolean;
+};
+
+export const MenuButtonContainer = styled.div<MenuButtonContainerProps>`
   width: 100%;
   height: 100%;
   text-align: center;
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
   & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
@@ -104,6 +109,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
+      color: ${theme.colors.button.disabled.textColor} !important;
+      pointer-events: none;
       border-color: ${theme.colors.button.disabled.bgColor} !important;
       > span {
         color: ${theme.colors.button.disabled.textColor} !important;
@@ -394,7 +401,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
   const id = _.uniqueId();
 
   return (
-    <MenuButtonContainer>
+    <MenuButtonContainer disabled={isDisabled}>
       <PopoverStyles
         id={id}
         menuDropDownWidth={menuDropDownWidth}
