@@ -1,0 +1,70 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1080,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 5168,
+        "containerStyle": "none",
+        "snapRows": 129,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 41,
+        "minHeight": 820,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": "{{error}}",
+                "text": "{{Nodata}}",
+                "fontSize": "PARAGRAPH",
+                "fontStyle": "BOLD",
+                "textAlign": "LEFT",
+                "textColor": "#231F20",
+                "widgetName": "Text1",
+                "version": 1,
+                "type": "TEXT_WIDGET",
+                "hideCard": false,
+                "displayName": "Text",
+                "key": "yv9e0um9i7",
+                "iconSVG": "/static/media/icon.dbad9587.svg",
+                "widgetId": "8nthp5e7ya",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.6875,
+                "parentRowSpace": 10,
+                "leftColumn": 12,
+                "rightColumn": 28,
+                "topRow": 20,
+                "bottomRow": 24,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "text"
+                    },
+                    {
+                        "key": "isVisible"
+                    },
+                    {
+                        "key": "disableLink"
+                    }
+                ],
+                "dynamicTriggerPathList": [],
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "isVisible"
+                    },
+                    {
+                        "key": "disableLink"
+                    }
+                ],
+                "disableLink": "{{lintErrror}}"
+            }
+        ]
+    }
+}

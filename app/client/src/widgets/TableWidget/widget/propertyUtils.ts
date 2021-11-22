@@ -22,9 +22,6 @@ export function defaultSelectedRowValidation(
 ) {
   if (props) {
     if (props.multiRowSelection) {
-      if (props && !props.multiRowSelection)
-        return { isValid: true, parsed: undefined };
-
       if (_.isString(value)) {
         const trimmed = (value as string).trim();
         try {

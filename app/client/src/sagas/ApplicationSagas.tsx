@@ -117,7 +117,11 @@ export function* publishApplicationSaga(
 
       const showOnboardingCompletionDialog = yield select(showCompletionDialog);
       if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl += "?onboardingComplete=true";
+        appicationViewPageUrl = getApplicationViewerPageURL({
+          applicationId,
+          pageId: currentPageId,
+          params: { onboardingComplete: "true" },
+        });
       }
 
       yield put({
@@ -204,6 +208,11 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
     yield put({
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       payload: response.data,
+    });
+
+    yield put({
+      type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+      payload: response.data?.evaluationVersion,
     });
 
     if (action.onSuccessCallback) {

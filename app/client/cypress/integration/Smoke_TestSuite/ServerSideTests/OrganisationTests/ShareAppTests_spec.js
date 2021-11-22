@@ -82,6 +82,7 @@ describe("Create new org and share with a user", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.wait(3000);
     cy.get(publish.pageInfo)
       .invoke("text")
       .then((text) => {
@@ -138,6 +139,16 @@ describe("Create new org and share with a user", function() {
       404,
     );
     cy.LogOut();
+  });
+
+  it("visit the app as anonymous user and validate redirection to login page", function() {
+    cy.visit(currentUrl);
+    cy.wait("@viewApp").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      404,
+    );
+    cy.contains("Sign in to your account").should("be.visible");
   });
 
   it("login as owner and delete App ", function() {

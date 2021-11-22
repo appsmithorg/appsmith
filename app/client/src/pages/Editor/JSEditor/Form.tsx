@@ -14,7 +14,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import FormRow from "components/editorComponents/FormRow";
 import JSObjectNameEditor from "./JSObjectNameEditor";
-import { updateJSCollection } from "actions/jsPaneActions";
+import { updateJSCollectionBody } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
@@ -23,6 +23,8 @@ import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { EvaluationError } from "utils/DynamicBindingUtils";
+import SearchSnippets from "components/ads/SnippetButton";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 const Form = styled.form`
   display: flex;
@@ -117,7 +119,7 @@ function JSEditorForm(props: Props) {
   const dataTree = useSelector(getDataTree);
   const handleOnChange = (event: string) => {
     if (currentJSAction) {
-      dispatch(updateJSCollection(event, currentJSAction.id));
+      dispatch(updateJSCollectionBody(event, currentJSAction.id));
     }
   };
   const { pageId } = useParams<ExplorerURLParams>();
@@ -141,6 +143,10 @@ function JSEditorForm(props: Props) {
                 id={currentJSAction.id}
                 name={currentJSAction.name}
                 pageId={pageId}
+              />
+              <SearchSnippets
+                entityId={currentJSAction?.id}
+                entityType={ENTITY_TYPE.JSACTION}
               />
             </ActionButtons>
           </FormRow>

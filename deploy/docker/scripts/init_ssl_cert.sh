@@ -25,6 +25,13 @@ init_ssl_cert() {
   cat /etc/nginx/conf.d/nginx_app.conf.template | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' >/etc/nginx/sites-available/default
 
   local live_path="/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN"
+  local ssl_path="/appsmith-stacks/ssl"
+  if [[ -e "$ssl_path/fullchain.pem" ]] && [[ -e "$ssl_path/privkey.pem" ]]; then
+    echo "Existing custom certificate"
+    nginx -s stop
+    return
+  fi
+
   if [[ -e "$live_path" ]]; then
     echo "Existing certificate for domain $APPSMITH_CUSTOM_DOMAIN"
     echo "Stop Nginx"

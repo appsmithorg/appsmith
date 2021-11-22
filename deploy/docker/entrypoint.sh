@@ -60,16 +60,23 @@ mount_letsencrypt_directory() {
 
 configure_supervisord() {
   SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
-  if [[ -f "/etc/supervisor/conf.d/"*.conf ]]; then
-    rm "/etc/supervisor/conf.d/"*
+  if [[ -z "$(ls -A /etc/supervisor/conf.d)" ]]; then
+    rm -f "/etc/supervisor/conf.d/"*
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+
+  # Disable services based on configuration
   if [[ "$APPSMITH_MONGODB_URI" = "mongodb://appsmith:$MONGO_INITDB_ROOT_PASSWORD@localhost/appsmith" ]]; then
     cp "$SUPERVISORD_CONF_PATH/mongodb.conf" /etc/supervisor/conf.d/
   fi
   if [[ "$APPSMITH_REDIS_URL" = "redis://127.0.0.1:6379" ]]; then
     cp "$SUPERVISORD_CONF_PATH/redis.conf" /etc/supervisor/conf.d/
+		# Enable saving Redis session data to disk more often, so recent sessions aren't cleared on restart.
+		sed -i 's/^# save 60 10000$/save 60 1/g' /etc/redis/redis.conf
+  fi
+  if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
+    cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
   fi
 }
 
@@ -79,10 +86,19 @@ ENV_PATH="$CONF_PATH/docker.env"
 if ! [[ -e "$ENV_PATH" ]]; then
   echo "Generating default configuration file"
   mkdir -p "$CONF_PATH"
-  AUTO_GEN_MONGO_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-  AUTO_GEN_ENCRYPTION_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-  AUTO_GEN_ENCRYPTION_SALT=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-  bash "/opt/appsmith/templates/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
+  AUTO_GEN_MONGO_PASSWORD=$(
+    tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+    echo ''
+  )
+  AUTO_GEN_ENCRYPTION_PASSWORD=$(
+    tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+    echo ''
+  )
+  AUTO_GEN_ENCRYPTION_SALT=$(
+    tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+    echo ''
+  )
+  bash "/opt/appsmith/templates/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" >"$ENV_PATH"
 fi
 
 if [[ -f "$ENV_PATH" ]]; then

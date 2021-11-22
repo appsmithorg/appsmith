@@ -2,6 +2,7 @@ import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import Icon, { IconName, IconSize } from "./Icon";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
@@ -86,6 +87,13 @@ const StyledDialog = styled(Dialog)<{
   }
 `;
 
+const HeaderIconWrapper = styled.div`
+  padding: 5px;
+  border-radius: 50%;
+  margin-right: 10px;
+  background: ${(props) => props.theme.colors.modal.iconBg};
+`;
+
 const TriggerWrapper = styled.div`
   margin-right: 4px;
 `;
@@ -94,6 +102,11 @@ type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
   title?: string;
+  headerIcon?: {
+    name: IconName;
+    fillColor?: string;
+    hoverColor?: string;
+  };
   trigger?: ReactNode;
   setMaxWidth?: boolean;
   children: ReactNode;
@@ -125,6 +138,16 @@ export function DialogComponent(props: DialogComponentProps) {
   }, [props.isOpen]);
 
   const getHeader = props.getHeader;
+  const headerIcon = props.headerIcon ? (
+    <HeaderIconWrapper>
+      <Icon
+        fillColor={props.headerIcon.fillColor}
+        hoverFillColor={props.headerIcon.hoverColor}
+        name={props.headerIcon.name}
+        size={IconSize.XL}
+      />
+    </HeaderIconWrapper>
+  ) : null;
 
   return (
     <>
@@ -143,6 +166,7 @@ export function DialogComponent(props: DialogComponentProps) {
         canEscapeKeyClose={!!props.canEscapeKeyClose}
         canOutsideClickClose={!!props.canOutsideClickClose}
         className={props.className}
+        icon={headerIcon}
         isOpen={isOpen}
         maxHeight={props.maxHeight}
         maxWidth={props.maxWidth}
