@@ -54,7 +54,7 @@ init_mongodb() {
 mount_letsencrypt_directory() { 
   echo "Mounting Let's encrypt directory"
   rm -rf /etc/letsencrypt
-  mkdir -p /appsmith-stacks/letsencrypt
+  mkdir -p /appsmith-stacks/{letsencrypt,ssl}
   ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
 }
 
