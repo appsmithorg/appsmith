@@ -374,7 +374,8 @@ jobs:
           ls -l
           ls -l scripts/
           ls -l dist/
-          nohup ./scripts/start-dev-server.sh 2>&1 &
+          # Run the server in the background and redirect logs to a log file
+          ./scripts/start-dev-server.sh &> server-logs.log &
 
       - name: Wait for 30s and check if server is running
         run: |
@@ -481,6 +482,14 @@ jobs:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
+      # Upload the log artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server logs bundle on failure
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: server-logs-${{ matrix.job }}
+          path: app/server/server-logs.log
+
   ui-test-result:
     needs: ui-test
     if: always() &&
@@ -515,17 +524,17 @@ jobs:
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
     if: (success() && github.ref == 'refs/heads/master') ||
-      ( always() && 
-          (
-            github.event_name == 'workflow_dispatch' ||
-            github.event_name == 'push' ||
-            (
-                github.event_name == 'pull_request_review' &&
-                github.event.review.state == 'approved' &&
-                github.event.pull_request.head.repo.full_name == github.repository
-            )
-        ) &&
-        github.ref == 'refs/heads/release'
+      ( always() &&
+      (
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+      )
+      ) &&
+      github.ref == 'refs/heads/release'
       )
 
     steps:

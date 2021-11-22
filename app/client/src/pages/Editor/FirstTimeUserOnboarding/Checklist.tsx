@@ -265,6 +265,7 @@ export default function OnboardingChecklist() {
   return (
     <Wrapper data-testid="checklist-wrapper">
       <Backbutton
+        className="t--checklist-back"
         onClick={() =>
           history.push(BUILDER_PAGE_URL({ applicationId, pageId }))
         }
@@ -293,7 +294,10 @@ export default function OnboardingChecklist() {
       <Pageheader>{createMessage(ONBOARDING_CHECKLIST_HEADER)}</Pageheader>
       <PageSubHeader>{createMessage(ONBOARDING_CHECKLIST_BODY)}</PageSubHeader>
       <StatusWrapper>
-        <span data-testid="checklist-completion-info">
+        <span
+          className="t--checklist-complete-status"
+          data-testid="checklist-completion-info"
+        >
           {completedTasks} of 5
         </span>
         &nbsp;{createMessage(ONBOARDING_CHECKLIST_COMPLETE_TEXT)}
@@ -337,6 +341,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-datasource-button"
               data-testid="checklist-datasource-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
@@ -386,6 +391,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-action-button"
               data-testid="checklist-action-button"
               disabled={!datasources.length}
               onClick={() => {
@@ -437,6 +443,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-widget-button"
               data-testid="checklist-widget-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
@@ -485,6 +492,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-connection-button"
               data-testid="checklist-connection-button"
               disabled={Object.keys(widgets).length === 1 || !actions.length}
               onClick={onconnectYourWidget}
@@ -526,6 +534,7 @@ export default function OnboardingChecklist() {
                   ? Category.primary
                   : Category.tertiary
               }
+              className="t--checklist-deploy-button"
               data-testid="checklist-deploy-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
