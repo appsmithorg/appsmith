@@ -187,37 +187,44 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                 .flatMapMany(branchedApplicationId ->
                     repository
                         .findByApplicationIdAndViewMode(branchedApplicationId, true, EXECUTE_ACTIONS)
-                        .flatMap(actionCollection -> {
-                            ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
-                            final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
-                            actionCollectionViewDTO.setId(actionCollection.getId());
-                            actionCollectionViewDTO.setName(publishedCollection.getName());
-                            actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
-                            actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
-                            actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
-                            actionCollectionViewDTO.setBody(publishedCollection.getBody());
-                            // Update default resources :
-                            // actionCollection.defaultResources contains appId, collectionId and branch(optional).
-                            // Default pageId will be taken from publishedCollection.defaultResources
-                            DefaultResources defaults = actionCollection.getDefaultResources();
-                            // Consider a situation when collection is not published but user is viewing in deployed mode
-                            if (publishedCollection.getDefaultResources() != null) {
-                                defaults.setPageId(publishedCollection.getDefaultResources().getPageId());
-                            } else {
-                                defaults.setPageId(null);
-                            }
-                            actionCollectionViewDTO.setDefaultResources(defaults);
-                            return Flux.fromIterable(publishedCollection.getDefaultToBranchedActionIdsMap().values())
-                                    .flatMap(actionId -> {
-                                        return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
-                                    })
-                                    .collectList()
-                                    .map(actionDTOList -> {
-                                        actionCollectionViewDTO.setActions(actionDTOList);
-                                        return actionCollectionViewDTO;
-                                    });
-                        })
-                        .map(sanitiseResponse::updateActionCollectionViewDTOWithDefaultResources)
+                        // Filter out all the action collections which haven't been published
+                .flatMap(actionCollection -> {
+                    if (actionCollection.getPublishedCollection() == null) {
+                        return Mono.empty();
+                    }
+                    return Mono.just(actionCollection);
+                })
+                .flatMap(actionCollection -> {
+                    ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
+                    final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+                    actionCollectionViewDTO.setId(actionCollection.getId());
+                    actionCollectionViewDTO.setName(publishedCollection.getName());
+                    actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
+                    actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
+                    actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
+                    actionCollectionViewDTO.setBody(publishedCollection.getBody());
+                    // Update default resources :
+                    // actionCollection.defaultResources contains appId, collectionId and branch(optional).
+                    // Default pageId will be taken from publishedCollection.defaultResources
+                    DefaultResources defaults = actionCollection.getDefaultResources();
+                    // Consider a situation when collection is not published but user is viewing in deployed mode
+                    if (publishedCollection.getDefaultResources() != null) {
+                        defaults.setPageId(publishedCollection.getDefaultResources().getPageId());
+                    } else {
+                        defaults.setPageId(null);
+                    }
+                    actionCollectionViewDTO.setDefaultResources(defaults);
+                    return Flux.fromIterable(publishedCollection.getDefaultToBranchedActionIdsMap().values())
+                            .flatMap(actionId -> {
+                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
+                            })
+                            .collectList()
+                            .map(actionDTOList -> {
+                                actionCollectionViewDTO.setActions(actionDTOList);
+                                return actionCollectionViewDTO;
+                            });
+                    })
+                    .map(sanitiseResponse::updateActionCollectionViewDTOWithDefaultResources)
                 );
     }
 

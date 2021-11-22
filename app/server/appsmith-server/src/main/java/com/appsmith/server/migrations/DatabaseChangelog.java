@@ -3812,7 +3812,7 @@ public class DatabaseChangelog {
             }
         }
     }
-
+  
     /**
      * Updates all existing S3 actions to modify the body parameter.
      * Earlier, the body used to be a base64 encoded or a blob of file data.
@@ -3863,7 +3863,27 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "097", id = "insert-default-resources", author = "")
+    /**
+     * This migration fixes the data due to issue #8999 Due to this bug, public applications have isPublic=false
+     * when they are edited but in policies anonymousUser still have read application permission.
+     * This migration will set isPublic=true to those applications which have isPublic=false but anonymousUser has
+     * read:applications permission in policies
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "097", id = "fix-ispublic-is-false-for-public-apps", author = "")
+    public void fixIsPublicIsSetFalseWhenAppIsPublic(MongockTemplate mongockTemplate) {
+        Query query = query(
+                where("isPublic").is(false)
+                        .and("deleted").is(false)
+                        .and("policies").elemMatch(
+                                where("permission").is("read:applications").and("users").is("anonymousUser")
+                        )
+        );
+        Update update = new Update().set("isPublic", true);
+        mongockTemplate.updateMulti(query, update, Application.class);
+    }
+
+    @ChangeSet(order = "098", id = "insert-default-resources", author = "")
     public void insertDefaultResources(MongockTemplate mongockTemplate) {
 
         // We are not updating all the resources at once using db.updateAll is to avoid the out of memory issue which

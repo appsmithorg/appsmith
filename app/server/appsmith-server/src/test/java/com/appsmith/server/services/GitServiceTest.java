@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchListDTO;
-import com.appsmith.external.dtos.MergeStatus;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
@@ -13,6 +13,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.GitConnectDTO;
+import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -774,6 +775,9 @@ public class GitServiceTest {
     public void pullChanges_ChangesInRemote_SuccessMessage() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("NoChangesInRemote");
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId(), "").block();
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("2 commits pulled");
+        mergeStatusDTO.setMerge(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
@@ -781,7 +785,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(new ApplicationJson()));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("2 commits pulled"));
+                .thenReturn(Mono.just(mergeStatusDTO));
         Mockito.when(importExportApplicationService.exportApplicationById(Mockito.anyString(), Mockito.any(SerialiseApplicationObjective.class)))
                 .thenReturn(Mono.just(new ApplicationJson()));
         Mockito.when(importExportApplicationService.importApplicationInOrganization(Mockito.anyString(), Mockito.any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString()))
@@ -792,7 +796,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(gitPullDTO -> {
-                    assertThat(gitPullDTO.getPullStatus()).isEqualTo("2 commits pulled");
+                    assertThat(gitPullDTO.getMergeStatus().getStatus()).isEqualTo("2 commits pulled");
                     assertThat(gitPullDTO.getApplication()).isNotNull();
                     assertThat(gitPullDTO.getApplication().getId()).isEqualTo(application.getId());
                 })
@@ -804,6 +808,9 @@ public class GitServiceTest {
     public void pullChanges_FileSystemAccessError_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("FileSystemAccessError");
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId(), "").block();
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("2 commits pulled");
+        mergeStatusDTO.setMerge(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenThrow(new IOException("Error accessing the file System"));
@@ -811,7 +818,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(new ApplicationJson()));
         Mockito.when(gitExecutor.pullApplication(
                 Mockito.any(Path.class),Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(Mono.just("2 commits pulled"));
+                .thenReturn(Mono.just(mergeStatusDTO));
         Mockito.when(importExportApplicationService.exportApplicationById(Mockito.anyString(), Mockito.any(SerialiseApplicationObjective.class)))
                 .thenReturn(Mono.just(new ApplicationJson()));
 
@@ -829,6 +836,9 @@ public class GitServiceTest {
     public void pullChanges_NoChangesInRemotePullException_ShowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("pullChanges_NoChangesInRemotePullException_ShowError");
         ApplicationJson applicationJson = importExportApplicationService.exportApplicationById(application.getId(), "").block();
+        MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
+        mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
+        mergeStatusDTO.setMerge(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
@@ -840,7 +850,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(gitPullDTO -> {
-                    assertThat(gitPullDTO.getPullStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
+                    assertThat(gitPullDTO.getMergeStatus().getStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
                 });
     }
 
@@ -860,7 +870,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(gitPullDTO -> {
-                    assertThat(gitPullDTO.getPullStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
+                    assertThat(gitPullDTO.getMergeStatus().getStatus()).isEqualTo("Nothing to fetch from remote. All changes are upto date.");
                 });
     }
 
@@ -868,7 +878,11 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void isMergeBranch_ConflictingChanges_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("isMergeBranch_ConflictingChanges_Success");
-        MergeStatus mergeStatus = new MergeStatus();
+        GitMergeDTO gitMergeDTO = new GitMergeDTO();
+        gitMergeDTO.setSourceBranch("branch1");
+        gitMergeDTO.setDestinationBranch("branch2");
+
+        MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMerge(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
@@ -876,7 +890,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatus> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1","branch2");
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -888,14 +902,18 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void isMergeBranch_NonConflictingChanges_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("isMergeBranch_NonConflictingChanges_Success");
-        MergeStatus mergeStatus = new MergeStatus();
+        GitMergeDTO gitMergeDTO = new GitMergeDTO();
+        gitMergeDTO.setSourceBranch("branch1");
+        gitMergeDTO.setDestinationBranch("branch2");
+
+        MergeStatusDTO mergeStatus = new MergeStatusDTO();
         mergeStatus.setMerge(true);
         Mockito.when(gitFileUtils.saveApplicationToLocalRepo(Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatus> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1","branch2");
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
 
         StepVerifier
                 .create(applicationMono)

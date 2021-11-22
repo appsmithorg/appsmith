@@ -26,14 +26,16 @@ enum KEYS {
   Escape = "Escape",
 }
 
-const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
+const StyledControlGroup = styled(ControlGroup)<{
+  isValid: boolean;
+}>`
   &&& {
     .${Classes.INPUT} {
+      color: ${Colors.GREY_10};
       box-shadow: none;
       border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[1]}px;
       width: 100%;
       height: inherit;
       align-items: center;
@@ -52,6 +54,10 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
           box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
         }
       }
+    }
+    .${Classes.INPUT}:disabled {
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_7};
     }
     .${Classes.INPUT_GROUP} {
       display: block;
@@ -74,9 +80,7 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
       border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
-      color: ${Colors.OXFORD_BLUE};
       font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }

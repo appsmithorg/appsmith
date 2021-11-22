@@ -36,12 +36,8 @@ describe("Addwidget from Query and bind with other widgets", function() {
       cy.intercept("/api/v1/actions/execute", {
         fixture: "addWidgetTable-mock",
       });
-      cy.get(queryEditor.runQuery).click();
-      cy.wait("@postExecute").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+
+      cy.runQuery();
       cy.get(queryEditor.suggestedTableWidget).click();
       cy.createJSObject("return Query1.data;");
 

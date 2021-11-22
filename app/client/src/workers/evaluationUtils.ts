@@ -545,8 +545,6 @@ export const updateJSCollectionInDataTree = (
     functionsList.push(action);
   });
 
-  const reg = /this\./g;
-
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
@@ -555,7 +553,7 @@ export const updateJSCollectionInDataTree = (
           _.set(
             modifiedDataTree,
             `${jsCollection.name}.${action.name}`,
-            action.body.toString(),
+            action.body,
           );
         }
       } else {
@@ -575,11 +573,10 @@ export const updateJSCollectionInDataTree = (
         const meta = jsCollection.meta;
         meta[action.name] = { arguments: action.arguments };
         _.set(modifiedDataTree, `${jsCollection.name}.meta`, meta);
-        const actionBody = action.body.replaceAll(reg, `${jsCollection.name}.`);
         _.set(
           modifiedDataTree,
           `${jsCollection.name}.${action.name}`,
-          actionBody,
+          action.body,
         );
       }
     }
