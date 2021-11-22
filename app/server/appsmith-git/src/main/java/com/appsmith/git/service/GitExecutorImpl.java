@@ -396,7 +396,7 @@ public class GitExecutorImpl implements GitExecutor {
                     if(!ref.getName().equals(defaultBranch)) {
                         gitBranchDTO = new GitBranchDTO();
                         gitBranchDTO.setBranchName(ref.getName()
-                                .replace("refs/heads/",""));
+                                .replace("refs/","").replace("heads/", "").replace("remotes/", ""));
                         gitBranchDTO.setDefault(false);
                         branchList.add(gitBranchDTO);
                     }

@@ -998,21 +998,20 @@ public class GitServiceImpl implements GitService {
                         .flatMap(gitBranchListDTOS -> {
                             if(Boolean.TRUE.equals(ignoreCache)) {
                                 // delete local branches which are not present in remote repo
-                                List<GitBranchDTO> remoteBranches = gitBranchListDTOS.stream()
+                                List<String> remoteBranches = gitBranchListDTOS.stream()
                                         .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("origin"))
-                                        .collect(Collectors.toList());
-                                List<GitBranchDTO> localBranch = gitBranchListDTOS.stream()
-                                        .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("origin"))
+                                        .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
                                         .collect(Collectors.toList());
 
-                                for (GitBranchDTO branch: remoteBranches) {
-                                    branch.setBranchName(branch.getBranchName().replace("origin/",""));
-                                }
+                                List<String> localBranch = gitBranchListDTOS.stream()
+                                        .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("origin"))
+                                        .map(gitBranchDTO -> gitBranchDTO.getBranchName())
+                                        .collect(Collectors.toList());
 
                                 localBranch.removeAll(remoteBranches);
 
                                 return Flux.fromIterable(localBranch)
-                                        .flatMap(gitBranchListDTO -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
+                                        .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
                                                 .flatMap(applicationPageService::deleteApplicationByResource))
                                         .then(Mono.just(gitBranchListDTOS));
                             } else {
