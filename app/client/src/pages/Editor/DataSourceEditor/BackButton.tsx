@@ -35,7 +35,7 @@ function BackButton() {
     history.push(redirectURL);
   };
   return (
-    <Back onClick={goBack}>
+    <Back className="t--back-button" onClick={goBack}>
       <Icon icon="chevron-left" iconSize={16} />
       <Text
         style={{ color: Colors.DIESEL, lineHeight: "14px" }}

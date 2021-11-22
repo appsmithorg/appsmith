@@ -28,13 +28,30 @@ export type TextInputProps = CommonComponentProps & {
 const SearchInputWrapper = styled.div`
   & > div {
     border: none;
+
+    & > .left-icon {
+      margin-left: 8px;
+
+      & span {
+        margin-right: 0;
+      }
+    }
+
+    & > .right-icon {
+      position: relative;
+      right: 0;
+    }
+
+    & input {
+      padding: 0 8px;
+    }
   }
 `;
 
 const CloseIcon = styled.div`
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[4]}px;
-    margin-left: ${(props) => props.theme.spaces[4]}px;
+    margin-left: 0;
   }
 `;
 
