@@ -1012,8 +1012,8 @@ public class GitServiceImpl implements GitService {
                                 localBranch.removeAll(remoteBranches);
 
                                 return Flux.fromIterable(localBranch)
-                                        .flatMap(gitBranchListDTO -> applicationService.findBranchedApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
-                                                .flatMap(applicationPageService::deleteApplication))
+                                        .flatMap(gitBranchListDTO -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
+                                                .flatMap(applicationPageService::deleteApplicationByResource))
                                         .then(Mono.just(gitBranchListDTOS));
                             } else {
                                 return Mono.just(gitBranchListDTOS);
