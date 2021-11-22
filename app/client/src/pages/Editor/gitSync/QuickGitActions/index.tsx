@@ -154,6 +154,13 @@ const getQuickActionButtons = ({
   pullTooltipMessage: string;
   showPullLoadingState: boolean;
 }) => {
+  let pushTooltip = createMessage(PUSH);
+  if (!isNaN(gitStatus?.aheadCount)) {
+    pushTooltip =
+      gitStatus.aheadCount > 0
+        ? "Unable to auto push while committing since the remote is ahead"
+        : "All commits have been pushed to remote";
+  }
   return [
     {
       icon: <Plus />,
@@ -163,7 +170,7 @@ const getQuickActionButtons = ({
     {
       icon: <UpArrow />,
       onClick: push,
-      tooltipText: createMessage(PUSH),
+      tooltipText: pushTooltip,
     },
     {
       count: gitStatus?.behindCount,
