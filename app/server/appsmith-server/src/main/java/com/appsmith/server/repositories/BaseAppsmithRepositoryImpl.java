@@ -183,6 +183,18 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 });
     }
 
+    protected Mono<T> queryFirst(List<Criteria> criterias, AclPermission aclPermission) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .flatMap(auth -> {
+                    User user = (User) auth.getPrincipal();
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(createQueryWithPermission(criterias, user, aclPermission))
+                            .first()
+                            .map(obj -> (T) setUserPermissionsInObject(obj, user));
+                });
+    }
+
     protected Query createQueryWithPermission(List<Criteria> criterias, User user, AclPermission aclPermission) {
         Query query = new Query();
         criterias.stream()
@@ -269,6 +281,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         final String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
         Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryOne(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
     }
 }

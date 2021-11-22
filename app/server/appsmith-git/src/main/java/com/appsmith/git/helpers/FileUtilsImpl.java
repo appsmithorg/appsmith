@@ -87,8 +87,10 @@ public class FileUtilsImpl implements FileInterface {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 
-                    Gson gson = new GsonBuilder().
-                            registerTypeAdapter(Double.class,  new JsonSerializer<Double>() {
+                    // Gson to pretty format JSON file and keep Integer type as is by default GSON have behavior to
+                    // convert to Double
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Double.class,  new JsonSerializer<Double>() {
 
                                 @Override
                                 public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
@@ -96,7 +98,10 @@ public class FileUtilsImpl implements FileInterface {
                                         return new JsonPrimitive(src.longValue());
                                     return new JsonPrimitive(src);
                                 }
-                            }).disableHtmlEscaping().setPrettyPrinting().create();
+                            })
+                            .disableHtmlEscaping()
+                            .setPrettyPrinting()
+                            .create();
 
                     Set<String> validFileNames = new HashSet<>();
 
