@@ -143,7 +143,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
   }, []);
   return (
     <Overlay hasBackdrop isOpen transitionDuration={25} usePortal>
-      <Wrapper>
+      <Wrapper className="t--onboarding-introduction-modal">
         <CenteredContainer>
           <StyledClose
             className="t--how-appsmith-works-modal-close"
@@ -193,13 +193,17 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           <ModalFooter>
             <StyledButton
               category={Category.primary}
+              className="t--introduction-modal-build-button"
               onClick={onBuildApp}
               tag="button"
               text={createMessage(BUILD_MY_FIRST_APP)}
             />
             <ModalFooterNote>
               {createMessage(ONBOARDING_INTRO_FOOTER)}&nbsp;
-              <span onClick={() => triggerWelcomeTour(dispatch)}>
+              <span
+                className="t--introduction-modal-welcome-tour-button"
+                onClick={() => triggerWelcomeTour(dispatch)}
+              >
                 {createMessage(BUILD_APP_TOGETHER)}
               </span>
             </ModalFooterNote>

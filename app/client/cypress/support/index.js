@@ -14,12 +14,14 @@
 // ***********************************************************
 /// <reference types="Cypress" />
 require("cypress-xpath");
+import "cypress-real-events/support";
 let pageid;
 let appId;
 
 // Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage } from "./commands";
+import * as MESSAGES from "../../../client/src/constants/messages.ts";
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   // returning false here prevents Cypress from
@@ -30,6 +32,8 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 Cypress.on("fail", (error, runnable) => {
   throw error; // throw error to have test still fail
 });
+
+Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
   initLocalstorage();
@@ -65,11 +69,8 @@ before(function() {
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
   cy.visit("/applications");
-  cy.wait("@getUser").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  cy.wait("@getUser");
+  cy.wait(3000);
   cy.get(".t--applications-container .createnew").should("be.visible");
   cy.get(".t--applications-container .createnew").should("be.enabled");
   cy.generateUUID().then((id) => {

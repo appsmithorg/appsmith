@@ -7,4 +7,9 @@ public class FieldName {
     public static final String TOKEN_RESPONSE = "tokenResponse";
 
     public static final String PASSWORD = "password";
+
+    public static final String CHILDREN = "children";
+    public static final String KEY = "key";
+    public static final String CONDITION = "condition";
+    public static final String VALUE = "value";
 }
