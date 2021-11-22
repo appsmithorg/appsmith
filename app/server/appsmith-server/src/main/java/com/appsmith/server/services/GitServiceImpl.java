@@ -1011,22 +1011,28 @@ public class GitServiceImpl implements GitService {
                                 "Error while accessing the file system. Details :" + error.getMessage()))
                         )
                         .flatMap(gitBranchListDTOS -> {
+                            if(Boolean.TRUE.equals(ignoreCache)) {
+                                // delete local branches which are not present in remote repo
+                                List<GitBranchListDTO> remoteBranches = gitBranchListDTOS.stream()
+                                        .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("origin"))
+                                        .collect(Collectors.toList());
+                                List<GitBranchListDTO> localBranch = gitBranchListDTOS.stream()
+                                        .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("origin"))
+                                        .collect(Collectors.toList());
 
-                            // delete local branches which are not present in remote repo
+                                for (GitBranchListDTO branch: remoteBranches) {
+                                    branch.setBranchName(branch.getBranchName().replace("origin/",""));
+                                }
 
-                            List<GitBranchListDTO> remoteBranches = gitBranchListDTOS.stream()
-                                    .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("remote"))
-                                    .collect(Collectors.toList());
-                            List<GitBranchListDTO> localBranch = gitBranchListDTOS.stream()
-                                    .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("remote"))
-                                    .collect(Collectors.toList());
+                                localBranch.removeAll(remoteBranches);
 
-                            localBranch.removeAll(remoteBranches);
-
-                            return Flux.fromIterable(localBranch)
-                                    .flatMap(gitBranchListDTO -> applicationService.findBranchedApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
-                                            .flatMap(branchApplication -> applicationPageService.deleteApplication(branchApplication)))
-                                    .then(Mono.just(gitBranchListDTOS));
+                                return Flux.fromIterable(localBranch)
+                                        .flatMap(gitBranchListDTO -> applicationService.findBranchedApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
+                                                .flatMap(applicationPageService::deleteApplication))
+                                        .then(Mono.just(gitBranchListDTOS));
+                            } else {
+                                return Mono.just(gitBranchListDTOS);
+                            }
                         });
             });
     }
@@ -1249,6 +1255,15 @@ public class GitServiceImpl implements GitService {
                                 auth.getPublicKey(),
                                 auth.getPrivateKey(),
                                 gitApplicationMetadata.getBranchName())
+                        .map(pushResult -> {
+                            if(pushResult.contains("REJECTED")) {
+                                final String error = "Failed to push some refs to remote\n" +
+                                        "> To prevent you from losing history, non-fast-forward updates were rejected\n" +
+                                        "> Merge the remote changes (e.g. 'git pull') before pushing again.";
+                                throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, " push", error);
+                            }
+                            return pushResult;
+                        })
                 );
     }
 }
