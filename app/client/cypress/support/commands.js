@@ -2089,10 +2089,16 @@ Cypress.Commands.add("NavigateToActiveTab", () => {
 Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
   cy.NavigateToQueryEditor();
   cy.NavigateToActiveTab();
-  cy.contains(".t--datasource-name", datasourceName)
-    .find(queryLocators.createQuery)
-    .click()
-    .wait(1000); //for the specified page to load
+
+  cy.get(datasource.datasourceCard)
+    .contains(datasourceName)
+    .scrollIntoView()
+    .should("be.visible")
+    .closest(datasource.datasourceCard)
+    .within(() => {
+      cy.get(queryLocators.createQuery).click();
+    })
+    .wait(2000); //for the specified page to load
 });
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
@@ -2669,9 +2675,9 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
 });
 
 Cypress.Commands.add("isSelectRow", (index) => {
-  cy.get(
-    '.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]',
-  ).click({ force: true });
+  cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
+    .first()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
@@ -3253,3 +3259,27 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
     force: true,
   });
 });
+
+Cypress.Commands.add(
+  "deleteEntitybyName",
+  (entityNameinLeftSidebar, pageOrWdiget = "page" | "widget") => {
+    if (pageOrWdiget == "page") {
+      cy.xpath(
+        "//div[text()='" +
+          entityNameinLeftSidebar +
+          "']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div",
+      )
+        .first()
+        .click({ force: true });
+    } else if (pageOrWdiget == "widget") {
+      cy.xpath(
+        "//div[text()='" +
+          entityNameinLeftSidebar +
+          "']/ancestor::div[contains(@class, 't--entity widget')]//span[contains(@class, 'entity-context-menu')]//div",
+      )
+        .first()
+        .click({ force: true });
+    }
+    cy.xpath(generatePage.deleteMenuItem).click();
+  },
+);
