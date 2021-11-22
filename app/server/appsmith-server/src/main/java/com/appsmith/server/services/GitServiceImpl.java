@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -18,7 +17,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
@@ -31,7 +30,6 @@ import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -40,6 +38,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -668,7 +667,7 @@ public class GitServiceImpl implements GitService {
                             .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch)))
                             .zipWhen(isCheckedOut -> gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false)
                                     .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", error))))
-                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, ListBranchCommand.ListMode.REMOTE, srcBranchGitData.getRemoteUrl(), defaultGitAuth.getPrivateKey(), defaultGitAuth.getPublicKey(), false)
+                            .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, srcBranchGitData.getRemoteUrl(), defaultGitAuth.getPrivateKey(), defaultGitAuth.getPublicKey(), false)
                                     .flatMap(branchList -> {
                                         boolean isDuplicateName = branchList.stream()
                                                 // We are only supporting origin as the remote name so this is safe
@@ -971,7 +970,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranchForApplication(String defaultApplicationId, Boolean ignoreCache) {
+    public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean ignoreCache) {
         return getApplicationById(defaultApplicationId)
             .flatMap(application -> {
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -987,7 +986,6 @@ public class GitServiceImpl implements GitService {
 
                 // Fetch default branch from DB if the ignoreCache is false else fetch from remote
                 return gitExecutor.listBranches(repoPath,
-                        null,
                         gitApplicationMetadata.getRemoteUrl(),
                         gitApplicationMetadata.getGitAuth().getPrivateKey(),
                         gitApplicationMetadata.getGitAuth().getPublicKey(),
@@ -997,18 +995,23 @@ public class GitServiceImpl implements GitService {
                                 "branch --list",
                                 "Error while accessing the file system. Details :" + error.getMessage()))
                         )
-                        .map(gitBranches -> {
-                            // If
-                            if (!ignoreCache) {
-                                gitBranches
-                                        .stream()
-                                        .filter(branchDTO -> StringUtils.equalsIgnoreCase(branchDTO.getBranchName(), dbDefaultBranch))
-                                        .findAny()
-                                        .ifPresent(branchDTO -> branchDTO.setDefault(true));
-                            }
-                            // TODO if the default branch is modified in remote same should be modified in DB.
-                            //  Remove stale branches from DB after running git prune
-                            return gitBranches;
+                        .flatMap(gitBranchListDTOS -> {
+
+                            // delete local branches which are not present in remote repo
+
+                            List<GitBranchDTO> remoteBranches = gitBranchListDTOS.stream()
+                                    .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("remote"))
+                                    .collect(Collectors.toList());
+                            List<GitBranchDTO> localBranch = gitBranchListDTOS.stream()
+                                    .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("remote"))
+                                    .collect(Collectors.toList());
+
+                            localBranch.removeAll(remoteBranches);
+
+                            return Flux.fromIterable(localBranch)
+                                    .flatMap(gitBranchListDTO -> applicationService.findBranchedApplicationId(gitBranchListDTO.getBranchName(), defaultApplicationId, MANAGE_APPLICATIONS)
+                                            .flatMap(branchApplication -> applicationPageService.deleteApplication(branchApplication)))
+                                    .then(Mono.just(gitBranchListDTOS));
                         });
             });
     }
