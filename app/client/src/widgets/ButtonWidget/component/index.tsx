@@ -69,11 +69,16 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-const ButtonContainer = styled.div`
+type ButtonContainerProps = {
+  disabled?: boolean;
+};
+
+const ButtonContainer = styled.div<ButtonContainerProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
   & > button {
     height: 100%;
@@ -122,6 +127,8 @@ const StyledButton = styled((props) => (
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
+      color: ${theme.colors.button.disabled.textColor} !important;
+      pointer-events: none;
       border-color: ${theme.colors.button.disabled.bgColor} !important;
       > span {
         color: ${theme.colors.button.disabled.textColor} !important;
@@ -425,7 +432,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       onClick={props.onClick}
       recaptchaV2={props.recaptchaV2}
     >
-      <ButtonContainer>
+      <ButtonContainer disabled={props.isDisabled}>
         <BaseButton
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
