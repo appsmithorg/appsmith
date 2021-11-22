@@ -13,21 +13,9 @@ import {
 } from "constants/messages";
 import DataSourceOption from "../DataSourceOption";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
-import {
-  useDatasourceOptions,
-  useSheetsList,
-  useSpreadSheets,
-  useSheetColumnHeaders,
-  useS3BucketList,
-} from "./hooks";
+import { useDatasourceOptions } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers/index";
-import {
-  DropdownOptions,
-  DatasourceTableDropdownOption,
-  DEFAULT_DROPDOWN_OPTION,
-  DROPDOWN_DIMENSION,
-} from "./constants";
+import { DEFAULT_DROPDOWN_OPTION, DROPDOWN_DIMENSION } from "./constants";
 import { GeneratePagePayload } from "./types";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -57,12 +45,9 @@ import {
 import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
-import Button, { Category, Size } from "components/ads/Button";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 const formComponentMap = {
   SQL: SQLForm,
@@ -70,44 +55,12 @@ const formComponentMap = {
   S3: S3Form,
 };
 
-// const RoundBg = styled.div`
-//   width: 16px;
-//   height: 16px;
-//   border-radius: 16px;
-//   background-color: ${Colors.GRAY};
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// `;
-
-// const TooltipWrapper = styled.div`
-//   margin-top: 2px;
-//   margin-left: 6px;
-// `;
-
 const FormWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 `;
-
-// const Row = styled.p`
-//   display: flex;
-//   flex-direction: row;
-//   justify-content: flex-start;
-//   white-space: nowrap;
-// `;
-
-const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${(props) => getTypographyByKey(props, "btnLarge")};
-  color: ${Colors.DOVE_GRAY2};
-  margin: 10px 0px;
-`;
-
-// const EditDatasourceButton = styled(Button)`
-//   margin-top: 30px;
-// `;
 
 // Constants
 
@@ -117,31 +70,6 @@ const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
-
-// function GeneratePageSubmitBtn({
-//   disabled,
-//   isLoading,
-//   onSubmit,
-//   showSubmitButton,
-// }: {
-//   onSubmit: () => void;
-//   isLoading: boolean;
-//   showSubmitButton: boolean;
-//   disabled: boolean;
-// }) {
-//   return showSubmitButton ? (
-//     <FormSubmitButton
-//       category={Category.tertiary}
-//       data-cy="t--generate-page-form-submit"
-//       disabled={disabled}
-//       isLoading={isLoading}
-//       onClick={() => !disabled && onSubmit()}
-//       size={Size.large}
-//       text="Generate Page"
-//       type="button"
-//     />
-//   ) : null;
-// }
 
 function BaseForm() {
   const dispatch = useDispatch();
@@ -180,49 +108,14 @@ function BaseForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const [isSelectedTableEmpty, setIsSelectedTableEmpty] = useState<boolean>(
-    false,
-  );
-
   // const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
   // const selectedDatasourcePluginPackageName: string =
   //   generateCRUDSupportedPlugin[selectedDatasourcePluginId];
-
-  // const isGoogleSheetPlugin =
-  //   selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
-
-  // const isS3Plugin =
-  //   selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
-
-  // const isFetchingSheetPluginForm = useSelector((state: AppState) => {
-  //   // if (isGoogleSheetPlugin) {
-  //   //   return getIsFetchingSinglePluginForm(
-  //   //     state,
-  //   //     selectedDatasource.data?.pluginId,
-  //   //   );
-  //   // }
-  //   return false;
-  // });
-
-  const [selectedTable, selectTable] = useState<DropdownOption>(
-    DEFAULT_DROPDOWN_OPTION,
-  );
 
   const [
     selectedDatasourceIsInvalid,
     setSelectedDatasourceIsInvalid,
   ] = useState(false);
-
-  const [selectedColumn, selectColumn] = useState<DropdownOption>(
-    DEFAULT_DROPDOWN_OPTION,
-  );
-
-  // const {
-  //   bucketList,
-  //   failedFetchingBucketList,
-  //   fetchBucketList,
-  //   isFetchingBucketList,
-  // } = useS3BucketList();
 
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -245,20 +138,6 @@ function BaseForm() {
 
   // const sheetColumnsHeaderProps = useSheetColumnHeaders();
 
-  // useEffect(() => {
-  //   if (isS3Plugin && bucketList && bucketList.length) {
-  //     const tables = bucketList.map((bucketName) => ({
-  //       id: bucketName,
-  //       label: bucketName,
-  //       value: bucketName,
-  //       icon: datasourceIcon,
-  //       iconSize: IconSize.LARGE,
-  //       iconColor: Colors.BURNING_ORANGE,
-  //     }));
-  //     setSelectedDatasourceTableOptions(tables);
-  //   }
-  // }, [bucketList, isS3Plugin, setSelectedDatasourceTableOptions]);
-
   const onSelectDataSource = useCallback(
     (
       datasource: string | undefined,
@@ -277,8 +156,6 @@ function BaseForm() {
         selectDataSource(dataSourceObj);
         // setSelectedDatasourceTableOptions([]);
         // setSelectedTableColumnOptions([]);
-        selectTable(DEFAULT_DROPDOWN_OPTION);
-        selectColumn(DEFAULT_DROPDOWN_OPTION);
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
@@ -301,8 +178,6 @@ function BaseForm() {
       selectDataSource,
       // setSelectedDatasourceTableOptions,
       // setSelectedTableColumnOptions,
-      selectTable,
-      selectColumn,
       dispatch,
       setSelectedDatasourceIsInvalid,
       selectedDatasource,
@@ -446,70 +321,6 @@ function BaseForm() {
     }
   };
 
-  const handleFormSubmit = () => {
-    const payload = {
-      columns: [],
-      searchColumn: selectedColumn.value,
-      tableName: selectedTable.value || "",
-    };
-    generatePageAction(payload);
-  };
-
-  const goToEditDatasource = () => {
-    AnalyticsUtil.logEvent("GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG", {
-      datasourceId: selectedDatasource.id,
-    });
-    const redirectURL = DATA_SOURCES_EDITOR_ID_URL(
-      applicationId,
-      currentPageId,
-      selectedDatasource.id,
-      { isGeneratePageMode: "generate-page" },
-    );
-    history.push(redirectURL);
-  };
-
-  // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
-  const isValidDatasourceConfig = selectedDatasource.data?.isValid;
-
-  // const pluginField: {
-  //   TABLE: string;
-  //   COLUMN: string;
-  // } =
-  //   selectedDatasourcePluginPackageName &&
-  //   PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
-  //     ? PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
-  //     : PluginFormInputFieldMap.DEFAULT;
-
-  // let tableDropdownErrorMsg = "";
-
-  // const fetchingDatasourceConfigs =
-  //   isFetchingDatasourceStructure ||
-  //   (isFetchingBucketList && isS3Plugin) ||
-  //   ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
-  //     isGoogleSheetPlugin);
-
-  // const fetchingDatasourceConfigError =
-  //   selectedDatasourceIsInvalid ||
-  //   !isValidDatasourceConfig ||
-  //   (failedFetchingBucketList && isS3Plugin);
-
-  // if (!fetchingDatasourceConfigs) {
-  //   if (datasourceTableOptions.length === 0) {
-  //     tableDropdownErrorMsg = `Couldn't find any ${pluginField.TABLE}, Please select another datasource`;
-  //   }
-  //   if (fetchingDatasourceConfigError) {
-  //     tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
-  //   }
-  //   if (isSelectedTableEmpty) {
-  //     tableDropdownErrorMsg = `Couldn't find any columns, Please select table with columns.`;
-  //   }
-  // }
-
-  const showEditDatasourceBtn =
-    !isFetchingDatasourceStructure &&
-    (selectedDatasourceIsInvalid || !isValidDatasourceConfig) &&
-    !!selectedDatasource.value;
-
   // const showSearchableColumn =
   //   !!selectedTable.value &&
   //   PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
@@ -523,65 +334,6 @@ function BaseForm() {
 
   // const submitButtonDisable =
   //   !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
-
-  const onSelectTable = useCallback(
-    (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
-      if (table && TableObj) {
-        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
-        selectTable(TableObj);
-        selectColumn(DEFAULT_DROPDOWN_OPTION);
-        // if (!isGoogleSheetPlugin && !isS3Plugin) {
-        //   const { data } = TableObj;
-
-        //   if (Array.isArray(data.columns)) {
-        //     if (data.columns.length === 0) setIsSelectedTableEmpty(true);
-        //     else {
-        //       if (isSelectedTableEmpty) setIsSelectedTableEmpty(false);
-        //       const newSelectedTableColumnOptions: DropdownOption[] = [];
-        //       data.columns.map((column) => {
-        //         if (
-        //           column.type &&
-        //           ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
-        //         ) {
-        //           newSelectedTableColumnOptions.push({
-        //             id: column.name,
-        //             label: column.name,
-        //             value: column.name,
-        //             subText: column.type,
-        //             icon: columnIcon,
-        //             iconSize: IconSize.LARGE,
-        //             iconColor: Colors.GOLD,
-        //           });
-        //         }
-        //       });
-        //       setSelectedTableColumnOptions(newSelectedTableColumnOptions);
-        //     }
-        //   } else {
-        //     setSelectedTableColumnOptions([]);
-        //   }
-        // }
-      }
-    },
-    [
-      isSelectedTableEmpty,
-      selectTable,
-      // setSelectedTableColumnOptions,
-      selectColumn,
-      setIsSelectedTableEmpty,
-      // isGoogleSheetPlugin,
-      // isS3Plugin,
-    ],
-  );
-
-  const onSelectColumn = useCallback(
-    (table: string | undefined, ColumnObj: DropdownOption | undefined) => {
-      if (table && ColumnObj) {
-        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN");
-        selectColumn(ColumnObj);
-      }
-    },
-    [selectColumn],
-  );
 
   return (
     <FormWrapper>

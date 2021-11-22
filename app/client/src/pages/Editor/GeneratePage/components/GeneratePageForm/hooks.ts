@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { DropdownOptions } from "./constants";
+import { DropdownOptions } from "./types";
 import { Datasource } from "entities/Datasource";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";

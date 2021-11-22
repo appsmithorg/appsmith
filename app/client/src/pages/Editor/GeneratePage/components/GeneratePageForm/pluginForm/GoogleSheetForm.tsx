@@ -128,6 +128,16 @@ function GoogleSheetForm(props: Props) {
     spreadSheetsProps,
   } = props;
 
+  // const isFetchingSheetPluginForm = useSelector((state: AppState) => {
+  //   // if (isGoogleSheetPlugin) {
+  //   //   return getIsFetchingSinglePluginForm(
+  //   //     state,
+  //   //     selectedDatasource.data?.pluginId,
+  //   //   );
+  //   // }
+  //   return false;
+  // });
+
   const { fetchSheetsList, isFetchingSheetsList, sheetsList } = sheetsListProps;
   const { fetchAllSpreadsheets } = spreadSheetsProps;
   const {
@@ -382,3 +392,34 @@ function GoogleSheetForm(props: Props) {
 }
 
 export default GoogleSheetForm;
+
+/*
+
+(
+    <GoogleSheetForm
+      generatePageAction={generatePageAction}
+      googleSheetPluginId={selectedDatasourcePluginId}
+      renderSubmitButton={({
+        disabled,
+        isLoading,
+        onSubmit,
+      }: {
+        onSubmit: () => void;
+        disabled: boolean;
+        isLoading: boolean;
+      }) => (
+        <GeneratePageSubmitBtn
+          disabled={disabled}
+          isLoading={!!isGeneratingTemplatePage || isLoading}
+          onSubmit={onSubmit}
+          showSubmitButton={!!showSubmitButton}
+        />
+      )}
+      selectedDatasource={selectedDatasource}
+      selectedSpreadsheet={selectedTable}
+      sheetColumnsHeaderProps={sheetColumnsHeaderProps}
+      sheetsListProps={sheetsListProps}
+      spreadSheetsProps={spreadSheetsProps}
+    />
+  )
+*/

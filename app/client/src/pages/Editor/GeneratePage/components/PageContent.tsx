@@ -1,7 +1,7 @@
 import React from "react";
 import ActionCards from "./ActionCards";
 import styled from "constants/DefaultTheme";
-import GeneratePageForm from "./GeneratePageForm/FormRenderer";
+import GeneratePageForm from "./GeneratePageForm";
 
 const Container = styled.div`
   display: flex;

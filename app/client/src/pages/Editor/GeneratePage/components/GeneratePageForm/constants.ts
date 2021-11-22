@@ -1,12 +1,3 @@
-import { DropdownOption } from "components/ads/Dropdown";
-import { DatasourceTable } from "entities/Datasource";
-
-export type DropdownOptions = Array<DropdownOption>;
-
-export interface DatasourceTableDropdownOption extends DropdownOption {
-  data: DatasourceTable;
-}
-
 export const DROPDOWN_DIMENSION = {
   HEIGHT: "36px",
   WIDTH: "404px",
