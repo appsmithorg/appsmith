@@ -7,16 +7,20 @@ import React, { memo, useEffect, useRef, useMemo } from "react";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import {
+  previewModeSelector,
+  themeModeSelector,
+} from "selectors/editorSelectors";
+import { getWidgets } from "sagas/selectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import { previewModeSelector } from "selectors/editorSelectors";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
-import { getWidgets } from "sagas/selectors";
+import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 
 type Props = {
   width: number;
@@ -38,6 +42,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     true,
   );
   const canvasWidgets = useSelector(getWidgets);
+  const isThemeMode = useSelector(themeModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
@@ -55,6 +60,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
 
+  // eslint-disable-next-line
+  console.log({ isThemeMode });
   /**
    * renders the property pane:
    * 1. if no widget is selected -> CanvasPropertyPane
@@ -64,6 +71,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
+      case isThemeMode || true:
+        return <ThemePropertyPane />;
       case selectedWidgets.length == 0:
         return <CanvasPropertyPane />;
       case selectedWidgets.length > 1:
@@ -73,7 +82,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       default:
         return <CanvasPropertyPane />;
     }
-  }, [selectedWidgets.length, isDraggingForSelection]);
+  }, [selectedWidgets.length, isDraggingForSelection, isThemeMode]);
 
   return (
     <div className="relative">

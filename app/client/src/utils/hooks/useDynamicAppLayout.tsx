@@ -1,7 +1,7 @@
 import { debounce, get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { getWidgetByID, getWidgets } from "sagas/selectors";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   DefaultLayoutType,
@@ -9,20 +9,21 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import {
-  getExplorerPinned,
-  getExplorerWidth,
-} from "selectors/explorerSelector";
-import {
   getCurrentApplicationLayout,
   getCurrentPageId,
   previewModeSelector,
+  themeModeSelector,
 } from "selectors/editorSelectors";
+import {
+  getExplorerPinned,
+  getExplorerWidth,
+} from "selectors/explorerSelector";
 import { APP_MODE } from "entities/App";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
-import { updateCanvasLayoutAction } from "actions/editorActions";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { updateCanvasLayoutAction } from "actions/editorActions";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -38,6 +39,7 @@ export const useDynamicAppLayout = () => {
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
   const mainContainer = useSelector(getWidgetByID(MAIN_CONTAINER_WIDGET_ID));
   const isPreviewMode = useSelector(previewModeSelector);
+  const isThemeMode = useSelector(themeModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const canvasWidgets = useSelector(getWidgets);
   const appLayout = useSelector(getCurrentApplicationLayout);
@@ -98,7 +100,11 @@ export const useDynamicAppLayout = () => {
     }
 
     // if explorer is unpinned or its preview mode, we don't need to subtract the EE width
-    if (isExplorerPinned === true && isPreviewMode === false) {
+    if (
+      isExplorerPinned === true &&
+      isThemeMode === false &&
+      isPreviewMode === false
+    ) {
       const explorerWidth = domEntityExplorer?.clientWidth || 0;
 
       calculatedWidth -= explorerWidth;
@@ -171,10 +177,12 @@ export const useDynamicAppLayout = () => {
    *  - preview mode
    *  - explorer width
    *  - explorer is pinned
+   *  - theme mode is turned on
    */
   useEffect(() => {
     resizeToLayout();
   }, [
+    isThemeMode,
     appLayout,
     currentPageId,
     mainContainer?.rightColumn,

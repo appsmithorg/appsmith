@@ -6,8 +6,10 @@ import {
   getIsFetchingPage,
   getCurrentPageId,
   getCurrentPageName,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import PageTabs from "./PageTabs";
+import Toolbar from "./Toolbar";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -38,6 +40,7 @@ function WidgetsEditor() {
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
   const isFetchingPage = useSelector(getIsFetchingPage);
+  const isPreviewMode = useSelector(previewModeSelector);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -113,13 +116,14 @@ function WidgetsEditor() {
         <OnboardingTasks />
       ) : (
         <div
-          className="relative overflow-hidden flex flex-col"
+          className="relative flex flex-col overflow-hidden"
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
         >
           <PageTabs />
+          {isPreviewMode === false && <Toolbar />}
           <CanvasContainer />
           <CrudInfoModal />
           <Debugger />

@@ -28,6 +28,7 @@ const initialState: EditorReduxState = {
   },
   isSnipingMode: false,
   isPreviewMode: false,
+  isThemeMode: false,
   zoomLevel: 1,
 };
 
@@ -193,6 +194,15 @@ const editorReducer = createReducer(initialState, {
       isPreviewMode: action.payload,
     };
   },
+  [ReduxActionTypes.SET_THEME_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isThemeMode: action.payload,
+    };
+  },
 });
 
 export interface EditorReduxState {
@@ -205,6 +215,7 @@ export interface EditorReduxState {
   pageActions?: PageAction[][];
   isSnipingMode: boolean;
   isPreviewMode: boolean;
+  isThemeMode: boolean;
   zoomLevel: number;
   loadingStates: {
     saving: boolean;

@@ -947,7 +947,7 @@ module.exports = {
     backgroundRepeat: ["responsive"],
     backgroundSize: ["responsive"],
     backgroundOrigin: ["responsive"],
-    blur: ["responsive"],
+    blur: ["responsive", "group-hover"],
     borderCollapse: ["responsive"],
     borderColor: [
       "responsive",
@@ -976,7 +976,7 @@ module.exports = {
     container: ["responsive"],
     contrast: ["responsive"],
     cursor: ["responsive"],
-    display: ["responsive"],
+    display: ["responsive", "group-hover"],
     divideColor: ["responsive", "dark"],
     divideOpacity: ["responsive", "dark"],
     divideStyle: ["responsive"],
