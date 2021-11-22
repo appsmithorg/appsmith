@@ -119,12 +119,12 @@ public interface GitExecutor {
     Mono<GitStatusDTO> getStatus(Path repoPath, String branchName);
 
     /**
-     * @param repoPath combination of orgId and defaultId
+     * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName
      * @param sourceBranch name of the branch whose commits will be referred amd merged to destinationBranch
      * @param destinationBranch Merge operation is performed on this branch
      * @return Merge status
      */
-    Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
+    Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch);
 
     /**
      * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName
@@ -138,12 +138,12 @@ public interface GitExecutor {
 
     /**
      *
-     * @param repoPath Path of the local repo
+     * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName
      * @param sourceBranch name of the branch whose commits will be referred amd merged to destinationBranch
      * @param destinationBranch Merge operation is performed on this branch
      * @return Whether the two branches can be merged or not with list of files where the conflicts are present
      */
-    Mono<MergeStatusDTO> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
+    Mono<MergeStatusDTO> isMergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch);
 
     /**
      * This method will reset the repo to last commit for the specific branch

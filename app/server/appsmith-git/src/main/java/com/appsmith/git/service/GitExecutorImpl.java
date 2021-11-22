@@ -474,15 +474,16 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<String> mergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
+    public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
-            Git git = Git.open(repoPath.toFile());
+            Git git = Git.open(createRepoPath(repoSuffix).toFile());
             try {
                 //checkout the branch on which the merge command is run
                 git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
                 MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
+                git.close();
                 return mergeResult.getMergeStatus().name();
             } catch (GitAPIException e) {
                 //On merge conflicts abort the merge => git merge --abort
@@ -539,11 +540,11 @@ public class GitExecutorImpl implements GitExecutor {
         }
 
     @Override
-    public Mono<MergeStatusDTO> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
+    public Mono<MergeStatusDTO> isMergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge status for the branch  " + sourceBranch + " on " + destinationBranch);
 
-            Git git = Git.open(repoPath.toFile());
+            Git git = Git.open(createRepoPath(repoSuffix).toFile());
             //checkout the branch on which the merge command is run
             try{
                 git.checkout().setName(destinationBranch).setCreateBranch(false).call();
