@@ -1021,7 +1021,7 @@ public class GitServiceImpl implements GitService {
                                         .collect(Collectors.toList());
 
                                 for (GitBranchListDTO branch: remoteBranches) {
-                                    branch.getBranchName().replace("origin/","");
+                                    branch.setBranchName(branch.getBranchName().replace("origin/",""));
                                 }
 
                                 localBranch.removeAll(remoteBranches);
