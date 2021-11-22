@@ -3,14 +3,14 @@ import styled from "styled-components";
 
 import BranchButton from "./BranchButton";
 
-// import { ReactComponent as UpArrow } from "assets/icons/ads/up-arrow.svg";
+import { ReactComponent as UpArrow } from "assets/icons/ads/up-arrow.svg";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down-arrow.svg";
 import { ReactComponent as Plus } from "assets/icons/ads/plus.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 
 import {
   COMMIT,
-  // PUSH,
+  PUSH,
   PULL,
   MERGE,
   CONNECT_GIT,
@@ -22,7 +22,7 @@ import {
   DURING_ONBOARDING_TOUR,
   createMessage,
 } from "constants/messages";
-// import { noop } from "lodash";
+import { noop } from "lodash";
 
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
@@ -142,11 +142,11 @@ const getQuickActionButtons = ({
   pull,
   pullDisabled,
   pullTooltipMessage,
-  // push,
+  push,
   showPullLoadingState,
 }: {
   commit: () => void;
-  // push: () => void;
+  push: () => void;
   pull: () => void;
   merge: () => void;
   gitStatus: any;
@@ -160,11 +160,11 @@ const getQuickActionButtons = ({
       onClick: commit,
       tooltipText: createMessage(COMMIT),
     },
-    // {
-    //   icon: <UpArrow />,
-    //   onClick: push,
-    //   tooltipText: createMessage(PUSH),
-    // },
+    {
+      icon: <UpArrow />,
+      onClick: push,
+      tooltipText: createMessage(PUSH),
+    },
     {
       count: gitStatus?.behindCount,
       icon: <DownArrow />,
@@ -276,7 +276,7 @@ export default function QuickGitActions() {
         }),
       );
     },
-    // push: noop,
+    push: noop,
     pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
     merge: () => {
       dispatch(

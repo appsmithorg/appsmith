@@ -39,7 +39,7 @@ export enum Kind {
   widget = "widget",
   query = "query",
   commit = "commit",
-  pullRequest = "pullRequest",
+  // pullRequest = "pullRequest",
 }
 
 type GitSyncProps = {
@@ -70,12 +70,6 @@ function GitStatus(props: GitSyncProps) {
         (status?.aheadCount || 0) === 1 ? "" : "s"
       } to push`;
       iconName = "git-commit";
-      break;
-    case Kind.pullRequest:
-      message = `${status?.behindCount || 0} pull request${
-        (status?.behindCount || 0) === 1 ? "" : "s"
-      } pending`;
-      iconName = "git-pull-request";
       break;
   }
   return loading ? (

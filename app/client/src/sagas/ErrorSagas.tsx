@@ -262,12 +262,7 @@ export function* flushErrorsAndRedirectSaga(
 }
 
 export default function* errorSagas() {
-  yield takeLatest(
-    Object.values(ReduxActionErrorTypes).filter(
-      (eType: string) => eType !== ReduxActionErrorTypes.GIT_SYNC_ERROR,
-    ),
-    errorSaga,
-  );
+  yield takeLatest(Object.values(ReduxActionErrorTypes), errorSaga);
   yield takeLatest(
     ReduxActionTypes.FLUSH_AND_REDIRECT,
     flushErrorsAndRedirectSaga,

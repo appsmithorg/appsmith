@@ -294,10 +294,17 @@ export type GitStatusData = {
   remoteBranch: string;
 };
 
-export type GitErrorType = {
+type GitErrorPayloadType = {
   code: number;
   errorType?: string;
   message: string;
+};
+
+export type GitErrorType = {
+  error: GitErrorPayloadType;
+  show?: boolean;
+  crash?: boolean;
+  logToSentry?: boolean;
 };
 
 export type GitSyncReducerState = {
