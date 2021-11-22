@@ -25,6 +25,6 @@
   "confirmBtn": "span:contains('Confirm')",
   "postgressnewPageEntityMenu": "//div[text()='Public.users_crud']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div",
   "deleteMenuItem": "//div[text()='Delete']/parent::a[contains(@class, 'single-select')]", 
-  "mongonewPageEntityMenu": "//div[text()='ListingsAndReviews']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div"
-
+  "mongonewPageEntityMenu": "//div[text()='ListingsAndReviews']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div",
+  "s3newPageEntityMenu": "//div[text()='Assets-test.appsmith.com']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div"
 }

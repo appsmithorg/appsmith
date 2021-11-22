@@ -141,7 +141,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("8. Verify generation of NewPage from New table & perform Add/Update/Delete operations", function() {
     //Verifying Select from UI
     cy.NavigateToDSGeneratePage(datasourceName);
-    cy.get(generatePage.selectTableDropdown).click();
+    cy.get(generatePage.selectTableDropdown).click({force: true});
     cy.get(generatePage.dropdownOption)
       .contains("public.users_crud")
       .scrollIntoView()
@@ -251,8 +251,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("11. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
     cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
+    cy.contains(".t--datasource-name", datasourceName).click({ force: true});
+    cy.get(".t--delete-datasource").click({force: true});
     cy.wait("@deleteDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
