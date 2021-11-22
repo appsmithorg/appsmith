@@ -41,6 +41,16 @@ describe("validate propertypane input : docUrl", () => {
 
     const result3 = documentUrlValidation(input4);
     expect(result3).toStrictEqual(expected4);
+
+    const input6 = "://www.appsmith.com/docs/sample.pdf";
+    const expected6 = {
+      isValid: false,
+      parsed: "",
+      messages: ["Provided URL / Base64 is invalid."],
+    };
+
+    const result5 = documentUrlValidation(input6);
+    expect(result5).toStrictEqual(expected6);
   });
 
   it("validation for invalid url or base64 value", () => {
@@ -69,7 +79,7 @@ describe("validate propertypane input : docUrl", () => {
     const input1 = "https://www.example.com";
     const expected1 = {
       isValid: true,
-      parsed: "https://www.example.com",
+      parsed: "https://www.example.com/",
     };
 
     const result1 = documentUrlValidation(input1);
@@ -84,5 +94,34 @@ describe("validate propertypane input : docUrl", () => {
 
     const result2 = documentUrlValidation(input2);
     expect(result2).toStrictEqual(expected2);
+
+    const input3 = "https:www.appsmith.com/docs/sample.pdf";
+    const expected3 = {
+      isValid: true,
+      parsed: "https://www.appsmith.com/docs/sample.pdf",
+    };
+
+    const result3 = documentUrlValidation(input3);
+    expect(result3).toStrictEqual(expected3);
+
+    const input4 = "https://www.apsmith.com/docs/sample";
+    const expected4 = {
+      isValid: true,
+      parsed: "https://www.apsmith.com/docs/sample",
+    };
+
+    const result4 = documentUrlValidation(input4);
+    expect(result4).toStrictEqual(expected4);
+
+    const input5 =
+      "www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf";
+    const expected5 = {
+      isValid: true,
+      parsed:
+        "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf",
+    };
+
+    const result5 = documentUrlValidation(input5);
+    expect(result5).toStrictEqual(expected5);
   });
 });
