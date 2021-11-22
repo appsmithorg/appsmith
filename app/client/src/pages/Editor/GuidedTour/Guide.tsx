@@ -243,6 +243,9 @@ const Steps: StepsType = {
       ),
       onClick: (dispatch) => {
         dispatch(setCurrentStep(4));
+        dispatch({
+          type: "CREATE_ONBOARDING_WIDGET",
+        });
       },
     },
   },

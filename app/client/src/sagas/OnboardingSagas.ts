@@ -147,6 +147,63 @@ function* createGuidedTourQuery() {
   }
 }
 
+function* createOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
+  const widgetConfig = {
+    type: "CONTAINER_WIDGET",
+  };
+
+  if (!widgetConfig.type) return;
+
+  const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
+
+  const evalTree = yield select(getDataTree);
+  const widgets = yield select(getWidgets);
+
+  const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
+    prefix: "CustomersTable",
+  });
+
+  try {
+    let newWidget = {
+      newWidgetId: generateReactKey(),
+      widgetId: "0",
+      parentId: "0",
+      renderMode: RenderModes.CANVAS,
+      isLoading: false,
+      ...defaultConfig,
+      widgetName,
+      ...widgetConfig,
+    };
+
+    const {
+      bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
+    } = yield calculateNewWidgetPosition(
+      newWidget as WidgetProps,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
+
+    newWidget = {
+      ...newWidget,
+      leftColumn,
+      topRow,
+      rightColumn,
+      bottomRow,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    };
+
+    yield put({
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+      payload: newWidget,
+    });
+  } catch (error) {
+    log.error(error);
+  }
+}
+
 function* createTableWidget(action: ReduxAction<Partial<WidgetProps>>) {
   const widgetConfig = action.payload;
 
@@ -197,16 +254,6 @@ function* createTableWidget(action: ReduxAction<Partial<WidgetProps>>) {
       type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: newWidget,
     });
-
-    // const pageId = yield select(getCurrentPageId);
-    // const applicationId = yield select(getCurrentApplicationId);
-
-    // navigateToCanvas({
-    //   pageId,
-    //   widgetId: newWidget.newWidgetId,
-    //   applicationId,
-    // });
-    // yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
     log.error(error);
   }
@@ -292,6 +339,7 @@ export default function* onboardingActionSagas() {
     ),
     takeLatest("CREATE_ONBOARDING_TABLE_WIDGET", createTableWidget),
     takeLatest("CREATE_GUIDED_TOUR_QUERY", createGuidedTourQuery),
+    takeLatest("CREATE_ONBOARDING_WIDGET", createOnboardingWidget),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,
