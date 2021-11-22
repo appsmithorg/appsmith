@@ -30,6 +30,7 @@ import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.SanitiseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -234,9 +235,9 @@ public class GitServiceImpl implements GitService {
 
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName)))
-            .flatMap(childApplication -> publishAndOrGetApplication(childApplication.getId(), commitDTO.getDoPush()))
-            .flatMap(childApplication -> {
-                GitApplicationMetadata gitApplicationMetadata = childApplication.getGitApplicationMetadata();
+            .flatMap(branchedApplication -> publishAndOrGetApplication(branchedApplication.getId(), commitDTO.getDoPush()))
+            .flatMap(branchedApplication -> {
+                GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
                 if (gitApplicationMetadata == null) {
                     return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find the git " +
                             "configuration, please configure the your application to use version control service"));
@@ -255,8 +256,8 @@ public class GitServiceImpl implements GitService {
                 }
                 return Mono.zip(
                         importExportApplicationService
-                            .exportApplicationById(childApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
-                        Mono.just(childApplication)
+                            .exportApplicationById(branchedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL),
+                        Mono.just(branchedApplication)
                 );
             })
             .flatMap(tuple -> {
@@ -274,10 +275,9 @@ public class GitServiceImpl implements GitService {
                 } catch (IOException | GitAPIException e) {
                     log.error("Unable to open git directory, with error : ", e);
                     if (e instanceof RepositoryNotFoundException) {
-                        // TODO clone the repo and then start the commit flow once again try this for 1 more time only
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e));
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.IO_ERROR, e.getMessage()));
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                 }
             })
             .flatMap(tuple -> {
@@ -672,7 +672,7 @@ public class GitServiceImpl implements GitService {
                                         boolean isDuplicateName = branchList.stream()
                                                 // We are only supporting origin as the remote name so this is safe
                                                 //  but needs to be altered if we starts supporting user defined remote names
-                                                .anyMatch(branch -> branch.getBranchName().replace("refs/remotes/origin/", "")
+                                                .anyMatch(branch -> branch.getBranchName().replace("origin/", "")
                                                         .equals(branchDTO.getBranchName()));
 
                                         if (isDuplicateName) {
@@ -1150,16 +1150,41 @@ public class GitServiceImpl implements GitService {
                     if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     }
-                    Path repoPath = Paths.get(application.getOrganizationId(),
+                    Path repoSuffix = Paths.get(application.getOrganizationId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
 
                     //1. Hydrate from db to file system for both branch Applications
-                    return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, repoPath)
-                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, destinationBranch, repoPath))
-                            .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge status", error.getMessage())));
-                })
-                .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch));
+                    return getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, sourceBranch, repoSuffix)
+                            .flatMap(path -> getBranchApplicationFromDBAndSaveToLocalFileSystem(defaultApplicationId, destinationBranch, repoSuffix))
+                            .flatMap(repoPath -> gitExecutor.isMergeBranch(repoPath, sourceBranch, destinationBranch))
+                            .onErrorResume(error -> {
+                                try {
+                                    return gitExecutor.resetToLastCommit(repoSuffix, destinationBranch)
+                                        .flatMap(reset -> {
+                                            try {
+                                                return gitExecutor.resetToLastCommit(repoSuffix, sourceBranch);
+                                            } catch (GitAPIException | IOException e) {
+                                                log.error("Error while resetting to last commit", e);
+                                            }
+                                            return Mono.just(false);
+                                        })
+                                        .map(reset -> {
+                                                MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                                mergeStatus.setMergeAble(false);
+                                                mergeStatus.setStatus(error.getMessage());
+                                                if(error instanceof CheckoutConflictException) {
+                                                    mergeStatus.setConflictingFiles(((CheckoutConflictException) error)
+                                                                    .getConflictingPaths());
+                                                }
+                                                return mergeStatus;
+                                        });
+                                    } catch (GitAPIException | IOException e) {
+                                        log.error("Error while resetting to last commit", e);
+                                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "reset --hard HEAD", e.getMessage()));
+                                    }
+                            });
+                });
     }
 
     @Override
@@ -1206,14 +1231,31 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
-    private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String branchName, Path repoPath) {
+    private Mono<Path> getBranchApplicationFromDBAndSaveToLocalFileSystem(String defaultApplicationId, String branchName, Path repoSuffix) {
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                .flatMap(application1 -> importExportApplicationService.exportApplicationById(application1.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
+                .flatMap(branchedApplication ->
+                        checkIfRepoIsClean(branchedApplication.getId(),
+                                branchedApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                branchName,
+                                repoSuffix
+                        )
+                        .flatMap(isClean -> {
+                            if (Boolean.FALSE.equals(isClean)) {
+                                return Mono.error(
+                                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
+                                                "merge --dry-run",
+                                                "There are uncommitted changes present in your local branch " + branchName +". Please commit them first and then try again"));
+                            }
+                            return importExportApplicationService.exportApplicationById(branchedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL);
+                        })
+                )
                 .flatMap(applicationJson -> {
                     try {
-                        return fileUtils.saveApplicationToLocalRepo(repoPath, applicationJson, branchName);
-                    } catch (IOException | GitAPIException e) {
-                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, e.getMessage()));
+                        return fileUtils.saveApplicationToLocalRepo(repoSuffix, applicationJson, branchName);
+                    } catch (IOException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                    } catch (GitAPIException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", e.getMessage()));
                     }
                 });
     }

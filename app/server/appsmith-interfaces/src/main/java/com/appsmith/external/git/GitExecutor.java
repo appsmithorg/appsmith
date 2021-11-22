@@ -146,6 +146,17 @@ public interface GitExecutor {
     Mono<MergeStatusDTO> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch);
 
     /**
+     * This method will reset the repo to last commit for the specific branch
+     *
+     * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName
+     * @param branchName branch for which the repo should hard reset
+     * @return success status
+     * @throws GitAPIException
+     * @throws IOException
+     */
+    Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException;
+
+    /**
      *
      * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName
      * @param branchName Name of the remote branch

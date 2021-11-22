@@ -255,9 +255,7 @@ public class GitExecutorImpl implements GitExecutor {
                     .call();
 
             repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
-
-            // TODO immediately commit and push the created branch
-
+            git.close();
             return git.getRepository().getBranch();
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
@@ -346,17 +344,17 @@ public class GitExecutorImpl implements GitExecutor {
                 git.close();
                 return mergeStatus;
         })
-                .onErrorResume(error -> {
-                    try {
-                        return resetToLastCommit(git)
-                                .flatMap(ignore -> Mono.error(error));
-                    } catch (GitAPIException e) {
-                        log.error("Error for hard resetting to latest commit {0}", e);
-                        return Mono.error(e);
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
-                .subscribeOn(scheduler);
+        .onErrorResume(error -> {
+            try {
+                return resetToLastCommit(git)
+                        .flatMap(ignore -> Mono.error(error));
+            } catch (GitAPIException e) {
+                log.error("Error for hard resetting to latest commit {0}", e);
+                return Mono.error(e);
+            }
+        })
+        .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
     }
 
     @Override
@@ -525,6 +523,21 @@ public class GitExecutorImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
+            Git git = Git.open(createRepoPath(repoSuffix).toFile());
+            return this.resetToLastCommit(git)
+                    .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
+                    .flatMap(checkedOut -> {
+                        try {
+                            return resetToLastCommit(git)
+                                    .thenReturn(true);
+                        } catch (GitAPIException e) {
+                            log.error(e.getMessage());
+                            return Mono.error(e);
+                        }
+                    });
+        }
+
     @Override
     public Mono<MergeStatusDTO> isMergeBranch(Path repoPath, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
@@ -557,8 +570,7 @@ public class GitExecutorImpl implements GitExecutor {
 
                 //If there aer conflicts add the conflicting file names to the response structure
                 mergeStatus.setMergeAble(false);
-                List<String> mergeConflictFiles = new ArrayList<>();
-                mergeResult.getConflicts().keySet().forEach(file -> mergeConflictFiles.add(file));
+                List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
             }
             git.close();
