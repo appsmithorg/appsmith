@@ -92,7 +92,7 @@ function* createApplication() {
       },
     });
 
-    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+    yield take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS);
     yield take(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID);
     yield put(enableGuidedTour(true));
 
@@ -147,64 +147,7 @@ function* createGuidedTourQuery() {
   }
 }
 
-function* createOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
-  const widgetConfig = {
-    type: "CONTAINER_WIDGET",
-  };
-
-  if (!widgetConfig.type) return;
-
-  const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
-
-  const evalTree = yield select(getDataTree);
-  const widgets = yield select(getWidgets);
-
-  const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
-    prefix: "CustomersTable",
-  });
-
-  try {
-    let newWidget = {
-      newWidgetId: generateReactKey(),
-      widgetId: "0",
-      parentId: "0",
-      renderMode: RenderModes.CANVAS,
-      isLoading: false,
-      ...defaultConfig,
-      widgetName,
-      ...widgetConfig,
-    };
-
-    const {
-      bottomRow,
-      leftColumn,
-      rightColumn,
-      topRow,
-    } = yield calculateNewWidgetPosition(
-      newWidget as WidgetProps,
-      MAIN_CONTAINER_WIDGET_ID,
-      widgets,
-    );
-
-    newWidget = {
-      ...newWidget,
-      leftColumn,
-      topRow,
-      rightColumn,
-      bottomRow,
-      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-    };
-
-    yield put({
-      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: newWidget,
-    });
-  } catch (error) {
-    log.error(error);
-  }
-}
-
-function* createTableWidget(action: ReduxAction<Partial<WidgetProps>>) {
+function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
   const widgetConfig = action.payload;
 
   if (!widgetConfig.type) return;
@@ -215,7 +158,7 @@ function* createTableWidget(action: ReduxAction<Partial<WidgetProps>>) {
   const widgets = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree, {
-    prefix: "CustomersTable",
+    prefix: widgetConfig.widgetName,
   });
 
   try {
@@ -337,9 +280,8 @@ export default function* onboardingActionSagas() {
       ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
       createApplication,
     ),
-    takeLatest("CREATE_ONBOARDING_TABLE_WIDGET", createTableWidget),
     takeLatest("CREATE_GUIDED_TOUR_QUERY", createGuidedTourQuery),
-    takeLatest("CREATE_ONBOARDING_WIDGET", createOnboardingWidget),
+    takeLatest(ReduxActionTypes.GUIDED_TOUR_ADD_WIDGET, addOnboardingWidget),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,

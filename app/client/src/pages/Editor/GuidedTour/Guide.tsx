@@ -1,4 +1,5 @@
 import {
+  addOnboardingWidget,
   markStepComplete,
   setCurrentStep,
   setIndicatorLocation,
@@ -30,6 +31,7 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Dispatch } from "redux";
+import { onboardingContainerBlueprint } from "./constants";
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -243,9 +245,14 @@ const Steps: StepsType = {
       ),
       onClick: (dispatch) => {
         dispatch(setCurrentStep(4));
-        dispatch({
-          type: "CREATE_ONBOARDING_WIDGET",
-        });
+        dispatch(
+          addOnboardingWidget({
+            type: "CONTAINER_WIDGET",
+            props: {
+              blueprint: onboardingContainerBlueprint,
+            },
+          }),
+        );
       },
     },
   },
@@ -273,12 +280,11 @@ function InitialContent() {
       type: "TOGGLE_LOADER",
       payload: true,
     });
-    dispatch({
-      type: "CREATE_ONBOARDING_TABLE_WIDGET",
-      payload: {
+    dispatch(
+      addOnboardingWidget({
         type: "TABLE_WIDGET",
-      },
-    });
+      }),
+    );
     dispatch({
       type: "CREATE_GUIDED_TOUR_QUERY",
     });

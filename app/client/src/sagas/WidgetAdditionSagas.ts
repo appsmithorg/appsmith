@@ -227,6 +227,7 @@ function* getUpdateDslAfterCreatingChild(addChildPayload: WidgetAddChild) {
     stateParent,
     addChildPayload,
     widgets,
+    addChildPayload.props?.blueprint,
   );
 
   const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];

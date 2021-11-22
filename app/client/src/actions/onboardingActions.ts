@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { IndicatorLocation } from "pages/Editor/GuidedTour/Indicator";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export const enableGuidedTour = (payload: boolean) => {
   return {
@@ -51,6 +52,13 @@ export const tableWidgetWasSelected = (payload: boolean) => {
 export const setCurrentStep = (payload: number) => {
   return {
     type: ReduxActionTypes.SET_CURRENT_STEP,
+    payload,
+  };
+};
+
+export const addOnboardingWidget = (payload: Partial<WidgetProps>) => {
+  return {
+    type: ReduxActionTypes.GUIDED_TOUR_ADD_WIDGET,
     payload,
   };
 };
