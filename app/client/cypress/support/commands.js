@@ -990,11 +990,11 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .focus()
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
-    cy.get(".t--action-name-edit-error").should(($x) => {
-      expect($x).contain(
-        apiname.concat(" is already being used or is a restricted keyword."),
-      );
-    });
+  cy.get(".t--action-name-edit-error").should(($x) => {
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
+  });
   cy.get(apiwidget.apiTxt).blur();
 });
 
@@ -1077,10 +1077,10 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .clear()
     .type(apiname, { force: true })
     .should("have.value", apiname);
-    cy.get(".t--action-name-edit-error").should(($x) => {
-      expect($x).contain(
-        apiname.concat(" is already being used or is a restricted keyword."),
-      );
+  cy.get(".t--action-name-edit-error").should(($x) => {
+    expect($x).contain(
+      apiname.concat(" is already being used or is a restricted keyword."),
+    );
   });
 });
 
@@ -1442,7 +1442,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
  * cy.get(...).then(el => cy.updateCodeInput(el, "test"));
  *
  */
- Cypress.Commands.add("updateCodeInput", ($selector, value) => {
+Cypress.Commands.add("updateCodeInput", ($selector, value) => {
   cy.get($selector)
     .find(".CodeMirror")
     .first()
@@ -1757,8 +1757,8 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-    Pagename +
-    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
@@ -2092,7 +2092,7 @@ Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
   cy.contains(".t--datasource-name", datasourceName)
     .find(queryLocators.createQuery)
     .click()
-    .wait(1000);//for the specified page to load
+    .wait(1000); //for the specified page to load
 });
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
@@ -2106,7 +2106,8 @@ Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
     .closest(datasource.datasourceCard)
     .within(() => {
       cy.get(datasource.datasourceCardGeneratePageBtn).click();
-    });
+    })
+    .wait(2000); //for the specified page to load
 });
 
 Cypress.Commands.add("ClickGotIt", () => {
@@ -2363,7 +2364,7 @@ Cypress.Commands.add("deleteDatasource", (datasourceName) => {
 });
 
 Cypress.Commands.add("runQuery", () => {
-  cy.onlyQueryRun()
+  cy.onlyQueryRun();
   cy.wait("@postExecute").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -3210,15 +3211,25 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("validateNSelectDropdown", (ddTitle, currentValue, newValue) => {
-  let toChange = false;
-  cy.xpath('//div[contains(text(),"' + currentValue + '")]').should('exist', currentValue + " dropdown value not present")
-  if (newValue) toChange = true;
-  if (toChange) {
-    cy.xpath("//p[text()='" + ddTitle + "']/following-sibling::div/div").click()//to expand the dropdown
-    cy.xpath('//div[contains(text(),"' + newValue + '")]').last().click({ force: true });//to select the new value
-  }
-});
+Cypress.Commands.add(
+  "validateNSelectDropdown",
+  (ddTitle, currentValue, newValue) => {
+    let toChange = false;
+    cy.xpath('//div[contains(text(),"' + currentValue + '")]').should(
+      "exist",
+      currentValue + " dropdown value not present",
+    );
+    if (newValue) toChange = true;
+    if (toChange) {
+      cy.xpath(
+        "//p[text()='" + ddTitle + "']/following-sibling::div/div",
+      ).click(); //to expand the dropdown
+      cy.xpath('//div[contains(text(),"' + newValue + '")]')
+        .last()
+        .click({ force: true }); //to select the new value
+    }
+  },
+);
 
 Cypress.Commands.add("typeValueNValidate", (fieldName, valueToType) => {
   //let text;
@@ -3228,13 +3239,17 @@ Cypress.Commands.add("typeValueNValidate", (fieldName, valueToType) => {
   //   cy.log("current field value is : '" + text + "'")
   // })
 
-  cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']")
-    .type(valueToType, { parseSpecialCharSequences: false })
+  cy.xpath(
+    "//p[text()='" +
+      fieldName +
+      "']/following-sibling::div//div[@class='CodeMirror-code']",
+  ).type(valueToType, { parseSpecialCharSequences: false });
 
   cy.EvaluateCurrentValue(valueToType);
 });
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
-  cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button").click({force : true})
+  cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button").click({
+    force: true,
+  });
 });
-
