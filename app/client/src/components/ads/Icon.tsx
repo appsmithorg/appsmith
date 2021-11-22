@@ -105,6 +105,7 @@ import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import InfoIcon from "remixicon-react/InformationLineIcon";
 import LeftArrowIcon2 from "remixicon-react/ArrowLeftSLineIcon";
 import Link2 from "remixicon-react/LinkIcon";
 import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
@@ -235,6 +236,7 @@ export const IconCollection = [
   "git-pull-request",
   "guide",
   "help",
+  "info",
   "invite-user",
   "left-arrow-2",
   "lightning",
@@ -514,6 +516,9 @@ const Icon = forwardRef(
         break;
       case "help":
         returnIcon = <HelpIcon />;
+        break;
+      case "info":
+        returnIcon = <InfoIcon />;
         break;
       case "invite-user":
         returnIcon = <InviteUserIcon />;

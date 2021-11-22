@@ -9,8 +9,8 @@ import {
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
-  LEARN_MORE,
   PULL_CHANGES,
+  READ_DOCUMENTATION,
 } from "constants/messages";
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
@@ -50,6 +50,7 @@ import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
+import Icon, { IconSize } from "components/ads/Icon";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -177,10 +178,20 @@ function Deploy() {
         <Space size={11} />
         {pullRequired && !isConflicting && (
           <InfoWrapper>
-            <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
-              {createMessage(GIT_UPSTREAM_CHANGES)}
-            </Text>
-            <Link link={DOCS_BASE_URL} text={createMessage(LEARN_MORE)} />
+            <Icon
+              fillColor={Colors.YELLOW_LIGHT}
+              name="info"
+              size={IconSize.XXXL}
+            />
+            <div style={{ display: "block" }}>
+              <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
+                {createMessage(GIT_UPSTREAM_CHANGES)}
+              </Text>
+              <Link
+                link={DOCS_BASE_URL}
+                text={createMessage(READ_DOCUMENTATION)}
+              />
+            </div>
           </InfoWrapper>
         )}
         {pullRequired && !isConflicting && (

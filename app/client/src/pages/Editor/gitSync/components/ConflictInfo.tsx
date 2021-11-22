@@ -18,6 +18,8 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { getIsPullingProgress } from "selectors/gitSyncSelectors";
 import { gitPullInit } from "actions/gitSyncActions";
 import { useDispatch } from "react-redux";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
 
 const Row = styled.div`
   display: flex;
@@ -57,10 +59,21 @@ export default function ConflictInfo(props: CIPropType) {
   return isConflicting ? (
     <>
       <InfoWrapper isError>
-        <Text style={{ marginRight: theme.spaces[2] }} type={TextType.P3}>
-          {createMessage(GIT_CONFLICTING_INFO)}
-        </Text>
-        <Link link={DOCS_BASE_URL} text={createMessage(LEARN_MORE)} />
+        <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
+        <div style={{ display: "block" }}>
+          <Text
+            color={Colors.CRIMSON}
+            style={{ marginRight: theme.spaces[2] }}
+            type={TextType.P3}
+          >
+            {createMessage(GIT_CONFLICTING_INFO)}
+          </Text>
+          <Link
+            color={Colors.CRIMSON}
+            link={DOCS_BASE_URL}
+            text={createMessage(LEARN_MORE)}
+          />
+        </div>
       </InfoWrapper>
       <Row>
         <OpenRepoButton
