@@ -12,6 +12,7 @@ services:
       - ./stacks:/appsmith-stacks
     labels:
       com.centurylinklabs.watchtower.enable: "true"
+    restart: unless-stopped
 
   auto_update:
     image: containrrr/watchtower:latest-dev
@@ -19,3 +20,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     # Update check interval in seconds.
     command: --interval 300 --label-enable --cleanup
+    restart: unless-stopped
