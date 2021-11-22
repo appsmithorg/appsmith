@@ -449,5 +449,19 @@ export function getDynamicBindingsChangesSaga(
     }
   }
 
+  // For embedded datasource action, full datasource url depends on
+  // url, path and queryParams.
+  // we add the datasourceUrl to the dependencyList if any of these is a dynamic path
+
+  const dynamicBindingListHasFullpathDependencies =
+    !_.some(dynamicBindings, { key: "datasourceUrl" }) &&
+    _.some(dynamicBindings, (dynamicPath) => {
+      return (
+        dynamicPath.key === "path" ||
+        isChildPropertyPath("queryParameters", dynamicPath.key)
+      );
+    });
+  dynamicBindingListHasFullpathDependencies &&
+    dynamicBindings.push({ key: "datasourceUrl" });
   return dynamicBindings;
 }
