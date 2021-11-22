@@ -147,8 +147,7 @@
     "url-search-params-polyfill": "^8.0.0",
     "worker-loader": "^3.0.2",
     "yjs": "^13.5.12",
-    "zipcelx": "^1.6.2",
-    "ts-jest": "26.5.5"
+    "zipcelx": "^1.6.2"
   },
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
@@ -244,6 +243,7 @@
     "cypress": "7.6.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-multi-reporters": "^1.2.4",
+    "cypress-real-events": "^1.5.1",
     "cypress-xpath": "^1.4.0",
     "dotenv": "^8.1.0",
     "eslint": "^7.11.0",
