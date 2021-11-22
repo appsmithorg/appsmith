@@ -159,6 +159,8 @@ public class ImportExportApplicationService {
                     application.setModifiedBy(null);
                     application.setUpdatedAt(null);
                     application.setLastDeployedAt(null);
+                    application.setLastEditedAt(null);
+                    application.setUpdatedAt(null);
                     application.setGitApplicationMetadata(null);
                     examplesOrganizationCloner.makePristine(application);
                     applicationJson.setExportedApplication(application);

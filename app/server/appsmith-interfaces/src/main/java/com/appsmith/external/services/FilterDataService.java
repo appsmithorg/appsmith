@@ -52,7 +52,8 @@ public class FilterDataService {
             DataType.FLOAT, "REAL",
             DataType.DOUBLE, "DOUBLE",
             DataType.BOOLEAN, "BOOLEAN",
-            DataType.STRING, "VARCHAR"
+            DataType.STRING, "VARCHAR",
+            DataType.DATE, "DATE"
     );
 
     private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
@@ -108,7 +109,7 @@ public class FilterDataService {
         insertAllData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions, schema);
+        List<Map<String, Object>> finalResults = executeFilterQueryOldFormat(tableName, conditions, schema);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -118,14 +119,104 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
-    public List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
+    public ArrayNode filterDataNew(ArrayNode items, Condition condition) {
+
+        if (items == null || items.size() == 0) {
+            return items;
+        }
+
+        Map<String, DataType> schema = generateSchema(items);
+
+        Condition updatedCondition = addValueDataType(condition);
+
+        String tableName = generateTable(schema);
+
+        // insert the data
+        insertAllData(tableName, items, schema);
+
+        // Filter the data
+        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, updatedCondition, schema);
+
+        // Now that the data has been filtered. Clean Up. Drop the table
+        dropTable(tableName);
+
+        ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
+
+        return finalResultsNode;
+    }
+
+    private List<Map<String, Object>> executeFilterQueryNew(String tableName, Condition condition, Map<String, DataType> schema) {
         Connection conn = checkAndGetConnection();
 
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
 
         LinkedHashMap<String, DataType> values = new LinkedHashMap<>();
 
-        String whereClause = generateWhereClause(conditions, values, schema);
+        if (condition != null) {
+            ConditionalOperator operator = condition.getOperator();
+            List<Condition> conditions = (List<Condition>) condition.getValue();
+
+            String whereClause = generateLogicalExpression(conditions, values, schema, operator);
+
+            if (StringUtils.isNotEmpty(whereClause)) {
+                sb.append(" WHERE ");
+                sb.append(whereClause);
+            }
+        }
+
+        sb.append(";");
+
+        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
+        String selectQuery = sb.toString();
+        log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
+
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
+            Set<Map.Entry<String, DataType>> valueEntries = values.entrySet();
+            Iterator<Map.Entry<String, DataType>> iterator = valueEntries.iterator();
+            for (int i = 0; iterator.hasNext(); i++) {
+                Map.Entry<String, DataType> valueEntry = iterator.next();
+                String value = valueEntry.getKey();
+                DataType dataType = valueEntry.getValue();
+                setValueInStatement(preparedStatement, i + 1, value, dataType);
+            }
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int colCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                Map<String, Object> row = new LinkedHashMap<>(colCount);
+                for (int i = 1; i <= colCount; i++) {
+                    Object resultValue = resultSet.getObject(i);
+
+                    // Set null values to empty strings
+                    if (null == resultValue) {
+                        resultValue = "";
+                    }
+
+                    row.put(metaData.getColumnName(i), resultValue);
+                }
+                rowsList.add(row);
+            }
+        } catch (SQLException e) {
+            // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
+            log.error(e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e.getMessage());
+        }
+
+        return rowsList;
+    }
+
+    public List<Map<String, Object>> executeFilterQueryOldFormat(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
+        Connection conn = checkAndGetConnection();
+
+        StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
+
+        LinkedHashMap<String, DataType> values = new LinkedHashMap<>();
+
+        String whereClause = generateWhereClauseOldFormat(conditions, values, schema);
 
         sb.append(whereClause);
 
@@ -174,7 +265,7 @@ public class FilterDataService {
         return rowsList;
     }
 
-    private String generateWhereClause(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema) {
+    private String generateWhereClauseOldFormat(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -192,7 +283,7 @@ public class FilterDataService {
 
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
-            String value = condition.getValue();
+            String value = (String) condition.getValue();
 
             String sqlOp = SQL_OPERATOR_MAP.get(operator);
             if (sqlOp == null) {
@@ -431,7 +522,7 @@ public class FilterDataService {
     }
 
 
-    private Map<String, DataType> generateSchema(ArrayNode items) {
+    public Map<String, DataType> generateSchema(ArrayNode items) {
 
         JsonNode item = items.get(0);
 
@@ -513,6 +604,12 @@ public class FilterDataService {
         // Override datatype to null for empty values
         if (StringUtils.isEmpty(value)) {
             dataType = DataType.NULL;
+        } else {
+            // value is not empty.
+            DataType inputDataType = stringToKnownDataTypeConverter(value);
+            if (DataType.NULL.equals(inputDataType)) {
+                dataType = DataType.NULL;
+            }
         }
 
         try {
@@ -538,17 +635,23 @@ public class FilterDataService {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
                     break;
                 }
-                case STRING: 
+                case STRING:
                 default:
                     preparedStatement.setString(index, value);
                     break;
             }
 
-        } catch (SQLException | IllegalArgumentException e) {
+        } catch (SQLException e) {
             // Alarm! This should never fail since appsmith is the creator of the query and supporter of it. Raise
             // an alarm and fix quickly!
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                         "Error while interacting with value " + value + " : " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            // The data type recognized does not match the data type of the value being set via Prepared Statement
+            // Add proper handling here.
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                            "Error while interacting with value " + value + " : " + e.getMessage() +
+                            ". The data type value was being parsed to was : " + dataType);
         }
 
         return preparedStatement;
@@ -580,6 +683,83 @@ public class FilterDataService {
         // All the conditions were iterated over and checked. In case an error was found, an exception has already been
         // thrown. If reached here, everything is hunky-dory.
         return true;
+    }
+
+    public String generateLogicalExpression(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema, ConditionalOperator logicOp) {
+
+        StringBuilder sb = new StringBuilder();
+
+        Boolean firstCondition = true;
+        for (Condition condition : conditions) {
+            String path = condition.getPath();
+            ConditionalOperator operator = condition.getOperator();
+            Object objValue = condition.getValue();
+            if (operator.equals(ConditionalOperator.AND) || operator.equals(ConditionalOperator.OR)) {
+                List<Condition> subConditions = (List<Condition>) objValue;
+                String logicalExpression = generateLogicalExpression(subConditions, values, schema, operator);
+                if (StringUtils.isNotEmpty(logicalExpression)) {
+                    sb.append(" " + logicOp + " ( ");
+                    sb.append(logicalExpression);
+                    sb.append(" ) ");
+                }
+            } else {
+                String value = (String) objValue;
+
+                if (StringUtils.isNotEmpty(path) && StringUtils.isNotEmpty(value)) {
+                    if (firstCondition) {
+                        firstCondition = false;
+                    } else {
+                        // This is not the first valid condition. Append the operator before adding the next condition
+                        sb.append(" " + logicOp);
+                    }
+                    String sqlOp = SQL_OPERATOR_MAP.get(operator);
+                    if (sqlOp == null) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                operator + " is not supported currently for filtering.");
+                    }
+                    sb.append(" ( ");
+                    sb.append("\"" + path + "\"");
+                    sb.append(" ");
+                    sb.append(sqlOp);
+                    sb.append(" ");
+
+                    // These are array operations. Convert value into appropriate format and then append
+                    if (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN) {
+
+                        StringBuilder valueBuilder = new StringBuilder("(");
+
+                        try {
+                            List<Object> arrayValues = objectMapper.readValue(value, List.class);
+                            List<String> updatedStringValues = arrayValues
+                                    .stream()
+                                    .map(fieldValue -> {
+                                        values.put(String.valueOf(fieldValue), schema.get(path));
+                                        return "?";
+                                    })
+                                    .collect(Collectors.toList());
+                            String finalValues = String.join(",", updatedStringValues);
+                            valueBuilder.append(finalValues);
+                        } catch (IOException e) {
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    value + " could not be parsed into an array");
+                        }
+
+                        valueBuilder.append(")");
+                        value = valueBuilder.toString();
+                        sb.append(value);
+
+                    } else {
+                        // Not an array. Simply add a placeholder
+                        sb.append("?");
+                        values.put(value, schema.get(path));
+                    }
+
+                    sb.append(" ) ");
+                }
+            }
+
+        }
+        return sb.toString();
     }
 
 }
