@@ -509,4 +509,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                 )
                 .map(NewPage::getId);
     }
+
+    @Override
+    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
+    }
 }

@@ -1,6 +1,5 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -9,7 +8,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
@@ -151,7 +150,7 @@ public class GitController {
     }
 
     @GetMapping("/branch/{defaultApplicationId}")
-    public Mono<ResponseDTO<List<GitBranchListDTO>>> branch(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
                                                             @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
         return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(ignoreCache))

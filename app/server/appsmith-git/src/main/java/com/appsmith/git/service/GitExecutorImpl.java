@@ -1,6 +1,6 @@
 package com.appsmith.git.service;
 
-import com.appsmith.external.dtos.GitBranchListDTO;
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -69,23 +69,23 @@ public class GitExecutorImpl implements GitExecutor {
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
-     * @param repoPath parent path to repo
+     * @param path parent path to repo
      * @param commitMessage message which will be registered for this commit
      * @param authorName author details
      * @param authorEmail author details
      * @return if the commit was successful
      */
     @Override
-    public Mono<String> commitApplication(Path repoPath,
+    public Mono<String> commitApplication(Path path,
                                           String commitMessage,
                                           String authorName,
-                                          String authorEmail) {
+                                          String authorEmail,
+                                          boolean isSuffixedPath) {
         return Mono.fromCallable(() -> {
-            log.debug("Trying to commit to local repo path, {}", repoPath);
-            // Check if the repo has been already initialised
-            if (!repositoryHelper.repositoryExists(repoPath)) {
-                // Not present or not a Git repository
-                createNewRepository(repoPath);
+            log.debug("Trying to commit to local repo path, {}", path);
+            Path repoPath = path;
+            if (Boolean.TRUE.equals(isSuffixedPath)) {
+                repoPath = createRepoPath(repoPath);
             }
             // Just need to open a repository here and make a commit
             Git git = Git.open(repoPath.toFile());
@@ -311,13 +311,13 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<MergeStatusDTO> pullApplication(Path repoPath,
+    public Mono<MergeStatusDTO> pullApplication(Path repoSuffix,
                                                 String remoteUrl,
                                                 String branchName,
                                                 String privateKey,
                                                 String publicKey) throws IOException {
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
-        Git git = Git.open(repoPath.toFile());
+        Git git = Git.open(createRepoPath(repoSuffix).toFile());
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl + " for the branch "+ branchName);
                 //checkout the branch on which the merge command is run
@@ -360,11 +360,11 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public Mono<List<GitBranchListDTO>> listBranches(Path repoSuffix,
-                                                     String remoteUrl,
-                                                     String privateKey,
-                                                     String publicKey,
-                                                     Boolean isRemoteDefaultBranchNeeded) {
+    public Mono<List<GitBranchDTO>> listBranches(Path repoSuffix,
+                                                 String remoteUrl,
+                                                 String privateKey,
+                                                 String publicKey,
+                                                 Boolean isRemoteDefaultBranchNeeded) {
         Path baseRepoPath = createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
@@ -379,26 +379,27 @@ public class GitExecutorImpl implements GitExecutor {
                 defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
             }
 
-            List<GitBranchListDTO> branchList = new ArrayList<>();
-            GitBranchListDTO gitBranchListDTO = new GitBranchListDTO();
+            List<GitBranchDTO> branchList = new ArrayList<>();
+            GitBranchDTO gitBranchDTO = new GitBranchDTO();
             if(refList.isEmpty()) {
-                gitBranchListDTO.setBranchName(git.getRepository().getBranch());
-                gitBranchListDTO.setDefault(true);
-                branchList.add(gitBranchListDTO);
+                gitBranchDTO.setBranchName(git.getRepository().getBranch());
+                gitBranchDTO.setDefault(true);
+                branchList.add(gitBranchDTO);
             } else {
                 if (Boolean.TRUE.equals(isRemoteDefaultBranchNeeded)) {
-                    gitBranchListDTO.setBranchName(defaultBranch.replace("refs/","")
-                            .replace("remotes/",""));
-                    gitBranchListDTO.setDefault(true);
-                    branchList.add(gitBranchListDTO);
+                    gitBranchDTO.setBranchName(defaultBranch.replace("refs/heads/",""));
+                    gitBranchDTO.setDefault(true);
+                    branchList.add(gitBranchDTO);
                 }
 
                 for(Ref ref : refList) {
-                    gitBranchListDTO = new GitBranchListDTO();
-                    gitBranchListDTO.setBranchName(ref.getName().replace("refs/","")
-                            .replace("heads/", "").replace("remotes/",""));
-                    gitBranchListDTO.setDefault(false);
-                    branchList.add(gitBranchListDTO);
+                    if(!ref.getName().equals(defaultBranch)) {
+                        gitBranchDTO = new GitBranchDTO();
+                        gitBranchDTO.setBranchName(ref.getName()
+                                .replace("refs/heads/",""));
+                        gitBranchDTO.setDefault(false);
+                        branchList.add(gitBranchDTO);
+                    }
                 }
             }
             git.close();

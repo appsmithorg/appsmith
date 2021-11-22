@@ -1,7 +1,6 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
-import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.Datasource;
@@ -45,7 +44,6 @@ import static com.appsmith.external.helpers.BeanCopyUtils.copyProperties;
 public class GitFileUtils {
 
     private final FileInterface fileUtils;
-    private final GitExecutor gitExecutor;
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields

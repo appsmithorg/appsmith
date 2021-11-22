@@ -66,13 +66,13 @@ public class GitExecutorTest {
     }
 
     private void commitToRepo() {
-        gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com").block();
+        gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false).block();
     }
 
     @Test
     public void commit_validChange_Success() throws IOException {
         createFileInThePath("TestFIle2");
-        String commitStatus = gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com").block();
+        String commitStatus = gitExecutor.commitApplication(path, "Test commit", "test", "test@test.com", false).block();
         Mono<List<GitLogDTO>> commitList = gitExecutor.getCommitHistory(path);
 
         StepVerifier
