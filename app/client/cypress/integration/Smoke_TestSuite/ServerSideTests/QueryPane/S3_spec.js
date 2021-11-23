@@ -225,7 +225,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.body[0].url).to.exist;
     });
 
-    cy.typeValueNValidate("Prefix", "File");
+    cy.typeValueNValidate("Prefix", "AutoFile", true);
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
@@ -291,7 +291,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com", true);
-    cy.typeValueNValidate("File Path", "File");
+    cy.typeValueNValidate("File Path", "AutoFile", true);
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
