@@ -1,13 +1,12 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
@@ -45,7 +44,7 @@ public interface GitService {
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
-    Mono<List<GitBranchListDTO>> listBranchForApplication(String defaultApplicationId, Boolean ignoreCache);
+    Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean ignoreCache);
 
     Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 
@@ -53,5 +52,7 @@ public interface GitService {
 
     Mono<GitPullDTO> mergeBranch(String applicationId, GitMergeDTO gitMergeDTO);
 
-    Mono<MergeStatusDTO> isBranchMergeable(String applicationId, GitMergeDTO gitMergeDTO);
+    Mono<MergeStatusDTO> isBranchMergeable(String applicationId, String sourceBranch, String destinationBranch);
+
+    Mono<String> createConflictedBranch(String defaultApplicationId, String branchName);
 }

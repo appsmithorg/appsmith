@@ -114,7 +114,7 @@ public class ActionController {
     public Mono<ResponseDTO<ActionDTO>> deleteAction(@PathVariable String id,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to delete unpublished action with id: {}, branchName: {}", id, branchName);
-        return layoutActionService.deleteUnpublishedAction(id)
+        return layoutActionService.deleteUnpublishedAction(id, branchName)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 

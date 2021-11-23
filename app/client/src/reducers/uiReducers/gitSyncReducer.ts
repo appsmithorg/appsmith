@@ -21,7 +21,6 @@ const initialState: GitSyncReducerState = {
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
-
   isFetchingLocalGitConfig: false,
   isFetchingGitConfig: false,
 };
@@ -310,7 +309,6 @@ export type GitSyncReducerState = {
   fetchingBranches: boolean;
   isFetchingGitConfig: boolean;
   isFetchingLocalGitConfig: boolean;
-
   isFetchingGitStatus: boolean;
   isFetchingMergeStatus: boolean;
 

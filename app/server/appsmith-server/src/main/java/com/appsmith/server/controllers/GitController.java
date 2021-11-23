@@ -1,6 +1,5 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.external.dtos.GitBranchListDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -9,7 +8,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.dtos.GitBranchDTO;
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
@@ -20,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -150,7 +150,7 @@ public class GitController {
     }
 
     @GetMapping("/branch/{defaultApplicationId}")
-    public Mono<ResponseDTO<List<GitBranchListDTO>>> branch(@PathVariable String defaultApplicationId,
+    public Mono<ResponseDTO<List<GitBranchDTO>>> branch(@PathVariable String defaultApplicationId,
                                                             @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache) {
         log.debug("Going to get branch list for application {}", defaultApplicationId);
         return service.listBranchForApplication(defaultApplicationId, BooleanUtils.isTrue(ignoreCache))
@@ -175,11 +175,18 @@ public class GitController {
 
     @GetMapping("/merge/status/{defaultApplicationId}")
     public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(@PathVariable String defaultApplicationId,
-                                                         @RequestBody GitMergeDTO gitMergeDTO) {
-        log.debug("Check if branch {} can be merged with branch {} for application {}", gitMergeDTO.getSourceBranch(), gitMergeDTO.getDestinationBranch(), defaultApplicationId);
-        return service.isBranchMergeable(defaultApplicationId, gitMergeDTO)
+                                                         @RequestParam MultiValueMap<String, String> params) {
+        log.debug("Check if branch {} can be merged with branch {} for application {}", params.getFirst(FieldName.SOURCE_BRANCH), params.getFirst(FieldName.DESTINATION_BRANCH), defaultApplicationId);
+        return service.isBranchMergeable(defaultApplicationId, params.getFirst(FieldName.SOURCE_BRANCH), params.getFirst(FieldName.DESTINATION_BRANCH))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
+    @PostMapping("/conflicted-branch/{defaultApplicationId}")
+    public Mono<ResponseDTO<String>> createConflictedBranch(@PathVariable String defaultApplicationId,
+                                           @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        log.debug("Going to create conflicted state branch {} for application {}", branchName, defaultApplicationId);
+        return service.createConflictedBranch(defaultApplicationId, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
 
 }

@@ -398,7 +398,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .then(applicationMono);
     }
 
-    private Mono<Application> deleteApplicationByResource(Application application) {
+    public Mono<Application> deleteApplicationByResource(Application application) {
         log.debug("Archiving pages for applicationId: {}", application.getId());
         return Mono.when(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES),
                 newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))

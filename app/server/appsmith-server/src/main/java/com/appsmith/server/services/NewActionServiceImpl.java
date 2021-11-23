@@ -6,13 +6,13 @@ import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
@@ -27,7 +27,6 @@ import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.DatasourceContext;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -184,7 +183,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         newAction.setProviderId(action.getProviderId());
         newAction.setDocumentation(action.getDocumentation());
         newAction.setApplicationId(action.getApplicationId());
-        newAction.setDefaultResources(action.getDefaultResources());
     }
 
     @Override
@@ -244,29 +242,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
         // Default the validity to true and invalids to be an empty set.
         Set<String> invalids = new HashSet<>();
-        // Only store defaultPageId and defaultCollectionId for actionDTO level resource
-        DefaultResources defaultActionResource =  new DefaultResources();
-        BeanCopyUtils.copyNewFieldValuesIntoOldObject(action.getDefaultResources(), defaultActionResource);
-
-        defaultActionResource.setApplicationId(null);
-        defaultActionResource.setActionId(null);
-        if(StringUtils.isEmpty(defaultActionResource.getPageId())) {
-            defaultActionResource.setPageId(action.getPageId());
-        }
-        if(StringUtils.isEmpty(defaultActionResource.getCollectionId())) {
-            defaultActionResource.setCollectionId(action.getCollectionId());
-        }
-        action.setDefaultResources(defaultActionResource);
-
-        // Only store defaultApplicationId and defaultActionId for NewAction level resource
-        DefaultResources defaults = new DefaultResources();
-        BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction.getDefaultResources(), defaults);
-        defaults.setPageId(null);
-        defaults.setCollectionId(null);
-        if(StringUtils.isEmpty(defaults.getApplicationId())) {
-            defaults.setApplicationId(action.getApplicationId());
-        }
-        newAction.setDefaultResources(defaults);
 
         action.setIsValid(true);
 
@@ -1519,12 +1494,12 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         if (StringUtils.isEmpty(branchName)) {
             return repository.findById(defaultActionId, permission)
                     .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId))
                     );
         }
         return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
                 );
     }
 
