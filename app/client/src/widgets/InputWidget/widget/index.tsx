@@ -493,7 +493,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{
-        function(){
+        (function(){
           if (!this.isRequired && !this.text) {
             return true
           }
@@ -562,7 +562,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           } else {
             return true;
           }
-        }()
+        })()
       }}`,
       value: `{{this.text}}`,
     };
@@ -701,7 +701,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip
         ? // adjust height for label | tooltip extra div
-          GRID_DENSITY_MIGRATION_V1 + 2
+          GRID_DENSITY_MIGRATION_V1 + 4
         : // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
           GRID_DENSITY_MIGRATION_V1;
 

@@ -21,7 +21,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.SAFE_URL,
               params: {
-                default: "https://wikipedia.org",
+                default: "https://www.example.com",
               },
             },
           },

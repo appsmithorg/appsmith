@@ -44,7 +44,7 @@ FusionCharts.options.license({
 });
 
 export interface ChartComponentProps {
-  allowHorizontalScroll: boolean;
+  allowScroll: boolean;
   chartData: AllChartData;
   chartName: string;
   chartType: ChartType;
@@ -81,38 +81,26 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   chartContainerId = this.props.widgetId + "chart-container";
 
   getChartType = () => {
-    const { allowHorizontalScroll, chartData, chartType } = this.props;
+    const { allowScroll, chartData, chartType } = this.props;
     const dataLength = Object.keys(chartData).length;
     const isMSChart = dataLength > 1;
     switch (chartType) {
       case "PIE_CHART":
         return "pie2d";
       case "LINE_CHART":
-        return allowHorizontalScroll
-          ? "scrollline2d"
-          : isMSChart
-          ? "msline"
-          : "line";
+        return allowScroll ? "scrollline2d" : isMSChart ? "msline" : "line";
       case "BAR_CHART":
-        return allowHorizontalScroll
-          ? "scrollBar2D"
-          : isMSChart
-          ? "msbar2d"
-          : "bar2d";
+        return allowScroll ? "scrollBar2D" : isMSChart ? "msbar2d" : "bar2d";
+      case "AREA_CHART":
+        return allowScroll ? "scrollarea2d" : isMSChart ? "msarea" : "area2d";
       case "COLUMN_CHART":
-        return allowHorizontalScroll
+        return allowScroll
           ? "scrollColumn2D"
           : isMSChart
           ? "mscolumn2d"
           : "column2d";
-      case "AREA_CHART":
-        return allowHorizontalScroll
-          ? "scrollarea2d"
-          : isMSChart
-          ? "msarea"
-          : "area2d";
       default:
-        return allowHorizontalScroll ? "scrollColumn2D" : "mscolumn2d";
+        return allowScroll ? "scrollColumn2D" : "mscolumn2d";
     }
   };
 
@@ -396,7 +384,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return;
     }
     const dataSource =
-      this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
+      this.props.allowScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
         : this.getChartDataSource();
 
@@ -470,10 +458,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       }
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
-      if (
-        this.props.allowHorizontalScroll &&
-        this.props.chartType !== "PIE_CHART"
-      ) {
+      if (this.props.allowScroll && this.props.chartType !== "PIE_CHART") {
         this.chartInstance.setChartData(this.getScrollChartDataSource());
       } else {
         this.chartInstance.setChartData(this.getChartDataSource());

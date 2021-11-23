@@ -216,12 +216,13 @@ export default [
       },
       {
         helpText: "Enables scrolling inside the chart",
-        propertyName: "allowHorizontalScroll",
-        label: "Allow horizontal scroll",
+        propertyName: "allowScroll",
+        label: "Allow scroll",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
+        hidden: (x: ChartWidgetProps) =>
+          x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
         dependencies: ["chartType"],
       },
     ],
