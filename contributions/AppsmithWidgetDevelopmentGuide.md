@@ -32,7 +32,7 @@ For example, the Text Widget has a property `text`. This defines the displayed t
 
 Example
 
-[bindings.mov](contributions/assets/bindings.mov)
+[bindings.mov](assets/bindings.mov)
 
 Here, `Input1` is the name of the Input widget. `text` is the property of the Input widget, which contains the value we’d like to display in the Text widget. `{{ }}` allows the platform to `evaluate` the content within the brackets. This means that we can write JS code within `{{ }}` if we’d like to manipulate the entity properties. For example,
 
@@ -48,7 +48,7 @@ As an example, let’s say we’d like to show a message at the click of a butto
 
 Example
 
-[actionTriggers.mov](contributions/assets/actionTriggers.mov)
+[actionTriggers.mov](assets/actionTriggers.mov)
 
 More on the platform provided action triggers can be found [here](https://docs.appsmith.com/framework-reference)
 
@@ -66,7 +66,7 @@ Now that we’ve seen how an Appsmith developer configures a widget, let's take 
 
 ### Folder structure
 
-<img src="./contributions/assets/widgetFolder.png" width="320px">
+<img src="./assets/widgetFolder.png" width="320px">
 
 Widget code resides in the `src/widgets` folder of the Appsmith codebase. Each widget has its own folder. As shown in the screenshot above, widget folders contain the following files and folders -
 
@@ -92,7 +92,7 @@ Widget code resides in the `src/widgets` folder of the Appsmith codebase. Each w
 
 *Canvas*: A canvas is a special type of widget, in the Appsmith platform, within which widgets can be placed by the Appsmith developer. For example, a Container Widget contains a Canvas Widget, this allows us to place other widgets within a container widget.
 
-[canvas.mov](contributions/assets/canvas.mov)
+[canvas.mov](assets/canvas.mov)
 
 We can generate the folder structure using this command from the CLI -
 
@@ -113,7 +113,7 @@ Arguments:
 
 This exports the widget configuration as an object usually named `CONFIG`. The default export has to be the widget itself. An example is shown here
 
-<img src="./contributions/assets/widgetConfig.png" width="320px">
+<img src="./assets/widgetConfig.png" width="320px">
 
 ### Configuration options
 
@@ -234,7 +234,7 @@ The type is `[Array<PropertyPaneConfig>](https://github.com/appsmithorg/appsmith
 
 Example:
 <p>
-<img src="contributions/assets/propertyConfig.png" width="320px">
+<img src="assets/propertyConfig.png" width="320px">
 </p>
 
 ### PropertyPaneSectionConfig
