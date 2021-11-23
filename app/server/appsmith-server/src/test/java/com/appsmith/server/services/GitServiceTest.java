@@ -886,7 +886,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1", "branch2");
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -909,7 +909,7 @@ public class GitServiceTest {
         Mockito.when(gitExecutor.isMergeBranch(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatus));
 
-        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), "branch1", "branch2");
+        Mono<MergeStatusDTO> applicationMono = gitDataService.isBranchMergeable(application.getId(), gitMergeDTO);
 
         StepVerifier
                 .create(applicationMono)
