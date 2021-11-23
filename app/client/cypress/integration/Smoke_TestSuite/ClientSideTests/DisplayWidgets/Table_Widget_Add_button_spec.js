@@ -95,6 +95,14 @@ describe("Table Widget property pane feature validation", function() {
         force: true,
       });
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-add").should("exist");
+
+    // disabled icon btn
+    cy.CheckWidgetProperties(commonlocators.disableCheckbox);
+    cy.getTableDataSelector("0", "4").then((selector) => {
+      cy.get(selector + " button.bp3-disabled").should("exist");
+    });
+    cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
+
     //Delete Column
     cy.get(".t--property-pane-back-btn").click({
       force: true,
@@ -129,7 +137,8 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".t--widget-tablewidget .tbody .bp3-icon-airplane").should("exist");
     // validate label
     cy.contains("Menu button").should("exist");
-    // Add a Menu item
+
+    // Add a Menu item 1
     cy.get(".t--add-menu-item-btn").click({
       force: true,
     });
@@ -139,6 +148,10 @@ describe("Table Widget property pane feature validation", function() {
       .click({
         force: true,
       });
+    // update menu item background color
+    cy.get(widgetsPage.backgroundcolorPickerNew).type("#03b365", {
+      force: true,
+    });
     //  Add action to the menu Item
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
@@ -146,6 +159,42 @@ describe("Table Widget property pane feature validation", function() {
       .contains("Show message")
       .click();
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
+    // Go back to table property pane
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+
+    // Add a Menu item 2
+    cy.get(".t--add-menu-item-btn").click({
+      force: true,
+    });
+    // Edit a Menu item
+    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+      .last()
+      .click({
+        force: true,
+      });
+    // update menu item background color
+    cy.get(widgetsPage.backgroundcolorPickerNew).type("#FFC13D", {
+      force: true,
+    });
+    // Go back to table property pane
+    cy.get(".t--property-pane-back-btn").click({ force: true });
+
+    // Add a Menu item 3
+    cy.get(".t--add-menu-item-btn").click({
+      force: true,
+    });
+    // Edit a Menu item
+    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+      .last()
+      .click({
+        force: true,
+      });
+    // update menu item background color
+    cy.get(widgetsPage.backgroundcolorPickerNew).type("#3366FF", {
+      force: true,
+    });
+    // Go back to table property pane
+    cy.get(".t--property-pane-back-btn").click({ force: true });
 
     // Close Property pane
     cy.openPropertyPane("tablewidget");
@@ -155,8 +204,53 @@ describe("Table Widget property pane feature validation", function() {
       force: true,
     });
     cy.wait(1000);
-    // Click on the Menu Item
 
+    // verify menu items background color
+    cy.contains("Menu Item 1").should(
+      "have.css",
+      "background-color",
+      "rgb(3, 179, 101)",
+    );
+    cy.contains("Menu Item 2").should(
+      "have.css",
+      "background-color",
+      "rgb(255, 193, 61)",
+    );
+    cy.contains("Menu Item 3").should(
+      "have.css",
+      "background-color",
+      "rgb(51, 102, 255)",
+    );
+
+    // disable menu item 3
+    cy.openPropertyPane("tablewidget");
+    cy.editColumn("customColumn1");
+    // Edit a Menu item
+    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+      .last()
+      .click({
+        force: true,
+      });
+    cy.wait(1000);
+    cy.get(".t--property-control-disabled label.bp3-switch.unchecked").click({
+      force: true,
+    });
+    cy.closePropertyPane();
+
+    // Click on the Menu Button
+    cy.contains("Menu button").click({
+      force: true,
+    });
+    cy.wait(1000);
+    // check Menu Item 3 is disable
+    cy.contains("Menu Item 3").should(
+      "have.css",
+      "background-color",
+      "rgb(250, 250, 250)",
+    );
+    cy.contains("Menu Item 3").should("have.class", "bp3-disabled");
+
+    // Click on the Menu Item
     cy.contains("Menu Item 1").click({
       force: true,
     });

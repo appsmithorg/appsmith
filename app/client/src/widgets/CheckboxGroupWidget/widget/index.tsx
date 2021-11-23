@@ -211,13 +211,18 @@ class CheckboxGroupWidget extends BaseWidget<
       );
       const options = compact(this.props.options).map((option) => option.value);
 
-      const diffOptions = prevOptions.filter(
-        (prevOption) => !options.includes(prevOption),
-      );
+      // Get an array containing all the options of prevOptions that are not in options and vice-versa
+      const diffOptions = prevOptions
+        .filter((option) => !options.includes(option))
+        .concat(options.filter((option) => !prevOptions.includes(option)));
 
-      const selectedValues = this.props.selectedValues.filter(
+      let selectedValues = this.props.selectedValues.filter(
         (selectedValue: string) => !diffOptions.includes(selectedValue),
       );
+      // if selectedValues empty, and options have changed, set defaultSelectedValues
+      if (!selectedValues.length && this.props.defaultSelectedValues.length) {
+        selectedValues = this.props.defaultSelectedValues;
+      }
 
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
         triggerPropertyName: "onSelectionChange",

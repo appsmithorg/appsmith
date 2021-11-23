@@ -22,10 +22,15 @@ import {
   getCustomTextColor,
 } from "widgets/WidgetUtils";
 
-export const MenuButtonContainer = styled.div`
+type MenuButtonContainerProps = {
+  disabled?: boolean;
+};
+
+export const MenuButtonContainer = styled.div<MenuButtonContainerProps>`
   width: 100%;
   height: 100%;
   text-align: center;
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 
   & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
@@ -66,7 +71,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.solid.bgColor
+          ? theme.colors.button.primary.primary.bgColor
           : "none"
       } !important;
     }
@@ -76,23 +81,28 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.outline.hoverColor
+          ? theme.colors.button.primary.secondary.hoverColor
           : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
+          ? theme.colors.button.primary.tertiary.hoverColor
+          : theme.colors.button.primary.primary.hoverColor
       } !important;
     }
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      pointer-events: none;
+      border-color: ${theme.colors.button.disabled.bgColor} !important;
+      > span {
+        color: ${theme.colors.button.disabled.textColor} !important;
+      }
     }
 
     border: ${
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
-        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
         : "none"
     } !important;
     & > span {
@@ -111,7 +121,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
               buttonColor,
             ) !== "none"
           ? getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
-          : `${theme.colors.button.primary.outline.textColor}`
+          : `${theme.colors.button.primary.secondary.textColor}`
       } !important;
     }
   `}
@@ -154,14 +164,14 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
     background: none !important
       &:hover {
         background-color: ${tinycolor(
-          theme.colors.button.primary.solid.textColor,
+          theme.colors.button.primary.primary.textColor,
         )
           .darken()
           .toString()} !important;
       }
       &:active {
         background-color: ${tinycolor(
-          theme.colors.button.primary.solid.textColor,
+          theme.colors.button.primary.primary.textColor,
         )
           .darken()
           .toString()} !important;
@@ -366,7 +376,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
   } = props;
 
   return (
-    <MenuButtonContainer>
+    <MenuButtonContainer disabled={isDisabled}>
       <PopoverStyles />
       <Popover2
         content={

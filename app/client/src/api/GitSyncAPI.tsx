@@ -21,6 +21,12 @@ export type MergeBranchPayload = {
   destinationBranch: string;
 };
 
+export type MergeStatusPayload = {
+  applicationId: string;
+  sourceBranch: string;
+  destinationBranch: string;
+};
+
 export type ConnectToGitPayload = {
   remoteUrl: string;
   gitProfile: {
@@ -73,12 +79,22 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static connect(payload: ConnectToGitPayload, applicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
+  static getMergeStatus({
+    applicationId,
+    destinationBranch,
+    sourceBranch,
+  }: MergeStatusPayload) {
+    return Api.get(
+      `${GitSyncAPI.baseURL}/merge/status/${applicationId}?sourceBranch=${sourceBranch}&destinationBranch=${destinationBranch}`,
+    );
   }
 
-  static disconnect(applicationId: string) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/${applicationId}`);
+  static pull({ applicationId }: { applicationId: string }) {
+    return Api.get(`${GitSyncAPI.baseURL}/pull/${applicationId}`);
+  }
+
+  static connect(payload: ConnectToGitPayload, applicationId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
 
   static getGlobalConfig() {

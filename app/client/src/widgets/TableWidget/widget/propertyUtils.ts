@@ -22,9 +22,6 @@ export function defaultSelectedRowValidation(
 ) {
   if (props) {
     if (props.multiRowSelection) {
-      if (props && !props.multiRowSelection)
-        return { isValid: true, parsed: undefined };
-
       if (_.isString(value)) {
         const trimmed = (value as string).trim();
         try {
@@ -125,6 +122,30 @@ export function totalRecordsCountValidation(
     isValid: true,
     parsed: Number(value),
     message: "",
+  };
+}
+
+export function uniqueColumnNameValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  const tableColumns = _.map(value, "label");
+  const duplicates = tableColumns.filter(
+    (val: string, index: number, arr: string[]) => arr.indexOf(val) !== index,
+  );
+  const hasError = !!duplicates.length;
+  if (value && hasError) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: ["Column names should be unique."],
+    };
+  }
+  return {
+    isValid: true,
+    parsed: value,
+    messages: [],
   };
 }
 
