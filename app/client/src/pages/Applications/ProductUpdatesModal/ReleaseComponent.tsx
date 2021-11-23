@@ -3,18 +3,13 @@ import styled, { withTheme } from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
+import Text, { Case, TextType } from "components/ads/Text";
+import { Classes } from "components/ads/common";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
-`;
-
-const StyledTitle = styled.div`
-  font-weight: ${(props) => props.theme.typography.h2.fontWeight};
-  font-size: ${(props) => props.theme.typography.h2.fontSize}px;
-  line-height: ${(props) => props.theme.typography.h2.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.h2.letterSpacing}px;
-  color: ${(props) => props.theme.colors.modal.title};
 `;
 
 export const StyledSeparator = styled.div`
@@ -79,15 +74,11 @@ const StyledReadMore = styled.div`
   &:hover {
     background-color: ${(props) => props.theme.colors.modal.hoverState};
   }
-  font-weight: ${(props) => props.theme.typography.btnMedium.fontWeight};
-  font-size: ${(props) => props.theme.typography.btnMedium.fontSize}px;
-  line-height: ${(props) => props.theme.typography.btnMedium.lineHeight}px;
-  letter-spacing: ${(props) =>
-    props.theme.typography.btnMedium.letterSpacing}px;
-  text-transform: uppercase;
   display: flex;
   cursor: pointer;
-  color: ${(props) => props.theme.colors.text.normal};
+  .${Classes.TEXT} {
+    margin-right: ${(props) => props.theme.spaces[3]}px;
+  }
 `;
 
 const ReadMoreContainer = styled.div`
@@ -99,7 +90,6 @@ const ReadMore = withTheme(
   ({
     currentState,
     onClick,
-    theme,
   }: {
     currentState: ReleaseComponentViewState;
     onClick: () => void;
@@ -107,19 +97,19 @@ const ReadMore = withTheme(
   }) => (
     <ReadMoreContainer>
       <StyledReadMore onClick={onClick}>
-        <div style={{ marginRight: 3 }}>
+        <Text case={Case.UPPERCASE} color={Colors.GREY_8} type={TextType.P2}>
           {currentState === ReleaseComponentViewState.collapsed
             ? "read more"
             : "read less"}
-        </div>
+        </Text>
         <Icon
-          fillColor={theme.colors.text.normal}
+          fillColor={Colors.GREY_8}
           name={
             currentState === ReleaseComponentViewState.collapsed
               ? "view-all"
               : "view-less"
           }
-          size={IconSize.XS}
+          size={IconSize.SMALL}
         />
       </StyledReadMore>
     </ReadMoreContainer>
@@ -156,7 +146,9 @@ function ReleaseComponent({ release }: ReleaseProps) {
 
   return descriptionHtml ? (
     <StyledContainer>
-      <StyledTitle>{name}</StyledTitle>
+      <Text color={Colors.BLACK} type={TextType.H1}>
+        {name}
+      </Text>
       <StyledDate>{moment(publishedAt).format("Do MMMM, YYYY")}</StyledDate>
       <StyledContent
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}

@@ -434,6 +434,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setOrganizationId(orgId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
@@ -469,6 +470,7 @@ public class ActionCollectionServiceTest {
                     assertThat(actionCollectionViewDTO.getName()).isEqualTo("testCollection1");
                     assertThat(actionCollectionViewDTO.getApplicationId()).isEqualTo(testApp.getId());
                     assertThat(actionCollectionViewDTO.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionCollectionViewDTO.getBody()).isEqualTo("collectionBody");
 
                 })
                 .verifyComplete();

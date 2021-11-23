@@ -219,6 +219,10 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                   Form={AppInviteUsersForm}
                   applicationId={currentApplicationDetails.id}
                   canOutsideClickClose
+                  headerIcon={{
+                    name: "right-arrow",
+                    bgColor: "transparent",
+                  }}
                   isOpen={showAppInviteUsersDialog}
                   orgId={currentOrgId}
                   title={currentApplicationDetails.name}

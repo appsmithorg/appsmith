@@ -97,10 +97,8 @@ const HeaderWrapper = styled(StyledHeader)`
   }
 `;
 
-// looks offset by 1px even though, checking bounding rect values
 const HeaderSection = styled.div`
   position: relative;
-  top: -1px;
   display: flex;
   flex: 1;
   overflow: visible;
@@ -392,6 +390,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
+              headerIcon={{
+                name: "right-arrow",
+                bgColor: "transparent",
+              }}
               isOpen={showAppInviteUsersDialog}
               orgId={orgId}
               title={
