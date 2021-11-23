@@ -3,6 +3,7 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import { IconName } from "components/ads/Icon";
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
@@ -15,6 +16,12 @@ type FormDialogComponentProps = {
   permissions?: string[];
   setMaxWidth?: boolean;
   applicationId?: string;
+  headerIcon?: {
+    name: IconName;
+    fillColor?: string;
+    hoverColor?: string;
+    bgColor?: string;
+  };
 };
 
 export function FormDialogComponent(props: FormDialogComponentProps) {
@@ -42,6 +49,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
   return (
     <Dialog
       canOutsideClickClose={!!props.canOutsideClickClose}
+      headerIcon={props.headerIcon}
       isOpen={isOpen}
       onOpening={() => setIsOpen(true)}
       setMaxWidth={props.setMaxWidth}

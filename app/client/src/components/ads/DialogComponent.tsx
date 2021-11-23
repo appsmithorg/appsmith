@@ -76,7 +76,7 @@ const StyledDialog = styled(Dialog)<{
         : ""}
 
     & .${Classes.DIALOG_BODY} {
-      padding-top: ${(props) => props.theme.spaces[9]}px;
+      padding-top: ${(props) => props.theme.spaces[4]}px;
       margin: 0;
       overflow: auto;
     }
@@ -87,11 +87,11 @@ const StyledDialog = styled(Dialog)<{
   }
 `;
 
-const HeaderIconWrapper = styled.div`
+const HeaderIconWrapper = styled.div<{ bgColor?: string }>`
   padding: 5px;
   border-radius: 50%;
   margin-right: 10px;
-  background: ${(props) => props.theme.colors.modal.iconBg};
+  background: ${(props) => props.bgColor || props.theme.colors.modal.iconBg};
 `;
 
 const TriggerWrapper = styled.div`
@@ -106,6 +106,7 @@ type DialogComponentProps = {
     name: IconName;
     fillColor?: string;
     hoverColor?: string;
+    bgColor?: string;
   };
   trigger?: ReactNode;
   setMaxWidth?: boolean;
@@ -139,7 +140,7 @@ export function DialogComponent(props: DialogComponentProps) {
 
   const getHeader = props.getHeader;
   const headerIcon = props.headerIcon ? (
-    <HeaderIconWrapper>
+    <HeaderIconWrapper bgColor={props.headerIcon.bgColor}>
       <Icon
         fillColor={props.headerIcon.fillColor}
         hoverFillColor={props.headerIcon.hoverColor}
