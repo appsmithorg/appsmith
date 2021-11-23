@@ -212,7 +212,7 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
 
     yield put({
       type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
-      payload: response.data.evaluationVersion,
+      payload: response.data?.evaluationVersion,
     });
 
     if (action.onSuccessCallback) {
