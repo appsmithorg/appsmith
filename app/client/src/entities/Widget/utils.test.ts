@@ -123,6 +123,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        primaryColumns: "TEMPLATE",
         isSortable: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
@@ -199,6 +200,16 @@ describe("getAllPathsFromPropertyConfig", () => {
         isVisible: {
           type: "BOOLEAN",
         },
+        primaryColumns: {
+          params: {
+            expected: {
+              autocompleteDataType: AutocompleteDataType.STRING,
+              example: "abc",
+              type: "Unique Column Names",
+            },
+          },
+          type: "FUNCTION",
+        },
         isSortable: {
           type: "BOOLEAN",
           params: {
@@ -222,6 +233,7 @@ describe("getAllPathsFromPropertyConfig", () => {
 
     // Note: Removing until we figure out how functions are represented here.
     delete result.validationPaths.defaultSelectedRow.params?.fn;
+    delete result.validationPaths.primaryColumns.params?.fn;
 
     expect(result).toStrictEqual(expected);
   });
