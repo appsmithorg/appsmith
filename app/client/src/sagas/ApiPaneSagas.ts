@@ -145,26 +145,34 @@ function* redirectToNewIntegrations(
 }
 
 function* handleUpdateBodyContentType(
-  action: ReduxAction<{ title: ApiContentTypes; apiId: string }>,
+  action: ReduxAction<{ title: string; apiId: string }>,
 ) {
   const { apiId, title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  const displayFormatObject = POST_BODY_FORMAT_OPTIONS_ARRAY.find(
-    (el) => el.label === title,
+  const displayFormatValue = POST_BODY_FORMAT_OPTIONS_ARRAY.find(
+    (el) => el === title,
   );
-  if (!displayFormatObject) {
+  if (!displayFormatValue) {
     log.error("Display format not supported", title);
     return;
   }
 
-  if (displayFormatObject.value === POST_BODY_FORMAT_OPTIONS.RAW.value) {
+  // update the api content type so it can be persisted.
+  yield put(
+    change(API_EDITOR_FORM_NAME, "actionConfiguration.apiContentType", title),
+  );
+
+  if (displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW) {
     // Dont update the content type header if raw has been selected
     yield put({
       type: ReduxActionTypes.SET_EXTRA_FORMDATA,
       payload: {
         id: apiId,
         values: {
-          displayFormat: displayFormatObject,
+          displayFormat: {
+            label: displayFormatValue,
+            value: displayFormatValue,
+          },
         },
       },
     });
@@ -186,7 +194,7 @@ function* handleUpdateBodyContentType(
   // This is the difference between RAW & NONE content-types. RAW doesn't update
   // the content-type header, while NONE removes it
   if (
-    displayFormatObject.value === POST_BODY_FORMAT_OPTIONS.NONE.value &&
+    displayFormatValue === POST_BODY_FORMAT_OPTIONS.NONE &&
     indexToUpdate !== -1
   ) {
     headers[indexToUpdate] = {
@@ -196,7 +204,7 @@ function* handleUpdateBodyContentType(
   } else {
     headers[indexToUpdate] = {
       key: CONTENT_TYPE_HEADER_KEY,
-      value: displayFormatObject.value,
+      value: displayFormatValue,
     };
   }
 
@@ -207,10 +215,8 @@ function* handleUpdateBodyContentType(
   const bodyFormData = cloneDeep(values.actionConfiguration.bodyFormData);
 
   if (
-    displayFormatObject.value ===
-      POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value ||
-    displayFormatObject.value ===
-      POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA.value
+    displayFormatValue === POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED ||
+    displayFormatValue === POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA
   ) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(
@@ -291,7 +297,10 @@ function* setHeaderFormat(apiId: string, headers?: Property[]) {
 
     if (!contentType || !contentType.value) {
       // If the content-type header is not present, set the display format to None
-      displayFormat = POST_BODY_FORMAT_OPTIONS.NONE;
+      displayFormat = {
+        label: POST_BODY_FORMAT_OPTIONS.NONE,
+        value: POST_BODY_FORMAT_OPTIONS.NONE,
+      };
     } else if (POST_BODY_FORMATS.includes(contentType.value)) {
       // If the content-type header is present & we have a tab defined for it, switch
       // the display format to that specific tab
@@ -302,7 +311,10 @@ function* setHeaderFormat(apiId: string, headers?: Property[]) {
     } else {
       // The content-type header is present but we don't have a specific tab for it.
       // Default to the RAW option.
-      displayFormat = POST_BODY_FORMAT_OPTIONS.RAW;
+      displayFormat = {
+        label: POST_BODY_FORMAT_OPTIONS.RAW,
+        value: POST_BODY_FORMAT_OPTIONS.RAW,
+      };
     }
   }
 
@@ -343,7 +355,7 @@ function* updateFormFields(
       );
       actionConfigurationHeaders[indexToUpdate] = {
         key: CONTENT_TYPE_HEADER_KEY,
-        value: POST_BODY_FORMAT_OPTIONS.JSON.value,
+        value: POST_BODY_FORMAT_OPTIONS.JSON,
       };
     } else {
       log.debug("yoyo: Got the GET request");
