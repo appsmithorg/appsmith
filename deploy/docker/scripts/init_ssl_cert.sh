@@ -25,7 +25,7 @@ init_ssl_cert() {
   nginx
 
   local live_path="/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN"
-	local ssl_path="/appsmith-stacks/ssl"
+  local ssl_path="/appsmith-stacks/ssl"
   if [[ -e "$ssl_path/fullchain.pem" ]] && [[ -e "$ssl_path/privkey.pem" ]]; then
     echo "Existing custom certificate"
     echo "Stop Nginx"
