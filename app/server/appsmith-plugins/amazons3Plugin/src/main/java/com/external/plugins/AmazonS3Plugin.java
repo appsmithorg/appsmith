@@ -23,6 +23,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -32,7 +33,9 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.FilterDataService;
 import com.external.plugins.constants.AmazonS3Action;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -64,6 +67,7 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataOrDefault;
+import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -73,6 +77,7 @@ import static com.external.plugins.constants.FieldName.LIST_EXPIRY;
 import static com.external.plugins.constants.FieldName.LIST_PREFIX;
 import static com.external.plugins.constants.FieldName.LIST_SIGNED_URL;
 import static com.external.plugins.constants.FieldName.LIST_UNSIGNED_URL;
+import static com.external.plugins.constants.FieldName.LIST_WHERE;
 import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_USING_BASE64_ENCODING;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
@@ -100,6 +105,11 @@ public class AmazonS3Plugin extends BasePlugin {
     @Extension
     public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
         private final Scheduler scheduler = Schedulers.elastic();
+        private final FilterDataService filterDataService;
+
+        public S3PluginExecutor() {
+            this.filterDataService = FilterDataService.getInstance();
+        }
 
         /*
          * - Exception thrown by this method is expected to be handled by the caller.
@@ -533,6 +543,17 @@ public class AmazonS3Plugin extends BasePlugin {
                         } else {
                             requestParams.add(new RequestParamDTO(LIST_UNSIGNED_URL, NO, null,
                                     null, null));
+                        }
+
+                        // Check if where condition is configured
+                        Object whereFormObject = getValueSafelyFromFormData(formData, LIST_WHERE);
+
+                        if (whereFormObject != null) {
+                            Map<String, Object> whereForm = (Map<String, Object>) whereFormObject;
+                            Condition condition = parseWhereClause(whereForm);
+                            ArrayNode preFilteringResponse = objectMapper.valueToTree(actionResult);
+                            actionResult = filterDataService.filterDataNew(preFilteringResponse, condition);
+
                         }
 
                         break;

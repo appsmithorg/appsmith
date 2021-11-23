@@ -330,6 +330,7 @@ function Header({
           >
             <Icon
               fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+              hoverFillColor={Colors.BLACK}
               name="refresh"
               onClick={fetchBranches}
               size={IconSize.XXXL}
@@ -339,6 +340,7 @@ function Header({
       </div>
       <Icon
         fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+        hoverFillColor={Colors.BLACK}
         name="close-modal"
         onClick={closePopup}
         size={IconSize.XXXXL}
