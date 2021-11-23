@@ -8,13 +8,18 @@ CUSTOM_DOMAIN="$1"
 SSL_CERT_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/fullchain.pem"
 SSL_KEY_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem"
 
-# In case of existing custom certificate, container will use them to configure SSL 
+# In case of existing custom certificate, container will use them to configure SSL
 if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
   SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
   SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
 fi
 
 cat <<EOF
+map $http_x_forwarded_proto $origin_scheme {
+  default $http_x_forwarded_proto;
+  '' $scheme;
+}
+
 server {
   listen 80;
   server_name $CUSTOM_DOMAIN;
@@ -40,7 +45,7 @@ server {
   root /opt/appsmith/editor;
   index index.html index.htm;
 
-  proxy_set_header X-Forwarded-Proto \$scheme;
+  proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$host;
 
   location / {
