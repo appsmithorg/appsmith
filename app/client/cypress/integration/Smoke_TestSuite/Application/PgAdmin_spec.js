@@ -69,7 +69,7 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     cy.runQuery();
     // clicking on chevron icon to go back to the datasources page
-    cy.get(appPage.dropdownChevronLeft).click();
+    cy.get(appPage.dropdownChevronLeft).click({ force: true });
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
@@ -90,7 +90,7 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     cy.runQuery();
     // clicking on chevron icon to go back to the datasources page
-    cy.get(appPage.dropdownChevronLeft).click();
+    cy.get(appPage.dropdownChevronLeft).click({ force: true });
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
@@ -111,7 +111,7 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     cy.runQuery();
     // clicking on chevron icon to go back to the datasources page
-    cy.get(appPage.dropdownChevronLeft).click();
+    cy.get(appPage.dropdownChevronLeft).click({ force: true });
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
@@ -137,7 +137,7 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     cy.runQuery();
     // clicking on chevron icon to go back to the datasources page
-    cy.get(appPage.dropdownChevronLeft).click();
+    cy.get(appPage.dropdownChevronLeft).click({ force: true });
     // clicking on new query to write a query
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
@@ -162,7 +162,7 @@ describe("PgAdmin Clone App", function() {
     cy.WaitAutoSave();
     cy.runQuery();
     // clicking on chevron icon to go back to the datasources page
-    cy.get(appPage.dropdownChevronLeft).click();
+    cy.get(appPage.dropdownChevronLeft).click({ force: true });
   });
 
   it("Add new table", function() {
@@ -170,7 +170,7 @@ describe("PgAdmin Clone App", function() {
     const id = uuid();
     const Table = `table${id}`;
     // clicking on chevron to go back to the application page
-    cy.get(appPage.dropdownChevronLeft).click();
+    cy.get(appPage.dropdownChevronLeft).click({ force: true });
     // adding new table
     cy.xpath(appPage.addNewtable).click();
     cy.xpath(appPage.addTablename)
@@ -183,7 +183,9 @@ describe("PgAdmin Clone App", function() {
     cy.xpath(appPage.columnNamefield).should("be.visible");
     cy.xpath(appPage.datatypefield).should("be.visible");
     cy.xpath(appPage.addTablename).type("id");
-    cy.xpath(appPage.textField).click();
+    cy.get(appPage.dropdownChevronDown)
+      .last()
+      .click();
     cy.xpath(appPage.selectDatatype).click();
     // switching on the Primary Key toggle
     cy.get(widgetsPage.switchWidgetInactive)
