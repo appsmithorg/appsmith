@@ -132,7 +132,6 @@ const Hint = styled.div`
   .hint-text {
     padding-left: 15px;
     font-size: 16px;
-    line-height: 19px;
   }
 `;
 

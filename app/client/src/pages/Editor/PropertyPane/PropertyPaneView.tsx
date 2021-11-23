@@ -12,6 +12,7 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
+import Indicator from "../GuidedTour/Indicator";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -119,12 +120,20 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-        <PropertyControlsGenerator
-          id={widgetProperties.widgetId}
-          panel={panel}
-          theme={EditorTheme.LIGHT}
-          type={widgetProperties.type}
-        />
+        <Indicator
+          direction="right"
+          location="PROPERTY_PANE"
+          position="left-top"
+          step={3}
+          targetTagName="div"
+        >
+          <PropertyControlsGenerator
+            id={widgetProperties.widgetId}
+            panel={panel}
+            theme={EditorTheme.LIGHT}
+            type={widgetProperties.type}
+          />
+        </Indicator>
       </div>
     </div>
   );
