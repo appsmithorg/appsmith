@@ -299,6 +299,9 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    // return if component unmounts before editor is created
+    if (!this.editor) return;
+
     this.editor.off("beforeChange", this.handleBeforeChange);
     this.editor.off("change", _.debounce(this.handleChange, 600));
     this.editor.off("keyup", this.handleAutocompleteKeyup);
