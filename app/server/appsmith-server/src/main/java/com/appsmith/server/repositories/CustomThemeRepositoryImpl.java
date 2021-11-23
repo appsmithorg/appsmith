@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -30,5 +31,12 @@ public class CustomThemeRepositoryImpl extends BaseAppsmithRepositoryImpl<Theme>
                 Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId)
         );
         return queryAll(List.of(criteria), null);
+    }
+
+    @Override
+    public Mono<Theme> findByIdAndApplicationId(String themeId, String applicationId) {
+        Criteria criteria = Criteria.where(fieldName(QTheme.theme.id)).is(themeId)
+                .and(fieldName(QTheme.theme.applicationId)).is(applicationId);
+        return queryOne(List.of(criteria), null);
     }
 }
