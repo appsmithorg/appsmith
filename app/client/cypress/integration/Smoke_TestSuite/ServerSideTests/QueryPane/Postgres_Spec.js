@@ -182,7 +182,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.selectRowinTable)
       .scrollIntoView()
       .should("be.visible")
-      .click();
+      .click({ force: true });
     cy.xpath(generatePage.currentStatusField)
       .clear()
       .click()
@@ -203,7 +203,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.selectRowinTable)
       .scrollIntoView()
       .should("be.visible")
-      .click();
+      .click({ force: true });
     cy.xpath(generatePage.currentStatusField).should("have.value", "APPROVED"); //Verifying update is success
 
     //verifying Insert from UI
@@ -225,7 +225,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.xpath(generatePage.deleteofSelectedRow)
       .scrollIntoView()
       .should("be.visible")
-      .click();
+      .click({ force: true });
     cy.get(generatePage.confirmBtn)
       .click()
       .wait(2000); //Wait for update call to be success

@@ -3248,7 +3248,7 @@ Cypress.Commands.add(
           "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
       )
         .first()
-        .click()
+        //.invoke('text', "")
         .type("{cmd+a}{del}{cmd+a}{del}");
 
     cy.xpath(
