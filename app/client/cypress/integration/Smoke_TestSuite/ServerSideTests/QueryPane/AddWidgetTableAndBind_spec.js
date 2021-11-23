@@ -40,12 +40,8 @@ describe("Addwidget from Query and bind with other widgets", function() {
     cy.intercept("/api/v1/actions/execute", {
       fixture: "addWidgetTable-mock",
     });
-    cy.get(queryEditor.runQuery).click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+
+    cy.runQuery();
     cy.xpath(queryEditor.queryResponse)
       .first()
       .invoke("text")
@@ -66,7 +62,6 @@ describe("Addwidget from Query and bind with other widgets", function() {
   it("Input widget test with default value from table widget", () => {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
