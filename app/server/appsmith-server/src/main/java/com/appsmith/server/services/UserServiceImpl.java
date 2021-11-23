@@ -194,8 +194,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * This function creates a one-time token for resetting the user's password. This token is stored in the `passwordResetToken`
      * collection with an expiry time of 48 hours. The user must provide this one-time token when updating with the new password.
      *
-     * @param resetUserPasswordDTO
-     * @return
+     * @param resetUserPasswordDTO DTO object containing the request params from form
+     * @return True if email is sent successfully
      */
     @Override
     public Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO) {
@@ -212,34 +212,34 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         // Create a random token to be sent out.
         final String token = UUID.randomUUID().toString();
-        log.debug("Password reset Token: {} for email: {}", token, email);
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
-        Mono<User> userMono = repository.findByEmail(email)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)));
+        return repository.findByEmail(email)
+                .switchIfEmpty(repository.findByCaseInsensitiveEmail(email))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
+                .flatMap(user -> {
+                    // an user found with the provided email address
+                    // Generate the password reset link for the user
+                    return passwordResetTokenRepository.findByEmail(user.getEmail())
+                            .switchIfEmpty(Mono.defer(() -> {
+                                PasswordResetToken passwordResetToken = new PasswordResetToken();
+                                passwordResetToken.setEmail(user.getEmail());
+                                passwordResetToken.setRequestCount(0);
+                                passwordResetToken.setFirstRequestTime(Instant.now());
+                                return Mono.just(passwordResetToken);
+                            }))
+                            .map(resetToken -> {
+                                // check the validity of the token
+                                validateResetLimit(resetToken);
+                                resetToken.setTokenHash(passwordEncoder.encode(token));
+                                return resetToken;
+                            });
+                }).flatMap(passwordResetTokenRepository::save)
+                .flatMap(passwordResetToken -> {
+                    log.debug("Password reset Token: {} for email: {}", token, passwordResetToken.getEmail());
 
-        // Generate the password reset link for the user
-        Mono<PasswordResetToken> passwordResetTokenMono = passwordResetTokenRepository.findByEmail(email)
-                .switchIfEmpty(Mono.defer(() -> {
-                    PasswordResetToken passwordResetToken = new PasswordResetToken();
-                    passwordResetToken.setEmail(email);
-                    passwordResetToken.setRequestCount(0);
-                    passwordResetToken.setFirstRequestTime(Instant.now());
-                    return Mono.just(passwordResetToken);
-                }))
-                .map(resetToken -> {
-                    // check the validity of the token
-                    validateResetLimit(resetToken);
-                    resetToken.setTokenHash(passwordEncoder.encode(token));
-                    return resetToken;
-                });
-
-        // Save the password reset link and send email to the user
-        Mono<Boolean> resetFlowMono = passwordResetTokenMono
-                .flatMap(passwordResetTokenRepository::save)
-                .flatMap(obj -> {
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
-                    nameValuePairs.add(new BasicNameValuePair("email", email));
+                    nameValuePairs.add(new BasicNameValuePair("email", passwordResetToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
                     String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
                     String resetUrl = String.format(
@@ -247,6 +247,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             resetUserPasswordDTO.getBaseUrl(),
                             encryptionService.encryptString(urlParams)
                     );
+
+                    log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
 
                     Map<String, String> params = Map.of("resetUrl", resetUrl);
                     return emailSender.sendMail(
@@ -257,9 +259,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     );
                 })
                 .thenReturn(true);
-
-        // Connect the components to first find a valid user and then initiate the password reset flow
-        return userMono.then(resetFlowMono);
     }
 
     /**
@@ -449,6 +448,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> userCreate(User user) {
         // It is assumed here that the user's password has already been encoded.
+
+        // convert the user email to lowercase
+        user.setEmail(user.getEmail().toLowerCase());
 
         // Set the permissions for the user
         user.getPolicies().addAll(crudUserPolicy(user));
