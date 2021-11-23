@@ -631,6 +631,7 @@ export const ReduxActionTypes = {
   UPDATE_JS_ACTION_BODY_INIT: "UPDATE_JS_ACTION_BODY_INIT",
   UPDATE_JS_ACTION_BODY_SUCCESS: "UPDATE_JS_ACTION_BODY_SUCCESS",
   SEND_TEST_EMAIL: "SEND_TEST_EMAIL",
+  SET_USER_CURRENT_GEO_LOCATION: "SET_USER_CURRENT_GEO_LOCATION",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
