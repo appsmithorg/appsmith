@@ -22,7 +22,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
       .contains("Navigate to")
       .click();
     cy.enterNavigatePageName(pageid);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
   });
