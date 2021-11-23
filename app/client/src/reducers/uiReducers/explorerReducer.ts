@@ -4,27 +4,48 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { get } from "lodash";
 
 export interface ExplorerReduxState {
-  updatingEntity?: string;
-  updateEntityError?: string;
-  editingEntityName?: string;
+  entity: {
+    updatingEntity?: string;
+    updateEntityError?: string;
+    editingEntityName?: string;
+  };
+  pinned: boolean;
+  width: number | undefined;
+  active: boolean;
 }
-const initialState: ExplorerReduxState = {};
+
+const initialState: ExplorerReduxState = {
+  pinned: true,
+  entity: {},
+  width: undefined,
+  active: true,
+};
 
 const setUpdatingEntity = (
   state: ExplorerReduxState,
   action: ReduxAction<{ id: string }>,
 ) => {
-  return { updatingEntity: action.payload.id, updateEntityError: undefined };
+  return {
+    ...state,
+    entity: { updatingEntity: action.payload.id, updateEntityError: undefined },
+  };
 };
 
 const setEntityUpdateError = (state: ExplorerReduxState) => {
-  return { updatingEntity: undefined, updateEntityError: state.updatingEntity };
+  return {
+    ...state,
+    entity: {
+      updatingEntity: undefined,
+      updateEntityError: state.entity.updatingEntity,
+    },
+  };
 };
 
-const setEntityUpdateSuccess = () => {
-  return {};
+const setEntityUpdateSuccess = (state: ExplorerReduxState) => {
+  return { ...state, entity: {} };
 };
 
 const setUpdatingDatasourceEntity = (
@@ -34,10 +55,13 @@ const setUpdatingDatasourceEntity = (
   const pathParts = window.location.pathname.split("/");
   const pageId = pathParts[pathParts.indexOf("pages") + 1];
 
-  if (!state.updatingEntity?.includes(action.payload.id)) {
+  if (!get(state, "entity.updatingEntity", "")?.includes(action.payload.id)) {
     return {
-      updatingEntity: `${action.payload.id}-${pageId}`,
-      updateEntityError: undefined,
+      ...state,
+      entity: {
+        updatingEntity: `${action.payload.id}-${pageId}`,
+        updateEntityError: undefined,
+      },
     };
   }
 
@@ -101,10 +125,33 @@ const explorerReducer = createReducer(initialState, {
     state: ExplorerReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {
-    return { editingEntityName: action.payload.id };
+    return { ...state, entity: { editingEntityName: action.payload.id } };
   },
-  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: () => {
-    return {};
+  [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: (
+    state: ExplorerReduxState,
+  ) => {
+    return { ...state, entity: {} };
+  },
+  [ReduxActionTypes.SET_EXPLORER_PINNED]: (
+    state: ExplorerReduxState,
+    action: ReduxAction<{ shouldPin: boolean }>,
+  ) => {
+    return { ...state, pinned: action.payload.shouldPin };
+  },
+  [ReduxActionTypes.UPDATE_EXPLORER_WIDTH]: (
+    state: ExplorerReduxState,
+    action: ReduxAction<{ width: number | undefined }>,
+  ) => {
+    return { ...state, width: action.payload.width };
+  },
+  [ReduxActionTypes.SET_EXPLORER_ACTIVE]: (
+    state: ExplorerReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      active: action.payload,
+    };
   },
 });
 
