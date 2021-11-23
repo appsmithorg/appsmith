@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { isNumber } from "lodash";
 
 export const getOriginalRowIndex = (
@@ -30,7 +29,6 @@ export const selectRowIndex = (
   primaryColumnId: string | undefined,
 ) => {
   let selectedRowIndex = isNumber(defaultSelectedRow) ? defaultSelectedRow : -1;
-  console.log({ selectedRowIndex, selectedRowIndexProp });
   if (
     selectedRowIndexProp !== -1 &&
     selectedRowIndexProp !== undefined &&
@@ -44,8 +42,6 @@ export const selectRowIndex = (
     if (rowIndex !== undefined) {
       selectedRowIndex = rowIndex;
     }
-
-    console.log({ rowIndex, selectedRowIndex });
   }
   return selectedRowIndex;
 };

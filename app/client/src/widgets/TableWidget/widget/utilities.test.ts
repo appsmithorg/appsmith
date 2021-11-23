@@ -234,6 +234,6 @@ describe("selectRowIndices", () => {
       [],
       undefined,
     );
-    expect(result).toEqual([]);
+    expect(result).toEqual([0]);
   });
 });
