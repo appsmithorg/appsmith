@@ -456,14 +456,8 @@ public class GitExecutorImpl implements GitExecutor {
             // Remove modified changes from current branch so that checkout to other branches will be possible
             if (!status.isClean()) {
                 return resetToLastCommit(git)
-                        .map(ref -> {
-                            git.close();
-                            return response;
-                        });
+                        .thenReturn(response);
             }
-//            if (response.getIsClean() && !Integer.valueOf(0).equals(response.getAheadCount())) {
-//                response.setIsClean(false);
-//            }
             git.close();
             return Mono.just(response);
         })
@@ -517,27 +511,6 @@ public class GitExecutorImpl implements GitExecutor {
         .subscribeOn(scheduler);
     }
 
-    private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
-        return Mono.fromCallable(() -> git.reset().setMode(ResetCommand.ResetType.HARD).call())
-                .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
-                .subscribeOn(scheduler);
-    }
-
-    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
-            Git git = Git.open(createRepoPath(repoSuffix).toFile());
-            return this.resetToLastCommit(git)
-                    .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                    .flatMap(checkedOut -> {
-                        try {
-                            return resetToLastCommit(git)
-                                    .thenReturn(true);
-                        } catch (GitAPIException e) {
-                            log.error(e.getMessage());
-                            return Mono.error(e);
-                        }
-                    });
-        }
-
     @Override
     public Mono<MergeStatusDTO> isMergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
@@ -568,12 +541,17 @@ public class GitExecutorImpl implements GitExecutor {
                 List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
             }
-            // Revert uncommitted changes if any
-            git.getRepository().writeMergeCommitMsg(null);
-            git.getRepository().writeMergeHeads(null);
-            Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
-            git.close();
             return mergeStatus;
+        })
+        .flatMap(status -> {
+            try {
+                // Revert uncommitted changes if any
+                return resetToLastCommit(repoSuffix, destinationBranch)
+                        .thenReturn(status);
+            } catch (GitAPIException | IOException e) {
+                log.error("Error for hard resetting to latest commit {0}", e);
+                return Mono.error(e);
+            }
         }).subscribeOn(scheduler);
     }
 
@@ -600,5 +578,31 @@ public class GitExecutorImpl implements GitExecutor {
             git.close();
             return git.getRepository().getBranch();
         }).subscribeOn(scheduler);
+    }
+
+
+    private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
+        return Mono.fromCallable(() -> {
+            Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).call();
+            git.close();
+            return ref;
+        })
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
+    }
+
+    public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
+        Git git = Git.open(createRepoPath(repoSuffix).toFile());
+        return this.resetToLastCommit(git)
+                .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
+                .flatMap(checkedOut -> {
+                    try {
+                        return resetToLastCommit(git)
+                                .thenReturn(true);
+                    } catch (GitAPIException e) {
+                        log.error(e.getMessage());
+                        return Mono.error(e);
+                    }
+                });
     }
 }
