@@ -127,9 +127,11 @@ describe("validate widget utils button style functions", () => {
     const escape = (value: string) => {
       return value.replace(/\n/g, "\\n");
     };
-    const testString = "a\nb\nc";
+    const testString = `a\nb\nc
+hello! how are you?
+`;
     const result = escapeSpecialChars(testString);
-    const expectedResult = "a\\nb\\nc";
+    const expectedResult = "a\\nb\\nc\\nhello! how are you?\\n";
     expect(escape(result)).toStrictEqual(expectedResult);
   });
 });
