@@ -2096,7 +2096,7 @@ Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
     .should("be.visible")
     .closest(datasource.datasourceCard)
     .within(() => {
-      cy.get(queryLocators.createQuery).click();
+      cy.get(queryLocators.createQuery).click({ force: true });
     })
     .wait(2000); //for the specified page to load
 });
@@ -3043,6 +3043,7 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
 });
 
 Cypress.Commands.add("createSuperUser", () => {
+  cy.wait(1000);
   cy.get(welcomePage.getStarted).should("be.visible");
   cy.get(welcomePage.getStarted).should("not.be.disabled");
   cy.get(welcomePage.getStarted).click();
@@ -3237,22 +3238,35 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("typeValueNValidate", (fieldName, valueToType) => {
-  //let text;
-  // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
-  //   text = fieldValue.text()//.innerText()
-  // }).then(() => {
-  //   cy.log("current field value is : '" + text + "'")
-  // })
+Cypress.Commands.add(
+  "typeValueNValidate",
+  (fieldName, valueToType, toclear = false) => {
+    if (toclear)
+      cy.xpath(
+        "//p[text()='" +
+          fieldName +
+          "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
+      )
+        .first()
+        .click()
+        .type("{cmd+a}{del}{cmd+a}{del}");
 
-  cy.xpath(
-    "//p[text()='" +
-      fieldName +
-      "']/following-sibling::div//div[@class='CodeMirror-code']",
-  ).type(valueToType, { parseSpecialCharSequences: false });
+    cy.xpath(
+      "//p[text()='" +
+        fieldName +
+        "']/following-sibling::div//div[@class='CodeMirror-code']",
+    ).type(valueToType, { parseSpecialCharSequences: false });
 
-  cy.EvaluateCurrentValue(valueToType);
-});
+    cy.EvaluateCurrentValue(valueToType);
+
+    // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
+    //   textF = fieldValue.innerText
+    //   fieldValue.innerText = ""
+    // }).then(() => {
+    //   cy.log("current field value is : '" + textF + "'")
+    // })
+  },
+);
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button").click({

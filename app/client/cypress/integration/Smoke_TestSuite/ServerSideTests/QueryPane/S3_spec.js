@@ -47,15 +47,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "The specified bucket is not valid.",
       ]);
     });
-    cy.xpath(
-      "//p[text()='Bucket Name']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .first()
-      .click()
-      .focused()
-      .type("{cmd+a}{del}{cmd+a}{del}");
-    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com");
 
+    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com", true);
     cy.runAndDeleteQuery(); //exeute actions - 200 response is verified in this method
   });
 
@@ -103,16 +96,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "Unable to parse content. Expected to receive an object with `data` and `type`",
       );
     });
-    cy.xpath(
-      "//p[text()='Content']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .first()
-      .click()
-      .focused()
-      .type("{cmd+a}{del}{cmd+a}{del}");
+
     cy.typeValueNValidate(
       "Content",
       '{"data": "Hi, this is Automation script adding File!"}',
+      true,
     );
 
     cy.onlyQueryRun();
@@ -133,14 +121,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "The specified bucket is not valid.",
       ]);
     });
-    cy.xpath(
-      "//p[text()='Bucket Name']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .first()
-      .click()
-      .focused()
-      .type("{cmd+a}{del}{cmd+a}{del}");
-    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com");
+
+    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com", true);
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -180,14 +162,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "The specified bucket is not valid.",
       ]);
     });
-    cy.xpath(
-      "//p[text()='Bucket Name']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .first()
-      .click()
-      .focused()
-      .type("{cmd+a}{del}{cmd+a}{del}");
-    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com");
+
+    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com", true);
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -196,14 +172,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "The specified key does not exist.",
       );
     });
-    cy.xpath(
-      "//p[text()='File Path']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .first()
-      .click()
-      .focused()
-      .type("{cmd+a}{del}{cmd+a}{del}");
-    cy.typeValueNValidate("File Path", "Autofile");
+
+    cy.typeValueNValidate("File Path", "Autofile", true);
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -212,14 +182,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "The specified key does not exist.",
       );
     });
-    cy.xpath(
-      "//p[text()='File Path']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .first()
-      .click()
-      .focused()
-      .type("{cmd+a}{del}{cmd+a}{del}");
-    cy.typeValueNValidate("File Path", "AutoFile");
+
+    cy.typeValueNValidate("File Path", "AutoFile", true);
     cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
 
     cy.onlyQueryRun();
@@ -327,14 +291,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         "The specified bucket is not valid.",
       ]);
     });
-    cy.xpath(
-      "//p[text()='Bucket Name']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-    )
-      .first()
-      .click()
-      .focused()
-      .type("{cmd+a}{del}{cmd+a}{del}");
-    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com");
+
+    cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com", true);
     cy.typeValueNValidate("File Path", "File");
 
     cy.onlyQueryRun();
@@ -370,7 +328,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.typeValueNValidate("Bucket Name", "assets-test.appsmith.com");
     cy.typeValueNValidate("File Path", "CRUDNewPageFile");
     cy.validateNSelectDropdown("File Data Type", "Base64", "Text / Binary");
-    //cy.xpath("//p[text()='Content']/following-sibling::div//div[@class='CodeMirror-code']//span/span").first().type("{cmd+a}{del}");
     cy.typeValueNValidate(
       "Content",
       '{"data": "Hi, this is Automation script adding file for S3 CRUD New Page validation!"}',
