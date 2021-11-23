@@ -1,8 +1,10 @@
 # Appsmith Widgets
 
+[![React Component to Appsmith Widget](http://img.youtube.com/vi/Dw3ftAn6aiw/0.jpg)](http://www.youtube.com/watch?v=Dw3ftAn6aiw "React Component to Appsmith Widget")
+
 React components can be connected to the Appsmith platform using the Widget Development APIs and registered to be available for use by Appsmith developers. 
 
-- In this [video](#), we can view a quick walk through on the basics of the Widget Development API.
+- In the above video, we can view a quick walk through on the basics of the Widget Development API.
 - In the following, we dive into the details of the features available to widget developers.
 
 ## Nomenclature
@@ -161,10 +163,12 @@ The widget code must be all available in the `widget` folder. `index.tsx` should
 
 - `executeAction` (void): Executes an action. Typically, used to call the configured action triggers. Arguments:
     - `triggerPayload` [ExecuteTriggerPayload](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/AppsmithActionConstants/ActionConstants.tsx#L24) Note: `undefined` or `null` actions throws an error.
-- `disableDrag` (void): Prevents the widget from being dragged in the canvas. For example, the Table Widget disables widget drag when re-ordering columns using header drag. This allows for widgets to implement features without conflicting with the platform features.
 
-Arguments:
+ 
+- `disableDrag` (void): Prevents the widget from being dragged in the canvas. For example, the Table Widget disables widget drag when re-ordering columns using header drag. This allows for widgets to implement features without conflicting with the platform features.
+    
     - `disable` Argument which disables drag when `true`, enables when `false`.
+  
 - `updateWidgetProperty` (void): Updates a single widget property
     - `propertyPath`: Path of the property to update
     - `propertyValue`: Value to be set
@@ -229,9 +233,9 @@ Property pane configuration defines the order of property controls, their valida
 The type is `[Array<PropertyPaneConfig>](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/PropertyControlConstants.tsx#L100)``.
 
 Example:
-
-<img src="./contributions/assets/propertyConfig.png" width="320px">
-
+<p>
+<img src="contributions/assets/propertyConfig.png" width="320px">
+</p>
 
 ### PropertyPaneSectionConfig
 
@@ -265,41 +269,41 @@ This object defines the property control’s configurations
 
 - [`updateHook`](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/constants/PropertyControlConstants.tsx#L49) (optional, `Array<{propertyPath: string; propertyValue: any}> | undefined`): This function is used to define any other properties which need to be updated when this property is updated. This function executes before the new property value is stored and evaluated. All property updates returned from this function will be applied simultaneously along with the original property update. 
 
-Arguments 
+  Arguments 
 
-- `props` (any): The widget’s properties. 
+  - `props` (any): The widget’s properties. 
 
-- `propertyName` (string): The path to the widget property 
+  - `propertyName` (string): The path to the widget property 
 
-- `propertyValue` (any): The new value of the property the Appsmith developer is trying to apply. - The return value should be an array of objects or `undefined`. The keys of the object are described below. 
+  - `propertyValue` (any): The new value of the property the Appsmith developer is trying to apply. - The return value should be an array of objects or `undefined`. The keys of the object are described below. 
 
-Return 
+  Return 
 
-- Type: `Array<{propertyPath: string; propertyValue: any}> | undefined` 
+  - Type: `Array<{propertyPath: string; propertyValue: any}> | undefined` 
 
-- `propertyPath`: Path to the property which needs to be updated 
+  - `propertyPath`: Path to the property which needs to be updated 
 
-- `propertyValue`: Value of the property which needs to be updated. 
+  - `propertyValue`: Value of the property which needs to be updated. 
 
 - `hidden` (optional, boolean): A function that returns `true` if this property should be hidden. 
 
-Arguments: 
+  Arguments: 
 
-- `props`: The current widget properties 
+  - `props`: The current widget properties 
 
-- `propertyPath`: The path relative to the widget to this property. 
+  - `propertyPath`: The path relative to the widget to this property. 
 
 - `additionalAutoComplete` (optional, nested object): A function that returns additional entries for the autocomplete in this property. 
 
-Arguments: 
+  Arguments: 
 
-- `props`: Current widget properties 
+    - `props`: Current widget properties 
 
-Return 
+  Return 
 
-- Type: `Record<string, Record<string, unknown>>` 
+    - Type: `Record<string, Record<string, unknown>>` 
 
-- This returns an object which has keywords as keys and an object as value, whose keys will be used for auto-complete. 
+    - This returns an object which has keywords as keys and an object as value, whose keys will be used for auto-complete. 
 
 - `dependencies` (required for `updateHook` and `hidden`, string[]): This lists the property paths which will be needed for computations in the `hidden` and `updateHook` functions. This is an optimisation that allows for a small subset of widget properties to be used for computations. 
 
@@ -310,13 +314,9 @@ Return
 ### PanelConfig
 
 This configuration helps in defining the details of properties shown in a panel. 
-
 - `editableTitle` (required, boolean): It defines if the title of the panel is editable. 
-
 - `titlePropertyName` (required, string): It defines the root path to the properties within the panel. 
-
 - `children` (required, [PropertyPaneConfig[]](#property-pane-configuration)): It configures the sections and controls show within the panel. 
-
 - `[updateHook](#propertypanecontrolconfig)`[Example](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/widgets/TableWidget/widget/propertyConfig.ts#L305)
 
 ### Property Validation Configuration
@@ -371,11 +371,8 @@ A widget blueprint configuration can have two parts. `view` and `operations`
 
 `view` : (optional, `Array<{ type, size, position, props }>` ) This describes the children and their structure
       - `type`  (required, WidgetType): The type of the child widget.
-
       - `size` (required, `{ rows: number, cols: number }`): The number of rows and columns to be occupied by the child widget.
-
       - `position` (required, `{ top: number, left: number }` ): The row (top) and column(left) offset of the child widget
-
       - `props` (optional, `Record<string, unknown>`): List of properties to be applied to the child widget as default.
 
 *Note:* If this child needs to have its own children created at the same time, the blueprint of such a child needs to be provided as the `blueprint` property in the `props`.
