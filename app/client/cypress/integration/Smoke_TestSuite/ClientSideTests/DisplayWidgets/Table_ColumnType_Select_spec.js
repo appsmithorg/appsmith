@@ -41,6 +41,7 @@ describe("Table Widget new column type - Select", function() {
     cy.get(
       `.t--widget-tablewidget .tbody .td[data-rowindex=1][data-colindex=2] .bp3-control-group .bp3-popover-target`,
     ).click({ force: true });
+    cy.wait("@updateLayout");
     // select last option from dropdown
     cy.get(".select-popover-wrapper " + commonlocators.singleSelectMenuItem)
       .contains(dropdownOptions[3].value)

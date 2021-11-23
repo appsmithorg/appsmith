@@ -826,10 +826,12 @@ export function SelectCell(props: {
     >
       <StyledDropDownComponent>
         <DropDownComponent
+          compactMode={false}
           disabled={Boolean(props.isDisabled)}
           height={0}
           isFilterable={props.isFilterable}
           isLoading={false}
+          isValid
           onFilterChange={noop}
           onOptionSelected={handleOptionChange}
           options={props.options}
