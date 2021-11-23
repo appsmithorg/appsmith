@@ -64,7 +64,7 @@ Now that we’ve seen how an Appsmith developer configures a widget, let's take 
 
 ### Folder structure
 
-![widgetFolder.png](contributions/assets/widgetFolder.png)
+<img src="contributions/assets/widgetFolder.png" width="320px">
 
 Widget code resides in the `src/widgets` folder of the Appsmith codebase. Each widget has its own folder. As shown in the screenshot above, widget folders contain the following files and folders -
 
@@ -111,7 +111,7 @@ Arguments:
 
 This exports the widget configuration as an object usually named `CONFIG`. The default export has to be the widget itself. An example is shown here
 
-![widgetConfig.png](contributions/assets/widgetConfig.png)
+<img src="contributions/assets/widgetConfig.png" width="320px">
 
 ### Configuration options
 
@@ -230,7 +230,8 @@ The type is `[Array<PropertyPaneConfig>](https://github.com/appsmithorg/appsmith
 
 Example:
 
-![propertyConfig.png](contributions/assets/propertyConfig.png)
+<img src="contributions/assets/propertyConfig.png" width="320px">
+
 
 ### PropertyPaneSectionConfig
 
@@ -262,7 +263,7 @@ This object defines the property control’s configurations
 
 - `isTriggerProperty` (required, boolean): `true` if this is an event handler that can trigger actions 
 
-- `[updateHook](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/constants/PropertyControlConstants.tsx#L49)` (optional, `Array<{propertyPath: string; propertyValue: any}> | undefined`): This function is used to define any other properties which need to be updated when this property is updated. This function executes before the new property value is stored and evaluated. All property updates returned from this function will be applied simultaneously along with the original property update. 
+- [`updateHook`](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/constants/PropertyControlConstants.tsx#L49) (optional, `Array<{propertyPath: string; propertyValue: any}> | undefined`): This function is used to define any other properties which need to be updated when this property is updated. This function executes before the new property value is stored and evaluated. All property updates returned from this function will be applied simultaneously along with the original property update. 
 
 Arguments 
 
@@ -325,7 +326,6 @@ Properties can be required to be validated when an Appsmith developer is allowed
 - `type` (required, [ValidationTypes](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/WidgetValidation.ts#L5)): The type of validation to be performed.
 - `params` (required for some validation types, [ValidationConfigParams](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/PropertyControlConstants.tsx#L67)): Parameters provided to help with the validation.
 
-Notes:
     - `min`(optional, number): Used to specify a minimum value for `ValidationTypes.NUMBER`
     - `max`(optional, number): Used to specify a maximum value for `ValidationTypes.NUMBER`
     - `natural`(optional, number): Used to validate a number as a natural number. Used with `ValidationTypes.NUMBER`
@@ -339,12 +339,14 @@ Notes:
         - `params`(optional, ValidationConfigParams): Parameters provided to help with the validation
     - `allowedValues`(optional, unknown[]): An array containing the set of allowed values for `ValidationTypes.ARRAY`
     - `children`(optional, ValidationConfig): Validation configuration for entries in `ValidationTypes.OBJECT_ARRAY`
-    - `fn`(optional, `(value: unknown, props: any, _?: any, moment?: any) => ValidationResponse`): The function used to validation in `ValidationTypes.FUNCTION` *ArgumentsReturn value*
+    - `fn`(optional, `(value: unknown, props: any, _?: any, moment?: any) => ValidationResponse`): The function used to validation in `ValidationTypes.FUNCTION` 
+      - *Arguments*
         - `value`(unknown): The current value of the property to validate
         - `props`(any): The properties of the current widget
         - `_`: The [lodash](https://lodash.com/docs/4.17.15) library utility
         - `moment`: The [momentjs](https://momentjs.com/docs/#/use-it/) library utility
-        - `[ValidationResponse](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/WidgetValidation.ts#L20)`: A specific format that the Appsmith platform uses to understand validation results.
+      - Return value
+        - [ValidationResponse](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/WidgetValidation.ts#L20): A specific format that the Appsmith platform uses to understand validation results.
             - `isValid`(required, boolean): Specifies if the property value is valid
             - `parsed`(required, unknown): The value after validation. This could be the default or the original value or a formatted version of the original value.
             - `messages`(optional, string[]): An array of messages used to describe how the validation has failed. This helps Appsmith developers identify and fix issues in property configurations
@@ -402,7 +404,7 @@ Type of `BlueprintOperation`:
 
 ### derived.js and parseDerivedProperties.ts
 
-- Some widgets like the Table Widget, which have complex derived properties use a separate file for the derived property functions. `[parseDerivedProperties.ts](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/widgets/ListWidget/widget/parseDerivedProperties.ts)` helps load the functions from the associated `[derived.js](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/widgets/ListWidget/widget/derived.js)` as strings to use in binding the derived properties.
+- Some widgets like the Table Widget, which have complex derived properties use a separate file for the derived property functions. [`parseDerivedProperties.ts`](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/widgets/ListWidget/widget/parseDerivedProperties.ts) helps load the functions from the associated [`derived.js`](https://github.com/appsmithorg/appsmith/blob/release/app/client/src/widgets/ListWidget/widget/derived.js) as strings to use in binding the derived properties.
 
 ### Component constants
 
