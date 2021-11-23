@@ -88,10 +88,15 @@ function* createApplication() {
     });
 
     yield take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS);
-    yield take(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID);
+    let pageId = yield select(getCurrentPageId);
+
+    if (!pageId) {
+      yield take(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID);
+    }
+
     yield put(enableGuidedTour(true));
 
-    const pageId = yield select(getCurrentPageId);
+    pageId = yield select(getCurrentPageId);
     const applicationId = yield select(getCurrentApplicationId);
 
     history.push(

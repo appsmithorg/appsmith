@@ -251,6 +251,13 @@ const Steps: StepsType = {
             props: {
               blueprint: onboardingContainerBlueprint,
             },
+            bottomRow: 100,
+            rightColumn: 90,
+            columns: 30,
+            leftColumn: 30,
+            topRow: 0,
+            parentColumnSpace: 0,
+            parentRowSpace: 0,
           }),
         );
       },
@@ -288,6 +295,13 @@ function InitialContent() {
     dispatch(
       addOnboardingWidget({
         type: "TABLE_WIDGET",
+        bottomRow: 100,
+        rightColumn: 40,
+        columns: 20,
+        leftColumn: 0,
+        parentColumnSpace: 10,
+        parentRowSpace: 20,
+        topRow: 0,
       }),
     );
     dispatch({
@@ -493,23 +507,20 @@ function CompletionContent(props: CompletionContentProps) {
 
   const tickMarkRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    let anim: AnimationItem;
     if (showSuccess) {
-      let anim: AnimationItem;
-
-      setTimeout(() => {
-        anim = lottie.loadAnimation({
-          animationData: indicator,
-          autoplay: true,
-          container: tickMarkRef?.current as HTMLDivElement,
-          renderer: "svg",
-          loop: false,
-        });
-      }, 0);
-
-      return () => {
-        anim?.destroy();
-      };
+      anim = lottie.loadAnimation({
+        animationData: indicator,
+        autoplay: true,
+        container: tickMarkRef?.current as HTMLDivElement,
+        renderer: "svg",
+        loop: false,
+      });
     }
+
+    return () => {
+      anim?.destroy();
+    };
   }, [tickMarkRef?.current, showSuccess]);
 
   const onSuccessButtonClick = () => {

@@ -42,7 +42,6 @@ export const generatePropertyControl = (
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Indicator
-          async
           direction="down"
           position={"top"}
           show={
