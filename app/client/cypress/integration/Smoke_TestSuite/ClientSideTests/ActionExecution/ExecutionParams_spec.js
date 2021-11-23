@@ -67,10 +67,11 @@ describe("API Panel Test Functionality", function() {
       "onclick",
       "{{Query1.run(undefined, undefined, { tableName: 'users' })}}",
     );
-
     // Choose dynamic button
     cy.SearchEntityandOpen("DynamicButton");
+    cy.wait(2000);
     // toggle js of onClick
+    cy.get(".t--property-control-onclick").scrollIntoView();
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click({ force: true });
