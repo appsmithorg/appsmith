@@ -26,7 +26,6 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -558,22 +557,21 @@ public class GitExecutorImpl implements GitExecutor {
                 }
             }
 
-            MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setStrategy(MergeStrategy.RECURSIVE).setCommit(false).call();
+            MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setCommit(false).call();
 
             MergeStatusDTO mergeStatus = new MergeStatusDTO();
             if(mergeResult.getMergeStatus().isSuccessful()) {
                 mergeStatus.setMergeAble(true);
             } else {
-                //On merge conflicts abort the merge => git merge --abort
-                git.getRepository().writeMergeCommitMsg(null);
-                git.getRepository().writeMergeHeads(null);
-                Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
-
                 //If there aer conflicts add the conflicting file names to the response structure
                 mergeStatus.setMergeAble(false);
                 List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
             }
+            // Revert uncommitted changes if any
+            git.getRepository().writeMergeCommitMsg(null);
+            git.getRepository().writeMergeHeads(null);
+            Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
             git.close();
             return mergeStatus;
         }).subscribeOn(scheduler);

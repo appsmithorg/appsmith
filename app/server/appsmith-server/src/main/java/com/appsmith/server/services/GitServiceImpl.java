@@ -82,9 +82,10 @@ public class GitServiceImpl implements GitService {
 
     private enum DEFAULT_COMMIT_REASONS {
         CONFLICT_STATE("for conflicted state"),
-        CONNECT_FLOW(""),
+        CONNECT_FLOW("initial commit"),
         BRANCH_CREATED("after creating a new branch: "),
-        SYNC_WITH_REMOTE_AFTER_PULL("for syncing changes with remote after git pull");
+        SYNC_WITH_REMOTE_AFTER_PULL("for syncing changes with remote after git pull"),
+        SYNC_REMOTE_AFTER_MERGE("for syncing changes with local branch after git merge, branch: ");
 
         private final String reason;
         DEFAULT_COMMIT_REASONS(String reason) {
@@ -1082,12 +1083,12 @@ public class GitServiceImpl implements GitService {
         String destinationBranch = gitMergeDTO.getDestinationBranch();
 
         return getApplicationById(defaultApplicationId)
-                .flatMap(application -> {
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                .flatMap(defaultApplication -> {
+                    GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(defaultApplication.getGitApplicationMetadata())) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                     }
-                    Path repoSuffix = Paths.get(application.getOrganizationId(),
+                    Path repoSuffix = Paths.get(defaultApplication.getOrganizationId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
 
@@ -1108,7 +1109,7 @@ public class GitServiceImpl implements GitService {
                             .thenReturn(repoSuffix);
 
                     return Mono.zip(
-                            Mono.just(application),
+                            Mono.just(defaultApplication),
                             pathToFile
                     ).onErrorResume(error -> {
                         log.error("Error in repo status check application " + defaultApplicationId, error);
@@ -1122,11 +1123,11 @@ public class GitServiceImpl implements GitService {
                     });
                 })
                 .flatMap(tuple -> {
-                    Application application = tuple.getT1();
+                    Application defaultApplication = tuple.getT1();
                     Path repoSuffix = tuple.getT2();
 
                     //2. git checkout destinationBranch ---> git merge sourceBranch
-                    return Mono.zip(gitExecutor.mergeBranch(repoSuffix, sourceBranch, destinationBranch), Mono.just(application))
+                    return Mono.zip(gitExecutor.mergeBranch(repoSuffix, sourceBranch, destinationBranch), Mono.just(defaultApplication))
                     // On merge conflict create a new branch and push the branch to remote. Let the user resolve it the git client like github/gitlab handleMergeConflict
                     .onErrorResume(error -> {
                         if(error.getMessage().contains("Merge conflict")) {
@@ -1136,23 +1137,28 @@ public class GitServiceImpl implements GitService {
                     });
                 })
                 .flatMap(mergeStatusTuple -> {
-                    Application application = mergeStatusTuple.getT2();
+                    Application defaultApplication = mergeStatusTuple.getT2();
                     String mergeStatus = mergeStatusTuple.getT1();
 
                     //3. rehydrate from file system to db
                     try {
                         Mono<ApplicationJson> applicationJson = fileUtils.reconstructApplicationFromGitRepo(
-                                application.getOrganizationId(),
-                                application.getGitApplicationMetadata().getDefaultApplicationId(),
-                                application.getGitApplicationMetadata().getRepoName(),
+                                defaultApplication.getOrganizationId(),
+                                defaultApplication.getGitApplicationMetadata().getDefaultApplicationId(),
+                                defaultApplication.getGitApplicationMetadata().getRepoName(),
                                 destinationBranch);
-                        return Mono.zip(Mono.just(mergeStatus), Mono.just(application), applicationJson);
+                        return Mono.zip(
+                                Mono.just(mergeStatus),
+                                applicationService
+                                        .findByBranchNameAndDefaultApplicationId(destinationBranch, defaultApplicationId, MANAGE_APPLICATIONS),
+                                applicationJson
+                        );
                     } catch (IOException | GitAPIException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "merge", e.getMessage()));
                     }
                 })
                 .flatMap(tuple -> {
-                    Application application = tuple.getT2();
+                    Application destApplication = tuple.getT2();
                     ApplicationJson applicationJson = tuple.getT3();
                     MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
                     mergeStatusDTO.setStatus(tuple.getT1());
@@ -1160,8 +1166,14 @@ public class GitServiceImpl implements GitService {
 
                     //4. Get the latest application mono with all the changes
                     return importExportApplicationService
-                            .importApplicationInOrganization(application.getOrganizationId(), applicationJson, application.getId(), destinationBranch)
-                            .map(application1 -> getPullDTO(application1, mergeStatusDTO));
+                            .importApplicationInOrganization(destApplication.getOrganizationId(), applicationJson, destApplication.getId(), destinationBranch)
+                            .flatMap(application1 -> {
+                                GitCommitDTO commitDTO = new GitCommitDTO();
+                                commitDTO.setDoPush(true);
+                                commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
+                                return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
+                                        .thenReturn(getPullDTO(application1, mergeStatusDTO));
+                            });
                 });
     }
 
