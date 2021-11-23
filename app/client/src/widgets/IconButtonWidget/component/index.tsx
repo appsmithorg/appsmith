@@ -21,12 +21,18 @@ import {
   getCustomHoverColor,
   getCustomTextColor,
 } from "widgets/WidgetUtils";
-const IconButtonContainer = styled.div`
+
+type IconButtonContainerProps = {
+  disabled?: boolean;
+};
+
+const IconButtonContainer = styled.div<IconButtonContainerProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
+  ${({ disabled }) => disabled && "cursor: not-allowed;"}
 `;
 
 export interface ButtonStyleProps {
@@ -67,8 +73,9 @@ export const StyledButton = styled((props) => (
       } !important;
     }
 
-    ${hasOnClickAction &&
-      `&:hover:enabled, &:active:enabled {
+    ${
+      hasOnClickAction
+        ? `&:hover:enabled, &:active:enabled {
         background: ${
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)
@@ -78,11 +85,14 @@ export const StyledButton = styled((props) => (
             ? theme.colors.button.primary.tertiary.hoverColor
             : theme.colors.button.primary.primary.hoverColor
         } !important;
-      }`}
+      }`
+        : ""
+    }
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      pointer-events: none;
     }
 
     &&:disabled {
@@ -196,7 +206,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
   }, [width, height]);
 
   return (
-    <IconButtonContainer>
+    <IconButtonContainer disabled={isDisabled}>
       <StyledButton
         borderRadius={borderRadius}
         boxShadow={boxShadow}
