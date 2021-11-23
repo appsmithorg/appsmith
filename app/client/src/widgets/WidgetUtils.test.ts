@@ -123,10 +123,13 @@ describe("validate widget utils button style functions", () => {
     expect(result6).toStrictEqual(expected6);
   });
 
-  // it("validate escaping special characters", () => {
-  //   const testString = "a\nb\nc";
-  //   const result = escapeSpecialChars(testString);
-  //   const expectedResult = "a\\nb\\nc";
-  //   expect(result).toStrictEqual(expectedResult);
-  // });
+  it("validate escaping special characters", () => {
+    const escape = (value: string) => {
+      return value.replace(/\n/g, "\\n");
+    };
+    const testString = "a\nb\nc";
+    const result = escapeSpecialChars(testString);
+    const expectedResult = "a\\nb\\nc";
+    expect(escape(result)).toStrictEqual(expectedResult);
+  });
 });
