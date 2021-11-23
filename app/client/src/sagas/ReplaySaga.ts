@@ -15,10 +15,7 @@ import {
   getIsPropertyPaneVisible,
   getCurrentWidgetId,
 } from "../selectors/propertyPaneSelectors";
-import {
-  closePropertyPane,
-  forceOpenPropertyPane,
-} from "actions/widgetActions";
+import { closePropertyPane } from "actions/widgetActions";
 import {
   selectMultipleWidgetsInitAction,
   selectWidgetAction,
@@ -112,7 +109,6 @@ export function* openPropertyPaneSaga(replay: any) {
     //if property pane is not visible, select the widget and force open property pane
     if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
       yield put(selectWidgetAction(replayWidgetId, false));
-      yield put(forceOpenPropertyPane(replayWidgetId));
     }
 
     flashElementsById(
