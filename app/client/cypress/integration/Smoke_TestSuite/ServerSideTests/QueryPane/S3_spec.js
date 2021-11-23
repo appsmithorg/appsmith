@@ -86,22 +86,19 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       );
     });
 
-    //Due to continuous failing - commenting below check
-    // cy.typeValueNValidate(
-    //   "Content",
-    //   "Hi, this is Automation script adding File!",
-    // );
-    // cy.onlyQueryRun();
-    // cy.wait("@postExecute").then(({ response }) => {
-    //   expect(response.body.data.isExecutionSuccess).to.eq(false);
-    //   expect(response.body.data.body).to.eq(
-    //     "Unable to parse content. Expected to receive an object with `data` and `type`",
-    //   );
-    // });
+    cy.typeValueNValidate("Content", "Hi");
+    cy.onlyQueryRun();
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(false);
+      expect(response.body.data.body).to.eq(
+        "Unable to parse content. Expected to receive an object with `data` and `type`",
+      );
+    });
 
     cy.typeValueNValidate(
       "Content",
       '{"data": "Hi, this is Automation script adding File!"}',
+      true,
     );
 
     cy.onlyQueryRun();

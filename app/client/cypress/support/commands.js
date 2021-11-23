@@ -1281,7 +1281,9 @@ Cypress.Commands.add("EvaluateCurrentValue", (currentValue) => {
   cy.get(commonlocators.evaluatedCurrentValue)
     .first()
     .should("be.visible")
-    .contains(currentValue);
+    .then(($text) => {
+      expect($text.text()).to.eq(currentValue);
+    });
 });
 
 Cypress.Commands.add("PublishtheApp", () => {
@@ -2381,7 +2383,7 @@ Cypress.Commands.add("runQuery", () => {
 Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery)
     .last()
-    .click();
+    .click({ force: true });
 });
 
 Cypress.Commands.add("hoverAndClick", () => {
@@ -3247,8 +3249,7 @@ Cypress.Commands.add(
           fieldName +
           "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
       )
-        .first()
-        //.invoke('text', "")
+        .last()
         .type("{cmd+a}{del}{cmd+a}{del}");
 
     cy.xpath(
