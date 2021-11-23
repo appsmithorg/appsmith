@@ -1,10 +1,7 @@
 #!/bin/bash
 
 init_ssl_cert() {
-  echo "Start Nginx to verify certificate"
-  nginx
   APPSMITH_CUSTOM_DOMAIN="$1"
-  NGINX_SSL_CMNT=""
 
   local rsa_key_size=4096
   local data_path="/appsmith-stacks/data/certificate"
@@ -19,15 +16,19 @@ init_ssl_cert() {
   fi
 
   echo "Re-generating nginx config template with domain"
-  bash "/opt/appsmith/templates/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$APPSMITH_CUSTOM_DOMAIN" >"/etc/nginx/conf.d/nginx_app.conf.template"
+  bash "/opt/appsmith/templates/nginx-app-http.conf.template.sh" "$APPSMITH_CUSTOM_DOMAIN" >"/etc/nginx/conf.d/nginx_app.conf.template"
 
   echo "Generating nginx configuration"
   cat /etc/nginx/conf.d/nginx_app.conf.template | envsubst "$(printf '$%s,' $(env | grep -Eo '^APPSMITH_[A-Z0-9_]+'))" | sed -e 's|\${\(APPSMITH_[A-Z0-9_]*\)}||g' >/etc/nginx/sites-available/default
+
+  echo "Start Nginx to verify certificate"
+  nginx
 
   local live_path="/etc/letsencrypt/live/$APPSMITH_CUSTOM_DOMAIN"
   local ssl_path="/appsmith-stacks/ssl"
   if [[ -e "$ssl_path/fullchain.pem" ]] && [[ -e "$ssl_path/privkey.pem" ]]; then
     echo "Existing custom certificate"
+    echo "Stop Nginx"
     nginx -s stop
     return
   fi

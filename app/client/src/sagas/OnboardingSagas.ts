@@ -38,12 +38,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateReactKey } from "utils/generators";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
-import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
+import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "./selectors";
@@ -162,7 +157,7 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
   });
 
   try {
-    let newWidget = {
+    const newWidget = {
       newWidgetId: generateReactKey(),
       widgetId: "0",
       parentId: "0",
@@ -171,26 +166,6 @@ function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
       ...defaultConfig,
       widgetName,
       ...widgetConfig,
-    };
-
-    const {
-      bottomRow,
-      leftColumn,
-      rightColumn,
-      topRow,
-    } = yield calculateNewWidgetPosition(
-      newWidget as WidgetProps,
-      MAIN_CONTAINER_WIDGET_ID,
-      widgets,
-    );
-
-    newWidget = {
-      ...newWidget,
-      leftColumn,
-      topRow,
-      rightColumn,
-      bottomRow,
-      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     };
 
     yield put({
