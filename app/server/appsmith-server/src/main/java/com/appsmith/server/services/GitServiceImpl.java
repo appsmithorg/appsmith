@@ -1079,8 +1079,12 @@ public class GitServiceImpl implements GitService {
          * 4.Get the latest application mono from the mongodb and send it back to client
          * */
 
-        String sourceBranch = gitMergeDTO.getSourceBranch();
-        String destinationBranch = gitMergeDTO.getDestinationBranch();
+        final String sourceBranch = gitMergeDTO.getSourceBranch();
+        final String destinationBranch = gitMergeDTO.getDestinationBranch();
+
+        if (StringUtils.isEmptyOrNull(sourceBranch) || StringUtils.isEmptyOrNull(destinationBranch)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
 
         return getApplicationById(defaultApplicationId)
                 .flatMap(defaultApplication -> {
@@ -1172,13 +1176,25 @@ public class GitServiceImpl implements GitService {
                                 commitDTO.setDoPush(true);
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
                                 return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
-                                        .thenReturn(getPullDTO(application1, mergeStatusDTO));
+                                        .map(commitStatus -> {
+                                            GitPullDTO gitPullDTO = new GitPullDTO();
+                                            gitPullDTO.setMergeStatus(mergeStatusDTO);
+                                            return gitPullDTO;
+                                        });
                             });
                 });
     }
 
     @Override
-    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, String sourceBranch, String destinationBranch) {
+    public Mono<MergeStatusDTO> isBranchMergeable(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
+
+        final String sourceBranch = gitMergeDTO.getSourceBranch();
+        final String destinationBranch = gitMergeDTO.getDestinationBranch();
+
+        if (StringUtils.isEmptyOrNull(sourceBranch) || StringUtils.isEmptyOrNull(destinationBranch)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
         return getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();

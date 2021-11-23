@@ -80,7 +80,7 @@ public enum AppsmithError {
     INVALID_GIT_CONFIGURATION(400, 4031, "Git configuration is invalid. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH Key is not configured properly. Did you forget to add SSH key to remote? Can you please try again by reconfiguring the SSH key with write access", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     INVALID_GIT_REPO(400, 4033, "The remote repo is not empty. Please create a new empty repo and configure the SSH keys. " +
-            "If you want to clone from remote repo and build application, please go to the Clone Application option.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
+            "If you want to clone from remote repo and build application, please use import application from git option.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     DEFAULT_RESOURCES_UNAVAILABLE(400, 4033, "Unexpected state. Default resources are unavailable for {0} with id {1}. Please reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.BAD_REQUEST),
     GIT_FILE_SYSTEM_ERROR(400, 4034, "Error while accessing the file system. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),

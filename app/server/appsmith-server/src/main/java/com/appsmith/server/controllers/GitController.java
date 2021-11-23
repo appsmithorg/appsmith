@@ -1,14 +1,14 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
-import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
+import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -173,11 +172,11 @@ public class GitController {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @GetMapping("/merge/status/{defaultApplicationId}")
+    @PostMapping("/merge/status/{defaultApplicationId}")
     public Mono<ResponseDTO<MergeStatusDTO>> mergeStatus(@PathVariable String defaultApplicationId,
-                                                         @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Check if branch {} can be merged with branch {} for application {}", params.getFirst(FieldName.SOURCE_BRANCH), params.getFirst(FieldName.DESTINATION_BRANCH), defaultApplicationId);
-        return service.isBranchMergeable(defaultApplicationId, params.getFirst(FieldName.SOURCE_BRANCH), params.getFirst(FieldName.DESTINATION_BRANCH))
+                                                         @RequestBody GitMergeDTO gitMergeDTO) {
+        log.debug("Check if merge-status {} for application {}", gitMergeDTO, defaultApplicationId);
+        return service.isBranchMergeable(defaultApplicationId, gitMergeDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
