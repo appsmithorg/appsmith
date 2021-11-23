@@ -322,7 +322,7 @@ const DATA_TREE_FUNCTIONS: Record<
     ]);
   },
   getGeoLocation: {
-    qualifier: isAppsmithEntity,
+    qualifier: (entity) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.getCurrentPosition",
     func: () =>
       function(
@@ -352,7 +352,7 @@ const DATA_TREE_FUNCTIONS: Record<
       },
   },
   watchGeoLocation: {
-    qualifier: isAppsmithEntity,
+    qualifier: (entity) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.watchPosition",
     func: () =>
       function(options?: {
@@ -371,7 +371,7 @@ const DATA_TREE_FUNCTIONS: Record<
       },
   },
   stopWatchGeoLocation: {
-    qualifier: isAppsmithEntity,
+    qualifier: (entity) => isAppsmithEntity(entity),
     path: "appsmith.geolocation.clearWatch",
     func: () =>
       function() {
