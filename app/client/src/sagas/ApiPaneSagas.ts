@@ -4,15 +4,7 @@
 import get from "lodash/get";
 import omit from "lodash/omit";
 import cloneDeep from "lodash/cloneDeep";
-import {
-  all,
-  select,
-  put,
-  takeEvery,
-  takeLatest,
-  call,
-  take,
-} from "redux-saga/effects";
+import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
@@ -602,8 +594,8 @@ export default function* root() {
       redirectToNewIntegrations,
     ),
     // Intercepting the redux-form change actionType
-    takeLatest(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
-    takeLatest(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
-    takeLatest(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
+    takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),
   ]);
 }
