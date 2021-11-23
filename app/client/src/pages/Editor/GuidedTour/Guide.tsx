@@ -10,7 +10,7 @@ import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { get, set } from "lodash";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import lottie from "lottie-web";
+import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
   getCurrentStep,
@@ -257,14 +257,19 @@ const Steps: StepsType = {
     },
   },
   4: {
-    title: "4. Connect Name Input with selected row",
+    title:
+      "4. Connect all the input fields in the customer update form with the table",
     hint: {
       icon: "edit-box-line",
       text: (
         <>
-          In the Property pane of NameInput, Replace the whole{" "}
-          <b>Default Text</b> property with{" "}
-          <b>&#123;&#123;CustomersTable.SelectedRow.name&#125;&#125;</b>
+          On <b>selection of any row</b> in the table, the input fields in the
+          form should show the selected {"row's"} name, email, country and
+          image.
+          <br />
+          <b>NameInput</b> below is already connected with the selected row by
+          replacing default text with{" "}
+          <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>
         </>
       ),
     },
@@ -489,13 +494,17 @@ function CompletionContent(props: CompletionContentProps) {
   const tickMarkRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (showSuccess) {
-      const anim = lottie.loadAnimation({
-        animationData: indicator,
-        autoplay: true,
-        container: tickMarkRef?.current as HTMLDivElement,
-        renderer: "svg",
-        loop: false,
-      });
+      let anim: AnimationItem;
+
+      setTimeout(() => {
+        anim = lottie.loadAnimation({
+          animationData: indicator,
+          autoplay: true,
+          container: tickMarkRef?.current as HTMLDivElement,
+          renderer: "svg",
+          loop: false,
+        });
+      }, 0);
 
       return () => {
         anim?.destroy();
