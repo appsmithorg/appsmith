@@ -25,13 +25,18 @@ import {
   switchGitBranchInit,
   updateBranchLocally,
   gitPullSuccess,
+  fetchMergeStatusSuccess,
+  fetchMergeStatusFailure,
+  fetchGitStatusInit,
+  setIsGitSyncModalOpen,
+  setIsGitErrorPopupVisible,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
   ConnectToGitReduxAction,
 } from "../actions/gitSyncActions";
 import { ApiResponse } from "api/ApiResponses";
-import { GitConfig } from "entities/GitSync";
+import { GitConfig, GitSyncModalTab } from "entities/GitSync";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
@@ -40,7 +45,6 @@ import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "constants/messages";
-import { fetchGitStatusInit } from "../actions/gitSyncActions";
 import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 import history from "utils/history";
@@ -383,17 +387,17 @@ function* fetchMergeStatusSaga(action: ReduxAction<MergeStatusPayload>) {
     });
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (isValidResponse) {
-      yield put(fetchGitStatusSuccess(response.data));
+      yield put(fetchMergeStatusSuccess(response.data));
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_MERGE_STATUS_ERROR,
-      payload: { error, logToSentry: true, show: false },
-    });
+    yield put(fetchMergeStatusFailure({ error, show: false }));
   }
 }
 
-function* gitPullSaga() {
+function* gitPullSaga(
+  action: ReduxAction<{ triggeredFromBottomBar: boolean }>,
+) {
+  const { triggeredFromBottomBar } = action.payload || {};
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const response = yield call(GitSyncAPI.pull, { applicationId });
@@ -403,14 +407,21 @@ function* gitPullSaga() {
     if (isValidResponse) {
       const { mergeStatus } = response.data;
       yield put(gitPullSuccess(mergeStatus));
-      // re-init after a successfull pull
-      if (mergeStatus.merge) {
-        yield put(initEditor(applicationId, currentPageId, currentBranch));
-      } else {
-        // todo handle error
-      }
+      yield put(initEditor(applicationId, currentPageId, currentBranch));
     }
   } catch (e) {
+    // todo check based on error type
+    if (triggeredFromBottomBar) {
+      yield put(setIsGitErrorPopupVisible({ isVisible: true }));
+    } else {
+      yield put(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.DEPLOY,
+        }),
+      );
+    }
+
     yield put({
       type: ReduxActionErrorTypes.GIT_PULL_ERROR,
       payload: { error: e, logToSentry: true, show: false },

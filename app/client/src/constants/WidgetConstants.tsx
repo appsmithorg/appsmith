@@ -48,13 +48,13 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   RELATIVE_PARENT: "%",
 };
 
-interface LayoutConfig {
+export interface LayoutConfig {
   minWidth: number;
   maxWidth: number;
 }
 
 type LayoutConfigurations = Record<SupportedLayouts, LayoutConfig>;
-export const DefaultLayoutType: SupportedLayouts = "DESKTOP";
+export const DefaultLayoutType: SupportedLayouts = "FLUID";
 export const layoutConfigurations: LayoutConfigurations = {
   TABLET_LARGE: {
     minWidth: 960,
