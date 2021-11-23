@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import styled from "styled-components";
 import { DocumentViewer } from "react-documents";
 import { includes, replace, split, get } from "lodash";
@@ -8,9 +8,11 @@ import {
   Renderer,
   ViewerType,
 } from "../constants";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "components/utils/Skeleton";
 
-import DocViewer from "./DocViewer";
-import XlsxViewer from "./XlsxViewer";
+const DocViewer = lazy(() => retryPromise(() => import("./DocViewer")));
+const XlsxViewer = lazy(() => retryPromise(() => import("./XlsxViewer")));
 
 const ErrorWrapper = styled.div`
   display: flex;
@@ -192,9 +194,17 @@ function DocumentViewerComponent(props: DocumentViewerComponentProps) {
     case Renderers.ERROR:
       return <ErrorWrapper>{errorMessage}</ErrorWrapper>;
     case Renderers.DOCX_VIEWER:
-      return <DocViewer blob={blob} />;
+      return (
+        <Suspense fallback={<Skeleton />}>
+          <DocViewer blob={blob} />
+        </Suspense>
+      );
     case Renderers.XLSX_VIEWER:
-      return <XlsxViewer blob={blob} />;
+      return (
+        <Suspense fallback={<Skeleton />}>
+          <XlsxViewer blob={blob} />
+        </Suspense>
+      );
     case Renderers.DOCUMENT_VIEWER:
       return <DocumentViewer url={url} viewer={viewer} />;
 
