@@ -66,7 +66,7 @@ import {
   isSaasAction,
 } from "entities/Action";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
-import { EDITOR_TABS } from "constants/editorConstants";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import { updateFormFields } from "./ApiPaneSagas";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
