@@ -64,8 +64,13 @@ const Row = styled.div`
 const SectionTitle = styled.div`
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.CHARCOAL};
+  display: inline-flex;
   & .branch {
     color: ${Colors.CRUSTA};
+    width: 240px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 `;
 
@@ -160,7 +165,7 @@ function Deploy() {
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
-            <span className="branch">&nbsp;{currentBranch}</span>
+            <div className="branch">&nbsp;{currentBranch}</div>
           </SectionTitle>
         </Row>
         <Space size={3} />

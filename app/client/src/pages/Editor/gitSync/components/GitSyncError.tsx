@@ -46,7 +46,7 @@ export default function GitSyncError() {
   }
   return errorVisible ? (
     <ErrorWrapper>
-      {titleMessage.length && (
+      {titleMessage.length > 0 && (
         <Text
           case={Case.UPPERCASE}
           color={Colors.ERROR_RED}

@@ -7,7 +7,6 @@ import {
   MERGE_CHANGES,
   SELECT_BRANCH_TO_MERGE,
 } from "constants/messages";
-import { ReactComponent as MergeIcon } from "assets/icons/ads/git-merge.svg";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";
@@ -37,6 +36,7 @@ const Row = styled.div`
 `;
 
 const DEFAULT_OPTION = "--Select--";
+const DROPDOWNMENU_MAXHEIGHT = "350px";
 
 export default function Merge() {
   const dispatch = useDispatch();
@@ -136,11 +136,8 @@ export default function Merge() {
       <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
       <Space size={4} />
       <Row>
-        <MergeIcon />
-
-        <Space horizontal size={3} />
-
         <Dropdown
+          dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
           isLoading={isFetchingBranches}
@@ -159,6 +156,7 @@ export default function Merge() {
         <Dropdown
           className="textInput"
           disabled
+          dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           onSelect={() => null}
           options={[currentBranchDropdownOption]}
           selected={currentBranchDropdownOption}
