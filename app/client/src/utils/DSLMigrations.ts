@@ -24,6 +24,7 @@ import {
   migrateTableWidgetSelectedRowBindings,
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
+  migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -983,6 +984,11 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 45) {
+    currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
+    currentDSL.version = 46;
+  }
+
+  if (currentDSL.version === 46) {
     currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
