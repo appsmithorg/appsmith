@@ -5,7 +5,7 @@ import Text, { Case, TextType } from "./Text";
 
 export type TabProp<T> = {
   key: string;
-  title: T;
+  title: T | string;
   panelComponent: JSX.Element;
 };
 
@@ -41,8 +41,8 @@ const Tab = styled.div<{ selected: boolean }>`
 
 type MultiSwitchProps<T> = CommonComponentProps & {
   tabs: Array<TabProp<T>>;
-  selected: { title: T; value: string };
-  onSelect: (title: T) => void;
+  selected: { title: T | string; value: string };
+  onSelect: (title: T | string) => void;
 };
 
 export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
@@ -55,7 +55,7 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
         {props.tabs.map((tab) => (
           <Tab
             key={tab.key}
-            onClick={() => props.onSelect(tab.title)}
+            onClick={() => props.onSelect(tab.key)}
             selected={props.selected.value === tab.key}
           >
             <Text case={Case.UPPERCASE} type={TextType.P3}>

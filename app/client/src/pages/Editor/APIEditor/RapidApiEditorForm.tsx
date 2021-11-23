@@ -284,8 +284,8 @@ export default connect((state) => {
 
   if (
     typeof actionConfigurationBodyFormData === "string" &&
-    (displayFormat === POST_BODY_FORMAT_OPTIONS.JSON.value ||
-      displayFormat === POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value)
+    (displayFormat.value === POST_BODY_FORMAT_OPTIONS.JSON ||
+      displayFormat.value === POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED)
   ) {
     actionConfigurationBodyFormData = JSON.parse(
       `${actionConfigurationBodyFormData}`,

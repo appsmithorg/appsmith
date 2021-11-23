@@ -16,11 +16,11 @@ export enum HTTP_METHODS {
 export const HTTP_METHODS_COLOR: {
   [key in keyof typeof HTTP_METHODS]: string;
 } = {
-  GET = "#457AE6",
-  POST = "#EABB0C",
-  PUT = "#5BB749",
-  DELETE = "#E22C2C",
-  PATCH = "#6D6D6D",
+  GET: "#457AE6",
+  POST: "#EABB0C",
+  PUT: "#5BB749",
+  DELETE: "#E22C2C",
+  PATCH: "#6D6D6D",
 };
 
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHODS).map(
@@ -36,29 +36,11 @@ export const EMPTY_KEY_VALUE_PAIRS = [
   { key: "", value: "" },
 ];
 
-export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
-  timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
-  encodeParamsToggle: true,
-  httpMethod: HTTP_METHODS.GET,
-  headers: EMPTY_KEY_VALUE_PAIRS.slice(),
-  queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
-  body: "",
-  pluginSpecifiedTemplates: [
-    {
-      // JSON smart substitution
-      value: true,
-    },
-  ],
-};
-
-export const DEFAULT_PROVIDER_OPTION = "Business Software";
-export const CONTENT_TYPE_HEADER_KEY = "content-type";
-
 export enum ApiContentTypes {
   NONE = "none",
   JSON = "json",
   FORM_URLENCODED = "x-www-form-urlencoded",
-  MULTIPART_FORM_DATA = "multi-part",
+  MULTIPART_FORM_DATA = "multi-part/form-data",
   RAW = "raw",
 }
 
@@ -75,6 +57,25 @@ export const POST_BODY_FORMAT_OPTIONS: {
   RAW: "raw",
 };
 
+export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
+  timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
+  encodeParamsToggle: true,
+  httpMethod: HTTP_METHODS.GET,
+  headers: EMPTY_KEY_VALUE_PAIRS.slice(),
+  queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
+  body: "",
+  apiContentType: POST_BODY_FORMAT_OPTIONS.NONE,
+  pluginSpecifiedTemplates: [
+    {
+      // JSON smart substitution
+      value: true,
+    },
+  ],
+};
+
+export const DEFAULT_PROVIDER_OPTION = "Business Software";
+export const CONTENT_TYPE_HEADER_KEY = "content-type";
+
 export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
   (option) => {
     log.debug();
@@ -86,10 +87,10 @@ export const POST_BODY_FORMAT_OPTIONS_ARRAY = Object.values(
   POST_BODY_FORMAT_OPTIONS,
 );
 
-export const POST_BODY_FORMAT_TITLES = Object.values(
+export const POST_BODY_FORMAT_TITLES = Object.entries(
   POST_BODY_FORMAT_OPTIONS,
 ).map((option) => {
-  return { title: option.label, key: option.value };
+  return { title: option[0], key: option[1] };
 });
 
 export enum MultiPartOptionTypes {

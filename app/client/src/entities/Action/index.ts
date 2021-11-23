@@ -51,6 +51,7 @@ export interface ApiActionConfig extends ActionConfig {
   encodeParamsToggle: boolean;
   queryParameters?: Property[];
   bodyFormData?: BodyFormData[];
+  apiContentType: string;
 }
 
 export interface QueryActionConfig extends ActionConfig {
