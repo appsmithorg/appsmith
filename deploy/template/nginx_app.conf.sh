@@ -11,6 +11,11 @@ NGINX_SSL_CMNT="$1"
 custom_domain="$2"
 
 cat <<EOF
+map $http_x_forwarded_proto $origin_scheme {
+  default $http_x_forwarded_proto;
+  '' $scheme;
+}
+
 server {
     listen 80;
 $NGINX_SSL_CMNT    server_name $custom_domain ;
@@ -25,7 +30,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         root /var/www/certbot;
     }
 
-    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header X-Forwarded-Proto \$origin_scheme;
     proxy_set_header X-Forwarded-Host \$host;
 
     location / {
@@ -83,7 +88,7 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    include /etc/letsencrypt/options-ssl-nginx.conf;
 $NGINX_SSL_CMNT    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$scheme;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$origin_scheme;
 $NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host \$host;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    root /var/www/appsmith;
