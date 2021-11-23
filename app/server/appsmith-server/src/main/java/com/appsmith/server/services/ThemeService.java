@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ThemeService extends CrudService<Theme, String> {
     Mono<List<Theme>> getApplicationThemes(String applicationId);
+    Mono<Theme> updateTheme(String themeId, String applicationId, Theme resource);
+    Mono<Theme> createTheme(String applicationId, Theme resource);
 }

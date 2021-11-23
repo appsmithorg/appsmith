@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Theme extends BaseDomain {
     private String name;
     private Properties properties;
+    @JsonIgnore
     private String applicationId;
 
     @Data
