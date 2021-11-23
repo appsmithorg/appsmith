@@ -46,7 +46,6 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(explorer.explorerSwitchId).click();
     cy.PublishtheApp();
     cy.get(publish.backToEditor)
