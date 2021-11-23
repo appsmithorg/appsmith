@@ -78,7 +78,10 @@ function PostBodyData(props: Props) {
   const tabComponentsMap = (key: string, contentType: string): JSX.Element => {
     return {
       [POST_BODY_FORMAT_OPTIONS.NONE]: (
-        <NoBodyMessage> {createMessage(API_PANE_NO_BODY)} </NoBodyMessage>
+        <NoBodyMessage id="NoBodyMessageDiv">
+          {" "}
+          {createMessage(API_PANE_NO_BODY)}{" "}
+        </NoBodyMessage>
       ),
       [POST_BODY_FORMAT_OPTIONS.JSON]: (
         <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
