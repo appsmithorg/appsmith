@@ -109,6 +109,8 @@ public class Application extends BaseDomain {
 
     Boolean forkingEnabled;
 
+    String themeId;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
