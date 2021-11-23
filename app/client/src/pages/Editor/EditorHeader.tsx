@@ -390,6 +390,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
+              headerIcon={{
+                name: "right-arrow",
+                bgColor: "transparent",
+              }}
               isOpen={showAppInviteUsersDialog}
               orgId={orgId}
               title={
