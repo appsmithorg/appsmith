@@ -103,7 +103,7 @@ describe("Map Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
-  it("Action: onEntityClick, Show Alert Modal", function() {
+  it("Action: onDataPointClick, Open modal", function() {
     // Create the Alert Modal and verify Modal name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
@@ -115,5 +115,34 @@ describe("Map Chart Widget Functionality", function() {
       "have.text",
       this.data.ModalName,
     );
+  });
+
+  it("Action: onDataPointClick, Show message using selectedDataPoint", function() {
+    const expectedEntityData = {
+      value: 2.04,
+      label: "South America",
+      shortLabel: "SA",
+      originalId: "SA",
+      id: "sa",
+    };
+    // Set the map type to default
+    cy.updateMapType("World");
+    // Set action details for onDataPointClick
+    const boundMessage = `{{JSON.stringify(MapChart1.selectedDataPoint)}}`;
+    cy.addAction(boundMessage);
+    cy.get(commonLocators.chooseMsgType)
+      .last()
+      .click();
+    cy.get(commonLocators.chooseAction)
+      .children()
+      .contains("Success")
+      .click();
+    // Click on the entity, South America
+    cy.get(widgetsPage.mapChartPlot)
+      .children()
+      .first()
+      .click();
+    // Assert
+    cy.validateToastMessage(JSON.stringify(expectedEntityData));
   });
 });

@@ -226,9 +226,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         sectionName: "Actions",
         children: [
           {
-            helpText: "Triggers an action when the chart data point is clicked",
-            propertyName: "onEntityClick",
-            label: "onEntityClick",
+            helpText:
+              "Triggers an action when the map chart data point is clicked",
+            propertyName: "onDataPointClick",
+            label: "onDataPointClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -241,7 +242,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      entityData: undefined,
+      selectedDataPoint: undefined,
     };
   }
 
@@ -249,13 +250,13 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return "MAP_CHART_WIDGET";
   }
 
-  handleEntityClick = (data: EntityData) => {
-    const { onEntityClick } = this.props;
+  handleDataPointClick = (data: EntityData) => {
+    const { onDataPointClick } = this.props;
 
-    if (onEntityClick) {
-      this.props.updateWidgetMetaProperty("entityData", data, {
-        triggerPropertyName: "onEntityClick",
-        dynamicString: onEntityClick,
+    if (onDataPointClick) {
+      this.props.updateWidgetMetaProperty("selectedDataPoint", data, {
+        triggerPropertyName: "onDataPointClick",
+        dynamicString: onDataPointClick,
         event: {
           type: EventType.ON_ENTITY_CLICK,
         },
@@ -287,7 +288,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
           data={data}
           height={(bottomRow - topRow) * parentRowSpace}
           isVisible={isVisible}
-          onEntityClick={this.handleEntityClick}
+          onDataPointClick={this.handleDataPointClick}
           showLabels={showLabels}
           type={mapType}
           width={(rightColumn - leftColumn) * parentColumnSpace}
@@ -300,7 +301,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
 export interface MapChartWidgetProps extends WidgetProps {
   mapTitle?: string;
   mapType: MapType;
-  onEntityClick?: string;
+  onDataPointClick?: string;
   showLabels: boolean;
 }
 

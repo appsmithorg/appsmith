@@ -85,7 +85,7 @@ function MapChartComponent(props: MapChartComponentProps) {
     caption,
     data,
     height,
-    onEntityClick,
+    onDataPointClick,
     showLabels,
     type,
     width,
@@ -185,7 +185,7 @@ function MapChartComponent(props: MapChartComponentProps) {
   };
 
   const entityClick = (eventObj: any) => {
-    onEntityClick(eventObj.data);
+    onDataPointClick(eventObj.data);
   };
 
   const initializeMap = (configs: ChartObject) => {
@@ -211,7 +211,7 @@ export interface MapChartComponentProps {
   data: MapData[];
   height: number;
   isVisible: boolean;
-  onEntityClick: (data: EntityData) => void;
+  onDataPointClick: (data: EntityData) => void;
   showLabels: boolean;
   type: MapType;
   width: number;
