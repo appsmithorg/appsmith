@@ -129,6 +129,7 @@ export default function Merge() {
         <Space horizontal size={3} />
 
         <Dropdown
+          containerClassName={"t--merge-branch-dropdown-destination"}
           enableSearch
           fillOptions
           isLoading={isFetchingBranches}
@@ -157,6 +158,7 @@ export default function Merge() {
       <Space size={10} />
 
       <Button
+        className="t--merge"
         disabled={mergeBtnDisabled}
         onClick={mergeHandler}
         size={Size.medium}

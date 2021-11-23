@@ -4,9 +4,14 @@ const { typeIntoDraftEditor } = require("../Comments/utils");
 
 const newCommentText1 = "new comment text 1";
 
+let repoName;
 describe("Git sync connect to repo", function() {
   before(() => {
-    cy.createTestGithubRepo();
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo();
+    });
   });
 
   // test comments across branches
@@ -39,6 +44,6 @@ describe("Git sync connect to repo", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo();
+    cy.deleteTestGithubRepo(repoName);
   });
 });

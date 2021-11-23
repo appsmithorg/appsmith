@@ -122,7 +122,7 @@ function GitErrorPopup() {
               <div style={{ marginRight: theme.spaces[3] }}>
                 <Button
                   category={Category.tertiary}
-                  className="t--commit-button"
+                  className="t--open-repo-button"
                   href={gitMetaData?.remoteUrl}
                   size={Size.medium}
                   tag="a"
@@ -132,7 +132,7 @@ function GitErrorPopup() {
                 />
               </div>
               <Button
-                className="t--commit-button"
+                className="t--pull-button"
                 isLoading={isPulingProgress}
                 onClick={handlePull}
                 size={Size.medium}

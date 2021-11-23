@@ -9,9 +9,14 @@ const parentBranchKey = "ParentBranch";
 const childBranchKey = "ChildBranch";
 const branchQueryKey = "branch";
 
+let repoName;
 describe("Git sync connect to repo", function() {
   before(() => {
-    cy.createTestGithubRepo();
+    cy.generateUUID().then((uid) => {
+      repoName = uid;
+      cy.createTestGithubRepo(repoName);
+      cy.connectToGitRepo();
+    });
   });
 
   it("connects successfully", function() {
@@ -149,6 +154,6 @@ describe("Git sync connect to repo", function() {
   });
 
   after(() => {
-    cy.deleteTestGithubRepo();
+    cy.deleteTestGithubRepo(repoName);
   });
 });

@@ -193,7 +193,7 @@ function Deploy() {
         )}
         {pullRequired && !isConflicting && (
           <Button
-            className="t--commit-button"
+            className="t--pull-button"
             isLoading={isPulingProgress}
             onClick={handlePull}
             size={Size.medium}
@@ -214,7 +214,7 @@ function Deploy() {
           <Row>
             <OpenRepoButton
               category={Category.tertiary}
-              className="t--commit-button"
+              className="t--open-repo-button"
               href={gitMetaData?.remoteUrl}
               size={Size.medium}
               tag="a"
@@ -223,7 +223,7 @@ function Deploy() {
               width="max-content"
             />
             <Button
-              className="t--commit-button"
+              className="t--pull-button"
               isLoading={isPulingProgress}
               onClick={handlePull}
               size={Size.medium}

@@ -44,6 +44,7 @@ import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inOnboarding } from "sagas/OnboardingSagas";
 
 type QuickActionButtonProps = {
+  className?: string;
   count?: number;
   disabled?: boolean;
   icon: React.ReactNode;
@@ -94,6 +95,7 @@ const SpinnerContainer = styled.div`
 `;
 
 function QuickActionButton({
+  className = "",
   count = 0,
   disabled = false,
   icon,
@@ -104,11 +106,15 @@ function QuickActionButton({
   return (
     <Tooltip content={capitalizeFirstLetter(tooltipText)} hoverOpenDelay={1000}>
       {loading ? (
-        <SpinnerContainer>
+        <SpinnerContainer className="t--loader-quick-git-action">
           <SpinnerLoader height="16px" width="16px" />
         </SpinnerContainer>
       ) : (
-        <QuickActionButtonContainer disabled={disabled} onClick={onClick}>
+        <QuickActionButtonContainer
+          className={className}
+          disabled={disabled}
+          onClick={onClick}
+        >
           {icon}
           {count > 0 && (
             <span className="count">{count > 9 ? `${9}+` : count}</span>
@@ -156,16 +162,19 @@ const getQuickActionButtons = ({
 }) => {
   return [
     {
+      className: "t--bottom-bar-commit",
       icon: <Plus />,
       onClick: commit,
       tooltipText: createMessage(COMMIT),
     },
     {
+      className: "t--bottom-bar-push",
       icon: <UpArrow />,
       onClick: push,
       tooltipText: createMessage(PUSH),
     },
     {
+      className: "t--bottom-bar-pull",
       count: gitStatus?.behindCount,
       icon: <DownArrow />,
       onClick: () => !pullDisabled && pull(),
@@ -174,6 +183,7 @@ const getQuickActionButtons = ({
       loading: showPullLoadingState,
     },
     {
+      className: "t--bottom-bar-merge",
       icon: <GitBranch />,
       onClick: merge,
       tooltipText: createMessage(MERGE),

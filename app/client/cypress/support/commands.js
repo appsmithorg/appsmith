@@ -3215,9 +3215,11 @@ Cypress.Commands.add("skipCommentsOnboarding", () => {
   cy.get("button[type='submit']").click();
 });
 
-Cypress.Commands.add("connectToGitRepo", () => {
+Cypress.Commands.add("connectToGitRepo", (repo) => {
   const testEmail = "test@test.com";
   const testUsername = "testusername";
+  const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+
   let generatedKey;
   // // open gitSync modal
   cy.get(homePage.deployPopupOptionTrigger).click();
@@ -3238,7 +3240,7 @@ Cypress.Commands.add("connectToGitRepo", () => {
   );
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
   cy.get(gitSyncLocators.gitRepoInput).type(
-    Cypress.env("GITSYNC_TEST_REPO_URL"),
+    `git@github.com:${owner}/${repo}.git`,
   );
   cy.get(gitSyncLocators.generateDeployKeyBtn).click();
   cy.wait("@generateKey").then((result) => {
@@ -3249,7 +3251,7 @@ Cypress.Commands.add("connectToGitRepo", () => {
       method: "POST",
       url: `${GITHUB_API_BASE}/repos/${Cypress.env(
         "TEST_GITHUB_USER_NAME",
-      )}/${Cypress.env("GITSYNC_TEST_REPO_NAME")}/keys`,
+      )}/${repo}/keys`,
       headers: {
         Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
       },
@@ -3286,9 +3288,7 @@ Cypress.Commands.add("connectToGitRepo", () => {
 
 Cypress.Commands.add("createGitBranch", (branch) => {
   cy.get(gitSyncLocators.branchButton).click();
-  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
-  cy.get(gitSyncLocators.createNewBranchButton).click();
-  cy.get(gitSyncLocators.createNewBranchSubmitbutton).click();
+  cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   cy.get(".bp3-spinner").should("exist");
   cy.get(".bp3-spinner").should("not.exist");
 });
@@ -3303,7 +3303,7 @@ Cypress.Commands.add("switchGitBranch", (branch) => {
   cy.get(".bp3-spinner").should("not.exist");
 });
 
-Cypress.Commands.add("createTestGithubRepo", () => {
+Cypress.Commands.add("createTestGithubRepo", (repo) => {
   cy.request({
     method: "POST",
     url: `${GITHUB_API_BASE}/user/repos`,
@@ -3311,35 +3311,68 @@ Cypress.Commands.add("createTestGithubRepo", () => {
       Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
     },
     body: {
-      name: Cypress.env("GITSYNC_TEST_REPO_NAME"),
+      name: repo,
     },
   });
 });
 
-Cypress.Commands.add("deleteTestGithubRepo", () => {
+Cypress.Commands.add("mergeViaGithubApi", ({ base, head, repo }) => {
+  const owner = Cypress.env("TEST_GITHUB_USER_NAME");
+  cy.request({
+    method: "POST",
+    url: `${GITHUB_API_BASE}/repos/${owner}/${repo}/merges`,
+    headers: {
+      Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
+    },
+    body: {
+      base,
+      head,
+    },
+  });
+});
+
+Cypress.Commands.add("deleteTestGithubRepo", (repo) => {
   cy.request({
     method: "DELETE",
     url: `${GITHUB_API_BASE}/repos/${Cypress.env(
       "TEST_GITHUB_USER_NAME",
-    )}/${Cypress.env("GITSYNC_TEST_REPO_NAME")}`,
+    )}/${repo}`,
     headers: {
       Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
     },
   });
 });
 
-Cypress.Commands.add("commitAndPush", () => {
+Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
   cy.get(gitSyncLocators.commitButton).click();
 
-  // check for commit success
-  cy.wait("@commit").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  if (!assertFailure) {
+    // check for commit success
+    cy.wait("@commit").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+  } else {
+    cy.wait("@commit").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      500,
+    );
+  }
 
   cy.get(gitSyncLocators.closeGitSyncModal).click();
+});
+
+Cypress.Commands.add("merge", (destinationBranch) => {
+  cy.get(gitSyncLocators.bottomBarMergeButton).click();
+  cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
+  cy.get(commonLocators.dropdownmenu)
+    .contains(destinationBranch)
+    .click();
+  cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
+  cy.get(gitSyncLocators.mergeCTA).click();
 });
 
 Cypress.Commands.add(
