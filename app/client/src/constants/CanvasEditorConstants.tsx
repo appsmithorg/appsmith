@@ -6,3 +6,10 @@ export type OccupiedSpace = {
   id: string;
   parentId?: string;
 };
+
+export const zIndexLayers = {
+  PROPERTY_PANE: "z-3",
+  ENTITY_EXPLORER: "z-3",
+  RESIZER: "z-4",
+  APP_COMMENTS: "z-7",
+};
