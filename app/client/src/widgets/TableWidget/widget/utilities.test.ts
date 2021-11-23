@@ -23,7 +23,7 @@ describe("getOriginalRowIndex", () => {
         status: "--",
       },
     ];
-    const newTableData = [];
+    const newTableData: Record<string, unknown>[] = [];
     const selectedRowIndex = 1;
     const result = getOriginalRowIndex(
       oldTableData,
@@ -35,7 +35,7 @@ describe("getOriginalRowIndex", () => {
   });
 
   it("With no new data", () => {
-    const oldTableData = [];
+    const oldTableData: Record<string, unknown>[] = [];
     const newTableData = [
       {
         step: "#1",
@@ -111,14 +111,14 @@ describe("getOriginalRowIndex", () => {
         __primaryKey__: "2",
       },
     ];
-    const result = getOriginalRowIndex(oldTableData, newTableData);
+    const result = getOriginalRowIndex(oldTableData, newTableData, undefined);
     const expected = undefined;
     expect(result).toStrictEqual(expected);
   });
 });
 
 describe("selectRowIndex", () => {
-  it("With no selected index", () => {
+  it("With new Data", () => {
     const oldTableData = [
       {
         step: "#1",
@@ -165,7 +165,7 @@ describe("selectRowIndex", () => {
         __primaryKey__: "2",
       },
     ];
-    const selectedRowIndexProp = null;
+    const selectedRowIndexProp = 0;
     const defaultSelectedRow = 0;
     const result = selectRowIndex(
       oldTableData,
@@ -231,7 +231,9 @@ describe("selectRowIndices", () => {
       oldTableData,
       newTableData,
       defaultSelectedRow,
+      [],
+      undefined,
     );
-    expect(result).toEqual([0]);
+    expect(result).toEqual([]);
   });
 });

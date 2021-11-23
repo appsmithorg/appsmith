@@ -842,10 +842,34 @@ describe("Validates Derived Properties", () => {
       ],
     };
     const expected = [
-      { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
-      { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
-      { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
-      { id: 123, name: "John Doe", age: null, __originalIndex__: 1 },
+      {
+        id: 2345,
+        name: "Jane Doeson",
+        age: 30,
+        __originalIndex__: 3,
+        __primaryKey__: undefined,
+      },
+      {
+        id: 1234,
+        name: "Jim Doe",
+        age: 28,
+        __originalIndex__: 0,
+        __primaryKey__: undefined,
+      },
+      {
+        id: 234,
+        name: "Jane Doe",
+        age: 22,
+        __originalIndex__: 2,
+        __primaryKey__: undefined,
+      },
+      {
+        id: 123,
+        name: "John Doe",
+        age: null,
+        __originalIndex__: 1,
+        __primaryKey__: undefined,
+      },
     ];
 
     let result = getFilteredTableData(input, moment, _);
@@ -977,10 +1001,34 @@ describe("Validates Derived Properties", () => {
       ],
     };
     const expected = [
-      { id: 1234, name: "Jim Doe", age: 28, __originalIndex__: 0 },
-      { id: 2345, name: "Jane Doeson", age: 30, __originalIndex__: 3 },
-      { id: 234, name: "Jane Doe", age: 22, __originalIndex__: 2 },
-      { id: 123, name: "", age: null, __originalIndex__: 1 },
+      {
+        id: 1234,
+        name: "Jim Doe",
+        age: 28,
+        __originalIndex__: 0,
+        __primaryKey__: undefined,
+      },
+      {
+        id: 2345,
+        name: "Jane Doeson",
+        age: 30,
+        __originalIndex__: 3,
+        __primaryKey__: undefined,
+      },
+      {
+        id: 234,
+        name: "Jane Doe",
+        age: 22,
+        __originalIndex__: 2,
+        __primaryKey__: undefined,
+      },
+      {
+        id: 123,
+        name: "",
+        age: null,
+        __originalIndex__: 1,
+        __primaryKey__: undefined,
+      },
     ];
 
     let result = getFilteredTableData(input, moment, _);

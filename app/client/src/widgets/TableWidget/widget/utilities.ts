@@ -3,9 +3,10 @@ import { isNumber } from "lodash";
 export const getOriginalRowIndex = (
   oldTableData: Array<Record<string, unknown>>,
   newTableData: Array<Record<string, unknown>>,
-  selectedRowIndex: number,
+  selectedRowIndex: number | undefined,
 ) => {
   const primaryKey =
+    selectedRowIndex &&
     oldTableData[selectedRowIndex] &&
     oldTableData[selectedRowIndex].__primaryKey__
       ? oldTableData[selectedRowIndex].__primaryKey__

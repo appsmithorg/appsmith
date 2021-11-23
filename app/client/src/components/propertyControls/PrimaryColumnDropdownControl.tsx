@@ -51,10 +51,6 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     }
   };
 
-  isOptionSelected = (selectedOption: any) => {
-    return selectedOption.value === this.props.propertyValue;
-  };
-
   static getControlType() {
     return "PRIMARY_COLUMNS_DROPDOWN";
   }
