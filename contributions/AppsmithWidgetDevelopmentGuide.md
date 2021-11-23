@@ -370,10 +370,11 @@ A widget blueprint configuration can have two parts. `view` and `operations`
 ***Widget Blueprint View***
 
 `view` : (optional, `Array<{ type, size, position, props }>` ) This describes the children and their structure
-      - `type`  (required, WidgetType): The type of the child widget.
-      - `size` (required, `{ rows: number, cols: number }`): The number of rows and columns to be occupied by the child widget.
-      - `position` (required, `{ top: number, left: number }` ): The row (top) and column(left) offset of the child widget
-      - `props` (optional, `Record<string, unknown>`): List of properties to be applied to the child widget as default.
+
+  - `type`  (required, WidgetType): The type of the child widget.
+  - `size` (required, `{ rows: number, cols: number }`): The number of rows and columns to be occupied by the child widget.
+  - `position` (required, `{ top: number, left: number }` ): The row (top) and column(left) offset of the child widget
+  - `props` (optional, `Record<string, unknown>`): List of properties to be applied to the child widget as default.
 
 *Note:* If this child needs to have its own children created at the same time, the blueprint of such a child needs to be provided as the `blueprint` property in the `props`.
 
@@ -390,10 +391,9 @@ Type of `BlueprintOperation`:
 `{ type: BlueprintOperationType, fn: BlueprintOperationFunction }`
 
 `BlueprintOperationType`: These operations can be of three types:
-
-     - The operations to modify properties `BlueprintOperationTypes.MODIFY_PROPS`
-     - The operations to add action trigger handlers `BlueprintOperationTypes.ADD_ACTION`
-     - The operations to be performed, if a child widget is added to this widget. `BlueprintOperationTypes.CHILD_OPERATIONS`
+   - The operations to modify properties `BlueprintOperationTypes.MODIFY_PROPS`
+   - The operations to add action trigger handlers `BlueprintOperationTypes.ADD_ACTION`
+   - The operations to be performed, if a child widget is added to this widget. `BlueprintOperationTypes.CHILD_OPERATIONS`
 
 ### Widget Enhancements
 
