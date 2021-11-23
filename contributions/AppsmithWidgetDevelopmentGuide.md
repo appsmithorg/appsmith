@@ -64,7 +64,7 @@ Now that we’ve seen how an Appsmith developer configures a widget, let's take 
 
 ### Folder structure
 
-<img src="contributions/assets/widgetFolder.png" width="320px">
+<img src="./contributions/assets/widgetFolder.png" width="320px">
 
 Widget code resides in the `src/widgets` folder of the Appsmith codebase. Each widget has its own folder. As shown in the screenshot above, widget folders contain the following files and folders -
 
@@ -98,12 +98,12 @@ We can generate the folder structure using this command from the CLI -
 
 ### Widget Registration
 
-For a widget to be listed by the Appsmith application, it has to be registered with the Appsmith platform. This can be done by calling `registerWidget` with the details of the widget in the `[registerWidgets](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/utils/WidgetRegistry.tsx#L109)` function.
+For a widget to be listed by the Appsmith application, it has to be registered with the Appsmith platform. This can be done by calling `registerWidget` with the details of the widget in the [`registerWidgets`](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/utils/WidgetRegistry.tsx#L109) function.
 - `registerWidget` (required, void): Appsmith utility function used to register a widget.
 
 Arguments:
 
-   - `Widget` : A class which extends `[BaseWidget](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/widgets/BaseWidget.tsx#L55)`
+   - `Widget` : A class which extends [`BaseWidget`](https://github.com/appsmithorg/appsmith/blob/24b9da6741660ab624c27fc9bbcca335779733cc/app/client/src/widgets/BaseWidget.tsx#L55)
 
    - `config` : Widget configuration (`CONFIG` described below)
 
@@ -111,7 +111,7 @@ Arguments:
 
 This exports the widget configuration as an object usually named `CONFIG`. The default export has to be the widget itself. An example is shown here
 
-<img src="contributions/assets/widgetConfig.png" width="320px">
+<img src="./contributions/assets/widgetConfig.png" width="320px">
 
 ### Configuration options
 
@@ -230,7 +230,7 @@ The type is `[Array<PropertyPaneConfig>](https://github.com/appsmithorg/appsmith
 
 Example:
 
-<img src="contributions/assets/propertyConfig.png" width="320px">
+<img src="./contributions/assets/propertyConfig.png" width="320px">
 
 
 ### PropertyPaneSectionConfig
