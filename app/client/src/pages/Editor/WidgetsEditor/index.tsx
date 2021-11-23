@@ -1,78 +1,43 @@
-import React, { useEffect, ReactNode, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import styled from "styled-components";
-import Canvas from "./Canvas";
+import * as log from "loglevel";
+
 import {
   getIsFetchingPage,
   getCurrentPageId,
-  getCanvasWidgetDsl,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { Spinner } from "@blueprintjs/core";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import * as log from "loglevel";
-import { getCanvasClassName } from "utils/generators";
-import { flashElementsById } from "utils/helpers";
-import { useParams } from "react-router";
+import PageTabs from "./PageTabs";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { MainContainerLayoutControl } from "./MainContainerLayoutControl";
-import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import CanvasContainer from "./CanvasContainer";
+import { flashElementsById } from "utils/helpers";
 import Debugger from "components/editorComponents/Debugger";
-import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
+import OnboardingTasks from "../FirstTimeUserOnboarding/Tasks";
+import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
-import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
-import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
-import OnboardingTasks from "./FirstTimeUserOnboarding/Tasks";
+import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import {
   getIsOnboardingTasksView,
   getIsOnboardingWidgetSelection,
 } from "selectors/entitiesSelector";
+import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-
-const EditorWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  overflow: hidden;
-  position: relative;
-`;
-
-const CanvasContainer = styled.section`
-  height: 100%;
-  width: 100%;
-  position: relative;
-  overflow-x: auto;
-  overflow-y: auto;
-  padding-top: 1px;
-  &:before {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    pointer-events: none;
-  }
-`;
+import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
-  const params = useParams<{ pageId: string }>();
   const dispatch = useDispatch();
-  const widgets = useSelector(getCanvasWidgetDsl);
-  const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-
+  const isFetchingPage = useSelector(getIsFetchingPage);
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -107,29 +72,21 @@ function WidgetsEditor() {
     }
   }, [isFetchingPage, selectWidget]);
 
-  const handleWrapperClick = useCallback(() => {
-    focusWidget && focusWidget();
-    deselectAll && deselectAll();
-    dispatch(closePropertyPane());
-    dispatch(closeTableFilterPane());
-    dispatch(setCanvasSelectionFromEditor(false));
-  }, [focusWidget, deselectAll]);
-
-  const pageLoading = (
-    <Centered>
-      <Spinner />
-    </Centered>
-  );
-  let node: ReactNode;
-  if (isFetchingPage) {
-    node = pageLoading;
-  }
-
-  if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} pageId={params.pageId} />;
-  }
   const allowDragToSelect = useAllowEditorDragToSelect();
 
+  const handleWrapperClick = useCallback(() => {
+    if (allowDragToSelect) {
+      focusWidget && focusWidget();
+      deselectAll && deselectAll();
+      dispatch(closePropertyPane());
+      dispatch(closeTableFilterPane());
+      dispatch(setCanvasSelectionFromEditor(false));
+    }
+  }, [allowDragToSelect, focusWidget, deselectAll]);
+
+  /**
+   *  drag event handler for selection drawing
+   */
   const onDragStart = useCallback(
     (e: any) => {
       e.preventDefault();
@@ -155,19 +112,18 @@ function WidgetsEditor() {
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />
       ) : (
-        <EditorWrapper
+        <div
+          className="relative overflow-hidden flex flex-col"
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
         >
-          <MainContainerLayoutControl />
-          <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
-            {node}
-          </CanvasContainer>
-          <Debugger />
+          <PageTabs />
+          <CanvasContainer />
           <CrudInfoModal />
-        </EditorWrapper>
+          <Debugger />
+        </div>
       )}
     </EditorContextProvider>
   );

@@ -4,11 +4,7 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { flashElementsById } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  forceOpenPropertyPane,
-  showModal,
-  closeAllModals,
-} from "actions/widgetActions";
+import { showModal, closeAllModals } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
@@ -53,7 +49,6 @@ export const useNavigateToWidget = () => {
       if (params.pageId === pageId) {
         flashElementsById(widgetId);
       }
-      dispatch(forceOpenPropertyPane(widgetId));
     }, 0);
   };
 
