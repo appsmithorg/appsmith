@@ -9,13 +9,18 @@ CUSTOM_DOMAIN="$2"
 SSL_CERT_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/fullchain.pem"
 SSL_KEY_PATH="/etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem"
 
-# In case of existing custom certificate, container will use them to configure SSL 
+# In case of existing custom certificate, container will use them to configure SSL
 if [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] && [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
   SSL_CERT_PATH="/appsmith-stacks/ssl/fullchain.pem"
   SSL_KEY_PATH="/appsmith-stacks/ssl/privkey.pem"
 fi
 
 cat <<EOF
+map $http_x_forwarded_proto $origin_scheme {
+  default $http_x_forwarded_proto;
+  '' $scheme;
+}
+
 server {
   listen 80;
 $NGINX_SSL_CMNT  server_name $CUSTOM_DOMAIN ;
@@ -30,7 +35,7 @@ $NGINX_SSL_CMNT  server_name $CUSTOM_DOMAIN ;
     root /appsmith-stacks/data/certificate/certbot;
   }
 
-  proxy_set_header X-Forwarded-Proto \$scheme;
+  proxy_set_header X-Forwarded-Proto \$origin_scheme;
   proxy_set_header X-Forwarded-Host \$host;
 
   location / {
@@ -91,7 +96,7 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    include /appsmith-stacks/data/certificate/conf/options-ssl-nginx.conf;
 $NGINX_SSL_CMNT    ssl_dhparam /appsmith-stacks/data/certificate/conf/ssl-dhparams.pem;
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$scheme;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$origin_scheme;
 $NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host \$host;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    root /opt/appsmith/editor;
@@ -134,7 +139,7 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /login {
 $NGINX_SSL_CMNT        proxy_pass http://localhost:8080;
 $NGINX_SSL_CMNT    }
-$NGINX_SSL_CMNT 
+$NGINX_SSL_CMNT
 $NGINX_SSL_CMNT	   location /socket.io {
 $NGINX_SSL_CMNT        proxy_pass http://localhost:8091;
 $NGINX_SSL_CMNT        proxy_http_version 1.1;
