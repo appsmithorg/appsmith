@@ -3,6 +3,7 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { ControlType } from "constants/PropertyControlConstants";
+import _ from "lodash";
 import {
   Field,
   WrappedFieldInputProps,
@@ -46,23 +47,23 @@ function renderDropdown(props: {
   props: DropDownControlProps;
   options: { label: string; value: string }[];
 }): JSX.Element {
-  const selectedValue = props.input?.value || props?.props?.initialValue;
+  let selectedValue = props.input?.value;
+  if (_.isUndefined(props.input?.value)) {
+    selectedValue = props?.props?.initialValue;
+  }
   const selectedOption =
     props?.options.find(
       (option: DropdownOption) => option.value === selectedValue,
     ) || {};
   return (
     <Dropdown
-      boundary={"window"}
+      boundary="window"
       dontUsePortal={false}
       dropdownMaxHeight="250px"
-      enableSearch
       errorMsg={props.props?.errorText}
       helperText={props.props?.info}
       onSelect={props.input?.onChange}
-      {...props}
-      optionWidth={"50vh"}
-      {...props.input}
+      optionWidth="50vh"
       options={props.options}
       placeholder={props.props?.placeholderText}
       selected={selectedOption}
