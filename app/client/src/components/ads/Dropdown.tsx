@@ -70,6 +70,7 @@ export type DropdownProps = CommonComponentProps &
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     placeholder?: string;
     helperText?: string;
+    wrapperBgColor?: string;
     /**
      * if fillOptions is true,
      * dropdown popover width will be same as dropdown width
@@ -200,11 +201,12 @@ const DropdownSelect = styled.div``;
 
 export const DropdownWrapper = styled.div<{
   width: string;
+  wrapperBgColor?: string;
 }>`
   width: ${(props) => props.width};
   height: fit-content;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.dropdown.menu.bg};
+  background-color: ${(props) => props.wrapperBgColor};
   border: 1px solid ${(props) => props.theme.colors.dropdown.menu.border};
   padding: ${(props) => props.theme.spaces[3]}px 0;
   .dropdown-search {
@@ -401,7 +403,6 @@ const SelectedIcon = styled(Icon)`
 `;
 
 const DropdownIcon = styled(Icon)`
-  margin-right: 7px;
   svg {
     fill: ${(props) =>
       props.fillColor ? props.fillColor : props.theme.colors.dropdown.icon};
@@ -493,6 +494,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   headerLabel?: string;
   selected: DropdownOption;
   optionWidth: string;
+  wrapperBgColor?: string;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
@@ -518,6 +520,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
       width={optionWidth}
+      wrapperBgColor={props.wrapperBgColor}
     >
       {props.enableSearch && (
         <SearchComponentWrapper>
@@ -595,6 +598,7 @@ export default function Dropdown(props: DropdownProps) {
     errorMsg = "",
     placeholder,
     helperText,
+    wrapperBgColor,
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -729,6 +733,7 @@ export default function Dropdown(props: DropdownProps) {
               ? props.selected
               : { id: undefined, value: undefined }
           }
+          wrapperBgColor={wrapperBgColor}
         />
       </Popover>
     </DropdownContainer>

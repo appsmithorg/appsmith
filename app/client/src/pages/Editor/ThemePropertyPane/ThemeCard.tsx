@@ -15,7 +15,7 @@ interface ThemeCard {
 export function ThemeCard(props: ThemeCard) {
   return (
     <div className={`border ${props.className} relative group overflow-hidden`}>
-      <main className="transition-all group-hover:blur-md filter">
+      <main className="group-hover:blur-md filter">
         <hgroup className={`${tw`bg-[${props.primaryColor}]`} flex p-3`}>
           <h3 className="flex-grow">Rounded</h3>
           <aside>@appsmith</aside>
@@ -35,12 +35,12 @@ export function ThemeCard(props: ThemeCard) {
         <section className="p-3">
           <div className="flex space-x-2">
             <div
-              className={`${tw`rounded-${props.borderRadius}] bg-[${props.primaryColor}]`} px-3 py-1`}
+              className={`${tw`rounded-${props.borderRadius} bg-[${props.primaryColor}]`} px-3 py-1`}
             >
               Button
             </div>
             <div
-              className={`${tw`rounded-${props.borderRadius}] border-[${props.primaryColor}]`} px-3 py-1 border`}
+              className={`${tw`rounded-${props.borderRadius} border-[${props.primaryColor}]`} px-3 py-1 border`}
             >
               Button
             </div>
@@ -49,8 +49,7 @@ export function ThemeCard(props: ThemeCard) {
       </main>
       <aside className="absolute top-0 bottom-0 left-0 right-0 items-center justify-center hidden bg-black bg-opacity-25 group-hover:flex">
         <div className="space-y-2">
-          <Button text="Save changes" />
-          <Button category={Category.primary} text="Back to Canvas" />
+          <Button text="Change Theme" />
         </div>
       </aside>
     </div>

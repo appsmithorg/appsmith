@@ -30,6 +30,13 @@ export enum ButtonBorderRadiusTypes {
   ROUNDED = "ROUNDED",
   CIRCLE = "CIRCLE",
 }
+
+export enum NewButtonBorderRadiusTypes {
+  NONE = "none",
+  MD = "md",
+  XL = "xl",
+}
+
 export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
 
 export enum ButtonBoxShadowTypes {
