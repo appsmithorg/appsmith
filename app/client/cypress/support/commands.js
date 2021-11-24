@@ -3240,34 +3240,31 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add(
-  "typeValueNValidate",
-  (fieldName, valueToType, toclear = false) => {
-    if (toclear)
-      cy.xpath(
-        "//p[text()='" +
-          fieldName +
-          "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-      )
-        .last()
-        .type("{cmd+a}{del}{cmd+a}{del}");
+Cypress.Commands.add("typeValueNValidate", (fieldName, valueToType) => {
+  cy.xpath(
+    "//p[text()='" +
+      fieldName +
+      "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
+  )
+    .last()
+    .then((textEle) => {
+      const $ele = Cypress.$(textEle);
+      $ele.empty();
+      cy.wrap(textEle)
+        .closest("div")
+        .click()
+        .type(valueToType, { parseSpecialCharSequences: false });
+    });
 
-    cy.xpath(
-      "//p[text()='" +
-        fieldName +
-        "']/following-sibling::div//div[@class='CodeMirror-code']",
-    ).type(valueToType, { parseSpecialCharSequences: false });
+  cy.EvaluateCurrentValue(valueToType);
 
-    cy.EvaluateCurrentValue(valueToType);
-
-    // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
-    //   textF = fieldValue.innerText
-    //   fieldValue.innerText = ""
-    // }).then(() => {
-    //   cy.log("current field value is : '" + textF + "'")
-    // })
-  },
-);
+  // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
+  //   textF = fieldValue.innerText
+  //   fieldValue.innerText = ""
+  // }).then(() => {
+  //   cy.log("current field value is : '" + textF + "'")
+  // })
+});
 
 Cypress.Commands.add("clickButton", (btnVisibleText) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button").click({
@@ -3298,3 +3295,9 @@ Cypress.Commands.add(
     cy.xpath(generatePage.deleteMenuItem).click();
   },
 );
+
+// Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
+//   const clearedText = '{selectall}{backspace}'+`${text}`;
+
+//   return originalFn(element, clearedText, options);
+// });
