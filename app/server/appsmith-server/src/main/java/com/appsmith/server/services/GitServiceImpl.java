@@ -975,53 +975,72 @@ public class GitServiceImpl implements GitService {
     @Override
     public Mono<List<GitBranchDTO>> listBranchForApplication(String defaultApplicationId, Boolean ignoreCache) {
         return getApplicationById(defaultApplicationId)
-            .flatMap(application -> {
-                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                if (gitApplicationMetadata == null || gitApplicationMetadata.getDefaultApplicationId() == null) {
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_GIT_CONFIGURATION,
-                            "Unable to find default application. Please configure the application with git"));
-                }
-                final String dbDefaultBranch = gitApplicationMetadata.getBranchName();
-                Path repoPath = Paths.get(application.getOrganizationId(),
-                        gitApplicationMetadata.getDefaultApplicationId(),
-                        gitApplicationMetadata.getRepoName());
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (gitApplicationMetadata == null || gitApplicationMetadata.getDefaultApplicationId() == null) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "Unable to find default application. Please configure the application with git"));
+                    }
+                    final String dbDefaultBranch = gitApplicationMetadata.getBranchName();
+                    Path repoPath = Paths.get(application.getOrganizationId(),
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
 
-                // Fetch default branch from DB if the ignoreCache is false else fetch from remote
-                return gitExecutor.listBranches(repoPath,
-                        gitApplicationMetadata.getRemoteUrl(),
-                        gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                        gitApplicationMetadata.getGitAuth().getPublicKey(),
-                        ignoreCache)
-                        .onErrorResume(error -> Mono.error(new AppsmithException(
-                                AppsmithError.GIT_ACTION_FAILED,
-                                "branch --list",
-                                "Error while accessing the file system. Details :" + error.getMessage()))
-                        )
-                        .flatMap(gitBranchListDTOS -> {
-                            if(Boolean.TRUE.equals(ignoreCache)) {
-                                // delete local branches which are not present in remote repo
-                                List<String> remoteBranches = gitBranchListDTOS.stream()
-                                        .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("origin"))
-                                        .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
-                                        .collect(Collectors.toList());
+                    // Fetch default branch from DB if the ignoreCache is false else fetch from remote
+                    Mono<List<GitBranchDTO>> gitBranchDTOMono = gitExecutor.listBranches(repoPath,
+                            gitApplicationMetadata.getRemoteUrl(),
+                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                            gitApplicationMetadata.getGitAuth().getPublicKey(),
+                            ignoreCache)
+                            .onErrorResume(error -> Mono.error(new AppsmithException(
+                                    AppsmithError.GIT_ACTION_FAILED,
+                                    "branch --list",
+                                    "Error while accessing the file system. Details :" + error.getMessage()))
+                            );
+                    return Mono.zip(gitBranchDTOMono, Mono.just(application));
 
-                                List<String> localBranch = gitBranchListDTOS.stream()
-                                        .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("origin"))
-                                        .map(gitBranchDTO -> gitBranchDTO.getBranchName())
-                                        .collect(Collectors.toList());
+                }).flatMap(tuple -> {
+                    List<GitBranchDTO> gitBranchListDTOS = tuple.getT1();
+                    Application application = tuple.getT2();
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
 
-                                localBranch.removeAll(remoteBranches);
+                    if (Boolean.TRUE.equals(ignoreCache)) {
+                        String defaultBranchRemote = gitBranchListDTOS
+                                .stream().filter(gitBranchDTO -> gitBranchDTO.isDefault()).map(gitBranchDTO -> gitBranchDTO.getBranchName()).toString();
 
-                                return Flux.fromIterable(localBranch)
-                                        .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
-                                                .flatMap(applicationPageService::deleteApplicationByResource))
-                                        .then(Mono.just(gitBranchListDTOS));
-                            } else {
-                                return Mono.just(gitBranchListDTOS);
-                            }
-                        });
-            });
+                        //update the default branch in db
+                        gitApplicationMetadata.setDefaultBranchName(defaultBranchRemote);
+                        application.setGitApplicationMetadata(gitApplicationMetadata);
+
+                        // delete local branches which are not present in remote repo
+                        List<String> remoteBranches = gitBranchListDTOS.stream()
+                                .filter(gitBranchListDTO -> gitBranchListDTO.getBranchName().contains("origin"))
+                                .map(gitBranchDTO -> gitBranchDTO.getBranchName().replace("origin/", ""))
+                                .collect(Collectors.toList());
+
+                        List<String> localBranch = gitBranchListDTOS.stream()
+                                .filter(gitBranchListDTO -> !gitBranchListDTO.getBranchName().contains("origin"))
+                                .map(gitBranchDTO -> gitBranchDTO.getBranchName())
+                                .collect(Collectors.toList());
+
+                        localBranch.removeAll(remoteBranches);
+
+                        return Flux.fromIterable(localBranch)
+                                .flatMap(gitBranch -> applicationService.findByBranchNameAndDefaultApplicationId(gitBranch, defaultApplicationId, MANAGE_APPLICATIONS)
+                                        .flatMap(applicationPageService::deleteApplicationByResource))
+                                .then(applicationService.save(application)
+                                        .then(Mono.just(gitBranchListDTOS)));
+                    } else {
+                        //gitBranchListDTOS.stream()
+                        gitBranchListDTOS
+                                .stream()
+                                .filter(branchDTO -> StringUtils.equalsIgnoreCase(branchDTO.getBranchName(), gitApplicationMetadata.getBranchName()))
+                                .findAny()
+                                .ifPresent(branchDTO -> branchDTO.setDefault(true));
+                        return Mono.just(gitBranchListDTOS);
+                    }
+                });
     }
 
     /**
