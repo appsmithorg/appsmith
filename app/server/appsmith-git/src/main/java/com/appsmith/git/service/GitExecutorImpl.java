@@ -536,7 +536,11 @@ public class GitExecutorImpl implements GitExecutor {
                 }
             }
 
-            MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setCommit(false).call();
+            MergeResult mergeResult = git.merge()
+                    .include(git.getRepository().findRef(sourceBranch))
+                    .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+                    .setCommit(false)
+                    .call();
 
             MergeStatusDTO mergeStatus = new MergeStatusDTO();
             if(mergeResult.getMergeStatus().isSuccessful()) {
