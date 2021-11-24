@@ -24,6 +24,7 @@ import {
   migrateTableWidgetSelectedRowBindings,
   migrateTableSanitizeColumnKeys,
   isSortableMigration,
+  migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -978,6 +979,10 @@ export const transformDSL = (
   }
   if (currentDSL.version === 44) {
     currentDSL = isSortableMigration(currentDSL);
+    currentDSL.version = 45;
+  }
+  if (currentDSL.version === 45) {
+    currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
