@@ -50,7 +50,6 @@ describe("Container Widget Functionality", function() {
       .eq(0)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.PublishtheApp();
   });
   it("Container Widget Functionality To Verify The Colour", function() {

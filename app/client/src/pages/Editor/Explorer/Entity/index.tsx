@@ -56,8 +56,7 @@ export const EntityItem = styled.div<{
   position: relative;
   font-size: 14px;
   user-select: none;
-  padding-left: ${(props) =>
-    props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
+  padding-left: ${(props) => `calc(0.75rem + (0.25 * ${props.step}rem))`};
   background: ${(props) => (props.active ? Colors.GREY_2 : "none")};
   height: 30px;
   width: 100%;
@@ -162,6 +161,7 @@ export type EntityProps = {
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
   addButtonHelptext?: string;
+  isBeta?: boolean;
 };
 
 export const Entity = forwardRef(
@@ -263,6 +263,7 @@ export const Entity = forwardRef(
             enterEditMode={enterEditMode}
             entityId={props.entityId}
             exitEditMode={exitEditMode}
+            isBeta={props.isBeta}
             isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
             nameTransformFn={props.onNameEdit}
