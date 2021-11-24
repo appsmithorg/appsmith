@@ -3,6 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -104,6 +105,55 @@ describe("Validate Validators", () => {
         messages: [
           "This value does not evaluate to type (http(s)?:\\/\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)",
         ],
+        parsed: "https://www.appsmith.com",
+      },
+      {
+        isValid: true,
+        parsed: "https://www.appsmith.com",
+      },
+      {
+        isValid: true,
+        parsed: "https://www.appsmith.com/",
+      },
+
+      {
+        isValid: true,
+        parsed: "www.google.com",
+      },
+      {
+        isValid: true,
+        parsed: "app.appsmith.com",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(validation, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("correctly uses the expected message", () => {
+    const validation = {
+      type: ValidationTypes.TEXT,
+      params: {
+        default: "https://www.appsmith.com",
+        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
+        expected: {
+          type: "URL",
+          example: "https://www.appsmith.com",
+          autocompleteDataType: AutocompleteDataType.STRING,
+        },
+      },
+    };
+    const inputs = [
+      "",
+      undefined,
+      "https://www.appsmith.com/",
+      "www.google.com",
+      "app.appsmith.com",
+    ];
+    const expected = [
+      {
+        isValid: false,
+        messages: ["This value does not evaluate to type URL"],
         parsed: "https://www.appsmith.com",
       },
       {
