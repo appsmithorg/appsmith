@@ -193,6 +193,86 @@ export const tableWidgetHasBinding = createSelector(
   },
 );
 
+export const containerWidgetAdded = createSelector(getWidgets, (widgets) => {
+  return !!Object.values(widgets).find(
+    (widget) => widget.type === "CONTAINER_WIDGET",
+  );
+});
+
+export const isCountryInputBound = createSelector(
+  getTableWidget,
+  getWidgets,
+  (tableWidget, widgets) => {
+    if (tableWidget) {
+      const widgetValues = Object.values(widgets);
+      const countryInput = widgetValues.find((widget) => {
+        if (widget.type === "INPUT_WIDGET") {
+          // eslint-disable-next-line no-console
+          console.log(widget, "widget");
+          return (
+            widget.defaultText ===
+            `{{${tableWidget.widgetName}.selectedRow.country}}`
+          );
+        }
+        return false;
+      });
+
+      // eslint-disable-next-line no-console
+      console.log(countryInput, "countryInput");
+      if (countryInput) return true;
+    }
+
+    return false;
+  },
+);
+
+export const isEmailInputBound = createSelector(
+  getTableWidget,
+  getWidgets,
+  (tableWidget, widgets) => {
+    if (tableWidget) {
+      const widgetValues = Object.values(widgets);
+      const countryInput = widgetValues.find((widget) => {
+        if (widget.type === "INPUT_WIDGET") {
+          return (
+            widget.defaultText ===
+            `{{${tableWidget.widgetName}.selectedRow.email}}`
+          );
+        }
+
+        return false;
+      });
+
+      if (countryInput) return true;
+    }
+
+    return false;
+  },
+);
+
+export const isImageWidgetBound = createSelector(
+  getTableWidget,
+  getWidgets,
+  (tableWidget, widgets) => {
+    if (tableWidget) {
+      const widgetValues = Object.values(widgets);
+      const countryInput = widgetValues.find((widget) => {
+        if (widget.type === "IMAGE_WIDGET") {
+          return (
+            widget.image === `{{${tableWidget.widgetName}.selectedRow.image}}`
+          );
+        }
+
+        return false;
+      });
+
+      if (countryInput) return true;
+    }
+
+    return false;
+  },
+);
+
 export const showSuccessMessage = (state: AppState) =>
   state.ui.onBoarding.showSuccessMessage;
 

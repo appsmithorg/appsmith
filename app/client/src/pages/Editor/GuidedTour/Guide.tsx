@@ -7,19 +7,23 @@ import {
 } from "actions/onboardingActions";
 import Button from "components/ads/Button";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { get, set } from "lodash";
+import { get, set, isArray } from "lodash";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
+  containerWidgetAdded,
   getCurrentStep,
   getGuidedTourDatasource,
   getQueryAction,
   getQueryName,
   getTableName,
   getTableWidget,
+  isCountryInputBound,
+  isEmailInputBound,
   isExploring,
+  isImageWidgetBound,
   isQueryExecutionSuccessful,
   isQueryLimitUpdated,
   isTableWidgetSelected,
@@ -143,6 +147,23 @@ const Hint = styled.div`
     padding-left: 15px;
     font-size: 16px;
   }
+
+  .hint-button {
+    margin-top: 14px;
+  }
+
+  .hint-steps {
+    display: flex;
+    margin-top: 12px;
+  }
+
+  .strike {
+    text-decoration: line-through;
+  }
+
+  .hint-steps-text {
+    margin-left: 10px;
+  }
 `;
 
 const SuccessMessageWrapper = styled.div`
@@ -183,13 +204,14 @@ function StatusBar(props: any) {
 type Step = {
   title: string;
   description?: string;
-  hint: {
+  hints: {
     icon: IconName;
     text: ReactNode;
     button?: {
       text: string;
     };
-  };
+    steps?: string[];
+  }[];
   success?: {
     text: string;
     onClick: (dispatch: Dispatch<any>) => void;
@@ -204,42 +226,48 @@ type StepsType = Record<number, Step>;
 const Steps: StepsType = {
   1: {
     title: `1. Edit & Run the <query> query to fetch customers data`,
-    hint: {
-      icon: "edit-box-line",
-      text: (
-        <>
-          Edit the <b>limit</b> {"100"} with {"10"} and then Hit <b>Run</b>{" "}
-          button to see response
-        </>
-      ),
-    },
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            Edit the <b>limit</b> {"100"} with {"10"} and then Hit <b>Run</b>{" "}
+            button to see response
+          </>
+        ),
+      },
+    ],
   },
   2: {
     title: "2. Go to the <table> table to connect it to the customers data",
-    hint: {
-      icon: "edit-box-line",
-      text: (
-        <>
-          <b>Click on the table</b> on the left in the explorer
-        </>
-      ),
-    },
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            <b>Click on the table</b> on the left in the explorer
+          </>
+        ),
+      },
+    ],
   },
   3: {
     title: "3. Connect the Table with Customers data",
-    hint: {
-      icon: "edit-box-line",
-      text: (
-        <>
-          Replace the whole <b>Table Data</b> property with{" "}
-          <b>
-            &#123;&#123;
-            {"getCustomers.data"}&#125;&#125;
-          </b>{" "}
-          on the right pane
-        </>
-      ),
-    },
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            Replace the whole <b>Table Data</b> property with{" "}
+            <b>
+              &#123;&#123;
+              {"getCustomers.data"}&#125;&#125;
+            </b>{" "}
+            on the right pane
+          </>
+        ),
+      },
+    ],
     success: {
       text: "Great! The table widget is now connected with the customers data",
       onClick: (dispatch) => {
@@ -260,6 +288,7 @@ const Steps: StepsType = {
         dispatch(
           addOnboardingWidget({
             type: "CONTAINER_WIDGET",
+            widgetName: "CustomersInfo",
             props: {
               blueprint: onboardingContainerBlueprint,
             },
@@ -278,23 +307,59 @@ const Steps: StepsType = {
   4: {
     title:
       "4. Connect all the input fields in the customer update form with the table",
-    hint: {
-      icon: "edit-box-line",
-      text: (
-        <>
-          On <b>selection of any row</b> in the table, the input fields in the
-          form should show the selected {"row's"} name, email, country and
-          image.
-          <br />
-          <b>NameInput</b> below is already connected with the selected row by
-          replacing default text with{" "}
-          <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>
-        </>
-      ),
-      button: {
-        text: "START CONNECTING OTHER INPUT",
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            On <b>selection of any row</b> in the table, the input fields in the
+            form should show the selected {"row's"} name, email, country and
+            image.
+            <br />
+            <b>NameInput</b> below is already connected with the selected row by
+            replacing default text with{" "}
+            <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>
+          </>
+        ),
+        button: {
+          text: "START CONNECTING OTHER INPUT",
+        },
+      },
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            In the Property pane replace the value of <b>Default Text</b>{" "}
+            property for
+          </>
+        ),
+        steps: [
+          "For Email, with {{CustomersTable.selectedRow.email}}",
+          "For Country, with {{CustomersTable.selectedRow.country}}",
+          "For Image, with {{CustomersTable.selectedRow.image}}",
+        ],
+      },
+    ],
+    success: {
+      text: "There you go! All inputs are connected with the selected row",
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(5));
       },
     },
+  },
+  5: {
+    title: "5. Create Update button to update the customer inputs",
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            <b>Drag {"&"} Drop</b> a Button widget into the left bottom of
+            container{" "}
+          </>
+        ),
+      },
+    ],
   },
 };
 
@@ -317,6 +382,7 @@ function InitialContent() {
         parentColumnSpace: 10,
         parentRowSpace: 20,
         topRow: 0,
+        widgetName: "CustomersTable",
       }),
     );
     dispatch({
@@ -395,14 +461,29 @@ function useUpdateName(step: number): Step {
 
 function useComputeCurrentStep() {
   let step = 1;
+  const completedSubSteps = [];
   const dispatch = useDispatch();
   const datasource = useSelector(getGuidedTourDatasource);
   const query = useSelector(getQueryAction);
   const tableWidget = useSelector(getTableWidget);
+  // 1
   const queryLimitUpdated = useSelector(isQueryLimitUpdated);
   const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
+  // 2
   const tableWidgetSelected = useSelector(isTableWidgetSelected);
+  // 3
   const isTableWidgetBound = useSelector(tableWidgetHasBinding);
+  // 4
+  const isContainerWidgetPreset = useSelector(containerWidgetAdded);
+  const countryInputBound = useSelector(isCountryInputBound);
+  const emailInputBound = useSelector(isEmailInputBound);
+  const imageWidgetBound = useSelector(isImageWidgetBound);
+
+  // eslint-disable-next-line no-console
+  console.log(countryInputBound, "countryInputBound");
+
+  // eslint-disable-next-line no-console
+  console.log(step, "step");
 
   if (step === 1) {
     if (queryExecutedSuccessfully) {
@@ -417,7 +498,20 @@ function useComputeCurrentStep() {
   }
 
   if (step === 3) {
-    if (isTableWidgetBound) {
+    if (isContainerWidgetPreset) {
+      step = 4;
+    }
+  }
+
+  if (step === 4) {
+    if (emailInputBound) {
+      completedSubSteps.push(0);
+    }
+    if (countryInputBound) {
+      completedSubSteps.push(1);
+    }
+    if (imageWidgetBound) {
+      completedSubSteps.push(2);
     }
   }
 
@@ -481,10 +575,31 @@ function useComputeCurrentStep() {
       dispatch(markStepComplete());
     }
   }, [isTableWidgetBound, step]);
+
+  useEffect(() => {
+    if (step === 4 && completedSubSteps.length === 3) {
+      dispatch(markStepComplete());
+    }
+  }, [step, completedSubSteps.length]);
+
+  return completedSubSteps;
 }
 
-function GuideStepsContent(props: { currentStep: number }) {
+function GuideStepsContent(props: {
+  currentStep: number;
+  completedSubSteps: number[];
+}) {
   const content = useUpdateName(props.currentStep);
+  const [hintCount, setHintCount] = useState(0);
+  const hintSteps = content.hints[hintCount].steps;
+
+  useEffect(() => {
+    setHintCount(0);
+  }, [props.currentStep]);
+
+  const hintButtonOnClick = () => {
+    setHintCount((count) => count + 1);
+  };
 
   return (
     <div>
@@ -500,11 +615,39 @@ function GuideStepsContent(props: { currentStep: number }) {
         <IconWrapper>
           <Icon
             fillColor="#F86A2B"
-            name={content.hint.icon}
+            name={content.hints[hintCount].icon}
             size={IconSize.XXL}
           />
         </IconWrapper>
-        <span className="hint-text">{content.hint.text}</span>
+        <div className="hint-text">
+          <span>{content.hints[hintCount].text}</span>
+
+          {isArray(hintSteps) &&
+            hintSteps.length &&
+            hintSteps.map((step, index) => {
+              const completed = props.completedSubSteps.includes(index);
+              const className = "hint-steps" + (completed ? " strike" : "");
+
+              return (
+                <div className={className} key={step}>
+                  <Icon
+                    fillColor={completed ? "#03B365" : "#716E6E"}
+                    name={completed ? "oval-check-fill" : "oval-check"}
+                    size={IconSize.XXL}
+                  />
+                  <span className="hint-steps-text">{hintSteps[index]}</span>
+                </div>
+              );
+            })}
+          {content.hints[hintCount].button && (
+            <GuideButton
+              className="hint-button"
+              onClick={hintButtonOnClick}
+              tag="button"
+              text={content.hints[hintCount].button?.text}
+            />
+          )}
+        </div>
       </Hint>
     </div>
   );
@@ -580,6 +723,7 @@ function CompletionContent(props: CompletionContentProps) {
 
 type GuideBody = {
   step: number;
+  completedSubSteps: number[];
 };
 
 function GuideBody(props: GuideBody) {
@@ -591,7 +735,12 @@ function GuideBody(props: GuideBody) {
   } else if (successMessage) {
     return <CompletionContent step={props.step} />;
   } else {
-    return <GuideStepsContent currentStep={props.step} />;
+    return (
+      <GuideStepsContent
+        completedSubSteps={props.completedSubSteps}
+        currentStep={props.step}
+      />
+    );
   }
 }
 
@@ -600,7 +749,7 @@ type GuideProps = {
 };
 // Guided tour steps
 function Guide(props: GuideProps) {
-  useComputeCurrentStep();
+  const completedSubSteps = useComputeCurrentStep();
   const step = useSelector(getCurrentStep);
 
   return (
@@ -608,7 +757,7 @@ function Guide(props: GuideProps) {
       <CardWrapper>
         <StatusBar currentStep={step} totalSteps={6} />
         <UpperContent>
-          <GuideBody step={step} />
+          <GuideBody completedSubSteps={completedSubSteps} step={step} />
         </UpperContent>
       </CardWrapper>
     </GuideWrapper>

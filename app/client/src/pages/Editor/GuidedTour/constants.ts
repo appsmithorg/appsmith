@@ -58,6 +58,8 @@ export const onboardingContainerBlueprint = {
                 label: "Name",
                 version: 1,
                 labelStyle: "bold,BOLD",
+                defaultText: "{{CustomersTable.selectedRow.name}}",
+                dynamicBindingPathList: [{ key: "defaultText" }],
               },
             },
             {

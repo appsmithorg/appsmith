@@ -201,6 +201,7 @@ export const IconCollection = [
   "cap-solid",
   "card-context-menu",
   "chat",
+  "checkbox-circle-line",
   "chevron-left",
   "chevron-right",
   "close",
