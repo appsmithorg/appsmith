@@ -374,6 +374,7 @@ public class GitExecutorImpl implements GitExecutor {
             // Show remote/all the branches depending upon the listMode
             if (Boolean.TRUE.equals(isRemoteDefaultBranchNeeded)) {
                 // Get default branch name from the remote
+                refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
                 defaultBranch = git.lsRemote().setRemote(remoteUrl).setTransportConfigCallback(transportConfigCallback).callAsMap().get("HEAD").getTarget().getName();
             }
 
