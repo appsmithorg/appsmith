@@ -13,6 +13,7 @@ import {
   PUSH,
   PULL,
   MERGE,
+  CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
   CONNECT_GIT,
   CONFLICTS_FOUND,
   NO_COMMITS_TO_PULL,
@@ -119,10 +120,13 @@ function QuickActionButton({
 }
 
 const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
-  const { behindCount } = gitStatus || {};
+  const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
-  const disabled = behindCount === 0;
-  if (pullFailed) {
+  let disabled = behindCount === 0;
+  if (!isClean) {
+    disabled = true;
+    message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
+  } else if (pullFailed) {
     message = createMessage(CONFLICTS_FOUND);
   } else if (behindCount > 0) {
     message = createMessage(PULL);

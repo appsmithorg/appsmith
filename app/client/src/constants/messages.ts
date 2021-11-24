@@ -598,9 +598,11 @@ export const NO_MERGE_CONFLICT = () =>
 export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
 export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
 export const GIT_UPSTREAM_CHANGES = () =>
-  "Looks like there are pending upstream changes. We will pull the changesand push them to your repo.";
+  "Looks like there are pending upstream changes. We will pull the changes and push them to your repo.";
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the conflicts manually on your repository.";
+export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
+  "You have uncommitted changes. Please commit before pulling the remote changes";
 
 export const OPEN_REPO = () => "OPEN REPO";
 export const CONNECTING_REPO = () => "CONNECTING TO GIT REPO";
