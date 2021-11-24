@@ -42,7 +42,6 @@ import { getIsCommitSuccessful } from "selectors/gitSyncSelectors";
 import StatusLoader from "../components/StatusLoader";
 import { clearCommitSuccessfulState } from "../../../../actions/gitSyncActions";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
-import GitSyncError from "../components/GitSyncError";
 import GitChanged from "../components/GitChanged";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
@@ -240,7 +239,6 @@ function Deploy() {
             />
           </StatusbarWrapper>
         )}
-        <GitSyncError />
       </Section>
       {!pullRequired && !isConflicting && (
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />

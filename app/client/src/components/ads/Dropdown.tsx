@@ -8,6 +8,8 @@ import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
+import { noop } from "lodash";
+import { createMessage, NOT_OPTIONS } from "constants/messages";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -514,7 +516,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     onSearch && onSearch(searchStr);
   };
 
-  return options.length > 0 ? (
+  return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
       width={optionWidth}
@@ -580,9 +582,21 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             </OptionWrapper>
           );
         })}
+        {options.length < 1 && (
+          <OptionWrapper
+            className="t--dropdown-option"
+            key={-1}
+            onClick={noop}
+            selected
+          >
+            <Text color={`${Colors.ERROR_RED} !important`} type={TextType.P1}>
+              {createMessage(NOT_OPTIONS)}
+            </Text>
+          </OptionWrapper>
+        )}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
-  ) : null;
+  );
 }
 
 export default function Dropdown(props: DropdownProps) {
