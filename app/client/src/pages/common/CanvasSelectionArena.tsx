@@ -20,6 +20,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCord } from "utils/hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { commentModeSelector } from "../../selectors/commentsSelectors";
+import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -107,9 +108,7 @@ export function CanvasSelectionArena({
     ),
     [widgetId, snapColumnSpace, snapRowSpace],
   );
-  const isDraggingForSelection = useSelector((state: AppState) => {
-    return state.ui.canvasSelection.isDraggingForSelection;
-  });
+  const isDraggingForSelection = useSelector(getIsDraggingForSelection);
   const isCurrentWidgetDrawing = useSelector((state: AppState) => {
     return state.ui.canvasSelection.widgetId === widgetId;
   });
@@ -391,7 +390,7 @@ export function CanvasSelectionArena({
       const addEventListeners = () => {
         canvasRef.current?.addEventListener("click", onClick, false);
         canvasRef.current?.addEventListener("mousedown", onMouseDown, false);
-        canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
+        document.addEventListener("mouseup", onMouseUp, false);
         canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
         canvasRef.current?.addEventListener("mouseleave", onMouseLeave, false);
         canvasRef.current?.addEventListener("mouseenter", onMouseEnter, false);
@@ -399,7 +398,7 @@ export function CanvasSelectionArena({
       };
       const removeEventListeners = () => {
         canvasRef.current?.removeEventListener("mousedown", onMouseDown);
-        canvasRef.current?.removeEventListener("mouseup", onMouseUp);
+        document?.removeEventListener("mouseup", onMouseUp);
         canvasRef.current?.removeEventListener("mousemove", onMouseMove);
         canvasRef.current?.removeEventListener("mouseleave", onMouseLeave);
         canvasRef.current?.removeEventListener("mouseenter", onMouseEnter);
