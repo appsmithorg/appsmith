@@ -13,6 +13,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariant,
   ButtonVariantTypes,
+  ButtonPlacement,
 } from "components/constants";
 import { ThemeProp } from "components/ads/common";
 import {
@@ -20,6 +21,8 @@ import {
   getCustomBorderColor,
   getCustomHoverColor,
   getCustomTextColor,
+  getCustomJustifyContent,
+  getAlignText,
 } from "widgets/WidgetUtils";
 
 type MenuButtonContainerProps = {
@@ -52,6 +55,7 @@ export interface BaseStyleProps {
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
   textColor?: string;
+  placement?: ButtonPlacement;
 }
 
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
@@ -146,6 +150,16 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       ? `-2px -2px 0px ${boxShadowColor ||
           theme.colors.button.boxShadow.default.variant5}`
       : "none"} !important;
+
+  ${({ placement }) =>
+    placement
+      ? `
+      justify-content: ${getCustomJustifyContent(placement)};
+      & > span.bp3-button-text {
+        flex: unset !important;
+      }
+    `
+      : ""}
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
@@ -278,6 +292,7 @@ export interface PopoverTargetButtonProps {
   iconAlign?: Alignment;
   isDisabled?: boolean;
   label?: string;
+  placement?: ButtonPlacement;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -291,28 +306,13 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     iconName,
     isDisabled,
     label,
+    placement,
   } = props;
-
-  if (iconAlign === Alignment.RIGHT) {
-    return (
-      <BaseButton
-        alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        disabled={isDisabled}
-        fill
-        rightIcon={iconName}
-        text={label}
-      />
-    );
-  }
+  const isRightAlign = iconAlign === Alignment.RIGHT;
 
   return (
     <BaseButton
-      alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
+      alignText={getAlignText(isRightAlign, iconName)}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
@@ -320,7 +320,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       fill
-      icon={iconName}
+      icon={isRightAlign ? undefined : iconName}
+      placement={placement}
+      rightIcon={isRightAlign ? iconName : undefined}
       text={label}
     />
   );
@@ -357,6 +359,7 @@ export interface MenuButtonComponentProps {
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
   backgroundColor?: string;
+  placement?: ButtonPlacement;
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
@@ -373,6 +376,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     menuItems,
     menuVariant,
     onItemClicked,
+    placement,
   } = props;
 
   return (
@@ -402,6 +406,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
           iconName={iconName}
           isDisabled={isDisabled}
           label={label}
+          placement={placement}
         />
       </Popover2>
     </MenuButtonContainer>
