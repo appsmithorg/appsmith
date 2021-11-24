@@ -1,7 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { MapTypes } from "./constants";
+import { dataSetForWorld, MapTypes } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -17,30 +17,22 @@ export const CONFIG = {
     mapType: MapTypes.WORLD,
     mapTitle: "Global Population",
     showLabels: true,
-    data: [
+    data: dataSetForWorld,
+    colorRange: [
       {
-        id: "NA",
-        value: "515",
+        minValue: 0.5,
+        maxValue: 1.0,
+        code: "#FFD74D",
       },
       {
-        id: "SA",
-        value: "373",
+        minValue: 1.0,
+        maxValue: 2.0,
+        code: "#FB8C00",
       },
       {
-        id: "AS",
-        value: "3875",
-      },
-      {
-        id: "EU",
-        value: "727",
-      },
-      {
-        id: "AF",
-        value: "885",
-      },
-      {
-        id: "AU",
-        value: "32",
+        minValue: 2.0,
+        maxValue: 3.0,
+        code: "#E65100",
       },
     ],
   },

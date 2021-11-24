@@ -12,6 +12,14 @@ export enum MapTypes {
   CUSTOM = "CUSTOM",
 }
 
+export interface MapColorObject {
+  minValue: number;
+  maxValue: number;
+  displayValue: string;
+  code: string;
+  alpha: number;
+}
+
 // Define the dataset and the colorRange of the map
 export const dataSetForWorld = [
   {
@@ -979,26 +987,3 @@ export const dataSetForAfrica = [
     value: ".82",
   },
 ];
-
-export const colorRange = {
-  minvalue: "0",
-  code: "#FFE0B2",
-  gradient: "0",
-  color: [
-    {
-      minvalue: "0.5",
-      maxvalue: "1.0",
-      color: "#FFD74D",
-    },
-    {
-      minvalue: "1.0",
-      maxvalue: "2.0",
-      color: "#FB8C00",
-    },
-    {
-      minvalue: "2.0",
-      maxvalue: "3.0",
-      color: "#E65100",
-    },
-  ],
-};

@@ -15,7 +15,7 @@ import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 // Import the dataset and the colorRange of the map
-import { colorRange, dataSetForWorld, MapTypes } from "../constants";
+import { dataSetForWorld, MapTypes, MapColorObject } from "../constants";
 import { CUSTOM_MAP_PLUGINS } from "../CustomMapConstants";
 
 // Adding the chart and theme as dependency to the core fusioncharts
@@ -39,7 +39,9 @@ const defaultChartConfigs: ChartObject = {
       theme: "fusion",
     },
     // Aesthetics; ranges synced with the slider
-    colorrange: colorRange,
+    colorRange: {
+      gradient: "0",
+    },
     // Source data as JSON --> id represents countries of the world.
     data: dataSetForWorld,
   },
@@ -83,6 +85,7 @@ export interface EntityData {
 function MapChartComponent(props: MapChartComponentProps) {
   const {
     caption,
+    colorRange,
     data,
     height,
     onDataPointClick,
@@ -179,6 +182,14 @@ function MapChartComponent(props: MapChartComponentProps) {
     setChartConfigs(newChartConfigs);
   }, [showLabels]);
 
+  useEffect(() => {
+    const newChartConfigs: any = {
+      ...chartConfigs,
+    };
+    newChartConfigs["dataSource"]["colorRange"]["color"] = colorRange;
+    chart.setChartData(newChartConfigs.dataSource, "json");
+  }, [colorRange]);
+
   // Called by FC-React component to return the rendered chart
   const renderComplete = (chart: FusionCharts.FusionCharts) => {
     setChart(chart);
@@ -207,7 +218,7 @@ function MapChartComponent(props: MapChartComponentProps) {
 
 export interface MapChartComponentProps {
   caption: string;
-  customConfigs: ChartObject;
+  colorRange: MapColorObject[];
   data: MapData[];
   height: number;
   isVisible: boolean;

@@ -16,9 +16,11 @@ import {
   dataSetForSouthAmerica,
   dataSetForWorld,
   dataSetForWorldWithAntarctica,
+  MapColorObject,
   MapTypes,
 } from "../constants";
 import { EntityData, MapType } from "../component";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
@@ -223,6 +225,72 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         ],
       },
       {
+        sectionName: "Styles",
+        children: [
+          {
+            helpText:
+              "Defines ranges for categorizing entities on a map based on their data values.",
+            propertyName: "colorRange",
+            label: "Color Range",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Color range object",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "minValue",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "maxValue",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "displayValue",
+                        type: ValidationTypes.TEXT,
+                      },
+                      {
+                        name: "code",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          expected: {
+                            type: "Hex color (6-digit)",
+                            example: "#FF04D7",
+                            autocompleteDataType: AutocompleteDataType.STRING,
+                          },
+                        },
+                      },
+                      {
+                        name: "alpha",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          min: 0,
+                          max: 100,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+        ],
+      },
+      {
         sectionName: "Actions",
         children: [
           {
@@ -267,7 +335,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
   getPageView() {
     const {
       bottomRow,
-      customFusionMapConfig,
+      colorRange,
       data,
       isVisible,
       leftColumn,
@@ -284,7 +352,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <MapChartComponent
           caption={mapTitle}
-          customConfigs={customFusionMapConfig}
+          colorRange={colorRange}
           data={data}
           height={(bottomRow - topRow) * parentRowSpace}
           isVisible={isVisible}
@@ -303,6 +371,7 @@ export interface MapChartWidgetProps extends WidgetProps {
   mapType: MapType;
   onDataPointClick?: string;
   showLabels: boolean;
+  colorRange: MapColorObject[];
 }
 
 export default MapChartWidget;
