@@ -8,6 +8,8 @@ import { themeModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import PaintBrushIcon from "remixicon-react/PaintBrushLineIcon";
 import { setExplorerActiveAction } from "actions/explorerActions";
+import { setThemingMode } from "actions/themingActions";
+import { ThemingMode } from "selectors/themingSelectors";
 
 function Toolbar() {
   const dispatch = useDispatch();
@@ -33,6 +35,7 @@ function Toolbar() {
    */
   const onBackToCanvasButtonClick = useCallback(() => {
     dispatch(setThemeModeAction(false));
+    dispatch(setThemingMode(ThemingMode.THEME_EDIT));
   }, [setThemeModeAction]);
 
   return (

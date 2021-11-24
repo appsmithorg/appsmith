@@ -60,8 +60,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
 
-  // eslint-disable-next-line
-  console.log({ isThemeMode });
   /**
    * renders the property pane:
    * 1. if no widget is selected -> CanvasPropertyPane
@@ -71,7 +69,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
    */
   const propertyPane = useMemo(() => {
     switch (true) {
-      case isThemeMode:
+      case isThemeMode || true:
         return <ThemePropertyPane />;
       case selectedWidgets.length == 0:
         return <CanvasPropertyPane />;

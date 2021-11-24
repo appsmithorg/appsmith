@@ -1,12 +1,12 @@
 import React from "react";
 import { ButtonBorderRadiusTypes } from "components/constants";
-import ThemePropertyDropdown from "../ThemePropertyDropdown";
+import Dropdown from "components/ads/Dropdown";
 
 function ThemeShadowControl() {
   return (
     <section className="space-y-2">
       <h3 className="font-semibold">Corners</h3>
-      <ThemePropertyDropdown
+      <Dropdown
         className="px-0"
         options={[
           {

@@ -21,7 +21,7 @@ export function SettingSection(props: SettingSectionProps) {
   }, [setOpen, isOpen]);
 
   return (
-    <div className={`px-3 py-3 overflow-hidden ${props.className}`}>
+    <div className={`px-3 py-3 ${props.className}`}>
       <div
         className={` cursor-pointer flex items-center justify-between uppercase text-md `}
         onClick={toggleCollapse}
@@ -33,9 +33,9 @@ export function SettingSection(props: SettingSectionProps) {
           />
         </div>
       </div>
-      <div className={` ${isOpen ? "max-h-screen" : "max-h-0"}`}>
+      <Collapse isOpen={isOpen}>
         <div className="pt-2 space-y-3">{props.children}</div>
-      </div>
+      </Collapse>
     </div>
   );
 }
