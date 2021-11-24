@@ -1002,13 +1002,13 @@ public class GitServiceImpl implements GitService {
                 }).flatMap(tuple -> {
                     List<GitBranchDTO> gitBranchListDTOS = tuple.getT1();
                     Application application = tuple.getT2();
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
 
                     if (Boolean.TRUE.equals(ignoreCache)) {
                         String defaultBranchRemote = gitBranchListDTOS
                                 .stream().filter(gitBranchDTO -> gitBranchDTO.isDefault()).map(gitBranchDTO -> gitBranchDTO.getBranchName()).toString();
 
                         //update the default branch in db
-                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                         gitApplicationMetadata.setDefaultBranchName(defaultBranchRemote);
                         application.setGitApplicationMetadata(gitApplicationMetadata);
 
@@ -1031,6 +1031,12 @@ public class GitServiceImpl implements GitService {
                                 .then(applicationService.save(application)
                                         .then(Mono.just(gitBranchListDTOS)));
                     } else {
+                        //gitBranchListDTOS.stream()
+                        gitBranchListDTOS
+                                .stream()
+                                .filter(branchDTO -> StringUtils.equalsIgnoreCase(branchDTO.getBranchName(), gitApplicationMetadata.getBranchName()))
+                                .findAny()
+                                .ifPresent(branchDTO -> branchDTO.setDefault(true));
                         return Mono.just(gitBranchListDTOS);
                     }
                 });
