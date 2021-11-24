@@ -1,4 +1,8 @@
-import { ReduxAction } from "constants/ReduxActionConstants";
+import {
+  CurrentApplicationData,
+  Page,
+  ReduxAction,
+} from "constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
@@ -13,6 +17,12 @@ import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { createMessage, ERROR_500 } from "../constants/messages";
 import localStorage from "utils/localStorage";
+import { APP_MODE } from "entities/App";
+import { trimQueryString } from "./helpers";
+import {
+  getApplicationEditorPageURL,
+  getApplicationViewerPageURL,
+} from "constants/routes";
 
 export const createReducer = (
   initialState: any,
@@ -344,4 +354,32 @@ export const parseBlobUrl = (blobId: string) => {
     window.location.hostname
   }/${blobId.substring(5)}`;
   return url.split("?type=");
+};
+
+/**
+ * gets the page url
+ *
+ * Note: for edit mode, the page will have different url ( contains '/edit' at the end )
+ *
+ * @param page
+ * @returns
+ */
+export const getPageURL = (
+  page: Page,
+  appMode: APP_MODE | undefined,
+  currentApplicationDetails: CurrentApplicationData | undefined,
+) => {
+  if (appMode === APP_MODE.PUBLISHED) {
+    return trimQueryString(
+      getApplicationViewerPageURL({
+        applicationId: currentApplicationDetails?.id,
+        pageId: page.pageId,
+      }),
+    );
+  }
+
+  return getApplicationEditorPageURL(
+    currentApplicationDetails?.id,
+    page.pageId,
+  );
 };

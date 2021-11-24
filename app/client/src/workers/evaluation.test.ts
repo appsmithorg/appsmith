@@ -356,16 +356,16 @@ describe("DataTreeEvaluator", () => {
       Text2: ["Text2.text"],
       Text3: ["Text3.text"],
       Text4: ["Text4.text"],
-      Table1: [
+      Table1: expect.arrayContaining([
         "Table1.tableData",
         "Table1.searchText",
         "Table1.selectedRowIndex",
         "Table1.selectedRowIndices",
-      ],
-      Dropdown1: [
+      ]),
+      Dropdown1: expect.arrayContaining([
         "Dropdown1.selectedOptionValue",
         "Dropdown1.selectedOptionValueArr",
-      ],
+      ]),
       "Text2.text": ["Text1.text"],
       "Text3.text": ["Text1.text"],
       "Dropdown1.selectedOptionValue": [],
