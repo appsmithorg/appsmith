@@ -120,14 +120,24 @@ const IconWrapper = styled.div<{ backgroundColor?: string }>`
     props.backgroundColor ? props.backgroundColor : "#ffffff"};
   padding: 8px;
   border-radius: 4px;
+  align-self: baseline;
 `;
 
 const Hint = styled.div`
   background-color: #feede5;
   padding: 17px 15px;
+  margin-top: 18px;
   display: flex;
   align-items: center;
-  margin-top: 18px;
+
+  .align-vertical {
+    flex-direction: column;
+  }
+
+  .inner-wrapper {
+    display: flex;
+    flex-direction: row;
+  }
 
   .hint-text {
     padding-left: 15px;
@@ -176,6 +186,9 @@ type Step = {
   hint: {
     icon: IconName;
     text: ReactNode;
+    button?: {
+      text: string;
+    };
   };
   success?: {
     text: string;
@@ -253,7 +266,7 @@ const Steps: StepsType = {
             bottomRow: 100,
             rightColumn: 90,
             columns: 30,
-            leftColumn: 30,
+            leftColumn: 32,
             topRow: 0,
             parentColumnSpace: 0,
             parentRowSpace: 0,
@@ -278,6 +291,9 @@ const Steps: StepsType = {
           <b>&#123;&#123;CustomersTable.selectedRow.name&#125;&#125;</b>
         </>
       ),
+      button: {
+        text: "START CONNECTING OTHER INPUT",
+      },
     },
   },
 };
@@ -296,7 +312,7 @@ function InitialContent() {
         type: "TABLE_WIDGET",
         bottomRow: 100,
         rightColumn: 40,
-        columns: 20,
+        columns: 25,
         leftColumn: 0,
         parentColumnSpace: 10,
         parentRowSpace: 20,

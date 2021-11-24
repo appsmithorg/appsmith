@@ -41,11 +41,14 @@ import { generateReactKey } from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getWidgets } from "./selectors";
+import { getPluginIdOfPackageName, getWidgets } from "./selectors";
 import { createActionRequest } from "actions/pluginActionActions";
-import { Datasource } from "entities/Datasource";
+import { Datasource, MockDatasource } from "entities/Datasource";
 import { Action } from "entities/Action";
-import { getActions } from "selectors/entitiesSelector";
+import { getActions, getMockDatasources } from "selectors/entitiesSelector";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { addMockDatasourceToOrg } from "actions/datasourceActions";
+import { updateApplicationLayout } from "actions/applicationActions";
 
 function* createApplication() {
   const colorPalette = yield select(getAppCardColorPalette);
@@ -105,13 +108,44 @@ function* createApplication() {
         pageId,
       }),
     );
+
+    yield put(
+      updateApplicationLayout(applicationId || "", {
+        appLayout: {
+          type: "DESKTOP",
+        },
+      }),
+    );
   }
 }
 
 function* createGuidedTourQuery() {
-  const datasource: Datasource | undefined = yield select(
+  const currentOrganizationId = yield select(getCurrentOrgId);
+  const mockDatasources: MockDatasource[] = yield select(getMockDatasources);
+  const usersDatasource = mockDatasources.find(
+    (datasource) => datasource.name === "Users",
+  );
+  const pluginId = yield select(
+    getPluginIdOfPackageName,
+    usersDatasource?.packageName ?? "",
+  );
+  let datasource: Datasource | undefined = yield select(
     getGuidedTourDatasource,
   );
+
+  if (!datasource) {
+    yield put(
+      addMockDatasourceToOrg(
+        usersDatasource?.name ?? "",
+        currentOrganizationId,
+        pluginId,
+        usersDatasource?.packageName ?? "",
+      ),
+    );
+
+    yield take(ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS);
+    datasource = yield select(getGuidedTourDatasource);
+  }
   const actions = yield select(getActions);
   const pageId = yield select(getCurrentPageId);
 

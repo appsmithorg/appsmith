@@ -87,6 +87,7 @@ import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { getIsGeneratePageInitiator } from "../utils/GenerateCrudUtil";
 
 import { trimQueryString } from "utils/helpers";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 function* fetchDatasourcesSaga() {
   try {
@@ -175,6 +176,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isGeneratePageInitiator = getIsGeneratePageInitiator(
         isGeneratePageMode,
       );
+      const isInGuidedTour = yield select(inGuidedTour);
       if (isGeneratePageInitiator) {
         history.push(
           getGenerateTemplateFormURL(applicationId, pageId, {
@@ -182,6 +184,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           }),
         );
       } else {
+        if (isInGuidedTour) return;
         history.push(
           INTEGRATION_EDITOR_URL(
             applicationId,
