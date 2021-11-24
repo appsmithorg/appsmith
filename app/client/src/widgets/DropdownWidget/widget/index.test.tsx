@@ -30,6 +30,9 @@ describe("<DropdownWidget />", () => {
       comments: {
         dragPointerOffset: null,
       },
+      editor: {
+        isPreviewMode: false,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

@@ -12,7 +12,7 @@
     "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",
     "copyWidget": ".t--copy-widget svg",
     "removeWidget": ".t--delete-widget svg",
-    "propertypaneText": ".t--propertypane .bp3-panel-stack-view",
+    "propertypaneText": ".t--propertypane .t--property-pane-view",
     "formButtonWidget": ".t--widget-formbuttonwidget",
     "dropdownwidget": ".t--widget-dropdownwidget",
     "textWidget": ".t--draggable-textwidget",

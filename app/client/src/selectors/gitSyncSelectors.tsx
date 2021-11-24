@@ -36,9 +36,6 @@ export const getActiveGitSyncModalTab = (state: AppState) =>
 export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
-export const getGitPushError = (state: AppState) =>
-  state.ui.gitSync.gitPushError;
-
 export const getIsImportAppViaGitModalOpen = (state: AppState) =>
   state.ui.gitSync.isImportAppViaGitModalOpen;
 
@@ -108,8 +105,7 @@ export const getCurrentGitBranch = (state: AppState) => {
   return gitApplicationMetadata?.branchName;
 };
 
-export const getPullMergeStatus = (state: AppState) =>
-  state.ui.gitSync.pullMergeStatus;
+export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
 
 export const getPullInProgress = (state: AppState) =>
   state.ui.gitSync.pullInProgress;
