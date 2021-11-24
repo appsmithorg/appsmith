@@ -17,7 +17,6 @@ describe("Binding the Widgets with JSObject", function() {
     cy.createJSObject('return "Success";');
     cy.SearchEntityandOpen("Input2");
     cy.testJsontext("defaulttext", "{{JSObject1.myFun1()}}");
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

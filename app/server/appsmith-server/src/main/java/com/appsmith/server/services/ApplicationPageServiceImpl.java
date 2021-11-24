@@ -78,6 +78,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final GitFileUtils gitFileUtils;
     private final CommentThreadRepository commentThreadRepository;
 
+    public static final Integer EVALUATION_VERSION = 2;
+
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -246,6 +248,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         }
 
         application.setPublishedPages(new ArrayList<>());
+
+        // For all new applications being created, set it to use the latest evaluation version.
+        application.setEvaluationVersion(EVALUATION_VERSION);
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
@@ -500,7 +505,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     // Create a new clone application object without the pages using the parameterized Application constructor
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
-
+                    newApplication.setLastEditedAt(Instant.now());
                     Mono<User> userMono = sessionUserService.getCurrentUser().cache();
                     // First set the correct policies for the new cloned application
                     return setApplicationPolicies(userMono, sourceApplication.getOrganizationId(), newApplication)
@@ -613,7 +618,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 Application application = tuple.getT4();
                                 log.debug("Archived pageId: {} , {} actions and {} action collections for applicationId: {}", page1.getId(), actions.size(), actionCollections.size(), application.getId());
                                 return page1;
-                            });
+                            })
+                            .flatMap(pageDTO ->
+                                    // save the last edit information as page is deleted from application
+                                    applicationService.saveLastEditInformation(pageDTO.getApplicationId())
+                                            .thenReturn(pageDTO)
+                            );
                 });
     }
 
