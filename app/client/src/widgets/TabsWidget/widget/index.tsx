@@ -28,6 +28,23 @@ export function selectedTabValidation(
     messages: [`Tab name ${value} does not exist`],
   };
 }
+
+// A hook to update all column styles when global table styles are updated
+export const updateDefaultTab = (
+  props: TabsWidgetProps<TabContainerWidgetProps>,
+  propertyPath: string,
+  propertyValue: any,
+): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  const { defaultTab, tabsObj } = props;
+  // eslint-disable-next-line no-console
+  console.log({ tabsObj, defaultTab });
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: any;
+  }> = [];
+  return propertiesToUpdate;
+};
+
 class TabsWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
@@ -44,6 +61,8 @@ class TabsWidget extends BaseWidget<
             controlType: "TABS_INPUT",
             isBindProperty: false,
             isTriggerProperty: false,
+            updateHook: updateDefaultTab,
+            dependencies: ["defaultTab", "tabsObj"],
             updateRelatedWidgetProperties: (
               propertyPath: string,
               propertyValue: string,
