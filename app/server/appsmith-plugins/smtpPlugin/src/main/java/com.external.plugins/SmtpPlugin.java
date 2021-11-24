@@ -67,7 +67,7 @@ public class SmtpPlugin extends BasePlugin {
                 String bccAddress = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.bcc");
                 String subject = (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.subject");
                 Boolean isReplyTo = (Boolean) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.isReplyTo");
-                String replyTo = (Boolean.TRUE.equals(isReplyTo)) ?
+                String replyTo = Boolean.TRUE.equals(isReplyTo) ?
                         (String) getValueSafelyFromFormData(actionConfiguration.getFormData(), "send.replyTo") : null;
 
                 if (!StringUtils.hasText(toAddress)) {
@@ -168,9 +168,8 @@ public class SmtpPlugin extends BasePlugin {
             prop.put("mail.smtp.auth", true);
             prop.put("mail.smtp.starttls.enable", "true");
             prop.put("mail.smtp.host", endpoint.getHost());
-            // Default to port 25 incase the port supplied by the user is null
-            Long port = (endpoint.getPort() == null) ? 25 : endpoint.getPort();
-            prop.put("mail.smtp.port", port);
+            Long port = (endpoint.getPort() == null || endpoint.getPort() < 0) ? 25 : endpoint.getPort();
+            prop.put("mail.smtp.port", String.valueOf(port));
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
 
             String username = authentication.getUsername();

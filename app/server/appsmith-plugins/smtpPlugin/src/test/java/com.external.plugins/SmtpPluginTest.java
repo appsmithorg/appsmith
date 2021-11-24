@@ -101,7 +101,7 @@ public class SmtpPluginTest {
         DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
         invalidDatasourceConfiguration.setEndpoints(List.of(new Endpoint(host, null)));
 
-        Assert.assertTrue(CollectionUtils.isEmpty(pluginExecutor.validateDatasource(invalidDatasourceConfiguration)));
+        Assert.assertEquals(Set.of(), pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
     }
 
     @Test
@@ -294,8 +294,8 @@ public class SmtpPluginTest {
                 .flatMap(session -> pluginExecutor.execute(session, datasourceConfiguration, actionConfiguration));
 
         StepVerifier.create(resultMono)
-                .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
-                .verifyComplete();
+                .expectErrorMatches(e -> e instanceof AppsmithPluginException && e.getMessage().equals("Attachment test-icon-file.png contains invalid data. Unable to send email."))
+                .verify();
     }
 
     @Test
