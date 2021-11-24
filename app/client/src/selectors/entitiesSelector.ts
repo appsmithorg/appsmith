@@ -503,8 +503,39 @@ export const getExistingWidgetNames = createSelector(
 
 export const getExistingActionNames = createSelector(
   (state: AppState) => state.entities.actions,
-  (actions) =>
-    actions.map((action: { config: { name: string } }) => action.config.name),
+  getCurrentPageId,
+  (state: AppState) => state.ui.explorer.entity.editingEntityName,
+  (actions, currentPageId, editingEntityId) => {
+    // get the current action being edited
+    const editingAction =
+      editingEntityId &&
+      actions.filter(
+        (action: { config: { id: string } }) =>
+          action.config.id === editingEntityId,
+      );
+
+    // if the current action being edited is on the same page, filter the actions on the page and return their names.
+    if (editingAction && editingAction[0].config.pageId === currentPageId) {
+      return actions.map(
+        (actionItem: { config: { name: string; pageId: string } }) => {
+          if (actionItem.config.pageId === currentPageId) {
+            return actionItem.config.name;
+          }
+          return undefined;
+        },
+      );
+    } else {
+      // if current action being edited is on another page, filter the actions not on the page and return their names.
+      return actions.map(
+        (actionItem: { config: { name: string; pageId: string } }) => {
+          if (actionItem.config.pageId !== currentPageId) {
+            return actionItem.config.name;
+          }
+          return undefined;
+        },
+      );
+    }
+  },
 );
 
 export const getAppMode = (state: AppState) => state.entities.app.mode;
