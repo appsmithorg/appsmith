@@ -7,6 +7,10 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +28,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -81,7 +86,23 @@ public class FileUtilsImpl implements FileInterface {
                 .flatMap(isSwitched -> {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
-                    Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+
+                    // Gson to pretty format JSON file and keep Integer type as is by default GSON have behavior to
+                    // convert to Double
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Double.class,  new JsonSerializer<Double>() {
+
+                                @Override
+                                public JsonElement serialize(Double src, Type typeOfSrc, JsonSerializationContext context) {
+                                    if(src == src.longValue())
+                                        return new JsonPrimitive(src.longValue());
+                                    return new JsonPrimitive(src);
+                                }
+                            })
+                            .disableHtmlEscaping()
+                            .setPrettyPrinting()
+                            .create();
+
                     Set<String> validFileNames = new HashSet<>();
 
                     /*

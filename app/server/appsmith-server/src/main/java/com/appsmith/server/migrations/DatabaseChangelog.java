@@ -3949,12 +3949,14 @@ public class DatabaseChangelog {
                 defaultResourceUpdates.set(fieldName(QNewPage.newPage.gitSyncId), gitSyncId);
             }
 
-            page.getUnpublishedPage()
-                    .getLayouts()
-                    .stream()
-                    .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
-                    .forEach(layout -> layout.getLayoutOnLoadActions()
-                            .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+            if (!CollectionUtils.isEmpty(page.getUnpublishedPage().getLayouts())) {
+                page.getUnpublishedPage()
+                        .getLayouts()
+                        .stream()
+                        .filter(layout -> !CollectionUtils.isEmpty(layout.getLayoutOnLoadActions()))
+                        .forEach(layout -> layout.getLayoutOnLoadActions()
+                                .forEach(dslActionDTOS -> dslActionDTOS.forEach(actionDTO -> actionDTO.setDefaultActionId(actionDTO.getId()))));
+            }
 
             defaultResourceUpdates.set(fieldName(QNewPage.newPage.unpublishedPage) + "." + "layouts", page.getUnpublishedPage().getLayouts());
 

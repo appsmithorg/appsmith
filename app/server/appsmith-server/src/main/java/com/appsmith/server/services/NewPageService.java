@@ -66,4 +66,6 @@ public interface NewPageService extends CrudService<NewPage, String> {
 
     Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission);
 
+    Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
+
 }

@@ -2,13 +2,14 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -1008,23 +1009,21 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     @Override
     public Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName) {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        DefaultResources defaultResources = action.getDefaultResources() == null ? new DefaultResources(): action.getDefaultResources();
+        DefaultResources defaultResources = new DefaultResources();
         defaultResources.setBranchName(branchName);
-        if (StringUtils.isEmpty(defaultResources.getPageId())) {
-            defaultResources.setPageId(action.getPageId());
-        }
-        if (StringUtils.isEmpty(defaultResources.getApplicationId())) {
-            defaultResources.setApplicationId(action.getApplicationId());
-        }
-        if (StringUtils.isEmpty(defaultResources.getCollectionId())) {
-            defaultResources.setApplicationId(action.getCollectionId());
-        }
 
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, action.getPageId(), MANAGE_PAGES)
                 .flatMap(newPage -> {
                     // Update the page and application id with branched resource
                     action.setPageId(newPage.getId());
                     action.setApplicationId(newPage.getApplicationId());
+
+                    DefaultResources pageDefaultIds = newPage.getDefaultResources();
+                    defaultResources.setPageId(pageDefaultIds.getPageId());
+                    defaultResources.setApplicationId(pageDefaultIds.getApplicationId());
+                    if (StringUtils.isEmpty(defaultResources.getCollectionId())) {
+                        defaultResources.setCollectionId(action.getCollectionId());
+                    }
                     action.setDefaultResources(defaultResources);
                     return createAction(action, eventContext);
                 })
@@ -1059,6 +1058,33 @@ public class LayoutActionServiceImpl implements LayoutActionService {
         NewAction newAction = new NewAction();
         newAction.setPublishedAction(new ActionDTO());
         newAction.getPublishedAction().setDatasource(new Datasource());
+
+        final DefaultResources immutableDefaultResources = action.getDefaultResources();
+        // Only store defaultPageId and defaultCollectionId for actionDTO level resource
+        DefaultResources defaultActionResource =  new DefaultResources();
+        BeanCopyUtils.copyNewFieldValuesIntoOldObject(immutableDefaultResources, defaultActionResource);
+
+        defaultActionResource.setApplicationId(null);
+        defaultActionResource.setActionId(null);
+        defaultActionResource.setBranchName(null);
+        if(StringUtils.isEmpty(defaultActionResource.getPageId())) {
+            defaultActionResource.setPageId(action.getPageId());
+        }
+        if(StringUtils.isEmpty(defaultActionResource.getCollectionId())) {
+            defaultActionResource.setCollectionId(action.getCollectionId());
+        }
+        action.setDefaultResources(defaultActionResource);
+
+        // Only store defaultApplicationId and defaultActionId for NewAction level resource
+        DefaultResources defaults = new DefaultResources();
+        BeanCopyUtils.copyNewFieldValuesIntoOldObject(immutableDefaultResources, defaults);
+        defaults.setPageId(null);
+        defaults.setCollectionId(null);
+        if(StringUtils.isEmpty(defaults.getApplicationId())) {
+            defaults.setApplicationId(action.getApplicationId());
+        }
+        newAction.setDefaultResources(defaults);
+
 
         Mono<NewPage> pageMono = newPageService
                 .findById(action.getPageId(), READ_PAGES)
