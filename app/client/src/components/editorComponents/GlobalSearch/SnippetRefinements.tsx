@@ -19,6 +19,8 @@ const RefinementListContainer = styled.div`
     justify-content: flex-start;
     flex-wrap: wrap;
     .refinement-pill {
+      display: flex;
+      align-items: center;
       margin: 2px 5px 0;
       padding: 5px;
       color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
