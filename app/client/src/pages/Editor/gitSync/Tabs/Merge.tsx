@@ -6,6 +6,9 @@ import {
   createMessage,
   MERGE_CHANGES,
   SELECT_BRANCH_TO_MERGE,
+  CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
+  FETCH_MERGE_STATUS,
+  FETCH_GIT_STATUS,
 } from "constants/messages";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
@@ -13,7 +16,12 @@ import styled from "styled-components";
 import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { getGitBranches, getMergeStatus } from "selectors/gitSyncSelectors";
+import {
+  getGitBranches,
+  getGitStatus,
+  getIsFetchingGitStatus,
+  getMergeStatus,
+} from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   mergeBranchInit,
@@ -24,6 +32,7 @@ import {
 import {
   getIsFetchingMergeStatus,
   getFetchingBranches,
+  getIsMergeInProgress,
   // getPullFailed,
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
@@ -45,9 +54,15 @@ export default function Merge() {
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
-  const isMergeAble = mergeStatus?.isMergeAble;
+  const gitStatus: any = useSelector(getGitStatus);
+  const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;
+  const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
+  let mergeStatusMessage = !gitStatus?.isClean
+    ? createMessage(CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES)
+    : mergeStatus?.status;
   // const pullFailed: any = useSelector(getPullFailed);
   const currentBranch = gitMetaData?.branchName;
+  const isMerging = useSelector(getIsMergeInProgress);
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
     label: DEFAULT_OPTION,
@@ -120,15 +135,21 @@ export default function Merge() {
     !isMergeAble;
 
   let status = MERGE_STATUS_STATE.NONE;
-  if (isFetchingMergeStatus) {
+  if (isFetchingGitStatus) {
     status = MERGE_STATUS_STATE.FETCHING;
+    mergeStatusMessage = createMessage(FETCH_GIT_STATUS);
+  } else if (!gitStatus?.isClean) {
+    status = MERGE_STATUS_STATE.NOT_MERGEABLE;
+  } else if (isFetchingMergeStatus) {
+    status = MERGE_STATUS_STATE.FETCHING;
+    mergeStatusMessage = createMessage(FETCH_MERGE_STATUS);
   } else if (mergeStatus && mergeStatus?.isMergeAble) {
-    status = MERGE_STATUS_STATE.NO_CONFLICT;
+    status = MERGE_STATUS_STATE.MERGEABLE;
   } else if (mergeStatus && !mergeStatus?.isMergeAble) {
-    status = MERGE_STATUS_STATE.MERGE_CONFLICT;
+    status = MERGE_STATUS_STATE.NOT_MERGEABLE;
   }
 
-  const isConflicting = status === MERGE_STATUS_STATE.MERGE_CONFLICT;
+  const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
 
   return (
     <>
@@ -163,12 +184,13 @@ export default function Merge() {
           width={"220px"}
         />
       </Row>
-      <MergeStatus status={status} />
+      <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
       <ConflictInfo isConflicting={isConflicting} />
       {!isConflicting && (
         <Button
           disabled={mergeBtnDisabled}
+          isLoading={isMerging}
           onClick={mergeHandler}
           size={Size.medium}
           tag="button"

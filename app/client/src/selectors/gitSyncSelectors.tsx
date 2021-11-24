@@ -110,3 +110,6 @@ export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
 
 export const getPullInProgress = (state: AppState) =>
   state.ui.gitSync.pullInProgress;
+
+export const getIsMergeInProgress = (state: AppState) =>
+  state.ui.gitSync.isMerging;
