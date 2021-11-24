@@ -3874,7 +3874,7 @@ public class DatabaseChangelog {
         Update update = new Update().set("isPublic", true);
         mongockTemplate.updateMulti(query, update, Application.class);
     }
-}
+
     
     @ChangeSet(order = "094", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongockTemplate mongoTemplate) {

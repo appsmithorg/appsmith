@@ -11,7 +11,7 @@
       "description" : "Optional",
       "children": [
         {
-          "label": "From email",
+          "label": "From email *",
           "configProperty": "actionConfiguration.formData.send.from",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
@@ -34,7 +34,7 @@
           }
         },
         {
-          "label": "To email(s)",
+          "label": "To email(s) *",
           "configProperty": "actionConfiguration.formData.send.to",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
