@@ -161,15 +161,17 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
       snippetsEmpty={snippetsEmpty}
     >
       <button
-        className="flex items-center justify-center space-x-2"
+        className="flex items-center justify-center space-x-1"
         onClick={() => toggleSnippetFilter(!showSnippetFilter)}
       >
         {!showSnippetFilter && <FilterIcon />}
+
         {!showSnippetFilter &&
           refinements.entities &&
           refinements.entities &&
-          refinements.entities.length > 0 &&
-          ` ${refinements.entities.length}`}
+          refinements.entities.length > 0 && (
+            <span>{refinements.entities.length}</span>
+          )}
         {!showSnippetFilter && <span> Filter</span>}
         {showSnippetFilter && <CloseFilterIcon />}
       </button>
