@@ -83,6 +83,53 @@ describe("Validate Validators", () => {
     });
   });
 
+  it("correctly validates text with regex match", () => {
+    const validation = {
+      type: ValidationTypes.TEXT,
+      params: {
+        default: "https://www.appsmith.com",
+        regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
+      },
+    };
+    const inputs = [
+      "",
+      undefined,
+      "https://www.appsmith.com/",
+      "www.google.com",
+      "app.appsmith.com",
+    ];
+    const expected = [
+      {
+        isValid: false,
+        messages: [
+          "This value does not evaluate to type (http(s)?:\\/\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)",
+        ],
+        parsed: "https://www.appsmith.com",
+      },
+      {
+        isValid: true,
+        parsed: "https://www.appsmith.com",
+      },
+      {
+        isValid: true,
+        parsed: "https://www.appsmith.com/",
+      },
+
+      {
+        isValid: true,
+        parsed: "www.google.com",
+      },
+      {
+        isValid: true,
+        parsed: "app.appsmith.com",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(validation, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
   it("correctly validates text when required is set to false", () => {
     const validation = {
       type: ValidationTypes.TEXT,
@@ -206,12 +253,12 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        parsed: 90,
+        parsed: 100,
         messages: ["Minimum allowed value: 100"],
       },
       {
         isValid: false,
-        parsed: 220,
+        parsed: 200,
         messages: ["Maximum allowed value: 200"],
       },
       {
