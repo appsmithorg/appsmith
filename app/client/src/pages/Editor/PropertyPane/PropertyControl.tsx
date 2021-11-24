@@ -140,7 +140,7 @@ const PropertyControl = memo((props: Props) => {
         propertyValue,
       );
     }
-    if (propertiesToUpdate) {
+    if (propertiesToUpdate?.length) {
       const allUpdates: Record<string, unknown> = {};
       propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
         allUpdates[propertyPath] = propertyValue;
