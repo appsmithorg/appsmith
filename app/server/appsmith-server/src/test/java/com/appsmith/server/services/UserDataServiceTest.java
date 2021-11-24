@@ -191,7 +191,7 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLastUsedOrgList_WhenListIsEmpty_orgIdPrepended() {
+    public void updateLastUsedAppAndOrgList_WhenListIsEmpty_orgIdPrepended() {
         String sampleOrgId = UUID.randomUUID().toString();
         Application application = new Application();
         application.setOrganizationId(sampleOrgId);
@@ -211,7 +211,7 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
+    public void updateLastUsedAppAndOrgList_WhenListIsNotEmpty_orgIdPrepended() {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of org ids to the current user.
             userData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
@@ -232,7 +232,7 @@ public class UserDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateLastUsedOrgList_TooManyRecentIds_ListsAreTruncated() {
+    public void updateLastUsedAppAndOrgList_TooManyRecentIds_ListsAreTruncated() {
         String sampleOrgId = "sample-org-id", sampleAppId = "sample-app-id";
 
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
@@ -349,10 +349,5 @@ public class UserDataServiceTest {
         StepVerifier.create(userDataMono2).assertNext(userData -> {
             assertThat(userData.getCommentOnboardingState()).isEqualTo(CommentOnboardingState.ONBOARDED);
         }).verifyComplete();
-    }
-
-    @Test
-    public void removeRecentOrgAndApps_WhenUserHasRecentOrgAndApp_RecentsRemoved() {
-
     }
 }

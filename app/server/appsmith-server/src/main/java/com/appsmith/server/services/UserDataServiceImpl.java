@@ -249,35 +249,32 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     public Mono<UserData> updateLastUsedAppAndOrgList(Application application) {
         return this.getForCurrentUser().flatMap(userData -> {
             // set recently used organization ids
-            List<String> recentlyUsedOrgIds = userData.getRecentlyUsedOrgIds();
-            if(recentlyUsedOrgIds == null) {
-                recentlyUsedOrgIds = new ArrayList<>();
-            } else {
-                CollectionUtils.removeDuplicates(recentlyUsedOrgIds);
-            }
-            CollectionUtils.putAtFirst(recentlyUsedOrgIds, application.getOrganizationId());
-            // keeping the last 10 org ids, there may be a lot of deleted organization ids which are not used anymore
-            if(recentlyUsedOrgIds.size() > 10) {
-                recentlyUsedOrgIds = recentlyUsedOrgIds.subList(0, 10);
-            }
-
-            userData.setRecentlyUsedOrgIds(recentlyUsedOrgIds);
-
+            userData.setRecentlyUsedOrgIds(
+                    addIdToRecentList(userData.getRecentlyUsedOrgIds(), application.getOrganizationId(), 10)
+            );
             // set recently used application ids
-            List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
-            if(recentlyUsedAppIds == null) {
-                recentlyUsedAppIds = new ArrayList<>();
-            } else {
-                CollectionUtils.removeDuplicates(recentlyUsedAppIds);
-            }
-            CollectionUtils.putAtFirst(recentlyUsedAppIds, application.getId());
-            // keeping the last 20 app ids, there may be a lot of deleted application ids which are not used
-            if(recentlyUsedAppIds.size() > 20) {
-                recentlyUsedAppIds = recentlyUsedAppIds.subList(0, 20);
-            }
-            userData.setRecentlyUsedAppIds(recentlyUsedAppIds);
+            userData.setRecentlyUsedAppIds(
+                    addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20)
+            );
             return repository.save(userData);
         });
+    }
+
+    private List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
+        if(srcIdList == null) {
+            srcIdList = new ArrayList<>();
+        }
+        CollectionUtils.putAtFirst(srcIdList, newId);
+
+        // check if there is any duplicates, remove if exists
+        if(srcIdList.size() > 1) {
+            CollectionUtils.removeDuplicates(srcIdList);
+        }
+        // keeping the last 10 org ids, there may be a lot of deleted organization ids which are not used anymore
+        if(srcIdList.size() > maxSize) {
+            srcIdList = srcIdList.subList(0, maxSize);
+        }
+        return srcIdList;
     }
 
     @Override
