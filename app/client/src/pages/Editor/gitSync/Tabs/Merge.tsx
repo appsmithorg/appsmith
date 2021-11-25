@@ -6,15 +6,22 @@ import {
   createMessage,
   MERGE_CHANGES,
   SELECT_BRANCH_TO_MERGE,
+  CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
+  FETCH_MERGE_STATUS,
+  FETCH_GIT_STATUS,
 } from "constants/messages";
-import { ReactComponent as MergeIcon } from "assets/icons/ads/git-merge.svg";
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled from "styled-components";
 import Button, { Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { getGitBranches, getMergeStatus } from "selectors/gitSyncSelectors";
+import {
+  getGitBranches,
+  getGitStatus,
+  getIsFetchingGitStatus,
+  getMergeStatus,
+} from "selectors/gitSyncSelectors";
 import { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   mergeBranchInit,
@@ -25,10 +32,12 @@ import {
 import {
   getIsFetchingMergeStatus,
   getFetchingBranches,
+  getIsMergeInProgress,
   // getPullFailed,
 } from "selectors/gitSyncSelectors";
 import { fetchMergeStatusInit } from "actions/gitSyncActions";
-import MergeStatus from "../components/MergeStatus";
+import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
+import ConflictInfo from "../components/ConflictInfo";
 
 const Row = styled.div`
   display: flex;
@@ -36,6 +45,7 @@ const Row = styled.div`
 `;
 
 const DEFAULT_OPTION = "--Select--";
+const DROPDOWNMENU_MAXHEIGHT = "350px";
 
 export default function Merge() {
   const dispatch = useDispatch();
@@ -44,9 +54,15 @@ export default function Merge() {
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
-  const isMergeAble = mergeStatus?.isMergeAble;
+  const gitStatus: any = useSelector(getGitStatus);
+  const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;
+  const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
+  let mergeStatusMessage = !gitStatus?.isClean
+    ? createMessage(CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES)
+    : mergeStatus?.message;
   // const pullFailed: any = useSelector(getPullFailed);
   const currentBranch = gitMetaData?.branchName;
+  const isMerging = useSelector(getIsMergeInProgress);
 
   const [selectedBranchOption, setSelectedBranchOption] = useState({
     label: DEFAULT_OPTION,
@@ -118,17 +134,31 @@ export default function Merge() {
     isFetchingMergeStatus ||
     !isMergeAble;
 
+  let status = MERGE_STATUS_STATE.NONE;
+  if (isFetchingGitStatus) {
+    status = MERGE_STATUS_STATE.FETCHING;
+    mergeStatusMessage = createMessage(FETCH_GIT_STATUS);
+  } else if (!gitStatus?.isClean) {
+    status = MERGE_STATUS_STATE.NOT_MERGEABLE;
+  } else if (isFetchingMergeStatus) {
+    status = MERGE_STATUS_STATE.FETCHING;
+    mergeStatusMessage = createMessage(FETCH_MERGE_STATUS);
+  } else if (mergeStatus && mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.MERGEABLE;
+  } else if (mergeStatus && !mergeStatus?.isMergeAble) {
+    status = MERGE_STATUS_STATE.NOT_MERGEABLE;
+  }
+
+  const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
+
   return (
     <>
       <Title>{createMessage(MERGE_CHANGES)}</Title>
       <Caption>{createMessage(SELECT_BRANCH_TO_MERGE)}</Caption>
       <Space size={4} />
       <Row>
-        <MergeIcon />
-
-        <Space horizontal size={3} />
-
         <Dropdown
+          dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           enableSearch
           fillOptions
           isLoading={isFetchingBranches}
@@ -147,23 +177,27 @@ export default function Merge() {
         <Dropdown
           className="textInput"
           disabled
+          dropdownMaxHeight={DROPDOWNMENU_MAXHEIGHT}
           onSelect={() => null}
           options={[currentBranchDropdownOption]}
           selected={currentBranchDropdownOption}
           width={"220px"}
         />
       </Row>
-      <MergeStatus />
+      <MergeStatus message={mergeStatusMessage} status={status} />
       <Space size={10} />
-
-      <Button
-        disabled={mergeBtnDisabled}
-        onClick={mergeHandler}
-        size={Size.medium}
-        tag="button"
-        text={createMessage(MERGE_CHANGES)}
-        width="max-content"
-      />
+      <ConflictInfo isConflicting={isConflicting} />
+      {!isConflicting && (
+        <Button
+          disabled={mergeBtnDisabled}
+          isLoading={isMerging}
+          onClick={mergeHandler}
+          size={Size.medium}
+          tag="button"
+          text={createMessage(MERGE_CHANGES)}
+          width="max-content"
+        />
+      )}
     </>
   );
 }

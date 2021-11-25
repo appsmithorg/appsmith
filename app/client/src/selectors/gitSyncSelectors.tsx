@@ -68,7 +68,8 @@ export const getIsFetchingLocalGitConfig = (state: AppState) =>
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
-export const getGitError = (state: AppState) => state.ui.gitSync.gitError;
+export const getGitError = (state: AppState) =>
+  state.ui.gitSync.gitError?.error;
 
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
@@ -109,3 +110,6 @@ export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
 
 export const getPullInProgress = (state: AppState) =>
   state.ui.gitSync.pullInProgress;
+
+export const getIsMergeInProgress = (state: AppState) =>
+  state.ui.gitSync.isMerging;

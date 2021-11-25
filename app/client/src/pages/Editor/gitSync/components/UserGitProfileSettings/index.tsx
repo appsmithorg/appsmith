@@ -66,7 +66,7 @@ const IconWrapper = styled.div`
 const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
-  margin-top: ${(props) => props.theme.spaces[2]}px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -126,7 +126,7 @@ const goToGitProfile = () => {
 function UserGitProfileSettings({
   authorInfo,
   isGlobalConfigDefined,
-  isLocalConfigDefined,
+  // isLocalConfigDefined,
   setAuthorInfo,
   toggleUseDefaultConfig,
   triedSubmit,
@@ -160,9 +160,7 @@ function UserGitProfileSettings({
   const isFetchingConfig =
     isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
 
-  const showDefaultConfig =
-    !isFetchingConfig && !isLocalConfigDefined && isGlobalConfigDefined;
-
+  const showDefaultConfig = !isFetchingConfig && isGlobalConfigDefined;
   return (
     <MainContainer>
       <TitleWrapper>

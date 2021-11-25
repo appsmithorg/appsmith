@@ -23,7 +23,6 @@ import {
   DURING_ONBOARDING_TOUR,
   createMessage,
 } from "constants/messages";
-import { noop } from "lodash";
 
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
@@ -158,6 +157,16 @@ const getQuickActionButtons = ({
   pullTooltipMessage: string;
   showPullLoadingState: boolean;
 }) => {
+  let pushTooltip = createMessage(PUSH);
+  if (!isNaN(gitStatus?.aheadCount)) {
+    pushTooltip =
+      gitStatus.aheadCount > 0
+        ? "Unable to auto push while committing since the remote is ahead"
+        : "All commits have been pushed to remote";
+  }
+  if (gitStatus && !gitStatus.isClean) {
+    pushTooltip = "There are some changes";
+  }
   return [
     {
       icon: <Plus />,
@@ -166,8 +175,9 @@ const getQuickActionButtons = ({
     },
     {
       icon: <UpArrow />,
-      onClick: push,
-      tooltipText: createMessage(PUSH),
+      onClick: () => gitStatus && !gitStatus.isClean && push(),
+      tooltipText: pushTooltip,
+      loading: showPullLoadingState,
     },
     {
       count: gitStatus?.behindCount,
@@ -280,7 +290,14 @@ export default function QuickGitActions() {
         }),
       );
     },
-    push: noop,
+    push: () => {
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.DEPLOY,
+        }),
+      );
+    },
     pull: () => dispatch(gitPullInit({ triggeredFromBottomBar: true })),
     merge: () => {
       dispatch(

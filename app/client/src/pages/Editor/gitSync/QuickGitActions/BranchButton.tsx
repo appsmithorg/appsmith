@@ -11,6 +11,8 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
 import Icon, { IconSize } from "components/ads/Icon";
+import Tooltip from "components/ads/Tooltip";
+import { Position } from "@blueprintjs/core";
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -58,12 +60,20 @@ function BranchButton() {
       }}
       placement="top-start"
     >
-      <ButtonContainer className="t--branch-button">
-        <div className="icon">
-          <Icon name="git-branch" size={IconSize.XXXXL} />
-        </div>
-        <div className="label">{currentBranch}</div>
-      </ButtonContainer>
+      <Tooltip
+        boundary="window"
+        content={currentBranch as string}
+        disabled={!!(currentBranch && currentBranch.length < 12)}
+        hoverOpenDelay={1000}
+        position={Position.TOP_LEFT}
+      >
+        <ButtonContainer className="t--branch-button">
+          <div className="icon">
+            <Icon name="git-branch" size={IconSize.XXXXL} />
+          </div>
+          <div className="label">{currentBranch}</div>
+        </ButtonContainer>
+      </Tooltip>
     </Popover2>
   );
 }

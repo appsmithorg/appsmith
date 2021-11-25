@@ -16,7 +16,15 @@ const LinkText = styled.div`
   justify-content: center;
 `;
 
-export default function Link({ link, text }: { link: string; text: string }) {
+export default function Link({
+  color,
+  link,
+  text,
+}: {
+  color?: string;
+  link: string;
+  text: string;
+}) {
   const onClick = () => {
     window.open(link, "_blank");
   };
@@ -24,7 +32,7 @@ export default function Link({ link, text }: { link: string; text: string }) {
     <LinkText onClick={onClick}>
       <Text
         case={Case.UPPERCASE}
-        color={Colors.CHARCOAL}
+        color={color || Colors.CHARCOAL}
         type={TextType.P3}
         weight={FontWeight.BOLD}
       >
