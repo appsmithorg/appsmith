@@ -73,10 +73,8 @@ function NewActionButton(props: NewActionButtonProps) {
             : createNewApiName(actions, currentPageId || "");
 
         /* Removed Datasource Headers because they already exists in inherited headers so should not be duplicated to Newer APIs creation as datasource is already attached to it. While for older APIs we can start showing message on the UI from the API from messages key in Actions object. */
-        // const headers = datasource?.datasourceConfiguration?.headers ?? [];
         const defaultApiActionConfig: ApiActionConfig = {
           ...DEFAULT_API_ACTION_CONFIG,
-          // headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
           headers: DEFAULT_API_ACTION_CONFIG.headers,
         };
         let payload = {
