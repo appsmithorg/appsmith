@@ -3,10 +3,10 @@ name: Check tests in PR
 on:
   pull_request:
     branches: [release]
-    types: [opened, reopened, edited]
+    types: [opened, reopened, synchronize]
 
 jobs:
-  checks:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,10 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: |
-          contains(steps.changed-files.outputs.files_modified, 'cypress') == false &&
-          contains(steps.changed-files.outputs.files_modified, 'test') == false
+          contains(steps.changed-files.outputs.files, 'app/client') ||
+          contains(steps.changed-files.outputs.files, 'app/server') ||
+          contains(steps.changed-files.outputs.files, 'app/rts') &&
+          contains(steps.changed-files.outputs.files, 'cypress') == false &&
+          contains(steps.changed-files.outputs.files, 'test') == false
         # fail the run if no test files were edited
         run: exit 1
