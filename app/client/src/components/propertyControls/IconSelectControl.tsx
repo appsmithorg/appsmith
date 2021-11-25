@@ -72,6 +72,7 @@ const StyledMenuItem = styled(MenuItem)`
 
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
+  defaultIconName?: IconName;
 }
 
 export interface IconSelectControlState {
@@ -120,12 +121,13 @@ class IconSelectControl extends BaseControl<
   }
 
   public render() {
-    const { propertyValue: iconName } = this.props;
+    const { defaultIconName, propertyValue: iconName } = this.props;
     const { popoverTargetWidth } = this.state;
     return (
       <>
         <IconSelectContainerStyles targetWidth={popoverTargetWidth} />
         <TypedSelect
+          activeItem={iconName || defaultIconName || NONE}
           className="icon-select-container"
           itemListRenderer={this.renderMenu}
           itemPredicate={this.filterIconName}
@@ -140,9 +142,9 @@ class IconSelectControl extends BaseControl<
             className={Classes.TEXT_OVERFLOW_ELLIPSIS}
             elementRef={this.iconSelectTargetRef}
             fill
-            icon={iconName}
+            icon={iconName || defaultIconName}
             rightIcon="caret-down"
-            text={iconName || NONE}
+            text={iconName || defaultIconName || NONE}
           />
         </TypedSelect>
       </>

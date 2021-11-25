@@ -18,6 +18,7 @@ import {
   updateIconAlignment,
   getBasePropertyPath,
   hideByColumnType,
+  uniqueColumnNameValidation,
 } from "./propertyUtils";
 
 export default [
@@ -49,8 +50,19 @@ export default [
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
         dependencies: ["derivedColumns", "columnOrder"],
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: uniqueColumnNameValidation,
+            expected: {
+              type: "Unique Column Names",
+              example: "abc",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
         panelConfig: {
           editableTitle: true,
           titlePropertyName: "label",
@@ -679,6 +691,7 @@ export default [
                   ],
                   controlType: "ICON_SELECT",
                   customJSControl: "COMPUTE_VALUE",
+                  defaultIconName: "add",
                   isJSConvertible: true,
                   isBindProperty: false,
                   isTriggerProperty: false,
@@ -806,6 +819,7 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
+                  defaultValue: ButtonVariantTypes.PRIMARY,
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
