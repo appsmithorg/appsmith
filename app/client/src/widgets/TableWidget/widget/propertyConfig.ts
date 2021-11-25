@@ -189,6 +189,9 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.BOOLEAN,
+                  },
                 },
                 {
                   propertyName: "isDisabled",
@@ -205,6 +208,9 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.BOOLEAN,
+                  },
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
@@ -228,6 +234,9 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.BOOLEAN,
+                  },
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
@@ -510,6 +519,8 @@ export default [
                   ],
                   defaultValue: "LEFT",
                   isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -517,14 +528,18 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  isBindProperty: true,
-                  isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "LEFT",
+                      allowedValues: ["LEFT", "CENTER", "RIGHT"],
+                    },
+                  },
                 },
                 {
                   propertyName: "textSize",
                   label: "Text Size",
                   controlType: "DROP_DOWN",
-                  isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   options: [
                     {
@@ -564,8 +579,22 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "PARAGRAPH",
+                      allowedValues: [
+                        "HEADING1",
+                        "HEADING2",
+                        "HEADING3",
+                        "PARAGRAPH",
+                        "PARAGRAPH2",
+                      ],
+                    },
+                  },
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                 },
                 {
                   propertyName: "fontStyle",
@@ -585,7 +614,6 @@ export default [
                       value: "UNDERLINE",
                     },
                   ],
-                  isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -595,6 +623,13 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+                    },
+                  },
                 },
                 {
                   propertyName: "verticalAlignment",
@@ -614,8 +649,6 @@ export default [
                       value: "BOTTOM",
                     },
                   ],
-                  defaultValue: "LEFT",
-                  isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -625,12 +658,18 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: ["TOP", "CENTER", "BOTTOM"],
+                    },
+                  },
                 },
                 {
                   propertyName: "textColor",
                   label: "Text Color",
                   controlType: "COLOR_PICKER",
-                  isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -638,14 +677,20 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
                 {
                   propertyName: "cellBackground",
                   label: "Cell Background",
                   controlType: "COLOR_PICKER",
-                  isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -653,8 +698,15 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
               ],
             },
@@ -770,7 +822,6 @@ export default [
                   label: "Button Color",
                   controlType: "COLOR_PICKER",
                   helpText: "Changes the color of the button",
-                  isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnsHook,
@@ -787,13 +838,19 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
                 {
                   propertyName: "buttonVariant",
                   label: "Button Variant",
                   controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
                   helpText: "Sets the variant of the icon button",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
@@ -822,6 +879,7 @@ export default [
                   defaultValue: ButtonVariantTypes.PRIMARY,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   validation: {
                     type: ValidationTypes.TEXT,
                     params: {
@@ -838,7 +896,6 @@ export default [
                   propertyName: "borderRadius",
                   label: "Border Radius",
                   customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
                   helpText:
                     "Rounds the corners of the icon button's outer border edge",
                   controlType: "BORDER_RADIUS_OPTIONS",
@@ -859,6 +916,7 @@ export default [
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
                   validation: {
                     type: ValidationTypes.TEXT,
                     params: {
@@ -873,7 +931,6 @@ export default [
                     "Enables you to cast a drop shadow from the frame of the widget",
                   controlType: "BOX_SHADOW_OPTIONS",
                   customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
@@ -884,6 +941,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  isJSConvertible: true,
                   isBindProperty: false,
                   isTriggerProperty: false,
                   validation: {
@@ -906,7 +964,6 @@ export default [
                   label: "Shadow Color",
                   controlType: "COLOR_PICKER",
                   customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
@@ -919,12 +976,18 @@ export default [
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
                 {
                   propertyName: "buttonLabelColor",
                   label: "Label Color",
                   controlType: "COLOR_PICKER",
-                  isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.WHITE,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -940,6 +1003,13 @@ export default [
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isJSConvertible: true,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
 
                 {
@@ -1109,12 +1179,12 @@ export default [
                       })),
                     ),
                   }),
-                  isJSConvertible: true,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: true,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -1218,7 +1288,6 @@ export default [
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.BOOLEAN },
                             updateHook: updateDerivedColumnsHook,
-
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1235,7 +1304,6 @@ export default [
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.BOOLEAN },
                             updateHook: updateDerivedColumnsHook,
-
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1271,7 +1339,6 @@ export default [
                             isBindProperty: false,
                             isTriggerProperty: false,
                             updateHook: updateDerivedColumnsHook,
-
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1559,6 +1626,12 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+        },
       },
       {
         propertyName: "textColor",
@@ -1569,6 +1642,12 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+        },
       },
       {
         propertyName: "textSize",
@@ -1608,6 +1687,19 @@ export default [
             icon: "PARAGRAPH_TWO",
           },
         ],
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            default: "PARAGRAPH",
+            allowedValues: [
+              "HEADING1",
+              "HEADING2",
+              "HEADING3",
+              "PARAGRAPH",
+              "PARAGRAPH2",
+            ],
+          },
+        },
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,

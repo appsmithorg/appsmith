@@ -184,6 +184,12 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
+        cellBackground: {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
         defaultSearchText: {
           type: "TEXT",
         },
@@ -199,6 +205,47 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
           type: "FUNCTION",
+        },
+        "primaryColumns.createdAt.cellBackground": {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.createdAt.fontStyle": {
+          params: {
+            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.createdAt.horizontalAlignment": {
+          params: {
+            allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            default: "LEFT",
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.createdAt.isCellVisible": {
+          type: "BOOLEAN",
+        },
+        "primaryColumns.createdAt.textColor": {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.createdAt.textSize": {
+          params: {
+            allowedValues: [
+              "HEADING1",
+              "HEADING2",
+              "HEADING3",
+              "PARAGRAPH",
+              "PARAGRAPH2",
+            ],
+            default: "PARAGRAPH",
+          },
+          type: "TEXT",
         },
         isVisible: {
           type: "BOOLEAN",
@@ -219,11 +266,101 @@ describe("getAllPathsFromPropertyConfig", () => {
             default: true,
           },
         },
+        "primaryColumns.createdAt.verticalAlignment": {
+          params: {
+            allowedValues: ["TOP", "CENTER", "BOTTOM"],
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.name.cellBackground": {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.name.fontStyle": {
+          params: {
+            allowedValues: ["BOLD", "ITALIC", "UNDERLINE"],
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.name.horizontalAlignment": {
+          params: {
+            allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            default: "LEFT",
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.name.isCellVisible": {
+          type: "BOOLEAN",
+        },
+        "primaryColumns.name.textColor": {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.name.textSize": {
+          params: {
+            allowedValues: [
+              "HEADING1",
+              "HEADING2",
+              "HEADING3",
+              "PARAGRAPH",
+              "PARAGRAPH2",
+            ],
+            default: "PARAGRAPH",
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.name.verticalAlignment": {
+          params: {
+            allowedValues: ["TOP", "CENTER", "BOTTOM"],
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.status.buttonColor": {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.status.buttonLabelColor": {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
+        "primaryColumns.status.isCellVisible": {
+          type: "BOOLEAN",
+        },
+        "primaryColumns.status.isDisabled": {
+          type: "BOOLEAN",
+        },
         tableData: {
           type: "OBJECT_ARRAY",
           params: {
             default: [],
           },
+        },
+        textColor: {
+          params: {
+            regex: /^(?![<|{{]).+/,
+          },
+          type: "TEXT",
+        },
+        textSize: {
+          params: {
+            allowedValues: [
+              "HEADING1",
+              "HEADING2",
+              "HEADING3",
+              "PARAGRAPH",
+              "PARAGRAPH2",
+            ],
+            default: "PARAGRAPH",
+          },
+          type: "TEXT",
         },
       },
     };
