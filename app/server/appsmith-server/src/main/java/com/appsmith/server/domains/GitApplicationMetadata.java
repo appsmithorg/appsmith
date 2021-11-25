@@ -13,6 +13,9 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     String branchName;
 
+    // Git default branch corresponding to the remote git repo to which the application is connected to
+    String defaultBranchName;
+
     // Git remote url will be used while pushing and pulling changes
     String remoteUrl;
 

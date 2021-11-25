@@ -369,7 +369,7 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
             TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
             Git git = Git.open(baseRepoPath.toFile());
-            List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+            List<Ref> refList = git.branchList().call();
             String defaultBranch = null;
 
             // Show remote/all the branches depending upon the listMode
