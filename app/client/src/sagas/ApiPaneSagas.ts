@@ -158,8 +158,12 @@ function* handleUpdateBodyContentType(
   }
 
   // update the api content type so it can be persisted.
+  let formData = cloneDeep(values.actionConfiguration.formData);
+  if (formData === undefined) formData = {};
+  formData["apiContentType"] = title;
+
   yield put(
-    change(API_EDITOR_FORM_NAME, "actionConfiguration.apiContentType", title),
+    change(API_EDITOR_FORM_NAME, "actionConfiguration.formData", formData),
   );
 
   if (displayFormatValue === POST_BODY_FORMAT_OPTIONS.RAW) {

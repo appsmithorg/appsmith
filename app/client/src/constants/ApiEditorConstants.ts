@@ -64,7 +64,9 @@ export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
   body: "",
-  apiContentType: POST_BODY_FORMAT_OPTIONS.NONE,
+  formData: {
+    apiContentType: POST_BODY_FORMAT_OPTIONS.NONE,
+  },
   pluginSpecifiedTemplates: [
     {
       // JSON smart substitution
