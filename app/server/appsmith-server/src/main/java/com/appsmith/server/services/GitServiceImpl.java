@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
@@ -17,7 +18,6 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
@@ -40,6 +40,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -1119,12 +1120,12 @@ public class GitServiceImpl implements GitService {
                     Mono<Path> pathToFile = checkIfRepoIsClean(defaultApplicationId, sourceBranch, repoSuffix)
                             .flatMap(isClean -> {
                                 if (Boolean.FALSE.equals(isClean)) {
-                                    return Mono.error(new NotSupportedException(sourceBranch));
+                                    throw Exceptions.propagate(new NotSupportedException(sourceBranch));
                                 }
                                 return checkIfRepoIsClean(defaultApplicationId, destinationBranch, repoSuffix)
                                         .map(cleanStatus -> {
                                             if (Boolean.FALSE.equals(cleanStatus)) {
-                                                return new NotSupportedException(destinationBranch);
+                                                throw Exceptions.propagate(new NotSupportedException(destinationBranch));
                                             }
                                             return cleanStatus;
                                         });
@@ -1228,12 +1229,12 @@ public class GitServiceImpl implements GitService {
                     return checkIfRepoIsClean(defaultApplicationId, sourceBranch, repoSuffix)
                             .flatMap(isClean -> {
                                 if (Boolean.FALSE.equals(isClean)) {
-                                    return Mono.error(new NotSupportedException(sourceBranch));
+                                    throw Exceptions.propagate(new NotSupportedException(sourceBranch));
                                 }
                                 return checkIfRepoIsClean(defaultApplicationId, destinationBranch, repoSuffix)
                                         .map(cleanStatus -> {
                                             if (Boolean.FALSE.equals(cleanStatus)) {
-                                                return new NotSupportedException(destinationBranch);
+                                                throw Exceptions.propagate(new NotSupportedException(destinationBranch));
                                             }
                                             return cleanStatus;
                                         });
@@ -1248,7 +1249,7 @@ public class GitServiceImpl implements GitService {
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error));
                             })
-                            .flatMap(isClean -> gitExecutor.isMergeBranch(repoSuffix, sourceBranch, destinationBranch))
+                            .then(gitExecutor.isMergeBranch(repoSuffix, sourceBranch, destinationBranch))
                             .onErrorResume(error -> {
                                 try {
                                     return gitExecutor.resetToLastCommit(repoSuffix, destinationBranch)
