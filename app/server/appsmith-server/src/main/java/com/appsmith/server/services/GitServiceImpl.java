@@ -1224,7 +1224,7 @@ public class GitServiceImpl implements GitService {
                                 if (error instanceof NotSupportedException) {
                                     return Mono.error(
                                             new AppsmithException(AppsmithError.GIT_ACTION_FAILED,
-                                                    "merge --dry-run",
+                                                    "merge --no-commit --no-ff",
                                                     "There are uncommitted changes present in your local branch " + error.getMessage() +". Please commit them first and then try again"));
                                 }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error));

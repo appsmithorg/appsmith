@@ -775,18 +775,17 @@ public class ImportExportApplicationService {
 
                             existingActionCollections.stream()
                                     .filter(collection -> collection.getGitSyncId() != null)
-                                    .forEach(collection -> savedActionCollectionGitIdToCollectionsMap.put(actionCollection.getGitSyncId(), actionCollection));
+                                    .forEach(collection -> savedActionCollectionGitIdToCollectionsMap.put(collection.getGitSyncId(), collection));
                             // Check if the action has gitSyncId and if it's already in DB
                             if (actionCollection.getGitSyncId() != null
                                     && savedActionCollectionGitIdToCollectionsMap.containsKey(actionCollection.getGitSyncId())) {
 
                                 //Since the resource is already present in DB, just update resource
                                 ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
-                                actionCollection.setId(existingActionCollection.getId());
                                 BeanCopyUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
                                 return Mono.zip(
                                         Mono.just(importedActionCollectionId),
-                                        actionCollectionService.update(actionCollection.getId(), existingActionCollection)
+                                        actionCollectionService.update(existingActionCollection.getId(), existingActionCollection)
                                 );
                             } else if (importedApplication.getGitApplicationMetadata() != null) {
                                 final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
