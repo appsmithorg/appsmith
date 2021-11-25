@@ -60,7 +60,7 @@ mount_letsencrypt_directory() {
 
 configure_supervisord() {
   SUPERVISORD_CONF_PATH="/opt/appsmith/templates/supervisord"
-  if [[ -z "$(ls -A /etc/supervisor/conf.d)" ]]; then
+  if [[ -n "$(ls -A /etc/supervisor/conf.d)" ]]; then
     rm -f "/etc/supervisor/conf.d/"*
   fi
 
