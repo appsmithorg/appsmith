@@ -20,10 +20,14 @@ jobs:
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         if: |
-          contains(steps.changed-files.outputs.files, 'app/client') ||
-          contains(steps.changed-files.outputs.files, 'app/server') ||
-          contains(steps.changed-files.outputs.files, 'app/rts') &&
+          (
+            contains(steps.changed-files.outputs.files, 'app/client') ||
+            contains(steps.changed-files.outputs.files, 'app/server') ||
+            contains(steps.changed-files.outputs.files, 'app/rts')
+          ) &&
           contains(steps.changed-files.outputs.files, 'cypress') == false &&
           contains(steps.changed-files.outputs.files, 'test') == false
         # fail the run if no test files were edited
-        run: exit 1
+        run: |
+          echo steps.changed-files.outputs.files;
+          exit 1
