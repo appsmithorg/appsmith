@@ -476,15 +476,21 @@ public class GitExecutorImpl implements GitExecutor {
                 git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
                 MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
-                git.close();
                 return mergeResult.getMergeStatus().name();
             } catch (GitAPIException e) {
                 //On merge conflicts abort the merge => git merge --abort
                 git.getRepository().writeMergeCommitMsg(null);
                 git.getRepository().writeMergeHeads(null);
-                Git.wrap(git.getRepository()).reset().setMode(ResetCommand.ResetType.HARD).call();
-                git.close();
-                return e.getMessage();
+                throw new Exception(e);
+            }
+        })
+        .onErrorResume(error -> {
+            try {
+                return resetToLastCommit(repoSuffix, destinationBranch)
+                        .thenReturn(error.getMessage());
+            } catch (GitAPIException | IOException e) {
+                log.error("Error while hard resetting to latest commit {0}", e);
+                return Mono.error(e);
             }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
@@ -530,16 +536,22 @@ public class GitExecutorImpl implements GitExecutor {
                 }
             }
 
-            MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).setCommit(false).call();
+            MergeResult mergeResult = git.merge()
+                    .include(git.getRepository().findRef(sourceBranch))
+                    .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+                    .setCommit(false)
+                    .call();
 
             MergeStatusDTO mergeStatus = new MergeStatusDTO();
             if(mergeResult.getMergeStatus().isSuccessful()) {
                 mergeStatus.setMergeAble(true);
+                mergeStatus.setStatus(mergeResult.getMergeStatus().name());
             } else {
                 //If there aer conflicts add the conflicting file names to the response structure
                 mergeStatus.setMergeAble(false);
                 List<String> mergeConflictFiles = new ArrayList<>(mergeResult.getConflicts().keySet());
                 mergeStatus.setConflictingFiles(mergeConflictFiles);
+                mergeStatus.setStatus(mergeResult.getMergeStatus().name());
             }
             return mergeStatus;
         })
