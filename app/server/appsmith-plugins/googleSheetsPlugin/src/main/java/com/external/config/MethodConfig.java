@@ -58,25 +58,25 @@ public class MethodConfig {
                         }
                         break;
                     case "range":
-                        this.spreadsheetRange = propertyValue;
+                        this.spreadsheetRange = propertyValue.trim();
                         break;
                     case "spreadsheetName":
                         this.spreadsheetName = propertyValue;
                         break;
                     case "tableHeaderIndex":
-                        this.tableHeaderIndex = propertyValue;
+                        this.tableHeaderIndex = propertyValue.trim();
                         break;
                     case "queryFormat":
                         this.queryFormat = propertyValue;
                         break;
                     case "rowLimit":
-                        this.rowLimit = propertyValue;
+                        this.rowLimit = propertyValue.trim();
                         break;
                     case "rowOffset":
-                        this.rowOffset = propertyValue;
+                        this.rowOffset = propertyValue.trim();
                         break;
                     case "rowIndex":
-                        this.rowIndex = propertyValue;
+                        this.rowIndex = propertyValue.trim();
                         break;
                     case "sheetName":
                         this.sheetName = propertyValue;
