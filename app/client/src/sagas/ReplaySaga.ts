@@ -42,6 +42,7 @@ import {
   findFieldInfo,
   getReplayEntityType,
   ReplayEntityType,
+  REPLAY_FOCUS_DELAY,
 } from "entities/Replay/replayUtils";
 import { setActionProperty, updateAction } from "actions/pluginActionActions";
 import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
@@ -206,10 +207,10 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         break;
       }
       case ReplayEntityType.ACTION:
-        yield replayActionSaga(replayEntity, replay);
+        yield call(replayActionSaga, replayEntity, replay);
         break;
       case ReplayEntityType.DATASOURCE: {
-        yield replayDatasourceSaga(replayEntity, replay);
+        yield call(replayDatasourceSaga, replayEntity, replay);
         break;
       }
       case ReplayEntityType.JSACTION:
@@ -310,8 +311,9 @@ function* replayActionSaga(replayEntity: any, replay: any) {
     ReplayEntityType.ACTION,
   );
   const { updates = [] } = replay;
-  yield call(switchTab, currentTab);
-  yield delay(100);
+  const didSwitch: boolean = yield call(switchTab, currentTab);
+  //Delay change if tab needs to be switched
+  if (didSwitch) yield delay(REPLAY_FOCUS_DELAY);
   if (isQueryAction(replayEntity)) {
     yield put(changeQuery(replayEntity.id, false, replayEntity));
   } else {
@@ -352,8 +354,9 @@ function* replayDatasourceSaga(replayEntity: any, replay: any) {
   );
   const { updates = [] } = replay;
   const { parentSection = "" } = fieldInfo;
-  yield call(expandAccordion, parentSection);
-  yield delay(100);
+  const didExpand: boolean = yield call(expandAccordion, parentSection);
+  //Delay change if accordion needs to be expanded
+  if (didExpand) yield delay(REPLAY_FOCUS_DELAY);
   yield put(changeDatasource({ datasource: replayEntity, isReplay: true }));
   highlightReplayElement(
     updates.map((u: ReplayEditorUpdate<Datasource>) => u.modifiedProperty),

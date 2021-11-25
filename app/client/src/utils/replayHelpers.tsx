@@ -2,7 +2,13 @@ import React from "react";
 
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { modText, flashElementsById, isMac, flashElement } from "./helpers";
+import {
+  modText,
+  flashElementsById,
+  isMac,
+  flashElement,
+  hasClass,
+} from "./helpers";
 import localStorage from "./localStorage";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -146,16 +152,27 @@ export function highlightReplayElement(configProperties: Array<string> = []) {
   elements.forEach((element) => flashElement(element));
 }
 
-export function* switchTab(replayId: string) {
-  if (!replayId) return;
-  (document.querySelector(
+export function switchTab(replayId: string): boolean {
+  if (!replayId) return false;
+  const element = document.querySelector(
     `[data-replay-id="${replayId}"]`,
-  ) as HTMLElement)?.click();
+  ) as HTMLElement;
+  if (!element) return false;
+  if (hasClass(element, "react-tabs__tab--selected")) return false;
+  element?.click();
+  return true;
 }
 
-export function expandAccordion(replayId: string) {
-  if (!replayId) return;
-  (document
-    .querySelector(`[data-replay-id="section-${replayId}"]`)
-    ?.querySelector(".bp3-icon-chevron-down") as HTMLElement)?.click();
+export function expandAccordion(replayId: string): boolean {
+  if (!replayId) return false;
+  const element = document.querySelector(
+    `[data-replay-id="section-${replayId}"]`,
+  );
+  if (!element) return false;
+  const accordion = element.querySelector(
+    ".bp3-icon-chevron-down",
+  ) as HTMLElement;
+  if (!accordion) return false;
+  accordion.click();
+  return true;
 }
