@@ -29,6 +29,7 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 
 let pageidcopy = " ";
+const chainStart = Symbol();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -3240,21 +3241,35 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("typeValueNValidate", (fieldName, valueToType) => {
-  cy.xpath(
-    "//p[text()='" +
-      fieldName +
-      "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
-  )
-    .last()
-    .then((textEle) => {
-      const $ele = Cypress.$(textEle);
-      $ele.empty();
-      cy.wrap(textEle)
-        .closest("div")
-        .click()
-        .type(valueToType, { parseSpecialCharSequences: false });
-    });
+Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
+  if (fieldName) {
+    cy.xpath(
+      "//p[text()='" +
+        fieldName +
+        "']/following-sibling::div//div[@class='CodeMirror-code']//span/span",
+    )
+      .then((textEle) => {
+        cy.wrap(textEle)
+          .last()
+          .invoke("text", "");
+      })
+      .closest("div")
+      .click()
+      .type(valueToType, { parseSpecialCharSequences: false });
+  } else {
+    cy.xpath("//div//div[@class='CodeMirror-code']//span/span")
+      .then((textEle) => {
+        cy.wrap(textEle)
+          .last()
+          .invoke("text", "");
+      })
+      .closest("div")
+      .click()
+      .type(valueToType, { parseSpecialCharSequences: false });
+  }
+
+  // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea")
+  //   .scrollIntoView().clear({force: true}).type(valueToType, { parseSpecialCharSequences: false });
 
   cy.EvaluateCurrentValue(valueToType);
 
@@ -3272,29 +3287,75 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
   });
 });
 
+Cypress.Commands.add("deleteEntitybyName", (entityNameinLeftSidebar) => {
+  cy.xpath(
+    "//div[text()='" +
+      entityNameinLeftSidebar +
+      "']/ancestor::div[contains(@class, 't--entity')]//span[contains(@class, 'entity-context-menu')]//div",
+  )
+    .first()
+    .click({ force: true });
+
+  cy.xpath(generatePage.deleteMenuItem).click();
+});
+
 Cypress.Commands.add(
-  "deleteEntitybyName",
-  (entityNameinLeftSidebar, pageOrWdiget = "page" | "widget") => {
-    if (pageOrWdiget == "page") {
+  "EvaluatFieldValue",
+  (fieldName = "", currentValue = "") => {
+    let toValidate = false;
+    if (currentValue) toValidate = true;
+
+    if (fieldName) {
       cy.xpath(
-        "//div[text()='" +
-          entityNameinLeftSidebar +
-          "']/ancestor::div[contains(@class, 't--entity page')]//span[contains(@class, 'entity-context-menu')]//div",
-      )
-        .first()
-        .click({ force: true });
-    } else if (pageOrWdiget == "widget") {
-      cy.xpath(
-        "//div[text()='" +
-          entityNameinLeftSidebar +
-          "']/ancestor::div[contains(@class, 't--entity widget')]//span[contains(@class, 'entity-context-menu')]//div",
-      )
-        .first()
-        .click({ force: true });
+        "//p[text()='" +
+          fieldName +
+          "']/following-sibling::div//div[@class='CodeMirror-code']",
+      ).click();
+    } else {
+      cy.xpath("//div[@class='CodeMirror-code']").click();
     }
-    cy.xpath(generatePage.deleteMenuItem).click();
+
+    cy.wait(2000);
+    const val = cy
+      .get(commonlocators.evaluatedCurrentValue)
+      .first()
+      .should("be.visible")
+      .invoke("text");
+
+    if (toValidate) expect(val).to.eq(currentValue);
+
+    return val;
   },
 );
+
+cy.all = function(...commands) {
+  const _ = Cypress._;
+  const chain = cy.wrap(null, { log: false });
+  const stopCommand = _.find(cy.queue.commands, {
+    attributes: { chainerId: chain.chainerId },
+  });
+  const startCommand = _.find(cy.queue.commands, {
+    attributes: { chainerId: commands[0].chainerId },
+  });
+  const p = chain.then(() => {
+    return _(commands)
+      .map((cmd) => {
+        return cmd[chainStart]
+          ? cmd[chainStart].attributes
+          : _.find(cy.queue.commands, {
+              attributes: { chainerId: cmd.chainerId },
+            }).attributes;
+      })
+      .concat(stopCommand.attributes)
+      .slice(1)
+      .flatMap((cmd) => {
+        return cmd.prev.get("subject");
+      })
+      .value();
+  });
+  p[chainStart] = startCommand;
+  return p;
+};
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
 //   const clearedText = '{selectall}{backspace}'+`${text}`;

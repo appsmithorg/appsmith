@@ -21,7 +21,7 @@
     "queryCreate": "//div[contains(@class, 't--template-menu')]//div[text()='Create']",
     "queryUpdate": "//div[contains(@class, 't--template-menu')]//div[text()='Update']",
     "queryDelete": "//div[contains(@class, 't--template-menu')]//div[text()='Delete']",
-    "codeTextArea": "div.CodeMirror-code",
+    "codeTextArea": "//div[@class='CodeMirror-code']//span/span",
     "countText": "//span[contains(@class, 'cs-text')][text()='Result:']/span",
     "searchFilefield": "//input[@placeholder='Search File Prefix']",
     "copyURLicon": "//button/span[@icon='link']",
@@ -30,5 +30,6 @@
     "Query1": "//div[contains(@class, 't--entity-name')][text()='Query1']",
     "suggestedWidgetDropdown": "//div[contains(@class, 't--suggested-widget-DROP_DOWN_WIDGET')]",
     "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
-    "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']"
+    "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
+    "mongoFormFind": "//div[text()='listingsAndReviews']/ancestor::div/following-sibling::div[contains(@class, 'entity-context-menu')]"
 }
