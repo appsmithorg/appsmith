@@ -24,12 +24,16 @@ function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
 
 function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
   const _config = config as PropertyPaneControlConfig;
+  const controls = ["INPUT_TEXT"];
 
-  if (_config.isJSConvertible && !_config.isTriggerProperty) {
+  if (
+    (_config.isJSConvertible || controls.includes(_config.controlType)) &&
+    !_config.isTriggerProperty
+  ) {
     if (!_config.isBindProperty)
-      return `${_config.propertyName}: isBindProperty should be true if isJSConvertible is true`;
+      return `${_config.propertyName}: isBindProperty should be true if isJSConvertible is true or when control type is one of [${controls}]`;
     if (!_config.validation)
-      return `${_config.propertyName}: validation is should be defined if isJSConvertible is true`;
+      return `${_config.propertyName}: validation should be defined if isJSConvertible is true  or when control type is one of [${controls}]`;
   }
 
   if (_config.validation !== undefined) {
