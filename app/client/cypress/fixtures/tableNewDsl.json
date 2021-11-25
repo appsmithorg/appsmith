@@ -2,7 +2,7 @@
     "dsl": {
         "widgetName": "MainContainer",
         "backgroundColor": "none",
-        "rightColumn": 776,
+        "rightColumn": 656,
         "snapColumns": 64,
         "detachFromLayout": true,
         "widgetId": "0",
@@ -13,7 +13,7 @@
         "parentRowSpace": 1,
         "type": "CANVAS_WIDGET",
         "canExtend": true,
-        "version": 44,
+        "version": 46,
         "minHeight": 1292,
         "parentColumnSpace": 1,
         "dynamicBindingPathList": [],
@@ -21,19 +21,21 @@
         "children": [
             {
                 "widgetName": "Table1",
-                "rightColumn": 49,
-                "widgetId": "sb070qr2ir",
+                "columnOrder": [
+                    "id",
+                    "email",
+                    "userName",
+                    "productName",
+                    "orderAmount"
+                ],
+                "isVisibleDownload": true,
                 "topRow": 48,
-                "bottomRow": 72,
+                "bottomRow": 71,
                 "parentRowSpace": 10,
-                "tableData": "{{\n[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]\n}}",
-                "isVisible": true,
-                "label": "Data",
-                "searchKey": "",
+                "isSortable": true,
                 "type": "TABLE_WIDGET",
-                "parentId": "0",
-                "isLoading": false,
                 "parentColumnSpace": 74,
+                "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [
                     {
@@ -147,28 +149,27 @@
                         "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.orderAmount))}}"
                     }
                 },
-                "migrated": true,
-                "dynamicTriggerPathList": [],
-                "textSize": "PARAGRAPH",
-                "horizontalAlignment": "LEFT",
-                "verticalAlignment": "CENTER",
-                "fontStyle": "REGULAR",
-                "derivedColumns": {},
-                "version": 3,
-                "isVisibleSearch": true,
-                "isVisibleFilters": true,
-                "isVisibleDownload": true,
-                "isVisiblePagination": true,
                 "delimiter": ",",
-                "columnOrder": [
-                    "id",
-                    "email",
-                    "userName",
-                    "productName",
-                    "orderAmount"
-                ],
+                "migrated": true,
+                "derivedColumns": {},
+                "rightColumn": 57,
+                "textSize": "PARAGRAPH",
+                "widgetId": "sb070qr2ir",
+                "isVisibleFilters": true,
+                "tableData": "{{\n[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]\n}}",
+                "isVisible": true,
+                "label": "Data",
+                "searchKey": "",
+                "fontStyle": "REGULAR",
+                "version": 3,
+                "parentId": "0",
+                "isLoading": false,
+                "horizontalAlignment": "LEFT",
+                "isVisibleSearch": true,
+                "isVisiblePagination": true,
+                "verticalAlignment": "CENTER",
                 "columnSizeMap": {
-                    "email": 220
+                    "email": 261
                 }
             },
             {
@@ -184,6 +185,7 @@
                 "type": "TEXT_WIDGET",
                 "fontStyle": "BOLD",
                 "textColor": "#231F20",
+                "version": 1,
                 "hideCard": false,
                 "parentId": "0",
                 "isLoading": false,
@@ -197,8 +199,7 @@
                 ],
                 "fontSize": "PARAGRAPH",
                 "text": "{{Table1.triggeredRow.userName}}",
-                "key": "r76o6tqjaz",
-                "version": 1
+                "key": "r76o6tqjaz"
             }
         ]
     }

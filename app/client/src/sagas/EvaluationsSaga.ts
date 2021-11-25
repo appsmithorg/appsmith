@@ -426,6 +426,7 @@ export function* updateReplayEnitiySaga(
     entity: any;
   }>,
 ) {
+  //Delay updates to replay object to not persist every keystroke
   yield delay(REPLAY_DELAY);
   const { entity, entityId } = actionPayload.payload;
   const workerResponse = yield call(

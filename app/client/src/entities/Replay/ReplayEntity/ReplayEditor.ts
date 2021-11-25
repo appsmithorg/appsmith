@@ -26,6 +26,11 @@ export default class ReplayEditor<
     );
   }
 
+  /*
+    The should get us the modified property (configProperty from editor, settings and form json files), the updated value and the kind of update.
+    The modifiedProperty would be used to highlight the field that has been replayed. We might need to use the kind in future to display toast
+    messages or even highlight based on the kind.
+  */
   public getChanges(diff: Diff<T, T>, isUndo: boolean): ReplayEditorUpdate<T> {
     const { kind, path } = diff;
     if (diff.kind === "N") {
