@@ -147,6 +147,7 @@ export default function Merge() {
           options={branchList}
           selected={selectedBranchOption}
           showLabelOnly
+          showTooltip
           width={"220px"}
         />
 

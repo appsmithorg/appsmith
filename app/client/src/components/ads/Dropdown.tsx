@@ -1,7 +1,13 @@
-import React, { useState, useEffect, useCallback, ReactElement } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  ReactElement,
+  useRef,
+} from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
-import Text, { TextType } from "./Text";
+import Text, { TextProps, TextType } from "./Text";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
@@ -10,6 +16,9 @@ import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
 import { noop } from "lodash";
 import { createMessage, NOT_OPTIONS } from "constants/messages";
+import { useTextWidth } from "@imagemarker/use-text-width";
+import Tooltip from "components/ads/Tooltip";
+import { log } from "loglevel";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -82,6 +91,7 @@ export type DropdownProps = CommonComponentProps &
     hideSubText?: boolean;
     boundary?: PopperBoundary;
     defaultIcon?: IconName;
+    showTooltip?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -273,11 +283,23 @@ const OptionWrapper = styled.div<{
     }
   }
 
+  .bp3-popover-wrapper {
+    width: 100%;
+  }
+
   .${Classes.TEXT} {
     color: ${(props) =>
       props.selected
         ? props.theme.colors.dropdown.menu.hoverText
         : props.theme.colors.dropdown.menu.text};
+  }
+
+  .${Classes.TEXT}.in-tooltip {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipse;
+    text-overflow: ellipsis;
+    display: block;
   }
 
   .${Classes.ICON} {
@@ -427,6 +449,37 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
+function TooltipWrappedText(
+  props: TextProps & {
+    showTooltip?: boolean;
+    label: string;
+    wrapperWidth: number;
+  },
+) {
+  const { label, showTooltip = false, wrapperWidth, ...textProps } = props;
+  const ref = useRef<HTMLSpanElement>(null);
+  const width = useTextWidth({ ref });
+  let tooltipDisabled = true;
+  if (showTooltip) {
+    tooltipDisabled = wrapperWidth > width;
+  }
+  log("tooltip flag", tooltipDisabled);
+  log(width, wrapperWidth);
+  const className = tooltipDisabled ? "" : "in-tooltip";
+  return (
+    <Tooltip
+      boundary="window"
+      content={label}
+      disabled={tooltipDisabled}
+      position={Position.TOP}
+    >
+      <Text className={className} ref={ref} {...textProps}>
+        {label}
+      </Text>
+    </Tooltip>
+  );
+}
+
 function DefaultDropDownValueNode({
   errorMsg,
   hideSubText,
@@ -516,9 +569,18 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     onSearch && onSearch(searchStr);
   };
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [wrapperWidth, setWrapperWidth] = useState(0);
+  useEffect(() => {
+    if (wrapperRef.current) {
+      setWrapperWidth(wrapperRef.current.offsetWidth);
+    }
+  }, []);
+
   return (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
+      ref={wrapperRef}
       width={optionWidth}
     >
       {props.enableSearch && (
@@ -564,14 +626,24 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               ) : null}
 
               {props.showLabelOnly ? (
-                <Text type={TextType.P1}>{option.label}</Text>
+                <TooltipWrappedText
+                  label={option.label as string}
+                  showTooltip={props.showTooltip}
+                  type={TextType.P1}
+                  wrapperWidth={wrapperWidth}
+                />
               ) : option.label && option.value ? (
                 <LabelWrapper className="label-container">
                   <Text type={TextType.H5}>{option.value}</Text>
                   <Text type={TextType.P1}>{option.label}</Text>
                 </LabelWrapper>
               ) : (
-                <Text type={TextType.P1}>{option.value}</Text>
+                <TooltipWrappedText
+                  label={option.label as string}
+                  showTooltip={props.showTooltip}
+                  type={TextType.P1}
+                  wrapperWidth={wrapperWidth}
+                />
               )}
 
               {option.subText ? (
