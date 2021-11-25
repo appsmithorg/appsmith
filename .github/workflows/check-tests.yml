@@ -22,4 +22,5 @@ jobs:
         if: |
           contains(steps.changed-files.outputs.files_modified, 'cypress') == false &&
           contains(steps.changed-files.outputs.files_modified, 'test') == false
+        # fail the run if no test files were edited
         run: exit 1
