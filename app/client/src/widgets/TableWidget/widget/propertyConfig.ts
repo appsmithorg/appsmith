@@ -20,6 +20,10 @@ import {
   hideByColumnType,
   uniqueColumnNameValidation,
 } from "./propertyUtils";
+import {
+  createMessage,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+} from "constants/messages";
 
 export default [
   {
@@ -1387,8 +1391,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        helpText:
-          "It stores the total no. of rows in the table. Helps in calculating the no. of pages that further allows to enable or disable the next/previous control in pagination.",
+        helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
         propertyName: "totalRecordsCount",
         label: "Total Record Count",
         controlType: "INPUT_TEXT",
