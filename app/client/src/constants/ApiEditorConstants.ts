@@ -40,7 +40,7 @@ export enum ApiContentTypes {
   JSON = "json",
   FORM_URLENCODED = "x-www-form-urlencoded",
   MULTIPART_FORM_DATA = "multi-part/form-data",
-  RAW = "raw",
+  RAW = "text/plain",
 }
 
 // This lists all the support content types in the API body. The value field is the
@@ -53,7 +53,7 @@ export const POST_BODY_FORMAT_OPTIONS: {
   JSON: "application/json",
   FORM_URLENCODED: "application/x-www-form-urlencoded",
   MULTIPART_FORM_DATA: "multipart/form-data",
-  RAW: "raw",
+  RAW: "text/plain",
 };
 
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
