@@ -31,9 +31,17 @@ function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
     !_config.isTriggerProperty
   ) {
     if (!_config.isBindProperty)
-      return `${_config.propertyName}: isBindProperty should be true if isJSConvertible is true or when control type is one of [${controls}]`;
+      return `${
+        _config.propertyName
+      }: isBindProperty should be true if isJSConvertible is true or when control type is [${controls.join(
+        " | ",
+      )}]`;
     if (!_config.validation)
-      return `${_config.propertyName}: validation should be defined if isJSConvertible is true  or when control type is one of [${controls}]`;
+      return `${
+        _config.propertyName
+      }: validation should be defined if isJSConvertible is true  or when control type is [${controls.join(
+        " | ",
+      )}]`;
   }
 
   if (_config.validation !== undefined) {
