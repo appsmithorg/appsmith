@@ -18,7 +18,6 @@ import { noop } from "lodash";
 import { createMessage, NOT_OPTIONS } from "constants/messages";
 import { useTextWidth } from "@imagemarker/use-text-width";
 import Tooltip from "components/ads/Tooltip";
-import { log } from "loglevel";
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
@@ -463,8 +462,6 @@ function TooltipWrappedText(
   if (showTooltip) {
     tooltipDisabled = wrapperWidth > width;
   }
-  log("tooltip flag", tooltipDisabled);
-  log(width, wrapperWidth);
   const className = tooltipDisabled ? "" : "in-tooltip";
   return (
     <Tooltip
