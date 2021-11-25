@@ -73,6 +73,7 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import Indicator from "../GuidedTour/Indicator";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -445,6 +446,7 @@ export function EditorJSONtoForm(props: Props) {
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
@@ -738,7 +740,7 @@ export function EditorJSONtoForm(props: Props) {
   return (
     <>
       <CloseEditor />
-      <Guide className="query-page" />
+      {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>

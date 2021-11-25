@@ -3,37 +3,29 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { all, put, select, take, takeLatest } from "redux-saga/effects";
+import { all, put, select, takeLatest, delay } from "redux-saga/effects";
 import {
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { AppIconCollection } from "components/ads/AppIcon";
 
-import { getAppCardColorPalette } from "selectors/themeSelectors";
-import {
-  getRandomPaletteColor,
-  getNextEntityName,
-  createNewQueryName,
-} from "utils/AppsmithUtils";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import history from "utils/history";
+import TourApp from "pages/Editor/GuidedTour/app.json";
 
 import {
   getFirstTimeUserOnboardingApplicationId,
-  getGuidedTourDatasource,
+  getGuidedTourTableWidget,
   getOnboardingOrganisations,
+  getQueryAction,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { Organization } from "constants/orgConstants";
-import { enableGuidedTour } from "actions/onboardingActions";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { enableGuidedTour, toggleLoader } from "actions/onboardingActions";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getNextWidgetName } from "./WidgetOperationUtils";
 import WidgetFactory from "utils/WidgetFactory";
@@ -41,26 +33,22 @@ import { generateReactKey } from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { getPluginIdOfPackageName, getWidgets } from "./selectors";
-import { createActionRequest } from "actions/pluginActionActions";
-import { Datasource, MockDatasource } from "entities/Datasource";
-import { Action } from "entities/Action";
-import { getActions, getMockDatasources } from "selectors/entitiesSelector";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
-import { addMockDatasourceToOrg } from "actions/datasourceActions";
-import { updateApplicationLayout } from "actions/applicationActions";
+import { getWidgets } from "./selectors";
+import { setActionProperty } from "actions/pluginActionActions";
+import { QueryAction } from "entities/Action";
+import {
+  importApplication,
+  updateApplicationLayout,
+} from "actions/applicationActions";
+import { setPreviewModeAction } from "actions/editorActions";
+import { FlattenedWidgetProps } from "widgets/constants";
+import { ActionData } from "reducers/entityReducers/actionsReducer";
 
 function* createApplication() {
-  const colorPalette = yield select(getAppCardColorPalette);
-  const color = getRandomPaletteColor(colorPalette);
-  const icon =
-    AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
-
-  const currentUser = yield select(getCurrentUser);
   const userOrgs: Organization[] = yield select(getOnboardingOrganisations);
+  const currentUser = yield select(getCurrentUser);
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
-
   if (!currentOrganizationId) {
     organization = userOrgs[0];
   } else {
@@ -70,115 +58,72 @@ function* createApplication() {
     organization = filteredOrganizations[0];
   }
 
-  // Organization could be undefined for unknown reason
   if (organization) {
-    const applicationList = organization.applications;
-
-    const applicationName = getNextEntityName(
-      "Customer Support app",
-      applicationList.map((el: any) => el.name),
-      true,
-    );
-
-    yield put({
-      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-      payload: {
-        applicationName,
-        orgId: organization.organization.id,
-        icon,
-        color,
-      },
+    const appFileObject = new File([JSON.stringify(TourApp)], "app.json", {
+      type: "application/json",
     });
-
-    yield take(ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS);
-    let pageId = yield select(getCurrentPageId);
-
-    if (!pageId) {
-      yield take(ReduxActionTypes.SWITCH_CURRENT_PAGE_ID);
-    }
-
     yield put(enableGuidedTour(true));
-
-    pageId = yield select(getCurrentPageId);
-    const applicationId = yield select(getCurrentApplicationId);
-
-    history.push(
-      BUILDER_PAGE_URL({
-        applicationId,
-        pageId,
-      }),
-    );
-
     yield put(
-      updateApplicationLayout(applicationId || "", {
-        appLayout: {
-          type: "DESKTOP",
-        },
+      importApplication({
+        orgId: organization.organization.id,
+        applicationFile: appFileObject,
       }),
     );
   }
+
+  yield put(setPreviewModeAction(true));
 }
 
-function* createGuidedTourQuery() {
-  const currentOrganizationId = yield select(getCurrentOrgId);
-  const mockDatasources: MockDatasource[] = yield select(getMockDatasources);
-  const usersDatasource = mockDatasources.find(
-    (datasource) => datasource.name === "Users",
+function* setUpTourAppSaga() {
+  yield put(setPreviewModeAction(false));
+  // Delete the container widget
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
   );
-  const pluginId = yield select(
-    getPluginIdOfPackageName,
-    usersDatasource?.packageName ?? "",
+  const containerWidget = Object.values(widgets).find(
+    (widget) => widget.type === "CONTAINER_WIDGET",
   );
-  let datasource: Datasource | undefined = yield select(
-    getGuidedTourDatasource,
+  yield put({
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
+    payload: {
+      widgetId: containerWidget?.widgetId,
+      parentId: containerWidget?.parentId,
+      disallowUndo: true,
+    },
+  });
+  // Update table widget table data property
+  const tableWidget = yield select(getGuidedTourTableWidget);
+  yield put({
+    type: WidgetReduxActionTypes.WIDGET_UPDATE_PROPERTY,
+    payload: {
+      widgetId: tableWidget,
+      propertyName: "tableData",
+      propertyValue: "",
+    },
+  });
+  // Update getCustomers query body
+  const query: ActionData | undefined = yield select(getQueryAction);
+  let body = (query?.config as QueryAction).actionConfiguration.body;
+  body = body?.replace("10", "100");
+  yield put(
+    setActionProperty({
+      actionId: query?.config.id ?? "",
+      propertyName: "actionConfiguration.body",
+      value: body,
+    }),
   );
 
-  if (!datasource) {
-    yield put(
-      addMockDatasourceToOrg(
-        usersDatasource?.name ?? "",
-        currentOrganizationId,
-        pluginId,
-        usersDatasource?.packageName ?? "",
-      ),
-    );
-
-    yield take(ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS);
-    datasource = yield select(getGuidedTourDatasource);
-  }
-  const actions = yield select(getActions);
-  const pageId = yield select(getCurrentPageId);
-
-  if (datasource) {
-    const newQueryName = createNewQueryName(actions, pageId, {
-      prefix: "getCustomers",
-    });
-    const payload: Partial<Action> = {
-      name: newQueryName,
-      pageId,
-      eventData: {
-        actionType: "Query",
-        from: "Guided-Tour",
-        dataSource: datasource.name,
+  const applicationId = yield select(getCurrentApplicationId);
+  yield put(
+    updateApplicationLayout(applicationId || "", {
+      appLayout: {
+        type: "DESKTOP",
       },
-      pluginId: datasource.pluginId,
-      actionConfiguration: {
-        body:
-          '/* ---> Edit the limit "100" with "10" and hit RUN */\n\nSELECT * FROM users LIMIT 100;',
-      },
-      datasource: {
-        id: datasource.id,
-      },
-    };
+    }),
+  );
 
-    yield put(createActionRequest(payload));
-    yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
-
-    yield put({
-      type: "TOGGLE_LOADER",
-      payload: false,
-    });
-  }
+  yield delay(1000);
+  yield put(toggleLoader(false));
 }
 
 function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
@@ -294,7 +239,7 @@ export default function* onboardingActionSagas() {
       ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
       createApplication,
     ),
-    takeLatest("CREATE_GUIDED_TOUR_QUERY", createGuidedTourQuery),
+    takeLatest(ReduxActionTypes.SET_UP_TOUR_APP, setUpTourAppSaga),
     takeLatest(ReduxActionTypes.GUIDED_TOUR_ADD_WIDGET, addOnboardingWidget),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,

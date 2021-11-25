@@ -43,6 +43,7 @@ import {
   collabStartSharingPointerEvent,
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
+import { loading } from "selectors/onboardingSelectors";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -53,6 +54,7 @@ type EditorProps = {
   isEditorInitialized: boolean;
   isEditorInitializeError: boolean;
   errorPublishing: boolean;
+  loadingGuidedTour: boolean;
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
@@ -125,6 +127,7 @@ class Editor extends Component<Props> {
       nextProps.errorPublishing !== this.props.errorPublishing ||
       nextProps.isEditorInitializeError !==
         this.props.isEditorInitializeError ||
+      nextProps.loadingGuidedTour !== this.props.loadingGuidedTour ||
       nextState.registered !== this.state.registered ||
       (nextProps.isPageLevelSocketConnected &&
         !this.props.isPageLevelSocketConnected)
@@ -173,7 +176,11 @@ class Editor extends Component<Props> {
   };
 
   public render() {
-    if (!this.props.isEditorInitialized || !this.state.registered) {
+    if (
+      !this.props.isEditorInitialized ||
+      !this.state.registered ||
+      this.props.loadingGuidedTour
+    ) {
       return (
         <CenteredWrapper style={{ height: "calc(100vh - 35px)" }}>
           <Spinner />
@@ -222,6 +229,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
   isPageLevelSocketConnected: getIsPageLevelSocketConnected(state),
+  loadingGuidedTour: loading(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

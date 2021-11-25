@@ -3,7 +3,9 @@ import {
   markStepComplete,
   setCurrentStep,
   setIndicatorLocation,
+  setUpTourApp,
   tableWidgetWasSelected,
+  toggleLoader,
 } from "actions/onboardingActions";
 import Button from "components/ads/Button";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
@@ -25,7 +27,7 @@ import {
   isButtonWidgetPresent,
   isCountryInputBound,
   isEmailInputBound,
-  isExploring,
+  isExploringSelector,
   isImageWidgetBound,
   isQueryExecutionSuccessful,
   isQueryLimitUpdated,
@@ -62,6 +64,7 @@ const GuideWrapper = styled.div`
   margin-top: 17px;
   margin-left: 36px;
   margin-right: 36px;
+  margin-bottom: 10px;
 
   &.query-page {
     margin-left: 20px;
@@ -394,26 +397,8 @@ function InitialContent() {
   const isLoading = useSelector(loading);
 
   const setupFirstStep = () => {
-    dispatch({
-      type: "TOGGLE_LOADER",
-      payload: true,
-    });
-    dispatch(
-      addOnboardingWidget({
-        type: "TABLE_WIDGET",
-        bottomRow: 100,
-        rightColumn: 40,
-        columns: 25,
-        leftColumn: 0,
-        parentColumnSpace: 10,
-        parentRowSpace: 20,
-        topRow: 0,
-        widgetName: "CustomersTable",
-      }),
-    );
-    dispatch({
-      type: "CREATE_GUIDED_TOUR_QUERY",
-    });
+    dispatch(toggleLoader(true));
+    dispatch(setUpTourApp());
   };
 
   return (
@@ -777,7 +762,7 @@ type GuideBody = {
 };
 
 function GuideBody(props: GuideBody) {
-  const exploring = useSelector(isExploring);
+  const exploring = useSelector(isExploringSelector);
   const successMessage = useSelector(showSuccessMessage);
 
   if (exploring) {

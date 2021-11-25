@@ -13,7 +13,7 @@ const initialState: OnboardingState = {
   // Guided tour
   guidedTour: false,
   loading: false,
-  exploring: true,
+  exploring: false,
   tableWidgetId: "",
   queryId: "",
   datasourceId: "",
@@ -112,9 +112,13 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       guidedTour: action.payload,
+      exploring: action.payload,
     };
   },
-  TOGGLE_LOADER: (state: OnboardingState, action: ReduxAction<boolean>) => {
+  [ReduxActionTypes.GUIDED_TOUR_TOGGLE_LOADER]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
     return {
       ...state,
       loading: action.payload,

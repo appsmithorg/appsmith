@@ -8,7 +8,6 @@ import { getUserApplicationsOrgs } from "./applicationSelectors";
 import { isEqual } from "lodash";
 import { getWidgets } from "sagas/selectors";
 import { getActionResponses, getActions } from "./entitiesSelector";
-import { PluginType } from "entities/Action";
 import { getSelectedWidget } from "./ui";
 
 // Signposting selectors
@@ -40,8 +39,8 @@ export const getInOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
 
 // Guided Tour selectors
-
-export const isExploring = (state: AppState) => state.ui.onBoarding.exploring;
+export const isExploringSelector = (state: AppState) =>
+  state.ui.onBoarding.exploring;
 export const inGuidedTour = (state: AppState) => state.ui.onBoarding.guidedTour;
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -122,18 +121,14 @@ export const getGuidedTourDatasource = (state: AppState) => {
 export const getQueryAction = createSelector(
   getActions,
   getGuidedTourQuery,
-  getGuidedTourDatasource,
-  (actions, guidedTourQueryId, datasource) => {
+  (actions, guidedTourQueryId) => {
     const query = actions.find(
       (action) => action.config.id === guidedTourQueryId,
     );
 
     if (!query) {
       return actions.find((action) => {
-        return (
-          action.config.pluginType === PluginType.DB &&
-          action.config.datasource?.id === datasource?.id
-        );
+        return action.config.name === "getCustomers";
       });
     } else {
       return query;

@@ -62,3 +62,16 @@ export const addOnboardingWidget = (payload: Partial<WidgetProps>) => {
     payload,
   };
 };
+
+export const setUpTourApp = () => {
+  return {
+    type: ReduxActionTypes.SET_UP_TOUR_APP,
+  };
+};
+
+export const toggleLoader = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.GUIDED_TOUR_TOGGLE_LOADER,
+    payload,
+  };
+};

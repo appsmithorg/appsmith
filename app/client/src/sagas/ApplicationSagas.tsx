@@ -74,6 +74,7 @@ import { Org } from "constants/orgConstants";
 import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
 
 const getDefaultPageId = (
@@ -594,6 +595,10 @@ export function* importApplicationSaga(
           pageId: defaultPage[0].id,
         });
         history.push(pageURL);
+        const guidedTour = yield select(inGuidedTour);
+
+        if (guidedTour) return;
+
         Toaster.show({
           text: "Application imported successfully",
           variant: Variant.success,
