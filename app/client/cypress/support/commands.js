@@ -3252,7 +3252,8 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
       .then((textEle) => {
         cy.wrap(textEle)
           .last()
-          .invoke("text", "");
+          .invoke("text", "")
+          .trigger("change");
       })
       .closest("div")
       .click()
@@ -3263,12 +3264,25 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
       .then((textEle) => {
         cy.wrap(textEle)
           .last()
-          .invoke("text", "");
+          .invoke("text", "")
+          .trigger("change");
       })
       .closest("div")
       .click()
       .type(valueToType, { parseSpecialCharSequences: false });
   }
+
+  // .as('range').invoke('val', 25).trigger('change')
+
+  // .wait(200)
+  //     .then((textEle) => {
+  //       cy.wrap(textEle)
+  //         .last()
+  //         .invoke("text", "");
+  //     })
+  //     .closest("div")
+  //     .click()
+  //     .type(valueToType, { parseSpecialCharSequences: false });
 
   // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea")
   //   .scrollIntoView().clear({force: true}).type(valueToType, { parseSpecialCharSequences: false });
