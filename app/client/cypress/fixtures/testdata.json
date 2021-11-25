@@ -121,6 +121,8 @@
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
   "bindingSeriesTitle": "{{Chart1.selectedDataPoint.seriesTitle",
   "bindChartData": "{{Chart1.selectedDataPoint",
+  "bindEditModeColor": "{{appsmith.mode === 'EDIT' ? 'red' : 'green'}}",
+  "bindEditModeBgColor": "{{appsmith.mode === 'EDIT' ? 'green' : 'yellow'}}",
   "appUrl": "https://oauth.mocklab.io/userinfo",
   "clientID": "169444434892406",
   "clientSecret": "505dac16a21681f277b5fde97445be18",

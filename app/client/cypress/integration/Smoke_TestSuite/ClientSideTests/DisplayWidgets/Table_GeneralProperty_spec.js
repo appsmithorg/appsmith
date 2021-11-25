@@ -182,6 +182,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".draggable-header:contains('Email Address')").should("be.visible");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
   });
+
   it("Edit Row height and test table for changes", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(widgetsPage.rowHeight)
@@ -193,6 +194,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     cy.readTabledataValidateCSS("0", "0", "height", "19px");
   });
+
   it("Test to validate text color and text background", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
@@ -214,6 +216,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait("@updateLayout");
     // Verify the text color is purple
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
+
     // Click on cell background color
     cy.get(widgetsPage.backgroundColor)
       .first()
@@ -235,7 +238,8 @@ describe("Table Widget property pane feature validation", function() {
     // Change the cell background color and enter purple in input field
     cy.get(widgetsPage.backgroundColor)
       .clear({ force: true })
-      .type("purple", { force: true });
+      .type("purple", { force: true })
+      .blur();
     cy.wait("@updateLayout");
     // Verify the cell background color is purple
     cy.readTabledataValidateCSS(
@@ -244,5 +248,45 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
+
+    // change cell color by js
+    cy.get(widgetsPage.toggleJsBcgColor)
+      .first()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+    cy.toggleJsAndUpdate("tabledata", testdata.bindEditModeBgColor);
+    cy.wait("@updateLayout");
+    // Verify the text color is green
+    cy.readTabledataValidateCSS(
+      "1",
+      "0",
+      "background",
+      "rgb(0, 128, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+    );
+
+    // update text color by js
+    cy.get(widgetsPage.toggleJsColor)
+      .first()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+    cy.toggleJsAndUpdate("tabledata", testdata.bindEditModeColor);
+    cy.wait("@updateLayout");
+    // Verify the text color is red
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
+
+    cy.PublishtheApp();
+    // here text and background color should be changed
+
+    // background
+    cy.readTabledataValidateCSS(
+      "1",
+      "0",
+      "background",
+      "rgb(255, 255, 0) none repeat scroll 0% 0% / auto padding-box border-box",
+    );
+    // text color
+    cy.readTabledataValidateCSS("1", "0", "color", "rgb(0, 128, 0)");
   });
 });
