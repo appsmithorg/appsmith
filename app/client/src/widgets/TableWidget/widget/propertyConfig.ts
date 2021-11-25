@@ -821,6 +821,7 @@ export default [
                       value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
+                  defaultValue: ButtonVariantTypes.PRIMARY,
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
