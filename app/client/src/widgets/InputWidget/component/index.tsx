@@ -315,6 +315,30 @@ class InputComponent extends React.Component<
     this.state = { showPassword: false };
   }
 
+  componentDidMount() {
+    if (this.props.inputType === InputTypes.CURRENCY) {
+      const element: any = document.querySelectorAll(
+        `#${this.props.widgetId} .bp3-button`,
+      );
+
+      if (element !== null) {
+        element[0].addEventListener("click", () => this.onButtonClick(1));
+        element[1].addEventListener("click", () => this.onButtonClick(-1));
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    const element: any = document.querySelectorAll(
+      `#${this.props.widgetId} .bp3-button`,
+    );
+
+    if (element !== null) {
+      element[0].removeEventListener("click", () => this.onButtonClick(1));
+      element[1].removeEventListener("click", () => this.onButtonClick(-1));
+    }
+  }
+
   setFocusState = (isFocused: boolean) => {
     this.props.onFocusChange(isFocused);
   };
@@ -327,22 +351,41 @@ class InputComponent extends React.Component<
     this.props.onValueChange(event.target.value);
   };
 
-  onNumberChange = (valueAsNum: number, valueAsString: string) => {
+  onButtonClick = (type: number) => {
+    let deFormattedValue: string | number = this.props.value
+      .split(",")
+      .join("");
+    const stepSize = this.props.stepSize || 1;
+    deFormattedValue = +deFormattedValue + stepSize * type;
+    const formattedValue = formatCurrencyNumber(
+      this.props.decimalsInCurrency,
+      "" + deFormattedValue,
+    );
+    this.props.onValueChange(formattedValue);
+  };
+
+  onNumberChange = (
+    valueAsNum: number,
+    valueAsString: string,
+    inputElement: HTMLInputElement,
+  ) => {
     if (this.props.inputType === InputTypes.CURRENCY) {
-      const fractionDigits = this.props.decimalsInCurrency || 0;
-      const currentIndexOfDecimal = valueAsString.indexOf(".");
-      const indexOfDecimal = valueAsString.length - fractionDigits - 1;
-      if (
-        valueAsString.includes(".") &&
-        currentIndexOfDecimal <= indexOfDecimal
-      ) {
-        const value = limitDecimalValue(
-          this.props.decimalsInCurrency,
-          valueAsString,
-        );
-        this.props.onValueChange(value);
-      } else {
-        this.props.onValueChange(valueAsString);
+      if (inputElement.className.includes("focus-visible")) {
+        const fractionDigits = this.props.decimalsInCurrency || 0;
+        const currentIndexOfDecimal = valueAsString.indexOf(".");
+        const indexOfDecimal = valueAsString.length - fractionDigits - 1;
+        if (
+          valueAsString.includes(".") &&
+          currentIndexOfDecimal <= indexOfDecimal
+        ) {
+          const value = limitDecimalValue(
+            this.props.decimalsInCurrency,
+            valueAsString,
+          );
+          this.props.onValueChange(value);
+        } else {
+          this.props.onValueChange(valueAsString);
+        }
       }
     } else {
       this.props.onValueChange(valueAsString);
