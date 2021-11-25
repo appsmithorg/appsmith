@@ -3912,11 +3912,10 @@ public class DatabaseChangelog {
                 Plugin.class
         );
 
-        // Query to find all S3 Actions where `publishedAction` attribute exists and is non-null.
+        // Query to find all S3 Actions where `publishedAction` attribute exists.
         Query queryToFindAllS3ActionsWithPublishedActionField = query(
                 where("pluginId").is(s3Plugin.getId())
                         .and("publishedAction").exists(true)
-                        .and("publishedAction").ne(null)
         );
 
         // Fetch all S3 Actions where `publishedAction` attribute exists and is non-null.
@@ -3925,6 +3924,7 @@ public class DatabaseChangelog {
 
         // Migrate the dynamic binding path list for published action
         s3Actions.stream()
+                .filter(action -> action.getPublishedAction() != null)
                 .forEach(action -> {
                     ActionDTO publishedAction = action.getPublishedAction();
                     List<Property> dynamicBindingPathList = publishedAction.getDynamicBindingPathList();
