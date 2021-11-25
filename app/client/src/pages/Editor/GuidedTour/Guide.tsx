@@ -14,12 +14,15 @@ import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
   containerWidgetAdded,
+  doesButtonWidgetHaveText,
   getCurrentStep,
   getGuidedTourDatasource,
+  getHadReachedStep,
   getQueryAction,
   getQueryName,
   getTableName,
   getTableWidget,
+  isButtonWidgetPresent,
   isCountryInputBound,
   isEmailInputBound,
   isExploring,
@@ -355,7 +358,30 @@ const Steps: StepsType = {
         text: (
           <>
             <b>Drag {"&"} Drop</b> a Button widget into the left bottom of
-            container{" "}
+            container, below the image. Update the label of the button to{" "}
+            <i>Click to update info</i>
+          </>
+        ),
+      },
+    ],
+    success: {
+      text: "Perfect! Your update button is created and ready to go",
+      onClick: (dispatch) => {
+        dispatch(setCurrentStep(6));
+      },
+    },
+  },
+  6: {
+    title:
+      "6. Execute updateCustomer query using the button to update the inputs ",
+    hints: [
+      {
+        icon: "edit-box-line",
+        text: (
+          <>
+            From the onClick dropdown, select <b>Execute a query</b> {"&"} then
+            select
+            <b>updateCustomer</b> Query
           </>
         ),
       },
@@ -466,6 +492,7 @@ function useComputeCurrentStep() {
   const datasource = useSelector(getGuidedTourDatasource);
   const query = useSelector(getQueryAction);
   const tableWidget = useSelector(getTableWidget);
+  const hadReachedStep = useSelector(getHadReachedStep);
   // 1
   const queryLimitUpdated = useSelector(isQueryLimitUpdated);
   const queryExecutedSuccessfully = useSelector(isQueryExecutionSuccessful);
@@ -478,12 +505,9 @@ function useComputeCurrentStep() {
   const countryInputBound = useSelector(isCountryInputBound);
   const emailInputBound = useSelector(isEmailInputBound);
   const imageWidgetBound = useSelector(isImageWidgetBound);
-
-  // eslint-disable-next-line no-console
-  console.log(countryInputBound, "countryInputBound");
-
-  // eslint-disable-next-line no-console
-  console.log(step, "step");
+  // 5
+  const buttonWidgetPresent = useSelector(isButtonWidgetPresent);
+  const buttonWidgetHasText = useSelector(doesButtonWidgetHaveText);
 
   if (step === 1) {
     if (queryExecutedSuccessfully) {
@@ -512,6 +536,16 @@ function useComputeCurrentStep() {
     }
     if (imageWidgetBound) {
       completedSubSteps.push(2);
+    }
+
+    if (completedSubSteps.length === 3 && hadReachedStep > 4) {
+      step = 5;
+    }
+  }
+
+  if (step === 5) {
+    if (buttonWidgetPresent && hadReachedStep > 5) {
+      step = 6;
     }
   }
 
@@ -582,6 +616,18 @@ function useComputeCurrentStep() {
     }
   }, [step, completedSubSteps.length]);
 
+  useEffect(() => {
+    if (step === 5) {
+      if (buttonWidgetPresent) {
+        dispatch(setIndicatorLocation("NONE"));
+
+        if (buttonWidgetHasText) {
+          dispatch(markStepComplete());
+        }
+      }
+    }
+  }, [step, buttonWidgetPresent, buttonWidgetHasText]);
+
   return completedSubSteps;
 }
 
@@ -591,11 +637,15 @@ function GuideStepsContent(props: {
 }) {
   const content = useUpdateName(props.currentStep);
   const [hintCount, setHintCount] = useState(0);
-  const hintSteps = content.hints[hintCount].steps;
+  const currentHint = content.hints[hintCount]
+    ? content.hints[hintCount]
+    : content.hints[0];
 
   useEffect(() => {
     setHintCount(0);
   }, [props.currentStep]);
+
+  const hintSteps = currentHint.steps;
 
   const hintButtonOnClick = () => {
     setHintCount((count) => count + 1);
@@ -615,12 +665,12 @@ function GuideStepsContent(props: {
         <IconWrapper>
           <Icon
             fillColor="#F86A2B"
-            name={content.hints[hintCount].icon}
+            name={currentHint.icon}
             size={IconSize.XXL}
           />
         </IconWrapper>
         <div className="hint-text">
-          <span>{content.hints[hintCount].text}</span>
+          <span>{currentHint.text}</span>
 
           {isArray(hintSteps) &&
             hintSteps.length &&
@@ -639,12 +689,12 @@ function GuideStepsContent(props: {
                 </div>
               );
             })}
-          {content.hints[hintCount].button && (
+          {currentHint.button && (
             <GuideButton
               className="hint-button"
               onClick={hintButtonOnClick}
               tag="button"
-              text={content.hints[hintCount].button?.text}
+              text={currentHint.button?.text}
             />
           )}
         </div>

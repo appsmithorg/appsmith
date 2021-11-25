@@ -199,6 +199,9 @@ export const containerWidgetAdded = createSelector(getWidgets, (widgets) => {
   );
 });
 
+export const getHadReachedStep = (state: AppState) =>
+  state.ui.onBoarding.hadReachedStep;
+
 export const isCountryInputBound = createSelector(
   getTableWidget,
   getWidgets,
@@ -207,8 +210,6 @@ export const isCountryInputBound = createSelector(
       const widgetValues = Object.values(widgets);
       const countryInput = widgetValues.find((widget) => {
         if (widget.type === "INPUT_WIDGET") {
-          // eslint-disable-next-line no-console
-          console.log(widget, "widget");
           return (
             widget.defaultText ===
             `{{${tableWidget.widgetName}.selectedRow.country}}`
@@ -217,8 +218,6 @@ export const isCountryInputBound = createSelector(
         return false;
       });
 
-      // eslint-disable-next-line no-console
-      console.log(countryInput, "countryInput");
       if (countryInput) return true;
     }
 
@@ -270,6 +269,28 @@ export const isImageWidgetBound = createSelector(
     }
 
     return false;
+  },
+);
+export const isButtonWidgetPresent = createSelector(getWidgets, (widgets) => {
+  const widgetValues = Object.values(widgets);
+  const buttonWidget = widgetValues.find((widget) => {
+    return widget.type === "BUTTON_WIDGET";
+  });
+
+  return !!buttonWidget;
+});
+export const doesButtonWidgetHaveText = createSelector(
+  getWidgets,
+  (widgets) => {
+    const widgetValues = Object.values(widgets);
+    const buttonWidget = widgetValues.find((widget) => {
+      return (
+        widget.type === "BUTTON_WIDGET" &&
+        widget.text.toLowerCase().includes("update")
+      );
+    });
+
+    return !!buttonWidget;
   },
 );
 

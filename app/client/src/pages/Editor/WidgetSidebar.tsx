@@ -11,6 +11,7 @@ import { useLocation } from "react-router";
 import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import { matchBuilderPath } from "constants/routes";
 import { AppState } from "reducers";
+import Indicator from "./GuidedTour/Indicator";
 
 function WidgetSidebar(props: IPanelProps) {
   const location = useLocation();
@@ -74,7 +75,17 @@ function WidgetSidebar(props: IPanelProps) {
         </p>
         <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
           {filteredCards.map((card) => (
-            <WidgetCard details={card} key={card.key} />
+            <Indicator
+              async
+              direction="down"
+              key={card.key}
+              location="WIDGET_SIDEBAR"
+              position="top"
+              show={card.type === "BUTTON_WIDGET"}
+              step={5}
+            >
+              <WidgetCard details={card} />
+            </Indicator>
           ))}
         </div>
       </div>

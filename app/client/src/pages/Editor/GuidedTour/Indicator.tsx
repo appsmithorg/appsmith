@@ -34,7 +34,11 @@ const IndicatorWrapper = styled.div<{ direction: Direction }>`
 
 type Direction = "down" | "right" | "left";
 
-export type IndicatorLocation = "RUN_QUERY" | "PROPERTY_PANE" | "NONE";
+export type IndicatorLocation =
+  | "RUN_QUERY"
+  | "PROPERTY_PANE"
+  | "WIDGET_SIDEBAR"
+  | "NONE";
 
 type IndicatorProps = {
   children: JSX.Element;
