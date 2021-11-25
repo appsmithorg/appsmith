@@ -1,12 +1,12 @@
 import {
   actionChannel,
+  all,
   call,
   fork,
   put,
   select,
-  take,
-  all,
   spawn,
+  take,
 } from "redux-saga/effects";
 
 import {
@@ -52,9 +52,9 @@ import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
-  UndoRedoPayload,
   openPropertyPaneSaga,
   postUndoRedoSaga,
+  UndoRedoPayload,
 } from "./ReplaySaga";
 
 import { updateAndSaveLayout } from "actions/pageActions";
@@ -182,6 +182,8 @@ export function* evaluateActionBindings(
   return values;
 }
 
+const pendingRequests: Record<string, true> = {};
+
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -209,10 +211,15 @@ export function* evaluateDynamicTrigger(
           requestData.result.errors[0].errorMessage,
         );
       }
+      if (Object.keys(pendingRequests).length) {
+        debugger;
+        throw new Error("Promise ended prematurely");
+      }
       return requestData.result;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
+      pendingRequests[requestData.subRequestId] = true;
       log.debug({ trigger: requestData.trigger });
       yield spawn(
         executeTriggerRequestSaga,
@@ -225,39 +232,48 @@ export function* evaluateDynamicTrigger(
   }
 }
 
+interface ResponsePayload {
+  data: {
+    subRequestId: string;
+    reason?: string;
+    resolve?: unknown;
+  };
+  success: boolean;
+}
+
 function* executeTriggerRequestSaga(
   requestData: { trigger: ActionDescription; subRequestId: string },
   eventType: EventType,
   responseChannel: Channel<unknown>,
   triggerMeta: TriggerMeta,
 ) {
+  const responsePayload: ResponsePayload = {
+    data: {
+      resolve: undefined,
+      reason: undefined,
+      subRequestId: requestData.subRequestId,
+    },
+    success: false,
+  };
   try {
-    const response = yield call(
+    responsePayload.data.resolve = yield call(
       executeActionTriggers,
       requestData.trigger,
       eventType,
       triggerMeta,
     );
-    responseChannel.put({
-      method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-      data: {
-        resolve: response,
-        subRequestId: requestData.subRequestId,
-      },
-      success: true,
-    });
+    responsePayload.success = true;
   } catch (e) {
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
-    responseChannel.put({
-      method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-      data: {
-        reason: e,
-        subRequestId: requestData.subRequestId,
-      },
-      success: false,
-    });
+    responsePayload.data.reason = e;
+    responsePayload.success = false;
   }
+  delete pendingRequests[requestData.subRequestId];
+  responseChannel.put({
+    method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+    ...responsePayload,
+  });
 }
 
 export function* clearEvalCache() {

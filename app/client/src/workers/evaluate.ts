@@ -44,7 +44,8 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
   [EvaluationScriptType.TRIGGERS]: `
   async function closedFunction () {
-    const result = await ${ScriptTemplate}
+    const result = await ${ScriptTemplate};
+    result.finally(() => { debugger })
     return result;
   }
   closedFunction();
@@ -122,6 +123,7 @@ export const createGlobalData = (
 export const getUserScriptToEvaluate = (
   userScript: string,
   GLOBAL_DATA: Record<string, unknown>,
+  isTriggerBased: boolean,
   evalArguments?: Array<any>,
 ) => {
   // We remove any line breaks from the beginning of the script because that
@@ -130,7 +132,7 @@ export const getUserScriptToEvaluate = (
   const trimmedJS = userScript.replace(beginsWithLineBreakRegex, "");
   const unescapedJS =
     self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
-  const scriptType = getScriptType(!!evalArguments, false);
+  const scriptType = getScriptType(!!evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
   // We are linting original js binding,
   // This will make sure that the character count is not messed up when we do unescapejs
@@ -165,6 +167,7 @@ export default function evaluateSync(
     const { lintErrors, script } = getUserScriptToEvaluate(
       userScript,
       GLOBAL_DATA,
+      false,
       evalArguments,
     );
     errors = lintErrors;
@@ -214,9 +217,9 @@ export async function evaluateAsync(
     const { script } = getUserScriptToEvaluate(
       userScript,
       GLOBAL_DATA,
+      true,
       evalArguments,
     );
-    debugger;
     GLOBAL_DATA.REQUEST_ID = requestId;
     GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it
@@ -240,6 +243,7 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     } finally {
+      debugger;
       completePromise({ result, errors });
     }
   })();
@@ -269,7 +273,11 @@ export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
     try {
       if (typeof userFunction === "function") {
         const returnValue = userFunction();
-        if ("then" in returnValue && typeof returnValue.then === "function") {
+        if (
+          returnValue &&
+          "then" in returnValue &&
+          typeof returnValue.then === "function"
+        ) {
           self.IS_ASYNC = true;
         }
       }

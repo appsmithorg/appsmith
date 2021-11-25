@@ -15,6 +15,8 @@ declare global {
     REQUEST_ID?: string;
     ALLOW_ASYNC?: boolean;
     IS_ASYNC?: boolean;
+    COLLECTOR: Promise<any>[];
+    GLOBAL_FUNCTIONS: Record<string, ActionDispatcher>;
   }
 }
 
@@ -110,8 +112,19 @@ const DATA_TREE_FUNCTIONS: Record<
         });
         if (isOldSignature && typeof onSuccessOrParams === "function") {
           // catch is attached first so that we can catch only the main run errors
-          if (onError) runActionPromise.catch(onError);
-          if (onSuccessOrParams) runActionPromise.then(onSuccessOrParams);
+          if (onError)
+            runActionPromise.catch((res) => {
+              debugger;
+              return oldActionBind(res, onError);
+            });
+          if (onSuccessOrParams) {
+            runActionPromise.then((res) => {
+              debugger;
+              return oldActionBind(res, onSuccessOrParams);
+            });
+          }
+          // if (onError) runActionPromise.catch(onError);
+          // if (onSuccessOrParams) runActionPromise.then(onSuccessOrParams);
         }
         return runActionPromise;
       },
@@ -151,6 +164,7 @@ export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
 ): DataTree => {
   const withFunction: DataTree = _.cloneDeep(dataTree);
+  self.GLOBAL_FUNCTIONS = {};
 
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
@@ -162,12 +176,42 @@ export const enhanceDataTreeWithFunctions = (
           const func = funcOrFuncCreator.func(entity);
           const funcName = `${entityName}.${name}`;
           _.set(withFunction, funcName, func);
+          self.GLOBAL_FUNCTIONS[funcName] = func;
         }
       });
     } else {
       withFunction[name] = funcOrFuncCreator;
+      self.GLOBAL_FUNCTIONS[name] = funcOrFuncCreator;
     }
   });
 
   return withFunction;
+};
+
+export const pusher = function(
+  this: { collector: Promise<any>[] },
+  action: ActionDispatcher,
+  ...payload: any[]
+) {
+  const actionPayload = action(...payload);
+  this.collector.push(actionPayload);
+};
+
+export const oldActionBind = function(res: any, func: any) {
+  self.COLLECTOR = [];
+  pusherOverride();
+  func(res);
+  pusherOverride(true);
+  return Promise.allSettled(self.COLLECTOR);
+};
+
+export const pusherOverride = (revert = false) => {
+  const globalThis = { collector: self.COLLECTOR };
+  Object.entries(self.GLOBAL_FUNCTIONS).forEach(([actionPath, globalFunc]) => {
+    if (revert) {
+      _.set(self, actionPath, globalFunc);
+    } else {
+      _.set(self, actionPath, pusher.bind(globalThis, globalFunc));
+    }
+  });
 };
