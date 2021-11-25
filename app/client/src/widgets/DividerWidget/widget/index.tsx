@@ -95,9 +95,15 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "dividerColor",
             label: "Divider Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isBindProperty: true,
             isJSConvertible: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             helpText: "Controls the type of divider cap",
@@ -125,8 +131,14 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 iconSize: "large",
               },
             ],
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["nc", "arrow", "dot"],
+              },
+            },
           },
           {
             helpText:

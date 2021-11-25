@@ -60,7 +60,7 @@ class ButtonGroupWidget extends BaseWidget<
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
@@ -142,7 +142,7 @@ class ButtonGroupWidget extends BaseWidget<
                         },
                       ],
                       isJSConvertible: true,
-                      isBindProperty: false,
+                      isBindProperty: true,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
                     },
@@ -186,7 +186,6 @@ class ButtonGroupWidget extends BaseWidget<
                       controlType: "ICON_SELECT",
                       isBindProperty: false,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
                     },
                     {
                       propertyName: "iconAlign",
@@ -195,7 +194,6 @@ class ButtonGroupWidget extends BaseWidget<
                       controlType: "ICON_ALIGN",
                       isBindProperty: false,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
                     },
                   ],
                 },
@@ -301,7 +299,6 @@ class ButtonGroupWidget extends BaseWidget<
                                 controlType: "ICON_SELECT",
                                 isBindProperty: false,
                                 isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
                               },
                               {
                                 propertyName: "iconColor",
@@ -319,7 +316,6 @@ class ButtonGroupWidget extends BaseWidget<
                                 controlType: "ICON_ALIGN",
                                 isBindProperty: false,
                                 isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
                               },
                             ],
                           },
@@ -389,12 +385,6 @@ class ButtonGroupWidget extends BaseWidget<
             ],
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["SHARP", "ROUNDED", "CIRCLE"],
-              },
-            },
           },
           {
             propertyName: "boxShadow",
@@ -404,26 +394,13 @@ class ButtonGroupWidget extends BaseWidget<
             controlType: "BOX_SHADOW_OPTIONS",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
           },
           {
             propertyName: "boxShadowColor",
             helpText: "Sets the shadow color of the widget",
             label: "Shadow Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
