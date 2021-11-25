@@ -456,10 +456,17 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 .flatMap(page -> {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
                             .findApplicationPagesByApplicationIdViewMode(page.getApplicationId(), false);
-                    return pageNamesMono
+
+                    Mono<Application> destApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
+
+                    return Mono.zip(pageNamesMono, destApplicationMono)
                             // If a new page name suffix is given,
                             // set a unique name for the cloned page and then create the page.
-                            .flatMap(pageNames -> {
+                            .flatMap(tuple -> {
+                                ApplicationPagesDTO pageNames = tuple.getT1();
+                                Application application = tuple.getT2();
+
                                 if (!Strings.isNullOrEmpty(newPageNameSuffix)) {
                                     String newPageName = page.getName() + newPageNameSuffix;
 
@@ -481,30 +488,26 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 // Proceed with creating the copy of the page
                                 page.setId(null);
                                 page.setApplicationId(applicationId);
-                                if (page.getDefaultResources() == null) {
-                                    // Cursor should not reach here as we are expecting the default resources should be
-                                    // present in the parent page only
-                                    log.debug("Cursor should not reach here cloning page {}", page.getId());
-                                    DefaultResources defaults = new DefaultResources();
+                                DefaultResources defaults = new DefaultResources();
+                                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                                if (gitData != null) {
+                                    defaults.setApplicationId(gitData.getDefaultApplicationId());
+                                    defaults.setBranchName(gitData.getBranchName());
+                                } else {
                                     defaults.setApplicationId(applicationId);
-                                    page.setDefaultResources(defaults);
                                 }
+                                page.setDefaultResources(defaults);
                                 return newPageService.createDefault(page);
                             });
                 })
                 .flatMap(clonedPage -> {
                     String newPageId = clonedPage.getId();
+                    final DefaultResources clonedPageDefaultResources = clonedPage.getDefaultResources();
                     return sourceActionFlux
                             .flatMap(action -> {
                                 // Set new page id in the actionDTO
                                 action.getUnpublishedAction().setPageId(newPageId);
-                                if (action.getUnpublishedAction().getDefaultResources() == null) {
-                                    log.debug("Cursor should not reach here cloning action {}", action.getId());
-                                    DefaultResources actionDefaults = new DefaultResources();
-                                    actionDefaults.setApplicationId(clonedPage.getDefaultResources().getApplicationId());
-                                    actionDefaults.setPageId(clonedPage.getDefaultResources().getPageId());
-                                    action.getUnpublishedAction().setDefaultResources(actionDefaults);
-                                }
+                                action.getUnpublishedAction().setDefaultResources(clonedPageDefaultResources);
                                 /*
                                  * - Now create the new action from the template of the source action.
                                  * - Use CLONE_PAGE context to make sure that page / application clone quirks are
@@ -541,6 +544,8 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                                 applicationPage.setIsDefault(false);
                                 if (StringUtils.isEmpty(page.getDefaultResources().getPageId())) {
                                     applicationPage.setDefaultPageId(page.getId());
+                                } else {
+                                    applicationPage.setDefaultPageId(page.getDefaultResources().getPageId());
                                 }
                                 application.getPages().add(applicationPage);
                                 return applicationService.save(application)

@@ -3812,7 +3812,7 @@ public class DatabaseChangelog {
             }
         }
     }
-
+  
     /**
      * Updates all existing S3 actions to modify the body parameter.
      * Earlier, the body used to be a base64 encoded or a blob of file data.
@@ -4045,7 +4045,12 @@ public class DatabaseChangelog {
         actionCollectionQuery.fields()
                 .include(fieldName(QActionCollection.actionCollection.applicationId))
                 .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
-                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
+                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.pageId))
+                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.actionIds))
+                .include(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.archivedActionIds))
+                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.actionIds))
+                .include(fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.archivedActionIds));
+
 
         List<ActionCollection> collections = mongockTemplate.find(actionCollectionQuery, ActionCollection.class);
 
@@ -4062,6 +4067,32 @@ public class DatabaseChangelog {
 
             ActionCollectionDTO unpublishedCollection = collection.getUnpublishedCollection();
             if (unpublishedCollection != null) {
+                if (!CollectionUtils.isEmpty(unpublishedCollection.getActionIds())) {
+                    Map<String, String> defaultIdMap = new HashMap<>();
+                    unpublishedCollection.getActionIds().forEach(actionId -> defaultIdMap.put(actionId, actionId));
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultToBranchedActionIdsMap),
+                            defaultIdMap
+                    );
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.actionIds),
+                            null
+                    );
+                }
+                if (!CollectionUtils.isEmpty(unpublishedCollection.getArchivedActionIds())) {
+                    Map<String, String> defaultArchiveIdMap = new HashMap<>();
+                    unpublishedCollection.getArchivedActionIds().forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
+                    unpublishedCollection.setDefaultToBranchedArchivedActionIdsMap(defaultArchiveIdMap);
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultToBranchedArchivedActionIdsMap),
+                            defaultArchiveIdMap
+                    );
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + fieldName(QActionCollection.actionCollection.unpublishedCollection.archivedActionIds),
+                            null
+                    );
+                }
+
                 DefaultResources unpubDefaults = new DefaultResources();
                 unpubDefaults.setPageId(unpublishedCollection.getPageId());
                 defaultResourceUpdates.set(
@@ -4072,6 +4103,35 @@ public class DatabaseChangelog {
 
             ActionCollectionDTO publishedCollection = collection.getPublishedCollection();
             if (publishedCollection != null) {
+                if (!CollectionUtils.isEmpty(publishedCollection.getActionIds())) {
+                    Map<String, String> defaultIdMap = new HashMap<>();
+                    publishedCollection.getActionIds().forEach(actionId -> defaultIdMap.put(actionId, actionId));
+                    publishedCollection.setDefaultToBranchedActionIdsMap(defaultIdMap);
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.defaultToBranchedActionIdsMap),
+                            defaultIdMap
+                    );
+
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.actionIds),
+                            null
+                    );
+                }
+                if (!CollectionUtils.isEmpty(publishedCollection.getArchivedActions())) {
+                    Map<String, String> defaultArchiveIdMap = new HashMap<>();
+                    publishedCollection.getArchivedActionIds().forEach(actionId -> defaultArchiveIdMap.put(actionId, actionId));
+                    publishedCollection.setDefaultToBranchedArchivedActionIdsMap(defaultArchiveIdMap);
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.defaultToBranchedArchivedActionIdsMap),
+                            defaultArchiveIdMap
+                    );
+
+                    defaultResourceUpdates.set(
+                            fieldName(QActionCollection.actionCollection.publishedCollection) + "." + fieldName(QActionCollection.actionCollection.publishedCollection.archivedActionIds),
+                            null
+                    );
+                }
+
                 DefaultResources pubDefaults = new DefaultResources();
                 pubDefaults.setPageId(publishedCollection.getPageId());
                 defaultResourceUpdates.set(

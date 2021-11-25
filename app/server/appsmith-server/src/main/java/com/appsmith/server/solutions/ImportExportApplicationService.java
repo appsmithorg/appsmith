@@ -412,8 +412,8 @@ public class ImportExportApplicationService {
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
         Map<String, String> actionIdMap = new HashMap<>();
-        Map<String, Set<String>> unpublishedActionCollectionIdMap = new HashMap<>();
-        Map<String, Set<String>> publishedActionCollectionIdMap = new HashMap<>();
+        Map<String, Map<String, String>> unpublishedActionCollectionIdMap = new HashMap<>();
+        Map<String, Map<String, String>> publishedActionCollectionIdMap = new HashMap<>();
         Map<String, String> unpublishedActionIdToCollectionIdMap = new HashMap<>();
         Map<String, String> publishedActionIdToCollectionIdMap = new HashMap<>();
 
@@ -715,9 +715,9 @@ public class ImportExportApplicationService {
                                     );
 
                                     if (unpublishedAction.getCollectionId() != null) {
-                                        unpublishedActionCollectionIdMap.putIfAbsent(unpublishedAction.getCollectionId(), new HashSet<>());
-                                        final Set<String> actionIds = unpublishedActionCollectionIdMap.get(unpublishedAction.getCollectionId());
-                                        actionIds.add(newAction.getId());
+                                        unpublishedActionCollectionIdMap.putIfAbsent(unpublishedAction.getCollectionId(), new HashMap<>());
+                                        final Map<String, String> actionIds = unpublishedActionCollectionIdMap.get(unpublishedAction.getCollectionId());
+                                        actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
                                     }
                                 }
                                 if (newAction.getPublishedAction() != null) {
@@ -728,9 +728,9 @@ public class ImportExportApplicationService {
                                     );
 
                                     if (publishedAction.getCollectionId() != null) {
-                                        publishedActionCollectionIdMap.putIfAbsent(publishedAction.getCollectionId(), new HashSet<>());
-                                        final Set<String> actionIds = publishedActionCollectionIdMap.get(publishedAction.getCollectionId());
-                                        actionIds.add(newAction.getId());
+                                        publishedActionCollectionIdMap.putIfAbsent(publishedAction.getCollectionId(), new HashMap<>());
+                                        final Map<String, String> actionIds = publishedActionCollectionIdMap.get(publishedAction.getCollectionId());
+                                        actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
                                     }
                                 }
                                 return newAction;
@@ -741,99 +741,121 @@ public class ImportExportApplicationService {
                                     .collectList());
                 })
                 .flatMap(existingActionCollections -> {
-                    // TODO connecting actionCollections across branches is still pending
                     if (importedActionCollectionList == null) {
                         return Mono.just(true);
                     }
 
                     return Flux.fromIterable(importedActionCollectionList)
-                            .flatMap(actionCollection -> {
-                                if (actionCollection.getDefaultResources() != null) {
-                                    actionCollection.getDefaultResources().setBranchName(branchName);
-                                }
-                                final String actionCollectionId = actionCollection.getId();
-                                NewPage parentPage = new NewPage();
-                                final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-                                if (unpublishedCollection != null && unpublishedCollection.getName() != null) {
-                                    parentPage = pageNameMap.get(unpublishedCollection.getPageId());
-                                    unpublishedCollection.setActionIds(unpublishedActionCollectionIdMap.get(actionCollection.getId()));
-                                    unpublishedCollection.setPageId(parentPage.getId());
-                                    unpublishedCollection.setPluginId(pluginMap.get(unpublishedCollection.getPluginId()));
-                                }
+                        .flatMap(actionCollection -> {
+                            if (actionCollection.getDefaultResources() != null) {
+                                actionCollection.getDefaultResources().setBranchName(branchName);
+                            }
+                            final String importedActionCollectionId = actionCollection.getId();
+                            NewPage parentPage = new NewPage();
+                            final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
+                            if (unpublishedCollection != null && unpublishedCollection.getName() != null) {
+                                unpublishedCollection.setDefaultToBranchedActionIdsMap(unpublishedActionCollectionIdMap.get(importedActionCollectionId));
+                                unpublishedCollection.setPluginId(pluginMap.get(unpublishedCollection.getPluginId()));
+                                parentPage = updatePageInActionCollection(unpublishedCollection, pageNameMap);
+                            }
 
-                                final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
-                                if (publishedCollection != null && publishedCollection.getName() != null) {
-                                    parentPage = pageNameMap.get(publishedCollection.getPageId());
-                                    publishedCollection.setActionIds(publishedActionCollectionIdMap.get(actionCollection.getId()));
-                                    publishedCollection.setPageId(parentPage.getId());
-                                    publishedCollection.setPluginId(pluginMap.get(publishedCollection.getPluginId()));
-                                }
+                            final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
+                            if (publishedCollection != null && publishedCollection.getName() != null) {
+                                publishedCollection.setDefaultToBranchedActionIdsMap(publishedActionCollectionIdMap.get(importedActionCollectionId));
+                                publishedCollection.setPluginId(pluginMap.get(publishedCollection.getPluginId()));
+                                parentPage = updatePageInActionCollection(publishedCollection, pageNameMap);
+                            }
 
-                                examplesOrganizationCloner.makePristine(actionCollection);
-                                actionCollection.setOrganizationId(organizationId);
-                                actionCollection.setApplicationId(importedApplication.getId());
-                                actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
-                                return actionCollectionService.save(actionCollection)
-                                        .flatMap(actionCollection1 -> {
-                                            if (actionCollection1.getDefaultResources() == null) {
-                                                ActionCollection update = new ActionCollection();
-                                                update.setDefaultResources(
-                                                        DefaultResourcesUtils
-                                                                .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1, branchName)
-                                                                .getDefaultResources()
-                                                );
-                                                if (actionCollection1.getUnpublishedCollection() != null) {
-                                                    update.setUnpublishedCollection(actionCollection1.getUnpublishedCollection());
-                                                    update.getUnpublishedCollection()
-                                                            .setDefaultResources(
-                                                                    DefaultResourcesUtils
-                                                                            .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getUnpublishedCollection(), branchName)
-                                                                            .getDefaultResources()
-                                                            );
-                                                }
-                                                if (actionCollection1.getPublishedCollection() != null) {
-                                                    update.setPublishedCollection(actionCollection1.getPublishedCollection());
-                                                    update.getPublishedCollection()
-                                                            .setDefaultResources(
-                                                                    DefaultResourcesUtils
-                                                                            .createPristineDefaultIdsAndUpdateWithGivenResourceIds(actionCollection1.getPublishedCollection(), branchName)
-                                                                            .getDefaultResources()
-                                                            );
-                                                }
-                                                return actionCollectionService.update(actionCollection1.getId(), update);
+                            examplesOrganizationCloner.makePristine(actionCollection);
+                            actionCollection.setOrganizationId(organizationId);
+                            actionCollection.setApplicationId(importedApplication.getId());
+                            actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
+
+                            Map<String, ActionCollection> savedActionCollectionGitIdToCollectionsMap = new HashMap<>();
+
+                            existingActionCollections.stream()
+                                    .filter(collection -> collection.getGitSyncId() != null)
+                                    .forEach(collection -> savedActionCollectionGitIdToCollectionsMap.put(collection.getGitSyncId(), collection));
+                            // Check if the action has gitSyncId and if it's already in DB
+                            if (actionCollection.getGitSyncId() != null
+                                    && savedActionCollectionGitIdToCollectionsMap.containsKey(actionCollection.getGitSyncId())) {
+
+                                //Since the resource is already present in DB, just update resource
+                                ActionCollection existingActionCollection = savedActionCollectionGitIdToCollectionsMap.get(actionCollection.getGitSyncId());
+                                BeanCopyUtils.copyNestedNonNullProperties(actionCollection, existingActionCollection);
+                                return Mono.zip(
+                                        Mono.just(importedActionCollectionId),
+                                        actionCollectionService.update(existingActionCollection.getId(), existingActionCollection)
+                                );
+                            } else if (importedApplication.getGitApplicationMetadata() != null) {
+                                final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
+                                return actionCollectionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, actionCollection.getGitSyncId(), MANAGE_ACTIONS)
+                                        .switchIfEmpty(Mono.defer(() -> {
+                                            // This is the first page we are saving with given gitSyncId in this instance
+                                            DefaultResources defaultResources = new DefaultResources();
+                                            defaultResources.setApplicationId(defaultApplicationId);
+                                            defaultResources.setBranchName(branchName);
+                                            actionCollection.setDefaultResources(defaultResources);
+                                            return saveNewCollectionAndUpdateDefaultResources(actionCollection, branchName);
+                                        }))
+                                        .flatMap(branchedActionCollection -> {
+                                            DefaultResources defaultResources = branchedActionCollection.getDefaultResources();
+                                            // Create new action but keep defaultApplicationId and defaultActionId same for both the actions
+                                            defaultResources.setBranchName(branchName);
+                                            actionCollection.setDefaultResources(defaultResources);
+
+                                            String defaultPageId = branchedActionCollection.getUnpublishedCollection() != null
+                                                    ? branchedActionCollection.getUnpublishedCollection().getDefaultResources().getPageId()
+                                                    : branchedActionCollection.getPublishedCollection().getDefaultResources().getPageId();
+                                            DefaultResources defaultsDTO = new DefaultResources();
+                                            defaultsDTO.setPageId(defaultPageId);
+                                            if (actionCollection.getUnpublishedCollection() != null) {
+                                                actionCollection.getUnpublishedCollection().setDefaultResources(defaultsDTO);
                                             }
-                                            return Mono.just(actionCollection1);
-                                        })
-                                        .flatMapMany(createdActionCollection -> {
-                                            unpublishedActionCollectionIdMap
-                                                    .getOrDefault(actionCollectionId, Set.of())
-                                                    .forEach(actionId -> {
-                                                        unpublishedActionIdToCollectionIdMap.put(actionId, actionCollectionId);
-                                                    });
-                                            publishedActionCollectionIdMap
-                                                    .getOrDefault(actionCollectionId, Set.of())
-                                                    .forEach(actionId -> {
-                                                        publishedActionIdToCollectionIdMap.put(actionId, actionCollectionId);
-                                                    });
-                                            final HashSet<String> actionIds = new HashSet<>();
-                                            actionIds.addAll(unpublishedActionIdToCollectionIdMap.keySet());
-                                            actionIds.addAll(publishedActionIdToCollectionIdMap.keySet());
-                                            return Flux.fromIterable(actionIds);
-                                        })
-                                        .flatMap(actionId -> newActionRepository.findById(actionId, AclPermission.MANAGE_ACTIONS))
-                                        .map(newAction -> {
-                                            newAction.getUnpublishedAction().setCollectionId(
-                                                    unpublishedActionIdToCollectionIdMap.getOrDefault(newAction.getId(), null));
-                                            newAction.getPublishedAction().setCollectionId(
-                                                    publishedActionIdToCollectionIdMap.getOrDefault(newAction.getId(), null));
-                                            return newAction;
-                                        })
-                                        .flatMap(newAction -> newActionService.update(newAction.getId(), newAction))
-                                        .then()
-                                        .thenReturn(true);
-                            })
-                            .then()
-                            .thenReturn(true);
+                                            if (actionCollection.getPublishedCollection() != null) {
+                                                actionCollection.getPublishedCollection().setDefaultResources(defaultsDTO);
+                                            }
+                                            return Mono.zip(
+                                                    Mono.just(importedActionCollectionId),
+                                                    actionCollectionService.save(actionCollection)
+                                            );
+                                        });
+                            }
+
+                            return Mono.zip(
+                                    Mono.just(importedActionCollectionId),
+                                    saveNewCollectionAndUpdateDefaultResources(actionCollection, branchName)
+                            );
+                        })
+                        .flatMap(tuple -> {
+                            final String importedActionCollectionId = tuple.getT1();
+                            final String savedActionCollectionId = tuple.getT2().getId();
+                            unpublishedActionCollectionIdMap
+                                    .getOrDefault(importedActionCollectionId, Map.of())
+                                    .forEach((defaultActionId, actionId) -> {
+                                        unpublishedActionIdToCollectionIdMap.put(actionId, savedActionCollectionId);
+                                    });
+                            publishedActionCollectionIdMap
+                                    .getOrDefault(importedActionCollectionId, Map.of())
+                                    .forEach((defaultActionId, actionId) -> {
+                                        publishedActionIdToCollectionIdMap.put(actionId, savedActionCollectionId);
+                                    });
+                            final HashSet<String> actionIds = new HashSet<>();
+                            actionIds.addAll(unpublishedActionIdToCollectionIdMap.keySet());
+                            actionIds.addAll(publishedActionIdToCollectionIdMap.keySet());
+                            return Flux.fromIterable(actionIds);
+                        })
+                        .flatMap(actionId -> newActionRepository.findById(actionId, AclPermission.MANAGE_ACTIONS))
+                        .map(newAction -> {
+                            newAction.getUnpublishedAction().setCollectionId(
+                                    unpublishedActionIdToCollectionIdMap.getOrDefault(newAction.getId(), null));
+                            newAction.getPublishedAction().setCollectionId(
+                                    publishedActionIdToCollectionIdMap.getOrDefault(newAction.getId(), null));
+                            return newAction;
+                        })
+                        .flatMap(newAction -> newActionService.update(newAction.getId(), newAction))
+                        .then()
+                        .thenReturn(true);
                 })
                 .flatMap(ignored -> {
                     // Don't update gitAuth as we are using @Encrypted for private key
@@ -890,17 +912,19 @@ public class ImportExportApplicationService {
                 .findNewPagesByApplicationId(application.getId(), AclPermission.MANAGE_PAGES)
                 .collectList();
 
+        Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
             if (newPage.getDefaultResources() != null) {
                 newPage.getDefaultResources().setBranchName(branchName);
             }
-            String layoutId = new ObjectId().toString();
             newPage.setApplicationId(application.getId());
             if (newPage.getUnpublishedPage() != null) {
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
                 newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
                 if (unpublishedMongoEscapedWidget != null) {
                     newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
+                        String layoutId = new ObjectId().toString();
+                        oldToNewLayoutIds.put(layout.getId(), layoutId);
                         layout.setMongoEscapedWidgetNames(unpublishedMongoEscapedWidget.get(layout.getId()));
                         layout.setId(layoutId);
                     });
@@ -911,6 +935,8 @@ public class ImportExportApplicationService {
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getPublishedPage());
                 if (publishedMongoEscapedWidget != null) {
                     newPage.getPublishedPage().getLayouts().forEach(layout -> {
+                        String layoutId = oldToNewLayoutIds.containsKey(layout.getId())
+                                ? oldToNewLayoutIds.get(layout.getId()) : new ObjectId().toString();
                         layout.setMongoEscapedWidgetNames(publishedMongoEscapedWidget.get(layout.getId()));
                         layout.setId(layoutId);
                     });
@@ -1045,11 +1071,23 @@ public class ImportExportApplicationService {
         action.setPageId(parentPage.getId());
 
         // Update defaultResources in actionDTO
-        if (action.getDefaultResources() == null) {
-            DefaultResources defaultResources = new DefaultResources();
-            defaultResources.setPageId(parentPage.getDefaultResources().getPageId());
-            action.setDefaultResources(defaultResources);
-        }
+        DefaultResources defaultResources = new DefaultResources();
+        defaultResources.setPageId(parentPage.getDefaultResources().getPageId());
+        action.setDefaultResources(defaultResources);
+
+        return parentPage;
+    }
+
+    private NewPage updatePageInActionCollection(ActionCollectionDTO collectionDTO,
+                                                 Map<String, NewPage> pageNameMap) {
+        NewPage parentPage = pageNameMap.get(collectionDTO.getPageId());
+        collectionDTO.setPageId(parentPage.getId());
+
+        // Update defaultResources in actionCollectionDTO
+        DefaultResources defaultResources = new DefaultResources();
+        defaultResources.setPageId(parentPage.getDefaultResources().getPageId());
+        collectionDTO.setDefaultResources(defaultResources);
+
         return parentPage;
     }
 

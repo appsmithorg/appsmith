@@ -13,7 +13,11 @@ public class MergeStatusDTO {
     @JsonProperty(value="isMergeAble")
     boolean MergeAble;
 
+    // Merge status received from JGIT
     String status;
 
     List<String> conflictingFiles;
+
+    // Human readable message derived from the status
+    String message;
 }

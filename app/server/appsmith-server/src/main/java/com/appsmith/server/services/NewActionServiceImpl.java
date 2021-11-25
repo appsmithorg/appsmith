@@ -1503,4 +1503,15 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 );
     }
 
+    public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
+        if (StringUtils.isEmpty(branchName)) {
+            return Mono.just(defaultActionId);
+        }
+        return repository.findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
+                )
+                .map(NewAction::getId);
+    }
+
 }

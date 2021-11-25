@@ -293,15 +293,16 @@ public class ExamplesOrganizationCloner {
                                                         actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
 
                                                         // Replace all action Ids from map
-                                                        final HashSet<String> newActionIds = new HashSet<>();
+                                                        final Map<String, String> newActionIds = new HashMap<>();
                                                         unpublishedCollection
-                                                                .getActionIds()
-                                                                .stream()
-                                                                .forEach(oldActionId -> newActionIds.add(actionIdsMap.get(oldActionId)));
-                                                        unpublishedCollection.setActionIds(newActionIds);
+                                                                .getDefaultToBranchedActionIdsMap()
+                                                                .forEach((defaultActionId, oldActionId) -> newActionIds
+                                                                        .put(defaultActionId, actionIdsMap.get(oldActionId)));
+
+                                                        unpublishedCollection.setDefaultToBranchedActionIdsMap(newActionIds);
                                                         return actionCollectionService.create(actionCollection)
                                                                 .flatMap(newlyCreatedActionCollection -> {
-                                                                    return Flux.fromIterable(newActionIds)
+                                                                    return Flux.fromIterable(newActionIds.values())
                                                                             .flatMap(newActionService::findById)
                                                                             .flatMap(newlyCreatedAction -> {
                                                                                 newlyCreatedAction.getUnpublishedAction().setCollectionId(newlyCreatedAction.getId());
