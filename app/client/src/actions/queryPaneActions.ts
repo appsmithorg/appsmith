@@ -30,7 +30,9 @@ export const changeQuery = (
 };
 
 /* This action when executed updates the status of isSaving query to true for an actionId */
-export const updateActionStarted = (payload: ReduxAction<{ id: string }>) => ({
-  type: ReduxActionTypes.UPDATE_ACTION_STARTED,
+export const preparingForUpdateAction = (
+  payload: ReduxAction<{ id: string }>,
+) => ({
+  type: ReduxActionTypes.PREPARING_UPDATE_ACTION,
   payload: payload,
 });

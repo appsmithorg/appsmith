@@ -82,7 +82,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import { updateActionStarted } from "actions/queryPaneActions";
+import { preparingForUpdateAction } from "actions/queryPaneActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -96,7 +96,7 @@ interface ReduxStateProps {
 
 interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
-  updateActionStarted: (payload: ReduxAction<{ id: string }>) => void;
+  preparingForUpdateAction: (payload: ReduxAction<{ id: string }>) => void;
 }
 
 export type CodeEditorExpected = {
@@ -414,7 +414,7 @@ class CodeEditor extends Component<Props, State> {
       };
       /* This action updates the status of the api to isStarting true so that any
       shortcut commands do not execute before updating the input in the redux store */
-      this.props.updateActionStarted(payload);
+      this.props.preparingForUpdateAction(payload);
     }
     this.handleDebouncedChange(instance, changeObj);
   };
@@ -738,8 +738,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
-  updateActionStarted: (payload: ReduxAction<{ id: string }>) =>
-    dispatch(updateActionStarted(payload)),
+  preparingForUpdateAction: (payload: ReduxAction<{ id: string }>) =>
+    dispatch(preparingForUpdateAction(payload)),
 });
 
 export default Sentry.withProfiler(
