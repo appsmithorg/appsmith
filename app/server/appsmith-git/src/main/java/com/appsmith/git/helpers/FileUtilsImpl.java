@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -77,12 +78,13 @@ public class FileUtilsImpl implements FileInterface {
      */
     public Mono<Path> saveApplicationToGitRepo(Path baseRepoSuffix,
                                                ApplicationGitReference applicationGitReference,
-                                               String branchName) {
+                                               String branchName) throws GitAPIException, IOException {
 
         // Repo path will be:
         // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
         // Checkout to mentioned branch if not already checked-out
-        return gitExecutor.checkoutToBranch(baseRepoSuffix, branchName)
+        return gitExecutor.resetToLastCommit(baseRepoSuffix, branchName)
+                .then(gitExecutor.checkoutToBranch(baseRepoSuffix, branchName))
                 .flatMap(isSwitched -> {
 
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);

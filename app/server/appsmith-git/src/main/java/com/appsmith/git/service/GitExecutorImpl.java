@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
@@ -89,25 +88,24 @@ public class GitExecutorImpl implements GitExecutor {
                 repoPath = createRepoPath(repoPath);
             }
             // Just need to open a repository here and make a commit
-            Git git = Git.open(repoPath.toFile());
-            // Stage all the files added and modified
-            git.add().addFilepattern(".").call();
-            // Stage modified and deleted files
-            git.add().setUpdate(true).addFilepattern(".").call();
+            try (Git git = Git.open(repoPath.toFile())) {
+                // Stage all the files added and modified
+                git.add().addFilepattern(".").call();
+                // Stage modified and deleted files
+                git.add().setUpdate(true).addFilepattern(".").call();
 
-            // Commit the changes
-            git.commit()
-                    .setMessage(commitMessage)
-                    // Only make a commit if there are any updates
-                    .setAllowEmpty(false)
-                    .setAuthor(authorName, authorEmail)
-                    .call();
-            // Close the repo once the operation is successful
-            git.close();
-            return "Committed successfully!";
+                // Commit the changes
+                git.commit()
+                        .setMessage(commitMessage)
+                        // Only make a commit if there are any updates
+                        .setAllowEmpty(false)
+                        .setAuthor(authorName, authorEmail)
+                        .call();
+                return "Committed successfully!";
+            }
         })
-                .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
-                .subscribeOn(scheduler);
+        .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
+        .subscribeOn(scheduler);
 
     }
 
@@ -135,21 +133,21 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": get commit history for  " + repoSuffix);
             List<GitLogDTO> commitLogs = new ArrayList<>();
             Path repoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(repoPath.toFile());
-            Iterable<RevCommit> gitLogs = git.log().setMaxCount(Constraint.MAX_COMMIT_LOGS).call();
-            gitLogs.forEach(revCommit -> {
-                PersonIdent author = revCommit.getAuthorIdent();
-                GitLogDTO gitLog = new GitLogDTO(
-                        revCommit.getName(),
-                        author.getName(),
-                        author.getEmailAddress(),
-                        revCommit.getFullMessage(),
-                        ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
-                );
-                commitLogs.add(gitLog);
-            });
-            git.close();
-            return commitLogs;
+            try (Git git = Git.open(repoPath.toFile())) {
+                Iterable<RevCommit> gitLogs = git.log().setMaxCount(Constraint.MAX_COMMIT_LOGS).call();
+                gitLogs.forEach(revCommit -> {
+                    PersonIdent author = revCommit.getAuthorIdent();
+                    GitLogDTO gitLog = new GitLogDTO(
+                            revCommit.getName(),
+                            author.getName(),
+                            author.getEmailAddress(),
+                            revCommit.getFullMessage(),
+                            ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
+                    );
+                    commitLogs.add(gitLog);
+                });
+                return commitLogs;
+            }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
@@ -179,23 +177,22 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(baseRepoPath.toFile());
+            try (Git git = Git.open(baseRepoPath.toFile())) {
+                TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
-            TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
-
-            StringBuilder result = new StringBuilder("Pushed successfully with status : ");
-            git.push()
-                    .setTransportConfigCallback(transportConfigCallback)
-                    .setRemote(remoteUrl)
-                    .call()
-                    .forEach(pushResult ->
-                            pushResult.getRemoteUpdates()
-                                    .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
-                    );
-            // We can support username and password in future if needed
-            // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
-            git.close();
-            return result.substring(0, result.length() - 1);
+                StringBuilder result = new StringBuilder("Pushed successfully with status : ");
+                git.push()
+                        .setTransportConfigCallback(transportConfigCallback)
+                        .setRemote(remoteUrl)
+                        .call()
+                        .forEach(pushResult ->
+                                pushResult.getRemoteUpdates()
+                                        .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
+                        );
+                // We can support username and password in future if needed
+                // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
+                return result.substring(0, result.length() - 1);
+            }
         })
         .timeout(Duration.ofMillis(Constraint.REMOTE_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
@@ -247,17 +244,17 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(baseRepoPath.toFile());
-            // Create and checkout to new branch
-            git.checkout()
-                    .setCreateBranch(Boolean.TRUE)
-                    .setName(branchName)
-                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                    .call();
+            try (Git git = Git.open(baseRepoPath.toFile())) {
+                // Create and checkout to new branch
+                git.checkout()
+                        .setCreateBranch(Boolean.TRUE)
+                        .setName(branchName)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                        .call();
 
-            repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
-            git.close();
-            return git.getRepository().getBranch();
+                repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+                return git.getRepository().getBranch();
+            }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
@@ -271,14 +268,15 @@ public class GitExecutorImpl implements GitExecutor {
             log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName + "for the repo " + repoSuffix);
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(baseRepoPath.toFile());
-            // Create and checkout to new branch
-            git.branchDelete()
-                    .setBranchNames(branchName)
-                    .setForce(Boolean.TRUE)
-                    .call();
-            git.close();
-            return Boolean.TRUE;
+            try (Git git = Git.open(baseRepoPath.toFile())) {
+                // Create and checkout to new branch
+                git.branchDelete()
+                        .setBranchNames(branchName)
+                        .setForce(Boolean.TRUE)
+                        .call();
+                git.close();
+                return Boolean.TRUE;
+            }
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
@@ -292,18 +290,19 @@ public class GitExecutorImpl implements GitExecutor {
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            Git git = Git.open(baseRepoPath.toFile());
-            if (StringUtils.equalsIgnoreCase(branchName, git.getRepository().getBranch())) {
-                return Boolean.TRUE;
+            try (Git git = Git.open(baseRepoPath.toFile())) {
+                if (StringUtils.equalsIgnoreCase(branchName, git.getRepository().getBranch())) {
+                    return Boolean.TRUE;
+                }
+                // Create and checkout to new branch
+                String checkedOutBranch =  git.checkout()
+                        .setCreateBranch(Boolean.FALSE)
+                        .setName(branchName)
+                        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                        .call()
+                        .getName();
+                return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
             }
-            // Create and checkout to new branch
-            String checkedOutBranch =  git.checkout()
-                    .setCreateBranch(Boolean.FALSE)
-                    .setName(branchName)
-                    .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-                    .call()
-                    .getName();
-            return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
         })
         .timeout(Duration.ofMillis(Constraint.LOCAL_TIMEOUT_MILLIS))
         .subscribeOn(scheduler);
@@ -472,18 +471,19 @@ public class GitExecutorImpl implements GitExecutor {
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         return Mono.fromCallable(() -> {
             log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on " + destinationBranch);
-            Git git = Git.open(createRepoPath(repoSuffix).toFile());
-            try {
-                //checkout the branch on which the merge command is run
-                git.checkout().setName(destinationBranch).setCreateBranch(false).call();
+            try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+                try {
+                    //checkout the branch on which the merge command is run
+                    git.checkout().setName(destinationBranch).setCreateBranch(false).call();
 
-                MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
-                return mergeResult.getMergeStatus().name();
-            } catch (GitAPIException e) {
-                //On merge conflicts abort the merge => git merge --abort
-                git.getRepository().writeMergeCommitMsg(null);
-                git.getRepository().writeMergeHeads(null);
-                throw new Exception(e);
+                    MergeResult mergeResult = git.merge().include(git.getRepository().findRef(sourceBranch)).call();
+                    return mergeResult.getMergeStatus().name();
+                } catch (GitAPIException e) {
+                    //On merge conflicts abort the merge => git merge --abort
+                    git.getRepository().writeMergeCommitMsg(null);
+                    git.getRepository().writeMergeHeads(null);
+                    throw new Exception(e);
+                }
             }
         })
         .onErrorResume(error -> {
@@ -504,12 +504,13 @@ public class GitExecutorImpl implements GitExecutor {
         Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
             TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
-            Git git = Git.open(repoPath.toFile());
-            log.debug(Thread.currentThread().getName() + ": fetch remote repo " + git.getRepository());
-            return git.fetch()
-                    .setTransportConfigCallback(config)
-                    .call()
-                    .getMessages();
+            try (Git git = Git.open(repoPath.toFile())) {
+                log.debug(Thread.currentThread().getName() + ": fetch remote repo " + git.getRepository());
+                return git.fetch()
+                        .setTransportConfigCallback(config)
+                        .call()
+                        .getMessages();
+            }
         })
         .onErrorResume(error -> {
             log.error(error.getMessage());
@@ -608,17 +609,18 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
-        Git git = Git.open(createRepoPath(repoSuffix).toFile());
-        return this.resetToLastCommit(git)
-                .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                .flatMap(checkedOut -> {
-                    try {
-                        return resetToLastCommit(git)
-                                .thenReturn(true);
-                    } catch (GitAPIException e) {
-                        log.error(e.getMessage());
-                        return Mono.error(e);
-                    }
-                });
+        try (Git git = Git.open(createRepoPath(repoSuffix).toFile())){
+            return this.resetToLastCommit(git)
+                    .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
+                    .flatMap(checkedOut -> {
+                        try {
+                            return resetToLastCommit(git)
+                                    .thenReturn(true);
+                        } catch (GitAPIException e) {
+                            log.error(e.getMessage());
+                            return Mono.error(e);
+                        }
+                    });
+        }
     }
 }
