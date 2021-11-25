@@ -1,6 +1,5 @@
 import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
-import { HttpMethod } from "api/Api";
 import log from "loglevel";
 
 // This constant lists all the support HTTP methods & their color in

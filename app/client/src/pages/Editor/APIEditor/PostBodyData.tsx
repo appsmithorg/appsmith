@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { formValueSelector } from "redux-form";
 import {
-  ApiContentTypes,
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants";

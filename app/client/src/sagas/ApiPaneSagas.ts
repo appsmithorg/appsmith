@@ -22,7 +22,6 @@ import {
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE_HEADER_KEY,
-  ApiContentTypes,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHODS,
 } from "constants/ApiEditorConstants";

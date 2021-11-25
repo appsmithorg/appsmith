@@ -1,6 +1,5 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { ApiContentTypes } from "constants/ApiEditorConstants";
 import { SlashCommandPayload } from "entities/Action";
 
 export const changeApi = (

@@ -5,9 +5,11 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
@@ -92,6 +94,7 @@ public class RestApiPlugin extends BasePlugin {
                 "application/pdf",
                 "application/pkcs8",
                 "application/x-binary");
+        private final String FIELD_API_CONTENT_TYPE = "apiContentType";
 
         private final SharedConfig sharedConfig;
         private final DataUtils dataUtils;
@@ -276,8 +279,24 @@ public class RestApiPlugin extends BasePlugin {
             // Based on the content-type, this Object may be of type MultiValueMap or String
             Object requestBodyObj = "";
 
-            // Adding request body for all HTTP calls. We also attach the HTTP body for GET calls as well
-            requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
+            // This is irrespective of the content-type header or the HTTP method
+            String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
+                    actionConfiguration.getFormData(),
+                    FIELD_API_CONTENT_TYPE
+            );
+            ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
+
+            if (!httpMethod.equals(HttpMethod.GET)) {
+                // Read the body normally as this is a non-GET request
+                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            } else if (apiContentType != null && apiContentType != ApiContentType.NONE) {
+                // This is a GET request
+                // For all existing GET APIs, the apiContentType will be null. Hence we don't read the body
+                // Also, any new APIs which have apiContentType set to NONE shouldn't read the body.
+                // All other API content types should read the body
+                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            }
 
             if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                     || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
@@ -681,7 +700,7 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
-                                           DatasourceConfiguration datasourceConfiguration) {
+                                                                      DatasourceConfiguration datasourceConfiguration) {
             return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
                     Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
         }
