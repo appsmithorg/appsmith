@@ -241,7 +241,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               ],
               iconName: (cellProperties.iconName || IconNames.ADD) as IconName,
               buttonColor: cellProperties.buttonColor || Colors.GREEN,
-              buttonVariant: cellProperties.buttonVariant,
+              buttonVariant: cellProperties.buttonVariant || "PRIMARY",
               borderRadius: cellProperties.borderRadius || "SHARP",
               boxShadow: cellProperties.boxShadow || "NONE",
               boxShadowColor: cellProperties.boxShadowColor || "",
