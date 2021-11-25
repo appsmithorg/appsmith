@@ -14,7 +14,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 7 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7.5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 8.5 * GRID_DENSITY_MIGRATION_V1,
     defaultSelectedRow: "0",
     label: "Data",
     widgetName: "Table",

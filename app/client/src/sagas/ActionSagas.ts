@@ -110,7 +110,7 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import { getSelectedWidget, getWidgetById } from "./selectors";
+import { getSelectedWidget, getWidgetByID } from "./selectors";
 import {
   onApiEditor,
   onQueryEditor,
@@ -796,8 +796,7 @@ function* buildMetaForSnippets(
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
-      getWidgetById,
-      entityId,
+      getWidgetByID(entityId),
     );
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
