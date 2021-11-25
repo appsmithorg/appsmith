@@ -1,11 +1,12 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.server.constants.Url;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;
@@ -14,11 +15,12 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
-import com.appsmith.server.solutions.ExamplesOrganizationCloner;
+import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,21 +43,20 @@ public class DatasourceController extends BaseController<DatasourceService, Data
 
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
-    private final ExamplesOrganizationCloner examplesOrganizationCloner;
     private final MockDataService mockDataService;
-
+    private final DatasourceTriggerSolution datasourceTriggerSolution;
 
     @Autowired
     public DatasourceController(DatasourceService service,
                                 DatasourceStructureSolution datasourceStructureSolution,
                                 AuthenticationService authenticationService,
-                                ExamplesOrganizationCloner examplesOrganizationCloner,
-                                MockDataService datasourceService) {
+                                MockDataService datasourceService,
+                                DatasourceTriggerSolution datasourceTriggerSolution) {
         super(service);
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
-        this.examplesOrganizationCloner = examplesOrganizationCloner;
         this.mockDataService = datasourceService;
+        this.datasourceTriggerSolution = datasourceTriggerSolution;
     }
 
     @PostMapping("/test")
@@ -113,6 +114,14 @@ public class DatasourceController extends BaseController<DatasourceService, Data
         log.debug("Getting datasource metadata");
         return datasourceStructureSolution.getDatasourceMetadata(datasourceId, pluginSpecifiedTemplates)
             .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
+    }
+
+    @GetMapping("/{datasourceId}/trigger")
+    public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
+                                                       @RequestParam MultiValueMap<String, Object> params) {
+        log.debug("Trigger received for datasource {}", datasourceId);
+        return datasourceTriggerSolution.trigger(datasourceId, params)
+                .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 
 }
