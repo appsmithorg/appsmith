@@ -42,7 +42,7 @@ const ThreadContainer = styled(animated.div).withConfig({
   pinned?: boolean;
   maxHeight: string;
 }>`
-  width: 100%;
+  width: ${(props) => (props.inline ? "280px" : "100%")};
   max-width: 100%;
   background-color: ${(props) =>
     props.inline
