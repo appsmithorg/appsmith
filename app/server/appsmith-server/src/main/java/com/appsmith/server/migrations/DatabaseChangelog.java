@@ -128,6 +128,8 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @ChangeLog(order = "001")
 public class DatabaseChangelog {
 
+    public static ObjectMapper objectMapper = new ObjectMapper();
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Setter
@@ -3529,62 +3531,11 @@ public class DatabaseChangelog {
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }
 
-            // Now migrate the dynamic binding pathlist
+            // Migrate the dynamic binding path list for unpublished action
             List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-
-            if (!CollectionUtils.isEmpty(dynamicBindingPathList)) {
-                List<Property> newDynamicBindingPathList = new ArrayList<>();
-                for (Property path : dynamicBindingPathList) {
-                    String pathKey = path.getKey();
-                    if (pathKey.contains("pluginSpecifiedTemplates")) {
-
-                        // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
-                        Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
-                        Matcher matcher = pattern.matcher(pathKey);
-
-                        while (matcher.find()) {
-                            int index = Integer.parseInt(matcher.group());
-                            List<String> partialPaths = s3MigrationMap.get(index);
-                            for (String partialPath : partialPaths) {
-                                Property dynamicBindingPath = new Property("formData." + partialPath, null);
-                                newDynamicBindingPathList.add(dynamicBindingPath);
-                            }
-                        }
-                    } else {
-                        // this dynamic binding is for body. Add as is
-                        newDynamicBindingPathList.add(path);
-                    }
-
-                    // We may have an invalid dynamic binding. Trim the same
-                    List<String> dynamicBindingPathNames = newDynamicBindingPathList
-                            .stream()
-                            .map(property -> property.getKey())
-                            .collect(Collectors.toList());
-
-                    Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, s3Action, dynamicBindingPathNames);
-
-                    // We have found atleast 1 invalid dynamic binding path.
-                    if (!pathsToRemove.isEmpty()) {
-                        // First remove the invalid paths from the set of paths
-                        dynamicBindingPathNames.removeAll(pathsToRemove);
-
-                        // Transform the set of paths to Property as it is stored in the db.
-                        List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
-                                .stream()
-                                .map(dynamicBindingPath -> {
-                                    Property property = new Property();
-                                    property.setKey(dynamicBindingPath);
-                                    return property;
-                                })
-                                .collect(Collectors.toList());
-
-                        // Reset the path list to only contain valid binding paths.
-                        newDynamicBindingPathList = updatedDynamicBindingPathList;
-                    }
-                }
-
-                unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
-            }
+            List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                    objectMapper, s3Action);
+            unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
 
             actionsToSave.add(s3Action);
         }
@@ -3595,6 +3546,66 @@ public class DatabaseChangelog {
         }
         // Now that the actions have completed the migrations, update the plugin to use the new UI form.
         mongockTemplate.save(s3Plugin);
+    }
+
+    private List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
+                                                            ObjectMapper objectMapper, NewAction s3Action) {
+        // Return if empty.
+        if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
+            return dynamicBindingPathList;
+        }
+
+        List<Property> newDynamicBindingPathList = new ArrayList<>();
+        for (Property path : dynamicBindingPathList) {
+            String pathKey = path.getKey();
+            if (pathKey.contains("pluginSpecifiedTemplates")) {
+
+                // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
+                Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
+                Matcher matcher = pattern.matcher(pathKey);
+
+                while (matcher.find()) {
+                    int index = Integer.parseInt(matcher.group());
+                    List<String> partialPaths = s3MigrationMap.get(index);
+                    for (String partialPath : partialPaths) {
+                        Property dynamicBindingPath = new Property("formData." + partialPath, null);
+                        newDynamicBindingPathList.add(dynamicBindingPath);
+                    }
+                }
+            } else {
+                // this dynamic binding is for body. Add as is
+                newDynamicBindingPathList.add(path);
+            }
+
+            // We may have an invalid dynamic binding. Trim the same
+            List<String> dynamicBindingPathNames = newDynamicBindingPathList
+                    .stream()
+                    .map(property -> property.getKey())
+                    .collect(Collectors.toList());
+
+            Set<String> pathsToRemove = getInvalidDynamicBindingPathsInAction(objectMapper, s3Action, dynamicBindingPathNames);
+
+            // We have found atleast 1 invalid dynamic binding path.
+            if (!pathsToRemove.isEmpty()) {
+                // First remove the invalid paths from the set of paths
+                dynamicBindingPathNames.removeAll(pathsToRemove);
+
+                // Transform the set of paths to Property as it is stored in the db.
+                List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames
+                        .stream()
+                        .map(dynamicBindingPath -> {
+                            Property property = new Property();
+                            property.setKey(dynamicBindingPath);
+                            return property;
+                        })
+                        .collect(Collectors.toList());
+
+                // Reset the path list to only contain valid binding paths.
+                newDynamicBindingPathList = updatedDynamicBindingPathList;
+            }
+        }
+
+        return newDynamicBindingPathList;
     }
 
     @ChangeSet(order = "094", id = "set-slug-to-application-and-page", author = "")
@@ -3873,5 +3884,45 @@ public class DatabaseChangelog {
         );
         Update update = new Update().set("isPublic", true);
         mongockTemplate.updateMulti(query, update, Application.class);
+    }
+
+    /**
+     * One of the previous migrations updated the `dynamicBindingPathList` for unpublished actions of S3 plugin as part
+     * of porting S3 plugin to UQI model. However, the `dynamicBindingPathList` update for published actions got
+     * skipped somehow. This fix takes care of the skip.
+     * @param mongockTemplate
+     */
+    @ChangeSet(order = "098", id = "fix-s3-dynamic-binding-path-list-migration", author = "")
+    public void fixS3DynamicBindingPathListMigrationForPublishedActions(MongockTemplate mongockTemplate) {
+
+        // Get S3 plugin class object. It will be used to get the pluginId for subsequent usage.
+        Plugin s3Plugin = mongockTemplate.findOne(
+                query(where("packageName").is("amazons3-plugin")),
+                Plugin.class
+        );
+
+        // Query to find all S3 Actions where `publishedAction` attribute exists and is non-null.
+        Query queryToFindAllS3ActionsWithPublishedActionField = query(
+                where("pluginId").is(s3Plugin.getId())
+                        .and("publishedAction").exists(true)
+                        .and("publishedAction").ne(null)
+        );
+
+        // Fetch all S3 Actions where `publishedAction` attribute exists and is non-null.
+        List<NewAction> s3Actions = mongockTemplate.find(queryToFindAllS3ActionsWithPublishedActionField,
+                NewAction.class);
+
+        // Migrate the dynamic binding path list for published action
+        s3Actions.stream()
+                .forEach(action -> {
+                    ActionDTO publishedAction = action.getPublishedAction();
+                    List<Property> dynamicBindingPathList = publishedAction.getDynamicBindingPathList();
+                    List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(dynamicBindingPathList,
+                            objectMapper, action);
+                    publishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
+                });
+
+        s3Actions.stream()
+                .forEach(action -> mongockTemplate.save(action));
     }
 }
