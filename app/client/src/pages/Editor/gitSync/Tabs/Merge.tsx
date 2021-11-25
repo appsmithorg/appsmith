@@ -59,7 +59,7 @@ export default function Merge() {
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   let mergeStatusMessage = !gitStatus?.isClean
     ? createMessage(CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES)
-    : mergeStatus?.status;
+    : mergeStatus?.message;
   // const pullFailed: any = useSelector(getPullFailed);
   const currentBranch = gitMetaData?.branchName;
   const isMerging = useSelector(getIsMergeInProgress);
