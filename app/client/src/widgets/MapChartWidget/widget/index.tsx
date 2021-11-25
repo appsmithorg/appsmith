@@ -321,15 +321,13 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
   handleDataPointClick = (data: EntityData) => {
     const { onDataPointClick } = this.props;
 
-    if (onDataPointClick) {
-      this.props.updateWidgetMetaProperty("selectedDataPoint", data, {
-        triggerPropertyName: "onDataPointClick",
-        dynamicString: onDataPointClick,
-        event: {
-          type: EventType.ON_ENTITY_CLICK,
-        },
-      });
-    }
+    this.props.updateWidgetMetaProperty("selectedDataPoint", data, {
+      triggerPropertyName: "onDataPointClick",
+      dynamicString: onDataPointClick,
+      event: {
+        type: EventType.ON_DATA_POINT_CLICK,
+      },
+    });
   };
 
   getPageView() {
