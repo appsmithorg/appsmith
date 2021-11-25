@@ -10,6 +10,7 @@ export const changeApi = (
 ): ReduxAction<{ id: string; isSaas: boolean; newApi?: boolean }> => {
   return {
     type: ReduxActionTypes.API_PANE_CHANGE_API,
+
     payload: { id, isSaas, newApi },
   };
 };
