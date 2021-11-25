@@ -23,7 +23,10 @@ public class FieldName {
     public static final String ORDER_BY = "orderBy";
     public static final String START_AFTER = "startAfter";
     public static final String END_BEFORE = "endBefore";
+    public static final String WHERE = "where";
+    public static final String CHILDREN = "children";
 
+    public static final String WHERE_CHILDREN = WHERE + "." + CHILDREN;
     public static final String CREATE_EXPIRY = CREATE + "." + EXPIRY;
     public static final String CREATE_DATATYPE = CREATE + "." + DATATYPE;
     public static final String READ_EXPIRY = READ + "." + EXPIRY;

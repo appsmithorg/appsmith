@@ -64,6 +64,8 @@ import static com.external.constants.FieldName.LIMIT_DOCUMENTS;
 import static com.external.constants.FieldName.ORDER_BY;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
+import static com.external.constants.FieldName.WHERE;
+import static com.external.constants.FieldName.WHERE_CHILDREN;
 import static com.external.utils.WhereConditionUtils.applyWhereConditional;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -78,7 +80,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public class FirestorePlugin extends BasePlugin {
 
-    private static final int WHERE_CONDITIONAL_PROPERTY_INDEX = 3;
     private static final String FIELDVALUE_TIMESTAMP_METHOD_NAME = "serverTimestamp";
 
     public FirestorePlugin(PluginWrapper wrapper) {
@@ -227,7 +228,6 @@ public class FirestorePlugin extends BasePlugin {
                         if (method.isDocumentLevel()) {
                             return handleDocumentLevelMethod(connection, path, method, mapBody, query, requestParams);
                         } else {
-                            // TODO: remove properties
                             return handleCollectionLevelMethod(connection, path, method, formData, mapBody,
                                     paginationField, query, requestParams);
                         }
@@ -264,7 +264,6 @@ public class FirestorePlugin extends BasePlugin {
                     || Method.CREATE_DOCUMENT.equals(method) || Method.ADD_TO_COLLECTION.equals(method);
         }
 
-        // TODO: remove properties
         /*
          * - Update mapBody with FieldValue.xyz() values if the FieldValue paths are provided.
          */
@@ -507,7 +506,6 @@ public class FirestorePlugin extends BasePlugin {
                     });
         }
 
-        // TODO: remove properties
         public Mono<ActionExecutionResult> handleCollectionLevelMethod(
                 Firestore connection,
                 String path,
@@ -617,15 +615,13 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.just(query1);
                         }
 
-                        // TODO: fix it.
-                        List<Object> conditionList = new ArrayList<>();
-                        /*List<Object> conditionList = (List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue();*/
-                        requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(WHERE_CONDITIONAL_PROPERTY_INDEX),
-                                conditionList, null, null, null));
+                        List<Object> conditionList = getValueSafelyFromFormData(formData, WHERE_CHILDREN, List.class,
+                                new ArrayList());
+                        requestParams.add(new RequestParamDTO(WHERE, conditionList, null, null, null));
 
                         for(Object condition : conditionList) {
-                            String path = ((Map<String, String>)condition).get("path");
-                            String operatorString = ((Map<String, String>)condition).get("operator");
+                            String path = ((Map<String, String>)condition).get("key");
+                            String operatorString = ((Map<String, String>)condition).get("condition");
                             String value = ((Map<String, String>)condition).get("value");
 
                             /**
@@ -686,26 +682,24 @@ public class FirestorePlugin extends BasePlugin {
                     });
         }
 
-        // TODO: fix it.
         private boolean isWhereMethodUsed(Map<String, Object> formData) {
-            // Check if the where property list does not exist or is null
-            /*if(properties.size() <= WHERE_CONDITIONAL_PROPERTY_INDEX || properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX) == null
-                    || CollectionUtils.isEmpty((List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue())) {
-                return false;
-            }*/
+            List<Object> conditionList = getValueSafelyFromFormData(formData, WHERE_CHILDREN, List.class,
+                    new ArrayList());
 
-            // Check if all values in the where property list are null.
-            /*boolean allValuesNull = ((List) properties.get(WHERE_CONDITIONAL_PROPERTY_INDEX).getValue()).stream()
-                    .allMatch(valueMap -> valueMap == null ||
-                            ((Map) valueMap).entrySet().stream().allMatch(e -> ((Map.Entry) e).getValue() == null));
+            // Check if the where clause does not exist
+            if (CollectionUtils.isEmpty(conditionList)) {
+                return false;
+            }
+
+            // Check if all keys in the where clause are null.
+            boolean allValuesNull = conditionList.stream()
+                    .allMatch(condition -> isBlank((String) ((Map) condition).get("key")));
 
             if (allValuesNull) {
                 return false;
-            }*/
+            }
 
-            //return true;
-
-            return false;
+            return true;
         }
 
         private Mono<ActionExecutionResult> methodAddToCollection(CollectionReference collection, Map<String, Object> mapBody) {

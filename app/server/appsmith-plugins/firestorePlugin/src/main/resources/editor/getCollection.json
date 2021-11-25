@@ -48,7 +48,7 @@
     },
     {
       "label": "Where",
-      "configProperty": "actionConfiguration.formData.list.where",
+      "configProperty": "actionConfiguration.formData.where",
       "nestedLevels": 1,
       "controlType": "WHERE_CLAUSE",
       "logicalTypes": [

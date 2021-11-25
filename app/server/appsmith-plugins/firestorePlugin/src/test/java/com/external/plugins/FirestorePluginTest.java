@@ -46,6 +46,7 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static com.appsmith.external.helpers.PluginUtils.getActionConfigurationPropertyPath;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.external.constants.FieldName.CHILDREN;
 import static com.external.constants.FieldName.COMMAND;
 import static com.external.constants.FieldName.DELETE_KEY_PATH;
 import static com.external.constants.FieldName.END_BEFORE;
@@ -53,6 +54,8 @@ import static com.external.constants.FieldName.LIMIT_DOCUMENTS;
 import static com.external.constants.FieldName.ORDER_BY;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
+import static com.external.constants.FieldName.WHERE;
+import static com.external.constants.FieldName.WHERE_CHILDREN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -701,24 +704,20 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
-    // TODO: fix it.
     @Test
     public void testWhereConditional() {
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPath("initial");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("method", "GET_COLLECTION"));
-        pluginSpecifiedTemplates.add(new Property("order", null));
-        pluginSpecifiedTemplates.add(new Property("limit", null));
-        Property whereProperty = new Property("where", null);
-        whereProperty.setValue(new ArrayList<>());
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+
         /*
          * - get all documents where category == test.
          * - this returns 2 documents.
          */
-        ((List) whereProperty.getValue()).add(new HashMap<String, Object>() {{
-            put("path", "{{Input1.text}}");
-            put("operator", "EQ");
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input1.text}}");
+            put("condition", "EQ");
             put("value", "{{Input2.text}}");
         }});
 
@@ -726,14 +725,19 @@ public class FirestorePluginTest {
          * - get all documents where name == two.
          * - Of the two documents returned by above condition, this will narrow it down to one.
          */
-        ((List) whereProperty.getValue()).add(new HashMap<String, Object>() {{
-            put("path", "{{Input3.text}}");
-            put("operator", "EQ");
+        children.add(new HashMap<String, Object>() {{
+            put("key", "{{Input3.text}}");
+            put("condition", "EQ");
             put("value", "{{Input4.text}}");
         }});
 
-        pluginSpecifiedTemplates.add(whereProperty);
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setValueSafelyInFormData(configMap, WHERE, whereMap);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("initial");
+        actionConfiguration.setFormData(configMap);
 
         List params = new ArrayList();
         Param param = new Param();
