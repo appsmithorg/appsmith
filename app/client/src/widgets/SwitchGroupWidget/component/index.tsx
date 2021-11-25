@@ -71,10 +71,10 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
   return (
     <SwitchGroupContainer
       inline={inline}
-      optionCount={options.length}
+      optionCount={(options || []).length}
       valid={valid}
     >
-      {options &&
+      {Array.isArray(options) &&
         options.length > 0 &&
         options.map((option: OptionProps) => (
           <StyledSwitch
